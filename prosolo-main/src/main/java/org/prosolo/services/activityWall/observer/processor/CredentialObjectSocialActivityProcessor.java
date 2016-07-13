@@ -15,9 +15,9 @@ import org.prosolo.services.event.Event;
 
 public class CredentialObjectSocialActivityProcessor extends SocialActivityProcessor {
 
-	public CredentialObjectSocialActivityProcessor(Session session, Event event, User actor,
+	public CredentialObjectSocialActivityProcessor(Session session, Event event,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, actor, socialActivityManager);
+		super(session, event, socialActivityManager);
 	}
 	
 	@Override
@@ -48,7 +48,7 @@ public class CredentialObjectSocialActivityProcessor extends SocialActivityProce
 		Date now = new Date();
 		act.setDateCreated(now);
 		act.setLastAction(now);
-		act.setActor(actor);
+		act.setActor(new User(event.getActorId()));
 		
 		return socialActivityManager.saveNewSocialActivity(act, session);
 	}

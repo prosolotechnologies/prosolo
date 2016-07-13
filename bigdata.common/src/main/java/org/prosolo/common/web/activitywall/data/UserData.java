@@ -25,17 +25,17 @@ public class UserData implements Serializable, Comparable<UserData> {
 	private String profileUrl = "";
 	private String avatarUrl ="size60x60.png";
 	private String position = "";
-//	private boolean disabled;
-//	private boolean followed;
-//	private boolean loggedUser;
-//	private boolean externalUser;
-//	
-//	private PublishingServiceData publishingService;
-//	
-//	// location
-//	private String locationName;
-//	private String latitude;
-//	private String longitude;
+	private boolean disabled;
+	private boolean followed;
+	private boolean loggedUser;
+	private boolean externalUser;
+	
+	private PublishingServiceData publishingService;
+	
+	// location
+	private String locationName;
+	private String latitude;
+	private String longitude;
 	
 	private Date lastAction;
 	
@@ -88,13 +88,13 @@ public class UserData implements Serializable, Comparable<UserData> {
 		this.name = name;
 	}
 
-//	public String getProfileUrl() {
-//		return profileUrl;
-//	}
-//
-//	public void setProfileUrl(String profileUrl) {
-//		this.profileUrl = profileUrl;
-//	}
+	public String getProfileUrl() {
+		return profileUrl;
+	}
+
+	public void setProfileUrl(String profileUrl) {
+		this.profileUrl = profileUrl;
+	}
 	
 	public String getAvatarUrl() {
 		return avatarUrl;
@@ -111,46 +111,46 @@ public class UserData implements Serializable, Comparable<UserData> {
 	public void setPosition(String position) {
 		this.position = position;
 	}
-//
-//	public boolean isDisabled() {
-//		return disabled;
-//	}
-//
-//	public void setDisabled(boolean disabled) {
-//		this.disabled = disabled;
-//	}
-//
-//	public boolean isFollowed() {
-//		return followed;
-//	}
-//
-//	public void setFollowed(boolean followed) {
-//		this.followed = followed;
-//	}
 
-//	public boolean isLoggedUser() {
-//		return loggedUser;
-//	}
-//
-//	public void setLoggedUser(boolean loggedUser) {
-//		this.loggedUser = loggedUser;
-//	}
-//	
-//	public PublishingServiceData getPublishingService() {
-//		return publishingService;
-//	}
-//
-//	public void setPublishingService(PublishingServiceData publishingService) {
-//		this.publishingService = publishingService;
-//	}
-//	
-//	public boolean isExternalUser() {
-//		return externalUser;
-//	}
-//
-//	public void setExternalUser(boolean externalUser) {
-//		this.externalUser = externalUser;
-//	}
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public boolean isFollowed() {
+		return followed;
+	}
+
+	public void setFollowed(boolean followed) {
+		this.followed = followed;
+	}
+
+	public boolean isLoggedUser() {
+		return loggedUser;
+	}
+
+	public void setLoggedUser(boolean loggedUser) {
+		this.loggedUser = loggedUser;
+	}
+	
+	public PublishingServiceData getPublishingService() {
+		return publishingService;
+	}
+
+	public void setPublishingService(PublishingServiceData publishingService) {
+		this.publishingService = publishingService;
+	}
+	
+	public boolean isExternalUser() {
+		return externalUser;
+	}
+
+	public void setExternalUser(boolean externalUser) {
+		this.externalUser = externalUser;
+	}
 
 	@Override
 	public String toString() {
@@ -169,29 +169,29 @@ public class UserData implements Serializable, Comparable<UserData> {
 		return this.name.compareTo(o.getName()) ;
 	}
 
-//	public String getLocationName() {
-//		return locationName;
-//	}
-//
-//	public void setLocationName(String locationName) {
-//		this.locationName = locationName;
-//	}
-//
-//	public String getLatitude() {
-//		return latitude;
-//	}
-//
-//	public void setLatitude(String latitude) {
-//		this.latitude = latitude;
-//	}
-//
-//	public String getLongitude() {
-//		return longitude;
-//	}
-//
-//	public void setLongitude(String longitude) {
-//		this.longitude = longitude;
-//	}
+	public String getLocationName() {
+		return locationName;
+	}
+
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
 
 	public Date getLastAction() {
 		return lastAction;

@@ -51,7 +51,7 @@
 						<p:commandButton
 							styleClass="btn btn-sm btn-green"
 							value="Submit"
-							action="#{commentBean.editComment(comment)}"
+							action="#{commentBean.editComment(comment, cc.attrs.comments)}"
 							update="@(.commentMainRegion_#{comment.commentId})">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
@@ -109,7 +109,7 @@
 								value="Submit"
 								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
 								update="@(.topLevelCommentChildren_#{topLevelCommentId}) panelReply #{cc.attrs.toUpdate}"
-								oncomplete="showJustPostedComment('.topLevelCommentChildren_#{topLevelCommentId}');scrollToNewestComment('#{cc.attrs.newestCommentId}');">
+								oncomplete="scrollToNewestComment('#{cc.attrs.newestCommentId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
 							</p:commandButton>
@@ -126,21 +126,28 @@
 				<c:if test="#{cc.attrs.isTopLevel}">
 				
 				    <h:panelGroup id="panelChildComments" styleClass="#{cc.attrs.isTopLevel ? 'topLevelCommentChildren_'.concat(comment.commentId) : ''}">
-					    <ui:fragment rendered="#{not empty comment.childComments}">
-							<a href="javascript:void(0)" class="loadReplies" onclick="showCommentReplies(this)">View #{comment.childComments.size()} replies</a>
+					    <ui:fragment rendered="#{cc.attrs.isTopLevel}">
+						    <ui:fragment rendered="#{comment.numberOfReplies > 0 and empty comment.childComments}">
+						    	<p:commandLink 
+						    		styleClass="loadReplies" 
+						    		action="#{commentBean.loadRepliesIfNotLoaded(cc.attrs.comments, comment)}"
+						    		update="panelChildComments">
+						    		View #{comment.numberOfReplies} replies
+						    	</p:commandLink>
+							</ui:fragment>
+					    	<ui:repeat var="child" value="#{comment.childComments}">
+								<div class="media" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
+									<post:comment1
+										id="childComment"
+										comments="#{cc.attrs.comments}"
+										comment="#{child}"
+										newestCommentId="#{cc.attrs.newestCommentId}"
+										isTopLevel="false"
+										toUpdate="#{cc.attrs.toUpdate}"
+										learningContext="#{cc.attrs.learningContext}"/>
+								</div>
+							</ui:repeat>
 						</ui:fragment>
-				    	<ui:repeat var="child" value="#{comment.childComments}">
-							<div class="media" style="display: none" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
-								<post:comment1
-									id="childComment"
-									comments="#{cc.attrs.comments}"
-									comment="#{child}"
-									newestCommentId="#{cc.attrs.newestCommentId}"
-									isTopLevel="false"
-									toUpdate="#{cc.attrs.toUpdate}"
-									learningContext="#{cc.attrs.learningContext}"/>
-							</div>
-						</ui:repeat>
 				    </h:panelGroup>
 					
 					<script>

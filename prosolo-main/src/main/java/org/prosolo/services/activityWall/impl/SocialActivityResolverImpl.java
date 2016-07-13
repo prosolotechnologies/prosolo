@@ -5,7 +5,6 @@ package org.prosolo.services.activityWall.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +20,6 @@ import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
@@ -104,7 +102,6 @@ public class SocialActivityResolverImpl implements SocialActivityResolver {
 		}
 		
 		User actor = socialActivity.getMaker();
-		BaseEntity object = socialActivity.getObject();
 		
 		List<User> collaborators = getGoallWallInterestedGroup(socialActivity, session);
 		
@@ -115,21 +112,21 @@ public class SocialActivityResolverImpl implements SocialActivityResolver {
 		if (socialActivity.getVisibility().equals(VisibilityType.PUBLIC)) {
 			// add users who follows actor
 			if (actor != null && !(actor instanceof AnonUser)) {
-				List<User> userFollowers = followResourceManager.getUserFollowers(actor, session);
+				List<User> userFollowers = followResourceManager.getUserFollowers(actor.getId(), session);
 				
 				for (User user : userFollowers) {
 					targetGroup.add(new UserInterests(user, null));
 				}
 			}
 			
-			// add users who are following this resource
-			if (object != null && object instanceof Competence) {
-				Collection<User> resourceFollowers = followResourceManager.getResourceFollowers(object, session);
-				
-				for (User user : resourceFollowers) {
-					targetGroup.add(new UserInterests(user, null));
-				}
-			}
+//			// add users who are following this resource
+//			if (object != null && object instanceof Competence) {
+//				Collection<User> resourceFollowers = followResourceManager.getResourceFollowers(object, session);
+//				
+//				for (User user : resourceFollowers) {
+//					targetGroup.add(new UserInterests(user, null));
+//				}
+//			}
 		}
 		
 		// creator should also see this event

@@ -100,9 +100,14 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void initSocialNetworksData() {
 		if (socialNetworksData == null) {
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUserId());
-			socialNetworksData = new SocialNetworksDataToPageMapper()
-					.mapDataToPageObject(userSocialNetworks);
+			try {
+				userSocialNetworks = socialNetworksManager.getSocialNetworks(loggedUser.getUserId());
+				socialNetworksData = new SocialNetworksDataToPageMapper()
+						.mapDataToPageObject(userSocialNetworks);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error loading the data");
+			}
 		}
 	}
 

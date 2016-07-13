@@ -4,7 +4,7 @@ import org.prosolo.services.util.SortingOption;
 
 public enum CommentSortOption {
 
-	MOST_RECENT("Most recent", CommentSortField.DATE_CREATED, SortingOption.ASC),
+	MOST_RECENT("Most recent", CommentSortField.DATE_CREATED, SortingOption.DESC),
 	MOST_UPVOTED("Most liked", CommentSortField.LIKE_COUNT, SortingOption.DESC);
 	
 	private String label;

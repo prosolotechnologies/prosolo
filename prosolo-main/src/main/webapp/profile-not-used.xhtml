@@ -50,7 +50,7 @@
 					<h:link class="button gray size30 left publicProfile"
 						onclick="sendLogPageNavigation('profile', 'profile.actions');"
 						value="Public Profile" outcome="/publicprofile">
-						<f:param name="id" value="#{util:encodeId(loggeduser.user.id)}" />
+						<f:param name="id" value="#{util:encodeId(loggeduser.userId)}" />
 					</h:link>
 					<span class="iconCopy left hasTooltip" title="Copy to clipboard"></span>
 
@@ -188,14 +188,15 @@
 					</div>
 					<div class="infoContainer">
 						<h2 class="name">
-							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}"
+							<h:link value="#{loggeduser.name} #{loggeduser.lastname}"
 								onclick="sendLogPageNavigation('profile', 'profile.info');" 
 								outcome="/publicprofile">
-								<f:param name="user" value="#{util:encodeId(loggeduser.user.id)}" />
+								<f:param name="user" value="#{util:encodeId(loggeduser.userId)}" />
 							</h:link>
 						</h2>
-						<div class="position">#{loggeduser.user.position}</div>
+						<div class="position">#{loggeduser.sessionData.position}</div>
 						
+						<ui:remove>
 						<h:panelGroup rendered="#{loggeduser.user.locationName != null}" class="position marginTop10">
 							<ui:include src="/resources/components/dialogs/locationDialog.xhtml" />
 							<a href="#" class="location" onclick="$('#locationDialog').dialog('option', 'data', ['#{loggeduser.user.locationName}', #{loggeduser.user.latitude}, #{loggeduser.user.longitude}]).dialog('open');sendServiceUse('USER_LOCATION_DIALOG', {context: 'profile.info.location', userId: #{loggeduser.user.id}});return false;">#{loggeduser.user.locationName}</a>
@@ -204,6 +205,7 @@
 								$('#portfolio .avatarNameContainer .infoContainer .location').readmore({maxHeight: 40});
 							</script>
 						</h:panelGroup>
+						</ui:remove>
 					</div>
 				</div>
 				

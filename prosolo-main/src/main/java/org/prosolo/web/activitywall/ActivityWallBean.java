@@ -1,6 +1,7 @@
 package org.prosolo.web.activitywall;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +20,6 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -47,8 +47,10 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "activityWallBean")
 @Component("activityWallBean")
 @Scope("view")
-public class ActivityWallBean {
-	
+public class ActivityWallBean implements Serializable {
+
+	private static final long serialVersionUID = -9210493552702246732L;
+
 	private static Logger logger = Logger.getLogger(ActivityWallBean.class);
 	
 	@Inject private SocialActivityManager socialActivityManger;
@@ -90,6 +92,16 @@ public class ActivityWallBean {
 		initializeActivities();
 	}
 	
+	public void updateSocialActivityLastActionDate(long id, Date date) {
+		if(socialActivities != null) {
+			for(SocialActivityData1 sa : socialActivities) {
+				if(sa.getId() == id) {
+					sa.setLastAction(date);
+				}
+			}
+		}
+	}
+	
 	public void initializeActivities() {
 		logger.debug("Initializing main activity wall");
 		
@@ -123,9 +135,9 @@ public class ActivityWallBean {
 	
 	public void initializeCommentsIfNotInitialized(SocialActivityData1 socialActivity) {
 		try {
-			if(socialActivity.getComments() == null || !socialActivity.getComments().isInitialized()) {
-				socialActivity.setComments(new CommentsData(CommentedResourceType.SocialActivity, 
-						socialActivity.getId(), false));
+			CommentsData cd = socialActivity.getComments();
+			if(!cd.isInitialized()) {
+				cd.setInstructor(false);
 				commentBean.loadComments(socialActivity.getComments());
 			}
 		} catch(Exception e) {
@@ -318,30 +330,41 @@ public class ActivityWallBean {
 		}
 	}
 	
-//	private void setStatusWallFilter(Filter selectedStatusWallFilter) {
-//		if(selectedStatusWallFilter instanceof AllFilter) {
-//			filter = StatusWallFilter.ALL;
-//		} else if(selectedStatusWallFilter instanceof AllProsoloFilter) {
-//			filter = StatusWallFilter.ALL_PROSOLO;
-//		} else if(selectedStatusWallFilter instanceof TwitterFilter) {
-//			filter = StatusWallFilter.TWITTER;
-//		} else if(selectedStatusWallFilter instanceof MyActivitiesFilter) {
-//			filter = StatusWallFilter.MY_ACTIVITIES;
-//		} else if(selectedStatusWallFilter instanceof MyNetworkFilter) {
-//			filter = StatusWallFilter.MY_NETWORK;
-//		}
-//	}
-
-//	public String getFilterPrettyName(FilterType filterType) {
-//		try {
-//			return ResourceBundleUtil.getMessage( 
-//					"activitywall.filter." + filterType.name().toLowerCase(), 
-//					FacesContext.getCurrentInstance().getViewRoot().getLocale());
-//		} catch (KeyNotFoundInBundleException e) {
-//			logger.error(e.getMessage());
-//		}
-//		return "";
-//	}
+	public void likeAction(SocialActivityData1 data) {
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		
+		//we can trade off accuracy for performance here
+		boolean liked = !data.isLiked();
+		data.setLiked(liked);
+		if(liked) {
+			data.setLikeCount(data.getLikeCount() + 1);
+		} else {
+			data.setLikeCount(data.getLikeCount() - 1);
+		}
+		
+		taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {	
+            	try {
+            		LearningContextData context = new LearningContextData(page, lContext, service);
+            		if(liked) {
+	            		socialActivityManger.likeSocialActivity(loggedUser.getUserId(), 
+	            				data.getId(), 
+	            				context);
+            		} else {
+            			socialActivityManger.unlikeSocialActivity(loggedUser.getUserId(), 
+            					data.getId(), 
+	            				context);
+            		}
+	            	
+            	} catch (DbConnectionException e) {
+            		logger.error(e);
+            	}
+            }
+        });
+	}
 	
 	/*
 	 * GETTERS / SETTERS

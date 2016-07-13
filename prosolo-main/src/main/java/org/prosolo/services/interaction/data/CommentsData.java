@@ -21,8 +21,18 @@ public class CommentsData implements Serializable {
 	private CommentedResourceType resourceType;
 	private long resourceId;
 	private CommentSortOption sortOption = CommentSortOption.MOST_RECENT;
+	private boolean moreToLoad;
 	
 	private long newestCommentId;
+	
+	private int numberOfComments;
+	
+	public CommentsData(CommentedResourceType resourceType, long resourceId) {
+		this.resourceType = resourceType;
+		this.resourceId = resourceId;
+		logger.info("Comment options for resource " + resourceType.toString() + 
+				" with id " + resourceId + " is created");
+	}
 	
 	public CommentsData(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
 		this.resourceType = resourceType;
@@ -32,12 +42,24 @@ public class CommentsData implements Serializable {
 				" with id " + resourceId + " is created");
 	}
 	
+	public void incrementNumberOfComments() {
+		numberOfComments ++;
+	}
+	
 	public void addComment(CommentData comment) {
 		comments.add(comment);
 	}
 	
 	public void addComment(int index, CommentData comment) {
 		comments.add(index, comment);
+	}
+	
+	public void addAllCommentsToTheEnd(List<CommentData> comments) {
+		comments.addAll(comments);
+	}
+	
+	public void addAllCommentsToTheBeginning(List<CommentData> comments) {
+		comments.addAll(0, comments);
 	}
 	
 	public String getTopLevelComment() {
@@ -102,6 +124,22 @@ public class CommentsData implements Serializable {
 
 	public void setInitialized(boolean initialized) {
 		this.initialized = initialized;
+	}
+
+	public boolean isMoreToLoad() {
+		return moreToLoad;
+	}
+
+	public void setMoreToLoad(boolean moreToLoad) {
+		this.moreToLoad = moreToLoad;
+	}
+
+	public int getNumberOfComments() {
+		return numberOfComments;
+	}
+
+	public void setNumberOfComments(int numberOfComments) {
+		this.numberOfComments = numberOfComments;
 	}
 	
 }

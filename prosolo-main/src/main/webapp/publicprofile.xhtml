@@ -73,7 +73,7 @@
 
 			<c:if test="#{loggeduser != null and loggeduser.loggedIn and 
 				publicportfolio.profileOwnerData != null and
-				userId != loggeduser.user.id}">
+				userId != loggeduser.userId}">
 				<h:panelGroup layout="block" id="userActions" class="actions sideBoxFrame">
 					
 					<div class="sideContent">
@@ -84,7 +84,7 @@
 					
 						<p:commandLink id="followButton"
 							styleClass="button gray size30"
-							rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userId)}"
+							rendered="#{!peopleActionBean.isLoggedUserFollowingUser(userId)}"
 							value="Follow"
 							action="#{peopleActionBean.followCollegueById(userId, 'profile.'.concat(userId))}"
 							update=":userActions :userInterests:userInterestsBlock:userInterestsGrowl" />
@@ -92,7 +92,7 @@
 						<actions:unfollow
 							userData="#{publicportfolio.profileOwnerData}"
 							styleClass="button gray size30 unfollowButton"
-							toRender="#{peopleActionBean.isLoggedUserFollowingCollegueById(cc.attrs.userData.id)}"
+							toRender="#{peopleActionBean.isLoggedUserFollowingUser(cc.attrs.userData.id)}"
 							context="profile.#{userId}"
 							toUpdate=":userActions :userInterests:userInterestsBlock:userInterestsGrowl" />
 					</div>

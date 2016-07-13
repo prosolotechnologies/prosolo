@@ -210,7 +210,7 @@
 											context="listpeople.followers"/>
 	
 										<p:commandLink id="followButton"
-											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(follower.id)}"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(follower.id)}"
 											action="#{peopleActionBean.followCollegueById(follower.id,'listpeople.followers')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -224,7 +224,7 @@
 										</p:commandLink>
 	
 										<p:commandLink
-											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(follower.id)}"
+											rendered="#{peopleActionBean.isLoggedUserFollowingUser(follower.id)}"
 											action="#{peopleActionBean.unfollowCollegueById(follower.id,'listpeople.followers')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel

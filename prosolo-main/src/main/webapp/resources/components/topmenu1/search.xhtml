@@ -202,14 +202,14 @@
 												</h3>
 												<action:directMessage receiverData="#{userData}" />
 												| 
-												<h:panelGroup rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}">
+												<h:panelGroup rendered="#{!peopleActionBean.isLoggedUserFollowingUser(userData.id)}">
 													<p:commandLink id="followButton" value="Follow"
 														action="#{peopleActionBean.followCollegueData(userData, 'globalsearch')}"
 														update=":globalsearchform:globalSearchFormGrowl #{(view.viewId == '/index') ? ':listFollowingPeopleForm:followingUsersPanel' : ''}"
 														oncomplete="roundImages()" />
 												</h:panelGroup>
 												
-												<h:panelGroup rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}">
+												<h:panelGroup rendered="#{peopleActionBean.isLoggedUserFollowingUser(userData.id)}">
 													<p:commandLink id="unfollowButton" value="Unfollow"
 														action="#{peopleActionBean.unfollowCollegueData(userData, 'globalsearch')}"
 														update=":globalsearchform:globalSearchFormGrowl #{(view.viewId=='/index') ? ':listFollowingPeopleForm:followingUsersPanel' : ''}"

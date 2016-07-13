@@ -87,7 +87,7 @@
 											context="recommendpeople.similarity" />
 	
 										<p:commandLink id="followButton"
-											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(similarityUser.id)}"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(similarityUser.id)}"
 											action="#{peopleActionBean.followCollegueById(similarityUser.id, 'recommendpeople.similarity')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -101,7 +101,7 @@
 										</p:commandLink>
 	
 										<p:commandLink
-											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(similarityUser.id)}"
+											rendered="#{peopleActionBean.isLoggedUserFollowingUser(similarityUser.id)}"
 											action="#{peopleActionBean.unfollowCollegueById(similarityUser.id, 'recommendpeople.similarity')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -198,7 +198,7 @@
 											context="recommendpeople.activity" />
 	
 										<p:commandLink id="followButton"
-											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(activityUser.id)}"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(activityUser.id)}"
 											action="#{peopleActionBean.followCollegueById(activityUser.id, 'recommendpeople.activity')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -212,7 +212,7 @@
 										</p:commandLink>
 	
 										<p:commandLink
-											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(activityUser.id)}"
+											rendered="#{peopleActionBean.isLoggedUserFollowingUser(activityUser.id)}"
 											action="#{peopleActionBean.unfollowCollegueById(activityUser.id, 'recommendpeople.activity')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -322,7 +322,7 @@
 											context="recommendpeople.location" />
 	
 										<p:commandLink id="followButton"
-											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(locationUser.id)}"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(locationUser.id)}"
 											action="#{peopleActionBean.followCollegueById(locationUser.id, 'recommendpeople.location')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel
@@ -336,7 +336,7 @@
 										</p:commandLink>
 
 										<p:commandLink
-											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(locationUser.id)}"
+											rendered="#{peopleActionBean.isLoggedUserFollowingUser(locationUser.id)}"
 											action="#{peopleActionBean.unfollowCollegueById(locationUser.id, 'recommendpeople.location')}"
 											update=":listFollowingPeopleForm:followingUsersPanel
 													:listfollowersform:followersPanel

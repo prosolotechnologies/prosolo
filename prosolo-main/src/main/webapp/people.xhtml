@@ -138,13 +138,13 @@
 												</h:link>
 											</h3>
 										</div> <p:commandLink id="followButton"
-											rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(user.id)}"
+											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(user.id)}"
 											action="#{peopleActionBean.followCollegueById(user.id, 'recommendpeople.similarity')}"
 											update=":formMainFollowingUsers" process="@this"
 											styleClass="btn btn-green btn-xs">
 										Follow
 									</p:commandLink> <p:commandLink id="unfollowButton"
-											rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(user.id)}"
+											rendered="#{peopleActionBean.isLoggedUserFollowingUser(user.id)}"
 											action="#{peopleActionBean.unfollowCollegueById(user.id, 'recommendpeople.similarity')}"
 											update=":formMainFollowingUsers" process="@this"
 											styleClass="btn btn-green-stroke btn-xs">

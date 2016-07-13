@@ -122,7 +122,7 @@ public class PeopleListDialog implements Serializable {
 		
 		if (users != null) {
 			for (User user : users) {
-				boolean followed =  colleguesBean.isInFollowingUsers(user.getId());
+//				boolean followed =  colleguesBean.isInFollowingUsers(user.getId());
 				boolean logged = user.getId() == loggedUser.getUserId();
 				UserData userData = new UserData(user);
 //				userData.setFollowed(followed);

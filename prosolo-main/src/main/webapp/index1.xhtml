@@ -30,11 +30,11 @@
 					
 					<div class="infoContainer">
 						<h2 class="name">
-							<h:link value="#{loggeduser.name} #{loggeduser.user.lastname}" outcome="/publicprofile" >
-								<f:param name="id" value="#{util:encodeId(loggeduser.user.id)}" />
+							<h:link value="#{loggeduser.sessionData.fullName}" outcome="/publicprofile" >
+								<f:param name="id" value="#{util:encodeId(loggeduser.userId)}" />
 							</h:link>
 						</h2>
-						<div class="position">#{loggeduser.user.position}</div>
+						<div class="position">#{loggeduser.sessionData.position}</div>
 					</div>
 				</div>
 				

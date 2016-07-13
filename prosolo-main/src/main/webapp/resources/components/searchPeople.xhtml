@@ -106,7 +106,7 @@
 												context="#{cc.attrs.context}" />
 										
 											<p:commandLink id="followButton"
-												rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}"
+												rendered="#{!peopleActionBean.isLoggedUserFollowingUser(userData.id)}"
 												onclick="#{cc.attrs.value}Search.resetSearch();"
 												action="#{peopleActionBean.followCollegueById(userData.id, cc.attrs.context)}"
 												update=":listFollowingPeopleForm:followingUsersPanel :#{cc.clientId}:searchPeopleGrowl"
@@ -116,7 +116,7 @@
 											</p:commandLink>
 											
 											<p:commandLink id="unfollowButton"
-												rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userData.id)}"
+												rendered="#{peopleActionBean.isLoggedUserFollowingUser(userData.id)}"
 												onclick="#{cc.attrs.value}Search.resetSearch();"
 												action="#{peopleActionBean.unfollowCollegueById(userData.id, cc.attrs.context)}"
 												update=":listFollowingPeopleForm:followingUsersPanel :#{cc.clientId}:searchPeopleGrowl"

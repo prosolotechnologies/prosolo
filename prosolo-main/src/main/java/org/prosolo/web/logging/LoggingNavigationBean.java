@@ -63,15 +63,6 @@ public class LoggingNavigationBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void logPageNavigation(User user, String link){
-		try {
-			loggingService.logNavigationFromContext(user.getId(), link, null, page, learningContext,
-					service, null, getIpAddress());
-		} catch (LoggingException e) {
-			logger.error(e);
-		}
-	}
-	
 	public void logEmailNavigation(User user, String link, LearningContextData lContext){
 		try {
 			loggingService.logEmailNavigation(user.getId(), link, null, getIpAddress(), lContext);
@@ -80,32 +71,16 @@ public class LoggingNavigationBean implements Serializable {
 		}
 	}
 	
-	public void logPageNavigationFromContext(User user, String link, String context){
-		try {
-			loggingService.logNavigationFromContext(user.getId(), link, context, page, learningContext,
-					service, null, getIpAddress());
-		} catch (LoggingException e) {
-			logger.error(e);
-		}
-	}
+//	public void logPageNavigationFromContext(User user, String link, String context){
+//		try {
+//			loggingService.logNavigationFromContext(user.getId(), link, context, page, learningContext,
+//					service, null, getIpAddress());
+//		} catch (LoggingException e) {
+//			logger.error(e);
+//		}
+//	}
 	
-	public void logServiceUseWithIp(String ipAddress, ComponentName component, String... parms) {
-		Map<String, String> parameters = new HashMap<String, String>();
-		
-		for (int i = 0; i < parms.length; i+=2) {
-			if (parms[i] != null && parms[i+1] != null)
-				parameters.put(parms[i], parms[i+1]);
-		}
-		
-		try {
-			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
-		} catch (LoggingException e) {
-			logger.error(e);
-		}  
-	}
-	
-//	// this can not be called from the xhtml page
-//	public void logServiceUse(ComponentName component, String... parms) {
+//	public void logServiceUseWithIp(String ipAddress, ComponentName component, String... parms) {
 //		Map<String, String> parameters = new HashMap<String, String>();
 //		
 //		for (int i = 0; i < parms.length; i+=2) {
@@ -113,7 +88,11 @@ public class LoggingNavigationBean implements Serializable {
 //				parameters.put(parms[i], parms[i+1]);
 //		}
 //		
-//		loggingService.logServiceUse(loggedUser.getUser(), component, link, parameters, getIpAddress());  
+//		try {
+//			loggingService.logServiceUse(loggedUser.getUserId(), component, link, parameters, ipAddress);
+//		} catch (LoggingException e) {
+//			logger.error(e);
+//		}  
 //	}
 	
 	public void logServiceUse(ComponentName component, String parm1, String value1) {
@@ -226,15 +205,6 @@ public class LoggingNavigationBean implements Serializable {
 		}
 	}
 	
-	public void submitCancelComment() {
-		try {
-			eventFactory.generateEvent(EventType.COMMENT_CANCEL, loggedUser.getUserId(), null, null, page,
-					learningContext, service, null);
-		} catch (EventException e) {
-			logger.error(e);
-		}
-	}
-
 	private String getIpAddress() {
 		String ipAddress = loggedUser.getIpAddress();
 		

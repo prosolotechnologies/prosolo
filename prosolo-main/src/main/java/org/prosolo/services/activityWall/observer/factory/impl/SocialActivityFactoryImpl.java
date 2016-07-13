@@ -10,8 +10,6 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.activityWall.observer.processor.ActivityCompletionSocialActivityProcessor;
@@ -24,7 +22,6 @@ import org.prosolo.services.activityWall.observer.processor.SocialActivityProces
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,59 +36,52 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 	private static Logger logger = Logger.getLogger(SocialActivityFactoryImpl.class);
 	
 	@Inject private SocialActivityManager socialActivityManager;
-	@Inject private DefaultManager defaultManager;
 
 	@Override
 	public synchronized SocialActivity1 createSocialActivity(Event event, Session session) {
 		EventType action = event.getAction();
 		SocialActivityProcessor processor = null;
 
-		try {
-			User actor = defaultManager.loadResource(User.class, event.getActorId());
-		
-			switch (action) {
-				case Comment:
-					processor = new CommentSocialActivityProcessor(session, event, actor, socialActivityManager);
-					break;
-				case Post:
-					processor = new PostSocialActivityProcessor(session, event, actor, socialActivityManager);
-					break;
-				case TwitterPost:
-					break;
-				case PostShare:
-					processor = new PostShareSocialActivityProcessor(session, event, actor, socialActivityManager);
-					break;
-				case Completion:
-					BaseEntity be = event.getObject();
-					
-					if (be instanceof TargetCredential1) {
-						processor = new CredentialObjectSocialActivityProcessor(session, event, actor,
-								socialActivityManager);
-					} else if (be instanceof TargetCompetence1) {
-						processor = new CompetenceObjectSocialActivityProcessor(session, event, actor,
-								socialActivityManager);
-					} else if (be instanceof TargetActivity1) {
-						processor = new ActivityCompletionSocialActivityProcessor(session, event, actor,
-								socialActivityManager);
-					}
-					break;
-				case ENROLL_COURSE:
-					processor = new CredentialObjectSocialActivityProcessor(session, event, actor, 
+		switch (action) {
+			case Comment:
+				processor = new CommentSocialActivityProcessor(session, event, socialActivityManager);
+				break;
+			case Post:
+				processor = new PostSocialActivityProcessor(session, event, socialActivityManager);
+				break;
+			case TwitterPost:
+				break;
+			case PostShare:
+				processor = new PostShareSocialActivityProcessor(session, event, socialActivityManager);
+				break;
+			case Completion:
+				BaseEntity be = event.getObject();
+				
+				if (be instanceof TargetCredential1) {
+					processor = new CredentialObjectSocialActivityProcessor(session, event,
 							socialActivityManager);
-					break;
-				default:
-					return null;
-			}
-			
-			if (processor != null) {
-				try {
-					return processor.createSocialActivity();
-				} catch(DbConnectionException e) {
-					logger.error(e);
+				} else if (be instanceof TargetCompetence1) {
+					processor = new CompetenceObjectSocialActivityProcessor(session, event,
+							socialActivityManager);
+				} else if (be instanceof TargetActivity1) {
+					processor = new ActivityCompletionSocialActivityProcessor(session, event,
+							socialActivityManager);
 				}
+				break;
+			case ENROLL_COURSE:
+				processor = new CredentialObjectSocialActivityProcessor(session, event, 
+						socialActivityManager);
+				break;
+			default:
+				return null;
+		}
+		
+		if (processor != null) {
+			try {
+				return processor.createSocialActivity();
+			} catch(DbConnectionException e) {
+				logger.error(e);
 			}
-		} catch (ResourceCouldNotBeLoadedException e1) {
-			logger.error(e1);
 		}
 		
 		return null;

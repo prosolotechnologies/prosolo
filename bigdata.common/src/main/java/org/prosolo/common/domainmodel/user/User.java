@@ -53,6 +53,11 @@ public class User extends BaseEntity {
 		learningGoals = new HashSet<TargetLearningGoal>();
 		roles = new HashSet<Role>();
 	}
+	
+	public User(long id) {
+		this();
+		setId(id);
+	}
 
 	@Column(name = "name", nullable = true)
 	public String getName() {

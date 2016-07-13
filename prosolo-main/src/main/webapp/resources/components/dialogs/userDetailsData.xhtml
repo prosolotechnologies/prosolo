@@ -80,7 +80,7 @@
 					<h:panelGroup id="followAction">
 						<p:commandLink id="followButton"
 							styleClass="button gray size20"
-							rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(userDetailsBean.userData.id)}"
+							rendered="#{!peopleUtil.isLoggedUserFollowingUser(userDetailsBean.userData.id)}"
 							action="#{peopleActionBean.followCollegueById(userDetailsBean.userData.id, 'userDetails')}"
 							update="followAction"
 							oncomplete="roundImages()">
@@ -90,7 +90,7 @@
 						
 						<p:commandLink
 							styleClass="button gray size20 unfollowButton"
-							rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(userDetailsBean.userData.id)}"
+							rendered="#{peopleActionBean.isLoggedUserFollowingUser(userDetailsBean.userData.id)}"
 							action="#{peopleActionBean.unfollowCollegueById(userDetailsBean.userData.id, 'userDetails')}"
 							update="followAction"
 							style="width: 85px">

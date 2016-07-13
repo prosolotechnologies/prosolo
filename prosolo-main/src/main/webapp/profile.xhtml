@@ -75,7 +75,7 @@
 			                <ui:fragment rendered="#{not profile1.personalProfile}" >
 			                		<p:growl id="profileGrowl" showDetail="true" />
 					                <p:commandLink id="followButton"
-												   rendered="#{!peopleActionBean.isLoggedUserFollowingCollegueById(profile1.studentId)}"
+												   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
 												   action="#{peopleActionBean.followCollegueById(profile1.studentId, 'recommendpeople.similarity')}"
 												   update="whiteBarProfileForm"
 												   process="@this"
@@ -83,7 +83,7 @@
 										Follow
 									</p:commandLink>
 									<p:commandLink id="unfollowButton"
-												   rendered="#{peopleActionBean.isLoggedUserFollowingCollegueById(profile1.studentId)}"
+												   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
 												   action="#{peopleActionBean.unfollowCollegueById(profile1.studentId, 'recommendpeople.similarity')}"
 												   update="whiteBarProfileForm"
 												   process="@this"

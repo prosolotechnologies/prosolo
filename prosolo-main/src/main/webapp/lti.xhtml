@@ -41,14 +41,14 @@
 						<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
 						<input type="hidden" name="lti_version" value="LTI-1p0" />
 						<input type="hidden" name="resource_link_id" value="#{ltiBean.activityId}" />           
-						<input type="hidden" name="user_id" value="#{loggeduser.user.id}" />
+						<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
 						<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
 						<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />
 						<input type="hidden" name="lis_person_name_family" value="#{loggeduser.lastName}" />
 						<input type="hidden" name="lis_person_name_given" value="#{loggeduser.name}" />
 						<input type="hidden" name="lis_person_contact_email_primary" value="#{loggeduser.email}" />
 						<input type="hidden" name="tool_consumer_instance_url" value="#{applicationbean.domain}" />
-						<input type="hidden" name="lis_result_sourcedid"  value="#{loggeduser.user.id}::#{ltiBean.activityId}::#{ltiBean.targetActivityId}" />
+						<input type="hidden" name="lis_result_sourcedid"  value="#{loggeduser.userId}::#{ltiBean.activityId}::#{ltiBean.targetActivityId}" />
 						<input type="hidden" name="oauth_version" value="1.0" />
 						<input type="hidden" name="oauth_consumer_key" value="#{ltiBean.consumerKey}" />
 						<input type="hidden" name="oauth_callback" value="about:blank" />

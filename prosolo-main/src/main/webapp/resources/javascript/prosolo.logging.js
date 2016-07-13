@@ -57,13 +57,3 @@ function sendServiceUse(componentName,parameters, page, learningContext, service
 	$("#logging_serviceuse_form .loggingServiceUseService").val(service);
 	$('#logging_serviceuse_form .loggingServiceUseSubmitButton').click();
 }
-
-function cancelCommentEvent(componentName, page, context, service){
-	$("#logging_cancelcomment_form .loggingComponentNameFieldValue").val(componentName);
-	$("#logging_cancelcomment_form .loggingCancelCommentPage").val(page);
-	$("#logging_cancelcomment_form .loggingCancelCommentLearningContext").val(context);
-	$("#logging_cancelcomment_form .loggingCancelCommentService").val(service);
-	// --
-	$('#logging_cancelcomment_form .loggingCancelCommentSubmitButton').click();
-}
-

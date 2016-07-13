@@ -12,9 +12,9 @@ import org.prosolo.services.event.Event;
 
 public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 
-	public PostShareSocialActivityProcessor(Session session, Event event,  User actor,
+	public PostShareSocialActivityProcessor(Session session, Event event,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, actor, socialActivityManager);
+		super(session, event, socialActivityManager);
 	}
 	
 	@Override
@@ -27,7 +27,7 @@ public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 		Date now = new Date();
 		act.setDateCreated(now);
 		act.setLastAction(now);
-		act.setActor(actor);
+		act.setActor(new User(event.getActorId()));
 		act.setPostObject(post);
 		return socialActivityManager.saveNewSocialActivity(act, session);
 	}

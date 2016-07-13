@@ -256,11 +256,13 @@ public class StudentProfileBean implements Serializable {
 
 	public void initSocialNetworks() {
 		if (socialNetworksData == null) {
-			User user = new User();
-			user.setId(student.getId());
-			userSocialNetworks = socialNetworksManager.getSocialNetworks(user);
-			socialNetworksData = new SocialNetworksDataToPageMapper()
-					.mapDataToPageObject(userSocialNetworks);
+			try {
+				userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
+				socialNetworksData = new SocialNetworksDataToPageMapper()
+						.mapDataToPageObject(userSocialNetworks);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error(e);
+			}
 		}
 	}
 

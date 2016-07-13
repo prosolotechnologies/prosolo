@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
@@ -18,27 +19,21 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public UserSocialNetworks getSocialNetworks(long id) {
-		String query = "SELECT socialNetwork " + "FROM UserSocialNetworks socialNetwork "
-				+ "WHERE socialNetwork.id = :id ";
-
-		return (UserSocialNetworks) persistence.currentManager().createQuery(query).setLong("id", id).uniqueResult();
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public UserSocialNetworks getSocialNetworks(User user) {
-		String query = "SELECT socialNetwork " + "FROM UserSocialNetworks socialNetwork "
-				+ "WHERE socialNetwork.user = :user ";
+	public UserSocialNetworks getSocialNetworks(long userId) throws ResourceCouldNotBeLoadedException {
+		String query = 
+				"SELECT socialNetwork " + 
+				"FROM UserSocialNetworks socialNetwork "
+				+ "WHERE socialNetwork.user.id = :userId ";
 
 		UserSocialNetworks result = (UserSocialNetworks) persistence.currentManager().createQuery(query)
-				.setEntity("user", user).uniqueResult();
-
+				.setLong("userId", userId)
+				.uniqueResult();
+		
 		if (result != null) {
 			return result;
 		} else {
 			UserSocialNetworks userSocialNetworks = new UserSocialNetworks();
-			userSocialNetworks.setUser(user);
+			userSocialNetworks.setUser(loadResource(User.class, userId));
 			return saveEntity(userSocialNetworks);
 		}
 	}

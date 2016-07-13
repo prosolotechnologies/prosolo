@@ -52,7 +52,7 @@
 								<f:param  name="id" value="#{messageThreadData.id}" />
 
 				    			<img class="imageRound image30 left" 
-				    				src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl != null ? messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl : colleguesBean.avatarUrlByUserId(messageThreadData.participantsWithoutLoggedUser.get(0).id, 60)}" 
+				    				src="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}" 
 									width="30" height="30" alt="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
 									
 								<div class="contentContainer">

@@ -169,7 +169,7 @@
 		               <h:graphicImage value="#{profileSettings.accountData.avatarPath}"
 									   alt="" />
 		               </span>
-		               <span class="hideMobile">#{loggeduser.getUser().getName().concat(" ").concat(loggeduser.getUser().getLastname())}</span> <i class="fa fa-angle-down"></i>
+		               <span class="hideMobile">#{loggeduser.sessionData.fullName}</span> <i class="fa fa-angle-down"></i>
 		            </a>
 		            <h:form id="userLogoutFormId">
 			            <ul class="dropdown-menu pull-right">

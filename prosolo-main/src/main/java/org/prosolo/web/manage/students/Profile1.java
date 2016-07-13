@@ -205,9 +205,13 @@ public class Profile1 {
 
 
 	private void initializeSocialNetworkData(User student) {
-		UserSocialNetworks userSocialNetworks = socialNetworksManager.getSocialNetworks(student);
-		socialNetworksData = new SocialNetworksDataToPageMapper()
-				.mapDataToPageObject(userSocialNetworks);
+		try {
+			UserSocialNetworks userSocialNetworks = socialNetworksManager.getSocialNetworks(student.getId());
+			socialNetworksData = new SocialNetworksDataToPageMapper()
+					.mapDataToPageObject(userSocialNetworks);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 	}
 
 

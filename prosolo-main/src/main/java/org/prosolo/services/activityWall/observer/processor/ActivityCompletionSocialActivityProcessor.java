@@ -13,9 +13,9 @@ import org.prosolo.services.event.Event;
 
 public class ActivityCompletionSocialActivityProcessor extends SocialActivityProcessor {
 
-	public ActivityCompletionSocialActivityProcessor(Session session, Event event,  User actor,
+	public ActivityCompletionSocialActivityProcessor(Session session, Event event,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, actor, socialActivityManager);
+		super(session, event, socialActivityManager);
 	}
 	
 	@Override
@@ -30,7 +30,7 @@ public class ActivityCompletionSocialActivityProcessor extends SocialActivityPro
 		Date now = new Date();
 		act.setDateCreated(now);
 		act.setLastAction(now);
-		act.setActor(actor);
+		act.setActor(new User(event.getActorId()));
 		act.setTargetActivityObject(activityObject);
 		
 		return socialActivityManager.saveNewSocialActivity(act, session);

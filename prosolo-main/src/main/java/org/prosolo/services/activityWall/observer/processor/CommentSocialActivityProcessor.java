@@ -17,9 +17,9 @@ import org.prosolo.services.event.Event;
 
 public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 
-	public CommentSocialActivityProcessor(Session session, Event event,  User actor,
+	public CommentSocialActivityProcessor(Session session, Event event,
 			SocialActivityManager socialActivityManager) {
-		super(session, event, actor, socialActivityManager);
+		super(session, event, socialActivityManager);
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 			Date now = new Date();
 			act.setDateCreated(now);
 			act.setLastAction(now);
-			act.setActor(actor);
+			act.setActor(new User(event.getActorId()));
 			act.setCommentObject(comment);
 
 			return socialActivityManager.saveNewSocialActivity(act, session);

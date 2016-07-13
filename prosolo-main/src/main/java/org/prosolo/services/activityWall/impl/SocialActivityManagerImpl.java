@@ -31,7 +31,9 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -45,6 +47,8 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +68,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private EventFactory eventFactory;
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private ResourceFactory resourceFactory;
+	@Inject private CommentManager commentManager;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -301,7 +306,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"compObject.description AS compObjectDescription, " +
 				"compObjectTCred.credential AS compObjectCredentialId, " +
 				
-				"IF (annotation.id > 0, true, false) AS liked \n ";
+				"IF (annotation.id > 0, true, false) AS liked, \n " +
+				"COUNT(comment.id) AS commentsNumber ";
 	}
 	
 	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate) {
@@ -371,6 +377,10 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       AND annotation.annotated_resource = :annotatedResource " +
 				"		AND annotation.annotation_type = :annotationType " +
 				"		AND annotation.maker = :userId " +
+				"   LEFT JOIN comment1 AS comment \n" +
+				"       ON sa.id = comment.commented_resource_id " +
+				"       AND comment.resource_type = :commentResourceType " +
+				"       AND comment.parent_comment IS NULL " +
 						
 				"WHERE sa.deleted = :boolFalse \n" +
 				"	AND config.id IS NULL \n";
@@ -379,7 +389,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					q += "AND sa.last_action <= :date \n " +
 						 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
 				}
-				return q + specificPartOfTheCondition +		
+				return q + specificPartOfTheCondition +	
+					"GROUP BY sa.id " +
 					"ORDER BY sa.last_action DESC, sa.id DESC \n" +
 					"LIMIT :limit \n" +
 					"OFFSET :offset";
@@ -403,6 +414,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
 			.setBoolean("boolFalse", false)
+			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
 			.setResultTransformer(new ResultTransformer() {
 				private static final long serialVersionUID = 3421375509302043275L;
 
@@ -483,6 +495,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(String) tuple[71],
 							(BigInteger) tuple[72],
 							(Integer) tuple[73],
+							(BigInteger) tuple[74],
 							locale);
 				}
 				
@@ -812,39 +825,133 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 
-/**
- * @param user
- * @param text
- * @param richContent
- */
-private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
-	String addedLink = null;
-
-	RichContent1 richContent = post.getRichContent();
-	if (richContent != null && richContent.getContentType() != null) {
-		try {
-			switch (richContent.getContentType()) {
-			case LINK:
-				eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
-						post);
-				addedLink = richContent.getLink();
-				break;
-			case FILE:
-				eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
-						post);
-				break;
-			default:
-				break;
+	/**
+	 * @param user
+	 * @param text
+	 * @param richContent
+	 */
+	private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
+		String addedLink = null;
+	
+		RichContent1 richContent = post.getRichContent();
+		if (richContent != null && richContent.getContentType() != null) {
+			try {
+				switch (richContent.getContentType()) {
+				case LINK:
+					eventFactory.generateEvent(EventType.LinkAdded, user.getId(),
+							post);
+					addedLink = richContent.getLink();
+					break;
+				case FILE:
+					eventFactory.generateEvent(EventType.FileUploaded, user.getId(),
+							post);
+					break;
+				default:
+					break;
+				}
+			} catch (EventException e) {
+				logger.error(e);
 			}
-		} catch (EventException e) {
-			logger.error(e);
+		}
+	
+		Collection<String> urls = StringUtil.pullLinks(text);
+		if (urls.contains(addedLink)) {
+			urls.remove(addedLink);
 		}
 	}
-
-	Collection<String> urls = StringUtil.pullLinks(text);
-	if (urls.contains(addedLink)) {
-		urls.remove(addedLink);
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
+			long userId, CommentedResourceType resource, LearningContextData context) 
+					throws DbConnectionException {
+		try {
+			Comment1 comment = commentManager.saveNewComment(data, userId, resource, context);
+			updateLastActionDate(socialActivityId, comment.getPostDate());
+			return comment;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving comment");
+		}
+		
 	}
-}
+	
+	@Transactional(readOnly = false)
+	private void updateLastActionDate(long socialActivityId, Date newDate) throws DbConnectionException {
+		SocialActivity1 sa = (SocialActivity1) persistence.currentManager()
+				.load(SocialActivity1.class, socialActivityId);
+		sa.setLastAction(newDate);
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void updateSocialActivityComment(long id, CommentData data, long userId, 
+			LearningContextData context) throws DbConnectionException {
+		try {
+			commentManager.updateComment(data, userId, context);
+			updateLastActionDate(id, new Date());
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating comment");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void likeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			annotationManager.createAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+					AnnotationType.Like);
+			String query = "UPDATE SocialActivity1 sa " +
+						   "SET sa.likeCount = sa.likeCount + 1 " +
+						   "WHERE sa.id = :id";
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("id", socialActivityId)
+				.executeUpdate();
+			
+			//to avoid retrieving data from database
+			SocialActivity1 sa = new SocialActivity1();
+			sa.setId(socialActivityId);
+			
+			eventFactory.generateEvent(EventType.Like, userId, sa, null, 
+					context.getPage(), context.getLearningContext(), context.getService(), null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving social activity like");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			annotationManager.deleteAnnotation(userId, socialActivityId, AnnotatedResource.SocialActivity, 
+					AnnotationType.Like);
+			String query = "UPDATE SocialActivity1 sa " +
+					   "SET sa.likeCount = sa.likeCount - 1 " +
+					   "WHERE sa.id = :id";
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("id", socialActivityId)
+				.executeUpdate();
+			
+			//to avoid retrieving data from database
+			SocialActivity1 sa = new SocialActivity1();
+			sa.setId(socialActivityId);
+			
+			eventFactory.generateEvent(EventType.RemoveLike, userId, sa, null, context.getPage(), 
+					context.getLearningContext(), context.getService(), null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving social activity like");
+		}
+	}
 	
 }

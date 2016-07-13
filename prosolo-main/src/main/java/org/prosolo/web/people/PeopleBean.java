@@ -12,13 +12,11 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
-import org.prosolo.web.settings.ProfileSettingsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,12 +32,10 @@ public class PeopleBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = 1649841825781113183L;
 
-	protected static Logger logger = Logger.getLogger(ProfileSettingsBean.class);
+	protected static Logger logger = Logger.getLogger(PeopleBean.class);
 
 	@Autowired
 	private FollowResourceManager followResourceManager;
-	@Autowired
-	private FollowResourceAsyncManager followResourceAsyncManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
 
@@ -65,8 +61,8 @@ public class PeopleBean implements Serializable, Paginable {
 
 			logger.debug("Initializing following users for a user '" + loggedUser.getUserId() + "'");
 
-			List<User> users=cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
-			System.out.println("USERS BY LOCATION..."+users.size());
+			List<User> users = cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
+//			System.out.println("USERS BY LOCATION..."+users.size());
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
 
 			List<User> followingUsersList = usersNumber > 0
@@ -88,7 +84,7 @@ public class PeopleBean implements Serializable, Paginable {
 	}
 
 	public void addFollowingUser(UserData user) {
-		if (!followingUsers.contains(user)) {
+		if (followingUsers != null && !followingUsers.contains(user)) {
 			followingUsers.add(user);
 		}
 	}

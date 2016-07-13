@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -32,6 +33,7 @@ import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.activityWall.impl.data.UserData;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
@@ -120,6 +122,7 @@ public class SocialActivityDataFactory {
 			String compObjectDescription,
 			BigInteger compObjectCredId,
 			Integer liked,
+			BigInteger commentsNumber,
 			Locale locale) {
 		SocialActivityData1 sad = new SocialActivityData1();
 		sad.setId(id.longValue());
@@ -129,6 +132,9 @@ public class SocialActivityDataFactory {
 		sad.setText(text);
 		sad.setLikeCount(likeCount);
 		sad.setLiked(liked == 1);
+		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, id.longValue());
+		cd.setNumberOfComments(commentsNumber.intValue());
+		sad.setComments(cd);
 		
 		AttachmentPreview1 ap = null;
 		ObjectData obj = null;
