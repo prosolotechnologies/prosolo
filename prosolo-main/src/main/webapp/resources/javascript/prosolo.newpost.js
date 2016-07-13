@@ -43,6 +43,32 @@ function stripTagsExceptBr(html) {
                 }
             }
         };
+        
+        core.activateUserSuggestion = function(text) {
+        	core.userSuggestionsActive = true;
+        };
+        
+        core.invokeUserSuggestSearch = function(text) {
+        	if (text == null || text.length == 0) {
+        		return;
+        	}
+        	
+        	var userSearchQuery = text.substring(text.lastIndexOf('@') + 1, text.length);
+        	$this.find(opts.userSearchInputSelector).val(userSearchQuery);
+        	console.log(userSearchQuery);
+        	if (userSearchQuery.length > 0) {
+        		$this.find(opts.userSuggestionRegionSelector).show();
+        		opts.userSearchAction();
+        	} else {
+        		$this.find(opts.userSuggestionRegionSelector).hide();
+        	}
+        };
+        
+        core.clearUserSuggestion = function() {
+        	core.userSuggestionsActive = false;
+        	$this.find(opts.userSuggestionRegionSelector).hide();
+        	$this.find(opts.userSearchInputSelector).val('');
+        };
         	
 		var init = function() {
 			core.postOptions = $this.find(opts.postOptionsSelector);
@@ -67,6 +93,19 @@ function stripTagsExceptBr(html) {
 				if ($(this).html() == '') {
 					core.postOptions.show();
 			    }
+			}).keydown(function(e) {
+				// disable user suggestions id space or enter are pressed
+				if (e.keyCode == 13 || e.keyCode == 32) { //Enter or space keycode
+					core.clearUserSuggestion();
+                }
+				
+			    // trap the return key being pressed
+			    if (e.keyCode === 13) {
+			      // insert 2 br tags (if only one br tag is inserted the cursor won't go to the next line)
+			      document.execCommand('insertHTML', false, '<br/><br/>');
+			      // prevent the default behaviour of return key pressed
+			      return false;
+			    }
 			}).on('keyup', function(e) {
                 //window.clearInterval(core.textTimer);           
                 // copy from the editable div to textfield
@@ -78,6 +117,26 @@ function stripTagsExceptBr(html) {
                     core.textUpdate(core.inputTextField.html());
                 }  
                 core.resolvePostButtonStatus();
+                
+                // check if user suggest should be activated
+                var last = $(this).html().charAt($(this).html().length - 1);
+                
+                var $inputTextField = $(this);
+                
+                clearTimeout(core.suggestUserSearchTimeout);
+                core.suggestUserSearchTimeout = setTimeout(function(){
+                	 if (core.userSuggestionsActive) {
+                     	if (code == 32 ) {
+                     		core.clearUserSuggestion();
+                     	} else {
+                     		core.invokeUserSuggestSearch($inputTextField.html());
+                     	}
+                     }
+				}, 200);
+                
+                if (last == '@') {
+                	core.activateUserSuggestion($inputTextField.html());
+                }
 			}).on('paste', function(e) {
 				var inputTextField = $(this);
 				
@@ -156,6 +215,34 @@ function stripTagsExceptBr(html) {
 //			$this.find('.expandableInputBox .uploadDetails .hideUploadDetails').on('click', function () {
 //				$this.find('.expandableInputBox .uploadDetails').hide();
 //			});
+		};
+		
+		this.selectSuggestedUser = function(elem) {
+			var id = $(elem).data('id');
+			var name = $(elem).data('name');
+			
+			// convert into a span
+			var text = core.inputTextField.html();
+			var indexOfAt = text.lastIndexOf('@');
+			var newText = text.substring(0, indexOfAt);
+			core.inputTextField.html(newText);
+			
+			var userSpanTag = $('<a />').attr({'data-id': id}).html(name);
+			userSpanTag.click(function(e){
+				e.stopPropagation();
+			});
+			core.inputTextField.append(userSpanTag);
+			core.inputTextField.html(core.inputTextField.html() + '&nbsp;');
+			
+			// set cursor at the end
+			setCaretAtEndOfEditableDiv(core.inputTextField[0]);
+			
+			// hide user suggestions
+			core.clearUserSuggestion();
+			
+			core.inputHiddenTextarea.text(core.inputTextField.html());
+			
+			return obj;
 		};
 		
 		this.hideLinkPreview = function() {

@@ -15,7 +15,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{peopleBean.initPeopleBean()}" />
+			
 		</f:metadata>
 	</ui:define>
 
@@ -70,60 +70,17 @@
 									</div>
 								</li>
 							</ui:repeat>
-							<ui:remove>
-								<li>
-									<div class="peopleListLeft">
-										<a href="people-profile.html"><img
-											src="images2/temp-walter.png" class="img-circle" width="64"
-											height="64" alt="Walter White" /></a>
-										<div>
-											<h2>
-												<a href="people-profile.html">Mike Ehrmantraut</a>
-											</h2>
-											<span>University of Texas, Arlington</span>
-										</div>
-									</div>
-								</li>
-								<li>
-									<div class="peopleListLeft">
-										<a href="people-profile.html"><span
-											class="letterAvatar letterAvatar64 img-circle">WW</span></a>
-										<div>
-											<h2>
-												<a href="people-profile.html">Mike Ehrmantraut</a>
-											</h2>
-											<span>University of Texas, Arlington</span>
-										</div>
-									</div>
-								</li>
-							</ui:remove>
 						</ul>
+						<utilcomp:pagination id="pagination" bean="#{peopleBean}"
+							links="#{peopleBean.paginationLinks}"
+							toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
 					</h:panelGroup>
-
-					<ui:remove>
-						<nav class="paginationWrapper">
-							<ul class="pagination">
-								<li><a href="#" aria-label="Previous"><span
-										aria-hidden="true">Prev</span></a></li>
-								<li><a href="#">1</a></li>
-								<li class="active"><a href="#">2</a></li>
-								<li>...</li>
-								<li><a href="#">7</a></li>
-								<li><a href="#" aria-label="Next"><span
-										aria-hidden="true">Next</span></a></li>
-							</ul>
-						</nav>
-					</ui:remove>
-
-					<utilcomp:pagination id="pagination" bean="#{peopleBean}"
-						links="#{peoplebean.paginationLinks}"
-						toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
 
 					<div class="col-md-4">
 						<div class="sidebarBlock">
 							<h2>Who to Follow</h2>
 							<ul class="listWhoToFollow">
-								<ui:repeat var="user" value="#{peopleBean.followingUsers}">
+								<ui:repeat var="user" value="#{peopleBean.usersToFollow}">
 									<li>
 										<div class="user32">
 											<h:link outcome="/profile">

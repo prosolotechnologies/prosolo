@@ -31,6 +31,28 @@
 					update="link panelAfterAddLink"
 					oncomplete="afterAddLink();"
 				 />
+				<h:panelGroup id="panelUserSuggestion">
+					<h:panelGroup rendered="#{not empty userSearchBean.query and not empty userSearchBean.users}">
+					 <ul class="dropdown-menu searchResultsDrop userSuggestRegionSelector" style="display:block;">
+					 	<ui:repeat var="user" value="#{userSearchBean.users}">
+					 		<li>
+					 			 <a href="javascript:void(0);"
+					 			 	data-id="#{util:encodeId(user.id)}"
+					 			 	data-name="#{user.fullName}"
+					 			 	onclick="newPost.selectSuggestedUser(this);">
+			                   		<utilcomp:userAvatar
+										avatar="#{user.avatarUrl}"
+										fullName="#{user.fullName}"	
+										width="32"
+										height="32"
+								    />  
+								    <h3>#{user.fullName}</h3> 
+                  			 	 </a>
+		                    </li>
+					 	</ui:repeat>
+	                 </ul>
+	               </h:panelGroup>
+	             </h:panelGroup>
 				 <h:panelGroup id="panelAfterAddLink" style="display:none;">
 				 	<script>
 				 		function afterAddLink() {
@@ -39,6 +61,27 @@
 				 	</script>
 				 </h:panelGroup>
              </div>
+             <p:remoteCommand 
+					name="searchUsersMentionedInPost" 
+					update="panelUserSuggestion"
+					process="userSuggestInput inputHiddenContext inputHiddenPage"
+					action="#{userSearchBean.searchUsers()}"/>
+					
+			 <h:inputText id="userSuggestInput" style="display:none;"
+					styleClass="userSuggestInputSelector"
+					value="#{userSearchBean.query}" />
+			 <h:inputText style="display:none;"
+			 	id="inputHiddenContext"
+			 	styleClass="inputHiddenContextSelector"
+			 	value="#{userSearchBean.context}">
+			 </h:inputText>
+			 <h:inputText style="display:none;"
+			 	id="inputHiddenPage"
+			 	styleClass="inputHiddenPageSelector"
+			 	value="#{userSearchBean.page}">
+			 </h:inputText>
+			 
+					
              <div class="linkLoaderContainer" style="display:none;"></div>
              
              <post:attachmentPreview id="link"
@@ -140,6 +183,8 @@
 			var newPost;
 			$(function() {
 				initializeNewPostPlugin();
+				$('.inputHiddenContextSelector').val('#{util:addSubContext(cc.attrs.learningContext, "name:new_post")}');
+				$('.inputHiddenPageSelector').val('#{facesContext.viewRoot.viewId}');
 			});
 			function initializeNewPostPlugin() {
 				$('.newWallPost').newpost({
@@ -152,7 +197,10 @@
 					uploadFileModalSelector: '.uploadFileModalSelector',
 					urlFieldSelector: '.textAreaWrapper .hiddenTextLink',
 					addUrlButtonSelector: '.textAreaWrapper .hiddenLinkFetchLinkContents',
-					linkLoaderContainerSelector: '.linkLoaderContainer'
+					linkLoaderContainerSelector: '.linkLoaderContainer',
+					userSuggestionRegionSelector: '.userSuggestRegionSelector',
+					userSearchInputSelector: '.userSuggestInputSelector',
+					userSearchAction: searchUsersMentionedInPost
 				});
 				newPost = $('.newWallPost').data('newpost');
 			}

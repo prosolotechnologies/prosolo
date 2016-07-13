@@ -73,7 +73,7 @@
                </div>
            </div>
            <div class="wallPostBody">
-               <p class="wallPostContent">
+               <p id="wallPostTextSelector#{cc.attrs.socialActivity.id}" class="wallPostContent">
                		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
                </p>
                <post:attachmentPreview id="link"
@@ -135,5 +135,10 @@
            		toUpdateOnCommentSave=""
            />
        </article>
+       <script>
+	  		$(function(){
+	  			replaceInlineUserLink('#wallPostTextSelector#{cc.attrs.socialActivity.id}');
+	  		});
+	   </script>   
 	</composite:implementation>
 </ui:component>

@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
@@ -38,10 +38,10 @@ public class PeopleBean implements Serializable, Paginable {
 	private FollowResourceManager followResourceManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
+	@Autowired
+	private CollaboratorsRecommendation cRecommendation;
 
-	@Autowired private CollaboratorsRecommendation cRecommendation;
-
-	private List<UserData> whoToFollowList;
+	private List<UserData> usersToFollow;
 	private List<UserData> followingUsers;
 
 	private int usersNumber;
@@ -50,36 +50,46 @@ public class PeopleBean implements Serializable, Paginable {
 	private int numberOfPages;
 	private List<PaginationLink> paginationLinks;
 
+	@PostConstruct
 	public void initPeopleBean() {
 		initFollowingUsers();
 	}
 
 	public void initFollowingUsers() {
 		try {
-
 			followingUsers = new ArrayList<UserData>();
-
-			logger.debug("Initializing following users for a user '" + loggedUser.getUserId() + "'");
-
-			List<User> users = cRecommendation.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
-//			System.out.println("USERS BY LOCATION..."+users.size());
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
 
 			List<User> followingUsersList = usersNumber > 0
-					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit) : new ArrayList();
+					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit)
+					: new ArrayList<User>();
 
-			if (followingUsersList != null && !followingUsersList.isEmpty()) {
+			if (!followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
 					UserData userData = new UserData(user);
 					followingUsers.add(userData);
 				}
-				logger.debug("Following users initialized '" + loggedUser.getUserId() + "'");
 			}
 			generatePagination();
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException(e.getMessage());
+		}
+		
+		try {
+			usersToFollow = new ArrayList<UserData>();
+			List<User> usersToFollowList = cRecommendation
+					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
+
+			if (!usersToFollowList.isEmpty()) {
+				for (User user : usersToFollowList) {
+					UserData userData = new UserData(user);
+					usersToFollow.add(userData);
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -145,12 +155,12 @@ public class PeopleBean implements Serializable, Paginable {
 		return numberOfPages == 0;
 	}
 
-	public List<UserData> getWhoToFollowList() {
-		return whoToFollowList;
+	public List<UserData> getUsersToFollow() {
+		return usersToFollow;
 	}
 
-	public void setWhoToFollowList(List<UserData> whoToFollowList) {
-		this.whoToFollowList = whoToFollowList;
+	public void setUsersToFollow(List<UserData> usersToFollow) {
+		this.usersToFollow = usersToFollow;
 	}
 
 	public List<UserData> getFollowingUsers() {
