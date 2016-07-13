@@ -60,9 +60,10 @@ public class PeopleBean implements Serializable, Paginable {
 	@PostConstruct
 	public void initPeopleBean() {
 		initFollowingUsers();
+		initUsersToFollow();
 	}
 
-	public void initFollowingUsers() {
+	private void initFollowingUsers() {
 		try {
 			followingUsers = new ArrayList<UserData>();
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUser());
@@ -82,7 +83,9 @@ public class PeopleBean implements Serializable, Paginable {
 			logger.error(e);
 			e.printStackTrace();
 		}
+	}
 
+	private void initUsersToFollow() {
 		try {
 			usersToFollow = new ArrayList<UserData>();
 			List<User> usersToFollowList = cRecommendation
