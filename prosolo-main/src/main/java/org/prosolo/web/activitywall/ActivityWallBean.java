@@ -205,42 +205,47 @@ public class ActivityWallBean implements Serializable {
 	}
 
 	public void changeFilter(StatusWallFilter filter) {
-		FilterType filterType = filter.getFilter().getFilterType();
-		
-		if (loggedUser.getSelectedStatusWallFilter().getFilterType() != filterType) {
-			logger.debug("User "+loggedUser.getUser()+" is changing Activity Wall filter to '"+filterType+"'.");
-			boolean successful = interfaceSettingsManager
-					.changeActivityWallFilter(loggedUser.getInterfaceSettings(), filterType, 0);
+		try {
+			FilterType filterType = filter.getFilter().getFilterType();
 			
-			if (successful) {
-				loggedUser.refreshUserSettings();
-				loggedUser.loadStatusWallFilter(filterType, 0);
+			if (loggedUser.getSelectedStatusWallFilter().getFilterType() != filterType) {
+				logger.debug("User "+loggedUser.getUser()+" is changing Activity Wall filter to '"+filterType+"'.");
+				boolean successful = interfaceSettingsManager
+						.changeActivityWallFilter(loggedUser.getInterfaceSettings(), filterType, 0);
 				
-				this.filter = filter;
-				initializeActivities();
-				
-				logger.debug("User "+loggedUser.getUser()+" successfully changed Activity Wall filter to '"+filterType+"'.");
-				PageUtil.fireSuccessfulInfoMessage("Activity Wall filter changed!");
-			} else {
-				logger.error("User "+loggedUser.getUser()+" could not change Activity Wall filter to '"+filterType+"'.");
-				PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
-			}
-			
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Map<String, String> parameters = new HashMap<String, String>();
-					parameters.put("context", "statusWall.filter");
-					parameters.put("filter", filterType.name());
+				if (successful) {
+					loggedUser.refreshUserSettings();
+					loggedUser.loadStatusWallFilter(filterType, 0);
 					
-					//TODO commented
-//					if (filterType.equals(FilterType.COURSE)) {
-//						parameters.put("courseId", String.valueOf(courseId1));
-//					}
+					this.filter = filter;
+					initializeActivities();
 					
-					actionLogger.logEvent(EventType.FILTER_CHANGE, parameters);
+					logger.debug("User "+loggedUser.getUser()+" successfully changed Activity Wall filter to '"+filterType+"'.");
+					PageUtil.fireSuccessfulInfoMessage("Activity Wall filter changed!");
+				} else {
+					logger.error("User "+loggedUser.getUser()+" could not change Activity Wall filter to '"+filterType+"'.");
+					PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 				}
-			});
+				
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						Map<String, String> parameters = new HashMap<String, String>();
+						parameters.put("context", "statusWall.filter");
+						parameters.put("filter", filterType.name());
+						
+						//TODO commented
+	//					if (filterType.equals(FilterType.COURSE)) {
+	//						parameters.put("courseId", String.valueOf(courseId1));
+	//					}
+						
+						actionLogger.logEvent(EventType.FILTER_CHANGE, parameters);
+					}
+				});
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 		}
 	}
 	
@@ -365,6 +370,10 @@ public class ActivityWallBean implements Serializable {
             	}
             }
         });
+	}
+	
+	public boolean isCurrentUserCreator(SocialActivityData1 sa) {
+		return loggedUser.getUser().getId() == sa.getActor().getId();
 	}
 	
 	/*

@@ -222,7 +222,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	private String getSelectPart() {
 		return 
-				"SELECT DISTINCT " + 
+				"SELECT " + 
 				"sa.id AS sa_id, " +
 				"sa.dtype AS sa_dtype, " +
 				"sa.created AS sa_created, " +
@@ -382,7 +382,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       AND comment.resource_type = :commentResourceType " +
 				"       AND comment.parent_comment IS NULL " +
 						
-				"WHERE sa.deleted = :boolFalse \n" +
+				"WHERE sa.deleted = :saDeleted \n" +
 				"	AND config.id IS NULL \n";
 		
 				if(previousDate != null && previousId > 0) {
@@ -414,6 +414,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
 			.setBoolean("boolFalse", false)
+			.setCharacter("saDeleted", 'F')
 			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
 			.setResultTransformer(new ResultTransformer() {
 				private static final long serialVersionUID = 3421375509302043275L;

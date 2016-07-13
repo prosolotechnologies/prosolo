@@ -128,7 +128,7 @@ public class SocialActivityDataFactory {
 		sad.setId(id.longValue());
 		sad.setDateCreated(dateCreated);
 		sad.setLastAction(lastAction);
-		sad.setCommentsDisabled(commentsDisabled.charValue() == 'F');
+		sad.setCommentsDisabled(commentsDisabled.charValue() == 'T');
 		sad.setText(text);
 		sad.setLikeCount(likeCount);
 		sad.setLiked(liked == 1);
