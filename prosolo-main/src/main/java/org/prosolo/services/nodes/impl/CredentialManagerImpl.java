@@ -2567,7 +2567,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					   "WITH bookmark.user.id = :userId " +
 					"WHERE tCred.user.id = :userId " +
 					"AND tCred.progress < :progress " +
-					"ORDER BY tCred.lastAction";
+					"ORDER BY tCred.lastAction DESC";
 			  	
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
