@@ -22,6 +22,7 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.ComponentName;
@@ -83,7 +84,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 		
 		if (invited != null && !invited.isEmpty()) {
 			for (User user : invited) {
-				invitedUsers.add(new UserData(user));
+				invitedUsers.add(UserDataFactory.createUserData(user));
 			}
 		}
 		
@@ -201,7 +202,7 @@ public class InviteGoalCollaboratorDialogBean implements Serializable {
 			List<User> result = (List<User>) usersResponse.getFoundNodes();
 			
 			for (User user : result) {
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 				
 				userSearchResults.add(userData);
 			}

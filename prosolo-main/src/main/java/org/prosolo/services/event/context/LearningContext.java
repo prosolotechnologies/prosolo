@@ -11,21 +11,25 @@ public class LearningContext {
 	public ApplicationPage getPage() {
 		return page;
 	}
+
 	public void setPage(ApplicationPage page) {
 		this.page = page;
 	}
+
 	public Context getContext() {
 		return context;
 	}
+
 	public void setContext(Context context) {
 		this.context = context;
 	}
+
 	public Service getService() {
 		return service;
 	}
+
 	public void setService(Service service) {
 		this.service = service;
 	}
-	
-	
+
 }

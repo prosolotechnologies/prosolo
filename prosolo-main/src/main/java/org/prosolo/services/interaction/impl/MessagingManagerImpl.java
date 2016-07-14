@@ -21,6 +21,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -370,7 +371,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			mtData.setMessages(messagesData);
 
 			List<UserData> participantsWithoutLoggedUser = mThread.getParticipants().stream()
-					 .map(tp -> new UserData(tp.getUser()))
+					 .map(tp -> UserDataFactory.createUserData(tp.getUser()))
 					 .filter(ud -> ud.getId() != userId)
 					 .sorted().collect(Collectors.toList());
 

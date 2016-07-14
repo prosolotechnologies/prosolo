@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -84,23 +83,24 @@ import com.mongodb.util.JSON;
 @Service("org.prosolo.services.logging.LoggingService")
 public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	
-	@Autowired LogsMessageDistributer logsMessageDistributer;
-	@Autowired
-	CourseManager courseManager;
-	@Autowired LogsDataManager logsDataManager;
-	@Inject private ContextJsonParserService contextJsonParserService;
-
 	private static Logger logger = Logger.getLogger(LoggingService.class.getName());
 	
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	
-	@Autowired private EventFactory eventFactory;
+	@Inject
+	private LogsMessageDistributer logsMessageDistributer;
+	@Inject 
+	private LogsDataManager logsDataManager;
+	@Inject
+	private ContextJsonParserService contextJsonParserService;
+	@Inject
+	private EventFactory eventFactory;
+	@Inject @Qualifier("taskExecutor")
+	private ThreadPoolTaskExecutor taskExecutor;
 
 	private static String pageNavigationCollection = "log_page_navigation";
 	private static String serviceUseCollection = "log_service_use";
 	private static String eventsHappenedCollection = "log_events_happened";
-
 	private static String logReportDatesCollection= "log_report_dates";
+	
 	private EventType[] interactions=new EventType[]{
 			Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
 			JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
@@ -108,31 +108,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			Like,Dislike, SEND_MESSAGE, PostShare,
 			Comment_Reply, RemoveLike};
 	
-	@PostConstruct
-	public void init() {
-		this.ensureIndexes();
-	}
-
-	private void ensureIndexes() {
-		//this.index(userLatestActivityTimeCollection, "{userid:1}");
-		//this.index(userActivitiesCollection, "{userid:1, date:1}");
-
-	}
-	
-	/*@Override
-	public Collection<LoggedEvent> getLoggedEventsList(DBObject filterQuery) {		
-		
-		DBCursor res = getEventObservedCollection().find(filterQuery);
-		
-		Collection<LoggedEvent> eventCollection = new ArrayList<LoggedEvent>();		
-		
-		while(res.hasNext()) {
-			LoggedEvent currentEvent = new LoggedEvent(res.next());												
-			eventCollection.add(currentEvent);
-		}
-		return eventCollection;
-	}*/
-
 	@Override
 	public void logServiceUse(long actorId, String componentName,
 			String parametersJson, String ipAddress) throws LoggingException {
@@ -705,7 +680,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
 			
-			logger.info("\ntimestamp: " + timestamp + 
+			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
 		 			"\nobjectType: " + objectType + 
@@ -713,10 +688,10 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		 			(logObject.get("objectTitle") != null ? "\nobjectTitle: " + logObject.get("objectTitle") : "") + 
 		 			(logObject.get("targetType") != null ? "\ntargetType: " + logObject.get("targetType") : "") + 
 					(((Long) logObject.get("targetId")) > 0 ? "\ntargetId: " + logObject.get("targetId") : "") +
-					(((Long) logObject.get("courseId")) > 0 ? "\ncourseId: " + logObject.get("courseId") : "") +
 					(((Long) logObject.get("targetUserId")) > 0 ? "\ntargetUserId: " + logObject.get("targetUserId") : "") +
 					linkString +
-				 	"\nparameters: " + logObject.get("parameters"));
+				 	"\nparameters: " + logObject.get("parameters") +
+				 	"\nlearning context:\n " + logObject.get("learningContext"));
 
 			String targetTypeString = logObject.get("targetType") != null ? (String) logObject.get("targetType") : "";
 			

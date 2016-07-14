@@ -6,6 +6,7 @@ import java.util.Date;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 
 public class MessageData implements Serializable, Comparable<MessageData> {
 	
@@ -23,7 +24,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	public MessageData(Message message, long userId) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = new UserData(message.getSender().getUser());
+		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
 		this.message = message.getContent();
 		this.readed = checkIfRead(message, userId);
 		this.created = message.getCreatedTimestamp();
@@ -42,7 +43,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	public MessageData(Message message, long userId, boolean read) {
 		this.id = message.getId();
 		this.threadId = message.getMessageThread().getId();
-		this.actor = new UserData(message.getSender().getUser());
+		this.actor = UserDataFactory.createUserData(message.getSender().getUser());
 		this.message = message.getContent();
 		this.readed = read;
 		this.created = message.getCreatedTimestamp();

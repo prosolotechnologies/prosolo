@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.activitywall.old.comments.Comment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 
 /**
@@ -41,7 +42,7 @@ public class SocialActivityCommentData implements Serializable {
 	public SocialActivityCommentData(Comment comment, int likeCount, boolean liked, SocialActivityData wallData) {
 		this.id = comment.getId();
 		this.text = comment.getText();
-		this.maker = new UserData(comment.getMaker());
+		this.maker = UserDataFactory.createUserData(comment.getMaker());
 		this.created = comment.getDateCreated();
 		this.likeCount = likeCount;
 		this.liked = liked;

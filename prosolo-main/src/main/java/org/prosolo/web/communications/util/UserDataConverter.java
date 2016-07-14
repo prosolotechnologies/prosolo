@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 
 /**
  * @author "Nikola Milikic"
@@ -20,7 +21,7 @@ public class UserDataConverter {
 		
 		if (users != null && !users.isEmpty()) {
 			for (User user : users) {
-				usersData.add(new UserData(user));
+				usersData.add(UserDataFactory.createUserData(user));
 			}
 		}
 		return usersData;

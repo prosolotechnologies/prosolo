@@ -34,9 +34,9 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.notification.data.GoalStatus;
@@ -106,7 +106,7 @@ public class NotificationDataConverter {
 		User maker = notification.getActor();
 		
 		if (maker != null)
-			notificationData.setActor(new UserData(maker));
+			notificationData.setActor(UserDataFactory.createUserData(maker));
 		
 		// type
 		try {

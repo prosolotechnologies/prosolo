@@ -26,6 +26,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.PublishingServiceData;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
@@ -301,7 +302,7 @@ public class SocialActivityData implements Serializable {
 		this.dateCreated = socialActivity.getDateCreated();
 		
 		//this.actor = new UserData(socialActivity.getMaker());
-		this.actor = new UserData(socialActivity.getMaker());
+		this.actor = UserDataFactory.createUserData(socialActivity.getMaker());
 		
 		if (socialActivity instanceof TwitterPostSocialActivity) {
 			
@@ -348,7 +349,7 @@ public class SocialActivityData implements Serializable {
 				}
 			} else if (socialActivity.getTarget() instanceof User) {
 				//this.targetActor = new UserData((User) socialActivity.getTarget());
-				this.targetActor = new UserData((User) socialActivity.getTarget());
+				this.targetActor = UserDataFactory.createUserData((User) socialActivity.getTarget());
 			}
 		}
 		

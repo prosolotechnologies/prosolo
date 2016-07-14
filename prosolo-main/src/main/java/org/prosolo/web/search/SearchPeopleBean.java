@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.LoggedUserBean;
@@ -154,7 +155,7 @@ public class SearchPeopleBean implements Serializable{
 		
 		if (users != null && !users.isEmpty()) {
 			for (User user : users) {
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 //				userData.setFollowed(followResourceManager.isUserFollowingUser(loggedUser.getUserId(), user.getId()));
 				usersData.add(userData);
 			}

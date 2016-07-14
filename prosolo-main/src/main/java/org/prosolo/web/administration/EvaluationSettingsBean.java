@@ -17,6 +17,7 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.ResourceDataUtil;
@@ -62,7 +63,7 @@ public class EvaluationSettingsBean implements Serializable {
 			
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					selectedEvaluators.add(new UserData(user));
+					selectedEvaluators.add(UserDataFactory.createUserData(user));
 				}
 				
 				calculateUserNo();
@@ -100,7 +101,7 @@ public class EvaluationSettingsBean implements Serializable {
 			List<User> result = (List<User>) usersResponse.getFoundNodes();
 			
 			for (User user : result) {
-				UserData userData = new UserData(user);
+				UserData userData = UserDataFactory.createUserData(user);
 				
 				userSearchResults.add(userData);
 			}

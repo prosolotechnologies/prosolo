@@ -26,6 +26,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.nodes.BadgeManager;
 import org.prosolo.services.nodes.EvaluationManager;
@@ -112,7 +113,7 @@ public class PublicPortfolioBean implements Serializable {
 		if (decodedId > 0) {
 			try {
 				profileOwner = userManager.loadResource(User.class, decodedId, true);
-				profileOwnerData = new UserData(profileOwner);
+				profileOwnerData = UserDataFactory.createUserData(profileOwner);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 				try {

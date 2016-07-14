@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
@@ -68,7 +69,7 @@ public class RequestToJoinGoalDialog extends MessagesBean{
 		User user = HibernateUtil.initializeAndUnproxy(goal.getMaker());
 		
 		this.context = context;
-		this.receiver = new UserData(user);
+		this.receiver = UserDataFactory.createUserData(user);
 		this.messageContent = "I would like to join your goal";
 		
 		logDialogUse(goal.getId(), context);

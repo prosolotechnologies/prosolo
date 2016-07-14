@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
@@ -67,7 +68,7 @@ public class PeopleBean implements Serializable, Paginable {
 
 			if (followingUsersList != null && !followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					followingUsers.add(userData);
 				}
 			}
@@ -86,7 +87,7 @@ public class PeopleBean implements Serializable, Paginable {
 
 			if (usersToFollowList != null && !usersToFollowList.isEmpty()) {
 				for (User user : usersToFollowList) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					usersToFollow.add(userData);
 				}
 			}

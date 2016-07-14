@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
@@ -174,7 +175,7 @@ public class PostDialog implements Serializable {
 		
 		if (socialActivity != null) {
 			this.socialActivityToReshare = socialActivity;
-			this.sharedFrom = new UserData(socialActivity.getMaker());
+			this.sharedFrom = UserDataFactory.createUserData(socialActivity.getMaker());
 			
 			BaseEntity object = socialActivity.getObject();
 			

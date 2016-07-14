@@ -6,8 +6,6 @@ package org.prosolo.common.web.activitywall.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.prosolo.common.domainmodel.user.User;
-
 
  
 
@@ -39,18 +37,13 @@ public class UserData implements Serializable, Comparable<UserData> {
 	
 	private Date lastAction;
 	
-	public UserData() {}
+	public UserData() {	}
 
-	public UserData(User user) {
-		this(user.getId(), user.getFullName(), user.getAvatarUrl());
-	}
-	
 	public UserData(long userId, String name, String avatar) {
-		UserData userData = new UserData();
-		userData.setId(userId);
-		userData.setName(name);
+		this.setId(userId);
+		this.setName(name);
 //		userData.setProfileUrl(user.getProfileUrl());
-		userData.setAvatarUrl(avatar);
+		this.setAvatarUrl(avatar);
 		
 //		if (user.getUserType().equals(UserType.TWITTER_USER)) {
 //			userData.setPosition("Twitter User");

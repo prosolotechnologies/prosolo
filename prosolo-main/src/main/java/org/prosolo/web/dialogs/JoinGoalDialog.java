@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
@@ -50,7 +51,7 @@ public class JoinGoalDialog implements Serializable {
 		
 		if (collabs != null && !collabs.isEmpty()) {
 			for (User user : collabs) {
-				collaborators.add(new UserData(user));
+				collaborators.add(UserDataFactory.createUserData(user));
 			}
 		}
 	}

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 
 /**
  * @author "Nikola Milikic"
@@ -34,7 +35,7 @@ public class CompetenceData implements Serializable {
 		this.description = comp.getDescription();
 	 
 		this.creator = comp.getMaker();
-		this.maker = new UserData(comp.getMaker());
+		this.maker = UserDataFactory.createUserData(comp.getMaker());
  
 		this.validity = comp.getValidityPeriod();
 		this.tags = new ArrayList<Tag>(comp.getTags());

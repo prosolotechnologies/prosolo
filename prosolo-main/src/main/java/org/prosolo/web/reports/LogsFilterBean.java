@@ -12,6 +12,7 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.web.util.ResourceDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -71,7 +72,7 @@ public class LogsFilterBean implements Serializable {
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		
 		for (User user : result) {
-			UserData userData = new UserData(user);
+			UserData userData = UserDataFactory.createUserData(user);
 			userSearchResults.add(userData);
 		}
 	}

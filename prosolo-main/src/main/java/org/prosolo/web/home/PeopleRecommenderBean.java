@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -50,7 +51,7 @@ public class PeopleRecommenderBean implements Serializable {
 			
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					locationRecommendedUsers.add(userData);
 				}
 				logger.debug("Location based user recommendations initialized '" + loggedUser.getUserId() + "'");
@@ -107,7 +108,7 @@ public class PeopleRecommenderBean implements Serializable {
 			List<User> users=cRecommendation.getMostActiveRecommendedUsers(loggedUser.getUserId(), 3);
 			if (users != null && !users.isEmpty()) {
 				for (User user : users) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					
 					// TODO: Zoran - put here last activity date
 				//	long timestamp=loggingDBManager.getMostActiveUsersLastActivityTimestamp(user.getId());
@@ -130,7 +131,7 @@ public class PeopleRecommenderBean implements Serializable {
 				
 				if (users != null && !users.isEmpty()) {
 					for (User user : users) {
-						UserData userData = new UserData(user);
+						UserData userData = UserDataFactory.createUserData(user);
 						similarityRecommendedUsers.add(userData);
 					}
 					logger.debug("Similarity based user recommendations initialized '" + loggedUser.getUserId() + "'");

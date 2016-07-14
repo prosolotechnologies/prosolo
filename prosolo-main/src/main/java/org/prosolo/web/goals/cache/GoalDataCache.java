@@ -34,6 +34,7 @@ import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.recommendation.CompetenceRecommendation;
 import org.prosolo.recommendation.DocumentsRecommendation;
 import org.prosolo.recommendation.impl.RecommendedDocument;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -312,7 +313,7 @@ public class GoalDataCache implements Serializable {
 			List<UserData> collabData = new ArrayList<UserData>();
 			
 			for (User user : collab) {
-				collabData.add(new UserData(user));
+				collabData.add(UserDataFactory.createUserData(user));
 			}
 			collaborators = collabData;
 		}

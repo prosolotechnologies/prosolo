@@ -10,6 +10,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
@@ -74,7 +75,7 @@ public class UserDetailsDialog implements Serializable {
 	}
 
 	public void initializeData(User user) {
-		userData = new UserData(user);
+		userData = UserDataFactory.createUserData(user);
 		
 //		if (user.getId() == loggedUser.getUserId()) {
 //			userData.setLoggedUser(true);

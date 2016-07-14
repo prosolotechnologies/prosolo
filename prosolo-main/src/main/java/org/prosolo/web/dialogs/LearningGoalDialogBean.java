@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.notifications.RequestManager;
@@ -106,7 +107,7 @@ public class LearningGoalDialogBean implements Serializable {
 	public void initializeRecommendedGoalDialog(long goalId, long recommenderId) {
 		try {
 			this.goal = goalManager.loadResource(LearningGoal.class, goalId);
-			this.recommender = new UserData(goalManager.loadResource(User.class, recommenderId));
+			this.recommender = UserDataFactory.createUserData(goalManager.loadResource(User.class, recommenderId));
 			
 			mode = LearningGoalDialogMode.RECOMMENDED;
 			init();

@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 
 /*
  * @author Zoran Jeremic 2013-05-19
@@ -48,7 +49,7 @@ public class MessagesThreadData implements Serializable {
 		
 		for (ThreadParticipant participant : thread.getParticipants()) {
 			User user = participant.getUser();
-			UserData userData = new UserData(user);
+			UserData userData = UserDataFactory.createUserData(user);
 			
 			participants.add(userData);
 			

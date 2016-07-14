@@ -11,5 +11,4 @@ public class Service extends LearningContextInfo {
 	public void setService(Service service) {
 		this.service = service;
 	}
-	
 }

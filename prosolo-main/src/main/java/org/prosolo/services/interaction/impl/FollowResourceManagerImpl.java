@@ -283,19 +283,19 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	public List<User> getFollowingUsers(long userId, int page, int limit) throws DbConnectionException {
 		try {
 			String query = 
-					"SELECT DISTINCT fUser " + 
-					"FROM FollowedEntity fEnt " + 
-					"LEFT JOIN fEnt.user user "+
-					"JOIN fEnt.followedUser fUser " + 
-					"WHERE user = :user " +
-					"ORDER BY fUser.name, fUser.lastname";
+				"SELECT DISTINCT fUser " + 
+				"FROM FollowedEntity fEnt " + 
+				"LEFT JOIN fEnt.user user "+
+				"JOIN fEnt.followedUser fUser " + 
+				"WHERE user.id = :userId " +
+				"ORDER BY fUser.name, fUser.lastname";
 			
 			Query q = persistence.currentManager().createQuery(query)
 					.setLong("userId", userId);
 			
-			if(limit != 0) {
+			if (limit != 0) {
 				q.setFirstResult(page * limit)
-				.setMaxResults(limit);
+						.setMaxResults(limit);
 			}
 			
 			List<User> users = q.list();

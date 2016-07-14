@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 //import org.prosolo.util.nodes.CreatedAscComparator;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.courses.util.CourseDataConverter;
 
@@ -80,7 +81,7 @@ public class CourseData implements Comparable<CourseData>, Serializable {
 		this.dateCreated = course.getDateCreated();
 		this.title = course.getTitle();
 		this.description = course.getDescription();
-		this.maker = new UserData(course.getMaker());
+		this.maker = UserDataFactory.createUserData(course.getMaker());
 		if (course.getBasedOn() != null) {
 			this.basedOnCourse = course.getBasedOn().getId();
 		}

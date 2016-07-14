@@ -27,6 +27,7 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.ComponentName;
@@ -116,7 +117,7 @@ public class AskForEvaluationBean implements Serializable {
 				List<User> evaluators = roleManager.getUsersWithRole(evaluatorRoleName);
 				
 				for (User user : evaluators) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					evaluatorList.add(userData);
 				}
 				recalculateUserNo();
@@ -196,7 +197,7 @@ public class AskForEvaluationBean implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();
 		for (User user : result) {
-			UserData userData = new UserData(user);
+			UserData userData = UserDataFactory.createUserData(user);
 			
 			// disable all users that have previously created an evaluation for this resource and this user
 //			if (existingEvaluators.contains(user)) {

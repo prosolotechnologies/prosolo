@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
@@ -58,7 +58,7 @@ public class PeopleActionBean implements Serializable{
 		followResourceAsyncManager.asyncFollowUser(loggedUser.getUserId(), userToFollow, context);
 		//followResourceManager.followUser(loggedUser.getUser(), userToFollow);
 //		colleguesBean.addFollowingUser(new UserData(userToFollow));
-		peopleBean.addFollowingUser(new UserData(userToFollow));
+		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
 		PageUtil.fireSuccessfulInfoMessage("Started following "+userToFollow.getName()+" "+userToFollow.getLastname()+".");
 //		Ajax.update("userDetailsForm:userDetailsGrowl", "listFollowingPeopleForm", "listfollowersform", "formMainFollowingUsers");
 		//Ajax.update("listpeople:listfollowedpeopleform:followedUsersPanel");
