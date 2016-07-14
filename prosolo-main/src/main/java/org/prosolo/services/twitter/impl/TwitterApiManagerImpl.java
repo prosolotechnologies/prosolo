@@ -1,18 +1,17 @@
 package org.prosolo.services.twitter.impl;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.TwitterConfigurationManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import twitter4j.Twitter;
@@ -23,49 +22,49 @@ import twitter4j.auth.RequestToken;
 
 /**
  * @author Zoran Jeremic 2013-08-04
- *
+ * 
  */
 @Service("org.prosolo.services.twitter.TwitterApiManager")
 public class TwitterApiManagerImpl implements TwitterApiManager {
 	
 	private static Logger logger = Logger.getLogger(TwitterApiManagerImpl.class);
 	
-	@Autowired UserOauthTokensManager oauthAccessTokenManager;
-	@Autowired AnalyticalServiceCollector analyticalServiceCollector;
-	//@Autowired TwitterStreamsManager twitterStreamsManager;
-	@Autowired TwitterConfigurationManager twitterConfigurationManager;
+	@Inject 
+	private UserOauthTokensManager oauthAccessTokenManager;
+	@Inject 
+	private AnalyticalServiceCollector analyticalServiceCollector;
+	@Inject 
+	private TwitterConfigurationManager twitterConfigurationManager;
 
 	private static Map<Long, RequestToken> requestTokens = null;
 	
-	public TwitterApiManagerImpl() throws TwitterException, IllegalArgumentException, IOException {
-		if (requestTokens == null){
-			requestTokens = new HashMap<Long, RequestToken>();
-		}
+	public TwitterApiManagerImpl() {
+		requestTokens = new HashMap<Long, RequestToken>();
 	}
  
 	@Override
-	public OauthAccessToken verifyAndGetTwitterAccessToken(User user, String oauthVerifier) {
-		OauthAccessToken oauthAccessToken = getOauthAccessToken(user);
+	public OauthAccessToken verifyAndGetTwitterAccessToken(long userId, String oauthVerifier) {
+		OauthAccessToken oauthAccessToken = getOauthAccessToken(userId);
 		AccessToken accessToken = null;
 		
-		
+		// if there already is an oauth token, delete it
 		if (oauthAccessToken != null) {
 			accessToken = new AccessToken(oauthAccessToken.getToken(), oauthAccessToken.getTokenSecret());
 			this.getTwitter().setOAuthAccessToken(accessToken);
 			
 			try {
 				this.getTwitter().verifyCredentials();
-				} catch (TwitterException te) {
-				oauthAccessTokenManager.deleteUserOauthAccessToken(user, ServiceType.TWITTER);
+			} catch (TwitterException te) {
+				oauthAccessTokenManager.deleteUserOauthAccessToken(userId, ServiceType.TWITTER);
 				accessToken = null;
 			}
 			return oauthAccessToken;
 		}
+		
 		//retrieve the access token and delete the requestToken from the map. We don't need any more
 		try {
-			accessToken = this.getTwitter().getOAuthAccessToken(requestTokens.remove(user.getId()), oauthVerifier);
+			accessToken = this.getTwitter().getOAuthAccessToken(requestTokens.remove(userId), oauthVerifier);
 			String screenName = accessToken.getParameter("screen_name");
-			long userId = accessToken.getUserId();
 			String token = accessToken.getToken();
 			String tokenSecret = accessToken.getTokenSecret();
 			
@@ -73,8 +72,8 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 			logger.debug("X screenName:"+screenName+" id:"+userId);
 		
 			oauthAccessToken = oauthAccessTokenManager.createOrUpdateOauthAccessToken(
-					user, ServiceType.TWITTER, token,
-					tokenSecret, screenName, "https://twitter.com/"+screenName, userId);
+					userId, ServiceType.TWITTER, token,
+					tokenSecret, screenName, "https://twitter.com/"+screenName);
 			
 			if (oauthAccessToken!=null) {
 				logger.debug("created access token:" +oauthAccessToken.getProfileLink());
@@ -83,32 +82,28 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 				 analyticalServiceCollector.updateTwitterUser(userId,true);
 			}
 			this.getTwitter().setOAuthAccessToken(null);
-		}catch (java.lang.IllegalStateException e) {
+		} catch (java.lang.IllegalStateException e) {
 			//logger.error("IllegalStateException in checking twitter status for user"+e.getLocalizedMessage());
 			throw e;
-		} 
-		
-		catch (TwitterException e) {
-			logger.error("There is no toke available",e);
+		} catch (TwitterException e) {
+			logger.error("There is no toke available", e);
 		}
 		
 		return oauthAccessToken;
 	}
 	
 	@Override
-	public String getTwitterTokenUrl(User user, String callbackUrl)	throws TwitterException {
-		// Add the requestToken for each user :)
+	public String getTwitterTokenUrl(long userId, String callbackUrl) throws TwitterException {
 		this.getTwitter().setOAuthAccessToken(null);
 		RequestToken rt =  this.getTwitter().getOAuthRequestToken(callbackUrl);
-		requestTokens.put(user.getId(), rt);
+		requestTokens.put(userId, rt);
 		 
-		String authorizationURL = rt.getAuthorizationURL();
-		return authorizationURL;
+		return rt.getAuthorizationURL();
 	}
 	
 	@Override
-	public OauthAccessToken getOauthAccessToken(User user) throws IllegalAccessError {
-		return oauthAccessTokenManager.getOauthAccessToken(user, ServiceType.TWITTER);
+	public OauthAccessToken getOauthAccessToken(long userId) throws IllegalAccessError {
+		return oauthAccessTokenManager.getOauthAccessToken(userId, ServiceType.TWITTER);
 	}
 	
 	@Override

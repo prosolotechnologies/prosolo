@@ -13,19 +13,19 @@ import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
  */
 public interface UserOauthTokensManager {
 
-	OauthAccessToken getOauthAccessToken(User user, ServiceType twitter);
+	OauthAccessToken getOauthAccessToken(long userId, ServiceType twitter);
 
-	OauthAccessToken findOauthAccessToken(User user, ServiceType serviceType);
+	OauthAccessToken findOauthAccessToken(long userId, ServiceType serviceType);
 
-	OauthAccessToken createOrUpdateOauthAccessToken(User user, ServiceType service,
+	OauthAccessToken createOrUpdateOauthAccessToken(long userId, ServiceType service,
 			String token, String tokenSecret, String screenName,
-			String profileLink, long userId);
+			String profileLink);
 
-	OauthAccessToken createNewOauthAccessToken(User user, ServiceType service,
+	OauthAccessToken createNewOauthAccessToken(long userId, ServiceType service,
 			String token, String tokenSecret, String screenName,
-			String profileLink, long userId);
+			String profileLink);
 
-	long deleteUserOauthAccessToken(User user, ServiceType service);
+	long deleteUserOauthAccessToken(long userId, ServiceType service);
 
 	List<OauthAccessToken> getAllTwitterUsersTokens();
 

@@ -27,7 +27,7 @@ public class TwitterSearchServiceImpl implements TwitterSearchService {
 		
 		try {
 			AccessToken accessToken = null;
-			OauthAccessToken oAccessToken = userOauthTokensManager.findOauthAccessToken(user, ServiceType.TWITTER);
+			OauthAccessToken oAccessToken = userOauthTokensManager.findOauthAccessToken(user.getId(), ServiceType.TWITTER);
 
 			if (oAccessToken == null) {
 				return null;

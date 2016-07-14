@@ -28,7 +28,7 @@ public class TwitterConfigurationManagerImpl implements TwitterConfigurationMana
 	public TwitterConfigurationManagerImpl(){ }
 	
 	public ConfigurationBuilder createTwitterConfigurationBuilder(){
-		TwitterSiteProperties properties=null;
+		TwitterSiteProperties properties = null;
 		try {
 			properties = new PropertiesFacade().getTwitterSiteProperties(0);
 		} catch (IllegalArgumentException e) {
@@ -36,7 +36,6 @@ public class TwitterConfigurationManagerImpl implements TwitterConfigurationMana
 		} catch (IOException e) {
 			logger.error(e);
 		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
 			logger.error(e);
 		}
 		
@@ -50,7 +49,6 @@ public class TwitterConfigurationManagerImpl implements TwitterConfigurationMana
 		cb.setRestBaseURL("https://api.twitter.com/1.1/");
 		cb.setOAuthConsumerKey(consumerKey);
 		cb.setOAuthConsumerSecret(consumerSecret);
-		// cb..setUseSSL(true);
 		return cb;
 	}
 

@@ -49,19 +49,41 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public void updateSocialNetworkAccount(SocialNetworkAccountData socialNetowrkAccountData)
+	public void updateSocialNetworkAccount(SocialNetworkAccountData socialNetowrkAccountData, long userId)
 			throws DbConnectionException {
-		SocialNetworkAccount account = new SocialNetworkAccount();
-		account.setId(socialNetowrkAccountData.getId());
-		account.setLink(socialNetowrkAccountData.getLinkEdit());
-		account.setSocialNetwork(socialNetowrkAccountData.getSocialNetworkName());
-		try {
-			saveEntity(account);
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
+		
+		SocialNetworkAccount account = getSocialNetworkAccount(userId, socialNetowrkAccountData.getSocialNetworkName());
+		
+		if (account != null) {
+			account.setLink(socialNetowrkAccountData.getLinkEdit());
+			try {
+				saveEntity(account);
+			} catch (DbConnectionException e) {
+				e.printStackTrace();
+				throw new DbConnectionException();
+			}
 		}
+	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName) {
+		String query = 
+				"SELECT accounts " + 
+				"FROM UserSocialNetworks socialNetworks " +
+				"LEFT JOIN socialNetworks.socialNetworkAccounts accounts " +
+				"WHERE socialNetworks.user.id = :userId " + 
+					"AND accounts.socialNetwork = :socialNetworkName";
+
+		SocialNetworkAccount result = (SocialNetworkAccount) persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.setString("socialNetworkName", socialNetworkName.name())
+				.uniqueResult();
+		
+		if (result != null) {
+			return result;
+		}
+		return null;
 	}
 
 }

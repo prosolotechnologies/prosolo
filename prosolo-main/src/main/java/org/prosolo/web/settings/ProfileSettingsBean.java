@@ -353,8 +353,8 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveSocialNetworkChanges() {
 		boolean newSocialNetworkAccountIsAdded = false;
 
-		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData
-				.getSocialNetworkAccountDatas();
+		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccountDatas();
+		
 		try {
 			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
 				if (socialNetowrkAccountData.isChanged()) {
@@ -366,11 +366,12 @@ public class ProfileSettingsBean implements Serializable {
 						userSocialNetworks.getSocialNetworkAccounts().add(account);
 						newSocialNetworkAccountIsAdded = true;
 					} else {
-						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData);
+						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData, loggedUser.getUserId());
 					}
 
 				}
 			}
+			
 			if (newSocialNetworkAccountIsAdded) {
 				socialNetworksManager.saveEntity(userSocialNetworks);
 				try {
@@ -383,7 +384,6 @@ public class ProfileSettingsBean implements Serializable {
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("There was an error changing profile photo.");
 		}
-
 	}
 
 	public void cancelCrop() {

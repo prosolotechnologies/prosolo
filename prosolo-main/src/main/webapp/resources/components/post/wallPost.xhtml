@@ -60,16 +60,47 @@
                    <a href="wall-post-view.html" class="timestamp">      	
                    		#{cc.attrs.socialActivity.datePretty}
                    </a>
-                   <div class="dropdown optDrop">
+                   <h:panelGroup id="panelSocialActivityOptions" styleClass="dropdown optDrop">
                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                            <span class="arrowDown">arrowDown</span>
                        </a>
                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                           <li><a href="#">Hide post</a></li>
-                           <li><a href="#">Delete post</a></li>
-                           <li><a href="#">Disable comments</a></li>
+                           <li>
+                           		<p:commandLink
+                           			value="Hide post"
+                           			action="#{wallactions.hideActivity(cc.attrs.socialActivity)}"
+                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
+                           		</p:commandLink>
+                           </li>
+                           <ui:fragment rendered="#{activityWallBean.isCurrentUserCreator(cc.attrs.socialActivity)}">
+	                           <li>
+	                           	    <p:commandLink
+	                           			value="Delete post"
+	                           			action="#{wallactions.deleteActivity(cc.attrs.socialActivity)}"
+	                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
+	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+	                           		</p:commandLink>
+	                           </li>
+	                           <li>
+	                           		<p:commandLink rendered="#{!cc.attrs.socialActivity.commentsDisabled}"
+	                           			value="Disable comments"
+	                           			action="#{wallactions.disableComments(cc.attrs.socialActivity)}"
+	                           			update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
+	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+	                           		</p:commandLink>
+	                           		<p:commandLink rendered="#{cc.attrs.socialActivity.commentsDisabled}"
+	                           			value="Enable comments"
+	                           			action="#{wallactions.enableComments(cc.attrs.socialActivity)}"
+	                           			update="#{cc.attrs.growlToUpdate} panelToggleComments comments panelSocialActivityOptions">
+	                       				<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+	      								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+	                           		</p:commandLink>
+	                           </li>
+	                       </ui:fragment>
                        </ul>
-                   </div>
+                   </h:panelGroup>
                </div>
            </div>
            <div class="wallPostBody">
@@ -99,7 +130,7 @@
 			   </p:commandLink>
            
                <h:panelGroup id="panelToggleComments">
-	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized}"
+	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}"
 	               		styleClass="commentsNumber" 
 	               		pt:role="button" 
 	               		pt:data-toggle="collapse" 
@@ -111,18 +142,18 @@
 	               		oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
 	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} comments
 	               	</p:commandLink>
-	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized}">
-	               		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}"> 
-	               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
-	               				<span class="icon"></span>
-	               					#{cc.attrs.socialActivity.comments.numberOfComments} comments
-	               		    </a>
+	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}">
+	               		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}">
+		               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
+		               				<span class="icon"></span>
+		               					#{cc.attrs.socialActivity.comments.numberOfComments} comments
+		               		    </a>
 	               		</h:panelGroup>  
 	           		</ui:fragment>
 	            </h:panelGroup>
            </div>
            
-           <post:comments 
+           <post:comments
            		id="comments"
            		comments="#{cc.attrs.socialActivity.comments}"
            		uniqueId="#{cc.attrs.socialActivity.id}"

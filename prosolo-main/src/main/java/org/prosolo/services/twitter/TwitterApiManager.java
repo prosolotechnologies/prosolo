@@ -1,6 +1,5 @@
 package org.prosolo.services.twitter;
 
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
 
 import twitter4j.Twitter;
@@ -12,11 +11,11 @@ import twitter4j.TwitterException;
  */
 public interface TwitterApiManager {
 
-	OauthAccessToken getOauthAccessToken(User user);
+	OauthAccessToken getOauthAccessToken(long userId);
 
-	String getTwitterTokenUrl(User user, String callbackUrl) throws TwitterException;
+	String getTwitterTokenUrl(long userId, String callbackUrl) throws TwitterException;
 
-	OauthAccessToken verifyAndGetTwitterAccessToken(User user, String oauthVerifier) throws TwitterException;
+	OauthAccessToken verifyAndGetTwitterAccessToken(long userId, String oauthVerifier) throws TwitterException;
 
 	Twitter getTwitter();
 

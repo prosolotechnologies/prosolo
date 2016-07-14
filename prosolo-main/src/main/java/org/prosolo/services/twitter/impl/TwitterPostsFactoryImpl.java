@@ -95,7 +95,8 @@ public class TwitterPostsFactoryImpl implements TwitterPostsFactory {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("source", hashtagListener ? "hashtagListener" : "statusListener");
 		
-		eventFactory.generateEvent(EventType.TwitterPost, user.getId(), post, null, parameters); }
+		eventFactory.generateEvent(EventType.TwitterPost, user.getId(), post, null, parameters);
+	}
 
 	@Override
 	@Transactional

@@ -14,8 +14,10 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivityConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
+import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
+import org.prosolo.services.activityWall.impl.data.SocialActivityType;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -33,7 +35,6 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 
 	private static final long serialVersionUID = -4769526394766538839L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ActivityWallActionsManagerImpl.class);
 	
 	@Autowired private EventFactory eventFactory;
@@ -80,37 +81,83 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		eventFactory.generateEvent(EventType.Delete, user.getId(), socialActivity, null, parameters);
 		return true;
 	}
-
+	
 	@Override
 	@Transactional
-	public boolean enableComments(User user, long socialActivityId, String context, Session session) throws EventException, ResourceCouldNotBeLoadedException {
-		SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
-//		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
-		socialActivity.setCommentsDisabled(false);
-		session.save(socialActivity);
-		
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", context);
-		
-		eventFactory.generateEvent(EventType.CommentsEnabled, user.getId(), socialActivity, null, parameters);
-		
-		return true;
+	public void deleteSocialActivity(long userId, SocialActivityData1 socialActivity, 
+			LearningContextData context, Session session) throws DbConnectionException {
+		try {
+			SocialActivity1 sa = loadResource(SocialActivity1.class, socialActivity.getId(), session);
+			
+			sa.setDeleted(true);
+			
+			if(socialActivity.getType() == SocialActivityType.Post_Reshare) {
+				long originalPostSocialActivityId = socialActivity.getObject().getId();
+				if(originalPostSocialActivityId > 0) {
+					PostSocialActivity1 originalPost = loadResource(PostSocialActivity1.class, 
+							originalPostSocialActivityId, session);
+					originalPost.setShareCount(originalPost.getShareCount() - 1);
+				}
+			}
+			
+			User user = new User();
+			user.setId(userId);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.Delete, user.getId(), sa, null, page, lContext, service, 
+					null);
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while deleting social activity");
+		}
 	}
 
 	@Override
 	@Transactional
-	public boolean disableComments(User user, long socialActivityId, String context, Session session) throws EventException, ResourceCouldNotBeLoadedException {
-		SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
-		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
-		socialActivity.setCommentsDisabled(true);
-		socialActivity = saveEntity(socialActivity, session);
-		
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("context", context);
-		
-		eventFactory.generateEvent(EventType.CommentsDisabled, user.getId(), socialActivity, null, parameters);
-		
-		return true;
+	public void enableComments(long userId, long socialActivityId, LearningContextData context, 
+			Session session) throws DbConnectionException {
+		try {
+			SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
+	//		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
+			socialActivity.setCommentsDisabled(false);
+			
+			User user = new User();
+			user.setId(userId);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.CommentsEnabled, user.getId(), socialActivity, null, page, 
+					lContext, service, null);
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while enabling comments");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void disableComments(long userId, long socialActivityId, LearningContextData context, 
+			Session session) throws DbConnectionException {
+		try {
+			SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
+	//		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
+			socialActivity.setCommentsDisabled(true);
+			
+			User user = new User();
+			user.setId(userId);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.CommentsDisabled, user.getId(), socialActivity, null, page, 
+					lContext, service, null);
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while disabling comments");
+		}
 	}
 	
 	@Override

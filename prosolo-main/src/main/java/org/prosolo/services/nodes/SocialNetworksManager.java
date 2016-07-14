@@ -14,6 +14,8 @@ public interface SocialNetworksManager extends AbstractManager {
 	
 	SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link);
 
-	void updateSocialNetworkAccount(SocialNetworkAccountData socialNetowrkAccountData) throws DbConnectionException;
+	void updateSocialNetworkAccount(SocialNetworkAccountData socialNetowrkAccountData, long userId) throws DbConnectionException;
+
+	SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName);
 	
 }

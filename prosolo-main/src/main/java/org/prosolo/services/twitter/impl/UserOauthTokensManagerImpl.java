@@ -25,44 +25,44 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 	private static Logger logger = Logger.getLogger(OauthAccessToken.class);
 
 	@Override
-	public OauthAccessToken getOauthAccessToken(User user, ServiceType twitter) {
-		if (user == null || twitter == null) {
+	public OauthAccessToken getOauthAccessToken(long userId, ServiceType twitter) {
+		if (userId == 0) {
 			throw new IllegalArgumentException("Some arguments are null, can't continue with the action");
 		}
-		return findOauthAccessToken(user, twitter);
+		return findOauthAccessToken(userId, twitter);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
-	public OauthAccessToken findOauthAccessToken(User user, ServiceType serviceType) {
+	public OauthAccessToken findOauthAccessToken(long userId, ServiceType serviceType) {
 		String query = 
 			"SELECT DISTINCT token " + "" +
 			"FROM OauthAccessToken token " + 
-			"WHERE token.user = :user";
+			"WHERE token.user.id = :userId " +
+				"AND token.service = :serviceType";
 		
 		@SuppressWarnings("unchecked")
-		
 		List<OauthAccessToken> accessToken = persistence.currentManager().createQuery(query)
-				.setEntity("user", user)
+				.setLong("userId", userId)
+				.setString("serviceType", serviceType.name())
 				.list();
 
-		if (accessToken.isEmpty()) {
-			return null;
-		} else {
+		if (!accessToken.isEmpty()) {
 			return accessToken.get(0);
 		}
+		return null;
 	}
 
 	@Override
-	public OauthAccessToken createOrUpdateOauthAccessToken(User user,
+	public OauthAccessToken createOrUpdateOauthAccessToken(long userId,
 			ServiceType service, String token,
 			String tokenSecret, String screenName, 
-			String profileLink, long userId) {
+			String profileLink) {
 		
-		OauthAccessToken oauthAccessToken = findOauthAccessToken(user, service);
+		OauthAccessToken oauthAccessToken = findOauthAccessToken(userId, service);
 		
 		if (oauthAccessToken == null) {
-			oauthAccessToken = createNewOauthAccessToken(user, service, token, tokenSecret,	screenName, profileLink, userId);
+			oauthAccessToken = createNewOauthAccessToken(userId, service, token, tokenSecret, screenName, profileLink);
 			return oauthAccessToken;
 		}
 		return oauthAccessToken;
@@ -70,14 +70,14 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 
 	@Override
 	@Transactional
-	public OauthAccessToken createNewOauthAccessToken(User user, ServiceType service,
+	public OauthAccessToken createNewOauthAccessToken(long userId, ServiceType service,
 			String token, String tokenSecret, String screenName,
-			String profileLink, long userId) {
+			String profileLink) {
 		OauthAccessToken oauthAccessToken = new OauthAccessToken();
 		oauthAccessToken.setToken(token);
 		oauthAccessToken.setService(service);
 		oauthAccessToken.setTokenSecret(tokenSecret);
-		oauthAccessToken.setUser(user);
+		oauthAccessToken.setUser(new User(userId));
 		oauthAccessToken.setProfileName(screenName);
 		oauthAccessToken.setProfileLink(profileLink);
 		oauthAccessToken.setUserId(userId);
@@ -88,14 +88,15 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 
 	@Override
 	@Transactional
-	public long deleteUserOauthAccessToken(User user, ServiceType service) {
-		OauthAccessToken token = findOauthAccessToken(user, service);
-		long deletedUserId=0;
+	public long deleteUserOauthAccessToken(long userId, ServiceType service) {
+		OauthAccessToken token = findOauthAccessToken(userId, service);
+		long deletedUserId = 0;
+		
 		if (token != null) {
-			token=this.merge(token);
+			token = this.merge(token);
 			deletedUserId=token.getUserId();
 			System.out.println("Deleting user:"+token.getUserId());
-			Session session=persistence.currentManager();
+			Session session = persistence.currentManager();
 			session.delete(token);
 			session.flush();
 		}

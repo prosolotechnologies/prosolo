@@ -14,14 +14,10 @@
 	</composite:interface>
 
 	<composite:implementation>
-		<link rel="stylesheet" type="text/css" media="all"
-			href="#{request.contextPath}/resources/css2/icropper.css" />
-		<script
-			src="#{request.contextPath}/resources/javascript2/icropper/icropper-min.js"></script>
-		<script type="text/javascript"
-			src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places&amp;key=AIzaSyCBFHHgHrjX9AUW-BZhUDj5O4fIt9omEqQ"></script>
-		<script
-			src="#{request.contextPath}/resources/javascript2/settings.profile.location.js"></script>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/icropper.css" />
+		<script src="#{request.contextPath}/resources/javascript2/icropper/icropper-min.js"></script>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false&amp;libraries=places&amp;key=AIzaSyCBFHHgHrjX9AUW-BZhUDj5O4fIt9omEqQ"></script>
+		<script src="#{request.contextPath}/resources/javascript2/settings.profile.location.js"></script>
 
 		<div class="whiteBar"></div>
 
@@ -34,6 +30,7 @@
 						<div class="formWrapper">
 							<h:form id="settingsPersonalForm">
 								<p:growl id="settingsPersonalGrowl" showDetail="true"></p:growl>
+								
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
@@ -41,6 +38,7 @@
 											value="#{profileSettings.accountData.firstName}" />
 									</div>
 								</div>
+								
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
@@ -48,6 +46,7 @@
 											value="#{profileSettings.accountData.lastName}" />
 									</div>
 								</div>
+								
 								<div class="formLine">
 									<label>Email</label>
 									<div class="formLineRight">
@@ -56,6 +55,7 @@
 										<small>Email will not be publicly displayed.</small>
 									</div>
 								</div>
+								
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
@@ -63,21 +63,21 @@
 											value="#{profileSettings.accountData.position}" />
 									</div>
 								</div>
+								
 								<div class="formLine">
 									<label>Location</label>
-									<h:panelGroup layout="block" id="location"
-										class="location formLineRight">
-										<h:inputText
+									<h:panelGroup layout="block" id="location" class="location formLineRight">
+										<h:inputText id="editLocationName"
 											value="#{profileSettings.accountData.locationName}"
-											id="editLocationName" class="searchLocationTextField"
+											class="searchLocationTextField"
 											size="50" />
-										<h:inputText value="#{profileSettings.accountData.latitude}"
-											class="latitude" style="display: none;" />
-										<h:inputText value="#{profileSettings.accountData.longitude}"
-											class="longitude" style="display: none;" />
+										<h:inputText value="#{profileSettings.accountData.latitude}" class="latitude" style="display: none;" />
+										<h:inputText value="#{profileSettings.accountData.longitude}" class="longitude" style="display: none;" />
+										
 										<f:view contentType="text/html">
 											<div class="map-canvas"></div>
 										</f:view>
+										
 										<script>
 											$(function(){
 												initializeMap('#{profileSettings.accountData.locationName}', '#{profileSettings.accountData.latitude}', '#{profileSettings.accountData.longitude}');
@@ -85,6 +85,7 @@
 										</script>
 									</h:panelGroup>
 								</div>
+								
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight">
@@ -96,37 +97,42 @@
 							</h:form>
 						</div>
 					</div>
+					
 					<div class="whiteBox socialNetworks">
 						<h2>Social Profiles</h2>
+						
 						<div class="formWrapper">
 							<h:form id="socialNetworksSettingsForm">
 								<p:growl id="settingsSocialNetworksGrowl" showDetail="true"></p:growl>
-								<h:panelGroup layout="block" id="socialNetworksContainer"
-									class="socialNetworksContainer">
+								
+								<h:panelGroup layout="block" id="socialNetworksContainer" class="socialNetworksContainer">
 									<div class="formLine">
 										<label>LinkedIn profile URL</label>
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['LINKEDIN'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['LINKEDIN'].linkEdit}" />
 										</div>
 									</div>
+									
 									<div class="formLine">
 										<label>Twitter profile URL</label>
+										
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
+											<h:inputText id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
+											
 											<div class="twitterBtnBox">
 												<h:panelGroup id="twitter">
-													<h:panelGroup rendered="#{!twitterBean.OK}">
+													<h:panelGroup rendered="#{!twitterBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.startTweeterOauthAuthProcess}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
 															<span></span>Connect to Twitter
 														</p:commandLink>
+														
 														<small>Connect your Twitter account and republish
 															your tweets to your ProSolo followers.</small>
 													</h:panelGroup>
-													<h:panelGroup rendered="#{twitterBean.OK}">
+													
+													<h:panelGroup rendered="#{twitterBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.disconnectUserAccount}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
@@ -134,24 +140,24 @@
 														</p:commandLink>
 													</h:panelGroup>
 												</h:panelGroup>
-
 											</div>
 										</div>
 									</div>
+									
 									<div class="formLine">
 										<label>Facebook profile URL</label>
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['FACEBOOK'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['FACEBOOK'].linkEdit}" />
 										</div>
 									</div>
+									
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText
-												value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
 										</div>
 									</div>
+									
 									<div class="formLine">
 										<label>&#160;</label>
 										<div class="formLineRight">
@@ -169,12 +175,12 @@
 				<div class="col-md-4">
 					<div class="whiteBox yourPhotoBox">
 						<h2>Your Photo</h2>
+						
 						<h:form id="settingsAvatarForm">
-							<p:growl id="settingsAvatarFormGrowl" showDetail="true"
-								enctype="multipart/form-data" />
+							<p:growl id="settingsAvatarFormGrowl" showDetail="true" enctype="multipart/form-data" />
+							
 							<h:panelGroup layout="block" id="avatar" class="avatar">
-								<h:panelGroup layout="block" id="displayAvatar"
-									class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
+								<h:panelGroup layout="block" id="displayAvatar" class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
 
 									<div class="yourPhotoContent">
 										<h:graphicImage styleClass="img-circle"
@@ -195,14 +201,12 @@
 												toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
 												uploadButtonStyle="btn btn-green" />
 											<div class="clear"></div>
-											<small>JPG or PNG,<br />Min 400x400 px.
-											</small>
+											<small>JPG or PNG,<br />Min 400x400 px.</small>
 										</div>
 									</div>
-
 								</h:panelGroup>
-								<h:panelGroup layout="block" id="editAvatar"
-									class="#{profileSettings.newAvatar == null ? 'hidden' : ''}">
+
+								<h:panelGroup layout="block" id="editAvatar" class="#{profileSettings.newAvatar == null ? 'hidden' : ''}">
 									<div class="second">
 										<div class="cropperContainer">
 											<div id="croppedImage"></div>
@@ -228,22 +232,23 @@
 											value="#{profileSettings.cropCoordinates}" />
 
 										<script type="text/javascript">
-								var ic = new ICropper('croppedImage',{
-										minWidth: 100,
-										minHeight: 100,
-										keepSquare: true,
-										image: '#{profileSettings.newAvatar}',
-										preview: [
-											'previewSmall'
-										]
-									});
-							</script>
+										var ic = new ICropper('croppedImage',{
+											minWidth: 100,
+											minHeight: 100,
+											keepSquare: true,
+											image: '#{profileSettings.newAvatar}',
+											preview: [
+												'previewSmall'
+											]
+										});
+										</script>
 									</div>
 								</h:panelGroup>
+								
 								<script>
-						$('.avatar').fadeIn();
-						roundImages();
-					</script>
+									$('.avatar').fadeIn();
+									roundImages();
+								</script>
 							</h:panelGroup>
 						</h:form>
 					</div>
