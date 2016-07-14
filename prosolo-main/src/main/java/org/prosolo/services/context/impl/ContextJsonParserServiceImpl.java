@@ -37,16 +37,7 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			builder.registerTypeAdapter(ContextName.class, new CustomContextNameDeserializer());	
 			Gson gson = builder.create();
 			
-			Context c = null;
-			if(context != null && !context.isEmpty()) {
-				Map<String, Object> ctx = parseString(context, "context");
-				
-				String jsonContext = gson.toJson(ctx);
-				//System.out.println(jsonContext);
-				c = gson.fromJson(jsonContext, Context.class);
-				addObjectTypeInfoForContext(c);
-				
-			}
+			Context c = parseContext(context, gson);
 			
 			Service s = null;
 			if(service != null && !service.isEmpty()) {
@@ -69,6 +60,27 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	@Override
+	public Context parseContext(String context) {
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(ContextName.class, new CustomContextNameDeserializer());	
+		Gson gson = builder.create();
+		return parseContext(context, gson);
+	}
+	
+	private Context parseContext(String context, Gson gson) {
+		Context c = null;
+		if(context != null && !context.isEmpty()) {
+			Map<String, Object> ctx = parseString(context, "context");
+			
+			String jsonContext = gson.toJson(ctx);
+			//System.out.println(jsonContext);
+			c = gson.fromJson(jsonContext, Context.class);
+			addObjectTypeInfoForContext(c);
+		}
+		return c;
 	}
 	
 	private void addObjectTypeInfoForContext(LearningContextInfo lci) {

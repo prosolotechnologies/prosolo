@@ -58,6 +58,8 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private String finalReview;
 	
+	private Date lastAction;
+	
 	//private String description;
 	//private String title;
 	
@@ -248,6 +250,15 @@ public class TargetCredential1 extends BaseEntity {
 	public void setFinalReview(String finalReview) {
 		this.finalReview = finalReview;
 	}
+
+	public Date getLastAction() {
+		return lastAction;
+	}
+
+	public void setLastAction(Date lastAction) {
+		this.lastAction = lastAction;
+	}
+	
 	
 /*
 	public String getDescription() {

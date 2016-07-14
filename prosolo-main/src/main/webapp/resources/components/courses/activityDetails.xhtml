@@ -138,6 +138,7 @@
 		            		fileUploadListenerMethodName="handleFileUpload"
 		            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
 		            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
+		            		learningContext="#{cc.attrs.learningContext}"
 		            	/> 
 	            	</h:form> 
             	</ui:fragment>
@@ -148,7 +149,8 @@
         		deleteAction="#{activityViewBean.deleteAssignment}"
         		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails" 
         		modalDeleteTitle="Result"
-        		modalDeleteText="the result"/>
+        		modalDeleteText="the result"
+        		learningContext="#{cc.attrs.learningContext}"/>
         </div>
 	</composite:implementation>
 </ui:component>

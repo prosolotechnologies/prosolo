@@ -1102,8 +1102,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setDescription(cred.getDescription());
 		targetCred.setCredential(cred);
 		targetCred.setUser(user);
-		targetCred.setDateCreated(new Date());
+		Date now = new Date();
+		targetCred.setDateCreated(now);
 		targetCred.setDateStarted(new Date());
+		targetCred.setLastAction(now);
 		targetCred.setCredentialType(cred.getType());
 
 		if(cred.getTags() != null) {
@@ -1655,6 +1657,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = false)
 	public void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException {
 		try {
@@ -2544,6 +2548,83 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+	
+	@Override
+	@Transactional
+	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
+			throws DbConnectionException {
+		List<CredentialData> result = new ArrayList<>();
+		try {
+			String query=
+					"SELECT tCred, creator, bookmark.id " +
+					"FROM TargetCredential1 tCred " +
+					"LEFT JOIN tCred.createdBy creator " +
+						"WITH tCred.credentialType = :credType " +
+					"INNER JOIN tCred.credential cred " +
+					"LEFT JOIN cred.bookmarks bookmark " +
+					   "WITH bookmark.user.id = :userId " +
+					"WHERE tCred.user.id = :userId " +
+					"AND tCred.progress < :progress " +
+					"ORDER BY tCred.lastAction";
+			  	
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userid)
+					.setInteger("progress", 100)
+					.setString("credType", LearningResourceType.USER_CREATED.name())
+					.setMaxResults(limit)
+				  	.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			for(Object[] row : res) {
+				if(row != null) {
+					TargetCredential1 tc = (TargetCredential1) row[0];
+					User creator = (User) row[1];
+					Long bookmarkId = (Long) row[2];
+					CredentialData cd = credentialFactory.getCredentialData(creator, 
+							tc, null, null, false);
+					if(bookmarkId != null) {
+						cd.setBookmarkedByCurrentUser(true);
+					}
+					result.add(cd);
+				}
+			}
+			return result;
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCredentialLastAction(long userId, long credentialId) 
+			throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetCredential1 cred SET " +
+					   	   "cred.lastAction = :date " +
+					       "WHERE cred.credential.id = :credId " +
+					   	   "AND cred.user.id = :userId " +
+					       "AND cred.progress < :progress";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setTimestamp("date", new Date())
+				.setLong("credId", credentialId)
+				.setLong("userId", userId)
+				.setInteger("progress", 100)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating last action for user credential");
 		}
 	}
 }

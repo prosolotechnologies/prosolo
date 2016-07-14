@@ -111,8 +111,8 @@ public interface Activity1Manager {
 	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long credId, 
 				long compId, long activityId, boolean shouldReturnDraft) throws DbConnectionException;
 
-	void saveAssignment(long targetActId, String fileName, String path) 
-			throws DbConnectionException;
+	 void saveAssignment(long targetActId, String fileName, String path, long userId, 
+				LearningContextData context) throws DbConnectionException;
 
 	/**
 	 * Updates activity flag to true. Also, progress of a competence that includes
@@ -130,7 +130,8 @@ public interface Activity1Manager {
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId) throws DbConnectionException;
 
-	void deleteAssignment(long targetActivityId) throws DbConnectionException;
+	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
+			throws DbConnectionException;
 	
 	void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
 			throws DbConnectionException;

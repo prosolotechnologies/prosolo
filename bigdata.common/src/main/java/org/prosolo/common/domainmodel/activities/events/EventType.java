@@ -47,6 +47,7 @@ public enum EventType {
 	
 	// activities
 	AssignmentRemoved,
+	AssignmentUploaded,
 	
 	// content types
 	FileUploaded,

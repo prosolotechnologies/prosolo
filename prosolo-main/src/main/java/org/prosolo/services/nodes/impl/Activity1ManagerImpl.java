@@ -1449,8 +1449,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void saveAssignment(long targetActId, String fileName, String path) 
-			throws DbConnectionException {
+	public void saveAssignment(long targetActId, String fileName, String path, long userId, 
+			LearningContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.assignmentLink = :path, " +
@@ -1463,6 +1463,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setString("fileName", fileName)
 				.setString("path", path)
 				.executeUpdate();
+			
+			User user = new User();
+			user.setId(userId);
+			TargetActivity1 tAct = new TargetActivity1();
+			tAct.setId(targetActId);
+			String lcPage = context != null ? context.getPage() : null; 
+			String lcContext = context != null ? context.getLearningContext() : null; 
+			String lcService = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.AssignmentUploaded, user, tAct, null,
+					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1621,7 +1631,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	public void deleteAssignment(long targetActivityId) throws DbConnectionException {
+	@Override
+	@Transactional(readOnly = false)
+	public void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
+			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.assignmentLink = :nullString, " +
@@ -1632,6 +1645,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setLong("id", targetActivityId)
 				.setString("nullString", null)
 				.executeUpdate();
+			
+			User user = new User();
+			user.setId(userId);
+			TargetActivity1 tAct = new TargetActivity1();
+			tAct.setId(targetActivityId);
+			String lcPage = context != null ? context.getPage() : null; 
+			String lcContext = context != null ? context.getLearningContext() : null; 
+			String lcService = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.AssignmentRemoved, user, tAct, null,
+					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

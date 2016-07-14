@@ -21,7 +21,6 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -175,25 +174,6 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	/*
 	 * ACTIONS
 	 */
-	
-	public void bookmarkCredential(CredentialData cred) {
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData context = new LearningContextData(page, lContext, service);
-			if(cred.isBookmarkedByCurrentUser()) {
-				credentialManager.deleteCredentialBookmark(cred.getId(), 
-						loggedUserBean.getUser().getId(), context);
-			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUser().getId(),
-						context);
-			}
-			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
-		} catch(DbConnectionException e) {
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
 	
 	public void enrollInCredential(CredentialData cred) {
 		try {
