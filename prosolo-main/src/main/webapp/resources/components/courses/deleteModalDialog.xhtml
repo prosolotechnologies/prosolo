@@ -16,6 +16,8 @@
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="modalDeleteTitle" required="true"/>
 		<composite:attribute name="modalDeleteText" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -39,6 +41,9 @@
                         	  	action="#{cc.attrs.deleteAction}"
         	  					update="#{cc.attrs.toUpdate}"
         	  					oncomplete="$('#deleteModal').modal('hide');">
+        	  					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+        	  					<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+        	  					<f:param name="service" value="#{util:addSubService(cc.attrs.service, 'name:delete_dialog')}" />
        	  				  </p:commandLink>
                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                        </div>

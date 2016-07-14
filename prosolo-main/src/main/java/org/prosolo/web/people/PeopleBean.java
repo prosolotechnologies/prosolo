@@ -53,9 +53,10 @@ public class PeopleBean implements Serializable, Paginable {
 	@PostConstruct
 	public void initPeopleBean() {
 		initFollowingUsers();
+		initUsersToFollow();
 	}
 
-	public void initFollowingUsers() {
+	private void initFollowingUsers() {
 		try {
 			followingUsers = new ArrayList<UserData>();
 			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
@@ -64,7 +65,7 @@ public class PeopleBean implements Serializable, Paginable {
 					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit)
 					: new ArrayList<User>();
 
-			if (!followingUsersList.isEmpty()) {
+			if (followingUsersList != null && !followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
 					UserData userData = new UserData(user);
 					followingUsers.add(userData);
@@ -75,13 +76,15 @@ public class PeopleBean implements Serializable, Paginable {
 			logger.error(e);
 			e.printStackTrace();
 		}
-		
+	}
+
+	private void initUsersToFollow() {
 		try {
 			usersToFollow = new ArrayList<UserData>();
 			List<User> usersToFollowList = cRecommendation
 					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
 
-			if (!usersToFollowList.isEmpty()) {
+			if (usersToFollowList != null && !usersToFollowList.isEmpty()) {
 				for (User user : usersToFollowList) {
 					UserData userData = new UserData(user);
 					usersToFollow.add(userData);

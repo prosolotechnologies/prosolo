@@ -191,12 +191,15 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void handleFileUpload(FileUploadEvent event) {
 		UploadedFile uploadedFile = event.getFile();
-		
+		String page = (String) event.getComponent().getAttributes().get("page");
+		String lContext = (String) event.getComponent().getAttributes().get("learningContext");
+		String service = (String) event.getComponent().getAttributes().get("service");
 		try {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), fileName, fullPath);
+					.getTargetActivityId(), fileName, fullPath, loggedUser.getUserId(),
+					new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
 			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
 		} catch (Exception e) {
@@ -207,8 +210,12 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void deleteAssignment() {
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
 			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId());
+					.getTargetActivityId(), loggedUser.getUserId(), 
+					new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().setAssignmentTitle(null);
 			competenceData.getActivityToShowWithDetails().setAssignmentLink(null);
 		} catch(DbConnectionException e) {

@@ -38,7 +38,8 @@ public enum ContextName {
 	ACTIVITY("Activity1"),
 	TARGET_CREDENTIAL("TargetCredential1"),
 	ACTIVITY_LINK("ResourceLink"),
-	ACTIVITY_FILE("ResourceLink");
+	ACTIVITY_FILE("ResourceLink"),
+	DELETE_DIALOG("");
 	
 	
     private String objectType; 

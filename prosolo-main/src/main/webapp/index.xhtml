@@ -89,54 +89,12 @@
                 <div class="sidebarBlock">
                     <div class="inProgressHead">
                         <h2>In Progress</h2>
-                        <a href="achievements-inprogress.html">View All</a>
+                        <h:link
+						value="View All" outcome="/achievements/inprogress" />
                     </div>
-                    <article class="whiteBox summaryCard">
-                        <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
-                        <div class="clear"></div>
-                        <p class="cardDescription">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
-                        <div class="metaBox">
-                            <div class="metaLeft">
-                                <a href="#" class="btn btn-green btn-sm">Resume</a>
-                                <div class="progressBar">
-                                    <span>70%</span>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="metaRight">
-                                <a href="" class="madeByUniversity" data-toggle="tooltip"
-                title="Made by University">made by university</a>
-                                <div class="duration">35 minutes</div>
-                            </div>
-                        </div>
-                        <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
-                    </article>
-                    <article class="whiteBox summaryCard">
-                        <h2><a href="credential.html">Introduction to Learning Analytics</a></h2>
-                        <div class="clear"></div>
-                        <p class="cardDescription">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
-                        <div class="metaBox">
-                            <div class="metaLeft">
-                                <a href="#" class="btn btn-green btn-sm">Resume</a>
-                                <div class="progressBar">
-                                    <span>70%</span>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="metaRight">
-                                <a href="" class="madeByUniversity" data-toggle="tooltip"
-                title="Made by University">made by university</a>
-                                <div class="duration">35 minutes</div>
-                            </div>
-                        </div>
-                        <a href="javascript:void(0)" class="bookmarkStar active" data-toggle="tooltip" title="Bookmark">bookmark</a>
-                    </article>
+                    <courses:recentNCredentialsInProgress 
+                    	learningContext="name:status_wall"
+                    />
                 </div>
                 <div class="sidebarBlock">
                     <h2>Who to Follow</h2>

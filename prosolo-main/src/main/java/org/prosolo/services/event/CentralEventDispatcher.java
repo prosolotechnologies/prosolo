@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.recommendation.impl.RecommendationObserver;
@@ -23,6 +25,7 @@ import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
+import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
 import org.prosolo.services.nodes.observers.learningResources.LearningResourceChangeObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
@@ -62,6 +65,7 @@ public class CentralEventDispatcher {
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 	@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
+	@Inject private CredentialLastActionObserver credentialLastActionObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -84,6 +88,7 @@ public class CentralEventDispatcher {
 			//observers.add(socialInteractionStatisticsObserver);
 			//observers.add(activityStartObserver);
 			observers.add(learningResourceChangeObserver);
+			observers.add(credentialLastActionObserver);
 		}
 		return observers;
 	}
