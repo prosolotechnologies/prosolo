@@ -84,7 +84,9 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	}
 	
 	private void addObjectTypeInfoForContext(LearningContextInfo lci) {
-		if(lci.getObjectType() == null || lci.getObjectType().isEmpty()) {
+		if((lci.getObjectType() == null || lci.getObjectType().isEmpty()) &&
+				lci.getName() != null && lci.getName().getObjectType() != null &&
+				!lci.getName().getObjectType().isEmpty()) {
 			lci.setObjectType(lci.getName().getObjectType());
 		}
 		
@@ -213,17 +215,18 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 		return subdoc;
 	}
 
-//	public static void main(String[] args) {
-//		ContextJsonParserServiceImpl c = new ContextJsonParserServiceImpl();
-//		//c.parseCustomContextString("/learn.xhtml", "name:CREDENTIAL.id:123.context:/name:COMPETENCE_WALL.id:21123.context:/name:stef.id:2.context:/name:blabla.id:1///", "name:CREDENTIAL.id:123.service:/name:COMPETENCE_WALL.id:21123.service:/name:stef.id:2.service:/name:blabla.id:1///");
-//		c.parseCustomContextString("/learn.xhtml", "||||||||||||||||||context:/name:goal_wall|id:2|context:/context:/name:activity_wall|id:12/|name:competence_wall|id:11//|||||", "name:CREDENTIAL&id:123&service:/name:COMPETENCE_WALL&id:21123&service:/name:stef&id:2&service:/name:blabla&id:1///");
-//		
-////		String str = c.addSubContext("name:CREDENTIAL.id:123.context:/name:COMPETENCE_WALL.id:21123.context:/name:stef.id:2.context:/name:blabla.id:1///", 
-////				"name:test.id:555");
-//		String str = c.addSubContext("name:CREDENTIAL.id:123", 
+	public static void main(String[] args) {
+		ContextJsonParserServiceImpl c = new ContextJsonParserServiceImpl();
+		//c.parseCustomContextString("/learn.xhtml", "name:CREDENTIAL.id:123.context:/name:COMPETENCE_WALL.id:21123.context:/name:stef.id:2.context:/name:blabla.id:1///", "name:CREDENTIAL.id:123.service:/name:COMPETENCE_WALL.id:21123.service:/name:stef.id:2.service:/name:blabla.id:1///");
+		LearningContext parsed = c.parseCustomContextString("/learn.xhtml", "||||||||||||||||||context:/name:goal_wall|id:2|context:/context:/name:activity_wall|id:12/|name:competence_wall|id:11//|||||", "name:CREDENTIAL&id:123&service:/name:COMPETENCE_WALL&id:21123&service:/name:stef&id:2&service:/name:blabla&id:1///");
+		
+		System.out.println(parsed);
+//		String str = c.addSubContext("name:CREDENTIAL.id:123.context:/name:COMPETENCE_WALL.id:21123.context:/name:stef.id:2.context:/name:blabla.id:1///", 
 //				"name:test.id:555");
-//		System.out.println("----------------------");
-//		c.parseCustomContextString("/learn.xhtml", str, null);
-//		
-//	}
+		String str = c.addSubContext("name:CREDENTIAL.id:123", 
+				"name:test.id:555");
+		System.out.println("----------------------");
+		c.parseCustomContextString("/learn.xhtml", str, null);
+		
+	}
 }
