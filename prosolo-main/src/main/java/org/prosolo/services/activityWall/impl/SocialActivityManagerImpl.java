@@ -87,8 +87,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				case MY_NETWORK:
 					return getMyNetworkSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case TWITTER:
-					//return getTwitterSocialActivities(user, offset, limit);
-					return new ArrayList<>();
+					return getTwitterSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case ALL_PROSOLO:
 					return getAllProSoloSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case ALL:
@@ -133,66 +132,19 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		return res;
 	}
 	
-//	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit) {
-//		String query = 
-//				getSelectPart() +
-//				"FROM social_activity sa \n" +
-//				"	LEFT JOIN node AS node_object \n" +
-//				"		ON sa.node_object = node_object.id \n" +
-//				"	LEFT JOIN post AS post_object \n" +
-//				"		ON sa.post_object = post_object.id \n" +
-//				"	LEFT JOIN node AS node_target \n" +
-//				"		ON sa.node_target = node_target.id \n" +
-//				"	LEFT JOIN node AS goal_target \n" +
-//				"		ON sa.goal_target = goal_target.id \n" +
-//				"	LEFT JOIN social_activity_config AS config \n" +
-//				"		ON config.social_activity = sa.id \n" +
-//				"	LEFT JOIN social_activity_hashtags AS sa_tag \n" +
-//				"		ON sa.id = sa_tag.social_activity \n" +
-//				"	LEFT JOIN tag AS tag \n" +
-//				"		ON sa_tag.hashtags = tag.id \n" +
-//				"	LEFT JOIN user_topic_preference_preferred_hashtags_tag AS pref_tag \n" +
-//				"		ON tag.id = pref_tag.preferred_hashtags \n" +
-//				"	LEFT JOIN user_preference AS pref \n" +
-//				"		ON pref_tag.user_preference = pref.id \n" +
-//				"	LEFT JOIN user AS sa_maker \n" +
-//				"		ON sa.maker = sa_maker.id \n" +
-//				"	LEFT JOIN course_enrollment AS course_enrollment \n" +
-//				"		ON sa.course_enrollment_object = course_enrollment.id \n" +
-//				"	LEFT JOIN course AS course \n" +
-//				"		ON course_enrollment.course = course.id \n" +
-//				"	LEFT JOIN rich_content AS rich_content \n" +
-//				"		ON sa.rich_content = rich_content.id \n" +
-//				"	LEFT JOIN annotation AS annotation \n" +
-//				"		ON annotation.social_activity = sa.id \n" +
-//
-//				"WHERE sa.dtype = 'TwitterPostSocialActivity' \n" +		// it is social activity of type TwitterPostSocialActivity
-//				"	AND sa.visibility != 'PRIVATE' \n" + 	// exclude private social activities
-//				"	AND sa.deleted = false \n" +
-//				"	AND (config.id IS NULL OR \n" +
-//				"		(config.user = :userId AND config.hidden = 'F')) \n" +
-//				"	AND pref.dtype = 'TopicPreference' \n" +
-//				"	AND pref.user = :userId \n" +		// user follows Twitter hashtag that is contained in a social activity
-//				"	AND (annotation.maker IS NULL OR " +
-//				"			annotation.maker = :logged_user) \n" +
-//				"	AND sa.action NOT IN ('Comment') " +
-//				"ORDER BY sa.last_action DESC \n" +
-//				"LIMIT :limit \n" +
-//				"OFFSET :offset";
-//		
-//		@SuppressWarnings("unchecked")
-//		List<SocialActivityData1> result = persistence.currentManager().createSQLQuery(query)
-//				.setLong("userId", user)
-//				.setInteger("limit", limit + 1) // +1 because it always loads one extra in order to inform whether there are more to load
-//				.setInteger("offset", offset)
-//				.setLong("logged_user", user)
-//				.setString("liked_annotation_type", AnnotationType.Like.name())
-//				.setString("disliked_annotation_type", AnnotationType.Dislike.name())
-//				.setResultTransformer(SocialActivityDataResultTransformer.getConstructor())
-//				.list();
-//		
-//		return result;
-//	}
+	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit,
+			long previousId, Date previousDate, Locale locale) {
+		String specificCondition = "AND sa.dtype = :twitterPostDType \n ";
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
+				previousDate, locale);
+		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+		@SuppressWarnings("unchecked")
+		List<SocialActivityData1> res = q.list();
+		if(res == null) {
+			return new ArrayList<>();
+		}
+		return res;
+	}
 	
 	private List<SocialActivityData1> getAllProSoloSocialActivities(long user, int offset, int limit,
 			long previousId, Date previousDate, Locale locale) {

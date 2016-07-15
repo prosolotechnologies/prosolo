@@ -14,18 +14,11 @@ import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
 import org.prosolo.bigdata.twitter.StreamListData;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.content.TwitterPost;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.AnonUser;
-//import org.prosolo.common.domainmodel.user.ServiceType;
-import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 
@@ -125,68 +118,58 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		return hashtagsUserIds;
 	}
 
-	@Override
-	public TwitterPost createNewTwitterPost(User maker, Date created,
-			String postLink, long tweetId, String creatorName,
-			String screenName, String userUrl, String profileImage,
-			String text, VisibilityType visibility,
-			Collection<String> hashtags, boolean toSave, Session session) {
-		TwitterPost twitterPost = new TwitterPost();
-		twitterPost.setDateCreated(created);
-		twitterPost.setLink(postLink);
-		if (!(maker instanceof AnonUser)) {
-			twitterPost.setMaker(maker);
-		}
-		twitterPost.setContent(text);
-		 twitterPost.setHashtags(getOrCreateTags(hashtags,session));//temporary dissabled
-		twitterPost.setVisibility(visibility);
-		twitterPost.setTweetId(tweetId);
-		twitterPost.setCreatorName(creatorName);
-		twitterPost.setScreenName(screenName);
-		twitterPost.setUserUrl(userUrl);
-		twitterPost.setProfileImage(profileImage);
-		if (toSave) {
-			 save(twitterPost,session);
-		}
-		
-		return twitterPost;
-	}
+//	@Override
+//	public TwitterPost createNewTwitterPost(User maker, Date created,
+//			String postLink, long tweetId, String creatorName,
+//			String screenName, String userUrl, String profileImage,
+//			String text, VisibilityType visibility,
+//			Collection<String> hashtags, boolean toSave, Session session) {
+//		TwitterPost twitterPost = new TwitterPost();
+//		twitterPost.setDateCreated(created);
+//		twitterPost.setLink(postLink);
+//		if (!(maker instanceof AnonUser)) {
+//			twitterPost.setMaker(maker);
+//		}
+//		twitterPost.setContent(text);
+//		 twitterPost.setHashtags(getOrCreateTags(hashtags,session));//temporary dissabled
+//		twitterPost.setVisibility(visibility);
+//		twitterPost.setTweetId(tweetId);
+//		twitterPost.setCreatorName(creatorName);
+//		twitterPost.setScreenName(screenName);
+//		twitterPost.setUserUrl(userUrl);
+//		twitterPost.setProfileImage(profileImage);
+//		if (toSave) {
+//			 save(twitterPost,session);
+//		}
+//		
+//		return twitterPost;
+//	}
 
 	@Override
-	public SocialActivity createTwitterPostSocialActivity(TwitterPost tweet, Session session) {
-		User actor = tweet.getMaker();
-		EventType action = EventType.TwitterPost;
-		TwitterPostSocialActivity twitterPostSA = new TwitterPostSocialActivity();
+	public SocialActivity1 createTwitterPostSocialActivity(User actor, Date dateCreated, String postLink, 
+			long tweetId, String creatorName, String screenName, String userUrl, String profileImage,
+			String text, Collection<String> hashtags, Session session) {
+		TwitterPostSocialActivity1 tp = new TwitterPostSocialActivity1();
 
-		if (actor instanceof AnonUser) {
-			AnonUser poster = (AnonUser) actor;
-
-			twitterPostSA.setName(poster.getName());
-			twitterPostSA.setNickname(poster.getNickname());
-			twitterPostSA.setProfileUrl(poster.getProfileUrl());
-			twitterPostSA.setAvatarUrl(poster.getAvatarUrl());
-			twitterPostSA.setUserType(UserType.TWITTER_USER);
+		tp.setName(creatorName);
+		tp.setNickname(screenName);
+		tp.setProfileUrl(userUrl);
+		tp.setAvatarUrl(profileImage);
+		if(actor != null) {
+			tp.setActor(actor);
+			tp.setUserType(UserType.REGULAR_USER);
 		} else {
-			twitterPostSA.setMaker(actor);
-			twitterPostSA.setUserType(UserType.REGULAR_USER);
+			tp.setUserType(UserType.TWITTER_USER);
 		}
 
-		twitterPostSA.setPostUrl(tweet.getLink());
-		twitterPostSA.setAction(action);
-		twitterPostSA.setText(tweet.getContent());
-		twitterPostSA.setServiceType(ServiceType.TWITTER);
-		twitterPostSA.setDateCreated(tweet.getDateCreated());
-		twitterPostSA.setLastAction(tweet.getDateCreated());
-		Set<Tag> hashtags = tweet.getHashtags();
-		Set<Tag> newCollection = new HashSet<Tag>();
-		for (Tag t : hashtags) {
-			newCollection.add(t);
-		}
-		twitterPostSA.setHashtags(newCollection);
-		twitterPostSA.setVisibility(VisibilityType.PUBLIC);
+		tp.setPostUrl(postLink);
+		tp.setText(text);
+		tp.setDateCreated(dateCreated);
+		tp.setLastAction(dateCreated);
+		tp.setHashtags(getOrCreateTags(hashtags, session));
 
-		save(twitterPostSA,session);
-		return twitterPostSA;
+		save(tp, session);
+		return tp;
 	}
 
 	public Set<Tag> getOrCreateTags(Collection<String> titles, Session session) {

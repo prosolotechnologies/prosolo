@@ -27,14 +27,14 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.services.activityWall.impl.data.UserData;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -129,7 +129,9 @@ public class SocialActivityDataFactory {
 		sad.setDateCreated(dateCreated);
 		sad.setLastAction(lastAction);
 		sad.setCommentsDisabled(commentsDisabled.charValue() == 'T');
-		sad.setText(text);
+		if(!dType.equals(TwitterPostSocialActivity1.class.getSimpleName())) {
+			sad.setText(text);
+		}
 		sad.setLikeCount(likeCount);
 		sad.setLiked(liked == 1);
 		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, id.longValue());
@@ -141,18 +143,20 @@ public class SocialActivityDataFactory {
 		ObjectData target = null;
 		
 		if(actorId != null) {
-			sad.setActor(new UserData(actorId.longValue(), actorName, actorLastname, actorAvatarUrl, false));
+			User user = new User();
+			user.setId(actorId.longValue());
+			user.setName(actorName);
+			user.setLastname(actorLastname);
+			user.setAvatarUrl(actorAvatarUrl);
+			sad.setActor(new UserData(user));
 		}
 		if(dType.equals(TwitterPostSocialActivity1.class.getSimpleName())) {
 			//twitter post
 			sad.setType(SocialActivityType.Twitter_Post);
-			//TODO check if we have twitter user data when user type is regular
-			if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
-				sad.setActor(new UserData(twitterActorNick, twitterActorName, twitterActorAvatar, 
-						twitterProfileUrl));
-			}
-
-			sad.setTwitterPostUrl(twitterPostUrl);
+			//if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
+			ap = richContentFactory.getAttachmentPreviewForTwitterPost(twitterActorNick, twitterProfileUrl, 
+					text, twitterPostUrl);
+			//}
 		} else if(dType.equals(PostSocialActivity1.class.getSimpleName())) {
 			//post
 			sad.setType(SocialActivityType.Post);
@@ -282,7 +286,9 @@ public class SocialActivityDataFactory {
 		sad.setDateCreated(act.getDateCreated());
 		sad.setLastAction(act.getLastAction());
 		sad.setCommentsDisabled(act.isCommentsDisabled());
-		sad.setText(act.getText());
+		if(!(act instanceof TwitterPostSocialActivity1)) {
+			sad.setText(act.getText());
+		}
 		sad.setLikeCount(act.getLikeCount());
 		sad.setLiked(liked);
 		
@@ -296,13 +302,8 @@ public class SocialActivityDataFactory {
 			//twitter post
 			TwitterPostSocialActivity1 tpAct = (TwitterPostSocialActivity1) act;
 			sad.setType(SocialActivityType.Twitter_Post);
-			//TODO check if we have twitter user data when user type is regular
-			if(tpAct.getUserType() == UserType.TWITTER_USER) {
-				sad.setActor(new UserData(tpAct.getNickname(), tpAct.getName(), tpAct.getAvatarUrl(), 
-						tpAct.getProfileUrl()));
-			}
-
-			sad.setTwitterPostUrl(tpAct.getPostUrl());
+			ap = richContentFactory.getAttachmentPreviewForTwitterPost(tpAct.getNickname(), 
+					tpAct.getProfileUrl(), tpAct.getText(), tpAct.getPostUrl());
 		} else if(act instanceof PostSocialActivity1) {
 			//post
 			PostSocialActivity1 pAct = (PostSocialActivity1) act;

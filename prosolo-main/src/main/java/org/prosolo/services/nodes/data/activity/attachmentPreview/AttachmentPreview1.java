@@ -40,6 +40,10 @@ public class AttachmentPreview1 implements Serializable {
 	private String duration;
 	private ActivityType activityType;
 	
+	//for twitter post
+	private String nickname;
+	private String profileUrl;
+	
 	
 	public AttachmentPreview1() {
 		this.images = new ArrayList<String>();
@@ -218,6 +222,22 @@ public class AttachmentPreview1 implements Serializable {
 
 	public void setEmbedId(String embedId) {
 		this.embedId = embedId;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public String getProfileUrl() {
+		return profileUrl;
+	}
+
+	public void setProfileUrl(String profileUrl) {
+		this.profileUrl = profileUrl;
 	}
 
 }

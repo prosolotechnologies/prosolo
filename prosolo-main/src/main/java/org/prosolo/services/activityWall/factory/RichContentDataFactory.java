@@ -151,6 +151,17 @@ public class RichContentDataFactory {
 		return ap;
 	}
 	
+	public AttachmentPreview1 getAttachmentPreviewForTwitterPost(String nick, String profileUrl,
+			String text, String postUrl) {
+		AttachmentPreview1 ap = new AttachmentPreview1();
+		ap.setMediaType(MediaType1.Tweet);
+		ap.setNickname(nick);
+		ap.setProfileUrl(profileUrl);
+		ap.setDescription(text);
+		ap.setLink(postUrl);
+		return ap;
+	}
+	
 	public MediaData getMediaData(AttachmentPreview1 attachPreview) {
 		MediaType1 mediaType = MediaType1.Link_Other;
 		String embedLink = null;

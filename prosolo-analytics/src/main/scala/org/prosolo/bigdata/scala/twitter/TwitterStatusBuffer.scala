@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.scala.twitter
 
-import java.util.{TimerTask, Timer}
+import java.util.{TimerTask, Timer} 
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
@@ -92,16 +92,18 @@ object TwitterStatusBuffer {
                     if (!isActive) {
                   session.beginTransaction()
     }
-    var poster:User=null
-     if({poster=twitterStreamingDao.getUserByTwitterUserId(twitterId, session); poster==null}){
-       poster=initAnonUser(creatorName,profileUrl,screenName,profileImage)
-     }
+    var poster:User = twitterStreamingDao.getUserByTwitterUserId(twitterId, session);
+    // if({poster=twitterStreamingDao.getUserByTwitterUserId(twitterId, session); poster==null}){
+    //   poster=initAnonUser(creatorName,profileUrl,screenName,profileImage)
+    // }
      
      val(text,created,postLink)=(status.getText,status.getCreatedAt,"https://twitter.com/" + twitterUser.getScreenName + "/status/" + status.getId)
       val statusText=text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
-     val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
+     //val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
 
-       val twitterPostSocialActivity=twitterStreamingDao.createTwitterPostSocialActivity(post,session)
+       val twitterPostSocialActivity = twitterStreamingDao.createTwitterPostSocialActivity(
+           poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, 
+           statusText, twitterHashtags, session);
      session.getTransaction().commit()
     session.close();
     val day = DateUtil.getDaysSinceEpoch;

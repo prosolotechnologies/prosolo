@@ -27,12 +27,14 @@ public class UserData implements Serializable {
 	}
 	
 	public UserData(long id, String firstName, String lastName, String avatar, String position,
-			String email) {
+			String email, boolean isAvatarReady) {
 		this.id = id;
 		setFullName(firstName, lastName);
-		if(avatar != null) {
-			this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+		String readyAvatar = avatar;
+		if(avatar != null && !isAvatarReady) {
+			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
 		}
+		this.avatarUrl = readyAvatar;
 		this.position = position;
 		this.email = email;
 	}

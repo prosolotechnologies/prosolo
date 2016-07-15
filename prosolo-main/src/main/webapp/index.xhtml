@@ -69,6 +69,8 @@
 							socialActivity="#{sa}"
 							growlToUpdate=":growlMain"
 							toUpdate=":statusWall"
+							toUpdateShareModal=":formSharePost:panelSharePostModal"
+							shareModalId="sharePostModal"
 							learningContext="name:status_wall|context:/name:social_activity|id:#{sa.id}/"
 						/>
 					</ui:repeat>
@@ -119,5 +121,34 @@
         </div>
     </div>         
 
+	<h:form id="formSharePost">
+	   <!-- MODAL share post -->
+       <div class="modal fade sharePostModal" id="sharePostModal" tabindex="-1" role="dialog" aria-labelledby="sharePostMod">
+           <div class="modal-dialog" role="document">
+               <h:panelGroup layout="block" id="panelSharePostModal" styleClass="modal-content">
+               	 <ui:fragment rendered="#{not empty activityWallBean.socialActivityForShare}">
+                   <div class="modal-header alignLeft">
+                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                       <h2 class="modal-title" id="sharePostMod">Share Post</h2>
+                   </div>
+                   <div class="modal-body alignLeft">
+                       <div class="textAreaWrapper">
+                           <div class="contentEditable" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
+                       </div>
+                       <post:sharedPostPreview
+                       		socialActivity="#{activityWallBean.socialActivityForShare}"
+                       		sharedSocialActivityId="0"
+                       />
+                   </div>
+                   <div class="modal-footer alignLeft">
+                       <a href="#" class="btn btn-green">Share</a>
+                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                   </div>
+                  </ui:fragment>
+               </h:panelGroup>
+           </div>
+       </div>
+       <!-- MODAL share post end -->
+	</h:form>
     </ui:define>
 </ui:composition>

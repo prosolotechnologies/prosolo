@@ -49,8 +49,6 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 			case Post:
 				processor = new PostSocialActivityProcessor(session, event, socialActivityManager);
 				break;
-			case TwitterPost:
-				break;
 			case PostShare:
 				processor = new PostShareSocialActivityProcessor(session, event, socialActivityManager);
 				break;

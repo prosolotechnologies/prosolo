@@ -52,7 +52,7 @@ public class SocialStreamObserver extends EventObserver {
 //			EventType.Edit_Profile,
 //			EventType.Like, 
 			EventType.Post, 
-			EventType.TwitterPost, 
+//			EventType.TwitterPost, 
 			EventType.PostShare, 
 //			EventType.AddNote,
 //			EventType.Registered,

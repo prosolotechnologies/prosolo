@@ -19,7 +19,7 @@ public class SocialActivityData1 implements Serializable {
 	/*
 	 * next group of fields together form post text that will be shown
 	 */
-	private UserData actor;
+	private org.prosolo.services.nodes.data.UserData actor;
 	private String predicate;
 	private ObjectData object;
 	private String relationToTarget;
@@ -35,8 +35,6 @@ public class SocialActivityData1 implements Serializable {
 	private int shareCount;
 	private boolean liked;
 	private boolean shared;
-	
-	private String twitterPostUrl;
 	
 	private CommentsData comments;
 	private String newComment;
@@ -74,11 +72,11 @@ public class SocialActivityData1 implements Serializable {
 		this.text = text;
 	}
 	
-	public UserData getActor() {
+	public org.prosolo.services.nodes.data.UserData getActor() {
 		return actor;
 	}
 	
-	public void setActor(UserData actor) {
+	public void setActor(org.prosolo.services.nodes.data.UserData actor) {
 		this.actor = actor;
 	}
 	
@@ -208,14 +206,6 @@ public class SocialActivityData1 implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public String getTwitterPostUrl() {
-		return twitterPostUrl;
-	}
-
-	public void setTwitterPostUrl(String twitterPostUrl) {
-		this.twitterPostUrl = twitterPostUrl;
 	}
 
 	public SocialActivityType getType() {

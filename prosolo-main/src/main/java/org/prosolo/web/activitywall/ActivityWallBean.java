@@ -25,12 +25,12 @@ import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.activityWall.impl.data.UserData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
@@ -73,6 +73,8 @@ public class ActivityWallBean implements Serializable {
 	private SocialActivityData1 newSocialActivity = new SocialActivityData1();
 	private String link;
 	private AttachmentPreview1 uploadFile = new AttachmentPreview1();
+	
+	private SocialActivityData1 socialActivityForShare;
 	
 	private StatusWallFilter filter;
 	private StatusWallFilter[] filters;
@@ -262,7 +264,7 @@ public class ActivityWallBean implements Serializable {
 			newSocialActivity.setId(post.getId());
 			//set actor from session
 			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), true));
+					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
 			newSocialActivity.setDateCreated(post.getDateCreated());
 			newSocialActivity.setLastAction(post.getLastAction());
 			socialActivities.add(0, newSocialActivity);
@@ -437,6 +439,14 @@ public class ActivityWallBean implements Serializable {
 
 	public void setMoreToLoad(boolean moreToLoad) {
 		this.moreToLoad = moreToLoad;
+	}
+
+	public SocialActivityData1 getSocialActivityForShare() {
+		return socialActivityForShare;
+	}
+
+	public void setSocialActivityForShare(SocialActivityData1 socialActivityForShare) {
+		this.socialActivityForShare = socialActivityForShare;
 	}
 	
 }

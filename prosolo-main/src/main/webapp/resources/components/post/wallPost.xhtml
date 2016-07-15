@@ -7,7 +7,8 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 	    <composite:attribute name="socialActivity" required="true" 
@@ -16,7 +17,9 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="toUpdate" default=""/>
-	</composite:interface>
+		<composite:attribute name="toUpdateShareModal" default="" />
+		<composite:attribute name="shareModalId" required="true" />
+	</composite:interface> 
 	
 	<composite:implementation>
 		<article class="whiteBox wallPost">
@@ -24,7 +27,7 @@
                <div class="user32">
                    <h:link outcome="/profile">
                    		<utilcomp:userAvatar
-							avatar="#{cc.attrs.socialActivity.actor.avatar}"
+							avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
 							fullName="#{cc.attrs.socialActivity.actor.fullName}"	
 							width="32"
 							height="32"
@@ -151,6 +154,17 @@
 	               		</h:panelGroup>  
 	           		</ui:fragment>
 	            </h:panelGroup>
+	            <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post'}">
+		            <p:commandLink 
+		            	styleClass="sharePost" 
+		            	pt:data-toggle="modal" 
+		            	data-target="#sharePostModal"
+		            	action="#{activityWallBean.setSocialActivityForShare(cc.attrs.socialActivity)}"
+		            	update="#{cc.attrs.toUpdateShareModal}"
+		            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show');">
+		            	<span class="icon"></span>Share
+		            </p:commandLink>
+		        </ui:fragment>
            </div>
            
            <post:comments

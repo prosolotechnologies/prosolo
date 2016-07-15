@@ -165,17 +165,17 @@
 	                    </div>
 					</ui:fragment>
 				
-					<ui:remove><ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
+					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
 					 <div class="previewLink previewTweet">
 	                     <div class="content">
-	                         <a href="#" class="twitterUsername">username</a>
+	                         <a href="#{cc.attrs.attachmentPreview.profileUrl}" class="twitterUsername">#{cc.attrs.attachmentPreview.nickname}</a>
 	                         <p>
-	                             Integer ante dui, vestibulum sit amet risus at, lobortis volutpat quam. In accumsan ultricies egestas.
+	                             #{cc.attrs.attachmentPreview.text}
 	                         </p>
-	                         <small>View on <a href="#">twitter.com</a></small>
+	                         <small>View on <a href="#{cc.attrs.attachmentPreview.link}">twitter.com</a></small>
 	                     </div>
 	                 </div>
-	                </ui:fragment></ui:remove>
+	                </ui:fragment>
                 
 	                <ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'CompetenceComment' 
 	                		or cc.attrs.attachmentPreview.mediaType eq 'ActivityComment'}">
