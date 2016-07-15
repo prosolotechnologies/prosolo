@@ -118,7 +118,7 @@ function stripTagsExceptBr(html) {
                 
                 var code = (e.keyCode ? e.keyCode : e.which);
                 
-                if (opts.allowUrlPreview && code == 13 || code == 32) { //Enter or space keycode
+                if (opts.allowUrlPreview && (code == 13 || code == 32)) { //Enter or space keycode
                     core.textUpdate(core.inputTextField.html());
                 }  
                 if(opts.showHidePostOptions) {

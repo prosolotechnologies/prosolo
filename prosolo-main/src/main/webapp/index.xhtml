@@ -167,8 +167,8 @@
 		var newPostShare;
 		function initializeNewPostPluginForShare() {
 			$('#sharePostModal').newpost({
-				editableDivSelector: '.postShareEditableDivSelector',
-				textAreaSelector: '.postTextHidden',
+				editableDivSelector: '.textAreaWrapper .postShareEditableDivSelector',
+				textAreaSelector: '.textAreaWrapper .postTextHidden',
 				postOptionsSelector: '',
 				postButtonEnabledSelector: '',
 				postButtonDisabledSelector: '',
@@ -179,7 +179,9 @@
 				linkLoaderContainerSelector: '',
 				userSuggestionRegionSelector: '.userSuggestRegionSelector',
 				userSearchInputSelector: '.userSuggestInputSelector',
-				userSearchAction: searchUsersMentionedInPost
+				userSearchAction: searchUsersMentionedInPost,
+				allowUrlPreview : false,
+				showHidePostOptions : false
 			});
 			newPostShare = $('#sharePostModal').data('newpost');
 		}

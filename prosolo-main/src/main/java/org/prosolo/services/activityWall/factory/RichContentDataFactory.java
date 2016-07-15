@@ -159,6 +159,7 @@ public class RichContentDataFactory {
 		ap.setProfileUrl(profileUrl);
 		ap.setDescription(text);
 		ap.setLink(postUrl);
+		ap.setInitialized(true);
 		return ap;
 	}
 	
