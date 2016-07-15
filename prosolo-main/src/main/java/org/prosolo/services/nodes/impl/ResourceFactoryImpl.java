@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -1106,6 +1107,33 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 		
 	}
+    
+    @Override
+   	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+   	public PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
+   			throws DbConnectionException {
+   		try {
+   			User user = (User) persistence.currentManager().load(User.class, userId);
+   			PostSocialActivity1 post = (PostSocialActivity1) persistence.currentManager().load(
+   					PostSocialActivity1.class, socialActivityId);
+   			PostReshareSocialActivity postShare = new PostReshareSocialActivity();
+   			postShare.setDateCreated(new Date());
+   			postShare.setLastAction(new Date());
+   			postShare.setActor(user);
+   			postShare.setText(text);
+   			postShare.setPostObject(post);
+   			postShare = saveEntity(postShare);
+   			
+   			post.setShareCount(post.getShareCount() + 1);
+   			
+   			return postShare;
+   		} catch(Exception e) {
+   			logger.error(e);
+   			e.printStackTrace();
+   			throw new DbConnectionException("Error while saving new post");
+   		}
+   		
+   	}
     
     @Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)

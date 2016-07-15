@@ -85,6 +85,8 @@ public class SocialActivityDataFactory {
 			BigInteger postObjectActorId,
 			String postObjectActorName,
 			String postObjectActorLastName,
+			String postObjectActorAvatar,
+			Date postObjectDateCreated,
 			BigInteger credObjectId,
 			String credObjectTitle,
 			BigInteger credObjectDuration,
@@ -180,9 +182,15 @@ public class SocialActivityDataFactory {
 		} else if(dType.equals(PostReshareSocialActivity.class.getSimpleName())) {
 			//post reshare
 			sad.setType(SocialActivityType.Post_Reshare);
-			obj = objectFactory.getObjectData(postObjectId.longValue(), postObjectText, 
+			obj = objectFactory.getObjectData(postObjectId.longValue(), null, 
 					ObjectType.PostSocialActivity, postObjectActorId.longValue(), postObjectActorName, 
 					postObjectActorLastName, locale);
+			SocialActivityData1 originalPost = new SocialActivityData1();
+			originalPost.setId(postObjectId.longValue());
+			originalPost.setDateCreated(postObjectDateCreated);
+			originalPost.setActor(new UserData(postObjectActorId.longValue(), postObjectActorName, 
+					postObjectActorLastName, postObjectActorAvatar, null, null, false));
+			originalPost.setText(postObjectText);
 			if(postObjectRichContentContentType != null) {
 				RichContent1 rc = new RichContent1();
 				rc.setTitle(postObjectRichContentTitle);
@@ -195,8 +203,10 @@ public class SocialActivityDataFactory {
 				rc.setLink(postObjectRichContentLink);
 				rc.setEmbedId(postObjectRichContentEmbedId);
 				
-				ap = richContentFactory.getAttachmentPreview(rc);
+				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(rc);
+				originalPost.setAttachmentPreview(attach);
 			}
+			sad.setOriginalSocialActivity(originalPost);
 		} else if(dType.equals(CredentialEnrollSocialActivity.class.getSimpleName())) {
 			//credential enroll
 			sad.setType(SocialActivityType.Enroll_Credential);
@@ -318,12 +328,21 @@ public class SocialActivityDataFactory {
 			PostReshareSocialActivity prAct = (PostReshareSocialActivity) act;
 			PostSocialActivity1 psa = prAct.getPostObject();
 			sad.setType(SocialActivityType.Post_Reshare);
-			obj = objectFactory.getObjectData(psa.getId(), psa.getText(), 
+
+			obj = objectFactory.getObjectData(psa.getId(), null, 
 					ObjectType.PostSocialActivity, psa.getActor().getId(), psa.getActor().getName(), 
 					psa.getActor().getLastname(), locale);
+			
+			SocialActivityData1 originalPost = new SocialActivityData1();
+			originalPost.setId(psa.getId());
+			originalPost.setDateCreated(psa.getDateCreated());
+			originalPost.setActor(new UserData(psa.getActor()));
+			originalPost.setText(psa.getText());
 			if(psa.getRichContent() != null) {
-				ap = richContentFactory.getAttachmentPreview(psa.getRichContent());
+				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(psa.getRichContent());
+				originalPost.setAttachmentPreview(attach);
 			}
+			sad.setOriginalSocialActivity(originalPost);
 		} else if(act instanceof CredentialEnrollSocialActivity) {
 			//credential enroll
 			CredentialEnrollSocialActivity ceAct = (CredentialEnrollSocialActivity) act;

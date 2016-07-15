@@ -27,6 +27,8 @@ public class SocialActivityData1 implements Serializable {
 	private String text;
 	private AttachmentPreview1 attachmentPreview;
 	
+	private SocialActivityData1 originalSocialActivity;
+	
 	private List<String> hashtags;
 	
 	private boolean commentsDisabled;
@@ -214,6 +216,14 @@ public class SocialActivityData1 implements Serializable {
 
 	public void setType(SocialActivityType type) {
 		this.type = type;
+	}
+
+	public SocialActivityData1 getOriginalSocialActivity() {
+		return originalSocialActivity;
+	}
+
+	public void setOriginalSocialActivity(SocialActivityData1 originalSocialActivity) {
+		this.originalSocialActivity = originalSocialActivity;
 	}
 
 }

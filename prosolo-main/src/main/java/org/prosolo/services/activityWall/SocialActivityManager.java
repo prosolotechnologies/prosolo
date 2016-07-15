@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -43,5 +44,8 @@ public interface SocialActivityManager {
 	
 	void unlikeSocialActivity(long userId, long socialActivityId, LearningContextData context) 
 			throws DbConnectionException;
+	
+	PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
+			LearningContextData context) throws DbConnectionException;
 
 }

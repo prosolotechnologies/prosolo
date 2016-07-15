@@ -215,6 +215,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"postObject.actor AS postObjectActorId, " +
 				"postObjectActor.name AS postObjectActorName, " +
 				"postObjectActor.lastname AS postObjectActorLastName, " +
+				"postObjectActor.avatar_url AS postObjectActorAvatar, " +
+				"postObject.created AS postObjectDateCreated, " +
 				//credential enroll and credential complete social activity
 				"sa.credential_object AS credObjectId, " +
 				"credObject.title AS credObjectTitle, " +
@@ -411,44 +413,46 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(BigInteger) tuple[34], 
 							(String) tuple[35], 
 							(String) tuple[36], 
-							(BigInteger) tuple[37], 
-							(String) tuple[38], 
-							(BigInteger) tuple[39],
-							(String) tuple[40],
+							(String) tuple[37],
+							(Date) tuple[38],
+							(BigInteger) tuple[39], 
+							(String) tuple[40], 
 							(BigInteger) tuple[41],
 							(String) tuple[42],
-							(String) tuple[43],
+							(BigInteger) tuple[43],
 							(String) tuple[44],
-							(BigInteger) tuple[45], 
-							(String) tuple[46], 
+							(String) tuple[45],
+							(String) tuple[46],
 							(BigInteger) tuple[47], 
 							(String) tuple[48], 
 							(BigInteger) tuple[49], 
-							(String) tuple[50],
-							(BigInteger) tuple[51],
-							(BigInteger) tuple[52], 
-							(String) tuple[53],
-							(BigInteger) tuple[54],
+							(String) tuple[50], 
+							(BigInteger) tuple[51], 
+							(String) tuple[52],
+							(BigInteger) tuple[53],
+							(BigInteger) tuple[54], 
 							(String) tuple[55],
 							(BigInteger) tuple[56],
 							(String) tuple[57],
-							(String) tuple[58],
+							(BigInteger) tuple[58],
 							(String) tuple[59],
 							(String) tuple[60],
 							(String) tuple[61],
-							(BigInteger) tuple[62],
-							(BigInteger) tuple[63],
-							(BigInteger) tuple[64], 
-							(String) tuple[65], 
-							(BigInteger) tuple[66],
-							(String) tuple[67],
+							(String) tuple[62],
+							(String) tuple[63],
+							(BigInteger) tuple[64],
+							(BigInteger) tuple[65],
+							(BigInteger) tuple[66], 
+							(String) tuple[67], 
 							(BigInteger) tuple[68],
 							(String) tuple[69],
-							(String) tuple[70],
+							(BigInteger) tuple[70],
 							(String) tuple[71],
-							(BigInteger) tuple[72],
-							(Integer) tuple[73],
+							(String) tuple[72],
+							(String) tuple[73],
 							(BigInteger) tuple[74],
+							(Integer) tuple[75],
+							(BigInteger) tuple[76],
 							locale);
 				}
 				
@@ -745,6 +749,29 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving post");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
+			LearningContextData context) throws DbConnectionException {
+		try {
+			PostReshareSocialActivity postShare = resourceFactory.sharePost(userId, text, originalPostId);
+			
+			User user = new User();
+			user.setId(userId);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.PostShare, user.getId(), postShare, null, page, 
+					lContext, service, null);
+			
+			return postShare;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while sharing post");
 		}
 	}
 	

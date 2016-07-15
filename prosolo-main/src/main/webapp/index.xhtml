@@ -26,7 +26,8 @@
     </ui:define>
     
 	<ui:define name="content">
-
+	<h:outputScript library="javascript" name="prosolo.newpost.js" target="head" />
+	
     <div class="whiteBar"></div>
     
     <div class="container">
@@ -71,6 +72,7 @@
 							toUpdate=":statusWall"
 							toUpdateShareModal=":formSharePost:panelSharePostModal"
 							shareModalId="sharePostModal"
+							jsFunctionToPrepareShareModal="initializeNewPostPluginForShare"
 							learningContext="name:status_wall|context:/name:social_activity|id:#{sa.id}/"
 						/>
 					</ui:repeat>
@@ -133,7 +135,8 @@
                    </div>
                    <div class="modal-body alignLeft">
                        <div class="textAreaWrapper">
-                           <div class="contentEditable" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
+                           <div class="contentEditable postShareEditableDivSelector" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
+                           <h:inputTextarea id="textAreaPostShareText" styleClass="postTextHidden" value="#{activityWallBean.postShareText}" style="display: none;"></h:inputTextarea>
                        </div>
                        <post:sharedPostPreview
                        		socialActivity="#{activityWallBean.socialActivityForShare}"
@@ -141,7 +144,17 @@
                        />
                    </div>
                    <div class="modal-footer alignLeft">
-                       <a href="#" class="btn btn-green">Share</a>
+                   	   <p:commandLink 
+                   	   	 	styleClass="btn btn-green"
+                   	   	 	process="textAreaPostShareText"
+                   	   	 	action="#{activityWallBean.sharePost()}"
+                   	   	 	update=":growlMain :statusWall"
+                   	   	 	oncomplete="$('#sharePostModal').modal('hide');">
+                   	   	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 			<f:param name="learningContext" value="name:status_wall"/>
+                 			<f:param name="service" value="name:post_share_dialog"/>
+                   	   	 	Share
+                   	   </p:commandLink>
                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                    </div>
                   </ui:fragment>
@@ -150,5 +163,27 @@
        </div>
        <!-- MODAL share post end -->
 	</h:form>
+	<script>
+		var newPostShare;
+		function initializeNewPostPluginForShare() {
+			$('#sharePostModal').newpost({
+				editableDivSelector: '.postShareEditableDivSelector',
+				textAreaSelector: '.postTextHidden',
+				postOptionsSelector: '',
+				postButtonEnabledSelector: '',
+				postButtonDisabledSelector: '',
+				newPostContainerSelector: '',
+				uploadFileModalSelector: '',
+				urlFieldSelector: '',
+				addUrlButtonSelector: '',
+				linkLoaderContainerSelector: '',
+				userSuggestionRegionSelector: '.userSuggestRegionSelector',
+				userSearchInputSelector: '.userSuggestInputSelector',
+				userSearchAction: searchUsersMentionedInPost
+			});
+			newPostShare = $('#sharePostModal').data('newpost');
+		}
+	</script>
+	
     </ui:define>
 </ui:composition>

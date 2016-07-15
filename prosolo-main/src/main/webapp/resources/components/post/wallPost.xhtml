@@ -19,6 +19,7 @@
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="toUpdateShareModal" default="" />
 		<composite:attribute name="shareModalId" required="true" />
+		<composite:attribute name="jsFunctionToPrepareShareModal" default=""/>
 	</composite:interface> 
 	
 	<composite:implementation>
@@ -42,10 +43,13 @@
                    		<span>
                    			#{cc.attrs.socialActivity.predicate}
                    			<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object}">
-                   				#{cc.attrs.socialActivity.object.shortType}
                    				<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
-                   					#{cc.attrs.socialActivity.object.creator.fullName}'s
+                   					<h:link outcome="/profile">
+				                   		#{cc.attrs.socialActivity.object.creator.fullName}'s
+									    <f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.object.creator.id)}"></f:param>
+				                   </h:link>
                    				</ui:fragment>
+                   				#{cc.attrs.socialActivity.object.shortType}
                    				#{cc.attrs.socialActivity.object.title}
                    			</ui:fragment>
                    			#{cc.attrs.socialActivity.relationToTarget}
@@ -117,6 +121,12 @@
 					learningContext="#{cc.attrs.learningContext}"
 			   />
            </div>
+           <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post_Reshare'}">
+           	   <post:sharedPostPreview
+               		socialActivity="#{cc.attrs.socialActivity.originalSocialActivity}"
+               		sharedSocialActivityId="#{cc.attrs.socialActivity.id}"
+               />
+           </ui:fragment>
            <div class="wallPostFooter">
            	   <p:commandLink
 					styleClass="like #{cc.attrs.socialActivity.liked ? 'liked' : ''}"
@@ -161,7 +171,7 @@
 		            	data-target="#sharePostModal"
 		            	action="#{activityWallBean.setSocialActivityForShare(cc.attrs.socialActivity)}"
 		            	update="#{cc.attrs.toUpdateShareModal}"
-		            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show');">
+		            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show'); #{cc.attrs.jsFunctionToPrepareShareModal}();">
 		            	<span class="icon"></span>Share
 		            </p:commandLink>
 		        </ui:fragment>

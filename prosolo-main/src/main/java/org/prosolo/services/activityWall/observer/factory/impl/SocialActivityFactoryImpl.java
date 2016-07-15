@@ -16,7 +16,6 @@ import org.prosolo.services.activityWall.observer.processor.ActivityCompletionSo
 import org.prosolo.services.activityWall.observer.processor.CommentSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.CompetenceObjectSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.CredentialObjectSocialActivityProcessor;
-import org.prosolo.services.activityWall.observer.processor.PostShareSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.PostSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.SocialActivityProcessor;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -48,9 +47,6 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 				break;
 			case Post:
 				processor = new PostSocialActivityProcessor(session, event, socialActivityManager);
-				break;
-			case PostShare:
-				processor = new PostShareSocialActivityProcessor(session, event, socialActivityManager);
 				break;
 			case Completion:
 				BaseEntity be = event.getObject();

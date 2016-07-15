@@ -39,7 +39,8 @@ public enum ContextName {
 	TARGET_CREDENTIAL("TargetCredential1"),
 	ACTIVITY_LINK("ResourceLink"),
 	ACTIVITY_FILE("ResourceLink"),
-	DELETE_DIALOG("");
+	DELETE_DIALOG(""),
+	POST_SHARE_DIALOG("");
 	
 	
     private String objectType; 
