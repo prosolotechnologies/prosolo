@@ -210,22 +210,21 @@
 									<div class="second">
 										<div class="cropperContainer">
 											<div id="croppedImage"></div>
-											<div class="previewSmallContainer">
-												<span class="center">Preview:</span>
-												<div id="previewSmall"></div>
-											</div>
 										</div>
 
 										<div class="clear"></div>
-										<p:commandLink styleClass="btn" value="Crop and Save"
-											onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
-											action="#{profileSettings.crop()}"
-											process="hiddenCoordinates"
-											update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl" />
-
-										<p:commandLink styleClass="btn" value="Cancel"
-											action="#{profileSettings.cancelCrop()}"
-											update=":#{cc.clientId}:settingsAvatarForm:avatar" />
+										
+										<div class="cropButtons">
+											<p:commandLink styleClass="btn btn-green btn-sm" value="Crop and Save"
+												onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
+												action="#{profileSettings.crop()}"
+												process="hiddenCoordinates"
+												update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl" />
+	
+											<p:commandLink styleClass="btn btn-default btn-sm" value="Cancel"
+												action="#{profileSettings.cancelCrop()}"
+												update=":#{cc.clientId}:settingsAvatarForm:avatar" />
+										</div>
 
 										<h:inputText id="hiddenCoordinates" class="hiddenCoordinates"
 											style="display:none;"
@@ -236,10 +235,7 @@
 											minWidth: 100,
 											minHeight: 100,
 											keepSquare: true,
-											image: '#{profileSettings.newAvatar}',
-											preview: [
-												'previewSmall'
-											]
+											image: '#{profileSettings.newAvatar}'
 										});
 										</script>
 									</div>

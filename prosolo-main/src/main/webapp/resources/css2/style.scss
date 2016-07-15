@@ -1536,8 +1536,10 @@ header{
     }
 }
 
-.newWallPost{
+.newWallPost,
+.sharePostModal{
     .textAreaWrapper{
+        position: relative;
         padding: 20px 30px !important;
         .contentEditable{
             position: relative;
@@ -1558,6 +1560,20 @@ header{
                 color: $placeholderText;
             }
     	}
+        .searchResultsDrop{
+            top: 40px;
+            li a{
+                height: 52px;
+                img,
+                .letterAvatar{
+                    float: left;
+                    margin-right: 15px;
+                }
+                h3{
+                    margin: 7px 0 0 0;
+                }
+            }
+        }
     }
     .postOptions{
         display: flex;
@@ -1582,6 +1598,12 @@ header{
                 opacity: 1;
             }
         }
+    }
+}
+
+.sharePostModal{
+    .textAreaWrapper{
+        padding: 0 !important;
     }
 }
 
@@ -1712,7 +1734,21 @@ header{
     }
 }
 
-.wallPost{
+.previewCredCompLine{
+    margin: 0 30px 30px 30px;
+    h2{
+        margin-bottom: 0;
+        .iconCredential,
+        .iconCompetence{
+            float: left;
+            margin-right: 10px;
+            margin-top: 1px;
+        }
+    }
+}
+
+.wallPost,
+.sharePostModal{
 	.wallPostHead{
 		padding: 30px;
 		display: flex;
@@ -1732,7 +1768,7 @@ header{
             padding-top: 1px;
             .optDrop{
                 float: right;
-                margin: 7px 0 0 20px;
+                margin: 8px 0 0 10px;
                 > a{
                     display: block;
                     width: 12px;
@@ -1752,7 +1788,7 @@ header{
         }
 	}
 	.wallPostBody{
-		> p{
+		.wallPostContent{
 			margin-bottom: 20px;
 			padding: 0 30px;
             &.commentPreview{
@@ -1794,6 +1830,17 @@ header{
 					opacity: 1;
 				}
 			}
+            &.sharePost{
+				.icon{
+					background: url("../images2/iconSharePost12.svg") no-repeat;
+					opacity: .5;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover .icon{
+					opacity: 1;
+				}
+			}
 			&:hover{
 				color: $darkText;
 				#triangle{
@@ -1814,6 +1861,28 @@ header{
 			margin: 0;
 		}
 	}
+}
+
+.sharedPostBox{
+    margin: 0 30px 30px 30px;
+    background: #F8F9FB;
+    border: 1px solid #EEEFF3;
+    @include rounded-corners(3px);
+    .wallPostHead{
+        padding: 10px 10px 20px 10px;
+    }
+    .wallPostBody{
+        .wallPostContent{
+            padding: 0 10px;
+        }
+        .previewLink,
+        .previewFile{
+            margin: 0 10px 10px 10px;
+        }
+    }
+    .sharePostModal &{
+        margin: 30px 0;
+    }
 }
 
 .whiteBarContent{
@@ -2887,18 +2956,26 @@ header{
 	}
 }
 
-.yourPhotoContent{
-	display: flex;
-	padding-bottom: 30px;
-	img,
-	.letterAvatar{
-		margin-right: 20px;
-	}
-	.chooseBtnBox{
-		.btn{
-			margin-bottom: 20px;
-		}
-	}
+.yourPhotoBox{
+    .yourPhotoContent{
+    	display: flex;
+    	padding-bottom: 30px;
+    	img,
+    	.letterAvatar{
+    		margin-right: 20px;
+    	}
+    	.chooseBtnBox{
+    		.btn{
+    			margin-bottom: 20px;
+    		}
+    	}
+    }
+    .cropButtons{
+        padding: 30px 0;
+        .btn-green{
+            margin-right: 10px;
+        }
+    }
 }
 
 .settingsEmailNotifications .checkLine{
