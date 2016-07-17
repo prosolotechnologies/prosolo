@@ -7,7 +7,6 @@ import javax.servlet.http.HttpSession;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessageInboxUpdater;
-import org.prosolo.web.messaging.MessagesBean;
 import org.prosolo.web.notification.TopInboxBean;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,10 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	public void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-			topInboxBean.addUnreadThread(messagesThread.getId());
+			
+			if (topInboxBean != null) {
+				topInboxBean.addUnreadThread(messagesThread.getId());
+			}
 		}
 	}
 
@@ -34,7 +36,10 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	public void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-			topInboxBean.addUnreadThread(messagesThread.getId());
+			
+			if (topInboxBean != null) {
+				topInboxBean.addUnreadThread(messagesThread.getId());
+			}
 		}
 	}
 
