@@ -50,7 +50,11 @@
 		                		<h:link rendered="#{cc.attrs.bean.competenceNextToLearn}"
 		                			value="#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
 		                			styleClass="btn btn-green btn-sm"
-		                			outcome="activity">
+		                			outcome="activity"
+		                			onclick="sendLogPageNavigation('/activity.xhtml', 
+										'#{facesContext.viewRoot.viewId}', 
+										'#{util:addSubContext(cc.attrs.learningContext, &#34;name:COMPETENCE|id:&#34;.concat(util:decodeId(param[&#34;compId&#34;])).concat(&#34;|context:/name:resume_learning/&#34;))}', 
+										'#{cc.attrs.service}');">
 		                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.competenceData.nextActivityToLearnId)}"></f:param>
 					            	<f:param name="compId" value="#{param['compId']}"></f:param>
 					            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
@@ -104,7 +108,11 @@
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
-			            		outcome="credential">
+			            		outcome="credential"
+			            		onclick="sendLogPageNavigation('/credential.xhtml', 
+										'#{facesContext.viewRoot.viewId}', 
+										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
+										'#{cc.attrs.service}');">
 			            		<f:param name="id" value="#{util:encodeId(cc.attrs.bean.competenceData.credentialId)}"></f:param>
 			            	</h:link>
 			            </li>

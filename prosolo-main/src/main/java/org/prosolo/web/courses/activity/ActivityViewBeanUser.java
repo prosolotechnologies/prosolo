@@ -172,14 +172,16 @@ public class ActivityViewBeanUser implements Serializable {
 			String learningContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
 					decodedCredId, 
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
-			for(ActivityData ad : competenceData.getActivities()) {
-				if(ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
+			
+			for (ActivityData ad : competenceData.getActivities()) {
+				if (ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
 					ad.setCompleted(true);
 				}
 			}

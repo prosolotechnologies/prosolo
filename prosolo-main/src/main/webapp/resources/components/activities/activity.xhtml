@@ -100,14 +100,22 @@
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
-			            		outcome="credential">
+			            		outcome="credential"
+			            		onclick="sendLogPageNavigation('/credential.xhtml', 
+										'#{facesContext.viewRoot.viewId}', 
+										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
+										'#{cc.attrs.service}');">
 			            		<f:param name="id" value="#{param['credId']}"></f:param>
 			            	</h:link>
 			            </li>
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.title}"
-			            		outcome="competence">
+			            		outcome="competence"
+			            		onclick="sendLogPageNavigation('/competence.xhtml', 
+										'#{facesContext.viewRoot.viewId}', 
+										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(cc.attrs.bean.decodedCompId).concat(&#34;/&#34;))}', 
+										'#{cc.attrs.service}');">
 			            		<f:param name="compId" value="#{param['compId']}"></f:param>
 			            		<f:param name="credId" value="#{param['credId']}"></f:param>
 			            	</h:link>
@@ -171,7 +179,11 @@
 			                       			<ui:fragment rendered="#{!isPreview and !cc.attrs.bean.isActivityActive(act)}">
 					                   			<h:link
 								            		value="#{act.title}"
-								            		outcome="activity">
+								            		outcome="activity"
+								            		onclick="sendLogPageNavigation('/activity.xhtml', 
+														'#{facesContext.viewRoot.viewId}', 
+														'#{util:addSubContext(learningContext, &#34;name:competence_progress/&#34;)}', 
+														'#{cc.attrs.service}');">
 								            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 								            		<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
 					            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
