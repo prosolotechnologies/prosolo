@@ -42,7 +42,10 @@ public enum ContextName {
 	TARGET_CREDENTIAL("TargetCredential1"),
 	ACTIVITY_LINK("ResourceLink"),
 	ACTIVITY_FILE("ResourceLink"),
-	DELETE_DIALOG("");
+	DELETE_DIALOG(""),
+	PROFILE("User"),
+	WHO_TO_FOLLOW("User"),
+	;
 	
 	
     private String objectType; 

@@ -72,60 +72,65 @@
 			                <ui:fragment rendered="#{profile1.personalProfile}" >
 			                	<h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
 			                </ui:fragment>
+			                
 			                <ui:fragment rendered="#{not profile1.personalProfile}" >
-			                		<p:growl id="profileGrowl" showDetail="true" />
-					                <p:commandLink id="followButton"
-												   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
-												   action="#{peopleActionBean.followCollegueById(profile1.studentId, 'recommendpeople.similarity')}"
-												   update="whiteBarProfileForm"
-												   process="@this"
-												   styleClass="btn btn-green btn-sm">
-										Follow
-									</p:commandLink>
-									<p:commandLink id="unfollowButton"
-												   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
-												   action="#{peopleActionBean.unfollowCollegueById(profile1.studentId, 'recommendpeople.similarity')}"
-												   update="whiteBarProfileForm"
-												   process="@this"
-												   styleClass="btn btn-green-stroke btn-sm">
-										Following
-									</p:commandLink>
-				                    <a href="#" class="btn btn-green btn-sm btnMessage" data-toggle="modal" data-target="#message"><span></span>Message</a>
-				                    <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
-				                        <div class="modal-dialog" role="document">
-				                            <div class="modal-content">
-				                                <div class="modal-header alignLeft">
-				                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-				                                    <h2 class="modal-title" id="sendMessage">Send a Message</h2>
-				                                </div>
-				                                <div class="messageModalMeta">
-				                                    <div class="messageModalMetaLine">
-				                                        <div class="messageModalMetaLeft">
-				                                            To:
-				                                        </div>
-				                                        <div class="messageModalMetaRight">
-				                                            <img src="#{profile1.smallAvatarUrl}" class="img-circle" width="32" height="32" alt="#{profile1.studentFullName}" />
-				                                            <h3>#{profile1.studentFullName}</h3>
-				                                        </div>
-				                                    </div>
-				                                </div>
-				                                <div class="modal-body alignLeft">
-				                                     <p:inputTextarea placeholder="Type a message..." value="#{profile1.message}" id="messageContentTextarea" >
-	                                    			 </p:inputTextarea>
-	                                    			  <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
-				                                </div>
-				                                <div class="modal-footer alignLeft">
-				                                    <p:commandLink action="#{profile1.sendMessage()}" 
-	                                            			styleClass="btn btn-green"
-	                                            			process="@form"
-	                                            			update="profileGrowl"
-	                                            			oncomplete="hideMessageDialog('message')">
-				                                    	Send
-				                                    </p:commandLink>
-				                                </div>
-				                            </div>
-				                        </div>
-				                    </div>
+		                		<p:growl id="profileGrowl" showDetail="true" />
+				                <p:commandLink id="followButton"
+											   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
+											   action="#{peopleActionBean.followCollegueById(profile1.studentFullName, profile1.studentId)}"
+											   update="@form"
+											   process="@this"
+											   styleClass="btn btn-green btn-sm">
+									<f:param name="page" value="/profile.xhtml" />
+									<f:param name="learningContext" value="name:profile|id:#{profile1.studentId}" />
+									Follow
+								</p:commandLink>
+								<p:commandLink id="unfollowButton"
+											   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
+											   action="#{peopleActionBean.unfollowCollegueById(profile1.studentFullName, profile1.studentId)}"
+											   update="whiteBarProfileForm"
+											   process="@form"
+											   styleClass="btn btn-green-stroke btn-sm">
+									<f:param name="page" value="/profile.xhtml" />
+									<f:param name="learningContext" value="name:profile|id:#{profile1.studentId}" />
+									Following
+								</p:commandLink>
+			                    <a href="#" class="btn btn-green btn-sm btnMessage" data-toggle="modal" data-target="#message"><span></span>Message</a>
+			                    <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
+			                        <div class="modal-dialog" role="document">
+			                            <div class="modal-content">
+			                                <div class="modal-header alignLeft">
+			                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                                    <h2 class="modal-title" id="sendMessage">Send a Message</h2>
+			                                </div>
+			                                <div class="messageModalMeta">
+			                                    <div class="messageModalMetaLine">
+			                                        <div class="messageModalMetaLeft">
+			                                            To:
+			                                        </div>
+			                                        <div class="messageModalMetaRight">
+			                                            <img src="#{profile1.smallAvatarUrl}" class="img-circle" width="32" height="32" alt="#{profile1.studentFullName}" />
+			                                            <h3>#{profile1.studentFullName}</h3>
+			                                        </div>
+			                                    </div>
+			                                </div>
+			                                <div class="modal-body alignLeft">
+			                                     <p:inputTextarea placeholder="Type a message..." value="#{profile1.message}" id="messageContentTextarea" >
+                                    			 </p:inputTextarea>
+                                    			  <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
+			                                </div>
+			                                <div class="modal-footer alignLeft">
+			                                    <p:commandLink action="#{profile1.sendMessage()}" 
+                                            			styleClass="btn btn-green"
+                                            			process="@form"
+                                            			update="profileGrowl"
+                                            			oncomplete="hideMessageDialog('message')">
+			                                    	Send
+			                                    </p:commandLink>
+			                                </div>
+			                            </div>
+			                        </div>
+			                    </div>
 			                </ui:fragment>
 		                </h:form>
 	                </div>

@@ -71,6 +71,7 @@
 								</li>
 							</ui:repeat>
 						</ul>
+						
 						<utilcomp:pagination id="pagination" bean="#{peopleBean}"
 							links="#{peopleBean.paginationLinks}"
 							toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
@@ -79,65 +80,48 @@
 					<div class="col-md-4">
 						<div class="sidebarBlock">
 							<h2>Who to Follow</h2>
+							
 							<ul class="listWhoToFollow">
 								<ui:repeat var="user" value="#{peopleBean.usersToFollow}">
 									<li>
 										<div class="user32">
 											<h:link outcome="/profile">
-												<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-													fullName="#{user.name}" width="32" height="32" />
-												<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+												<utilcomp:userAvatar avatar="#{user.avatarUrl}" fullName="#{user.name}" width="32" height="32" />
+												<f:param name="id" value="#{util:encodeId(user.id)}" />
 											</h:link>
 											<h3>
 												<h:link outcome="/profile">
 													#{user.name}
-													<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+													<f:param name="id" value="#{util:encodeId(user.id)}" />
 												</h:link>
 											</h3>
-										</div> <p:commandLink id="followButton"
+										</div> 
+										
+										<p:commandLink id="followButton"
 											rendered="#{!peopleActionBean.isLoggedUserFollowingUser(user.id)}"
-											action="#{peopleActionBean.followCollegueById(user.id, 'recommendpeople.similarity')}"
+											action="#{peopleActionBean.followCollegueById(user.name, user.id)}"
 											update=":formMainFollowingUsers" process="@this"
 											styleClass="btn btn-green btn-xs">
+											<f:param name="page" value="/people.xhtml" />
+											<f:param name="learningContext" value="name:who_to_follow|id:#{user.id}" />
 										Follow
-									</p:commandLink> <p:commandLink id="unfollowButton"
+										</p:commandLink>
+										<p:commandLink id="unfollowButton"
 											rendered="#{peopleActionBean.isLoggedUserFollowingUser(user.id)}"
-											action="#{peopleActionBean.unfollowCollegueById(user.id, 'recommendpeople.similarity')}"
+											action="#{peopleActionBean.unfollowCollegueById(user.name, user.id)}"
 											update=":formMainFollowingUsers" process="@this"
 											styleClass="btn btn-green-stroke btn-xs">
-										Following
-									</p:commandLink>
+											<f:param name="page" value="/people.xhtml" />
+											<f:param name="learningContext" value="name:who_to_follow|id:#{user.id}" />
+											Following
+										</p:commandLink>
 									</li>
 								</ui:repeat>
-								<ui:remove>
-									<li>
-										<div class="user32">
-											<a href="people-profile.html"><img
-												src="images2/temp-walter.png" class="img-circle" width="32"
-												height="32" alt="Walter White" /></a>
-											<h3>
-												<a href="people-profile.html">Walter White</a>
-											</h3>
-										</div> <a href="#" class="btn btn-green btn-xs">Follow</a>
-									</li>
-									<li>
-										<div class="user32">
-											<a href="people-profile.html"><img
-												src="images2/temp-walter.png" class="img-circle" width="32"
-												height="32" alt="Walter White" /></a>
-											<h3>
-												<a href="people-profile.html">Walter White</a>
-											</h3>
-										</div> <a href="#" class="btn btn-green-stroke btn-xs">Following</a>
-									</li>
-								</ui:remove>
 							</ul>
 						</div>
 					</div>
 				</h:form>
 			</div>
-
 		</div>
 	</ui:define>
-
 </ui:composition>

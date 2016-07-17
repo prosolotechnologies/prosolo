@@ -43,7 +43,7 @@
 							<p:commandLink value="Unfollow"
 								styleClass="button gray size30 right"
 								rendered="#{!peopleIterator.loggedUser and peopleIterator.followed}"
-							 	action="#{peopleListDialog.unfollowCollegue(peopleIterator)}"
+							 	action="#{peopleListDialog.unfollowCollegueById(peopleIterator.id)}"
 							 	update=":peopleListForm"/>
 						</div>
 					</div>

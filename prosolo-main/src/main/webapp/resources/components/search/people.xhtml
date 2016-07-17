@@ -70,7 +70,7 @@
 							<p:commandLink styleClass="button gray size25"
 								rendered="#{userData.followed}"
 								value="Unfollow"
-								actionListener="#{peopleActionBean.unfollowCollegueData(userData,'people')}"
+								actionListener="#{peopleActionBean.unfollowCollegueById(userData.id)}"
 							 	update=":peopleSearchForm:resultContainer"
 							 />
 						</div>

@@ -93,7 +93,6 @@ public class PeopleBean implements Serializable, Paginable {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 		}
 	}
 

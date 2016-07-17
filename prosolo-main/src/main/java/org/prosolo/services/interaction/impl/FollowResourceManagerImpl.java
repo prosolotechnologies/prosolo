@@ -18,6 +18,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,30 +39,12 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Autowired private EventFactory eventFactory;
 
-//	@Override
-//	@Transactional
-//	public User followResource(User user, Node resourceToFollow, String context) throws EventException {
-//		if (resourceToFollow != null && user != null) {
-//			FollowedEntity followedEntity = new FollowedResourceEntity();
-//			followedEntity.setUser(user);
-//			followedEntity.setFollowedResource(resourceToFollow);
-//			followedEntity.setStartedFollowing(new Date());
-//			followedEntity = saveEntity(followedEntity);
-//			
-//			logger.debug(user.getName() + " started following "	+ resourceToFollow.getId());
-//			
-//			Map<String, String> parameters = new HashMap<String, String>();
-//			parameters.put("context", context);
-//			
-//			eventFactory.generateEvent(EventType.Follow, user.getId(), resourceToFollow, null, parameters);
-//
-//			return user;
-//		}
-//		return null;
-//	}
-	
+	/**
+	 * @deprecated use {@link #followUser(long, long, LearningContextData)} instead.
+	 */
 	@Override
-	@Transactional 
+	@Transactional
+	@Deprecated
 	public User followUser(long followerId, long userToFollowId, String context) throws EventException, ResourceCouldNotBeLoadedException{
 		if (userToFollowId > 0 && followerId > 0) {
 			User follower = loadResource(User.class, followerId);
@@ -84,38 +67,30 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		return null;
 	}
 	
-//	@Override
-//	@Transactional (readOnly = true)
-//	public FollowedEntity getFollowedEntity(User user, Node followedResource, Session session) {
-//		String query = 
-//			"SELECT DISTINCT followedEnt " +
-//			"FROM FollowedEntity followedEnt " +
-//			"LEFT JOIN followedEnt.user user " +
-//			"WHERE followedEnt.followedNode = :resource " +
-//				"AND user = :user ";
-//		
-//		FollowedEntity result = (FollowedEntity) session.createQuery(query).
-//			setEntity("user", user).
-//			setEntity("resource", followedResource).
-//			uniqueResult();
-//		
-//		if (result != null) {
-//			return result;
-//		}
-//		return null;
-//	}
-//	
-//	@Override
-//	@Transactional (readOnly = true)
-//	public List<User> getUserFollowers(User user) {
-//		return getUserFollowers(user.getId());
-//	}
-//	
-//	@Override
-//	@Transactional (readOnly = true)
-//	public List<User> getUserFollowers(User user, Session session) {
-//		return getUserFollowers(user.getId(), session);
-//	}
+	@Override
+	@Transactional
+	public User followUser(long followerId, long userToFollowId, LearningContextData context) throws EventException, ResourceCouldNotBeLoadedException{
+		if (userToFollowId > 0 && followerId > 0) {
+			User follower = loadResource(User.class, followerId);
+			User userToFollow = loadResource(User.class, userToFollowId);
+			
+			FollowedEntity followedEntity = new FollowedUserEntity();
+			followedEntity.setUser(follower);
+			followedEntity.setFollowedResource(userToFollow);
+			followedEntity.setStartedFollowing(new Date());
+			followedEntity = saveEntity(followedEntity);
+			
+			eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, null,
+					context.getPage(),
+					context.getLearningContext(),
+					context.getService(),
+					null);
+			
+			logger.debug(follower.getName() + " started following user " + userToFollow.getId());
+			return follower;
+		}
+		return null;
+	}
 	
 	@Override
 	@Transactional (readOnly = true)
@@ -143,27 +118,6 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		}
 		return new ArrayList<User>();
 	}
-
-//	@Override
-//	@Transactional (readOnly = true)
-//	public Collection<User> getResourceFollowers(BaseEntity resource, Session session) {
-//		String query = 
-//			"SELECT DISTINCT user "	+ 
-//			"FROM FollowedEntity fEnt " + 
-//			"LEFT JOIN fEnt.user user "+
-//			"LEFT JOIN fEnt.followedNode followedRes " + 
-//			"WHERE followedRes = :resource";
-//		
-//		@SuppressWarnings("unchecked")
-//		Collection<User> followers = session.createQuery(query)
-//			.setEntity("resource", resource)
-//			.list();
-//
-//		if (followers != null) {
-//			return followers;
-//		}
-//		return new ArrayList<User>();
-//	}
 	
 	@Override
 	@Transactional 
@@ -192,23 +146,6 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		return new ArrayList<User>();
 	}
 	
-//	@Override
-//	@Transactional (readOnly = true)
-//	public boolean isUserFollowingResource(User followerUser, Node followedResource){
-//		String query = 
-//			"SELECT cast(COUNT(DISTINCT fEnt) as int) "+
-//			"FROM FollowedEntity fEnt " + 
-//			"LEFT JOIN fEnt.user user "+
-//			"WHERE fEnt.followedNode = :resource " +
-//				"AND user = :user ";
-//		
-//		Integer followedEntNo = (Integer) persistence.currentManager().createQuery(query)
-//				.setEntity("user", followerUser)
-//				.setEntity("resource", followedResource)
-//				.uniqueResult();
-// 		return followedEntNo> 0;
-//	}
-	
 	@Override 
 	@Transactional (readOnly = true)
 	public boolean isUserFollowingUser(long followerUserId, long followedUserId){
@@ -229,6 +166,38 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional 
+	public boolean unfollowUser(long followerId, long userToUnfollowId, LearningContextData context) throws EventException {
+		String query = 
+				"DELETE FROM FollowedUserEntity fEnt " +
+						"WHERE fEnt.user.id = :followerId " +
+						"AND fEnt.followedUser.id = :userToUnfollowId";
+		
+		int deleted = persistence.currentManager().createQuery(query)
+				.setLong("followerId", followerId)
+				.setLong("userToUnfollowId", userToUnfollowId)
+				.executeUpdate();
+		
+		try {
+			User userToUnfollow = loadResource(User.class, userToUnfollowId);
+			
+			eventFactory.generateEvent(EventType.Unfollow, followerId, userToUnfollow, null,
+					context.getPage(),
+					context.getLearningContext(),
+					context.getService(),
+					null);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+		
+		return deleted > 0;
+	}
+	
+	/**
+	 * @deprecated use {@link #followUser(long, long, LearningContextData)} instead.
+	 */
+	@Override
+	@Transactional
+	@Deprecated
 	public boolean unfollowUser(long followerId, long userToUnfollowId, String context) throws EventException {
 		String query = 
 			"DELETE FROM FollowedUserEntity fEnt " +
@@ -254,30 +223,6 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		return deleted > 0;
 	}
 	
-//	@Override
-//	@Transactional 
-//	public boolean unfollowResource(User user, Node resourceToUnfollow, String context) throws EventException {
-//		if (resourceToUnfollow != null && user != null) {
-//			String query = 
-//				"DELETE FROM FollowedResourceEntity fEnt " +
-//				"WHERE fEnt.user = :user " +
-//					"AND fEnt.followedNode = :resourceToUnfollow";
-//			
-//			int deleted = persistence.currentManager().createQuery(query)
-//				.setEntity("user", user)
-//				.setEntity("resourceToUnfollow", resourceToUnfollow)
-//				.executeUpdate();
-//			
-//			Map<String, String> parameters = new HashMap<String, String>();
-//			parameters.put("context", context);
-//			
-//			eventFactory.generateEvent(EventType.Unfollow, user.getId(), resourceToUnfollow, null, parameters);
-//			
-//			return deleted > 0;
-//		}
-//		return false;
-//	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getFollowingUsers(long userId, int page, int limit) throws DbConnectionException {
