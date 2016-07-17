@@ -49,8 +49,11 @@
 			<div class="row">
 				<h:form id="inProgressCredentialsForm">
 					<p:growl id="inProgressCredentialsGrowl" showDetail="true"></p:growl>
+					
 					<ui:repeat var="targetCredential"
-						value="#{targetCredentialBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+						value="#{targetCredentialBean.inProgressCredentialAchievementsData.targetCredentialDataList}"
+						varStatus="iterator">
+						
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
@@ -81,6 +84,10 @@
 								</div>
 							</article>
 						</div>
+						
+						<ui:fragment rendered="#{iterator.index % 2 == 1}">
+		        			<div class="clear"></div>
+		        		</ui:fragment>
 					</ui:repeat>
 				</h:form>
 			</div>

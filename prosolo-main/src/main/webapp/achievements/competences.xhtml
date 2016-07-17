@@ -48,14 +48,15 @@
 			<div class="row">
 				<h:form id="completedCompetencesForm">
 					<p:growl id="completedCompetencesGrowl" showDetail="true"></p:growl>
+					
 					<ui:repeat var="targetCompetence"
-						value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}">
+						value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}"
+						varStatus="iterator">
 
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
-									<h:link value="#{targetCompetence.title}"
-										outcome="#{targetCompetence.link}" />
+									<h:link value="#{targetCompetence.title}" outcome="#{targetCompetence.link}" />
 								</h2>
 
 								<div class="clear"></div>
@@ -80,6 +81,10 @@
 								</div>
 							</article>
 						</div>
+						
+						<ui:fragment rendered="#{iterator.index % 2 == 1}">
+		        			<div class="clear"></div>
+		        		</ui:fragment>
 					</ui:repeat>
 				</h:form>
 			</div>
