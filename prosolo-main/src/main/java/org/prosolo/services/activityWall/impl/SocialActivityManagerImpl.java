@@ -194,7 +194,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"sa.twitter_post_url AS twitterPostUrl, " +
 				"sa.twitter_user_type AS twitterUserType, " +
 				//post social activity
-				"sa.share_count AS sa_share_count, " +
 				"sa.rich_content_title AS richContentTitle, " +
 				"sa.rich_content_description AS richContentDescription, " +
 				"sa.rich_content_content_type AS richContentType, " +
