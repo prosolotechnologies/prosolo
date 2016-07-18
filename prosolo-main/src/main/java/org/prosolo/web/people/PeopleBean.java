@@ -29,9 +29,9 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "peopleBean")
 @Component("peopleBean")
 @Scope("view")
-public class PeopleBean implements Serializable, Paginable {
+public class PeopleBean implements Paginable, Serializable {
 
-	private static final long serialVersionUID = 1649841825781113183L;
+	private static final long serialVersionUID = -5592166239184029819L;
 
 	protected static Logger logger = Logger.getLogger(PeopleBean.class);
 
@@ -79,7 +79,7 @@ public class PeopleBean implements Serializable, Paginable {
 		}
 	}
 
-	private void initUsersToFollow() {
+	public void initUsersToFollow() {
 		try {
 			usersToFollow = new ArrayList<UserData>();
 			List<User> usersToFollowList = cRecommendation
@@ -115,7 +115,7 @@ public class PeopleBean implements Serializable, Paginable {
 		}
 	}
 
-	private void generatePagination() {
+	public void generatePagination() {
 		// if we don't want to generate all links
 		Paginator paginator = new Paginator(usersNumber, limit, page, 1, "...");
 		numberOfPages = paginator.getNumberOfPages();
@@ -140,6 +140,7 @@ public class PeopleBean implements Serializable, Paginable {
 		if (this.page != page) {
 			this.page = page;
 			initFollowingUsers();
+			initUsersToFollow();
 		}
 	}
 
