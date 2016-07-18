@@ -301,7 +301,7 @@ public class RolesBean implements Serializable {
 					@Override
 					public void run() {
 						try{
-							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUserId(), null, 
+							eventFactory.generateEvent(EventType.USER_ROLES_UPDATED, loggedUser.getUserId(), user, 
 								null, null, null);
 						} catch(Exception e) {
 							logger.error(e);

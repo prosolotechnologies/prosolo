@@ -36,6 +36,7 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.StatusWallFilter;
+import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.PageUtil;
@@ -255,6 +256,9 @@ public class ActivityWallBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
+			
+			newSocialActivity.setText(PostUtil.cleanHTMLTagsExceptBr(newSocialActivity.getText()));
+			
 			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
 					newSocialActivity, lcd);
 			
