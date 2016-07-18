@@ -51,21 +51,22 @@
     </ui:define>
 
 	<ui:define name="content">
-	<script>
-		function expandTextarea(id) {
-		    var $element = $('#'+id).get(0);  
-		    $element.addEventListener('keyup', function() {
-		        this.style.overflow = 'hidden';
-		        this.style.height = 0;
-		        this.style.height = this.scrollHeight + 'px';
-		    }, false);
-		}
-		function hideMessageDialog(dialogId) {
-			$('#'+dialogId).modal('hide');
-			$("body").removeAttr("class").removeAttr("style")
-			$("div.modal-backdrop.fade.in").remove()
-		}
-	</script>
+		<script>
+			function expandTextarea(id) {
+			    var $element = $('#'+id).get(0);  
+			    $element.addEventListener('keyup', function() {
+			        this.style.overflow = 'hidden';
+			        this.style.height = 0;
+			        this.style.height = this.scrollHeight + 'px';
+			    }, false);
+			}
+			function hideMessageDialog(dialogId) {
+				$('#'+dialogId).modal('hide');
+				$("body").removeAttr("class").removeAttr("style")
+				$("div.modal-backdrop.fade.in").remove()
+			}
+		</script>
+		
 		<div class="whiteBar">
 	        <div class="container">
 	            <div class="whiteBarContent" id="whiteBarContent">
@@ -214,6 +215,10 @@
 									</div>
 		                        </article>
 		                    </div>
+		                    
+		                    <ui:fragment rendered="#{iterator.index % 2 == 1}">
+			        			<div class="clear"></div>
+			        		</ui:fragment>
 		                </ui:repeat>
 	                </div>
 	                
@@ -262,6 +267,10 @@
 									</div>
 								</article>
 							</div>
+		                    
+		                    <ui:fragment rendered="#{iterator.index % 2 == 1}">
+			        			<div class="clear"></div>
+			        		</ui:fragment>
 						</ui:repeat>
 	                </div>
 	                
@@ -345,6 +354,10 @@
 									</div>
 								</article>
 		                    </div>
+		                    
+		                    <ui:fragment rendered="#{iterator.index % 2 == 1}">
+			        			<div class="clear"></div>
+			        		</ui:fragment>
 	                    </ui:repeat>
 	                </div>
 	            </div>

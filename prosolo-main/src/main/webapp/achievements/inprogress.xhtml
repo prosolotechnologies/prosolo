@@ -62,7 +62,10 @@
 						</div>
 					</ui:fragment>
 					
-					<ui:repeat var="targetCredential" value="#{credentialAchievementsBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+					<ui:repeat var="targetCredential"
+						value="#{targetCredentialBean.inProgressCredentialAchievementsData.targetCredentialDataList}"
+						varStatus="iterator">
+						
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
@@ -91,6 +94,10 @@
 								</div>
 							</article>
 						</div>
+						
+						<ui:fragment rendered="#{iterator.index % 2 == 1}">
+		        			<div class="clear"></div>
+		        		</ui:fragment>
 					</ui:repeat>
 				</h:form>
 			</div>

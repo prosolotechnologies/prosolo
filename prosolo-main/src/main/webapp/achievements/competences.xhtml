@@ -61,12 +61,14 @@
 						</div>
 					</ui:fragment>
 					
-					<ui:repeat var="targetCompetence" value="#{competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}">
+					<ui:repeat var="targetCompetence"
+						value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}"
+						varStatus="iterator">
+
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
-									<h:link value="#{targetCompetence.title}"
-										outcome="#{targetCompetence.link}" />
+									<h:link value="#{targetCompetence.title}" outcome="#{targetCompetence.link}" />
 								</h2>
 
 								<div class="clear"></div>
@@ -76,7 +78,7 @@
 									<div class="metaLeft">
 										<div class="checkbox checkLine">
 
-											<h:inputHidden value="#{targetCompetence.id}"></h:inputHidden>
+											<h:inputHidden value="#{targetCompetence.id}" />
 											<h:selectBooleanCheckbox id="competenceAchievements"
 												value="#{targetCompetence.hiddenFromProfile}">
 												<f:ajax event="click" execute="@form"
@@ -91,6 +93,10 @@
 								</div>
 							</article>
 						</div>
+						
+						<ui:fragment rendered="#{iterator.index % 2 == 1}">
+		        			<div class="clear"></div>
+		        		</ui:fragment>
 					</ui:repeat>
 				</h:form>
 			</div>
