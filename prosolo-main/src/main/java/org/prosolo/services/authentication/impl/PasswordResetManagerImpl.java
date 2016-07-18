@@ -56,7 +56,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		saveEntity(key);
 		
 		try {
-			String resetAddress = serverAddress+"?key="+key.getUid();
+			String resetAddress = serverAddress + key.getUid();
 			
 			PasswordRecoveryEmailContentGenerator contentGenerator = new PasswordRecoveryEmailContentGenerator(user.getName(), resetAddress);
 			
