@@ -308,7 +308,7 @@ public class ActivityWallBean implements Serializable {
 					postShareSocialActivity.getType().name(), loggedUser.getLocale()));
 			socialActivities.add(0, postShareSocialActivity);
 			
-			socialActivityForShare.setShareCount(socialActivityForShare.getShareCount() + 1);
+			//socialActivityForShare.setShareCount(socialActivityForShare.getShareCount() + 1);
 			
 			socialActivityForShare = null;
 			postShareText = null;

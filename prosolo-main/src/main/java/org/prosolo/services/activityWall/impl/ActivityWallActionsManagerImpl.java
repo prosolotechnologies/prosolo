@@ -9,14 +9,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivityConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -91,14 +89,14 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 			
 			sa.setDeleted(true);
 			
-			if(socialActivity.getType() == SocialActivityType.Post_Reshare) {
-				long originalPostSocialActivityId = socialActivity.getObject().getId();
-				if(originalPostSocialActivityId > 0) {
-					PostSocialActivity1 originalPost = loadResource(PostSocialActivity1.class, 
-							originalPostSocialActivityId, session);
-					originalPost.setShareCount(originalPost.getShareCount() - 1);
-				}
-			}
+//			if(socialActivity.getType() == SocialActivityType.Post_Reshare) {
+//				long originalPostSocialActivityId = socialActivity.getObject().getId();
+//				if(originalPostSocialActivityId > 0) {
+//					PostSocialActivity1 originalPost = loadResource(PostSocialActivity1.class, 
+//							originalPostSocialActivityId, session);
+//					originalPost.setShareCount(originalPost.getShareCount() - 1);
+//				}
+//			}
 			
 			User user = new User();
 			user.setId(userId);
@@ -160,20 +158,20 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		}
 	}
 	
-	@Override
-	@Transactional
-	public SocialActivity1 decrementNumberOfReshares(long socialActivityId, Session session) 
-			throws ResourceCouldNotBeLoadedException {
-		PostSocialActivity1 socialActivity = loadResource(PostSocialActivity1.class, socialActivityId, 
-				session);
-		
-		if (socialActivity != null) {
-			socialActivity.setShareCount(socialActivity.getShareCount() - 1);
-			session.save(socialActivity);
-			
-			return socialActivity;
-		}
-		return null;
-	}
+//	@Override
+//	@Transactional
+//	public SocialActivity1 decrementNumberOfReshares(long socialActivityId, Session session) 
+//			throws ResourceCouldNotBeLoadedException {
+//		PostSocialActivity1 socialActivity = loadResource(PostSocialActivity1.class, socialActivityId, 
+//				session);
+//		
+//		if (socialActivity != null) {
+//			socialActivity.setShareCount(socialActivity.getShareCount() - 1);
+//			session.save(socialActivity);
+//			
+//			return socialActivity;
+//		}
+//		return null;
+//	}
 
 }

@@ -1124,7 +1124,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
    			postShare.setPostObject(post);
    			postShare = saveEntity(postShare);
    			
-   			post.setShareCount(post.getShareCount() + 1);
+   			//post.setShareCount(post.getShareCount() + 1);
    			
    			return postShare;
    		} catch(Exception e) {

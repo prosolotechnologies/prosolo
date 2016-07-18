@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
@@ -29,11 +30,12 @@ public interface Competence1Manager {
 	 * @param data
 	 * @param createdBy
 	 * @param credentialId
+	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId) 
-			throws DbConnectionException;
+	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
+			LearningContextData context) throws DbConnectionException;
 	
 	/**
 	 * Deletes competence by setting deleted flag to true on original competence and 
@@ -50,7 +52,8 @@ public interface Competence1Manager {
 	Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, long userId) 
 			throws DbConnectionException;
 	
-	Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId) 
+	Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId, 
+			LearningContextData context) 
 			throws DbConnectionException, CompetenceEmptyException;
 	
 	Competence1 updateCompetence(CompetenceData1 data) throws DbConnectionException;

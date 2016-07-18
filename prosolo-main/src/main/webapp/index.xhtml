@@ -137,7 +137,48 @@
                        <div class="textAreaWrapper">
                            <div class="contentEditable postShareEditableDivSelector" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
                            <h:inputTextarea id="textAreaPostShareText" styleClass="postTextHidden" value="#{activityWallBean.postShareText}" style="display: none;"></h:inputTextarea>
-                       </div>
+                           <h:panelGroup id="panelUserSuggestion">
+							   <h:panelGroup rendered="#{not empty userSearchBean.query and not empty userSearchBean.users}">
+								 <ul class="dropdown-menu searchResultsDrop postShareUserSuggestRegionSelector" style="display:block;">
+								 	<ui:repeat var="user" value="#{userSearchBean.users}">
+								 		<li>
+								 			 <a href="javascript:void(0);"
+								 			 	data-id="#{util:encodeId(user.id)}"
+								 			 	data-name="#{user.fullName}"
+								 			 	onclick="newPostShare.selectSuggestedUser(this);">
+						                   		<utilcomp:userAvatar
+													avatar="#{user.avatarUrl}"
+													fullName="#{user.fullName}"	
+													width="32"
+													height="32"
+											    />  
+											    <h3>#{user.fullName}</h3> 
+			                  			 	 </a>
+					                    </li>
+								 	</ui:repeat>
+				                 </ul>
+				               </h:panelGroup>
+		             	    </h:panelGroup>
+		             	    <p:remoteCommand 
+								name="searchUsersMentionedInPostShare" 
+								update="panelUserSuggestion"
+								process="userSuggestInput inputHiddenContext inputHiddenPage"
+								action="#{userSearchBean.searchUsers()}"/>
+					
+							 <h:inputText id="userSuggestInput" style="display:none;"
+									styleClass="postShareUserSuggestInputSelector"
+									value="#{userSearchBean.query}" />
+							 <h:inputText style="display:none;"
+							 	id="inputHiddenContext"
+							 	styleClass="inputHiddenContextSelector"
+							 	value="#{userSearchBean.context}">
+							 </h:inputText>
+							 <h:inputText style="display:none;"
+							 	id="inputHiddenPage"
+							 	styleClass="inputHiddenPageSelector"
+							 	value="#{userSearchBean.page}">
+							 </h:inputText>
+	                       </div>
                        <post:sharedPostPreview
                        		socialActivity="#{activityWallBean.socialActivityForShare}"
                        		sharedSocialActivityId="0"
@@ -177,9 +218,9 @@
 				urlFieldSelector: '',
 				addUrlButtonSelector: '',
 				linkLoaderContainerSelector: '',
-				userSuggestionRegionSelector: '.userSuggestRegionSelector',
-				userSearchInputSelector: '.userSuggestInputSelector',
-				userSearchAction: searchUsersMentionedInPost,
+				userSuggestionRegionSelector: '.postShareUserSuggestRegionSelector',
+				userSearchInputSelector: '.postShareUserSuggestInputSelector',
+				userSearchAction: searchUsersMentionedInPostShare,
 				allowUrlPreview : false,
 				showHidePostOptions : false
 			});

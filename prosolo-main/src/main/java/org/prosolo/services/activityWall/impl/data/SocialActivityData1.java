@@ -34,7 +34,6 @@ public class SocialActivityData1 implements Serializable {
 	private boolean commentsDisabled;
 	
 	private int likeCount;
-	private int shareCount;
 	private boolean liked;
 	private boolean shared;
 	
@@ -112,14 +111,6 @@ public class SocialActivityData1 implements Serializable {
 	
 	public void setLikeCount(int likeCount) {
 		this.likeCount = likeCount;
-	}
-	
-	public int getShareCount() {
-		return shareCount;
-	}
-	
-	public void setShareCount(int shareCount) {
-		this.shareCount = shareCount;
 	}
 	
 	public boolean isLiked() {

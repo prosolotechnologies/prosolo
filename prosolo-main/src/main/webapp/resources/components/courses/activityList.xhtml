@@ -123,6 +123,8 @@
          	  	styleClass="activityItem addActivity"
          	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
          	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
+         	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+				<f:param name="learningContext" value="name:new_activity"></f:param>
          	 	<span class="iconPlus"></span>
 	            Add Activity
          	 </p:commandLink>

@@ -17,7 +17,7 @@ import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTrac
 
 public interface Activity1Manager {
 	
-	Activity1 saveNewActivity(ActivityData data, long userId) 
+	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
 	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
@@ -54,8 +54,8 @@ public interface Activity1Manager {
 	ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
 			throws DbConnectionException;
 	
-	Activity1 updateActivity(long originalActivityId, ActivityData data, long userId) 
-			throws DbConnectionException;
+	Activity1 updateActivity(long originalActivityId, ActivityData data, long userId, 
+			LearningContextData context) throws DbConnectionException;
 	
 	Activity1 updateActivityData(ActivityData data, long userId);
 	

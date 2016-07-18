@@ -27,7 +27,8 @@ import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsExcept
 
 public interface CredentialManager extends AbstractManager {
 
-	Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException;
+	Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+			throws DbConnectionException;
 	
 	/**
 	 * Deletes credential by setting deleted flag to true on original credential and 
@@ -130,7 +131,8 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role) 
+	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role,
+			LearningContextData context) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
 	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);

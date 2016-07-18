@@ -65,7 +65,6 @@ public class SocialActivityDataFactory {
 			String twitterActorAvatar,
 			String twitterPostUrl,
 			Integer twitterUserType,
-			Integer shareCount,
 			String postRichContentTitle,
 			String postRichContentDescription,
 			String postRichContentContentType,
@@ -102,6 +101,8 @@ public class SocialActivityDataFactory {
 			BigInteger actTargetId,
 			String actTargetTitle,
 			BigInteger actTargetCompId,
+			String actTargetDType,
+			String actTargetUrlType,
 			BigInteger actObjectId,
 			String actObjectTitle,
 			BigInteger actObjectDuration,
@@ -162,9 +163,6 @@ public class SocialActivityDataFactory {
 		} else if(dType.equals(PostSocialActivity1.class.getSimpleName())) {
 			//post
 			sad.setType(SocialActivityType.Post);
-			if(shareCount != null) {
-				sad.setShareCount(shareCount);
-			}
 			if(postRichContentContentType != null) {
 				RichContent1 rc = new RichContent1();
 				rc.setTitle(postRichContentTitle);
@@ -243,7 +241,7 @@ public class SocialActivityDataFactory {
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
-					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0);
+					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0, null);
 		} else if(dType.equals(ActivityCommentSocialActivity.class.getSimpleName())) {
 			//activity comment
 			sad.setType(SocialActivityType.Comment);
@@ -251,9 +249,10 @@ public class SocialActivityDataFactory {
 					ObjectType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Activity, 0, null, null, locale);
+			ActivityType actType = activityFactory.getActivityType(actTargetDType, actTargetUrlType);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
 					target.getType(), actTargetTitle, commentObjectComment, actTargetCompId.longValue(), 
-					actTargetId.longValue());
+					actTargetId.longValue(), actType);
 		} else if(dType.equals(ActivityCompleteSocialActivity.class.getSimpleName())) {
 			//activity complete
 			sad.setType(SocialActivityType.Learning_Completion);
@@ -318,7 +317,6 @@ public class SocialActivityDataFactory {
 			//post
 			PostSocialActivity1 pAct = (PostSocialActivity1) act;
 			sad.setType(SocialActivityType.Post);
-			sad.setShareCount(pAct.getShareCount());
 
 			if(pAct.getRichContent() != null) {
 				ap = richContentFactory.getAttachmentPreview(pAct.getRichContent());
@@ -388,7 +386,7 @@ public class SocialActivityDataFactory {
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
-					target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0);
+					target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0, null);
 		} else if(act instanceof ActivityCommentSocialActivity) {
 			//activity comment
 			ActivityCommentSocialActivity acAct = (ActivityCommentSocialActivity) act;
@@ -399,9 +397,11 @@ public class SocialActivityDataFactory {
 					ObjectType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Activity, 0, null, null, locale);
+			ActivityType actType = activityFactory.getActivityType(activity);
 			//TODO pass competenceId when you find the way to retrieve it
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
-					target.getType(), activity.getTitle(), comment.getDescription(), 0 , activity.getId());
+					target.getType(), activity.getTitle(), comment.getDescription(), 0 , activity.getId(),
+					actType);
 		} else if(act instanceof ActivityCompleteSocialActivity) {
 			//activity complete
 			ActivityCompleteSocialActivity acAct = (ActivityCompleteSocialActivity) act;

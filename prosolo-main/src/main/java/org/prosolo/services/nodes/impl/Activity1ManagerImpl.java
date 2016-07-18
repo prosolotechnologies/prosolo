@@ -74,23 +74,31 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Activity1 saveNewActivity(ActivityData data, long userId) 
+	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
 			throws DbConnectionException {
 		try {
 			Result<Activity1> res = resourceFactory.createActivity(data, userId);
 			
 			Activity1 act = res.getResult();
 
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
 			for(EventData ev : res.getEvents()) {
+				ev.setPage(page);
+				ev.setContext(lContext);
+				ev.setService(service);
 				eventFactory.generateEvent(ev);
 			}
 			
 			User user = new User();
 			user.setId(userId);
 			if(act.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, user.getId(), act);
+				eventFactory.generateEvent(EventType.Create, user.getId(), act, null, page, lContext,
+						service, null);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act);
+				eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, null, page, lContext,
+						service, null);
 			}
 
 			return act;
@@ -754,8 +762,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Activity1 updateActivity(long originalActivityId, ActivityData data, long userId) 
-			throws DbConnectionException {
+	public Activity1 updateActivity(long originalActivityId, ActivityData data, long userId,
+			LearningContextData context) throws DbConnectionException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data, userId);
 			Class<? extends Activity1> actClass = null;
@@ -767,18 +775,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				actClass = ExternalToolActivity1.class;
 			}
 			
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
 			User user = new User();
 			user.setId(userId);
 			if(data.isPublished()) {
 				//activity remains published
 				if(!data.isPublishedChanged()) {
-					fireSameVersionActivityEditEvent(actClass, data, user, act, 0);
+					fireSameVersionActivityEditEvent(actClass, data, user, act, 0, page, lContext, service);
 				} 
 				/*
 				 * this means that activity is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(fireFirstTimePublishActivityEvent(user, act));
+					EventData ev = fireFirstTimePublishActivityEvent(user, act);
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
+					eventFactory.generateEvent(ev);
 				}
 				/*
 				 * Activity becomes published again. Because data can show what has changed
@@ -786,8 +801,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				 * original activity, so all fields are treated as changed.
 				 */
 				else {
-				    eventFactory.generateEvent(fireActivityPublishedAgainEditEvent(actClass, user, act, 
-				    		data.getActivityId()));
+					EventData ev = fireActivityPublishedAgainEditEvent(actClass, user, act, 
+				    		data.getActivityId());
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
+				    eventFactory.generateEvent(ev);
 				}
 			} else {
 				/*
@@ -798,7 +817,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					if(data.isDraft()) {
 						originalVersionId = originalActivityId;
 					}
-					fireSameVersionActivityEditEvent(actClass, data, user, act, originalVersionId);
+					fireSameVersionActivityEditEvent(actClass, data, user, act, originalVersionId, page,
+							lContext, service);
 				} 
 				/*
 				 * This means that activity was published before so draft version is created.
@@ -806,7 +826,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				else {
 					Map<String, String> params = new HashMap<>();
 					params.put("originalVersionId", data.getActivityId() + "");
-					eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, null, params);
+					eventFactory.generateEvent(EventType.Create_Draft, user.getId(), act, null, page,
+							lContext, service, params);
 				}
 			}
 
@@ -823,7 +844,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	private void fireSameVersionActivityEditEvent(Class<? extends Activity1> actClass, 
-			ActivityData data, User user, Activity1 act, long originalVersionId) throws EventException {
+			ActivityData data, User user, Activity1 act, long originalVersionId, String page, 
+			String context, String service) throws EventException {
 		Map<String, String> params = new HashMap<>();
 		boolean linksChanged = false;
 		for(ResourceLinkData rl : data.getLinks()) {
@@ -862,7 +884,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, user.getId(), act, null, params);
+	    eventFactory.generateEvent(event, user.getId(), act, null, page, context, service, params);
 	}
 	
 	private EventData fireFirstTimePublishActivityEvent(User user, Activity1 act) {

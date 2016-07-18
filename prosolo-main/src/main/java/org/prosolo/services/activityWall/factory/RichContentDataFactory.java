@@ -125,13 +125,14 @@ public class RichContentDataFactory {
 	 * @return
 	 */
 	public AttachmentPreview1 getAttachmentPreviewForComment(long id,
-			ObjectType type, String title, String comment, long compId, long actId) {
+			ObjectType type, String title, String comment, long compId, long actId, ActivityType actType) {
 		AttachmentPreview1 ap = new AttachmentPreview1();
 		MediaType1 mediaType = null;
 		if(type == ObjectType.Competence) {
 			mediaType = MediaType1.CompetenceComment;
 		} else {
 			mediaType = MediaType1.ActivityComment;
+			ap.setActivityType(actType);
 		}
 		ap.setMediaType(mediaType);
 		ap.setId(id);

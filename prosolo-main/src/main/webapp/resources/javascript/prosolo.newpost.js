@@ -55,7 +55,6 @@ function stripTagsExceptBr(html) {
         	
         	var userSearchQuery = text.substring(text.lastIndexOf('@') + 1, text.length);
         	$this.find(opts.userSearchInputSelector).val(userSearchQuery);
-        	console.log(userSearchQuery);
         	if (userSearchQuery.length > 0) {
         		$this.find(opts.userSuggestionRegionSelector).show();
         		opts.userSearchAction();
@@ -124,7 +123,7 @@ function stripTagsExceptBr(html) {
                 if(opts.showHidePostOptions) {
                 	core.resolvePostButtonStatus();
                 }
-                
+          
                 // check if user suggest should be activated
                 var last = $(this).html().charAt($(this).html().length - 1);
                 

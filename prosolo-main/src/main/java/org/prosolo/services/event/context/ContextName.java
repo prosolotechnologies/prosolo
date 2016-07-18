@@ -40,8 +40,10 @@ public enum ContextName {
 	ACTIVITY_LINK("ResourceLink"),
 	ACTIVITY_FILE("ResourceLink"),
 	DELETE_DIALOG(""),
-	POST_SHARE_DIALOG("");
-	
+	POST_SHARE_DIALOG(""),
+	PREVIEW(""),
+	NEW_COMPETENCE(""),
+	NEW_ACTIVITY("");
 	
     private String objectType; 
     

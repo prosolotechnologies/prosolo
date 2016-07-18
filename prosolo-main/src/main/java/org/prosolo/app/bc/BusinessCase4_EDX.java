@@ -732,7 +732,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		credentialData.setPublished(true);
 		
 		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
-				org.prosolo.services.nodes.data.Role.Manager);
+				org.prosolo.services.nodes.data.Role.Manager, null);
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
@@ -800,7 +800,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				.getService(Activity1Manager.class)
 				.saveNewActivity(
 						actData,
-						userNickPowell.getId());
+						userNickPowell.getId(), null);
 		return act;
 	}
 
@@ -815,7 +815,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, userNickPowell.getId());
+				.saveNewCredential(credentialData, userNickPowell.getId(), null);
 		
 		return credNP1;
 	}
@@ -836,7 +836,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				.saveNewCompetence(
 						compData,
 						user.getId(),
-						credentialId);
+						credentialId, null);
 		
 		return comp;
 	}
