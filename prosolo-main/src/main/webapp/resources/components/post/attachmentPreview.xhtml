@@ -177,7 +177,7 @@
 		                     	#{cc.attrs.attachmentPreview.title}</h2>
 		                 </div>
 		                 <p class="wallPostContent commentPreview">
-		                    #{cc.attrs.attachmentPreview.description}
+		                    <h:outputText escape="false" value="#{cc.attrs.attachmentPreview.description}" />
 		                 </p>
 		                 <p class="wallPostContent">
 		                     <h:link target="_blank" outcome="#{cc.attrs.attachmentPreview.link}">View discussion</h:link>
