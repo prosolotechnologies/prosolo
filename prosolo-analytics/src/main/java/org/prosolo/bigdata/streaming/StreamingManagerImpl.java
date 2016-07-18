@@ -50,4 +50,8 @@ public class StreamingManagerImpl {
 				Topic.ANALYTICS, 1);
 
 	}
+	public void stopStreamingTopics(){
+		StreamConsumerManager.getInstance().stopStreaming(Topic.LOGS);
+		StreamConsumerManager.getInstance().stopStreaming(Topic.ANALYTICS);
+	}
 }

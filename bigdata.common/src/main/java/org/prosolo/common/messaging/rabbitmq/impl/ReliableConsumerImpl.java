@@ -211,7 +211,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableConsumer#
 	 * StopAsynchronousConsumer()
 	 */
-
+@Override
 	public void StopAsynchronousConsumer() {
 		this.exService.shutdownNow();
 	}
