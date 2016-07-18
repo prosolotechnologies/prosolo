@@ -21,7 +21,6 @@ public class PostSocialActivity1 extends SocialActivity1 {
 	private static final long serialVersionUID = 7157471416779853233L;
 	
 	private Set<Tag> hashtags;
-	private int shareCount;
 	private RichContent1 richContent;
 
 	public PostSocialActivity1() {
@@ -55,14 +54,6 @@ public class PostSocialActivity1 extends SocialActivity1 {
 
 	public void setHashtags(Set<Tag> hashtags) {
 		this.hashtags = hashtags;
-	}
-	
-	public int getShareCount() {
-		return shareCount;
-	}
-
-	public void setShareCount(int shareCount) {
-		this.shareCount = shareCount;
 	}
 	
 }

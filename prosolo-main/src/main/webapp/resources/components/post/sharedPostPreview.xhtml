@@ -1,0 +1,62 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+	    <composite:attribute name="socialActivity" required="true" 
+	    	type="org.prosolo.services.activityWall.impl.data.SocialActivityData1"/>
+	    <composite:attribute name="sharedSocialActivityId" required="true" type="java.lang.Long"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="sharedPostBox">
+	        <div class="wallPostHead">
+	            <div class="user32">
+	                <h:link outcome="/profile">
+	                	<utilcomp:userAvatar
+							avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
+							fullName="#{cc.attrs.socialActivity.actor.fullName}"	
+							width="32"
+							height="32"
+			   	 		/>    
+			   	 		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+	                </h:link>
+	                <h3>
+	                		<h:link outcome="/profile">
+	                			#{cc.attrs.socialActivity.actor.fullName}
+	                			<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+	                		</h:link>
+	                </h3>
+	            </div>
+	            <div class="wallPostHeadRight">
+	                <a href="wall-post-view.html" class="timestamp">      	
+	                		#{cc.attrs.socialActivity.datePretty}
+	                </a>
+	            </div>
+	        </div>
+	        <div class="wallPostBody">
+	            <p id="wallPostTextSelector#{cc.attrs.sharedSocialActivityId}#{cc.attrs.socialActivity.id}" class="wallPostContent">
+	            		<h:outputText escape="false" value="#{cc.attrs.socialActivity.text}"></h:outputText>
+	            </p>
+	            <post:attachmentPreview id="link"
+	            		uniqueId="#{cc.attrs.socialActivity.id}"
+						attachmentPreview="#{cc.attrs.socialActivity.attachmentPreview}"
+						viewUseCase="true"
+						learningContext="#{cc.attrs.learningContext}"
+				/>
+	        </div>
+	   </div>
+       <script>
+	  		$(function(){
+	  			replaceInlineUserLink('wallPostTextSelector#{cc.attrs.sharedSocialActivityId}#{cc.attrs.socialActivity.id}');
+	  		});
+	   </script>   
+	</composite:implementation>
+</ui:component>

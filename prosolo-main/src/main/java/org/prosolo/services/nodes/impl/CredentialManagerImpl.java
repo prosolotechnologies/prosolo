@@ -89,7 +89,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException {
+	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+			throws DbConnectionException {
 		Credential1 cred = null;
 		try {
 			/*
@@ -104,10 +105,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					!data.isAutomaticallyAssingStudents(), data.getCompetences());
 			
 			//generate create event only if credential is published
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
 			if(data.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, creatorId, cred);
+				eventFactory.generateEvent(EventType.Create, creatorId, cred, null, page, lContext,
+						service, null);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, creatorId, cred);
+				eventFactory.generateEvent(EventType.Create_Draft, creatorId, cred, null, page, lContext,
+						service, null);
 			}
 
 			return cred;
@@ -644,7 +650,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 updateCredential(long originalCredId, CredentialData data, long userId, Role role) 
+	public Credential1 updateCredential(long originalCredId, CredentialData data, long userId, Role role,
+			LearningContextData context) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException {
 		try {
 			/*
@@ -664,20 +671,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Result<Credential1> res = resourceFactory.updateCredential(data, userId, role);
 			Credential1 cred = res.getResult();
 			
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
+			
 			for(EventData ev : res.getEvents()) {
+				ev.setPage(page);
+				ev.setContext(lContext);
+				ev.setService(service);
 				eventFactory.generateEvent(ev);
 			}
 			
  			if(data.isPublished()) {
 				//credential remains published
 				if(!data.isPublishedChanged()) {
-					fireSameVersionCredEditEvent(data, userId, cred, 0);
+					fireSameVersionCredEditEvent(data, userId, cred, 0, page, lContext, service);
 				} 
 				/*
 				 * this means that credential is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(EventType.Create, userId, cred);
+					eventFactory.generateEvent(EventType.Create, userId, cred, null, page, lContext, 
+							service, null);
 				}
 				/*
 				 * Credential becomes published again. Because data can show what has changed
@@ -685,7 +700,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				 * original credential, so all fields are treated as changed.
 				 */
 				else {
-					fireCredPublishedAgainEditEvent(userId, cred, data.getId());
+					fireCredPublishedAgainEditEvent(userId, cred, data.getId(), page, lContext, service);
 				}
 			} else {
 				/*
@@ -696,13 +711,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if(data.isDraft()) {
 						originalVersionId = originalCredId;
 					}
-					fireSameVersionCredEditEvent(data, userId, cred, originalVersionId);
+					fireSameVersionCredEditEvent(data, userId, cred, originalVersionId, page, lContext,
+							service);
 				} 
 				/*
 				 * This means that credential was published before so draft version is created.
 				 */
 				else {
 					EventData ev = fireDraftVersionCredCreatedEvent(cred, userId, data.getId());
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
 					eventFactory.generateEvent(ev);
 				}
 			}
@@ -724,7 +743,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	private void fireSameVersionCredEditEvent(CredentialData data, long userId, 
-			Credential1 cred, long originalVersionId) throws EventException {   
+			Credential1 cred, long originalVersionId, String page, String context,
+			String service) throws EventException {   
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
 	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -737,11 +757,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, userId, cred, null, params);
+	    eventFactory.generateEvent(event, userId, cred, null, page, context, service, params);
 	}
 	
 	private void fireCredPublishedAgainEditEvent(long userId, 
-			Credential1 cred, long draftVersionId) throws EventException {
+			Credential1 cred, long draftVersionId, String page, String context, String service) 
+					throws EventException {
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(true,
 	    		true, true, true, true, true, true, true);
@@ -749,7 +770,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
 	    params.put("draftVersionId", draftVersionId + "");
-	    eventFactory.generateEvent(EventType.Edit, userId, cred, null, params);
+	    eventFactory.generateEvent(EventType.Edit, userId, cred, null, page, context, service, params);
 	}
 	
 	private EventData fireDraftVersionCredCreatedEvent(Credential1 cred, long userId, 

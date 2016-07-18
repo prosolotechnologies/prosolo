@@ -1,7 +1,6 @@
 package org.prosolo.services.activityWall;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivityConfig;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -26,7 +25,7 @@ public interface ActivityWallActionsManager {
 	void disableComments(long userId, long socialActivityId, LearningContextData context, 
 			Session session) throws DbConnectionException;
 	
-	SocialActivity1 decrementNumberOfReshares(long socialActivityId, Session session) 
-			throws ResourceCouldNotBeLoadedException;
+//	SocialActivity1 decrementNumberOfReshares(long socialActivityId, Session session) 
+//			throws ResourceCouldNotBeLoadedException;
 	
 }

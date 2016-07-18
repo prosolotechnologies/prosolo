@@ -70,10 +70,13 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 			
 			logger.debug("X token and token secret:" + token + " : "	+ tokenSecret);
 			logger.debug("X screenName:"+screenName+" id:"+userId);
-		
+			
 			oauthAccessToken = oauthAccessTokenManager.createOrUpdateOauthAccessToken(
 					userId, ServiceType.TWITTER, token,
-					tokenSecret, screenName, "https://twitter.com/"+screenName);
+					tokenSecret, screenName, "https://twitter.com/"+screenName, accessToken.getUserId());
+//			oauthAccessToken = oauthAccessTokenManager.createOrUpdateOauthAccessToken(
+//					userId, ServiceType.TWITTER, token,
+//					tokenSecret, screenName, "https://twitter.com/"+screenName);
 			
 			if (oauthAccessToken!=null) {
 				logger.debug("created access token:" +oauthAccessToken.getProfileLink());

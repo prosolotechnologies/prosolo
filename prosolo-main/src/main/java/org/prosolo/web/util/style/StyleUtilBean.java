@@ -84,5 +84,20 @@ public class StyleUtilBean implements Serializable {
 				return "";	
 		}
 	}
+	
+	public String getStyleClassBasedOnActivityTypeForStatusWall(ActivityType type) {
+		switch(type) {
+			case TEXT:
+				return "iconActivityText";
+			case VIDEO:
+				return "iconActivityVideo";
+			case SLIDESHARE:
+				return "iconActivitySlide";
+			case EXTERNAL_TOOL:
+				return "iconActivityExternal";
+			default:
+				return "";	
+		}
+	}
 
 }

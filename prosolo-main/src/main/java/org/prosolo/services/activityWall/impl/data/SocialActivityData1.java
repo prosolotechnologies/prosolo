@@ -19,7 +19,7 @@ public class SocialActivityData1 implements Serializable {
 	/*
 	 * next group of fields together form post text that will be shown
 	 */
-	private UserData actor;
+	private org.prosolo.services.nodes.data.UserData actor;
 	private String predicate;
 	private ObjectData object;
 	private String relationToTarget;
@@ -27,16 +27,15 @@ public class SocialActivityData1 implements Serializable {
 	private String text;
 	private AttachmentPreview1 attachmentPreview;
 	
+	private SocialActivityData1 originalSocialActivity;
+	
 	private List<String> hashtags;
 	
 	private boolean commentsDisabled;
 	
 	private int likeCount;
-	private int shareCount;
 	private boolean liked;
 	private boolean shared;
-	
-	private String twitterPostUrl;
 	
 	private CommentsData comments;
 	private String newComment;
@@ -74,11 +73,11 @@ public class SocialActivityData1 implements Serializable {
 		this.text = text;
 	}
 	
-	public UserData getActor() {
+	public org.prosolo.services.nodes.data.UserData getActor() {
 		return actor;
 	}
 	
-	public void setActor(UserData actor) {
+	public void setActor(org.prosolo.services.nodes.data.UserData actor) {
 		this.actor = actor;
 	}
 	
@@ -112,14 +111,6 @@ public class SocialActivityData1 implements Serializable {
 	
 	public void setLikeCount(int likeCount) {
 		this.likeCount = likeCount;
-	}
-	
-	public int getShareCount() {
-		return shareCount;
-	}
-	
-	public void setShareCount(int shareCount) {
-		this.shareCount = shareCount;
 	}
 	
 	public boolean isLiked() {
@@ -210,20 +201,20 @@ public class SocialActivityData1 implements Serializable {
 		this.id = id;
 	}
 
-	public String getTwitterPostUrl() {
-		return twitterPostUrl;
-	}
-
-	public void setTwitterPostUrl(String twitterPostUrl) {
-		this.twitterPostUrl = twitterPostUrl;
-	}
-
 	public SocialActivityType getType() {
 		return type;
 	}
 
 	public void setType(SocialActivityType type) {
 		this.type = type;
+	}
+
+	public SocialActivityData1 getOriginalSocialActivity() {
+		return originalSocialActivity;
+	}
+
+	public void setOriginalSocialActivity(SocialActivityData1 originalSocialActivity) {
+		this.originalSocialActivity = originalSocialActivity;
 	}
 
 }

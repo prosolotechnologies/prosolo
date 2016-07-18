@@ -45,8 +45,10 @@ public enum ContextName {
 	DELETE_DIALOG(""),
 	PROFILE("User"),
 	WHO_TO_FOLLOW("User"),
-	;
-	
+	POST_SHARE_DIALOG(""),
+	PREVIEW(""),
+	NEW_COMPETENCE(""),
+	NEW_ACTIVITY("");
 	
     private String objectType; 
     

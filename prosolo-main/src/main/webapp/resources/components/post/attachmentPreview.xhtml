@@ -137,50 +137,44 @@
 					</ui:fragment>
 				
 					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Activity'}">
-						<!-- preview credential -->
-		                <div class="previewCredComp">
-	                        <div class="content">
-	                            <h2>
-		                            <h:link target="_blank"
+						<!-- preview activity -->
+						<div class="previewActiv">
+                            <div class="content">
+                                <h2>
+                                	<h:link target="_blank"
 	                            		outcome="/#{cc.attrs.attachmentPreview.link}">
-		                            	<span class="#{styleUtilBean.getStyleClassBasedOnActivityType(cc.attrs.attachmentPreview.activityType)}"></span>
+		                            	<span class="#{styleUtilBean.getStyleClassBasedOnActivityTypeForStatusWall(cc.attrs.attachmentPreview.activityType)}"></span>
 		                            	#{cc.attrs.attachmentPreview.title}
-		                            </h:link>  
-	                            </h2>
-	                            <p>
-	                               #{cc.attrs.attachmentPreview.description}
-	                            </p>
-	                            <div class="meta">
-	                            	<ui:fragment rendered="#{!cc.attrs.attachmentPreview.universityCreated}">
-			                    		<a href="javascript:void(0);" class="madeByUser" data-toggle="tooltip"
-			    						title="Made by #{cc.attrs.attachmentPreview.creatorName}">made by user</a>
-			                    	</ui:fragment>
-									<ui:fragment rendered="#{cc.attrs.attachmentPreview.universityCreated}">
-			                    		<a href="javascript:void(0);" class="madeByUniversity" data-toggle="tooltip"
-			            					title="Made by University">made by university</a>
-			                    	</ui:fragment>
+		                            </h:link> 
+                                </h2>
+                                <p>
+                                     #{cc.attrs.attachmentPreview.description}
+                                </p>
+                                <div class="meta">
 	                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
-	                            </div>
-	                        </div>
-	                    </div>
+                                </div>
+                            </div>
+                        </div>
 					</ui:fragment>
 				
-					<ui:remove><ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
+					<ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'Tweet'}">
 					 <div class="previewLink previewTweet">
 	                     <div class="content">
-	                         <a href="#" class="twitterUsername">username</a>
+	                         <a href="#{cc.attrs.attachmentPreview.profileUrl}" class="twitterUsername">#{cc.attrs.attachmentPreview.nickname}</a>
 	                         <p>
-	                             Integer ante dui, vestibulum sit amet risus at, lobortis volutpat quam. In accumsan ultricies egestas.
+	                             #{cc.attrs.attachmentPreview.description}
 	                         </p>
-	                         <small>View on <a href="#">twitter.com</a></small>
+	                         <small>View on <a href="#{cc.attrs.attachmentPreview.link}">twitter.com</a></small>
 	                     </div>
 	                 </div>
-	                </ui:fragment></ui:remove>
+	                </ui:fragment>
                 
 	                <ui:fragment rendered="#{cc.attrs.attachmentPreview.mediaType eq 'CompetenceComment' 
 	                		or cc.attrs.attachmentPreview.mediaType eq 'ActivityComment'}">
 		                 <div class="previewCredCompLine">
-		                     <h2><span class="iconCompetence"></span>#{cc.attrs.attachmentPreview.title}</h2>
+		                     <h2>
+		                     	<span class="#{cc.attrs.attachmentPreview.mediaType eq 'CompetenceComment' ? 'iconCompetence' : styleUtilBean.getStyleClassBasedOnActivityTypeForStatusWall(cc.attrs.attachmentPreview.activityType)}"></span>
+		                     	#{cc.attrs.attachmentPreview.title}</h2>
 		                 </div>
 		                 <p class="wallPostContent commentPreview">
 		                    #{cc.attrs.attachmentPreview.description}

@@ -75,6 +75,8 @@ public class UserSessionDataLoader implements Serializable{
 			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
 			
 			sessionData.put("userId", user.getId());
+			sessionData.put("name", user.getName());
+			sessionData.put("lastname", user.getLastname());
 			sessionData.put("avatar", avatar);
 			sessionData.put("position", user.getPosition());
 			sessionData.put("ipAddress", ipAddress);
