@@ -319,4 +319,13 @@ public class Profile1 {
 		return inProgressCredentialAchievementsData;
 	}
 
+	public void setStudentId(String studentId) {
+		this.studentId = studentId;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+
 }
