@@ -15,7 +15,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewAction
-				action="#{targetCredentialBean.initInProgressCredentials()}" />
+				action="#{credentialAchievementsBean.initInProgressCredentials()}" />
 		</f:metadata>
 	</ui:define>
 
@@ -25,18 +25,17 @@
 		<h:panelGroup id="panelTitle">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('credentials','mainmenu');"
-						value="Credentials" outcome="/achievements/credentials" /></li>
+					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}">
+					<h:link value="Credentials" outcome="/achievements/credentials" />
+				</li>
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('competences','mainmenu');"
-						value="Competences" outcome="/achievements/competences" /></li>
+					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}">
+					<h:link value="Competences" outcome="/achievements/competences" />
+				</li>
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('/achievements/inprogress','mainmenu');"
-						value="In
-						Progress" outcome="/achievements/inprogress" /></li>
+					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
+					<h:link value="In Progress" outcome="/achievements/inprogress" />
+				</li>
 			</ul>
 		</h:panelGroup>
 	</ui:define>
@@ -49,32 +48,43 @@
 			<div class="row">
 				<h:form id="inProgressCredentialsForm">
 					<p:growl id="inProgressCredentialsGrowl" showDetail="true"></p:growl>
-					<ui:repeat var="targetCredential"
-						value="#{targetCredentialBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+					
+					<ui:fragment rendered="#{empty credentialAchievementsBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
+						<div class="col-md-12">
+							<div class="noContentMessage">
+								<p>
+									No credentials in progress.<br/>
+									<h:link outcome="/credentialLibrary">
+										Browse credentials
+									</h:link>
+								</p>
+							</div>
+						</div>
+					</ui:fragment>
+					
+					<ui:repeat var="targetCredential" value="#{credentialAchievementsBean.inProgressCredentialAchievementsData.targetCredentialDataList}">
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
-									<h:link value="#{targetCredential.title}"
-										outcome="#{targetCredential.link}" />
+									<h:link value="#{targetCredential.title}" outcome="#{targetCredential.link}" />
 								</h2>
-
 								<div class="clear"></div>
+
 								<p class="cardDescription">#{targetCredential.description}</p>
 
 								<div class="metaBox">
 									<div class="metaLeft">
 										<div class="checkbox checkLine">
-
-											<h:inputHidden value="#{targetCredential.id}"></h:inputHidden>
+											<h:inputHidden value="#{targetCredential.id}" />
+											
 											<h:selectBooleanCheckbox
 												id="inProgresscredentialAchievements"
 												value="#{targetCredential.hiddenFromProfile}">
 												<f:ajax event="click" execute="@form"
-													listener="#{targetCredentialBean.hideInProgressTargetCredentialFromProfile(targetCredential.id)}"
+													listener="#{credentialAchievementsBean.hideInProgressTargetCredentialFromProfile(targetCredential.id)}"
 													render="inProgressCredentialsForm" />
 											</h:selectBooleanCheckbox>
 											<h:outputLabel for="inProgresscredentialAchievements">Hide from Public Profile</h:outputLabel>
-
 										</div>
 									</div>
 									<div class="metaRight"></div>

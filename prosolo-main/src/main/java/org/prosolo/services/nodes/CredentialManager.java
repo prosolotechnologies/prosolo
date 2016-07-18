@@ -238,20 +238,35 @@ public interface CredentialManager extends AbstractManager {
 			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all completed credentials (credentials that has progress == 100)
-	 * @return 
+	 * Method for getting all credentials (nevertheless the progress)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
-	
-	List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	List<TargetCredential1> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all credentials (nevertheless the progress)
-	 * @return 
+	 * Method for getting all completed credentials (credentials that has progress == 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCredentials(Long userId) throws DbConnectionException;
+	List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+
 		
 	/**
 	 * Updated hidden_from_profile_field
@@ -302,13 +317,6 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException, EntityAlreadyExistsException;
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCredential1> getAllInProgressCredentials(Long userId) throws DbConnectionException;
 	
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;

@@ -24,10 +24,18 @@
 		            <div class="col-md-9">
 		                <h:panelGroup layout="block" id="panelNotifications" styleClass="whiteBox profileNotifications">
 		                    <ul>
+		                    
+		                    	<ui:fragment rendered="#{empty notificationBean.notifications}">
+									<li class="noNotifications">
+										No recent activity.
+									</li>
+								</ui:fragment>
+								
 		                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
 		                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
 			                            <h:link outcome="#{notification.link}">
 			                                <div class="icon"></div>
+			                                
 			                                <utilcomp:userAvatar
 			                                	avatar="#{notification.actor.avatarUrl}"
 			                                	fullName="#{notification.actor.fullName}" />

@@ -32,8 +32,7 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft">
 						<div class="searchBox">
-							<input type="search" name="name" value=""
-								placeholder="Search People" />
+							<input type="search" name="name" value="" placeholder="Search People" />
 						</div>
 					</div>
 					<div class="whiteBarRight"></div>
@@ -45,11 +44,14 @@
 		<div class="container">
 			<div class="row">
 				<h:form id="formMainFollowingUsers">
-					<p:growl id="formMainFollowingUsersGrowl" showDetail="true"
-						globalOnly="true" />
-					<h:panelGroup layout="block" styleClass="col-md-8"
-						id="panelFollowingUsers">
+					<p:growl id="formMainFollowingUsersGrowl" showDetail="true" globalOnly="true" />
+					
+					<h:panelGroup layout="block" styleClass="col-md-8" id="panelFollowingUsers">
 						<ul class="whiteBox peopleList peopleListDefaut">
+							<ui:fragment rendered="#{empty peopleBean.followingUsers}">
+								<li class="noPeople">You are not following anyone at the moment.</li>
+                        	</ui:fragment>
+						
 							<ui:repeat var="user" value="#{peopleBean.followingUsers}">
 								<li>
 									<div class="peopleListLeft">

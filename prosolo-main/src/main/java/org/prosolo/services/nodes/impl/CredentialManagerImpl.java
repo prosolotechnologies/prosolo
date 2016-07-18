@@ -1984,25 +1984,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					loadCompetences, Role.Manager);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	@Override
-	@Transactional
-	public List<TargetCredential1> getAllCompletedCredentials(Long userid) throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList();
+	@Transactional (readOnly = true)
+	public List<TargetCredential1> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList<>();
 		try {
 			String query=
-					"SELECT targetCredential1 " +
-					"FROM TargetCredential1 targetCredential1 " +
-					"WHERE targetCredential1.user.id = :userid " +
-					"AND targetCredential1.progress = :progress ";
-			  	
+				"SELECT targetCredential1 " +
+				"FROM TargetCredential1 targetCredential1 " +
+				"WHERE targetCredential1.user.id = :userid " +
+				"ORDER BY targetCredential1.title";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetCredential1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetCredential1.title";
+			
 			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userid)
-					.setInteger("progress", 100)
-				  	.list();
+					.list();
 		} catch (DbConnectionException e) {
-			e.printStackTrace();
+			logger.error(e);
 			throw new DbConnectionException();
 		}
 		return result;
@@ -2010,70 +2015,80 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	@Transactional
-	public List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile)
-			throws DbConnectionException {
+	@Transactional (readOnly = true)
+	public List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		List<TargetCredential1> result = new ArrayList<>();
 		try {
-			String query=
+			String query =
 					"SELECT targetCredential1 " +
 					"FROM TargetCredential1 targetCredential1 " +
 					"WHERE targetCredential1.user.id = :userid " +
-					"AND targetCredential1.hiddenFromProfile = :hidden " +
-					"AND targetCredential1.progress = :progress " + 
-					"ORDER BY targetCredential1.title";
+						"AND targetCredential1.progress = 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetCredential1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetCredential1.title";
 			  	
 			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
-					.setInteger("progress", 100)
-					.setBoolean("hidden", hiddenFromProfile)
 				  	.list();
 		} catch (DbConnectionException e) {
-			e.printStackTrace();
+			logger.error(e);
 			throw new DbConnectionException();
 		}
 		return result;
 	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+
+	@SuppressWarnings({ "unchecked" })
 	@Override
-	@Transactional
-	public List<TargetCredential1> getAllCredentials(Long userid) throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList();
+	@Transactional (readOnly = true)
+	public List<TargetCredential1> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+		List<TargetCredential1> result = new ArrayList<>();
 		try {
-			String query=
+			String query =
 				"SELECT targetCredential1 " +
 				"FROM TargetCredential1 targetCredential1 " +
-				"WHERE targetCredential1.user.id = :userid ";
+				"WHERE targetCredential1.user.id = :userid " +
+					"AND targetCredential1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetCredential1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetCredential1.title";
 			
 			result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userid)
-					.list();
+				  	.list();
 		} catch (DbConnectionException e) {
-			e.printStackTrace();
+			logger.error(e);
 			throw new DbConnectionException();
 		}
 		return result;
 	}
-	
+
 	@Override
-	@Transactional
-	public void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile)
+	@Transactional (readOnly = false)
+	public void updateHiddenTargetCredentialFromProfile(long credId, boolean hiddenFromProfile)
 			throws DbConnectionException {
-		String query = "SELECT targetCredential " + "FROM TargetCredential1 targetCredential "
-				+ "WHERE targetCredential.id = :id ";
-
-		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager().createQuery(query)
-				.setLong("id", id).uniqueResult();
-
-		targetCredential.setHiddenFromProfile(hiddenFromProfile);
 		try {
-			saveEntity(targetCredential);
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
+			String query = 
+				"UPDATE TargetCredential1 targetCredential " +
+				"SET targetCredential.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetCredential.id = :credId ";
+	
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
 		}
 	}
 	
@@ -2452,7 +2467,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(cred != null) {
 				FeedSource feedSource = feedSourceManager.getOrCreateFeedSource(null, feedLink);
 				List<FeedSource> blogs = cred.getBlogs();
-				if(!blogs.contains(feedSource)) {
+				
+				if (!blogs.contains(feedSource)) {
 					blogs.add(feedSource);
 					return true;
 				} else {
@@ -2481,30 +2497,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				.uniqueResult();
 		
 		return cred;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	@Transactional
-	public List<TargetCredential1> getAllInProgressCredentials(Long userid) throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList();
-		try {
-			String query=
-					"SELECT targetCredential1 " +
-					"FROM TargetCredential1 targetCredential1 " +
-					"WHERE targetCredential1.user.id = :userid " +
-					"AND targetCredential1.progress < :progress ";
-			  	
-			result = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userid", userid)
-					.setInteger("progress", 100)
-				  	.list();
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
-		}
-		return result;
 	}
 	
 	@Override
