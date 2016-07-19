@@ -102,13 +102,13 @@ public class PeopleBean implements Paginable, Serializable {
 	public void followCollegueById(String userToFollowName, long userToFollowId) {
 		peopleActionBean.followCollegueById(userToFollowName, userToFollowId);
 		
-		initFollowingUsers();
+		init();
 	}
 	
 	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
 		peopleActionBean.unfollowCollegueById(userToUnfollowName, userToUnfollowId);
 		
-		initFollowingUsers();
+		init();
 	}
 
 	public void addFollowingUser(UserData user) {
