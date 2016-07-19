@@ -483,15 +483,42 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
-			throws DbConnectionException {
-		return getCurrentVersionOfActivityBasedOnRole(competenceId, activityId, creatorId, Role.User);
+	public ActivityData getActivityDataForEdit(long credId, long competenceId, long activityId, 
+			long creatorId) throws DbConnectionException {
+		return getCurrentVersionOfActivityBasedOnRole(credId, competenceId, activityId, creatorId, Role.User);
 	}
 	
 	@Transactional(readOnly = true)
-	private ActivityData getCurrentVersionOfActivityBasedOnRole(long competenceId, long activityId, 
-			long creatorId, Role role) throws DbConnectionException {
+	private ActivityData getCurrentVersionOfActivityBasedOnRole(long credId, long competenceId, 
+			long activityId, long creatorId, Role role) throws DbConnectionException {
 		try {
+			/*
+			 * first check if passed credential has specified competence
+			 */
+			if(credId > 0) {
+				List<Long> ids = new ArrayList<>();
+				ids.add(credId);
+				Optional<Long> draftVersionCredId = credManager
+						.getDraftVersionIdIfExists(credId);
+				if(draftVersionCredId.isPresent()) {
+					ids.add(draftVersionCredId.get());
+				}
+				String query1 = "SELECT credComp.id " +
+								"FROM CredentialCompetence1 credComp " +
+								"WHERE credComp.credential.id IN (:credIds) " +
+								"AND credComp.competence.id = :compId";
+				
+				@SuppressWarnings("unchecked")
+				List<Long> res1 = persistence.currentManager()
+						.createQuery(query1)
+						.setParameterList("credIds", ids)
+						.setLong("compId", competenceId)
+						.list();
+				
+				if(res1 == null || res1.isEmpty()) {
+					return null;
+				}
+			}
 			/*
 			 * we need to make sure that activity is bound to competence with passed id or its draft version
 			 */
@@ -700,10 +727,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			StringBuilder builder = new StringBuilder();
 			builder.append("SELECT compAct ");
 			if(credId > 0) {
-				builder.append("FROM CredentialCompetence1 credComp " +
-							   "INNER JOIN credComp.competence comp " +
-							   		"WITH comp.id = :compId " +
-							   "INNER JOIN comp.activities compAct " +
+				builder.append("FROM CredentialCompetence1 credComp ");
+				if(competenceId == compId) {
+					builder.append("INNER JOIN credComp.competence comp " +
+							   			"WITH comp.id = :compId ");
+				} else {
+					builder.append("INNER JOIN credComp.competence originalComp " +
+					   					"WITH originalComp.id = :compId " +
+								   "INNER JOIN originalComp.draftVersion comp ");
+				}
+				builder.append("INNER JOIN comp.activities compAct " +
 					   	   	  		"WITH compAct.activity.id = :actId " +
 							   "INNER JOIN fetch compAct.activity act ");
 			} else {
@@ -724,7 +757,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			
 			if(credId > 0) {
-				builder.append("WHERE credComp.credential.id = :credId " +
+				builder.append("WHERE credComp.credential.id IN (:credIds) " +
 							   "AND act.deleted = :boolFalse ");
 			} else {
 				builder.append("WHERE act.id = :actId " +
@@ -740,11 +773,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("actId", activityId)
-					.setBoolean("boolFalse", false)
-					.setLong("compId", competenceId);
+					.setBoolean("boolFalse", false);
+			if(credId > 0 && competenceId != compId) {
+				q.setLong("compId", compId);
+			} else {
+				q.setLong("compId", competenceId);
+			}
 			
 			if(credId > 0) {
-				q.setLong("credId", credId);
+				List<Long> ids = new ArrayList<>();
+				ids.add(credId);
+				Optional<Long> draftVersionCredId = credManager
+						.getDraftVersionIdIfExists(credId);
+				if(draftVersionCredId.isPresent()) {
+					ids.add(draftVersionCredId.get());
+				}
+				q.setParameterList("credIds", ids);
 			}
 			
 			if(role == Role.User) {
@@ -1540,14 +1584,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId) throws DbConnectionException {
+			long actId, long userId, boolean shouldReturnDraft) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId);
 			if (compData == null) {
 				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
-						userId, false, Role.User, 
+						userId, shouldReturnDraft, Role.User, 
 						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER);
 			}
 				
@@ -2048,9 +2092,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getCurrentVersionOfActivityForManager(long competenceId, long activityId) 
-			throws DbConnectionException {
-			return getCurrentVersionOfActivityBasedOnRole(competenceId, activityId, 0, Role.Manager);
+	public ActivityData getCurrentVersionOfActivityForManager(long credId, long competenceId, 
+			long activityId) throws DbConnectionException {
+			return getCurrentVersionOfActivityBasedOnRole(credId, competenceId, activityId, 0, Role.Manager);
 	}
 	
 	@Override

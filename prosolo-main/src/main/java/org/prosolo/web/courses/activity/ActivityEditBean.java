@@ -72,6 +72,7 @@ public class ActivityEditBean implements Serializable {
 	
 	public void init() {
 		initializeValues();
+		decodedCredId = idEncoder.decodeId(credId);
 		try {
 			if(compId == null) {
 				try {
@@ -87,9 +88,8 @@ public class ActivityEditBean implements Serializable {
 				} else {
 					decodedId = idEncoder.decodeId(id);
 					logger.info("Editing activity with id " + decodedId);
-					loadActivityData(decodedCompId, decodedId);
+					loadActivityData(decodedCredId, decodedCompId, decodedId);
 				}
-				decodedCredId = idEncoder.decodeId(credId);
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
@@ -128,12 +128,12 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 
-	private void loadActivityData(long compId, long actId) {
+	private void loadActivityData(long credId, long compId, long actId) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			activityData = activityManager.getCurrentVersionOfActivityForManager(compId, actId);
+			activityData = activityManager.getCurrentVersionOfActivityForManager(credId, compId, actId);
 		} else {
-			activityData = activityManager.getActivityDataForEdit(compId, actId, 
+			activityData = activityManager.getActivityDataForEdit(credId, compId, actId, 
 					loggedUser.getUserId());
 		}
 		
@@ -343,7 +343,7 @@ public class ActivityEditBean implements Serializable {
 			
 			if(reloadData && activityData.hasObjectChanged()) {
 				//reload data
-				loadActivityData(decodedCompId, decodedId);
+				loadActivityData(decodedCredId, decodedCompId, decodedId);
 				activityData.setCompetenceName(competenceName);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");

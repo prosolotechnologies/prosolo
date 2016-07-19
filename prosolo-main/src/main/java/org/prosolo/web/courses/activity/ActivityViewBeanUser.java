@@ -64,15 +64,15 @@ public class ActivityViewBeanUser implements Serializable {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
+				boolean shouldReturnDraft = false;
+				if("preview".equals(mode)) {
+					shouldReturnDraft = true;
+				}
 				if(decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId());
-				} else {
-					boolean shouldReturnDraft = false;
-					if("preview".equals(mode)) {
-						shouldReturnDraft = true;
-					} 
+									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
+				} else { 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
 									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
