@@ -60,7 +60,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				List<Long> participantsIds = new ArrayList<Long>();
 				participantsIds.add(receiverId);
 				participantsIds.add(senderId);
-
 				messagesThread = createNewMessagesThread(sender.getId(), participantsIds, msg);
 			}
 
@@ -196,6 +195,10 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		messagesThread.setCreator(loadResource(User.class, creatorId));
 
 		List<User> participants = userManager.loadUsers(participantIds);
+		if(participants.size() < participantIds.size()) {
+			//some of the user ids do not exist
+			throw new ResourceCouldNotBeLoadedException("Some of the ids : "+participantIds+" do not exist in database, cannot create message thread");
+		}
 
 		for (User user : participants) {
 			ThreadParticipant participant = new ThreadParticipant();
@@ -539,32 +542,35 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	}
 	
 	private Query createMultipleThreadparticipantsQuery(List<Long> userIds) {
-		String queryString = 
-				"SELECT DISTINCT thread " + 
-				"FROM MessageThread thread " +
-				"LEFT JOIN thread.participants participant " +
-				"WHERE participant.id IN (:userIds)";
-		
-		return persistence.currentManager().createQuery(queryString).
-				setParameterList("userIds", userIds);
-//		StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT thread " + "FROM MessageThread thread ");
-//		//create join clauses
-//		for(int i = 0; i < userIds.size(); i++) {
-//			queryBuilder.append(" LEFT JOIN thread.participants participant").append(i);
-//		}
-//		//create where clauses and named parameters
-//		for(int i = 0; i < userIds.size(); i++) {
-//			queryBuilder.append(" WHERE participant").append(i).append("user.id").append(" =: userid").append(i);
-//			if(i < userIds.size()-1) {
-//				queryBuilder.append(" AND ");
-//			}
-//		}
-//		Query query = persistence.currentManager().createQuery(queryBuilder.toString());
-//		//bind parameters
-//		for(int i = 0; i < userIds.size(); i++) {
-//			query.setLong("userid", userIds.get(i));
-//		}
-//		return query;
+//		String queryString = 
+//				"SELECT DISTINCT thread " + 
+//				"FROM MessageThread thread " +
+//				"LEFT JOIN thread.participants participant " +
+//				"WHERE participant.id IN (:userIds)";
+//		
+//		return persistence.currentManager().createQuery(queryString).
+//				setParameterList("userIds", userIds);
+		StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT thread " + "FROM MessageThread thread ");
+		//create join clauses
+		for(int i = 0; i < userIds.size(); i++) {
+			queryBuilder.append(" LEFT JOIN thread.participants participant").append(i);
+		}
+		//create where clauses and named parameters
+		for(int i = 0; i < userIds.size(); i++) {
+			if(i == 0) {
+				queryBuilder.append(" WHERE ");
+			}
+			queryBuilder.append("participant").append(i).append(".user.id").append(" =:userid").append(i);
+			if(i < userIds.size()-1) {
+				queryBuilder.append(" AND ");
+			}
+		}
+		Query query = persistence.currentManager().createQuery(queryBuilder.toString());
+		//bind parameters
+		for(int i = 0; i < userIds.size(); i++) {
+			query.setLong("userid"+i, userIds.get(i));
+		}
+		return query;
 	}
 
 }
