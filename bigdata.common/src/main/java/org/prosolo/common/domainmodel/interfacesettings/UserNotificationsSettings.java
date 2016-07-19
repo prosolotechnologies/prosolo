@@ -10,15 +10,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 
 /**
  * @author Nikola Milikic
@@ -51,6 +50,7 @@ public class UserNotificationsSettings implements Serializable {
 	}
 
 	@OneToOne
+	@JoinColumn(unique = true)
 	public User getUser() {
 		return user;
 	}

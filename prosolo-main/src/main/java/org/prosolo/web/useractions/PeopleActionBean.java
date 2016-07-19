@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -87,6 +88,36 @@ public class PeopleActionBean implements Serializable {
 		}
 
 		PageUtil.fireSuccessfulInfoMessage("Stopped following " + userToUnfollowName + ".");
+	}
+	
+	public void followCollegue(UserData user) {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String learningContext = PageUtil.getPostParameter("learningContext");
+
+			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
+
+			followResourceManager.followUser(loggedUser.getUserId(), user.getId(), lcxt);
+		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
+
+		PageUtil.fireSuccessfulInfoMessage("Started following " + user.getName() + ".");
+	}
+
+	public void unfollowCollegue(UserData user) {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String learningContext = PageUtil.getPostParameter("learningContext");
+
+			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
+
+			followResourceManager.unfollowUser(loggedUser.getUserId(), user.getId(), lcxt);
+		} catch (EventException e) {
+			logger.error(e);
+		}
+
+		PageUtil.fireSuccessfulInfoMessage("Stopped following " + user.getName() + ".");
 	}
 
 	@Deprecated

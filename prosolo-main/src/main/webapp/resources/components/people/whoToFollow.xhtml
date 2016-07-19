@@ -1,0 +1,63 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:panelGroup id="panelUsersToFollow">
+			<ui:fragment rendered="#{not empty usersToFollowBean.usersToFollow}">
+				<h2>Who to Follow</h2>
+									
+				<ul class="listWhoToFollow">
+					<ui:repeat var="user" value="#{usersToFollowBean.usersToFollow}">
+						<li>
+							<div class="user32">
+								<h:link outcome="/profile">
+									<utilcomp:userAvatar avatar="#{user.avatarUrl}" fullName="#{user.name}" width="32" height="32" />
+									<f:param name="id" value="#{util:encodeId(user.id)}" />
+								</h:link>
+								<h3>
+									<h:link outcome="/profile">
+										#{user.name}
+										<f:param name="id" value="#{util:encodeId(user.id)}" />
+									</h:link>
+								</h3>
+							</div> 
+							
+							<p:commandLink id="followButton"
+								rendered="#{!peopleActionBean.isLoggedUserFollowingUser(user.id)}"
+								action="#{peopleActionBean.followCollegue(user)}"
+								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
+								styleClass="btn btn-green btn-xs">
+								<f:param name="page" value="/people.xhtml" />
+								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:who_to_follow|id:'.concat(user.id))}" />
+							Follow
+							</p:commandLink>
+							<p:commandLink id="unfollowButton"
+								rendered="#{peopleActionBean.isLoggedUserFollowingUser(user.id)}"
+								action="#{peopleActionBean.unfollowCollegue(user)}"
+								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
+								styleClass="btn btn-green-stroke btn-xs">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:who_to_follow|id:'.concat(user.id))}" />
+								Following
+							</p:commandLink>
+						</li>
+					</ui:repeat>
+				</ul>
+			</ui:fragment>
+		</h:panelGroup>
+	</composite:implementation>
+</ui:component>
