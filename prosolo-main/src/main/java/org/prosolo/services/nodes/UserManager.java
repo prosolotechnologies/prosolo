@@ -36,6 +36,6 @@ public interface UserManager extends AbstractManager {
 	User updateUser(long userId, String name, String lastName, String email, boolean emailVerified, 
 			boolean changePassword, String password, String position) throws ResourceCouldNotBeLoadedException;
 
-	List<Long> getUsers(List<Long> toExclude);
+	List<User> getUsers(Long[] toExclude, int limit);
 
 }

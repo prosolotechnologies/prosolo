@@ -249,7 +249,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				return users;
 			}
 			return new ArrayList<User>();
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
