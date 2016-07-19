@@ -67,6 +67,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/maintenance").permitAll()
 		   .antMatchers("/digest").permitAll()
 		   .antMatchers("/login").permitAll()
+		   .antMatchers("/login?**").permitAll()
 		   .antMatchers("/ltitoolproxyregistration.xhtml").permitAll()
 		   .antMatchers("/ltitool.xhtml").permitAll()
 		   .antMatchers("/loginAdmin").permitAll()
@@ -76,7 +77,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/verify").permitAll()
 		   .antMatchers("/reset/successful/**").permitAll()
 	       .antMatchers("/reset").permitAll()
-		   .antMatchers("/recovery").permitAll()
+		   .antMatchers("/recovery/**").permitAll()
 		   .antMatchers("/javax.faces.resource/**").permitAll()
 		   //.antMatchers("/notfound").permitAll()
 		   

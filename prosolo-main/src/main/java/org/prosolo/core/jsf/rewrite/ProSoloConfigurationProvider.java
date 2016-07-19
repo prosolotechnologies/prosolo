@@ -31,7 +31,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/accessDenied").to("/accessDenied.xhtml"))
 				.addRule(Join.path("/reset/successful/{email}").to("/login-forgot-message.xhtml"))
 				.addRule(Join.path("/reset").to("/login-forgot-password.xhtml"))
-				.addRule(Join.path("/recovery").to("/recovery.xhtml"))
+				.addRule(Join.path("/recovery/{key}").to("/login-new-password.xhtml"))
 				.addRule(Join.path("/register").to("/register.xhtml"))
 				.addRule(Join.path("/verify").to("/verify.xhtml"))
 				.addRule(Join.path("/terms").to("/terms.xhtml"))

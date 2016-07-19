@@ -1,6 +1,7 @@
 package org.prosolo.core.spring.security;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -63,7 +64,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			authentication = null;
 			SecurityContext context = SecurityContextHolder.getContext();
 			context.setAuthentication(null);
-			setDefaultTargetUrl("/login?error=Incorrect email or password");
+			setDefaultTargetUrl("/login?error=" + URLEncoder.encode("Wrong email or password! Please try again.", "utf-8"));
 			super.onAuthenticationSuccess(request, response, authentication);
 		}
 	}

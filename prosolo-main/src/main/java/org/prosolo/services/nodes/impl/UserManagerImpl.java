@@ -20,7 +20,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -153,7 +152,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
 		User user = loadResource(User.class, userId);
-		
 		user.setPassword(passwordEncrypter.encodePassword(newPassword));
 		user.setPasswordLength(newPassword.length());
 		return saveEntity(user);
