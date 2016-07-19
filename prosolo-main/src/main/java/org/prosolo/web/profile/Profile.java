@@ -1,4 +1,4 @@
-package org.prosolo.web.manage.students;
+package org.prosolo.web.profile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,12 +43,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "profile1")
-@Component
+@ManagedBean(name = "profile")
+@Component("profile")
 @Scope("view")
-public class Profile1 {
+public class Profile {
 	
-	private static Logger logger = Logger.getLogger(Profile1.class);
+	private static Logger logger = Logger.getLogger(Profile.class);
 	
 	@Autowired
 	private SocialNetworksManager socialNetworksManager;

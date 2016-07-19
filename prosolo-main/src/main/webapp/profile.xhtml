@@ -16,30 +16,30 @@
 	
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{profile1.studentId}" />
-			<f:viewAction action="#{profile1.init}" />		
+			<f:viewParam name="id" value="#{profile.studentId}" />
+			<f:viewAction action="#{profile.init}" />		
 		</f:metadata>
 	</ui:define>
 	
 	<ui:define name="resourceTitle">
     	<div class="profileHeader">
-   			<ui:fragment rendered="#{not empty profile1.avatarUrl}" >
-   				<img src="#{profile1.avatarUrl}" class="img-circle" width="120" height="120" alt="#{profile1.studentFullName}" />
+   			<ui:fragment rendered="#{not empty profile.avatarUrl}" >
+   				<img src="#{profile.avatarUrl}" class="img-circle" width="120" height="120" alt="#{profile.studentFullName}" />
    			</ui:fragment>
    			
-   			<ui:fragment rendered="#{empty profile1.avatarUrl}" >
-   				<span class="letterAvatar letterAvatar120 img-circle">#{profile1.studentInitials}</span>
+   			<ui:fragment rendered="#{empty profile.avatarUrl}" >
+   				<span class="letterAvatar letterAvatar120 img-circle">#{profile.studentInitials}</span>
    			</ui:fragment>
    			
                <div class="profileHeaderInfo">
-                   <h1>#{profile1.studentFullName}</h1>
-                   <div>#{profile1.studentAffiliation}</div>
-                   <div>#{profile1.studentLocation}</div>
+                   <h1>#{profile.studentFullName}</h1>
+                   <div>#{profile.studentAffiliation}</div>
+                   <div>#{profile.studentLocation}</div>
                    <ul class="socialLinks">
-                   	<ui:repeat value="#{profile1.socialNetworksData.socialNetworkAccountDatas.entrySet().toArray()}" 
+                   	<ui:repeat value="#{profile.socialNetworksData.socialNetworkAccountDatas.entrySet().toArray()}" 
                    			var="socialNetworkData" varStatus="iterator">
                    		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
-	                        <li class="#{profile1.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
+	                        <li class="#{profile.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
 	                        	<a href="#{socialNetworkData.value.link}" target="_blank">#{socialNetworkData.value.socialNetworkName}</a>
 	                        </li>
                         </ui:fragment>
@@ -72,30 +72,30 @@
 	            <div class="whiteBarContent" id="whiteBarContent">
 	                <div class="whiteBarLeft">
 	                	<h:form id="whiteBarProfileForm">
-			                <ui:fragment rendered="#{profile1.personalProfile}" >
+			                <ui:fragment rendered="#{profile.personalProfile}" >
 			                	<h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
 			                </ui:fragment>
 			                
-			                <ui:fragment rendered="#{not profile1.personalProfile}" >
+			                <ui:fragment rendered="#{not profile.personalProfile}" >
 		                		<p:growl id="profileGrowl" showDetail="true" />
 				                <p:commandLink id="followButton"
-											   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
-											   action="#{peopleActionBean.followCollegueById(profile1.studentFullName, profile1.studentId)}"
+											   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profile.studentId)}"
+											   action="#{peopleActionBean.followCollegueById(profile.studentFullName, profile.studentId)}"
 											   update="@form"
 											   process="@this"
 											   styleClass="btn btn-green btn-sm">
 									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profile1.studentId}" />
+									<f:param name="learningContext" value="name:profile|id:#{profile.studentId}" />
 									Follow
 								</p:commandLink>
 								<p:commandLink id="unfollowButton"
-											   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profile1.studentId)}"
-											   action="#{peopleActionBean.unfollowCollegueById(profile1.studentFullName, profile1.studentId)}"
+											   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profile.studentId)}"
+											   action="#{peopleActionBean.unfollowCollegueById(profile.studentFullName, profile.studentId)}"
 											   update="whiteBarProfileForm"
 											   process="@form"
 											   styleClass="btn btn-green-stroke btn-sm">
 									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profile1.studentId}" />
+									<f:param name="learningContext" value="name:profile|id:#{profile.studentId}" />
 									Following
 								</p:commandLink>
 								
@@ -115,20 +115,20 @@
 			                                            To:
 			                                        </div>
 			                                        <div class="messageModalMetaRight">
-			                                            <img src="#{profile1.smallAvatarUrl}" class="img-circle" width="32" height="32" alt="#{profile1.studentFullName}" />
-			                                            <h3>#{profile1.studentFullName}</h3>
+			                                            <img src="#{profile.smallAvatarUrl}" class="img-circle" width="32" height="32" alt="#{profile.studentFullName}" />
+			                                            <h3>#{profile.studentFullName}</h3>
 			                                        </div>
 			                                    </div>
 			                                </div>
 			                                
 			                                <div class="modal-body alignLeft">
-			                                     <p:inputTextarea placeholder="Type a message..." value="#{profile1.message}" id="messageContentTextarea" >
+			                                     <p:inputTextarea placeholder="Type a message..." value="#{profile.message}" id="messageContentTextarea" >
                                     			 </p:inputTextarea>
                                     			  <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
 			                                </div>
 			                                
 			                                <div class="modal-footer alignLeft">
-			                                    <p:commandLink action="#{profile1.sendMessage()}" 
+			                                    <p:commandLink action="#{profile.sendMessage()}" 
                                             			styleClass="btn btn-green"
                                             			process="@form"
                                             			update="profileGrowl"
@@ -148,7 +148,7 @@
 	
 	    <div class="container">
 	        <div class="row">
-	            <h:panelGroup rendered="#{profile1.personalProfile}" styleClass="col-md-12" layout="block">
+	            <h:panelGroup rendered="#{profile.personalProfile}" styleClass="col-md-12" layout="block">
 	                <div class="alert alert-info alert-dismissible" role="alert">
 	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
 	                    You can choose which achievements you want to display on your public profile page <a href="achievements.html">here</a>.
@@ -171,12 +171,14 @@
 	            <!-- CREDENTIALS -->
 	                <div role="tabpanel" class="tab-pane fade in active" id="credentials">
 	                
-	                	<ui:fragment rendered="#{empty profile1.credentialAchievementsData.targetCredentialDataList}">
+	                	<ui:fragment rendered="#{empty profile.credentialAchievementsData.targetCredentialDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
 		                                No completed credentials yet.<br/>
-		                                <h:link outcome="/credentialLibrary">
+		                                <h:link
+		                                	rendered="#{profile.personalProfile}"
+		                                	outcome="/credentialLibrary">
 		                                	Browse credentials
 	                                	</h:link>
 		                            </p>
@@ -184,7 +186,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-		                <ui:repeat value="#{profile1.credentialAchievementsData.targetCredentialDataList}" 
+		                <ui:repeat value="#{profile.credentialAchievementsData.targetCredentialDataList}" 
 	                    			var="targetCredential" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">
@@ -200,7 +202,7 @@
 									
 									<div class="metaBox">
 										<div class="metaLeft">
-											<h:panelGroup rendered="#{profile1.personalProfile}" styleClass="tagCompleted" layout="block">
+											<h:panelGroup rendered="#{profile.personalProfile}" styleClass="tagCompleted" layout="block">
 												Completed
 											</h:panelGroup>
 										</div>
@@ -224,12 +226,13 @@
 	                
 	                <!-- COMPETENCES -->
 	                <div role="tabpanel" class="tab-pane fade" id="competences">
-	                	<ui:fragment rendered="#{empty profile1.competenceAchievementsData.targetCompetenceDataList}">
+	                	<ui:fragment rendered="#{empty profile.competenceAchievementsData.targetCompetenceDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
 		                                No completed competences yet.<br/>
-		                                <h:link outcome="/credentialLibrary">
+		                                <h:link rendered="#{profile.personalProfile}"
+		                                	outcome="/credentialLibrary">
 		                                	Browse competences
 	                                	</h:link>
 		                            </p>
@@ -237,7 +240,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-						<ui:repeat value="#{profile1.competenceAchievementsData.targetCompetenceDataList}" 
+						<ui:repeat value="#{profile.competenceAchievementsData.targetCompetenceDataList}" 
 							var="targetCompetence" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">
@@ -253,7 +256,7 @@
 									<p class="cardDescription">#{targetCompetence.description}</p>
 									
 									<div class="metaBox">
-										<h:panelGroup rendered="#{profile1.personalProfile}" styleClass="tagCompleted" layout="block">
+										<h:panelGroup rendered="#{profile.personalProfile}" styleClass="tagCompleted" layout="block">
 											Completed
 										</h:panelGroup>
 										
@@ -297,12 +300,13 @@
 	                
 	                <!-- IN PROGRESS CREDENTIALS -->
 	                <div role="tabpanel" class="tab-pane fade" id="inprogress">
-	                	<ui:fragment rendered="#{empty profile1.inProgressCredentialAchievementsData.targetCredentialDataList}">
+	                	<ui:fragment rendered="#{empty profile.inProgressCredentialAchievementsData.targetCredentialDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
 		                            <p>
 		                                No credentials in progress.<br/>
-		                                <h:link outcome="/credentialLibrary">
+		                                <h:link rendered="#{profile.personalProfile}"
+		                                	outcome="/credentialLibrary">
 		                                	Browse credentials
 	                                	</h:link>
 		                            </p>
@@ -310,7 +314,7 @@
 		                    </div>
 	                    </ui:fragment>
 	                
-	                	<ui:repeat value="#{profile1.inProgressCredentialAchievementsData.targetCredentialDataList}" 
+	                	<ui:repeat value="#{profile.inProgressCredentialAchievementsData.targetCredentialDataList}" 
 	                    			var="inProgressCredential" varStatus="iterator">
 							<div class="col-md-6">
 								<article class="whiteBox summaryCard">
