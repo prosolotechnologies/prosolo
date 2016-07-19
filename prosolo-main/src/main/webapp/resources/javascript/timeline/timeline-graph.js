@@ -47,7 +47,7 @@ var timelineGraph = (function () {
 	
 		var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-		    yAxis = d3.svg.axis().scale(y).orient("left");
+		    yAxis = d3.svg.axis().scale(y).orient("left").tickFormat(d3.format('.0f'));
 	
 		var brush = d3.svg.brush()
 		    .x(x2)

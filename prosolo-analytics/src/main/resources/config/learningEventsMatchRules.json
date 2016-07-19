@@ -18,7 +18,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"name\":\"RESUME_LEARNING\"},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"name\":\"LIBRARY\"},\"page\":\"USER_CREDENTIAL_LIBRARY\"}"
+        "context": "\\{\"context\":\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"name\":\"RESUME_LEARNING\"\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"name\":\"LIBRARY\"\\},\"page\":\"USER_CREDENTIAL_LIBRARY\"\\}"
       }
     ]
   },
@@ -30,7 +30,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"\",\"name\":\"RESUME_LEARNING\"},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"page\":\"USER_COMPETENCE\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"\",\"name\":\"RESUME_LEARNING\"\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"page\":\"USER_COMPETENCE\"\\}"
       }
     ]
   },
@@ -75,7 +75,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"object_type\":\"ResourceLink\",\"name\":\"ACTIVITY_LINK\",\"id\":\\\\d+},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"object_type\":\"ResourceLink\",\"name\":\"ACTIVITY_LINK\",\"id\":\\\\d+\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}"
       }
     ]
   },
@@ -87,7 +87,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"object_type\":\"\",\"name\":\"COMPETENCE_PROGRESS\"},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"object_type\":\"\",\"name\":\"COMPETENCE_PROGRESS\"\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}"
       }
     ]
   },
@@ -100,7 +100,7 @@
         "eventType": "Comment",
         "objectType": "Comment1",
         "targetType": "Activity1",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}"
       }
     ]
   },
@@ -113,7 +113,7 @@
         "eventType": "Comment_Reply",
         "objectType": "Comment1",
         "targetType": "Activity1",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}"
       }
     ]
   },
@@ -125,7 +125,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"context\":{\"object_type\":\"Competence1\",\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"BREADCRUMBS\"},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}",
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"context\":\\{\"object_type\":\"Competence1\",\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"BREADCRUMBS\"\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}",
         "link": "/competence.xhtml"
       }
     ]
@@ -138,7 +138,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"context\":{\"context\":{\"object_type\":\"Credential1\",\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"name\":\"BREADCRUMBS\"},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}",
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"context\":\\{\"context\":\\{\"object_type\":\"Credential1\",\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"name\":\"BREADCRUMBS\"\\},\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}",
         "link": "/credential.xhtml"
       }
     ]
@@ -151,7 +151,7 @@
       {
         "eventType": "NAVIGATE",
         "objectType": "page",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"TargetCompetence1\",\"context\":{\"context\":{\"object_type\":\"Credential1\",\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"name\":\"BREADCRUMBS\"},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_COMPETENCE\"}",
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"TargetCompetence1\",\"context\":\\{\"context\":\\{\"object_type\":\"Credential1\",\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"name\":\"BREADCRUMBS\"\\},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_COMPETENCE\"\\}",
         "link": "/credential.xhtml"
       }
     ]
@@ -186,7 +186,7 @@
       {
         "eventType": "SERVICEUSE",
         "objectType": "VIDEO",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"Activity1\",\"context\":{\"object_type\":\"TargetActivity1\",\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+},\"name\":\"ACTIVITY\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_ACTIVITY\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"Activity1\",\"context\":\\{\"object_type\":\"TargetActivity1\",\"name\":\"TARGET_ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"ACTIVITY\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_ACTIVITY\"\\}"
       }
     ]
   },
@@ -199,7 +199,7 @@
         "eventType": "Comment",
         "objectType": "Comment1",
         "targetType": "Competence1",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"TargetCompetence1\",\"context\":{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_COMPETENCE\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"TargetCompetence1\",\"context\":\\{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"\\},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_COMPETENCE\"\\}"
       }
     ]
   },
@@ -212,7 +212,7 @@
         "eventType": "Comment_Reply",
         "objectType": "Comment1",
         "targetType": "Competence1",
-        "context": "{\"context\":{\"object_type\":\"Credential1\",\"context\":{\"object_type\":\"Competence1\",\"context\":{\"object_type\":\"TargetCompetence1\",\"context\":{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+},\"name\":\"COMPETENCE\",\"id\":\\\\d+},\"name\":\"CREDENTIAL\",\"id\":\\\\d+},\"page\":\"USER_COMPETENCE\"}"
+        "context": "\\{\"context\":\\{\"object_type\":\"Credential1\",\"context\":\\{\"object_type\":\"Competence1\",\"context\":\\{\"object_type\":\"TargetCompetence1\",\"context\":\\{\"object_type\":\"Comment1\",\"name\":\"COMMENT\"\\},\"name\":\"TARGET_COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"COMPETENCE\",\"id\":\\\\d+\\},\"name\":\"CREDENTIAL\",\"id\":\\\\d+\\},\"page\":\"USER_COMPETENCE\"\\}"
       }
     ]
   }
