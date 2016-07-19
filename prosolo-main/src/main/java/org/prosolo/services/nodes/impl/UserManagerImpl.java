@@ -20,7 +20,6 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -211,16 +210,16 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<Long> getUsers(List<Long> toExclude) {
+	public List<User> getUsers(Long[] toExclude, int limit) {
 		StringBuffer query = new StringBuffer();
 		
 		query.append(	
-			"SELECT user.id " +
+			"SELECT user " +
 			"FROM User user " +
 			"WHERE user.deleted = :deleted "
 		);
 		
-		if (toExclude != null && !toExclude.isEmpty()) {
+		if (toExclude != null && toExclude.length > 0) {
 			query.append(
 					"AND user.id NOT IN (:excludeIds) "
 			);
@@ -229,17 +228,19 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		Query q = persistence.currentManager().createQuery(query.toString()).
 					setBoolean("deleted", false);
 		
-		if (toExclude != null && !toExclude.isEmpty()) {
+		if (toExclude != null && toExclude.length > 0) {
 			q.setParameterList("excludeIds", toExclude);
 		}
-		logger.debug("Query:"+query +" exludeIds:"+toExclude.toString());
+		
 		@SuppressWarnings("unchecked")
-		List<Long> result = q.list();
+		List<User> result = q
+			.setMaxResults(limit)
+			.list();
 		
 		if (result != null) {
   			return result;
 		}
 
-		return new ArrayList<Long>();
+		return new ArrayList<User>();
 	}
 }

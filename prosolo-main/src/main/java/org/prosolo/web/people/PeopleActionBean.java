@@ -1,22 +1,19 @@
 
-package org.prosolo.web.useractions;
+package org.prosolo.web.people;
 
 import java.io.Serializable;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.event.AjaxBehaviorEvent;
 
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.people.PeopleBean;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -38,14 +35,9 @@ public class PeopleActionBean implements Serializable {
 	@Autowired
 	private LoggedUserBean loggedUser;
 	@Autowired
-	private PeopleBean peopleBean;
-	@Autowired
 	private FollowResourceManager followResourceManager;
 	@Autowired
 	private FollowResourceAsyncManager followResourceAsyncManager;
-
-	public void startToFollowCollegue(AjaxBehaviorEvent event) {
-	}
 
 	public void followCollegueById(String userToFollowName, long userToFollowId) {
 		try {
@@ -55,12 +47,6 @@ public class PeopleActionBean implements Serializable {
 			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
 
 			followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, lcxt);
-			if (page.equals("/people.xhtml")) {
-				// need to init only when called from peple page
-				// if this method is called from any other page then peopleBean
-				// is recreated and we don't need to perform init
-				peopleBean.initPeopleBean();
-			}
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -76,12 +62,6 @@ public class PeopleActionBean implements Serializable {
 			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
 
 			followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, lcxt);
-			if (page.equals("/people.xhtml")) {
-				// need to init only when called from peple page
-				// if this method is called from any other page then peopleBean
-				// is recreated and we don't need to perform init
-				peopleBean.initPeopleBean();
-			}
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -105,7 +85,7 @@ public class PeopleActionBean implements Serializable {
 		logger.debug("User '" + loggedUser.getUserId() + "' is following user " + userToFollow);
 
 		followResourceAsyncManager.asyncFollowUser(loggedUser.getUserId(), userToFollow, context);
-		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
+//		peopleBean.addFollowingUser(UserDataFactory.createUserData(userToFollow));
 		PageUtil.fireSuccessfulInfoMessage(
 				"Started following " + userToFollow.getName() + " " + userToFollow.getLastname() + ".");
 	}
@@ -126,7 +106,7 @@ public class PeopleActionBean implements Serializable {
 		logger.debug("User '" + loggedUser.getUserId() + "' is unfollowing user " + userToUnfollow);
 
 		followResourceAsyncManager.asyncUnfollowUser(loggedUser.getUserId(), userToUnfollow, context);
-		peopleBean.removeFollowingUserById(userToUnfollow.getId());
+//		peopleBean.removeFollowingUserById(userToUnfollow.getId());
 
 		PageUtil.fireSuccessfulInfoMessage(
 				"Stopped following " + userToUnfollow.getName() + " " + userToUnfollow.getLastname() + ".");
