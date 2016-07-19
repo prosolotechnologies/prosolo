@@ -27,13 +27,14 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 	private static final String AJAX_REDIRECT_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 	        + "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
 
-	private static String[] allowedAccessPages = new String[]{
-		"reset",
-		"recovery",
-		"terms",
-		"profile",
-		"digest",
-		"digest"
+	private static String[] allowedAccessPages = new String[] {
+			"/login/[a-zA-Z0-9/+.]+",
+			"/login",
+			"/reset",
+			"/recovery/[a-zA-Z0-9]+",
+			"/terms",
+			"/profile/[a-zA-Z0-9]+",
+			"/digest"
 	};
 	
     @Override
@@ -81,8 +82,8 @@ public class LoginPartialResponseRedirectFilter implements Filter {
 	 * @return
 	 */
 	private boolean isAllowedToAccessPage(String requestURI) {
-		for (int i = 0; i < allowedAccessPages.length; i++) {
-			if (requestURI.endsWith(allowedAccessPages[i])) {
+		for (String pagePattern : allowedAccessPages) {
+			if (requestURI.matches(pagePattern)) {
 				return true;
 			}
 		}

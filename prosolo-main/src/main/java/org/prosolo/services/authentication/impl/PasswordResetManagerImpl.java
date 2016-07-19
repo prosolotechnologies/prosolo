@@ -43,7 +43,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	@Autowired private EmailSender emailSender;
 
 	@Override
-	public boolean resetPassword(User user, String email, String serverAddress) {
+	public boolean initiatePasswordReset(User user, String email, String serverAddress) {
 		email = email.toLowerCase();
 		
 		// first invalidate all other user's request key
@@ -56,7 +56,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		saveEntity(key);
 		
 		try {
-			String resetAddress = serverAddress+"?key="+key.getUid();
+			String resetAddress = serverAddress + "/" + key.getUid();
 			
 			PasswordRecoveryEmailContentGenerator contentGenerator = new PasswordRecoveryEmailContentGenerator(user.getName(), resetAddress);
 			
@@ -77,7 +77,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	}
 	
 	@Override
-	public User checkIfKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
+	public boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
 		ResetKey result = getResetKey(resetKey);
 		
 		if (result != null) {
@@ -91,10 +91,17 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 				throw new ResetKeyExpiredException("Reset key: "+ resetKey +" has expired.");
 			}
 			
-			return result.getUser();
+			return true;
 		} else {
 			throw new ResetKeyDoesNotExistException("Reset key: "+ resetKey +" does not exist.");
 		}
+	}
+	
+	@Override
+	public User getResetKeyUser(String resetKey) {
+		ResetKey key = getResetKey(resetKey);
+		
+		return key.getUser();
 	}
 
 	public ResetKey getResetKey(String resetKey) {

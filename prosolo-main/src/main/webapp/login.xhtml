@@ -24,7 +24,6 @@
 </f:metadata>
 	
 <h:body>
-	
     <div class="loginBox">
         <div class="logo"></div>
         <div class="whiteBox">
@@ -76,7 +75,12 @@
 					</c:if>
 					<c:if test="${not empty param.error}">
 						<div class="alert alert-danger" role="alert">
-							Wrong email or password! Please try again.
+							#{param.error}}
+						</div>
+					</c:if>
+					<c:if test="${not empty param.success}">
+						<div class="alert alert-info" role="alert">
+							#{param.success}
 						</div>
 					</c:if>
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
