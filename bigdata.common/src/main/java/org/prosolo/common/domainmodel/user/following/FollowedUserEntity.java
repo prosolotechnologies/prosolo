@@ -6,7 +6,6 @@ import javax.persistence.Transient;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 
 /**
  * @author Zoran Jeremic Dec 30, 2013

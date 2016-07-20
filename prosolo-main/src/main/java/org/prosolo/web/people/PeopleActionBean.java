@@ -9,6 +9,8 @@ import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
@@ -47,11 +49,12 @@ public class PeopleActionBean implements Serializable {
 			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
 
 			followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, lcxt);
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+			PageUtil.fireSuccessfulInfoMessage("Started following " + userToFollowName + ".");
+		} catch(EntityAlreadyExistsException ex) {
+			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
+		} catch (DbConnectionException e) {
 			logger.error(e);
 		}
-
-		PageUtil.fireSuccessfulInfoMessage("Started following " + userToFollowName + ".");
 	}
 
 	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
@@ -78,11 +81,13 @@ public class PeopleActionBean implements Serializable {
 
 			followResourceManager.followUser(loggedUser.getUserId(), user.getId(), lcxt);
 			user.setFollowed(true);
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+			PageUtil.fireSuccessfulInfoMessage("Started following " + user.getName() + ".");
+		} catch(EntityAlreadyExistsException ex) {
+			PageUtil.fireErrorMessage("You are already following " + user.getName());
+		} catch (DbConnectionException e) {
 			logger.error(e);
+			PageUtil.fireErrorMessage("Error occured. Please try again");
 		}
-
-		PageUtil.fireSuccessfulInfoMessage("Started following " + user.getName() + ".");
 	}
 
 	public void unfollowCollegue(UserData user) {
