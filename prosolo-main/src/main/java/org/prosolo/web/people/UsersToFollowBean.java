@@ -50,6 +50,8 @@ public class UsersToFollowBean implements Serializable {
 					usersToFollow.add(userData);
 				}
 			}
+			usersToFollow.add(new UserData(3, "Richards Anderson", null));
+			usersToFollow.add(new UserData(4, "blah blah", null));
 		} catch (Exception e) {
 			logger.error(e);
 		}

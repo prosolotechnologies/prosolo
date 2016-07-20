@@ -37,7 +37,7 @@
 							</div> 
 							
 							<p:commandLink id="followButton"
-								rendered="#{!peopleActionBean.isLoggedUserFollowingUser(user.id)}"
+								rendered="#{!user.followed}"
 								action="#{peopleActionBean.followCollegue(user)}"
 								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green btn-xs">
@@ -46,7 +46,7 @@
 							Follow
 							</p:commandLink>
 							<p:commandLink id="unfollowButton"
-								rendered="#{peopleActionBean.isLoggedUserFollowingUser(user.id)}"
+								rendered="#{user.followed}"
 								action="#{peopleActionBean.unfollowCollegue(user)}"
 								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green-stroke btn-xs">

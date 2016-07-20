@@ -98,6 +98,7 @@ public class PeopleActionBean implements Serializable {
 			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
 
 			followResourceManager.followUser(loggedUser.getUserId(), user.getId(), lcxt);
+			user.setFollowed(true);
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
@@ -113,6 +114,7 @@ public class PeopleActionBean implements Serializable {
 			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
 
 			followResourceManager.unfollowUser(loggedUser.getUserId(), user.getId(), lcxt);
+			user.setFollowed(false);
 		} catch (EventException e) {
 			logger.error(e);
 		}
