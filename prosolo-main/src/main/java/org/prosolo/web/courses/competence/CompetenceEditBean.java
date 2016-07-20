@@ -80,7 +80,7 @@ public class CompetenceEditBean implements Serializable {
 			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing competence with id " + decodedId);
-				loadCompetenceData(decodedId);
+				loadCompetenceData(decodedCredId, decodedId);
 			}
 			setContext();
 			if(decodedCredId > 0) {
@@ -112,13 +112,13 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	private void loadCompetenceData(long id) {
+	private void loadCompetenceData(long credId, long id) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
 			competenceData = compManager
-					.getCurrentVersionOfCompetenceForManager(id, false, true);
+					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
 		} else {
-			competenceData = compManager.getCompetenceDataForEdit(id, 
+			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
 					loggedUser.getUserId(), true);
 		}
 		
@@ -233,7 +233,7 @@ public class CompetenceEditBean implements Serializable {
 			}
 			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
-				loadCompetenceData(decodedId);
+				loadCompetenceData(decodedCredId, decodedId);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;

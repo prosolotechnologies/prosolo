@@ -58,8 +58,8 @@ public class CompetenceViewBeanUser implements Serializable {
 							decodedCredId, decodedCompId, loggedUser.getUserId());
 				} else {
 					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceDataForEdit(decodedCompId, 
-								loggedUser.getUserId(), true);
+						competenceData = competenceManager.getCompetenceDataForEdit(decodedCredId, 
+								decodedCompId, loggedUser.getUserId(), true);
 
 						ResourceCreator rc = new ResourceCreator();
 						rc.setFullName(loggedUser.getFullName());
