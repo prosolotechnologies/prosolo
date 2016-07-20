@@ -13,6 +13,7 @@
 	<composite:interface>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
+		<composite:attribute name="toUpdate" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -39,7 +40,7 @@
 							<p:commandLink id="followButton"
 								rendered="#{!user.followed}"
 								action="#{peopleActionBean.followCollegue(user)}"
-								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
+								update="#{cc.attrs.toUpdate} :#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green btn-xs">
 								<f:param name="page" value="/people.xhtml" />
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:who_to_follow|id:'.concat(user.id))}" />
@@ -48,7 +49,7 @@
 							<p:commandLink id="unfollowButton"
 								rendered="#{user.followed}"
 								action="#{peopleActionBean.unfollowCollegue(user)}"
-								update=":#{cc.clientId}:panelUsersToFollow" process="@this"
+								update="#{cc.attrs.toUpdate} :#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green-stroke btn-xs">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:who_to_follow|id:'.concat(user.id))}" />

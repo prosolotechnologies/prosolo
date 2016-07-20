@@ -64,7 +64,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 				return notificationsSettings;
 			}
 		} catch(ConstraintViolationException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			session.clear();
 			try {
 				return getNotificationsSettings(userId);
