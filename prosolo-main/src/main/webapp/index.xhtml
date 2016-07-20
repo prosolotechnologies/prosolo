@@ -11,7 +11,8 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:people="http://java.sun.com/jsf/composite/components/people" >
 
 	<ui:define name="windowTitle">
 		ProSolo - Home
@@ -91,33 +92,21 @@
             </div>
             <div class="col-md-6">
                 <div class="sidebarBlock">
-                    <div class="inProgressHead">
-                        <h2>In Progress</h2>
-                        <h:link
-						value="View All" outcome="/achievements/inprogress" />
-                    </div>
-                    <courses:recentNCredentialsInProgress 
-                    	learningContext="name:status_wall"
-                    />
+                	<ui:fragment rendered="#{not empty credentialsInProgressBean.credentials}">
+	                    <div class="inProgressHead">
+	                        <h2>In Progress</h2>
+	                        <h:link
+							value="View All" outcome="/achievements/inprogress" />
+	                    </div>
+	                    <courses:recentNCredentialsInProgress 
+	                    	learningContext="name:status_wall"
+	                    />
+	                </ui:fragment>
                 </div>
                 <div class="sidebarBlock">
-                    <h2>Who to Follow</h2>
-                    <ul class="listWhoToFollow">
-                        <li>
-                            <div class="user32">
-                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
-                                <h3><a href="people-profile.html">Walter White</a></h3>
-                            </div>
-                            <a href="#" class="btn btn-green btn-xs">Follow</a>
-                        </li>
-                        <li>
-                            <div class="user32">
-                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
-                                <h3><a href="people-profile.html">Walter White</a></h3>
-                            </div>
-                            <a href="#" class="btn btn-green-stroke btn-xs">Following</a>
-                        </li>
-                    </ul>
+                    <people:whoToFollow
+                    	learningContext="name:status_wall"
+                    />
                 </div>
             </div>
         </div>
