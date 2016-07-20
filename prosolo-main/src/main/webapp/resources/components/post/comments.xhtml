@@ -63,7 +63,7 @@
 					<div class="comments">
 						<ul class="media-list">
 								<li class="loadMoreComments">
-									<p:commandLink
+									<p:commandLink rendered="#{cc.attrs.comments.moreToLoad}"
 										value="View previous comments"
 										action="#{commentBean.loadMoreComments(cc.attrs.comments)}"
 										update="formComments" />

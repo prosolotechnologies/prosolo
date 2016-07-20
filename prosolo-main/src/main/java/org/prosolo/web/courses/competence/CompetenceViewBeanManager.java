@@ -54,7 +54,7 @@ public class CompetenceViewBeanManager implements Serializable {
 			try {
 				if("preview".equals(mode)) {
 					competenceData = competenceManager
-							.getCurrentVersionOfCompetenceForManager(decodedCompId, true, true);
+							.getCurrentVersionOfCompetenceForManager(decodedCredId, decodedCompId, true, true);
 				} else {
 					competenceData = competenceManager
 							.getCompetenceDataForManager(decodedCredId, decodedCompId, true, true, 

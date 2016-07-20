@@ -88,7 +88,8 @@ function scrollToNewestComment(hiddenFieldId) {
 
 function showLoader(comp) {
 	$(comp).css('text-align', 'center');
-	$(comp).html('<img src="' + context + '/resources/images/style/ajax-loader-black.gif"/>');
+	//$(comp).html('<img src="' + context + '/resources/images/style/ajax-loader-black.gif"/>');
+	$(comp).html('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
 	$(comp).show();
 };
 

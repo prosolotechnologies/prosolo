@@ -483,37 +483,49 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
+	public CompetenceData1 getCompetenceDataForEdit(long credId, long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException {
-		return getCurrentVersionOfCompetenceBasedOnRole(competenceId, creatorId, false, 
+		return getCurrentVersionOfCompetenceBasedOnRole(credId, competenceId, creatorId, false, 
 				loadActivities, Role.User);
 	}
 	
 	@Transactional(readOnly = true)
-	private CompetenceData1 getCurrentVersionOfCompetenceBasedOnRole(long competenceId, long creatorId,
-			boolean loadCreator, boolean loadActivities, Role role) throws DbConnectionException {
+	private CompetenceData1 getCurrentVersionOfCompetenceBasedOnRole(long credId, long competenceId, 
+			long creatorId, boolean loadCreator, boolean loadActivities, Role role) 
+					throws DbConnectionException {
 		try {
-			StringBuilder queryBuilder = new StringBuilder();
-			queryBuilder.append("SELECT comp " +
-					   "FROM Competence1 comp " + 
-					   "LEFT JOIN fetch comp.tags tags ");
+			StringBuilder queryBuilder = new StringBuilder("SELECT comp ");
+			if(credId > 0) {
+				queryBuilder.append("FROM CredentialCompetence1 credComp " +
+							   		"INNER JOIN credComp.competence comp " +
+							   			"WITH comp.id = :compId " +
+							   			"AND comp.deleted = :deleted " +
+							   			"AND comp.draft = :draft ");
+			} else {
+				queryBuilder.append("FROM Competence1 comp ");
+			}
+			queryBuilder.append("LEFT JOIN fetch comp.tags tags ");
 
 			if(loadCreator) {
 				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
 			}
 			
-			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
-			queryBuilder1.append("WHERE comp.id = :compId " +
-					"AND comp.deleted = :deleted " +
-					"AND comp.draft = :draft ");
-			if(role == Role.User) {
-				queryBuilder1.append("AND comp.createdBy.id = :user");
+			//StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+			if(credId > 0) {
+				queryBuilder.append("WHERE credComp.credential.id IN (:credIds) ");
 			} else {
-				queryBuilder1.append("AND comp.type = :type ");
+				queryBuilder.append("WHERE comp.id = :compId " +
+						"AND comp.deleted = :deleted " +
+						"AND comp.draft = :draft ");
+			}
+			if(role == Role.User) {
+				queryBuilder.append("AND comp.createdBy.id = :user");
+			} else {
+				queryBuilder.append("AND comp.type = :type ");
 			}
 						   
 			Query q = persistence.currentManager()
-					.createQuery(queryBuilder1.toString())
+					.createQuery(queryBuilder.toString())
 					.setLong("compId", competenceId)
 					.setBoolean("deleted", false)
 					.setBoolean("draft", false);
@@ -523,16 +535,35 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
 			}
+			if(credId > 0) {
+				List<Long> ids = new ArrayList<>();
+				ids.add(credId);
+				Optional<Long> draftVersionCredId = credentialManager
+						.getDraftVersionIdIfExists(credId);
+				if(draftVersionCredId.isPresent()) {
+					ids.add(draftVersionCredId.get());
+				}
+				q.setParameterList("credIds", ids);
+			}
 			
 			Competence1 res = (Competence1) q.uniqueResult();
 			
 			if(res != null) {
 				CompetenceData1 cd = null;
 				if(res.isHasDraft()) {
-					String query2 = queryBuilder.toString() + 
-							" WHERE comp = :draftVersion";
+					StringBuilder queryBuilder1 = new StringBuilder();
+					queryBuilder1.append("SELECT comp " +
+							   "FROM Competence1 comp " + 
+							   "LEFT JOIN fetch comp.tags tags ");
+
+					if(loadCreator) {
+						queryBuilder1.append("INNER JOIN fetch comp.createdBy ");
+					}
+					
+					queryBuilder1.append("WHERE comp = :draftVersion "); 
+
 					Competence1 draftComp = (Competence1) persistence.currentManager()
-							.createQuery(query2)
+							.createQuery(queryBuilder1.toString())
 							.setEntity("draftVersion", res.getDraftVersion())
 							.uniqueResult();
 					if(draftComp != null) {
@@ -1737,9 +1768,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
+	public CompetenceData1 getCurrentVersionOfCompetenceForManager(long credId, long competenceId,
 			boolean loadCreator, boolean loadActivities) throws DbConnectionException {
-			return getCurrentVersionOfCompetenceBasedOnRole(competenceId, 0, loadCreator, 
+			return getCurrentVersionOfCompetenceBasedOnRole(credId, competenceId, 0, loadCreator, 
 					loadActivities, Role.Manager);
 	}
 	

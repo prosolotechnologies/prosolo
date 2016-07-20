@@ -121,7 +121,7 @@ public interface Competence1Manager {
 			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
 					throws DbConnectionException;
 	
-	CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
+	CompetenceData1 getCompetenceDataForEdit(long credId, long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException;
 	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -208,14 +208,15 @@ public interface Competence1Manager {
 	
 	/**
 	 * Returns draft version of competence if exists, original version otherwise
+	 * @param credId
 	 * @param competenceId
 	 * @param loadCreator
 	 * @param loadActivities
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
-			boolean loadCreator, boolean loadActivities) throws DbConnectionException;
+	 CompetenceData1 getCurrentVersionOfCompetenceForManager(long credId, long competenceId,
+				boolean loadCreator, boolean loadActivities) throws DbConnectionException;
 	
 	/**
 	 * this is the method that should be called when you want to publish competences
