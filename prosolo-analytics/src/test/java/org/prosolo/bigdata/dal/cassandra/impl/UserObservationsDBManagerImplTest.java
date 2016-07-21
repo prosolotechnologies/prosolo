@@ -3,6 +3,9 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
+import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 
 import java.io.*;
 import java.net.URL;
@@ -54,8 +57,35 @@ public class UserObservationsDBManagerImplTest {
             long credential = r.nextInt(100);
             dbManager.enrollUserToCourse(userid,credential);
         }
+    }
+    @Test
+    public void randomlyGenerateUserPreferences(){
+        UserRecommendationsDBManager dbManager= UserRecommendationsDBManagerImpl.getInstance();
+        Random r = new Random();
+        for(int i=0;i<2000;i++){
+            long userid = r.nextInt(1000);
 
+            long resourceid1 = r.nextInt(100);
+            String resourcetype1= Credential1.class.getSimpleName();
+            int pr1=r.nextInt(100);
+            Double preference1=(double) pr1/100;
+            dbManager.insertStudentPreference(userid,resourcetype1,resourceid1,preference1, System.currentTimeMillis());
+            for(int x=0;x<5;x++) {
+                long resourceid2 = r.nextInt(300);
+                String resourcetype2 = Competence1.class.getSimpleName();
+                int pr2 = r.nextInt(100);
+                Double preference2 = (double) pr2 / 100;
+                dbManager.insertStudentPreference(userid, resourcetype2, resourceid2, preference2, System.currentTimeMillis());
+            }
 
+            for(int y=0;y<15;y++) {
+                long resourceid3 = r.nextInt(500);
+                String resourcetype3 = Competence1.class.getSimpleName();
+                int pr3 = r.nextInt(100);
+                Double preference3 = (double) pr3 / 100;
+                dbManager.insertStudentPreference(userid, resourcetype3, resourceid3, preference3, System.currentTimeMillis());
+            }
+        }
     }
 
     @Test

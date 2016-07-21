@@ -164,6 +164,9 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		//(8,List((LIKE,0,0.0,2,1.0))), (2,List((COMMENT,0,0.0,2,0.6666667), (LIKE,0,0.0,1,0.33333334))),
 		this.ddls.add(studentInteractionsByTypeOverview);
 
+		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS userrecom_userresourcepreferences(userid bigint, resourcetype varchar, resourceid bigint, timestamp bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, timestamp))";
+		this.ddls.add(userResourcePreferencesDDL);
+
 
 	}
 
