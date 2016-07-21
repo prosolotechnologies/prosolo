@@ -6,6 +6,7 @@ import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Random;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -41,6 +42,19 @@ public class UserObservationsDBManagerImplTest {
         dbManager.withdrawUserFromCourse(101l,56l);
         dbManager.withdrawUserFromCourse(101l,57l);
         dbManager.withdrawUserFromCourse(101l,58l);
+
+    }
+
+    @Test
+    public void randomlyEnrollUsersToCourses(){
+        UserObservationsDBManager dbManager= UserObservationsDBManagerImpl.getInstance();
+        Random r = new Random();
+        for(int i=0;i<2000;i++){
+            long userid = r.nextInt(1000);
+            long credential = r.nextInt(100);
+            dbManager.enrollUserToCourse(userid,credential);
+        }
+
 
     }
 

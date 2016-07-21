@@ -170,10 +170,10 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 
 			@Override
 			public void run() {
-				boolean alive=true;
+			//	boolean alive=true;
 				try {
-					//for (;;) {
-					while(alive){
+					for (;;) {
+					//while(alive){
 						ReliableConsumerImpl.this.waitForConnection();
 						synchronized (this) {
 							// this is very simple: reconnect every 5 seconds
@@ -196,7 +196,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 					
 					}
 				} catch (InterruptedException ex) {
-					alive=false;
+					//alive=false;
 					// disconnect and exit
 					logger.debug("Disconnect_2");
 						ReliableConsumerImpl.this.disconnect();
