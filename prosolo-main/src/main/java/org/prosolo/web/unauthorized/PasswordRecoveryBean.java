@@ -7,8 +7,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
 import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
@@ -32,38 +30,31 @@ public class PasswordRecoveryBean {
 	private String key;
 	private boolean keyValid;
 	private String newPass;
+	private String errorMessage;
 	
 	public void init() {
 		try {
 			this.keyValid = passwordResetManager.checkIfResetKeyIsValid(key);
 		} catch (ResetKeyDoesNotExistException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("resetMessage", "There is an error with your reset link. Please try again resetting the password.", null);  
+			errorMessage = "There is an error with your reset link. Please try again resetting the password.";
 		} catch (ResetKeyInvalidatedException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("resetMessage", "This reset link has probably been used already. Please try again resetting the password.", null);  
+			errorMessage = "This reset link has probably been used already. Please try again resetting the password."; 
 		} catch (ResetKeyExpiredException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("resetMessage", "This reset link has expired. Please try again resetting the password.", null);  
+			errorMessage = "This reset link has expired. Please try again resetting the password.";
 		}
 	}
 	
 	public void saveNewPassword() {
 		try {
-			User user = passwordResetManager.getResetKeyUser(key);
-			userManager.changePassword(user.getId(), newPass);
+			userManager.changePasswordWithResetKey(key, newPass);
 		
-			// invalidate reset key
 			passwordResetManager.invalidateResetKey(key);
-		
-//			boolean loggedIn = authenticationService.login(user.getEmail(), newPass);
-//			
-//			if (loggedIn) {
-//				loggedUserBean.init(user.getEmail());
-//				PageUtil.fireInfoMessage("messages", "Password successfully changed. Redirecting...", "");
-//			}
+
 			FacesContext.getCurrentInstance().getExternalContext().redirect("/login?success=" + URLEncoder.encode("Your password has been changed.", "utf-8"));
-		} catch (ResourceCouldNotBeLoadedException | IOException e) {
+		} catch (IOException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("There was an error reseting your password");
 		}
@@ -93,4 +84,8 @@ public class PasswordRecoveryBean {
 		return keyValid;
 	}
 
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
 }

@@ -365,9 +365,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		sData.setEmail(email);
 	}
 
-	public String getPassword() {
-		return getSessionData() == null ? null : getSessionData().getPassword();
-	}
+//	public String getPassword() {
+//		return getSessionData() == null ? null : getSessionData().getPassword();
+//	}
 
 	public void setPassword(String password) {
 		getSessionData().setPassword(password);
