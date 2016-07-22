@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.PasswordEncrypter;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -150,11 +151,58 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	@Override
 	@Transactional (readOnly = false)
-	public User changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
-		User user = loadResource(User.class, userId);
-		user.setPassword(passwordEncrypter.encodePassword(newPassword));
-		user.setPasswordLength(newPassword.length());
-		return saveEntity(user);
+	public String changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
+//		User user = loadResource(User.class, userId);
+//		user.setPassword(passwordEncrypter.encodePassword(newPassword));
+//		user.setPasswordLength(newPassword.length());
+//		return saveEntity(user);
+		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+		
+		try {
+			String query = 
+					"UPDATE User user " +
+					"SET user.password = :newPassEncrypted, user.passwordLength = :newPassEncryptedLength " +
+					"WHERE user.id = :userId ";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("userId", userId)
+				.setString("newPassEncrypted", newPassEncrypted)
+				.setParameter("newPassEncryptedLength", newPassEncrypted.length())
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user password");
+		}
+		return newPassEncrypted;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public String changePasswordWithResetKey(String resetKey, String newPassword) {
+		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+			
+		try {
+			String query = 
+					"UPDATE User user " +
+					"SET user.password = :newPassEncrypted, user.passwordLength = :newPassEncryptedLength " +
+					"WHERE user.id IN ( " + 
+						"SELECT resetKey.user.id " +
+						"FROM ResetKey resetKey " +
+						"WHERE resetKey.uid = :resetKey " +
+					")";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setString("resetKey", resetKey)
+				.setString("newPassEncrypted", newPassEncrypted)
+				.setParameter("newPassEncryptedLength", newPassEncrypted.length())
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user password");
+		}
+		return newPassEncrypted;
 	}
 	
 	@Override

@@ -24,7 +24,9 @@ public interface UserManager extends AbstractManager {
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
 	
-	User changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException;
+	String changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException;
+	
+	String changePasswordWithResetKey(String resetKey, String newPassword);
 	
 	User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException;
 
