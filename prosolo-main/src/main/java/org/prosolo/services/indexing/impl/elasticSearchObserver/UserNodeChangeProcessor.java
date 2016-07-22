@@ -80,7 +80,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    		userId = event.getActorId();
 	    	}
 	    	user = (User) session.load(User.class, userId);
-	    	userEntityESService.saveUserBasicData(user, session);
+	    	userEntityESService.updateBasicUserData(user, session);
 		} else {
 			if(userRole == EventUserRole.Subject) {
 				long userId = event.getActorId();

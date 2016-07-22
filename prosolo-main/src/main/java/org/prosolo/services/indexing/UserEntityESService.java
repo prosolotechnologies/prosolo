@@ -21,6 +21,6 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	
 	void changeCredentialProgress(long userId, long credId, int progress);
 	
-	void saveUserBasicData(User user, Session session);
+	void updateBasicUserData(User user, Session session);
 
 }

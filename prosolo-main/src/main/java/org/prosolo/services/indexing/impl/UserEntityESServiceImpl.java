@@ -108,16 +108,12 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveUserBasicData(User user, Session session) {
- //	user = (User) session.merge(user);
+	public void updateBasicUserData(User user, Session session) {
 		if(user!=null) {
 	 		try {
 				XContentBuilder builder = getBasicUserDataSet(user);
-				
 				builder.endObject();
-				System.out.println("JSON: " + builder.prettyPrint().string());
-				String indexType = getIndexTypeForNode(user);
-				indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+				partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, user.getId() + "", builder);
 			} catch (IOException e) {
 				logger.error(e);
 			}
