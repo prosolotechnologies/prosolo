@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -35,7 +34,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.sessiondata.SessionData;
@@ -65,8 +63,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private AuthenticationService authenticationService;
 	@Inject
 	private InterfaceSettingsManager interfaceSettingsManager;
-	@Inject
-	private NotificationsSettingsManager notificationsSettingsManager;
 	@Inject
 	private ApplicationBean applicationBean;
 	@Inject
@@ -110,22 +106,21 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		session.removeAttribute("user");
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
 		if (userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
-			sessionData.setAvatar((String) userData.get("avatar"));
-			sessionData.setPosition((String) userData.get("position"));
-			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
-			sessionData.setIpAddress((String) userData.get("ipAddress"));
-			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
-			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
-			sessionData.setEmail((String) userData.get("email"));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+			sessionData.setAvatar((String) userData.get("avatar"));
+			sessionData.setPosition((String) userData.get("position"));
+			sessionData.setIpAddress((String) userData.get("ipAddress"));
+//			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
+			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
+			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
+			sessionData.setEmail((String) userData.get("email"));
+			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
 			initialized = true;
 		}
 	}
@@ -189,10 +184,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
-	}
-
-	public void refreshNotificationsSettings() {
-		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUserId()));
 	}
 
 	public void loginOpenId(String email) {
