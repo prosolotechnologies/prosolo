@@ -142,6 +142,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competences").to("/manage/competenceLibrary.xhtml"))
 				
+				.addRule(Join.path("/admin/users/{id}/edit").to("/admin/userEdit.xhtml"))
+				.addRule(Join.path("/admin/users/new").to("/admin/userEdit.xhtml"))
 				.addRule(Join.path("/admin/users").to("/admin/users.xhtml"))
 				.addRule(Join.path("/admin/roles").to("/admin/roles.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))

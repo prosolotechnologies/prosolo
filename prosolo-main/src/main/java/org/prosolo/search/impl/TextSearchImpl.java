@@ -65,6 +65,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -72,6 +73,7 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,6 +95,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credentialManager;
 	@Inject private CredentialInstructorManager credInstructorManager;
+	@Inject private RoleManager roleManager;
 
 	@Override
 	@Transactional
@@ -225,6 +228,92 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate) {
+		
+		TextSearchResponse1<org.prosolo.web.administration.data.UserData> response = 
+				new TextSearchResponse1<>();
+		
+		try {
+			int start = 0;
+			int size = 1000;
+			if(paginate) {
+				start = setStart(page, limit);
+				size = limit;
+			}
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+			
+			SearchResponse sResponse = null;
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "roles"};
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFrom(start).setSize(size)
+					.addSort("name", SortOrder.ASC)
+					.setFetchSource(includes, null);
+			//System.out.println(srb.toString());
+			sResponse = srb.execute().actionGet();
+			
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+				List<org.prosolo.common.domainmodel.organization.Role> roles = roleManager.getAllRoles();
+				for(SearchHit sh : sResponse.getHits()) {
+					Map<String, Object> fields = sh.getSource();
+					User user = new User();
+					user.setId(Long.parseLong(fields.get("id") + ""));
+					user.setName((String) fields.get("name"));
+					user.setLastname((String) fields.get("lastname"));
+					user.setAvatarUrl((String) fields.get("avatar"));
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
+					List<org.prosolo.common.domainmodel.organization.Role> userRoles = new ArrayList<>();
+					if(rolesList != null) {
+						for(Map<String, Object> map : rolesList) {
+							org.prosolo.common.domainmodel.organization.Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
+							if(r != null) {
+								userRoles.add(r);
+							}
+						}
+					}
+					org.prosolo.web.administration.data.UserData userData = 
+							new org.prosolo.web.administration.data.UserData(user, userRoles);
+					
+					response.addFoundNode(userData);			
+				}
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private org.prosolo.common.domainmodel.organization.Role getRoleDataForId(List<org.prosolo.common.domainmodel.organization.Role> roles, 
+			long roleId) {
+		if(roles != null) {
+			for(org.prosolo.common.domainmodel.organization.Role r : roles) {
+				if(roleId == r.getId()) {
+					return r;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override

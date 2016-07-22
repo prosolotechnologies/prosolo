@@ -113,4 +113,7 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
 			int page, int limit);
+	
+	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate);
 }

@@ -49,51 +49,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
  //	user = (User) session.merge(user);
 		if(user!=null) {
 	 		try {
-				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-				builder.field("id", user.getId());
-			//	builder.field("url", user.getUri());
-				builder.field("name", user.getName());
-				builder.field("lastname", user.getLastname());
-				builder.startObject("location");
-				//builder.startObject("pin");
-				double latitude = (user.getLatitude() != null && user.getLatitude() != 0) ? user.getLatitude() : 0;
-				double longitude = (user.getLongitude() != null && user.getLongitude() != 0) ? user.getLongitude() : 0;
-	 			builder.field("lat", latitude).field("lon", longitude);
-				//builder.endObject();
-				builder.endObject();
-				builder.field("system", user.isSystem());
-				
-				//builder.startArray("learninggoals");
-	//			List<TargetLearningGoal> targetLearningGoals = learningGoalManager.getUserTargetGoals(user, session);
-	//			//Set<TargetLearningGoal> targetLearningGoals=user.getLearningGoals();
-	//			for(TargetLearningGoal tGoal: targetLearningGoals){
-	//				LearningGoal lGoal=tGoal.getLearningGoal();
-	//				builder.startObject();
-	// 				builder.field("title", lGoal.getTitle());
-	// 				builder.field("description", lGoal.getDescription());
-	// 				builder.endObject();
-	//			}
-	//			Set<LearningGoal> lGoals = user.getLearningGoals();
-	//			
-	//			for (LearningGoal lGoal : lGoals) {
-	//				builder.startObject();
-	//				builder.field("title", lGoal.getTitle());
-	//				builder.field("description", lGoal.getDescription());
-	//				builder.endObject();
-	//			}
-				//builder.endArray();
-				
-				builder.field("avatar", user.getAvatarUrl());
-				builder.field("position", user.getPosition());
-				
-				builder.startArray("roles");
-				List<Role> roles = roleManager.getUserRoles(user.getEmail());
-				for(Role role : roles) {
-					builder.startObject();
-					builder.field("id", role.getId());
-					builder.endObject();
-				}
-				builder.endArray();
+				XContentBuilder builder = getBasicUserDataSet(user);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
@@ -148,6 +104,53 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				logger.error(e);
 			}
 		}
+	}
+	
+	@Override
+	@Transactional
+	public void saveUserBasicData(User user, Session session) {
+ //	user = (User) session.merge(user);
+		if(user!=null) {
+	 		try {
+				XContentBuilder builder = getBasicUserDataSet(user);
+				
+				builder.endObject();
+				System.out.println("JSON: " + builder.prettyPrint().string());
+				String indexType = getIndexTypeForNode(user);
+				indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+	}
+	
+	private XContentBuilder getBasicUserDataSet(User user) throws IOException {
+		XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+		builder.field("id", user.getId());
+	//	builder.field("url", user.getUri());
+		builder.field("name", user.getName());
+		builder.field("lastname", user.getLastname());
+		builder.startObject("location");
+		//builder.startObject("pin");
+		double latitude = (user.getLatitude() != null && user.getLatitude() != 0) ? user.getLatitude() : 0;
+		double longitude = (user.getLongitude() != null && user.getLongitude() != 0) ? user.getLongitude() : 0;
+			builder.field("lat", latitude).field("lon", longitude);
+		//builder.endObject();
+		builder.endObject();
+		builder.field("system", user.isSystem());
+		builder.field("avatar", user.getAvatarUrl());
+		builder.field("position", user.getPosition());
+		
+		builder.startArray("roles");
+		List<Role> roles = roleManager.getUserRoles(user.getEmail());
+		for(Role role : roles) {
+			builder.startObject();
+			builder.field("id", role.getId());
+			builder.endObject();
+		}
+		builder.endArray();
+		
+		return builder;
 	}
 	
 	@Override

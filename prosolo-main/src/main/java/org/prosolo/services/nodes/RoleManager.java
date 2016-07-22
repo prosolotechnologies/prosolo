@@ -54,4 +54,5 @@ public interface RoleManager extends AbstractManager {
 	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
 	
 	boolean hasAnyRole(long userId, List<String> roleNames) throws DbConnectionException;
+	
 }

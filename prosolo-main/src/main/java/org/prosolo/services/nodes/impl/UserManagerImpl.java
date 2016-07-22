@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.PasswordEncrypter;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -101,12 +102,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
 			String password, String position, InputStream avatarStream, 
-			String avatarFilename) throws UserAlreadyRegisteredException, EventException {
+			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
 		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false, avatarStream, avatarFilename);
+		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false, avatarStream, avatarFilename, roles);
 		
 		eventFactory.generateEvent(EventType.Registered, newUser.getId());
 		
@@ -190,21 +191,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position) throws ResourceCouldNotBeLoadedException {
-		
-		User user = loadResource(User.class, userId);
-		user.setName(name);
-		user.setLastname(lastName);
-		user.setPosition(position);
-		user.setEmail(email);
-		user.setVerified(true);
-		
-		if (changePassword) {
-			user.setPassword(passwordEncrypter.encodePassword(password));
-			user.setPasswordLength(password.length());
-		}
-		
-		return saveEntity(user);
+			String position, List<Long> roles, long creatorId) throws DbConnectionException, EventException {
+		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified, 
+				changePassword, password, position, roles);
+		eventFactory.generateEvent(EventType.Edit_Profile, creatorId, user);
+		return user;
 	}
 	
 	@Override
@@ -241,5 +232,27 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 
 		return new ArrayList<User>();
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public User getUserWithRoles(long id) throws DbConnectionException {
+		try {
+			String query = 
+				"SELECT user " +
+				"FROM User user " +
+				"LEFT JOIN fetch user.roles " +
+				"WHERE user.id = :id ";
+			
+			User user = (User) persistence.currentManager().createQuery(query).
+					setLong("id", id).
+					uniqueResult();
+			
+			return user;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user");
+		}
 	}
 }

@@ -390,4 +390,5 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			throw new DbConnectionException("Error while checking user roles");
 		}
 	}
+	
 }

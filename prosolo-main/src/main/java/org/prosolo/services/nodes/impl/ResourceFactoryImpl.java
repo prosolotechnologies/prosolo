@@ -554,7 +554,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-            String password, String position, boolean system, InputStream avatarStream, String avatarFilename) throws EventException {
+            String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
         
     	emailAddress = emailAddress.toLowerCase();
         
@@ -575,7 +575,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.setPosition(position);
             
         user.setUserType(UserType.REGULAR_USER);
-        user.addRole(roleManager.getRoleByName("User"));
+        if(roles == null) {
+        	user.addRole(roleManager.getRoleByName("User"));
+        } else {
+			for(Long id : roles) {
+				Role role = (Role) persistence.currentManager().load(Role.class, id);
+				user.addRole(role);
+			}
+        }
         user = saveEntity(user);
         
         try {
@@ -1150,6 +1157,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while updating post");
 		}
 		
+	}
+    
+    @Override
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public User updateUser(long userId, String name, String lastName, String email,
+			boolean emailVerified, boolean changePassword, String password, 
+			String position, List<Long> roles) throws DbConnectionException {
+		try {
+			User user = loadResource(User.class, userId);
+			user.setName(name);
+			user.setLastname(lastName);
+			user.setPosition(position);
+			user.setEmail(email);
+			user.setVerified(true);
+			
+			if (changePassword) {
+				user.setPassword(passwordEncrypter.encodePassword(password));
+				user.setPasswordLength(password.length());
+			}
+			
+			if(roles != null) {
+				user.getRoles().clear();
+				for(Long id : roles) {
+					Role role = (Role) persistence.currentManager().load(Role.class, id);
+					user.addRole(role);
+				}
+			}
+			return user;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user data");
+		}
 	}
     
 }

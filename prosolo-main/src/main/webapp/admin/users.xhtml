@@ -3,12 +3,14 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout1.xhtml"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:define name="windowTitle">
-	Users | Admin
+	ProSolo - Admin | Users
 </ui:define>
 
 <ui:define name="metadata">
@@ -18,212 +20,114 @@
 </ui:define>
 
 <ui:define name="content">
-	<style>
-		.usersActions {
-			padding: 15px 0 0 0;
-		}
-		
-		.container {
-			background-color: #fff;
-			padding: 50px;
-		}
-	</style>
-	
-	<h:form id="usersForm" class="usersForm" prependId="false" enctype="multipart/form-data">
-	
-		<p:growl id="usersFormGrowl" showDetail="true" />
+<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+    <div class="whiteBar">
+        <div class="container">
+            <div class="whiteBarContent">
+                <div class="whiteBarLeft">
+                    <h:link outcome="/admin/userEdit" styleClass="btn btn-green btn-sm item">New User</h:link>
+                    <div class="searchBox">
+                    	<h:form>
+                    		<p:remoteCommand 
+								name="execSearchUsers" 
+								process="inputUserSearch"
+								update=":panelUsers :pagination"
+								action="#{adminUsers.resetAndSearch()}" />
+														
+							<h:inputText id="inputUserSearch"
+								type="search"
+								placeholder="Filter by Keywords"
+								value="#{adminUsers.searchTerm}"
+								onclick="$(this).select();"
+								onkeyup="searchListener(execSearchUsers);"/> 
+                    	</h:form>
+                    </div>
+                </div>
+                <div class="whiteBarRight">
+                    <div class="dropdown showDrop item">
+                        <span>Show:</span>
+                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            All (11)
+                            <span class="arrowDown">arrowDown</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <li><a href="#">All (10)</a></li>
+                            <li><a href="#">Users (4)</a></li>
+                            <li><a href="#">Instructors (2)</a></li>
+                            <li><a href="#">Managers (3)</a></li>
+                            <li><a href="#">Admins (2)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<section class="heading">
-			<header>
-				<i class="fa fa-users headIcon"></i>
-				<div class="headerTitle">
-					<h1>Users</h1>
-					<p>Manage users and their roles.</p>
-				</div>
-				
-				<ul class="basicStats pull-right">
-					<li>
-						<p:commandLink id="newUserBtn"
-							value="Add"
-							pt:role="button"
-							styleClass="btn btn-primary"
-							action="#{adminUsers.prepareAdd}"
-							onclick='$("#newUserDetailsDialog").dialog("open");'
-							update=":newUser:userDetailsForm" />
-					</li>
-					<li>
-						<p:commandLink value="Import"
-							pt:role="button"
-							styleClass="btn btn-primary"
-							onclick='$("#usersImportModalDialog").dialog("open");' />
-					</li>
-					<li>
-						<p:commandLink value="Reindex ElasticSearch"
-							pt:role="button"
-							styleClass="btn btn-info" 
-							action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
-						/>
-					</li>
-					<li>
-						<p:commandLink value="Reindex Users"
-							pt:role="button"
-							styleClass="btn btn-info"
-							action="#{bulkDataAdministration.deleteAndReindexUsers}"
-						/>
-					</li>
-					<li>
-						<p:commandLink value="Reindex Documents"
-							pt:role="button"
-							styleClass="btn btn-info"
-							action="#{bulkDataAdministration.deleteAndReindexDocuments}"
-						/>
-					</li>
-					<li>
-						<p:commandLink value="Delete Twitter posts"
-							pt:role="button"
-							styleClass="btn btn-danger"
-							action="#{bulkDataAdministration.deleteOldTwitterPosts}"
-							update="usersFormGrowl" />
-					</li>
-				</ul>
-			</header>
-		</section>
-		
-		<section class="container-fluid mainArea">
-			<div class="row">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<div class="row">
-							<div class="col-md-12">
-							
-								<table class="panel table tableProsolo">
-									<thead>
-										<tr>
-											<th class="colNo" scope="col">
-												No.
-											</th>
-											<th class="colStudent" scope="col">
-										    	User
-											</th>
-											<th class="colEmail" scope="col">
-										    	Email
-											</th>
-											<th class="colActions" scope="col">
-										    	Actions
-											</th>
-										</tr>
-									</thead>
-									<tbody>
-										<ui:repeat var="user" value="#{adminUsers.users}" varStatus="status">
-											<tr>
-												<td class="colNoD">#{status.index + 1}.</td>
-												<td class="colStudentD">
-													<span class="userProfileImageLarge">
-														<h:graphicImage id="userImageId"
-															value="#{user.avatarUrl}"
-															title="#{user.name} #{user.lastName}"
-															alt="#{user.name} #{user.lastName}" />
-													</span>
-													<div class="name">
-														<h1>
-															#{user.name} #{user.lastName}
-														</h1>
-														<h2>#{user.position}</h2>
-													</div>
-												</td>
-												<td class="colProfileD">
-													#{user.email}
-												</td>
-												<td class="actions">
-													<p:commandLink value="Edit"
-														pt:role="button"
-														styleClass="btn btn-info"
-														onclick="$('#editUserDetailsDialog').dialog('open');"
-														action="#{adminUsers.prepareEdit(user)}"
-														update=":editUser:userDetailsForm" />
-														
-													<p:commandLink value="Roles"
-														pt:role="button"
-														styleClass="btn btn-info"
-														action="#{roles.prepareEditUserRoles(user)}"
-														onclick='$("#userRolesModalDialog").dialog("open");'
-														update=":userRoles:userRolesForm" />
-														
-													<p:commandLink value="Delete"
-														pt:role="button"
-														styleClass="btn btn-danger"
-														onclick="$('#deleteUserDialog').dialog('open');"
-														action="#{adminUsers.setUserToDelete(user)}" 
-														update=":deleteUserDialogForm" />
-												</td>
-											</tr>
-										</ui:repeat>
-									</tbody>
-								</table>
-							
-								<script>
-							 	$('#usersForm .button.uploadUsers').on('click', function(e){
-									$('.usersUploadContainer .browseFile').trigger('click');
-								});
-								</script>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-	</h:form>
-		
-	<div id="deleteUserDialog" class="deleteUserDialog" style="display: none;">
-		<h:form id="deleteUserDialogForm">
-			<h4 class="warningMessage">
-				Are you sure you want to delete user #{adminUsers.userToDelete.name} #{adminUsers.userToDelete.lastName}?
-			</h4>
-			
-			<p:commandLink value="Yes"
-				styleClass="button green size30 right"
-				onclick="$('#deleteUserDialog').dialog('close');"
-			 	action="#{adminUsers.delete()}"
-			 	update=":usersForm"
-				/>
-			&#160;
-			<p:commandLink value="Cancel"
-				styleClass="button gray size30 right"
-				onclick="$('#deleteUserDialog').dialog('close');"
-		 	/>
-		</h:form>
-	</div>
-			
-	<script>
-	$(function() {
-		$('#deleteUserDialog').dialog({
-			title: 'Delete User',
-			dialogClass: 'warning',
-			show : 'slide',
-			autoOpen: false,
-			width: 400,
-			modal: true,
-			resizable: false,
-			open: function() {
-				$(this).children(':first')
-					.css('text-align', 'center')
-					.css('padding-top', '50px')
-					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
-				
-				if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
-					$(this).parent()
-				        .children('.ui-dialog-titlebar')
-				        .prepend('<span class="warningIcon"></span>');
-				}
-			}
-		});
-		$('#deleteUserDialog').show();
-	});
-	</script>
-	
-	<dlg:newUser id="newUser" />
-	<dlg:editUser id="editUser" />
-	<dlg:importUsers id="importUsers" />
-	<dlg:userRoles id="userRoles" />
-</ui:define>
+    <div class="container">
+        <div class="row">
+            <h:panelGroup layout="block" id="panelUsers" styleClass="col-md-12">
+                <ul class="whiteBox peopleList">
+                	<ui:repeat var="user" value="#{adminUsers.users}">
+	                    <li>
+	                        <div class="peopleListLeft">
+	                        	<h:link outcome="/admin/userEdit">
+			                   		<utilcomp:userAvatar
+										avatar="#{user.avatarUrl}"
+										fullName="#{user.fullName}"	
+										width="64"
+										height="64"
+								    />    
+								    <f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+			                    </h:link>
+	                            
+	                            <div>
+	                                <h2>
+	                                	<h:link outcome="/admin/userEdit">
+					                   		#{user.fullName}    
+								    		<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+			                    		</h:link>
+			                    	</h2>
+	                                <span>#{user.position}</span>
+	                            </div>
+	                        </div>
+	                        <div class="peopleListRight">
+	                            <div class="userRole">
+	                                #{user.rolesCSV}
+	                            </div>
+	                            <div class="userEditOpt">
+	                                <h:link outcome="/admin/userEdit" styleClass="btn btn-green-stroke">
+		                                 <f:param name="id" value="#{util:encodeId(user.id)}"/>
+		                               	 Edit
+	                                </h:link>
+	                                <p:commandLink 
+	                                	styleClass="linkRed"
+	                                	pt:data-toggle="modal"
+	                                	action="#{adminUsers.setUserToDelete(user)}"
+	                                	update=":deleteUserModal"
+	                                	oncomplete="$('#deleteModal').modal('show');">
+	                                	Delete
+	                                </p:commandLink>
+	                            </div>
+	                        </div>
+	                    </li>
+                    </ui:repeat>
+                </ul>
+            </h:panelGroup>
+        </div>
+
+        <utilcomp:pagination
+				id="pagination" 
+				bean="#{adminUsers}"
+				links="#{adminUsers.paginationLinks}"
+				toUpdate=":panelUsers" />
+    </div>
+
+	<courses:deleteModalDialog id="deleteUserModal"
+   			deleteActionMethodName="delete"     	
+          	deleteAction="#{adminUsers.delete}"
+          	toUpdate=":panelUsers :growlMain" 
+          	modalDeleteTitle="user"
+          	modalDeleteText="#{adminUsers.userToDelete.fullName}"/>
+  </ui:define>
 </ui:composition>

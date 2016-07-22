@@ -133,11 +133,11 @@ public class BulkDataAdministration implements Serializable {
 		
 		try {
 			for (User user : users) {
-				if (!user.isSystem()) {
-					user = (User) session.merge(user);
-					logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-					userEntityESService.saveUserNode(user, session);
-				}
+				//if (!user.isSystem()) {
+				user = (User) session.merge(user);
+				logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
+				userEntityESService.saveUserNode(user, session);
+				//}
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);

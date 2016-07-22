@@ -67,7 +67,21 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cpe.getObject().getId(), 
 	    			cpe.getNewProgressValue());
-	    } else {
+	    } else if(eventType == EventType.Edit_Profile) {
+	    	BaseEntity obj = event.getObject();
+	    	long userId = 0;
+	    	/*
+	    	 * this means that actor is not the owner of edited profile.
+	    	 * This is the case when admin is editing someone else's profile.
+	    	 */
+	    	if(obj != null && obj instanceof User) {
+	    		userId = obj.getId();
+	    	} else {
+	    		userId = event.getActorId();
+	    	}
+	    	user = (User) session.load(User.class, userId);
+	    	userEntityESService.saveUserBasicData(user, session);
+		} else {
 			if(userRole == EventUserRole.Subject) {
 				long userId = event.getActorId();
 				user = (User) session.load(User.class, userId);
