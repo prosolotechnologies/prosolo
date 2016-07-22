@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -16,7 +14,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,6 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	private static Logger logger = Logger.getLogger(RoleManagerImpl.class);
 	
 	@Autowired private ResourceFactory resourceFactory;
-	@Inject private CapabilityManager capabilityManager;
 	
 	@Override
 	public List<Long> getRoleIdsForName(String name){
@@ -64,10 +60,10 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities) {
+	public Role createNewRole(String name, String description, boolean systemDefined) {
 		return resourceFactory.createNewRole(
 				name, description,
-				systemDefined, capabilities);
+				systemDefined);
 	}
 	
 	@Override
@@ -148,7 +144,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		Role role = getRoleByName(name);
 		
 		if (role == null) {
-			role = createNewRole(name, description, systemDefined, null);
+			role = createNewRole(name, description, systemDefined);
 		}
 		return role;
 	}
@@ -219,26 +215,12 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	
 	@Override
 	@Transactional (readOnly = false)
-	public Role updateRole(long id, String title, String description, List<Long> capabilities, List<Long> capabilitiesBeforeUpdate) throws ResourceCouldNotBeLoadedException {
+	public Role updateRole(long id, String title, String description) throws ResourceCouldNotBeLoadedException {
 		Role role = loadResource(Role.class, id);
 		role.setTitle(title);
 		role.setDescription(description);
 		role = saveEntity(role);
 		
-		for(long capId:capabilities){
-			Capability cap = capabilityManager.getCapabilityWithRoles(capId);
-			
-			if(cap.getRoles() == null || !cap.getRoles().contains(role)){
-				cap.getRoles().add(role);
-			}
-			saveEntity(cap);
-		}
-		for(long capId:capabilitiesBeforeUpdate){
-			if(!capabilities.contains(capId)){
-				Capability cap = capabilityManager.getCapabilityWithRoles(capId);
-				cap.getRoles().remove(role);
-			}
-		}
 		return role;
 	}
 	

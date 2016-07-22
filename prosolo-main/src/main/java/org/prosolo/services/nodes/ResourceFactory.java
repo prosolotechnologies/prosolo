@@ -51,7 +51,7 @@ import org.prosolo.web.competences.data.ActivityType;
 
 public interface ResourceFactory extends AbstractManager {
 
-    public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
+    public Role createNewRole(String name, String description, boolean systemDefined);
 
     LearningGoal createNewLearningGoal(long userId, String name, String description, Date deadline, 
             Collection<Tag> keywords, Collection<Tag> hashtags) throws EventException;
