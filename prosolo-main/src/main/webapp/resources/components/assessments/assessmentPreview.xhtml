@@ -81,9 +81,9 @@
 	                                            Student:
 	                                        </div>
 	                                        <div class="assessmentModalMetaRight">
-	                                            <img src="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}" 
-					                                          class="img-circle" width="32" height="32" 
-					                                          alt="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
+												<utilcomp:userAvatar
+													avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+													fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
 					                            <h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
 	                                        </div>
 	                                    </div>
@@ -247,8 +247,8 @@
                     <h2>Student</h2>
                     <div class="user32">
                         <a href="assessment-preview.html">
-                        	 <utilcomp:userAvatar avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-												fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"/>
+							<utilcomp:userAvatar avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+								fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"/>
                         </a>
                         <h3><a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a></h3>
                     </div>
