@@ -25,5 +25,6 @@ public interface SimpleCassandraClient {
 	Session getSession();
 
 	Cluster getCluster();
+	String getSchemaName();
 
 }

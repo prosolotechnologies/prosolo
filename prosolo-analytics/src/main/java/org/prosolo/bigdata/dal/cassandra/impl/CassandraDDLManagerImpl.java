@@ -92,7 +92,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_hashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_hashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
 		this.ddls.add("CREATE TABLE IF NOT EXISTS twitter_disabledhashtags(hashtag text, PRIMARY KEY(hashtag));");
-		this.ddls.add("CREATE TABLE IF NOT EXISTS sna_socialinteractionscount(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
+		this.ddls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+"(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
 		
 		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter, PRIMARY KEY (url, date))";
 		this.ddls.add(failedFeedsDDL);
@@ -134,37 +134,37 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String learningMilestonesDDL = "CREATE TABLE IF NOT EXISTS learningmilestones(actorid bigint, epochday bigint, milestones list<varchar>, PRIMARY KEY (actorid,epochday));";
 		this.ddls.add(learningMilestonesDDL);
 		
-		String currentTimestamps="CREATE TABLE IF NOT EXISTS currenttimestamps(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
+		String currentTimestamps="CREATE TABLE IF NOT EXISTS "+TablesNames.CURRENT_TIMESTAMPS+"(tablename varchar, timestamp bigint, PRIMARY KEY(tablename))";
 		this.ddls.add(currentTimestamps);
 
-		String studentCluster="CREATE TABLE IF NOT EXISTS sna_studentcluster(timestamp bigint,  course bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, course, student))";
+		String studentCluster="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_STUDENT_CLUSTER+"(timestamp bigint,  course bigint, student bigint, cluster bigint, PRIMARY KEY(timestamp, course, student))";
 		this.ddls.add(studentCluster);
 
-		String insideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_insideclustersinteractions(timestamp bigint, course bigint,  cluster bigint, student bigint, interactions list<varchar>, " +
+		String insideClusterUserInteractions="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_INSIDE_CLUSTER_INTERACTIONS+"(timestamp bigint, course bigint,  cluster bigint, student bigint, interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, cluster,student))";
 		this.ddls.add(insideClusterUserInteractions);
 
-		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS sna_outsideclustersinteractions(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
+		String outsideClusterUserInteractions="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_OUTSIDE_CLUSTER_INTERACTIONS+"(timestamp bigint, course bigint, student bigint, direction varchar,cluster bigint,  interactions list<varchar>, " +
 				"PRIMARY KEY(timestamp, course, student,direction))";
 		this.ddls.add(outsideClusterUserInteractions);
 
-		String interactionsByTypeForStudent="CREATE TABLE IF NOT EXISTS sna_interactionsbytypeforstudent(course bigint, student bigint, interactiontype varchar, fromuser counter,  touser counter, " +
+		String interactionsByTypeForStudent="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT+"(course bigint, student bigint, interactiontype varchar, fromuser counter,  touser counter, " +
 				"PRIMARY KEY(course, student,interactiontype))";
 		this.ddls.add(interactionsByTypeForStudent);
 
-		String studentInteractionsByPeerOverview="CREATE TABLE IF NOT EXISTS sna_studentinteractionbypeersoverview(course bigint, student bigint, interactions list<varchar>, " +
+		String studentInteractionsByPeerOverview="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+"(course bigint, student bigint, interactions list<varchar>, " +
 				"PRIMARY KEY(course, student))";
 
 		//(8,List((OUT,2,8,0.33333334), (OUT,14,1,0.041666668), (IN,2,3,0.125), (IN,6,1,0.041666668), (IN,14,9,0.375), (IN,15,2,0.083333336))),
 		this.ddls.add(studentInteractionsByPeerOverview);
 
-		String studentInteractionsByTypeOverview="CREATE TABLE IF NOT EXISTS sna_studentinteractionbytypeoverview(course bigint, student bigint, interactions list<varchar>, " +
+		String studentInteractionsByTypeOverview="CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW+"(course bigint, student bigint, interactions list<varchar>, " +
 				"PRIMARY KEY(course, student))";
 
 		//(8,List((LIKE,0,0.0,2,1.0))), (2,List((COMMENT,0,0.0,2,0.6666667), (LIKE,0,0.0,1,0.33333334))),
 		this.ddls.add(studentInteractionsByTypeOverview);
 
-		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS userrecom_userresourcepreferences(userid bigint, resourcetype varchar, resourceid bigint, timestamp bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, timestamp))";
+		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES+"(userid bigint, resourcetype varchar, resourceid bigint, timestamp bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, timestamp))";
 		this.ddls.add(userResourcePreferencesDDL);
 
 

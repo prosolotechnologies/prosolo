@@ -3,15 +3,15 @@ package org.prosolo.bigdata.scala.clustering.userprofiling
 import com.datastax.driver.core.Row
 import org.apache.spark.rdd.RDD
 import org.prosolo.bigdata.config.Settings
-import org.prosolo.bigdata.dal.cassandra.impl.{SocialInteractionsStatements, SocialInteractionStatisticsDBManagerImpl}
+import org.prosolo.bigdata.dal.cassandra.impl.{SocialInteractionStatisticsDBManagerImpl, SocialInteractionsStatements, TablesNames}
 import SocialInteractionsStatements._
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.common.config.CommonSettings
+
 import scala.collection.JavaConverters._
 import play.api.libs.json.Json
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionsStatements
 
 /**
   * Created by zoran on 29/03/16.
@@ -51,7 +51,7 @@ object UserProfileInteractionsManager{
   case class SocialInteractionCount(credential:Long, source:Long, target:Long, count:Int)
   def runStudentInteractionsGeneralOverviewAnalysis(credentialId: Long) = {
     println("a1 dbName:"+dbName+" credentialId:"+credentialId)
-     val socialInteractionsbypeers_table =sc.cassandraTable(dbName, "sna_socialinteractionscount").where("course=?",credentialId)
+     val socialInteractionsbypeers_table =sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT).where("course=?",credentialId)
     val socialInteractionsCountDataRDD =socialInteractionsbypeers_table.map(row=> {
       new Tuple3(row.getLong("source"), row.getLong("target"), row.getLong("count")) })
   //  println("SIZE:"+socialInteractions_table.toArray.size)
@@ -90,7 +90,7 @@ object UserProfileInteractionsManager{
      }
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY PEERS:" + calculatedInteractionsForDB.collect.size+" :"+calculatedInteractionsForDB.collect.mkString(", "))
 
-     calculatedInteractionsForDB.saveToCassandra(dbName,"sna_studentinteractionbypeersoverview")
+     calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW)
 
 
 
@@ -102,7 +102,7 @@ object UserProfileInteractionsManager{
   def runStudentInteractionsByTypeOverviewAnalysis(credentialId: Long) = {
 
     //val rows: java.util.List[Row] = dbManager.getSocialInteractionsByType(credentialId)
-    val socialInteractionsbytype_table=sc.cassandraTable(dbName, "sna_interactionsbytypeforstudent").where("course=?",credentialId)
+    val socialInteractionsbytype_table=sc.cassandraTable(dbName, TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT ).where("course=?",credentialId)
     val socialInteractionsCountDataRDD = socialInteractionsbytype_table.map(row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"),  row.getLong("touser") ))
     println("FOUND ROWS:"+socialInteractionsCountDataRDD.collect.size+" for credential:"+credentialId)
    // val socialInteractionsCountData:Array[Tuple4[Long,String,Long,Long]]=rows.asScala.toArray.map{row: Row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"), row.getLong("touser"))}
@@ -136,7 +136,7 @@ object UserProfileInteractionsManager{
     }*/
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY TYPE:" + calculatedInteractionsForDB.collect.mkString(", "))
 
-      calculatedInteractionsForDB.saveToCassandra(dbName,"sna_studentinteractionbytypeoverview")
+      calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW)
 
 
 

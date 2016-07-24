@@ -231,6 +231,22 @@
 			<artifactId>spark-streaming_2.11</artifactId>
 			<version>${spark.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.11</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-mllib_2.11</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.11 -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.11</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
 		<!-- dependency> <groupId>org.apache.spark</groupId> <artifactId>spark-streaming-twitter_2.11</artifactId> 
 			<version>${spark.version}</version> </dependency -->
 
@@ -417,6 +433,12 @@
   			<version>0.0.4</version>
   			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
+		<dependency>
+			<groupId>org.jblas</groupId>
+			<artifactId>jblas</artifactId>
+			<version>1.2.4</version>
+		</dependency>
 
 		<!-- dependency> <groupId>com.novemberain</groupId> <artifactId>quartz-mongodb</artifactId> 
 			<version>1.5.0</version> </dependency -->
@@ -431,6 +453,18 @@
 		    <groupId>com.datastax.spark</groupId>
 		    <artifactId>spark-cassandra-connector-java_2.11</artifactId>
 		    <version>${spark-cassandra-connector.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-core</artifactId>
+			<version>3.0.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>guava</artifactId>
+					<groupId>com.google.guava</groupId>
+				</exclusion>
+			</exclusions>
+			<!--version>2.1.4</version-->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>

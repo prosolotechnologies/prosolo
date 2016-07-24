@@ -44,7 +44,7 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
     }
 
     static {
-        statements.put(INSERT_USER_PREFERENCE_FOR_RESOURCE, "INSERT INTO userrecom_userresourcepreferences(userid, resourcetype, resourceid, preference, timestamp) VALUES(?,?,?,?,?); ");
+        statements.put(INSERT_USER_PREFERENCE_FOR_RESOURCE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES+"(userid, resourcetype, resourceid, preference, timestamp) VALUES(?,?,?,?,?); ");
           }
 
     @Override
