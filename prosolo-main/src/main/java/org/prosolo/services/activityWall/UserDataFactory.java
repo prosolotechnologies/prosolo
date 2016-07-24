@@ -12,6 +12,7 @@ public class UserDataFactory {
 		userData.setId(user.getId());
 		userData.setName(user.getFullName());
 		userData.setAvatarUrl(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
+		userData.setFollowed(false);
 		
 		return userData;
 	}

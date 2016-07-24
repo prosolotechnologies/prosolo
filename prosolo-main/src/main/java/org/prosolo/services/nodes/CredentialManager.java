@@ -27,7 +27,8 @@ import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsExcept
 
 public interface CredentialManager extends AbstractManager {
 
-	Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException;
+	Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+			throws DbConnectionException;
 	
 	/**
 	 * Deletes credential by setting deleted flag to true on original credential and 
@@ -130,7 +131,8 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role) 
+	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role,
+			LearningContextData context) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
 	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);
@@ -236,20 +238,35 @@ public interface CredentialManager extends AbstractManager {
 			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all completed credentials (credentials that has progress == 100)
-	 * @return 
+	 * Method for getting all credentials (nevertheless the progress)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
-	
-	List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	List<TargetCredential1> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all credentials (nevertheless the progress)
-	 * @return 
+	 * Method for getting all completed credentials (credentials that has progress == 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCredentials(Long userId) throws DbConnectionException;
+	List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+
 		
 	/**
 	 * Updated hidden_from_profile_field
@@ -300,13 +317,6 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException, EntityAlreadyExistsException;
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCredential1> getAllInProgressCredentials(Long userId) throws DbConnectionException;
 	
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;

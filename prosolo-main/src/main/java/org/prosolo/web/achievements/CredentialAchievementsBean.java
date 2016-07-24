@@ -23,28 +23,31 @@ import org.springframework.stereotype.Component;
  * @author "Musa Paljos"
  * 
  */
-@ManagedBean(name = "targetCredentialBean")
-@Component("targetCredentialBean")
+@ManagedBean(name = "credentialAchievementsBean")
+@Component("credentialAchievementsBean")
 @Scope("view")
-public class TargetCredentialBean implements Serializable {
+public class CredentialAchievementsBean implements Serializable {
 
 	private static final long serialVersionUID = 1649841825780123183L;
 
-	protected static Logger logger = Logger.getLogger(TargetCredentialBean.class);
+	protected static Logger logger = Logger.getLogger(CredentialAchievementsBean.class);
 
 	@Autowired
-	CredentialManager credentialManager;
+	private CredentialManager credentialManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
 	@Autowired
 	private UrlIdEncoder idEncoder;
+	
 	private CredentialAchievementsData completedCredentialAchievementsData;
 	private CredentialAchievementsData inProgressCredentialAchievementsData;
 
 	public void initCompletedCredentials() {
 		try {
-			List<TargetCredential1> targetCredential1List = credentialManager
-					.getAllCompletedCredentials(loggedUser.getUserId());
+			List<TargetCredential1> targetCredential1List = credentialManager.getAllCompletedCredentials(
+					loggedUser.getUserId(), 
+					false);
+			
 			completedCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
@@ -56,7 +59,8 @@ public class TargetCredentialBean implements Serializable {
 	public void initInProgressCredentials() {
 		try {
 			List<TargetCredential1> targetCredential1List = credentialManager
-					.getAllInProgressCredentials(loggedUser.getUserId());
+					.getAllInProgressCredentials(loggedUser.getUserId(), false);
+			
 			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
 					.mapDataToPageObject(targetCredential1List);
 		} catch (DbConnectionException e) {
@@ -69,6 +73,7 @@ public class TargetCredentialBean implements Serializable {
 		TargetCredentialData data = completedCredentialAchievementsData.getTargetCredentialDataByid(id);
 		boolean hideFromProfile = data.isHiddenFromProfile();
 		String hiddenOrShown = hideFromProfile ? "shown in" : "hidden from";
+		
 		try {
 			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
 			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");
@@ -82,6 +87,7 @@ public class TargetCredentialBean implements Serializable {
 		TargetCredentialData data = inProgressCredentialAchievementsData.getTargetCredentialDataByid(id);
 		boolean hideFromProfile = data.isHiddenFromProfile();
 		String hiddenOrShown = hideFromProfile ? "shown in" : "hidden from";
+		
 		try {
 			credentialManager.updateHiddenTargetCredentialFromProfile(id, hideFromProfile);
 			PageUtil.fireSuccessfulInfoMessage("Credential is successfully " + hiddenOrShown + " profile.");

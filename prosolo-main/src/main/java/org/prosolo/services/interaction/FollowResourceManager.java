@@ -9,6 +9,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
@@ -21,7 +22,7 @@ public interface FollowResourceManager extends AbstractManager {
 
 	User followUser(long follower, long userToFollowId, String context) throws EventException, ResourceCouldNotBeLoadedException;
 	
-	User followUser(long follower, long userToFollowId, LearningContextData learningContext) throws EventException, ResourceCouldNotBeLoadedException;
+	User followUser(long follower, long userToFollowId, LearningContextData learningContext) throws DbConnectionException, EntityAlreadyExistsException;
 	
 	boolean unfollowUser(long followerId, long userToUnfollow, String context) throws EventException;
 

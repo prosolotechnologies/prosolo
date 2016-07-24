@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
@@ -29,11 +30,12 @@ public interface Competence1Manager {
 	 * @param data
 	 * @param createdBy
 	 * @param credentialId
+	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId) 
-			throws DbConnectionException;
+	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
+			LearningContextData context) throws DbConnectionException;
 	
 	/**
 	 * Deletes competence by setting deleted flag to true on original competence and 
@@ -50,7 +52,8 @@ public interface Competence1Manager {
 	Competence1 deleteCompetence(long originalCompId, CompetenceData1 data, long userId) 
 			throws DbConnectionException;
 	
-	Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId) 
+	Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId, 
+			LearningContextData context) 
 			throws DbConnectionException, CompetenceEmptyException;
 	
 	Competence1 updateCompetence(CompetenceData1 data) throws DbConnectionException;
@@ -118,7 +121,7 @@ public interface Competence1Manager {
 			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
 					throws DbConnectionException;
 	
-	CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
+	CompetenceData1 getCompetenceDataForEdit(long credId, long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException;
 	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -205,14 +208,15 @@ public interface Competence1Manager {
 	
 	/**
 	 * Returns draft version of competence if exists, original version otherwise
+	 * @param credId
 	 * @param competenceId
 	 * @param loadCreator
 	 * @param loadActivities
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
-			boolean loadCreator, boolean loadActivities) throws DbConnectionException;
+	 CompetenceData1 getCurrentVersionOfCompetenceForManager(long credId, long competenceId,
+				boolean loadCreator, boolean loadActivities) throws DbConnectionException;
 	
 	/**
 	 * this is the method that should be called when you want to publish competences

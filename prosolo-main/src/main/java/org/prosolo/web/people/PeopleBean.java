@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
@@ -14,11 +14,11 @@ import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -29,18 +29,22 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "peopleBean")
 @Component("peopleBean")
 @Scope("view")
-public class PeopleBean implements Serializable, Paginable {
+public class PeopleBean implements Paginable, Serializable {
 
-	private static final long serialVersionUID = 1649841825781113183L;
+	private static final long serialVersionUID = -5592166239184029819L;
 
 	protected static Logger logger = Logger.getLogger(PeopleBean.class);
 
-	@Autowired
+	@Inject
 	private FollowResourceManager followResourceManager;
-	@Autowired
+	@Inject
 	private LoggedUserBean loggedUser;
-	@Autowired
+	@Inject
 	private CollaboratorsRecommendation cRecommendation;
+	@Inject
+	private PeopleActionBean peopleActionBean;
+	@Inject
+	private UserManager userManager;
 
 	private List<UserData> usersToFollow;
 	private List<UserData> followingUsers;
@@ -51,8 +55,7 @@ public class PeopleBean implements Serializable, Paginable {
 	private int numberOfPages;
 	private List<PaginationLink> paginationLinks;
 
-	@PostConstruct
-	public void initPeopleBean() {
+	public void init() {
 		initFollowingUsers();
 		initUsersToFollow();
 	}
@@ -79,12 +82,12 @@ public class PeopleBean implements Serializable, Paginable {
 		}
 	}
 
-	private void initUsersToFollow() {
+	public void initUsersToFollow() {
 		try {
 			usersToFollow = new ArrayList<UserData>();
 			List<User> usersToFollowList = cRecommendation
 					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
-
+			
 			if (usersToFollowList != null && !usersToFollowList.isEmpty()) {
 				for (User user : usersToFollowList) {
 					UserData userData = UserDataFactory.createUserData(user);
@@ -94,6 +97,18 @@ public class PeopleBean implements Serializable, Paginable {
 		} catch (Exception e) {
 			logger.error(e);
 		}
+	}
+	
+	public void followCollegueById(String userToFollowName, long userToFollowId) {
+		peopleActionBean.followCollegueById(userToFollowName, userToFollowId);
+		
+		init();
+	}
+	
+	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
+		peopleActionBean.unfollowCollegueById(userToUnfollowName, userToUnfollowId);
+		
+		init();
 	}
 
 	public void addFollowingUser(UserData user) {
@@ -115,7 +130,7 @@ public class PeopleBean implements Serializable, Paginable {
 		}
 	}
 
-	private void generatePagination() {
+	public void generatePagination() {
 		// if we don't want to generate all links
 		Paginator paginator = new Paginator(usersNumber, limit, page, 1, "...");
 		numberOfPages = paginator.getNumberOfPages();
@@ -140,6 +155,7 @@ public class PeopleBean implements Serializable, Paginable {
 		if (this.page != page) {
 			this.page = page;
 			initFollowingUsers();
+			initUsersToFollow();
 		}
 	}
 

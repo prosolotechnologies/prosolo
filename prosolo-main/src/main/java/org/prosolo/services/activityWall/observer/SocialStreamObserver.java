@@ -8,10 +8,8 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.content.TwitterPost;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -52,8 +50,7 @@ public class SocialStreamObserver extends EventObserver {
 //			EventType.Edit_Profile,
 //			EventType.Like, 
 			EventType.Post, 
-			EventType.TwitterPost, 
-			EventType.PostShare, 
+//			EventType.TwitterPost,  
 //			EventType.AddNote,
 //			EventType.Registered,
 			EventType.Completion, 
@@ -71,8 +68,6 @@ public class SocialStreamObserver extends EventObserver {
 			Credential1.class, 
 			Activity1.class,
 			TargetActivity1.class,
-			TwitterPost.class,
-			PostSocialActivity1.class,
 			Comment1.class
 		};
 	}

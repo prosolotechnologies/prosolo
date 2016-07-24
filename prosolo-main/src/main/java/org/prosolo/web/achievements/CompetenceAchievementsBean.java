@@ -24,29 +24,31 @@ import org.springframework.stereotype.Component;
  * 
  */
 
-@ManagedBean(name = "targetCompetenceBean")
-@Component("targetCompetenceBean")
+@ManagedBean(name = "competenceAchievementsBean")
+@Component("competenceAchievementsBean")
 @Scope("view")
-public class TargetCompetenceBean implements Serializable {
+public class CompetenceAchievementsBean implements Serializable {
 
 	private static final long serialVersionUID = 1649841824780123183L;
 
-	protected static Logger logger = Logger.getLogger(TargetCompetenceBean.class);
+	protected static Logger logger = Logger.getLogger(CompetenceAchievementsBean.class);
 
 	@Autowired
-	CompetenceManager competenceManager;
+	private CompetenceManager competenceManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
 	@Autowired
 	private UrlIdEncoder idEncoder;
-	CompetenceAchievementsData competenceAchievementsData;
+	
+	private CompetenceAchievementsData competenceAchievementsData;
 
 	public void init() {
 		try {
-			List<TargetCompetence1> targetCompetence1List = competenceManager
-					.getAllCompletedCompetences(loggedUser.getUserId());
+			List<TargetCompetence1> targetCompetence1List = competenceManager.getAllCompletedCompetences(
+					loggedUser.getUserId(),
+					false);
 
-			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper(idEncoder)
+			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCompetence1List);
 		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
@@ -57,6 +59,7 @@ public class TargetCompetenceBean implements Serializable {
 	public void hideTargetCompetenceFromProfile(Long id) {
 		TargetCompetenceData data = competenceAchievementsData.getTargetCompetenceDataByid(id);
 		boolean hiddenFromProfile = data.isHiddenFromProfile();
+	
 		try {
 			competenceManager.updateHiddenTargetCompetenceFromProfile(id, hiddenFromProfile);
 			String hiddenOrShown = hiddenFromProfile ? "shown in" : "hidden from";;

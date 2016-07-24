@@ -154,7 +154,7 @@ public class StudentProfileBean implements Serializable {
 	private void initCredentials() {
 		try {
 			credentials = new ArrayList<>();
-			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId);
+			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId, false);
 			boolean first = true;
 
 			for (TargetCredential1 targetCred : userCredentials) {

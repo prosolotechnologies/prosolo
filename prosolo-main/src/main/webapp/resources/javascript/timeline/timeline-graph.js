@@ -27,7 +27,7 @@ var timelineGraph = (function () {
 		
 		var margin = {top: 10, right: 10, bottom: 100, left: 40},
 	    margin2 = {top: 220, right: 10, bottom: 20, left: 40},
-	    width = 860 - margin.left - margin.right,
+	    width = 700 - margin.left - margin.right,
 	    tooltipMainRectHeight = 45,
 	    tooltipTitleRectHeight = 15,
 	    tooltipWidth = 120,
@@ -47,7 +47,7 @@ var timelineGraph = (function () {
 	
 		var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-		    yAxis = d3.svg.axis().scale(y).orient("left");
+		    yAxis = d3.svg.axis().scale(y).orient("left").tickFormat(d3.format('.0f'));
 	
 		var brush = d3.svg.brush()
 		    .x(x2)
@@ -70,7 +70,8 @@ var timelineGraph = (function () {
 		defs.append("clipPath")
 		    .attr("id", "clip")
 		    .append("rect")
-		    .attr("width", width)
+		    //increase clip area, so that milestone rectangles can be shown even for today date
+		    .attr("width", width + 100)
 		    .attr("height", height);
 		// create filter with id #drop-shadow
 		// height=130% so that the shadow is not clipped
@@ -292,7 +293,7 @@ var timelineGraph = (function () {
 					
 		var dataExtendInDays = getDataExtendInDays(data);
 		if(dataExtendInDays >= totalDaysZoomTreshold) {
-			brush.extent([new Date(data[daysToZoom].date), new Date(data[0].date)]);
+			brush.extent([new Date(data[daysToZoom-1].date), new Date(data[0].date)]);
 			context.select('.timeline-brush').call(brush);
 			brushed();
 		}

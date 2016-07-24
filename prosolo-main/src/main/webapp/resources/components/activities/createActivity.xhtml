@@ -187,7 +187,10 @@
 									styleClass="linkPreview"
 									action="#{activityEditBean.preview()}"
 									update=":#{cc.clientId}:formMain"
-									oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}"/>
+									oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+									<f:param name="learningContext" value="name:preview"></f:param>
+								</p:commandLink>
 								<h:link
 									style="display: none;"
 									styleClass="hiddenLinkPreview"
@@ -258,6 +261,7 @@
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
+					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 					              	  		Save changes
 					              	</p:commandLink>
 			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
@@ -347,8 +351,6 @@
 		                        	requiredMessage="Url title must be entered">
 		                        </h:inputText>
 		                        
-		                        <div id="loaderContainerUrlTitle"/>
-		                        
 		                        <h:inputText id="inputUrl"
 		                        	placeholder="http://..."
 		                        	value="#{activityEditBean.resLinkToAdd.url}"
@@ -356,6 +358,7 @@
 		                        	requiredMessage="Url must be entered"
 		                        	validator="urlValidator">
 		                        </h:inputText>
+		                        <div id="loaderContainerUrlTitle"/>
 		                        <p:remoteCommand
 		                        	name="fetchPageTitle"
 		                        	process="@this"

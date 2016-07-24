@@ -9,6 +9,7 @@ import java.util.Map;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -173,5 +174,8 @@ public interface ResourceFactory extends AbstractManager {
 			throws DbConnectionException;
 	
 	PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException;
+	
+	PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
+   			throws DbConnectionException;
 
 }

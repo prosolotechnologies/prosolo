@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.event.Event;
 
+@Deprecated
 public class PostShareSocialActivityProcessor extends SocialActivityProcessor {
 
 	public PostShareSocialActivityProcessor(Session session, Event event,

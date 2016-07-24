@@ -11,7 +11,8 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:people="http://java.sun.com/jsf/composite/components/people" >
 
 	<ui:define name="windowTitle">
 		ProSolo - Home
@@ -26,7 +27,8 @@
     </ui:define>
     
 	<ui:define name="content">
-
+	<h:outputScript library="javascript" name="prosolo.newpost.js" target="head" />
+	
     <div class="whiteBar"></div>
     
     <div class="container">
@@ -69,6 +71,9 @@
 							socialActivity="#{sa}"
 							growlToUpdate=":growlMain"
 							toUpdate=":statusWall"
+							toUpdateShareModal=":formSharePost:panelSharePostModal"
+							shareModalId="sharePostModal"
+							jsFunctionToPrepareShareModal="initializeNewPostPluginForShare"
 							learningContext="name:status_wall|context:/name:social_activity|id:#{sa.id}/"
 						/>
 					</ui:repeat>
@@ -87,37 +92,131 @@
             </div>
             <div class="col-md-6">
                 <div class="sidebarBlock">
-                    <div class="inProgressHead">
-                        <h2>In Progress</h2>
-                        <h:link
-						value="View All" outcome="/achievements/inprogress" />
-                    </div>
-                    <courses:recentNCredentialsInProgress 
-                    	learningContext="name:status_wall"
-                    />
+                	<ui:fragment rendered="#{not empty credentialsInProgressBean.credentials}">
+	                    <div class="inProgressHead">
+	                        <h2>In Progress</h2>
+	                        <h:link
+							value="View All" outcome="/achievements/inprogress" />
+	                    </div>
+	                    <courses:recentNCredentialsInProgress 
+	                    	learningContext="name:status_wall"
+	                    />
+	                </ui:fragment>
                 </div>
                 <div class="sidebarBlock">
-                    <h2>Who to Follow</h2>
-                    <ul class="listWhoToFollow">
-                        <li>
-                            <div class="user32">
-                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
-                                <h3><a href="people-profile.html">Walter White</a></h3>
-                            </div>
-                            <a href="#" class="btn btn-green btn-xs">Follow</a>
-                        </li>
-                        <li>
-                            <div class="user32">
-                                <a href="people-profile.html"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White" /></a>
-                                <h3><a href="people-profile.html">Walter White</a></h3>
-                            </div>
-                            <a href="#" class="btn btn-green-stroke btn-xs">Following</a>
-                        </li>
-                    </ul>
+                    <people:whoToFollow
+                    	learningContext="name:status_wall"
+                    	toUpdate=":growlMain"
+                    />
                 </div>
             </div>
         </div>
     </div>         
 
+	<h:form id="formSharePost">
+	   <!-- MODAL share post -->
+       <div class="modal fade sharePostModal" id="sharePostModal" tabindex="-1" role="dialog" aria-labelledby="sharePostMod">
+           <div class="modal-dialog" role="document">
+               <h:panelGroup layout="block" id="panelSharePostModal" styleClass="modal-content">
+               	 <ui:fragment rendered="#{not empty activityWallBean.socialActivityForShare}">
+                   <div class="modal-header alignLeft">
+                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                       <h2 class="modal-title" id="sharePostMod">Share Post</h2>
+                   </div>
+                   <div class="modal-body alignLeft">
+                       <div class="textAreaWrapper">
+                           <div class="contentEditable postShareEditableDivSelector" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
+                           <h:inputTextarea id="textAreaPostShareText" styleClass="postTextHidden" value="#{activityWallBean.postShareText}" style="display: none;"></h:inputTextarea>
+                           <h:panelGroup id="panelUserSuggestion">
+							   <h:panelGroup rendered="#{not empty userSearchBean.query and not empty userSearchBean.users}">
+								 <ul class="dropdown-menu searchResultsDrop postShareUserSuggestRegionSelector" style="display:block;">
+								 	<ui:repeat var="user" value="#{userSearchBean.users}">
+								 		<li>
+								 			 <a href="javascript:void(0);"
+								 			 	data-id="#{util:encodeId(user.id)}"
+								 			 	data-name="#{user.fullName}"
+								 			 	onclick="newPostShare.selectSuggestedUser(this);">
+						                   		<utilcomp:userAvatar
+													avatar="#{user.avatarUrl}"
+													fullName="#{user.fullName}"	
+													width="32"
+													height="32"
+											    />  
+											    <h3>#{user.fullName}</h3> 
+			                  			 	 </a>
+					                    </li>
+								 	</ui:repeat>
+				                 </ul>
+				               </h:panelGroup>
+		             	    </h:panelGroup>
+		             	    <p:remoteCommand 
+								name="searchUsersMentionedInPostShare" 
+								update="panelUserSuggestion"
+								process="userSuggestInput inputHiddenContext inputHiddenPage"
+								action="#{userSearchBean.searchUsers()}"/>
+					
+							 <h:inputText id="userSuggestInput" style="display:none;"
+									styleClass="postShareUserSuggestInputSelector"
+									value="#{userSearchBean.query}" />
+							 <h:inputText style="display:none;"
+							 	id="inputHiddenContext"
+							 	styleClass="inputHiddenContextSelector"
+							 	value="#{userSearchBean.context}">
+							 </h:inputText>
+							 <h:inputText style="display:none;"
+							 	id="inputHiddenPage"
+							 	styleClass="inputHiddenPageSelector"
+							 	value="#{userSearchBean.page}">
+							 </h:inputText>
+	                       </div>
+                       <post:sharedPostPreview
+                       		socialActivity="#{activityWallBean.socialActivityForShare}"
+                       		sharedSocialActivityId="0"
+                       />
+                   </div>
+                   <div class="modal-footer alignLeft">
+                   	   <p:commandLink 
+                   	   	 	styleClass="btn btn-green"
+                   	   	 	process="textAreaPostShareText"
+                   	   	 	action="#{activityWallBean.sharePost()}"
+                   	   	 	update=":growlMain :statusWall"
+                   	   	 	oncomplete="$('#sharePostModal').modal('hide');">
+                   	   	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                 			<f:param name="learningContext" value="name:status_wall"/>
+                 			<f:param name="service" value="name:post_share_dialog"/>
+                   	   	 	Share
+                   	   </p:commandLink>
+                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                   </div>
+                  </ui:fragment>
+               </h:panelGroup>
+           </div>
+       </div>
+       <!-- MODAL share post end -->
+	</h:form>
+	<script>
+		var newPostShare;
+		function initializeNewPostPluginForShare() {
+			$('#sharePostModal').newpost({
+				editableDivSelector: '.textAreaWrapper .postShareEditableDivSelector',
+				textAreaSelector: '.textAreaWrapper .postTextHidden',
+				postOptionsSelector: '',
+				postButtonEnabledSelector: '',
+				postButtonDisabledSelector: '',
+				newPostContainerSelector: '',
+				uploadFileModalSelector: '',
+				urlFieldSelector: '',
+				addUrlButtonSelector: '',
+				linkLoaderContainerSelector: '',
+				userSuggestionRegionSelector: '.postShareUserSuggestRegionSelector',
+				userSearchInputSelector: '.postShareUserSuggestInputSelector',
+				userSearchAction: searchUsersMentionedInPostShare,
+				allowUrlPreview : false,
+				showHidePostOptions : false
+			});
+			newPostShare = $('#sharePostModal').data('newpost');
+		}
+	</script>
+	
     </ui:define>
 </ui:composition>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
@@ -61,9 +62,16 @@ public abstract class NotificationEventProcessor {
 	}
 	
 	private boolean shouldUserBeNotifiedByEmail(long receiverId) {
-		
-		UserNotificationsSettings userNotificationSettings = notificationsSettingsManager
-				.getOrCreateNotificationsSettings(receiverId, session);
+		Transaction transaction = null;
+		UserNotificationsSettings userNotificationSettings = null;
+		try {
+			transaction = session.beginTransaction();
+			userNotificationSettings = notificationsSettingsManager
+					.getOrCreateNotificationsSettings(receiverId, session);
+			transaction.commit();
+		} catch(Exception e) {
+			transaction.rollback();
+		}
 
 		if (userNotificationSettings != null) {
 			List<NotificationSettings> settings = userNotificationSettings

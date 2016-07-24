@@ -10,12 +10,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.context.data.LearningContextData;
@@ -69,27 +71,38 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional
-	public User followUser(long followerId, long userToFollowId, LearningContextData context) throws EventException, ResourceCouldNotBeLoadedException{
-		if (userToFollowId > 0 && followerId > 0) {
-			User follower = loadResource(User.class, followerId);
-			User userToFollow = loadResource(User.class, userToFollowId);
-			
-			FollowedEntity followedEntity = new FollowedUserEntity();
-			followedEntity.setUser(follower);
-			followedEntity.setFollowedResource(userToFollow);
-			followedEntity.setStartedFollowing(new Date());
-			followedEntity = saveEntity(followedEntity);
-			
-			eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, null,
-					context.getPage(),
-					context.getLearningContext(),
-					context.getService(),
-					null);
-			
-			logger.debug(follower.getName() + " started following user " + userToFollow.getId());
-			return follower;
+	public User followUser(long followerId, long userToFollowId, LearningContextData context) 
+			throws DbConnectionException, EntityAlreadyExistsException {
+		try {
+			if (userToFollowId > 0 && followerId > 0) {
+				User follower = loadResource(User.class, followerId);
+				User userToFollow = loadResource(User.class, userToFollowId);
+				
+				FollowedEntity followedEntity = new FollowedUserEntity();
+				followedEntity.setUser(follower);
+				followedEntity.setFollowedResource(userToFollow);
+				followedEntity.setStartedFollowing(new Date());
+				persistence.currentManager().saveOrUpdate(followedEntity);
+				
+				persistence.currentManager().flush();
+				
+				eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, null,
+						context.getPage(),
+						context.getLearningContext(),
+						context.getService(),
+						null);
+				
+				logger.debug(follower.getName() + " started following user " + userToFollow.getId());
+				return follower;
+			}
+			return null;
+		} catch(ConstraintViolationException ex) {
+			throw new EntityAlreadyExistsException();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while trying to follow user");
 		}
-		return null;
 	}
 	
 	@Override
@@ -150,7 +163,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	@Transactional (readOnly = true)
 	public boolean isUserFollowingUser(long followerUserId, long followedUserId){
 		String query = 
-			"SELECT cast(COUNT(DISTINCT fEnt) as int) "+
+			"SELECT cast(COUNT(fEnt.id) as int) "+
 			"FROM FollowedEntity fEnt " + 
 			"LEFT JOIN fEnt.user user "+
 			"WHERE fEnt.followedUser.id = :followedUserId " +
@@ -161,7 +174,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			.setLong("followedUserId", followedUserId)
 			.uniqueResult();
 		
- 		return followedEntNo> 0;
+ 		return followedEntNo == 1;
 	}
 	
 	@Override
@@ -249,7 +262,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				return users;
 			}
 			return new ArrayList<User>();
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			throw new DbConnectionException("Error while retrieving notification data");
 		}

@@ -57,12 +57,13 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 	public OauthAccessToken createOrUpdateOauthAccessToken(long userId,
 			ServiceType service, String token,
 			String tokenSecret, String screenName, 
-			String profileLink) {
+			String profileLink, long twitterUserId) {
 		
 		OauthAccessToken oauthAccessToken = findOauthAccessToken(userId, service);
 		
 		if (oauthAccessToken == null) {
-			oauthAccessToken = createNewOauthAccessToken(userId, service, token, tokenSecret, screenName, profileLink);
+			oauthAccessToken = createNewOauthAccessToken(userId, service, token, tokenSecret, screenName, profileLink,
+					twitterUserId);
 			return oauthAccessToken;
 		}
 		return oauthAccessToken;
@@ -72,7 +73,7 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 	@Transactional
 	public OauthAccessToken createNewOauthAccessToken(long userId, ServiceType service,
 			String token, String tokenSecret, String screenName,
-			String profileLink) {
+			String profileLink, long twitterUserId) {
 		OauthAccessToken oauthAccessToken = new OauthAccessToken();
 		oauthAccessToken.setToken(token);
 		oauthAccessToken.setService(service);
@@ -80,7 +81,7 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 		oauthAccessToken.setUser(new User(userId));
 		oauthAccessToken.setProfileName(screenName);
 		oauthAccessToken.setProfileLink(profileLink);
-		oauthAccessToken.setUserId(userId);
+		oauthAccessToken.setUserId(twitterUserId);
 		persistence.currentManager().save(oauthAccessToken);
 		persistence.currentManager().flush();
 		return oauthAccessToken;

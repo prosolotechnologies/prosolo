@@ -10,11 +10,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -32,7 +33,6 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	private static final long serialVersionUID = -7170043029317081775L;
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(InterfaceSettingsManager.class);
 
 	@Override
@@ -43,23 +43,39 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) {
-		UserNotificationsSettings result = getNotificationsSettings(userId);
-		
-		if (result != null) {
-			return result;
-		} else {
-		//	Transaction t = session.beginTransaction();
-			User user = (User) session.load(User.class, userId);
-			UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
-			notificationsSettings.setUser(user);
-			notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
-			session.saveOrUpdate(notificationsSettings);
-		//	t.commit();
+	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) 
+		throws DbConnectionException {
+		try {
+			UserNotificationsSettings result = getNotificationsSettings(userId);
 			
-			session.flush();
-			
-			return notificationsSettings;
+			if (result != null) {
+				return result;
+			} else {
+			//	Transaction t = session.beginTransaction();
+				User user = (User) session.load(User.class, userId);
+				UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
+				notificationsSettings.setUser(user);
+				notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
+				session.saveOrUpdate(notificationsSettings);
+			//	t.commit();
+				
+				session.flush();
+				
+				return notificationsSettings;
+			}
+		} catch(ConstraintViolationException e) {
+			//e.printStackTrace();
+			session.clear();
+			try {
+				return getNotificationsSettings(userId);
+			} catch(Exception ex) {
+				ex.printStackTrace();
+				throw new DbConnectionException("Error while retrieving notification settings");
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notification settings");
 		}
 	}
 	

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -26,6 +27,7 @@ import org.prosolo.services.activityWall.filters.MyNetworkFilter;
 import org.prosolo.services.activityWall.filters.TwitterFilter;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.ApplicationBean;
@@ -53,6 +55,8 @@ public class UserSessionDataLoader implements Serializable{
 	@Inject
 	private InterfaceSettingsManager interfaceSettingsManager;
 	@Inject
+	private NotificationsSettingsManager notificationsSettingsManager;
+	@Inject
 	private AccessResolver accessResolver;
 	
 	public Map<String, Object> init(String email, HttpServletRequest request, HttpSession session) throws SessionInitializationException{
@@ -74,13 +78,18 @@ public class UserSessionDataLoader implements Serializable{
 			String ipAddress = accessResolver.findRemoteIPAddress(request);
 			logger.debug("User \"" + email + "\" IP address:" + ipAddress);
 			
+			UserNotificationsSettings notificationsSettings  = notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId());
+			
 			sessionData.put("userId", user.getId());
+			sessionData.put("name", user.getName());
+			sessionData.put("lastname", user.getLastname());
 			sessionData.put("avatar", avatar);
 			sessionData.put("position", user.getPosition());
 			sessionData.put("ipAddress", ipAddress);
 			sessionData.put("statusWallFilter", selectedFilter);
 			sessionData.put("userSettings", userSettings);
 			sessionData.put("email", email);
+			sessionData.put("notificationsSettings", notificationsSettings);
 			
 			logger.info("init finished");
 			return sessionData;

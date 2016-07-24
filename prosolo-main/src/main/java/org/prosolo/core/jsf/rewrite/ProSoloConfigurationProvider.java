@@ -31,14 +31,15 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/accessDenied").to("/accessDenied.xhtml"))
 				.addRule(Join.path("/reset/successful/{email}").to("/login-forgot-message.xhtml"))
 				.addRule(Join.path("/reset").to("/login-forgot-password.xhtml"))
-				.addRule(Join.path("/recovery").to("/recovery.xhtml"))
+				.addRule(Join.path("/recovery/{key}").to("/login-new-password.xhtml"))
 				.addRule(Join.path("/register").to("/register.xhtml"))
 				.addRule(Join.path("/verify").to("/verify.xhtml"))
 				.addRule(Join.path("/terms").to("/terms.xhtml"))
 				.addRule(Join.path("/maintenance").to("/maintenance.xhtml"))
 				.addRule(Join.path("/notfound").to("/notfound.xhtml"))
 				
-				.addRule(Join.path("/").to("/credentialLibrary.xhtml"))
+				.addRule(Join.path("/").to("/index.xhtml"))
+				.addRule(Join.path("/index").to("/index.xhtml"))
 				.addRule(Join.path("/learn/{id}/{comp}").to("/learn.xhtml"))
 				.addRule(Join.path("/learn/{id}").to("/learn.xhtml"))
 				.addRule(Join.path("/learn").to("/learn.xhtml"))
@@ -52,6 +53,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				//TODO validate these competence patterns 
 				.addRule(Join.path("/competences/{id}/edit").to("/create-competence.xhtml"))
 				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
+				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}").to("/competence.xhtml"))
@@ -59,7 +61,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/competences/{compId}/newActivity").to("/create-activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}").to("/activity.xhtml"))
 				/* student viewing his assessment request (assessment-preview.html)*/
-				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
 				.addRule(Join.path("/competences/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/digest").to("/digest.xhtml"))
 				.addRule(Join.path("/communications/{tab}").to("/communications.xhtml"))

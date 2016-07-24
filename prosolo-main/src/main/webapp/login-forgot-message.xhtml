@@ -30,15 +30,19 @@
         <div class="whiteBox">
             <div class="loginTop">
                 <h1>Check your inbox</h1>
-                <p>We've sent you an email with instructions to <strong>#{passwordreset.email}</strong> on how to reset your password.</p>
+                <p>We've sent you an email with instructions to <strong>#{param['email']}</strong> on how to reset your password.</p>
                 <div class="clear">&#160;</div>
             </div>
         </div>
         
-        <div class="loginFooter">
+		<div class="loginFooter">
             <ul>
-                <li><a href="about">About</a></li>
-                <li><a href="terms">Terms</a></li>
+                <li>
+                	<h:link value="About" outcome="/about.xhtml" />
+                </li>
+                <li>
+                	<h:link value="Terms" outcome="/terms.xhtml" />
+                </li>
                 <li><a href="https://bitbucket.org/prosolo/prosolo/issues">Support</a></li>
             </ul>
             <p>ProSolo Technologies Inc &#169; 2016</p>

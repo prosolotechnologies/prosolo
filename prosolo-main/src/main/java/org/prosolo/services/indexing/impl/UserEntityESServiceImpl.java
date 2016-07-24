@@ -193,18 +193,19 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 	
 	@Override
-	public void addInstructorToCredential(long follower, long userId, String dateAssigned) {
+	public void addInstructorToCredential(long credId, long userId, String dateAssigned) {
 		try {
-			String script = "if (ctx._source[\"followers\"] == null) { " +
-					"ctx._source.followers = follower " +
+			String script = "if (ctx._source[\"credentialsWithInstructorRole\"] == null) { " +
+					"ctx._source.credentialsWithInstructorRole = cred " +
 					"} else { " +
-					"ctx._source.followers += follower " +
+					"ctx._source.credentialsWithInstructorRole += cred " +
 					"}";
 			
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-				param.put("id", userId);
-			params.put("follower", param);
+			param.put("id", credId);
+			param.put("dateAssigned", dateAssigned);
+			params.put("cred", param);
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					userId+"", script, params);
 		} catch(Exception e) {

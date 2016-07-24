@@ -16,6 +16,8 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -48,12 +50,14 @@ public class ActivityEditBean implements Serializable {
 	@Inject private UploadManager uploadManager;
 	@Inject private HTMLParser htmlParser;
 	@Inject private CredentialManager credManager;
+	@Inject private ContextJsonParserService contextParser;
 
 	private String id;
 	private String compId;
 	private String credId;
 	private long decodedId;
 	private long decodedCompId;
+	private long decodedCredId;
 	
 	private ActivityData activityData;
 	private String competenceName;
@@ -64,8 +68,11 @@ public class ActivityEditBean implements Serializable {
 	
 	private PublishedStatus[] actStatusArray;
 	
+	private String context;
+	
 	public void init() {
 		initializeValues();
+		decodedCredId = idEncoder.decodeId(credId);
 		try {
 			if(compId == null) {
 				try {
@@ -81,8 +88,9 @@ public class ActivityEditBean implements Serializable {
 				} else {
 					decodedId = idEncoder.decodeId(id);
 					logger.info("Editing activity with id " + decodedId);
-					loadActivityData(decodedCompId, decodedId);
+					loadActivityData(decodedCredId, decodedCompId, decodedId);
 				}
+				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
 			}
@@ -92,6 +100,18 @@ public class ActivityEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
+	}
+	
+	private void setContext() {
+		if(decodedCredId > 0) {
+			context = "name:CREDENTIAL|id:" + decodedCredId;
+		}
+		if(decodedCompId > 0) {
+			context = contextParser.addSubContext(context, "name:COMPETENCE|id:" + decodedCompId);
+		}
+		if(decodedId > 0) {
+			context = contextParser.addSubContext(context, "name:ACTIVITY|id:" + decodedId);
+		}
 	}
 	
 	private void initializeValues() {
@@ -108,12 +128,12 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 
-	private void loadActivityData(long compId, long actId) {
+	private void loadActivityData(long credId, long compId, long actId) {
 		String section = PageUtil.getSectionForView();
 		if("/manage".equals(section)) {
-			activityData = activityManager.getCurrentVersionOfActivityForManager(compId, actId);
+			activityData = activityManager.getCurrentVersionOfActivityForManager(credId, compId, actId);
 		} else {
-			activityData = activityManager.getActivityDataForEdit(compId, actId, 
+			activityData = activityManager.getActivityDataForEdit(credId, compId, actId, 
 					loggedUser.getUserId());
 		}
 		
@@ -292,28 +312,38 @@ public class ActivityEditBean implements Serializable {
 	
 	public boolean saveActivityData(boolean saveAsDraft, boolean reloadData) {
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			String learningContext = context;
+			if(lContext != null && !lContext.isEmpty()) {
+				learningContext = contextParser.addSubContext(context, lContext);
+			}
+			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if(activityData.getActivityId() > 0) {
 				if(activityData.hasObjectChanged()) {
 					if(saveAsDraft) {
 						activityData.setStatus(PublishedStatus.DRAFT);
 					}
 					activityManager.updateActivity(decodedId, activityData, 
-							loggedUser.getUserId());
+							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
 					activityData.setStatus(PublishedStatus.DRAFT);
 				}
 				Activity1 act = activityManager.saveNewActivity(activityData, 
-						loggedUser.getUserId());
+						loggedUser.getUserId(), lcd);
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
+				
+				setContext();
 			}
 			
 			if(reloadData && activityData.hasObjectChanged()) {
 				//reload data
-				loadActivityData(decodedCompId, decodedId);
+				loadActivityData(decodedCredId, decodedCompId, decodedId);
 				activityData.setCompetenceName(competenceName);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");

@@ -14,7 +14,7 @@ import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedExcepti
  */
 public interface PasswordResetManager {
 
-	boolean resetPassword(User user, String email, String serverAddress);
+	boolean initiatePasswordReset(User user, String email, String serverAddress);
 
 	/**
 	 * @param resetKey
@@ -23,7 +23,9 @@ public interface PasswordResetManager {
 	 * @throws ResetKeyInvalidatedException 
 	 * @throws ResetKeyExpiredException 
 	 */
-	User checkIfKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException;
+	boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException;
+
+	User getResetKeyUser(String resetKey);
 
 	/**
 	 * @param resetKey

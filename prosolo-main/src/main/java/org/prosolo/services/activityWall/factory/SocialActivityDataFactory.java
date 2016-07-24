@@ -27,14 +27,14 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.services.activityWall.impl.data.UserData;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -65,7 +65,6 @@ public class SocialActivityDataFactory {
 			String twitterActorAvatar,
 			String twitterPostUrl,
 			Integer twitterUserType,
-			Integer shareCount,
 			String postRichContentTitle,
 			String postRichContentDescription,
 			String postRichContentContentType,
@@ -85,6 +84,8 @@ public class SocialActivityDataFactory {
 			BigInteger postObjectActorId,
 			String postObjectActorName,
 			String postObjectActorLastName,
+			String postObjectActorAvatar,
+			Date postObjectDateCreated,
 			BigInteger credObjectId,
 			String credObjectTitle,
 			BigInteger credObjectDuration,
@@ -100,6 +101,8 @@ public class SocialActivityDataFactory {
 			BigInteger actTargetId,
 			String actTargetTitle,
 			BigInteger actTargetCompId,
+			String actTargetDType,
+			String actTargetUrlType,
 			BigInteger actObjectId,
 			String actObjectTitle,
 			BigInteger actObjectDuration,
@@ -129,7 +132,9 @@ public class SocialActivityDataFactory {
 		sad.setDateCreated(dateCreated);
 		sad.setLastAction(lastAction);
 		sad.setCommentsDisabled(commentsDisabled.charValue() == 'T');
-		sad.setText(text);
+		if(!dType.equals(TwitterPostSocialActivity1.class.getSimpleName())) {
+			sad.setText(text);
+		}
 		sad.setLikeCount(likeCount);
 		sad.setLiked(liked == 1);
 		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, id.longValue());
@@ -141,24 +146,23 @@ public class SocialActivityDataFactory {
 		ObjectData target = null;
 		
 		if(actorId != null) {
-			sad.setActor(new UserData(actorId.longValue(), actorName, actorLastname, actorAvatarUrl, false));
+			User user = new User();
+			user.setId(actorId.longValue());
+			user.setName(actorName);
+			user.setLastname(actorLastname);
+			user.setAvatarUrl(actorAvatarUrl);
+			sad.setActor(new UserData(user));
 		}
 		if(dType.equals(TwitterPostSocialActivity1.class.getSimpleName())) {
 			//twitter post
 			sad.setType(SocialActivityType.Twitter_Post);
-			//TODO check if we have twitter user data when user type is regular
-			if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
-				sad.setActor(new UserData(twitterActorNick, twitterActorName, twitterActorAvatar, 
-						twitterProfileUrl));
-			}
-
-			sad.setTwitterPostUrl(twitterPostUrl);
+			//if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
+			ap = richContentFactory.getAttachmentPreviewForTwitterPost(twitterActorNick, twitterProfileUrl, 
+					text, twitterPostUrl);
+			//}
 		} else if(dType.equals(PostSocialActivity1.class.getSimpleName())) {
 			//post
 			sad.setType(SocialActivityType.Post);
-			if(shareCount != null) {
-				sad.setShareCount(shareCount);
-			}
 			if(postRichContentContentType != null) {
 				RichContent1 rc = new RichContent1();
 				rc.setTitle(postRichContentTitle);
@@ -176,9 +180,15 @@ public class SocialActivityDataFactory {
 		} else if(dType.equals(PostReshareSocialActivity.class.getSimpleName())) {
 			//post reshare
 			sad.setType(SocialActivityType.Post_Reshare);
-			obj = objectFactory.getObjectData(postObjectId.longValue(), postObjectText, 
+			obj = objectFactory.getObjectData(postObjectId.longValue(), null, 
 					ObjectType.PostSocialActivity, postObjectActorId.longValue(), postObjectActorName, 
 					postObjectActorLastName, locale);
+			SocialActivityData1 originalPost = new SocialActivityData1();
+			originalPost.setId(postObjectId.longValue());
+			originalPost.setDateCreated(postObjectDateCreated);
+			originalPost.setActor(new UserData(postObjectActorId.longValue(), postObjectActorName, 
+					postObjectActorLastName, postObjectActorAvatar, null, null, false));
+			originalPost.setText(postObjectText);
 			if(postObjectRichContentContentType != null) {
 				RichContent1 rc = new RichContent1();
 				rc.setTitle(postObjectRichContentTitle);
@@ -191,8 +201,10 @@ public class SocialActivityDataFactory {
 				rc.setLink(postObjectRichContentLink);
 				rc.setEmbedId(postObjectRichContentEmbedId);
 				
-				ap = richContentFactory.getAttachmentPreview(rc);
+				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(rc);
+				originalPost.setAttachmentPreview(attach);
 			}
+			sad.setOriginalSocialActivity(originalPost);
 		} else if(dType.equals(CredentialEnrollSocialActivity.class.getSimpleName())) {
 			//credential enroll
 			sad.setType(SocialActivityType.Enroll_Credential);
@@ -229,7 +241,7 @@ public class SocialActivityDataFactory {
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
-					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0);
+					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0, null);
 		} else if(dType.equals(ActivityCommentSocialActivity.class.getSimpleName())) {
 			//activity comment
 			sad.setType(SocialActivityType.Comment);
@@ -237,9 +249,10 @@ public class SocialActivityDataFactory {
 					ObjectType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Activity, 0, null, null, locale);
+			ActivityType actType = activityFactory.getActivityType(actTargetDType, actTargetUrlType);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
 					target.getType(), actTargetTitle, commentObjectComment, actTargetCompId.longValue(), 
-					actTargetId.longValue());
+					actTargetId.longValue(), actType);
 		} else if(dType.equals(ActivityCompleteSocialActivity.class.getSimpleName())) {
 			//activity complete
 			sad.setType(SocialActivityType.Learning_Completion);
@@ -282,7 +295,9 @@ public class SocialActivityDataFactory {
 		sad.setDateCreated(act.getDateCreated());
 		sad.setLastAction(act.getLastAction());
 		sad.setCommentsDisabled(act.isCommentsDisabled());
-		sad.setText(act.getText());
+		if(!(act instanceof TwitterPostSocialActivity1)) {
+			sad.setText(act.getText());
+		}
 		sad.setLikeCount(act.getLikeCount());
 		sad.setLiked(liked);
 		
@@ -296,18 +311,12 @@ public class SocialActivityDataFactory {
 			//twitter post
 			TwitterPostSocialActivity1 tpAct = (TwitterPostSocialActivity1) act;
 			sad.setType(SocialActivityType.Twitter_Post);
-			//TODO check if we have twitter user data when user type is regular
-			if(tpAct.getUserType() == UserType.TWITTER_USER) {
-				sad.setActor(new UserData(tpAct.getNickname(), tpAct.getName(), tpAct.getAvatarUrl(), 
-						tpAct.getProfileUrl()));
-			}
-
-			sad.setTwitterPostUrl(tpAct.getPostUrl());
+			ap = richContentFactory.getAttachmentPreviewForTwitterPost(tpAct.getNickname(), 
+					tpAct.getProfileUrl(), tpAct.getText(), tpAct.getPostUrl());
 		} else if(act instanceof PostSocialActivity1) {
 			//post
 			PostSocialActivity1 pAct = (PostSocialActivity1) act;
 			sad.setType(SocialActivityType.Post);
-			sad.setShareCount(pAct.getShareCount());
 
 			if(pAct.getRichContent() != null) {
 				ap = richContentFactory.getAttachmentPreview(pAct.getRichContent());
@@ -317,12 +326,21 @@ public class SocialActivityDataFactory {
 			PostReshareSocialActivity prAct = (PostReshareSocialActivity) act;
 			PostSocialActivity1 psa = prAct.getPostObject();
 			sad.setType(SocialActivityType.Post_Reshare);
-			obj = objectFactory.getObjectData(psa.getId(), psa.getText(), 
+
+			obj = objectFactory.getObjectData(psa.getId(), null, 
 					ObjectType.PostSocialActivity, psa.getActor().getId(), psa.getActor().getName(), 
 					psa.getActor().getLastname(), locale);
+			
+			SocialActivityData1 originalPost = new SocialActivityData1();
+			originalPost.setId(psa.getId());
+			originalPost.setDateCreated(psa.getDateCreated());
+			originalPost.setActor(new UserData(psa.getActor()));
+			originalPost.setText(psa.getText());
 			if(psa.getRichContent() != null) {
-				ap = richContentFactory.getAttachmentPreview(psa.getRichContent());
+				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(psa.getRichContent());
+				originalPost.setAttachmentPreview(attach);
 			}
+			sad.setOriginalSocialActivity(originalPost);
 		} else if(act instanceof CredentialEnrollSocialActivity) {
 			//credential enroll
 			CredentialEnrollSocialActivity ceAct = (CredentialEnrollSocialActivity) act;
@@ -368,7 +386,7 @@ public class SocialActivityDataFactory {
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
-					target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0);
+					target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0, null);
 		} else if(act instanceof ActivityCommentSocialActivity) {
 			//activity comment
 			ActivityCommentSocialActivity acAct = (ActivityCommentSocialActivity) act;
@@ -379,9 +397,11 @@ public class SocialActivityDataFactory {
 					ObjectType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
 					ObjectType.Activity, 0, null, null, locale);
+			ActivityType actType = activityFactory.getActivityType(activity);
 			//TODO pass competenceId when you find the way to retrieve it
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
-					target.getType(), activity.getTitle(), comment.getDescription(), 0 , activity.getId());
+					target.getType(), activity.getTitle(), comment.getDescription(), 0 , activity.getId(),
+					actType);
 		} else if(act instanceof ActivityCompleteSocialActivity) {
 			//activity complete
 			ActivityCompleteSocialActivity acAct = (ActivityCompleteSocialActivity) act;

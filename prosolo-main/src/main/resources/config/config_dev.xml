@@ -67,22 +67,6 @@
          <self-registration>true</self-registration>
       </registration>
    </app-config>
-    <email-notifier>
-      <debug>true</debug>
-      <activated>false</activated>
-      <daily>false</daily>
-      <weekly>false</weekly>
-      <monthly>false</monthly>
-      <smtp-config>
-         <host>smtp.gmail.com</host>
-         <user>prosolo.webmaster</user>
-         <full-email>prosolo.webmaster@gmail.com</full-email>
-         <pass>klOUj09J,.f8</pass>
-         <port>587</port>
-         <starttls-enable>true</starttls-enable>
-         <auth>true</auth>
-      </smtp-config>
-   </email-notifier>
      <file-management>
       <uplaod-path>/root/upload/</uplaod-path>
        <url-prefix-folder>files/</url-prefix-folder>

@@ -21,6 +21,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -54,7 +55,8 @@ public class CredentialEditBean implements Serializable {
 	@Inject private TextSearch textSearch;
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
-
+	@Inject private ContextJsonParserService contextParser;
+	
 	private String id;
 	private long decodedId;
 	
@@ -181,6 +183,14 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean saveCredentialData(boolean saveAsDraft, boolean reloadData) {
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			String learningContext = context;
+			if(lContext != null && !lContext.isEmpty()) {
+				learningContext = contextParser.addSubContext(context, lContext);
+			}
+			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if(credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
@@ -188,14 +198,14 @@ public class CredentialEditBean implements Serializable {
 						credentialData.setStatus(PublishedStatus.DRAFT);
 					}
 					credentialManager.updateCredential(decodedId, credentialData, 
-							loggedUser.getUserId(), role);
+							loggedUser.getUserId(), role, lcd);
 				}
 			} else {
 				if(saveAsDraft) {
 					credentialData.setStatus(PublishedStatus.DRAFT);
 				}
 				Credential1 cred = credentialManager.saveNewCredential(credentialData,
-						loggedUser.getUserId());
+						loggedUser.getUserId(), lcd);
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
