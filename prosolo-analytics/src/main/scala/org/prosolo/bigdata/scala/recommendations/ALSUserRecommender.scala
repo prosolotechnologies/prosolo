@@ -19,7 +19,7 @@ object ALSUserRecommender {
   def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long]) {
     println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
-    val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable("prosolo_logs_zj", TablesNames.USER)
+    val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable("prosolo_logs_zj", TablesNames.USER_COURSES)
     println("FOUND:" + rawRatings.collect().length);
     val maximumPreference = rawRatings.fold(rawRatings.first())((res1: (Tuple1[Long], CassandraRow), res2: (Tuple1[Long], CassandraRow)) => {
       if (res1._2.getDouble("preference") < res2._2.getDouble("preference")) res2 else res1

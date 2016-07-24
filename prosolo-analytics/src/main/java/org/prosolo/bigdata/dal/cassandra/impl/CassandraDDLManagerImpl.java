@@ -98,29 +98,29 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		this.ddls.add(failedFeedsDDL);
 		
 		String clusteringusersobservationsbydateDDL =
-				"CREATE TABLE IF NOT EXISTS sna_clusteringusersobservationsbydate(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
+				"CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_CLUSTERING_USER_OBSERVATIONS_BYDATE+"(date bigint, userid bigint, login counter, lmsuse counter, resourceview counter, discussionview counter, "
 				+ " PRIMARY KEY (date, userid))";
 		this.ddls.add(clusteringusersobservationsbydateDDL);
 		
-		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS profile_userprofileactionsobservationsbydate(date bigint,course bigint, userid bigint, attach counter,  "
+		String userprofileactionsobservationsbydateDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+"(date bigint,course bigint, userid bigint, attach counter,  "
 				+ "progress counter,  comment counter,  creating counter,  evaluation counter,join counter,like counter,login  counter,"
 				+ "posting counter,content_access counter,message counter,search counter, "
 				+ " PRIMARY KEY (date, course, userid))";
 		this.ddls.add(userprofileactionsobservationsbydateDDL);
 
-		String userquartilefeaturesbyprofileDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbyprofile(course bigint, profile varchar, date bigint, userid bigint," +
+		String userquartilefeaturesbyprofileDDL="CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+"(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, profile,date, userid))";
 		this.ddls.add(userquartilefeaturesbyprofileDDL);
 
-		String userfinalprofilesDDL="CREATE TABLE IF NOT EXISTS profile_usercurrentprofileincourse(course bigint, userid bigint, profile varchar,  profilefullname varchar, " +
+		String userfinalprofilesDDL="CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USER_CURRENT_PROFILE_INCOURSE+"(course bigint, userid bigint, profile varchar,  profilefullname varchar, " +
 				"sequence list<varchar>, PRIMARY KEY(course, userid))";
 		this.ddls.add(userfinalprofilesDDL);
 
-		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS profile_userquartilefeaturesbydate(course bigint, profile varchar, date bigint, userid bigint," +
+		String userquartilefeaturesbydateDDL="CREATE TABLE IF NOT EXISTS "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE+"(course bigint, profile varchar, date bigint, userid bigint," +
 				"sequence varchar, PRIMARY KEY(course, date, userid))";
 		this.ddls.add(userquartilefeaturesbydateDDL);
 
-		String usercoursesDDL = "CREATE TABLE IF NOT EXISTS usercourses(userid bigint, courses set<bigint>, PRIMARY KEY (userid))";
+		String usercoursesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USER_COURSES+"(userid bigint, courses set<bigint>, PRIMARY KEY (userid))";
 		this.ddls.add(usercoursesDDL);
 		
 		//Session tracking
