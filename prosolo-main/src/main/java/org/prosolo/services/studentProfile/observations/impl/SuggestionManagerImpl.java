@@ -120,4 +120,15 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 			throw new DbConnectionException("Error. Please try again.");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void saveSuggestions(List<String> suggestions) throws DbConnectionException {
+		if(suggestions == null) {
+			return;
+		}
+		for(String s : suggestions) {
+			saveSuggestion(0, s);
+		}
+	}
 }

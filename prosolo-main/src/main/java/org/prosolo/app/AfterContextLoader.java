@@ -18,9 +18,11 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
+import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
@@ -46,6 +48,15 @@ public class AfterContextLoader implements ServletContextListener {
 				ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
 			}catch(Exception e){
 			    logger.error(e);
+			}
+		}
+		
+		if(settings.config.init.formatDB) {
+			try {
+				ServiceLocator.getInstance().getService(ObservationConfigLoaderService.class)
+					.initializeObservationConfig();
+			} catch(DbConnectionException e) {
+				logger.error(e);
 			}
 		}
 		

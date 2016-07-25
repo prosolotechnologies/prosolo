@@ -18,4 +18,6 @@ public interface SuggestionManager {
 	public List<Long> getSuggestionIdsWithName(String name) throws DbConnectionException;
 	
 	public String getSuggestionNameForId(long id) throws DbConnectionException;
+	
+	void saveSuggestions(List<String> suggestions) throws DbConnectionException;
 }
