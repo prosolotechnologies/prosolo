@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.administration.data.UserData;
@@ -36,6 +37,9 @@ public class UsersBean implements Serializable, Paginable {
 	@Autowired private UserEntityESService userEntityESService;
 	@Inject private TextSearch textSearch;
 
+	
+	private String roleId;
+	
 	private List<UserData> users;
 	
 	private UserData userToDelete;
@@ -47,10 +51,13 @@ public class UsersBean implements Serializable, Paginable {
 	private int limit = 10;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
+	private RoleFilter filter;
+	private List<RoleFilter> filters;
 
 	@PostConstruct
 	public void init() {
 		logger.debug("initializing");
+		filter = new RoleFilter(0, "All", 0);
 		loadUsers();
 	}
 	
@@ -69,8 +76,13 @@ public class UsersBean implements Serializable, Paginable {
 		numberOfPages = paginator.getNumberOfPages();
 		paginationLinks = paginator.generatePaginationLinks();
 	}
-
 	
+	public void applySearchFilter(RoleFilter filter) {
+		this.filter = filter;
+		this.page = 1;
+		loadUsers();
+	}
+
 	@Override
 	public boolean isCurrentPageFirst() {
 		return page == 1 || numberOfPages == 0;
@@ -122,11 +134,21 @@ public class UsersBean implements Serializable, Paginable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
-		TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(searchTerm, page - 1, limit, true);
-		usersNumber = (int) res.getHitsNumber();
-		users = res.getFoundNodes();
+		try {
+			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
+					searchTerm, page - 1, limit, true, filter.getId());
+			usersNumber = (int) res.getHitsNumber();
+			users = res.getFoundNodes();
+			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
+			filters = roleFilters != null ? roleFilters : new ArrayList<>();
+			RoleFilter roleFilter = (RoleFilter) res.getAdditionalInfo().get("selectedFilter");
+			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
+		} catch(Exception e) {
+			logger.error(e);
+		}
 		generatePagination();
 	}
 
@@ -160,6 +182,30 @@ public class UsersBean implements Serializable, Paginable {
 
 	public void setSearchTerm(String searchTerm) {
 		this.searchTerm = searchTerm;
+	}
+
+	public String getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
+	}
+
+	public RoleFilter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(RoleFilter filter) {
+		this.filter = filter;
+	}
+
+	public List<RoleFilter> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<RoleFilter> filters) {
+		this.filters = filters;
 	}
 	
 }

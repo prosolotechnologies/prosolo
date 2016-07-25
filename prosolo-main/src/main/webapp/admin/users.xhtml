@@ -42,7 +42,7 @@
                     		<p:remoteCommand 
 								name="execSearchUsers" 
 								process="inputUserSearch"
-								update=":panelUsers :pagination"
+								update=":panelUsers :panelSearchFilters :pagination"
 								action="#{adminUsers.resetAndSearch()}" />
 														
 							<h:inputText id="inputUserSearch"
@@ -55,20 +55,29 @@
                     </div>
                 </div>
                 <div class="whiteBarRight">
-                    <div class="dropdown showDrop item">
-                        <span>Show:</span>
-                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            All (11)
-                            <span class="arrowDown">arrowDown</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">All (10)</a></li>
-                            <li><a href="#">Users (4)</a></li>
-                            <li><a href="#">Instructors (2)</a></li>
-                            <li><a href="#">Managers (3)</a></li>
-                            <li><a href="#">Admins (2)</a></li>
-                        </ul>
-                    </div>
+               	<h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
+						<span>Show:</span>
+						<h:link 
+							id="linkSearchFilter"
+							pt:data-toggle="dropdown" 
+							pt:aria-haspopup="true" 
+							pt:aria-expanded="true">
+							#{adminUsers.filter.label} (#{adminUsers.filter.numberOfResults})
+							<span class="arrowDown">arrowDown</span>
+						</h:link>
+						
+						<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+							<ui:repeat var="searchFilter" value="#{adminUsers.filters}">
+								<li>
+									<p:commandLink 
+										process="@this"
+										value="#{searchFilter.label} (#{searchFilter.numberOfResults})"
+										action="#{adminUsers.applySearchFilter(searchFilter)}"
+										update=":panelUsers :pagination :panelSearchFilters" />
+								</li>
+							</ui:repeat> 
+						</ul>
+					</h:panelGroup>
                 </div>
             </div>
         </div>

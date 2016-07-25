@@ -35,6 +35,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.activities.Activity;
@@ -56,6 +58,7 @@ import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexNames;
@@ -73,7 +76,6 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
-import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -233,7 +235,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	@Transactional
 	public TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate) {
+			String term, int page, int limit, boolean paginate, long roleId) {
 		
 		TextSearchResponse1<org.prosolo.web.administration.data.UserData> response = 
 				new TextSearchResponse1<>();
@@ -266,7 +268,18 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
 					.addSort("name", SortOrder.ASC)
+					.addAggregation(AggregationBuilders.terms("roles")
+							.field("roles.id"))
+					.addAggregation(AggregationBuilders.count("docCount")
+							.field("id"))
 					.setFetchSource(includes, null);
+			
+			//set as a post filter so it does not influence aggregation results
+			if(roleId > 0) {
+				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
+				srb.setPostFilter(bqb);
+			}
+			
 			//System.out.println(srb.toString());
 			sResponse = srb.execute().actionGet();
 			
@@ -296,6 +309,34 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					
 					response.addFoundNode(userData);			
 				}
+				
+				//get facets
+				ValueCount docCount = sResponse.getAggregations().get("docCount");
+				Terms terms = sResponse.getAggregations().get("roles");
+				List<Terms.Bucket> buckets = terms.getBuckets();
+				
+				List<RoleFilter> roleFilters = new ArrayList<>();
+				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
+				roleFilters.add(defaultFilter);
+				RoleFilter selectedFilter = defaultFilter;
+				for(org.prosolo.common.domainmodel.organization.Role role : roles) {
+					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
+					int number = 0;
+					if(bucket != null) {
+						number = (int) bucket.getDocCount();
+					}
+			    	RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+			    	roleFilters.add(rf);
+			    	if(role.getId() == roleId) {
+			    		selectedFilter = rf;
+			    	}
+				}
+				
+				Map<String, Object> additionalInfo = new HashMap<>();
+				additionalInfo.put("filters", roleFilters);
+				additionalInfo.put("selectedFilter", selectedFilter);
+				
+				response.setAdditionalInfo(additionalInfo);
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -304,6 +345,17 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 	
+	private Bucket getBucketForRoleId(long id, List<Bucket> buckets) {
+		if(buckets != null) {
+			for(Bucket b : buckets) {
+				if(Long.parseLong(b.getKey().toString()) == id) {
+					return b;
+				}
+			}
+		}
+		return null;
+	}
+
 	private org.prosolo.common.domainmodel.organization.Role getRoleDataForId(List<org.prosolo.common.domainmodel.organization.Role> roles, 
 			long roleId) {
 		if(roles != null) {

@@ -114,6 +114,17 @@ public interface TextSearch extends AbstractManager {
 			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
 			int page, int limit);
 	
+	/**
+	 * Call {@link TextSearchResponse1#getAdditionalInfo()} to get search filters: 
+	 * under key 'filters' all filters can be retrieved with type {@code List<RoleFilter>},
+	 * under key 'selectedFilter' applied filter can be retrieved with type {@code RoleFilter}.
+	 * @param term
+	 * @param page
+	 * @param limit
+	 * @param paginate
+	 * @param roleId pass 0 if All filter and role id otherwise
+	 * @return
+	 */
 	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate);
+			String term, int page, int limit, boolean paginate, long roleId);
 }

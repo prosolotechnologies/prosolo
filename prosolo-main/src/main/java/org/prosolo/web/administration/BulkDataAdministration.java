@@ -204,11 +204,11 @@ public class BulkDataAdministration implements Serializable {
 		try {
 			Collection<User> users = userManager.getAllUsers();
 			for (User user : users) {
-				if (!user.isSystem()) {
-					user = (User) session.merge(user);
-					logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-					userEntityESService.saveUserNode(user, session);
-				}
+				//if (!user.isSystem()) {
+				user = (User) session.merge(user);
+				logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
+				userEntityESService.saveUserNode(user, session);
+				//}
 			}
 
 //			List<Node> nodes = new ArrayList<Node>();
