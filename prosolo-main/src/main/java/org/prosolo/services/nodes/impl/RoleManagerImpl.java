@@ -295,12 +295,14 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 					"SELECT role.id, user.id " +
 					"FROM User user " +
 					"INNER JOIN user.roles role " +
-					"WHERE role IN (:roles)";
+					"WHERE role IN (:roles) " +
+					"AND user.deleted = :deleted";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
-					setParameterList("roles", roles).
-					list();
+					setParameterList("roles", roles)
+					.setBoolean("deleted", false)
+					.list();
 			Map<Long, List<Long>> resultMap = new HashMap<Long, List<Long>>();
 			if (result != null && !result.isEmpty()) {
 				for (Object[] res : result) {

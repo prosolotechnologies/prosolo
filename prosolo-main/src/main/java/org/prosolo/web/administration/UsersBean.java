@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
@@ -15,6 +14,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
@@ -36,6 +36,7 @@ public class UsersBean implements Serializable, Paginable {
 	@Autowired private UserManager userManager;
 	@Autowired private UserEntityESService userEntityESService;
 	@Inject private TextSearch textSearch;
+	@Inject private UrlIdEncoder idEncoder;
 
 	
 	private String roleId;
@@ -54,10 +55,14 @@ public class UsersBean implements Serializable, Paginable {
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 
-	@PostConstruct
 	public void init() {
 		logger.debug("initializing");
-		filter = new RoleFilter(0, "All", 0);
+		long filterId = 0;
+		long decodedRoleId = idEncoder.decodeId(roleId);
+		if(decodedRoleId > 0) {
+			filterId = decodedRoleId;
+		}
+		filter = new RoleFilter(filterId, "All", 0);
 		loadUsers();
 	}
 	
