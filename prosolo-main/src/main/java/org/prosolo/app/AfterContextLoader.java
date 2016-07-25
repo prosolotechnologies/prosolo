@@ -29,8 +29,9 @@ import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -141,7 +142,7 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initStaticData() {
 		try {
-			User adminUser = ServiceLocator.getInstance().getService(ResourceFactory.class)
+			User adminUser = ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
 							Settings.getInstance().config.init.defaultUser.name,
 							Settings.getInstance().config.init.defaultUser.lastname,
@@ -149,10 +150,10 @@ public class AfterContextLoader implements ServletContextListener {
 							true,
 							Settings.getInstance().config.init.defaultUser.pass,
 							null, 
-							true,
 							null,
 							null,
-							null);
+							null,
+							true);
 	
 			String roleAdminTitle = "Admin";
 			
@@ -167,6 +168,8 @@ public class AfterContextLoader implements ServletContextListener {
 //			ServiceLocator.getInstance().getService(BadgeManager.class)
 //					.createBadge(BadgeType.STAR, "Excellence Badge");
 		} catch (EventException e) {
+			logger.error(e);
+		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		}
 	}

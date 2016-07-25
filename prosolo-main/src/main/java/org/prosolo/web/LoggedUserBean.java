@@ -121,6 +121,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setEmail((String) userData.get("email"));
 			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setPassword((String) userData.get("password"));
 			initialized = true;
 		}
 	}
