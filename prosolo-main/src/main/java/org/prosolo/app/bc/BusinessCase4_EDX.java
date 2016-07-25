@@ -742,7 +742,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator
 					.getInstance()

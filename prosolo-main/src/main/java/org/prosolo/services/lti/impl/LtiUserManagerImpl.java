@@ -54,7 +54,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 			User user = null;
 			String password = UUID.randomUUID().toString();
 			try {
-				user = userManager.createNewUser(name, lastName, email, true, password, null, null, null);
+				user = userManager.createNewUser(name, lastName, email, true, password, null, null, null, null);
 			} catch (UserAlreadyRegisteredException e) {
 				user = userManager.getUser(email);
 			} catch (EventException e) {

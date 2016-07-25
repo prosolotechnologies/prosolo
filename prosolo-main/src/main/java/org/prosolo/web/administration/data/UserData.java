@@ -1,9 +1,12 @@
 package org.prosolo.web.administration.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
@@ -23,17 +26,51 @@ public class UserData implements Serializable {
 	private boolean changePassword = false;
 	private boolean sendEmail = false;
 	private UploadedFile file;
+	private String fullName;
+	private List<RoleData> roles = new ArrayList<>();
+	private List<Long> roleIds = new ArrayList<>();
 	
 	public UserData() {}
 	
 	public UserData(User user) {
+		this(user, null);
+	}
+	
+	public UserData(User user, List<Role> roles) {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.lastName = user.getLastname();
+		setFullName(name, lastName);
 		this.password = user.getPassword();
 		this.email = user.getEmail();
 		this.position = user.getPosition();
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		if(roles != null) {
+			for(Role role : roles) {
+				this.roles.add(new RoleData(role));
+			}
+		}
+	}
+	
+	public void addRoleId(long id) {
+		this.roleIds.add(id);
+	}
+	
+	public String getRolesCSV() {
+		String rolesString = "";
+		if(roles != null) {
+			for(RoleData rd : roles) {
+				if(!rolesString.isEmpty()) {
+					rolesString += ", ";
+				}
+				rolesString += rd.getName();
+			}
+		}
+		return rolesString;
+	}
+	
+	public void setFullName(String name, String lastName) {
+		this.fullName = name + (lastName != null ? " " + lastName : "");
 	}
 
 	public boolean isChangePassword() {
@@ -133,6 +170,30 @@ public class UserData implements Serializable {
 
 	public void setAvatarUrl(String avatarUrl) {
 		this.avatarUrl = avatarUrl;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public List<RoleData> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<RoleData> roles) {
+		this.roles = roles;
+	}
+
+	public List<Long> getRoleIds() {
+		return roleIds;
+	}
+
+	public void setRoleIds(List<Long> roleIds) {
+		this.roleIds = roleIds;
 	}
 	
 }

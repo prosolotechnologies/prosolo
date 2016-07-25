@@ -868,7 +868,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator
 					.getInstance()

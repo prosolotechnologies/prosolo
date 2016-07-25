@@ -114,6 +114,7 @@ public class SelfRegistrationBean {
 					password, 
 					null,
 					null,
+					null,
 					null);
 			
 			emailSenderManager.sendEmailVerificationEmailForNewUser(user);
@@ -134,7 +135,7 @@ public class SelfRegistrationBean {
 		User user = null;
 		
 		try {
-			user = userManager.createNewUser(firstName, lastName, email, true, null, null, null, null);
+			user = userManager.createNewUser(firstName, lastName, email, true, null, null, null, null, null);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		} catch (EventException e) {
