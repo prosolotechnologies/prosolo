@@ -25,7 +25,7 @@ public interface AssessmentManager {
 	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
 	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId);
+			long senderId) throws ResourceCouldNotBeLoadedException;
 
 	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;

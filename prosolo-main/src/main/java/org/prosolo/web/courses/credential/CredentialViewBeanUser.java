@@ -166,18 +166,21 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 	
 	public void submitAssessment() {
-		if(credentialData.isInstructorPresent()) {
-			//there is instructor, set it from existing data (it was set from getFullTargetCredentialOrCredentialData)
+		if (credentialData.isInstructorPresent()) {
+			// there is instructor, set it from existing data (it was set from
+			// getFullTargetCredentialOrCredentialData)
 			assessmentRequestData.setAssessorId(credentialData.getInstructorId());
 		}
 		//at this point, assessor should be set either from credential data or user-submitted peer id
-		if(assessmentRequestData.isAssessorSet()) {
-				populateAssessmentRequestFields();
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				notifyAssessmentRequestedAsync(assessmentId, page, lContext, service);
+		if (assessmentRequestData.isAssessorSet()) {
+			populateAssessmentRequestFields();
+			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			notifyAssessmentRequestedAsync(assessmentId, page, lContext, service);
+
+			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 		}
 		else {
 			PageUtil.fireErrorMessage("No assessor set");

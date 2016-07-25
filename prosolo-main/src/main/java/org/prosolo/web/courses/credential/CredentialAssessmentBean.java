@@ -148,7 +148,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 					fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have sucessfully approved credential for " + fullAssessmentData.getStudentFullName());
+					"You have approved credential for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error aproving assessment data", e);
 			PageUtil.fireErrorMessage("Error while approving assessment data");
@@ -205,15 +205,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String encodedActivityDiscussionId = params.get("encodedActivityDiscussionId");
 
-		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
-			logger.error("User " + loggedUserBean.getUserId() + " tried to add comment without discussion id");
-			PageUtil.fireErrorMessage("Unable to add comment");
-		} else {
+		if (!StringUtils.isBlank(encodedActivityDiscussionId)) {
 			assessmentManager.markDiscussionAsSeen(loggedUserBean.getUserId(),
 					idEncoder.decodeId(encodedActivityDiscussionId));
 			Optional<ActivityAssessmentData> seenActivityAssessment = getActivityAssessmentByEncodedId(
 					encodedActivityDiscussionId);
 			seenActivityAssessment.ifPresent(data -> data.setAllRead(true));
+		} else {
+//			logger.error("User " + loggedUserBean.getUserId() + " tried to add comment without discussion id");
+//			PageUtil.fireErrorMessage("Unable to add comment");
 		}
 	}
 
@@ -222,7 +222,21 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
 			for (CompetenceAssessmentData comp : competenceAssessmentData) {
 				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if (act.getEncodedDiscussionId().equals(encodedActivityDiscussionId)) {
+					if (encodedActivityDiscussionId.equals(act.getEncodedDiscussionId())) {
+						return Optional.of(act);
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+	
+	private Optional<ActivityAssessmentData> getActivityAssessmentByActivityId(String encodedTargetActivityId) {
+		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
+			for (CompetenceAssessmentData comp : competenceAssessmentData) {
+				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+					if (encodedTargetActivityId.equals(act.getEncodedTargetActivityId())) {
 						return Optional.of(act);
 					}
 				}
@@ -236,6 +250,12 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
 			actualDiscussionId = createDiscussion(encodedTargetActivityId, encodedCompetenceAssessmentId);
+			
+			// set discussionId in the appropriate ActivityAssessmentData
+			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
+			
+			Optional<ActivityAssessmentData> actAssessmentData = getActivityAssessmentByActivityId(encodedTargetActivityId);
+			actAssessmentData.ifPresent(data -> data.setEncodedDiscussionId(encodedDiscussionId));
 		} else {
 			actualDiscussionId = idEncoder.decodeId(encodedActivityDiscussionId);
 		}
@@ -330,9 +350,13 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
 		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
 
-		return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-				Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
-				loggedUserBean.getUserId());
+		try {
+			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
+					loggedUserBean.getUserId());
+		} catch (ResourceCouldNotBeLoadedException e) {
+			return -1;
+		}
 	}
 
 	private void cleanupCommentData() {
