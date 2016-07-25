@@ -90,6 +90,7 @@ public class UserSessionDataLoader implements Serializable{
 			sessionData.put("userSettings", userSettings);
 			sessionData.put("email", email);
 			sessionData.put("notificationsSettings", notificationsSettings);
+			sessionData.put("password", user.getPassword());
 			
 			logger.info("init finished");
 			return sessionData;

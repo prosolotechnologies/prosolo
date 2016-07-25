@@ -103,11 +103,20 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
 			String password, String position, InputStream avatarStream, 
 			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException {
+		return createNewUser(name, lastname, emailAddress, emailVerified, password, position, 
+				avatarStream, avatarFilename, roles, false);
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
+			String password, String position, InputStream avatarStream, 
+			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
 		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, false, avatarStream, avatarFilename, roles);
+		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, isSystem, avatarStream, avatarFilename, roles);
 		
 		eventFactory.generateEvent(EventType.Registered, newUser.getId());
 		
