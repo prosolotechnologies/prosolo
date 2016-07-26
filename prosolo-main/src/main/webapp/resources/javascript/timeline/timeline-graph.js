@@ -47,7 +47,7 @@ var timelineGraph = (function () {
 	
 		var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 		    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-		    yAxis = d3.svg.axis().scale(y).orient("left").tickFormat(d3.format('.0f'));
+		    yAxis = d3.svg.axis().scale(y).orient("left");
 	
 		var brush = d3.svg.brush()
 		    .x(x2)
@@ -122,7 +122,7 @@ var timelineGraph = (function () {
 		
 		var dateTo = new Date().ddmmyyyy()+". UTC";
 		var dateFrom = new Date(new Date().setDate(new Date().getDate()-30)).ddmmyyyy() + ". UTC"
-	
+		
 		d3.json("http://" + config.apiHost + "/learning/activity/student/" + config.studentId + "?dateFrom="+dateFrom+"&dateTo="+dateTo, function(error, data) {
 			data = data.sort(function(a,b){
 				  return new Date(b.date) - new Date(a.date);
@@ -175,7 +175,6 @@ var timelineGraph = (function () {
 		      .attr("y", -6)
 		      .attr("height", height2 + 7);
 		  
-		 
 		 var singleTooltipGroup = tooltipGroup.selectAll("g")                                   
 	        .data(data.filter(function(d) { return d.milestones; }), function(d) { return d.date; })                                            
 		  	.enter()
