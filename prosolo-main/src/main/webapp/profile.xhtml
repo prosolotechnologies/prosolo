@@ -6,6 +6,7 @@
 	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout2.xhtml"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
@@ -65,6 +66,12 @@
 				$("body").removeAttr("class").removeAttr("style")
 				$("div.modal-backdrop.fade.in").remove()
 			}
+			
+			function makeTabActive(id) {
+				$("#"+id).addClass( "in active" )
+				$( "div[role='tabPanel']" ).not( "[id='"+id+"']" ).removeClass("in active")
+			}
+			
 		</script>
 		
 		<div class="whiteBar">
@@ -72,6 +79,7 @@
 	            <div class="whiteBarContent" id="whiteBarContent">
 	                <div class="whiteBarLeft">
 	                	<h:form id="whiteBarProfileForm">
+	                		
 			                <ui:fragment rendered="#{profile.personalProfile}" >
 			                	<h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
 			                </ui:fragment>
@@ -147,7 +155,9 @@
 	    </div>
 	
 	    <div class="container">
+	    	
 	        <div class="row">
+	       
 	            <h:panelGroup rendered="#{profile.personalProfile}" styleClass="col-md-12" layout="block">
 	                <div class="alert alert-info alert-dismissible" role="alert">
 	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
@@ -156,21 +166,28 @@
 	            </h:panelGroup>
 	            <div class="col-md-12">
 	                <div class="whiteBox">
-	                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-	                        <li role="presentation" class="active"><a href="#credentials" aria-controls="info" role="tab" data-toggle="tab">Credentials</a></li>
-	                        <li role="presentation"><a href="#competences" aria-controls="competences" role="tab" data-toggle="tab">Competences</a></li>
-	                        <ui:remove>
-	                        	<li role="presentation"><a href="#externalcompetences" aria-controls="competences" role="tab" data-toggle="tab">External Competences</a></li>
-	                        </ui:remove>
-	                        <li role="presentation"><a href="#inprogress" aria-controls="competences" role="tab" data-toggle="tab">In Progress</a></li>
-	                    </ul>
+	                	<h:form id="tabsForm" prependId="false">
+		                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
+		                        <li role="presentation" class="active">
+			                        <p:commandLink oncomplete="makeTabActive('credentials')" update=":#{p:component('tabPanel')}" actionListener="#{profile.changeTab('credentials')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >Credentials</p:commandLink>
+		                        </li>
+		                        <li role="presentation">
+		                        	<p:commandLink oncomplete="makeTabActive('competences')" update=":#{p:component('tabPanel')}" actionListener="#{profile.changeTab('competences')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >Competences</p:commandLink>
+		                        </li>
+		                        <ui:remove>
+		                        	<li role="presentation"><a href="#externalcompetences" aria-controls="competences" role="tab" data-toggle="tab">External Competences</a></li>
+		                        </ui:remove>
+		                        <li role="presentation">
+		                        	<p:commandLink oncomplete="makeTabActive('inprogress')" update=":#{p:component('tabPanel')}" actionListener="#{profile.changeTab('inprogress')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >In Progress</p:commandLink>
+		                        </li>
+		                    </ul>
+		                </h:form>
 	                </div>
 	            </div>
 	            
-	            <div class="tab-content">
+	            <h:panelGroup id="tabPanel" styleClass="tab-content" layout="block">
 	            <!-- CREDENTIALS -->
-	                <div role="tabpanel" class="tab-pane fade in active" id="credentials">
-	                
+	              <h:panelGroup id="credentials" a:role="tabPanel" styleClass="tab-pane fade in active" layout="block">
 	                	<ui:fragment rendered="#{empty profile.credentialAchievementsData.targetCredentialDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
@@ -222,10 +239,10 @@
 			        			<div class="clear"></div>
 			        		</ui:fragment>
 		                </ui:repeat>
-	                </div>
+		            </h:panelGroup>
 	                
 	                <!-- COMPETENCES -->
-	                <div role="tabpanel" class="tab-pane fade" id="competences">
+	                <h:panelGroup id="competences" a:role="tabPanel" styleClass="tab-pane fade" layout="block">
 	                	<ui:fragment rendered="#{empty profile.competenceAchievementsData.targetCompetenceDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
@@ -275,7 +292,8 @@
 			        			<div class="clear"></div>
 			        		</ui:fragment>
 						</ui:repeat>
-	                </div>
+	               </h:panelGroup>
+	                
 	                
 	                <ui:remove>
 	                 	<!-- EXTERNAL COMPETENCES -->
@@ -299,7 +317,7 @@
 	                </ui:remove>
 	                
 	                <!-- IN PROGRESS CREDENTIALS -->
-	                <div role="tabpanel" class="tab-pane fade" id="inprogress">
+	                <h:panelGroup id="inprogress" a:role="tabPanel" styleClass="tab-pane fade" layout="block">
 	                	<ui:fragment rendered="#{empty profile.inProgressCredentialAchievementsData.targetCredentialDataList}">
 		                	<div class="col-md-12">
 		                        <div class="noContentMessage">
@@ -363,8 +381,8 @@
 			        			<div class="clear"></div>
 			        		</ui:fragment>
 	                    </ui:repeat>
-	                </div>
-	            </div>
+	                </h:panelGroup>
+	            </h:panelGroup>
 	        </div>
 	    </div>
 	    
