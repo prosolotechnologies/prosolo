@@ -48,7 +48,11 @@ public enum ContextName {
 	POST_SHARE_DIALOG(""),
 	PREVIEW(""),
 	NEW_COMPETENCE(""),
-	NEW_ACTIVITY("");
+	NEW_ACTIVITY(""),
+	SETTINGS_PERSONAL("User"),
+	SETTINGS_EMAIL("User"),
+	SETTINGS_PASSWORD("User"),
+	;
 	
     private String objectType; 
     
