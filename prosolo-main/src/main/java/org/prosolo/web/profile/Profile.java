@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -88,19 +89,15 @@ public class Profile {
 	private String studentAffiliation;
 	private String studentLocation;
 	private boolean personalProfile;
+	private User currentStudent;
 
 
 	public void init() {
-		//TODO we can lazily initialize these lists using tab event listeners
 		try {
-			User student = getUser();
-			initializeStudentData(student);
-			initializeSocialNetworkData(student);
-			initializeTargetCredentialData(student);
-			initializeTargetCompetenceData(student);
-			//initializeExternalTargetCompetenceData(student);
-//			initializeUnfinishedCompetences(student);
-			initializeInProgressCredentials(student);
+			currentStudent = getUser();
+			initializeStudentData(currentStudent);
+			initializeSocialNetworkData(currentStudent);
+			initializeTargetCredentialData(currentStudent);
 			initializeSocialNetworkNameMap();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Cannot find user", e);
@@ -158,7 +155,30 @@ public class Profile {
 			logger.error("Error while sending message from profile page, studentId was blank");
 		}
 	}
+	
+	public void changeTab(String tab) {
+		try {
+			initializeData(tab);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			PageUtil.fireErrorMessage(String.format("Cannot initialize data for profile tab : %s"),tab);
+			logger.error("Error initializing data",e);
+		}
+	}
 
+
+	private void initializeData(String activeTab) throws ResourceCouldNotBeLoadedException {
+		//student is already initialized in init() method
+		if(activeTab.contains("credentials") && credentialAchievementsData == null) {
+			initializeTargetCredentialData(currentStudent);
+		}
+		else if(activeTab.contains("competences") && competenceAchievementsData == null) {
+			initializeTargetCompetenceData(currentStudent);
+		}
+		else if(activeTab.contains("inprogress") && inProgressCredentialAchievementsData == null) {
+			initializeInProgressCredentials(currentStudent);
+		}
+		
+	}
 
 	private void initializeStudentData(User student) {
 		studentId = String.valueOf(student.getId());
@@ -189,7 +209,7 @@ public class Profile {
 					.mapDataToPageObject(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Competence data could not be loaded!");
-			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e);
+			logger.error("Error while loading target credentials with progress == 100 Error:\n" + e, e);
 		}
 	}
 
