@@ -1,4 +1,4 @@
-package org.prosolo.services.event.context.data;
+package org.prosolo.common.event.context.data;
 
 public class LearningContextData {
 

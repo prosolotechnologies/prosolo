@@ -46,8 +46,8 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 
 	@Override
 	public void handleEvent(DefaultEvent event) {
-		Gson gson=new Gson();
-		String eventC=gson.toJson(event);
+		//Gson gson=new Gson();
+		//String eventC=gson.toJson(event);
 		LogEvent logEvent=(LogEvent) event;
 		long userid=logEvent.getActorId();
 		long courseid=logEvent.getCourseId();

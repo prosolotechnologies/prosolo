@@ -8,12 +8,12 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.context.util.CustomContextNameDeserializer;
-import org.prosolo.services.event.context.Context;
-import org.prosolo.services.event.context.ContextName;
-import org.prosolo.services.event.context.LearningContext;
-import org.prosolo.services.event.context.LearningContextInfo;
-import org.prosolo.services.event.context.Service;
-import org.prosolo.web.ApplicationPage;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.LearningContextInfo;
+import org.prosolo.common.event.context.Service;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.web.ApplicationPagesBean;
 
 import com.google.gson.Gson;

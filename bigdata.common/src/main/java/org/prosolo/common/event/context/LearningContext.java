@@ -1,6 +1,6 @@
-package org.prosolo.services.event.context;
+package org.prosolo.common.event.context;
 
-import org.prosolo.web.ApplicationPage;
+import org.prosolo.common.web.ApplicationPage;
 
 public class LearningContext {
 

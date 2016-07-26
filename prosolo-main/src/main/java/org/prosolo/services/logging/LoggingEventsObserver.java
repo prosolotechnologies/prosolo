@@ -12,7 +12,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
-import org.prosolo.services.event.context.LearningContext;
+import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
