@@ -9,7 +9,7 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 trait EventsChecker{
   val eventTypesFile:String;
-  val eventsType: Map[String, Tuple3[ObservationType, EventType, String]] = new HashMap[String, Tuple3[ObservationType, EventType, String]]()
+  val eventsType: Map[String, Tuple4[ObservationType, EventType, String, Double]] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
   val eventTypes: ListBuffer[EventType]=new ListBuffer[EventType]()
   def eventsTypeKey(eventType:EventType, objectType:String):String={
     if(objectType!=null && objectType.length()>0 ){
@@ -25,9 +25,10 @@ trait EventsChecker{
       val cols: Array[String] = line.split(",").map(_.trim)
       val eventType: EventType = EventType.valueOf(cols(1))
       val objectType: String = if (cols.isDefinedAt(2)) cols(2) else ""
+      val weight:Double=if(cols.isDefinedAt(3)) cols(3).toDouble else 0.0
       val observationType: ObservationType = ObservationType.valueOf(cols(0))
       val key=eventsTypeKey(eventType,objectType)
-      eventsType.put(key, (observationType, eventType, objectType))
+      eventsType.put(key, (observationType, eventType, objectType, weight))
       if(!eventTypes.contains(eventType)){
         eventTypes+=eventType
       }
@@ -50,6 +51,9 @@ trait EventsChecker{
   def getObservationType(event:LogEvent):ObservationType={
     eventsType.get(eventsTypeKey(event.getEventType(),event.getObjectType)).get._1
   }
+  def getEventWeight(event:LogEvent):Double={
+    eventsType.get(eventsTypeKey(event.getEventType(),event.getObjectType)).get._4
+  }
 }
 object ProfileEventsChecker extends EventsChecker{
   val eventTypesFile = "files/events.csv"
@@ -58,5 +62,10 @@ object ProfileEventsChecker extends EventsChecker{
 }
 object SNAEventsChecker extends EventsChecker {
   val eventTypesFile = "files/interactionsevents.csv"
+  initializeEventTypes()
+}
+
+object StudentPreferenceChecker extends EventsChecker {
+  val eventTypesFile = "files/studentpreferenceweights.csv"
   initializeEventTypes()
 }

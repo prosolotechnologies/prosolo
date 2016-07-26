@@ -7,6 +7,7 @@ import org.apache.spark.rdd.RDD
 import com.datastax.spark.connector._
 import org.jblas.DoubleMatrix
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
 
 /**
   * Created by zoran on 23/07/16.
@@ -19,7 +20,7 @@ object ALSUserRecommender {
   def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long]) {
     println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
-    val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable("prosolo_logs_zj", TablesNames.USER_COURSES)
+    val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable("prosolo_logs_zj", TablesNames.USERRECOM_USERRESOURCEPREFERENCES)
     println("FOUND:" + rawRatings.collect().length);
     val maximumPreference = rawRatings.fold(rawRatings.first())((res1: (Tuple1[Long], CassandraRow), res2: (Tuple1[Long], CassandraRow)) => {
       if (res1._2.getDouble("preference") < res2._2.getDouble("preference")) res2 else res1
@@ -37,12 +38,16 @@ object ALSUserRecommender {
 
     val recNumber = 10
     users.foreach(userId => {
+    // val recommendations= usersIds.map(userId => {
       println("PROCESSING USER:" + userId)
       val sortedSims = findSimilarUsers(model, userId, recNumber);
       println("USER RECOMMENDATIONS:FOR USER:" + sortedSims.size + ":" + userId + " :" + sortedSims.slice(1, recNumber + 1).mkString(","))
+      RecommendationsESIndexer.storeRecommendedUsersForUser(userId, sortedSims)
+      //(userId, sortedSims)
+   // }
     }
-
     )
+  //  println("RECOMMENDATIONS:"+recommendations.collect().length);
     println("USER RECOMMENDATIONS:FINISHED:")
 
     // val abs_preferences=sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace"->"prosolo_logs_zj",

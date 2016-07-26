@@ -471,6 +471,12 @@
 			<artifactId>spark-sql_2.11</artifactId>
 			<version>${spark.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark_2.11 -->
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch-spark_2.11</artifactId>
+			<version>2.3.3</version>
+		</dependency>
 		<!-- Used for hashing database ids in urls -->
 		<dependency>
 			<groupId>org.hashids</groupId>

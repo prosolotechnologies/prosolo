@@ -14,4 +14,6 @@ public class ESIndexTypes {
 	public static final String COMPETENCE_ACTIVITIES="competence_activity";
 	public static final String MOSTACTIVEUSERSFORLEARNINGGOAL = "mostactiveusersforlearninggoal";
 	public static final String FREQ_COMPETENCE_ACTIVITIES = "frequent_competence_activity";
+
+	public static final String RECOMMENDED_USERS= "recommended_users";
 }

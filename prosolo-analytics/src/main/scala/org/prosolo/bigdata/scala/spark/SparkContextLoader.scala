@@ -1,20 +1,19 @@
 package org.prosolo.bigdata.scala.spark
 
+import java.util
+
+import org.apache.commons.lang.StringUtils
 import org.apache.spark.api.java.JavaSparkContext
 import org.apache.spark.{SparkConf, SparkContext}
 import org.prosolo.bigdata.config.Settings
-import org.prosolo.common.config.CommonSettings
+import org.prosolo.common.config.{CommonSettings, ElasticSearchHost}
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author zoran Jul 28, 2015
  */
 object SparkContextLoader {
-  //var sc: SparkContext = _
-  // var sparkConf: SparkConf = _
-  /*var hasSC = false
-  var sc:Any = 0
-  var test:String="any"
-*/
 
   /**
    * Return a SparkContext that has hard-coded parameters
@@ -25,10 +24,11 @@ object SparkContextLoader {
    */
 
 
-  //val numOfCores=Runtime.getRuntime.availableProcessors()
-  val numOfCores=1
+  val numOfCores=Runtime.getRuntime.availableProcessors()
+  //val numOfCores=1
   val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig
   val sparkConfig = Settings.getInstance().config.sparkConfig
+  val esConfig=CommonSettings.getInstance().config.elasticSearch
 
 	val dbHost = dbConfig.dbHost
 	val dbPort = dbConfig.dbPort
@@ -36,15 +36,19 @@ object SparkContextLoader {
   val master=if(sparkConfig.mode.equals("local")) "local["+numOfCores+"]" else sparkConfig.master
  //val numOfCores=1;
   val sparkConf = new SparkConf()
-    .setMaster(master)
+  sparkConf.setMaster(master)
 
-      .set("spark.cores_max",maxCores.toString)
-      .set("spark.executor.memory",sparkConfig.executorMemory)
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .setAppName(sparkConfig.appName)
+  sparkConf.set("spark.cores_max",maxCores.toString)
+  sparkConf.set("spark.executor.memory",sparkConfig.executorMemory)
+  sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+  sparkConf.setAppName(sparkConfig.appName)
       //added for spark cassandra connection
-      .set("spark.cassandra.connection.host", dbHost)
-      .set("spark.cassandra.connection.port", dbPort.toString())
+  sparkConf.set("spark.cassandra.connection.host", dbHost)
+  sparkConf.set("spark.cassandra.connection.port", dbPort.toString())
+  addESConfig(sparkConf)
+      println("SPARK CONFIG:"+sparkConf.toDebugString)
+
+
 
   val sc = new SparkContext(sparkConf)
   val jsc=new JavaSparkContext(sc)
@@ -53,6 +57,32 @@ object SparkContextLoader {
   }
   def getJSC:JavaSparkContext={
     jsc
+  }
+  def addESConfig(sparkConf:SparkConf): Unit ={
+    sparkConf.set("es.index.auto.create","true")
+    sparkConf.set("es.http.timeout","5m")
+    sparkConf.set("es.scroll.size","50")
+
+    if(esConfig.`type`.equals("local")){
+
+    }else if(esConfig.`type`.equals("server")){
+      val esHosts: util.ArrayList[ElasticSearchHost]=esConfig.esHostsConfig.esHosts
+      val hosts=new util.LinkedList[String]
+      val hostit=esHosts.iterator()
+      while(hostit.hasNext()){
+        val host=hostit.next()
+        hosts.add(host.host+":"+"9200")
+      }
+
+      sparkConf.set("es.nodes", StringUtils.join(hosts, ","))
+        sparkConf.set("es.nodes.wan.only","true")
+     // sparkConf.set("es.nodes", "dev.prosolo.ca")
+       //  sparkConf.set("es.port","9200")
+
+    }else if(esConfig.`type`.equals("cloud-aws")){
+
+    }
+
   }
 
 }

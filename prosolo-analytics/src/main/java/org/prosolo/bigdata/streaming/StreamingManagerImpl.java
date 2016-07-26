@@ -3,11 +3,7 @@ package org.prosolo.bigdata.streaming;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
-import org.prosolo.bigdata.events.observers.AnalyticalEventsObserver;
-import org.prosolo.bigdata.events.observers.LogEventsPersisterObserver;
-import org.prosolo.bigdata.events.observers.StudentAssignObserver;
-import org.prosolo.bigdata.events.observers.UserSessionObserver;
-import org.prosolo.bigdata.events.observers.UserProfileRelatedActivitiesObserver;
+import org.prosolo.bigdata.events.observers.*;
 import org.prosolo.common.config.CommonSettings;
 
 /**
@@ -43,6 +39,10 @@ public class StreamingManagerImpl {
 		//register student assign event observer
 		StreamConsumerManager.getInstance().getEventDispatcher()
 			.registerObserver(new StudentAssignObserver());
+
+		//register user preferences observer
+		StreamConsumerManager.getInstance().getEventDispatcher()
+				.registerObserver(new UserPreferencesObserver());
 
 		// Start streaming from Moodle/Kafka
 		StreamConsumerManager.getInstance().startTopicStreaming(Topic.LOGS, 1);

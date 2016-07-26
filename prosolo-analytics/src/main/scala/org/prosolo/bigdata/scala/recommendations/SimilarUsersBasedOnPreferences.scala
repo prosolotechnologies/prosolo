@@ -45,6 +45,6 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     }
   }
 
-  runKmeans()
+  //runKmeans()
   runALSUserRecommender()
 }
