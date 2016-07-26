@@ -27,6 +27,7 @@ import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -127,7 +128,6 @@ public class ProfileSettingsBean implements Serializable {
 		try {
 			User user = userManager.loadResource(User.class, loggedUser.getUserId());
 		
-		
 			boolean changed = false;
 	
 			if (!accountData.getFirstName().equals(user.getName())) {
@@ -144,6 +144,7 @@ public class ProfileSettingsBean implements Serializable {
 				user.setPosition(accountData.getPosition());
 				changed = true;
 			}
+			
 			if ((accountData.getLocationName() != null && user.getLocationName() == null)
 					|| (!accountData.getLocationName().equals(user.getLocationName()))) {
 				try {
@@ -151,7 +152,6 @@ public class ProfileSettingsBean implements Serializable {
 					user.setLatitude(Double.valueOf(accountData.getLatitude()));
 					user.setLongitude(Double.valueOf(accountData.getLongitude()));
 					changed = true;
-					peopleRecommenderBean.initLocationRecommend();
 				} catch (NumberFormatException nfe) {
 					logger.debug("Can not convert to double. " + nfe);
 				}
@@ -162,7 +162,10 @@ public class ProfileSettingsBean implements Serializable {
 				loggedUser.reinitializeSessionData(user);
 				
 				try {
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId());
+					String page = PageUtil.getPostParameter("page");
+					String lContext = PageUtil.getPostParameter("learningContext");
+					
+					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(), null, null, page, lContext, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Changes are not saved!");

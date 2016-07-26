@@ -91,7 +91,10 @@
 									<div class="formLineRight">
 										<p:commandLink styleClass="btn btn-green" value="Save Changes"
 											action="#{profileSettings.saveAccountChanges}"
-											update=":#{cc.clientId}:settingsPersonalForm #{cc.attrs.toUpdate}" />
+											update=":#{cc.clientId}:settingsPersonalForm #{cc.attrs.toUpdate}">
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="learningContext" value="#{'name:settings_personal|id:'.concat(loggeduser.userId)}" />
+										</p:commandLink>
 									</div>
 								</div>
 							</h:form>
