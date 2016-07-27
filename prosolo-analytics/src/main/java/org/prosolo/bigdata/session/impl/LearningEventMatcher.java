@@ -197,9 +197,9 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 					else return e.getValue().matcher(event.getLink()).matches();
 				}
 				case CONTEXT_KEY : {
-					if(event.getLearningContext() == null) return false;
+					if(event.getLearningContextJson() == null) return false;
 					else {
-						return e.getValue().matcher(event.getLearningContext().toString()).matches();
+						return e.getValue().matcher(event.getLearningContextJson().toString()).matches();
 					}
 				}
 				case ACTION_KEY : {
