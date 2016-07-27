@@ -6,7 +6,6 @@ import java.util.List;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
-import org.prosolo.bigdata.dal.cassandra.SocialInteractionStatisticsDBManager;
 import org.prosolo.common.config.CommonSettings;
 
 import com.datastax.driver.core.Cluster;
@@ -164,7 +163,10 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		//(8,List((LIKE,0,0.0,2,1.0))), (2,List((COMMENT,0,0.0,2,0.6666667), (LIKE,0,0.0,1,0.33333334))),
 		this.ddls.add(studentInteractionsByTypeOverview);
 
-		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES+"(userid bigint, resourcetype varchar, resourceid bigint, timestamp bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, timestamp))";
+		//String userResourcePreferencesRecordsDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES_RECORD +"(dateepoch bigint, userid bigint, resourcetype varchar, resourceid bigint, timestamp bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, timestamp))";
+		//this.ddls.add(userResourcePreferencesRecordsDDL);
+
+		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +"(userid bigint, resourcetype varchar, resourceid bigint, dateepoch bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, dateepoch))";
 		this.ddls.add(userResourcePreferencesDDL);
 
 

@@ -27,8 +27,7 @@ public class StreamingManagerImpl {
 				.registerObserver(new LogEventsPersisterObserver());
 		StreamConsumerManager.getInstance().getEventDispatcher()
 				.registerObserver(new AnalyticalEventsObserver());
-		//StreamConsumerManager.getInstance().getEventDispatcher()
-		//.registerObserver(new UserActionsAnalyzerObserver());
+
 		StreamConsumerManager.getInstance().getEventDispatcher()
 		.registerObserver(new UserProfileRelatedActivitiesObserver());
 		

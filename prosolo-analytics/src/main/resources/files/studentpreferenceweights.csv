@@ -3,6 +3,7 @@ PROGRESS,ChangeProgress,TargetCredential1,0.6
 PROGRESS,Completion,TargetActivity1,0.8
 PROGRESS,ENROLL_COURSE,CourseEnrollment,0.2
 PROGRESS,CREDENTIAL_COMPLETED,TargetCredential1,1
+COMMENT,Comment,Comment1,0.4
 COMMENT,Comment,Activity1,0.4
 COMMENT,Comment,Competence1,0.4
 COMMENT,Comment,SocialActivityComment,0.4

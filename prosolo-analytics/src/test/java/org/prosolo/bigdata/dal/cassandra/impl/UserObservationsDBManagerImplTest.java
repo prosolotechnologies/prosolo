@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
+import org.prosolo.bigdata.utils.DateUtil;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 
@@ -69,13 +70,13 @@ public class UserObservationsDBManagerImplTest {
             String resourcetype1= Credential1.class.getSimpleName();
             int pr1=r.nextInt(100);
             Double preference1=(double) pr1/100;
-            dbManager.insertStudentPreference(userid,resourcetype1,resourceid1,preference1, System.currentTimeMillis());
+            dbManager.insertStudentPreferenceForDate(userid,resourcetype1,resourceid1,preference1, DateUtil.getDaysSinceEpoch());
             for(int x=0;x<5;x++) {
                 long resourceid2 = r.nextInt(300);
                 String resourcetype2 = Competence1.class.getSimpleName();
                 int pr2 = r.nextInt(100);
                 Double preference2 = (double) pr2 / 100;
-                dbManager.insertStudentPreference(userid, resourcetype2, resourceid2, preference2, System.currentTimeMillis());
+                dbManager.insertStudentPreferenceForDate(userid, resourcetype2, resourceid2, preference2, DateUtil.getDaysSinceEpoch());
             }
 
             for(int y=0;y<15;y++) {
@@ -83,7 +84,7 @@ public class UserObservationsDBManagerImplTest {
                 String resourcetype3 = Competence1.class.getSimpleName();
                 int pr3 = r.nextInt(100);
                 Double preference3 = (double) pr3 / 100;
-                dbManager.insertStudentPreference(userid, resourcetype3, resourceid3, preference3, System.currentTimeMillis());
+                dbManager.insertStudentPreferenceForDate(userid, resourcetype3, resourceid3, preference3, DateUtil.getDaysSinceEpoch());
             }
         }
     }

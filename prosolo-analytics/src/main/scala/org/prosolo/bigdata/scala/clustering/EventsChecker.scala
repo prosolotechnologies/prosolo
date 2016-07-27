@@ -11,6 +11,7 @@ trait EventsChecker{
   val eventTypesFile:String;
   val eventsType: Map[String, Tuple4[ObservationType, EventType, String, Double]] = new HashMap[String, Tuple4[ObservationType, EventType, String,Double]]()
   val eventTypes: ListBuffer[EventType]=new ListBuffer[EventType]()
+  val objectTypes: ListBuffer[String]=new ListBuffer[String]()
   def eventsTypeKey(eventType:EventType, objectType:String):String={
     if(objectType!=null && objectType.length()>0 ){
       eventType.name() + "_" + objectType
@@ -32,6 +33,7 @@ trait EventsChecker{
       if(!eventTypes.contains(eventType)){
         eventTypes+=eventType
       }
+      if(!objectTypes.contains(objectType)){objectTypes+=objectType}
     }
   }
 
@@ -47,6 +49,10 @@ trait EventsChecker{
   def isEventObserved(event:LogEvent):Boolean={
     println("is_event_observed:"+event.getEventType+"_"+event.getObjectType)
     eventsType.contains(eventsTypeKey(event.getEventType(),event.getObjectType))
+  }
+  def isObjectTypeObserved(objectType:String):Boolean={
+    println("is_object_observed:"+objectType+" returns:"+ objectTypes.contains(objectType))
+    objectTypes.contains(objectType)
   }
   def getObservationType(event:LogEvent):ObservationType={
     eventsType.get(eventsTypeKey(event.getEventType(),event.getObjectType)).get._1
