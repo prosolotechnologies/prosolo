@@ -32,8 +32,6 @@ public class FeedsDigestData implements Serializable {
 		this.page = 1;
 	}
 	
-
-	
 	public List<FeedEntryData> getEntries() {
 		return entries;
 	}

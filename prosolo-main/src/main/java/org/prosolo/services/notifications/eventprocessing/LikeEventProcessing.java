@@ -93,23 +93,31 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 
 	@Override
 	long getObjectId() {
-		return comment.getCommentedResourceId();
+		return comment.getId();
 	}
 
 	@Override
 	String getNotificationLink() {
 		switch(commentedResourceType) {
 		case Activity:
-			Long compId = activityManager.getCompetenceIdForActivity(getObjectId());
+			Long compId = activityManager.getCompetenceIdForActivity(comment.getCommentedResourceId());
 			if (compId != null) {
-				return "/activity.xhtml?compId=" + idEncoder.encodeId(compId) + "&actId=" 
-						+ idEncoder.encodeId(getObjectId()) + "&comment=" +
-								idEncoder.encodeId(comment.getId());
+//				return "/activity.xhtml?compId=" + idEncoder.encodeId(compId) + "&actId=" 
+//						+ idEncoder.encodeId(getObjectId()) + "&comment=" +
+//								idEncoder.encodeId(comment.getId());
+				
+				return "/competences/" +
+						idEncoder.encodeId(compId) + "/" +
+						idEncoder.encodeId(comment.getCommentedResourceId()) +
+						"?comment=" +  idEncoder.encodeId(comment.getId());
 			}
 			break;
 		case Competence:
-			return "/competence.xhtml?compId=" + idEncoder.encodeId(getObjectId()) + "&comment=" +
-				idEncoder.encodeId(comment.getId());
+//			return "/competence.xhtml?compId=" + idEncoder.encodeId(getObjectId()) + "&comment=" +
+//				idEncoder.encodeId(comment.getId());
+			return "/competences/" +
+					idEncoder.encodeId(comment.getCommentedResourceId()) +
+					"?comment=" +  idEncoder.encodeId(comment.getId());
 		default:
 			break;
 		}

@@ -438,7 +438,8 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 				}
 				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
 				 try {
-					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
+					FeedsEmailGenerator emailGenerator = new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval);
+					emailSender.sendEmail(emailGenerator, email);
 					System.out.println("EMAIL  SENT TO:"+email+" FOR USER:"+user.getName());
 				} catch (AddressException e) {
 					// TODO Auto-generated catch block

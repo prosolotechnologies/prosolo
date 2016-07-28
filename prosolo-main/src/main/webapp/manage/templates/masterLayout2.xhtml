@@ -152,13 +152,13 @@
 										(notificationData.notificationType eq 'Assessment_Requested' or 
 											notificationData.notificationType eq 'Assessment_Approved' or 
 											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
-									<h:link outcome="#{notificationData.link}">
+									<h:outputLink value="#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}
 										<h3>#{notificationData.objectTitle}</h3>
 										<span class="timestamp">#{notificationData.datePretty}</span>
-									</h:link>
+									</h:outputLink>
 								</li>
 							</ui:repeat>
 							

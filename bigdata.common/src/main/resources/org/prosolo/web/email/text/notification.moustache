@@ -1,7 +1,0 @@
-Hi {{name}},
-
-Following notification has been created for you:
-
-{{actor}} {{predicate}} {{objectTitle}} 
-
-{{date}}  {{#link}} Direct link to this notification: {{link}} {{/link}}

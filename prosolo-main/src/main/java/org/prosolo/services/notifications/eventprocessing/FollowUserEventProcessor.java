@@ -65,7 +65,8 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	String getNotificationLink() {
-		return "/profile?id=" + idEncoder.encodeId(getSenderId());
+//		return "/profile?id=" + idEncoder.encodeId(getSenderId());
+		return "/profile/" + idEncoder.encodeId(getSenderId());
 	}
 
 	public FollowResourceManager getFollowResourceManager() {

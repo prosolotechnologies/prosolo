@@ -20,13 +20,13 @@ public class NotificationData implements Serializable {
 	private UserData actor;
 	private UserData receiver;
 	private String link;
+	private long objectId;
 	private ObjectType objectType;
 	private String objectTitle;
 	private String predicate;
 
-	public NotificationData() {
-	}
-	
+	public NotificationData() { }
+
 	public long getId() {
 		return id;
 	}
@@ -34,7 +34,7 @@ public class NotificationData implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
+
 	public boolean isRead() {
 		return read;
 	}
@@ -43,14 +43,6 @@ public class NotificationData implements Serializable {
 		this.read = read;
 	}
 
-	public NotificationType getNotificationType() {
-		return notificationType;
-	}
-
-	public void setNotificationType(NotificationType notificationType) {
-		this.notificationType = notificationType;
-	}
-	
 	public Date getDate() {
 		return date;
 	}
@@ -63,20 +55,12 @@ public class NotificationData implements Serializable {
 		return DateUtil.getTimeAgoFromNow(date);
 	}
 
-	public String getLink() {
-		return link;
+	public NotificationType getNotificationType() {
+		return notificationType;
 	}
 
-	public void setLink(String link) {
-		this.link = link;
-	}
-
-	public String getPredicate() {
-		return predicate;
-	}
-
-	public void setPredicate(String predicate) {
-		this.predicate = predicate;
+	public void setNotificationType(NotificationType notificationType) {
+		this.notificationType = notificationType;
 	}
 
 	public UserData getActor() {
@@ -85,6 +69,30 @@ public class NotificationData implements Serializable {
 
 	public void setActor(UserData actor) {
 		this.actor = actor;
+	}
+
+	public UserData getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(UserData receiver) {
+		this.receiver = receiver;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public long getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(long objectId) {
+		this.objectId = objectId;
 	}
 
 	public ObjectType getObjectType() {
@@ -103,12 +111,12 @@ public class NotificationData implements Serializable {
 		this.objectTitle = objectTitle;
 	}
 
-	public UserData getReceiver() {
-		return receiver;
+	public String getPredicate() {
+		return predicate;
 	}
 
-	public void setReceiver(UserData receiver) {
-		this.receiver = receiver;
-	} 
+	public void setPredicate(String predicate) {
+		this.predicate = predicate;
+	}
 
 }
