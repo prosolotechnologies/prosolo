@@ -5,16 +5,12 @@ import org.jsoup.safety.Whitelist;
 
 public class PostUtil {
 
-	public static String cleanHTMLTagsExceptBr(String text) {
-		return cleanHTMLTags(text, new String[]{"br"});
-	}
-	
-	public static String cleanHTMLTags(String text, String[] exceptions) {
+	public static String cleanHTMLTagsExceptBrA(String text) {
 		Whitelist whitelist = Whitelist.none();
-        whitelist.addTags(exceptions);
+        whitelist.addTags(new String[]{"br", "a"});
+        whitelist.addAttributes("a", "data-id");
 
         String safe = Jsoup.clean(text, whitelist);
-//        return StringEscapeUtils.unescapeXml(safe);
         return safe;
 	}
 	

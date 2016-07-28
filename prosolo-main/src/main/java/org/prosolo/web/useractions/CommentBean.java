@@ -163,7 +163,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		newComment.setDateCreated(new Date());
 		
 		// strip all tags except <br>
-		newComment.setComment(PostUtil.cleanHTMLTagsExceptBr(newComment.getComment()));
+		newComment.setComment(PostUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
 		
 		UserData creator = new UserData(
 				loggedUser.getUserId(), 

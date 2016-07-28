@@ -177,14 +177,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, String page, String lContext, String service,
 			long assessedStudentId, long credentialId) {
 		taskExecutor.execute(() -> {
-			User student = new User();
-			student.setId(assessedStudentId);
+			User assessor = new User();
+			assessor.setId(assessedStudentId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(decodedAssessmentId);
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), student, assessment,
+				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), assessment, assessor,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -320,7 +320,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			parameters.put("isRecepientAssessor",
 					((Boolean) (fullAssessmentData.getAssessorId() == recepientId)).toString());
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), recipient, assessment,
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), assessment, recipient,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);

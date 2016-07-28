@@ -197,7 +197,7 @@ public class CredentialViewBeanUser implements Serializable {
 			parameters.put("credentialId", decodedId+""); 
 			try {
 				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), 
-						instructor, assessment, 
+						assessment, instructor, 
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);

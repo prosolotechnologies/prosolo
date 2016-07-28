@@ -36,8 +36,6 @@ import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -55,10 +53,12 @@ public class MessagesBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(MessagesBean.class);
 	
-	@Autowired private MessagingManager messagingManager;
-	@Autowired private LoggedUserBean loggedUser;
+	@Inject private MessagingManager messagingManager;
+	@Inject private LoggedUserBean loggedUser;
 	@Inject private UrlIdEncoder idEncoder;
-	@Autowired private EventFactory eventFactory;
+	@Inject private EventFactory eventFactory;
+	@Inject private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private TopInboxBean topInboxBean;
 	
 	protected List<UserData> receivers;
 	
@@ -78,10 +78,7 @@ public class MessagesBean implements Serializable {
 	
 	private String messageText = "";
 	
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	private List<MessagesThreadData> messagesThreads;
-	@Autowired
-	private TopInboxBean topInboxBean;
 	private int messagesLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
 	
 	private enum MessageProcessingResult {
@@ -138,7 +135,7 @@ public class MessagesBean implements Serializable {
 				try {
 					thread = messagingManager.get(MessageThread.class, decodedThreadId);
 					
-					if (thread == null || userShouldSeeThread(thread)) {
+					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
 						return MessageProcessingResult.FORBIDDEN;
 					}
@@ -170,6 +167,25 @@ public class MessagesBean implements Serializable {
 			this.messages = new LinkedList<MessageData>();
 			loadMessages();
 		}
+		
+		String page = PageUtil.getPostParameter("page");
+		String context = PageUtil.getPostParameter("context");
+		
+		taskExecutor.execute(() -> {
+			try {
+				String page1 = (page == null) ? page : "messages";
+				String context1 = (context == null) ? context : "name:messages";
+
+				Map<String, String> parameters = new HashMap<String, String>();
+        		parameters.put("context", context1);
+        		parameters.put("threadId", String.valueOf(threadData.getId()));
+        		
+        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(), thread, null, page1, context1, null, parameters);
+        	} catch (EventException e) {
+        		logger.error(e);
+        	}
+		});
+		
 		return MessageProcessingResult.OK;
 	}
 	
