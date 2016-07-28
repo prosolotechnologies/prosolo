@@ -31,22 +31,23 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 		Map<String, String> res = userDAO.getUserNameAndEmail(instructorId); 
 		String instructorName = res.get("name");
 		String email = res.get("email");
-		if(email != null) {
+		
+		if (email != null) {
 			String courseName = courseDAO.getCredentialTitle(courseId);
 			List<String> assigned = userDAO.getUserNames(assignedStudents);
 			List<String> unassigned = userDAO.getUserNames(unassignedStudents);
 			
-			InstructorEmailGenerator generator = new InstructorEmailGenerator(instructorName, 
+			InstructorEmailGenerator generator = new InstructorEmailGenerator(instructorName,
 					courseName, assigned, unassigned);
+
+			EmailSender emailSender = new EmailSender();
 			
-			EmailSender emailSender=new EmailSender();
-			
-			if(CommonSettings.getInstance().config.appConfig.developmentMode){
-				email=CommonSettings.getInstance().config.appConfig.developmentEmail;
+			if (CommonSettings.getInstance().config.appConfig.developmentMode) {
+				email = CommonSettings.getInstance().config.appConfig.developmentEmail;
 			}
 			
 			try {
-				emailSender.sendEmail(generator, email, courseName + " - assinged/unassigned students");
+				emailSender.sendEmail(generator, email);
 			} catch (AddressException e) {
 				logger.error(e);
 				e.printStackTrace();

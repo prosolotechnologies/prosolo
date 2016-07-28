@@ -60,9 +60,13 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 
 	@Override
 	String getNotificationLink() {
-		return "credential-assessment.xhtml?id=" +
+//		return "credential-assessment.xhtml?id=" +
+//				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+//				"&assessmentId=" +
+//				idEncoder.encodeId(event.getTarget().getId());
+		return "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-				"&assessmentId=" +
+				"/assessments/" +
 				idEncoder.encodeId(event.getTarget().getId());
 	}
 

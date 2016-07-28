@@ -31,8 +31,9 @@ import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.notifications.NotificationManager;
-import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator;
 import org.prosolo.services.notifications.emailgenerators.NotificationEmailContentGenerator1;
+import org.prosolo.services.notifications.emailgenerators.NotificationEmailGenerator;
+import org.prosolo.services.notifications.emailgenerators.NotificationEmailGeneratorFactory;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.services.notifications.factory.NotificationDataFactory;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Inject
 	private NotificationDataFactory notificationDataFactory;
+	@Inject
+	private NotificationEmailGeneratorFactory notificationEmailGeneratorFactory;
 	@Inject
 	private EmailSender emailSender;
  	
@@ -282,7 +285,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			NotificationEmailContentGenerator1 generator = new NotificationEmailContentGenerator1(receiverName, actor, 
 					notificationType, notificationShortType, resourceTitle, message, date, link);
 			
-			emailSender.sendEmail(generator,  email, "ProSolo Notification");
+			emailSender.sendEmail(generator,  email);
 			return true;
 		} catch (AddressException e) {
 			logger.error(e);
@@ -452,14 +455,14 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	public boolean sendNotificationByEmail(String email, String receiverName, String actor, 
-			String predicate, String objectTitle, String link, String date) {
+			String predicate, long objectId, ObjectType objectType, String objectTitle, String link, String date, NotificationType type) {
 		email = email.toLowerCase();
 		
 		try {
-			NotificationEmailContentGenerator generator = new NotificationEmailContentGenerator(
-					receiverName, actor, predicate, objectTitle, date, link);
+			NotificationEmailGenerator generator = notificationEmailGeneratorFactory.getNotificationEmailContentGenerator(
+					receiverName, actor, predicate, objectId, objectType, objectTitle, date, link, type);
 			
-			emailSender.sendEmail(generator,  email, "ProSolo Notification");
+			emailSender.sendEmail(generator,  email);
 			return true;
 		} catch (AddressException e) {
 			logger.error(e);
@@ -501,7 +504,6 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		  	return resNumber;
 		} catch(Exception e) {
 			logger.error(e);
-			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
 	}

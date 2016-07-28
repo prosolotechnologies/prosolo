@@ -23,7 +23,7 @@ import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
 import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
 import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedException;
-import org.prosolo.services.email.generators.PasswordRecoveryEmailContentGenerator;
+import org.prosolo.services.email.generators.PasswordResetEmailContentGenerator;
 import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +58,9 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		try {
 			String resetAddress = serverAddress + "/" + key.getUid();
 			
-			PasswordRecoveryEmailContentGenerator contentGenerator = new PasswordRecoveryEmailContentGenerator(user.getName(), resetAddress);
+			PasswordResetEmailContentGenerator contentGenerator = new PasswordResetEmailContentGenerator(user.getName(), resetAddress);
 			
-			emailSender.sendEmail(contentGenerator,  email, "Password Reset Instructions");
+			emailSender.sendEmail(contentGenerator,  email);
 			return true;
 		} catch (AddressException e) {
 			logger.error(e);

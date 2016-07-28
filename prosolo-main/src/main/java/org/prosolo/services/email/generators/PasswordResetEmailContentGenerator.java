@@ -9,17 +9,22 @@ import org.prosolo.common.email.generators.EmailContentGenerator;
  * @author "Nikola Milikic"
  *
  */
-public class PasswordRecoveryEmailContentGenerator extends EmailContentGenerator {
+public class PasswordResetEmailContentGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getTemplateName() {
-		return "passwordReset";
+		return "passreset";
+	}
+	
+	@Override
+	public String getSubject() {
+		return "Reset your password on ProSolo";
 	}
 	
 	private String name;
 	private String link;
 	
-	public PasswordRecoveryEmailContentGenerator(String name, String link) {
+	public PasswordResetEmailContentGenerator(String name, String link) {
 		this.name = name;
 		this.link = link;
 	}

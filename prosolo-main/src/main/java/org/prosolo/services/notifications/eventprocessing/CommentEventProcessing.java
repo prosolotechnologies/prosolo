@@ -112,14 +112,23 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 			case Activity:
 				Long compId = activityManager.getCompetenceIdForActivity(getObjectId());
 				if(compId != null) {
-					return "/activity.xhtml?compId=" + idEncoder.encodeId(compId) + "&actId=" 
-							+ idEncoder.encodeId(getObjectId()) + "&comment=" +
-									idEncoder.encodeId(resource.getId());
+//					return "/activity.xhtml?compId=" + idEncoder.encodeId(compId) + "&actId=" 
+//							+ idEncoder.encodeId(getObjectId()) + "&comment=" +
+//									idEncoder.encodeId(resource.getId());
+					
+					return "/competences/" +
+							idEncoder.encodeId(compId) + "/" +
+							idEncoder.encodeId(getObjectId())+
+							"?comment=" +  idEncoder.encodeId(resource.getId());
 				}
 				break;
 			case Competence:
-				return "/competence.xhtml?compId=" + idEncoder.encodeId(getObjectId()) + "&comment=" +
-					idEncoder.encodeId(resource.getId());
+//				return "/competence.xhtml?compId=" + idEncoder.encodeId(getObjectId()) + "&comment=" +
+//					idEncoder.encodeId(resource.getId());
+				
+				return "/competences/" +
+					idEncoder.encodeId(getObjectId()) +
+					"?comment=" +  idEncoder.encodeId(resource.getId());
 			default:
 				break;
 		}
@@ -132,7 +141,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 		roles.add(RoleNames.MANAGER);
 		roles.add(RoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(userId, roles);
-		if(hasManagerOrInstructorRole) {
+		if (hasManagerOrInstructorRole) {
 			return "/manage";
 		} 
 		return "";

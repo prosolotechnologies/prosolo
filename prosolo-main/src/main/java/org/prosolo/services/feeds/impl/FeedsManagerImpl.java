@@ -638,7 +638,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				if (!feedsDigests.isEmpty() && 
 						(!Settings.getInstance().config.application.developmentMode || 
 						email.equals(Settings.getInstance().config.application.developmentEmail))) {
-					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email, "ProSolo Feed Digest");
+					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email);
 				}
 			} catch (MessagingException | IOException e) {
 				logger.error(e);

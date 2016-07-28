@@ -14,6 +14,11 @@ public class EmailVerificationEmailContentGenerator extends EmailContentGenerato
 		return "verifyEmail";
 	}
 	
+	@Override
+	public String getSubject() {
+		return "Verify email";
+	}
+	
 	private String name;
 	private String link;
 	

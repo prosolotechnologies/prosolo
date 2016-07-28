@@ -9,7 +9,12 @@ public class InstructorEmailGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getTemplateName() {
-		return "instructorStudents";
+		return "instructor-credential-updates";
+	}
+	
+	@Override
+	public String getSubject() {
+		return this.courseName + " - assinged/unassigned students";
 	}
 	
 	private String name;
@@ -48,6 +53,10 @@ public class InstructorEmailGenerator extends EmailContentGenerator {
 	public void setAssignedStudents(List<String> assignedStudents) {
 		this.assignedStudents = assignedStudents;
 	}
+	
+	public boolean isHasAssignedStudents() {
+		return this.assignedStudents != null && !this.assignedStudents.isEmpty();
+	}
 
 	public List<String> getUnassignedStudents() {
 		return unassignedStudents;
@@ -55,6 +64,10 @@ public class InstructorEmailGenerator extends EmailContentGenerator {
 
 	public void setUnassignedStudents(List<String> unassignedStudents) {
 		this.unassignedStudents = unassignedStudents;
+	}
+	
+	public boolean isHasUnassignedStudents() {
+		return this.unassignedStudents != null && !this.unassignedStudents.isEmpty();
 	}
 	
 }

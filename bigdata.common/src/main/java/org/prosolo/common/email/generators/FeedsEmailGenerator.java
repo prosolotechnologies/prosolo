@@ -13,6 +13,11 @@ public class FeedsEmailGenerator extends EmailContentGenerator {
 		return "feedDigest";
 	}
 	
+	@Override
+	public String getSubject() {
+		return "ProSolo Feed Digest";
+	}
+	
 	private String name;
 	private List<FeedsDigestData> feedsDigests;
 	private String dashedDate;

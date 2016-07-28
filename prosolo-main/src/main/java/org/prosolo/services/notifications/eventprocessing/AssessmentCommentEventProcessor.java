@@ -61,17 +61,25 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 	@Override
 	String getNotificationLink() {
 		boolean isRecieverAssessor = Boolean.parseBoolean(event.getParameters().get("isRecepientAssessor"));
-		if(isRecieverAssessor) {
+		if (isRecieverAssessor) {
 			//this notification will be read by assessor, prefix url with "manage"
-			return "/manage/credential-assessment.xhtml?id=" +
-					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-					"&assessmentId=" +
-					idEncoder.encodeId(event.getTarget().getId());
+//			return "/manage/credential-assessment.xhtml?id=" +
+//				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+//				"&assessmentId=" +
+//				idEncoder.encodeId(event.getTarget().getId());
+			return "/manage/credentials/" +
+				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+				"/assessments/" +
+				idEncoder.encodeId(event.getTarget().getId());
 		}
 		else {
-			return "credential-assessment.xhtml?id=" +
+//			return "credential-assessment.xhtml?id=" +
+//					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
+//					"&assessmentId=" +
+//					idEncoder.encodeId(event.getTarget().getId());
+			return "/credentials/" +
 					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-					"&assessmentId=" +
+					"/assessments/" +
 					idEncoder.encodeId(event.getTarget().getId());
 		}
 	}
