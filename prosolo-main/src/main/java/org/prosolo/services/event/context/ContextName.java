@@ -52,6 +52,7 @@ public enum ContextName {
 	SETTINGS_PERSONAL("User"),
 	SETTINGS_EMAIL("User"),
 	SETTINGS_PASSWORD("User"),
+	MESSAGES("")
 	;
 	
     private String objectType; 

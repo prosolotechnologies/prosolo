@@ -114,22 +114,25 @@
 											update=":#{cc.clientId}:rowDiv"
 											onclick="changeConversation(#{messageThreadData.id})"
 											oncomplete="resetPeopleSearchParameters()">
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="context" value="name:messages" />
 											
-										<div class="media">
-			                                <div class="media-left">
-			                                    <utilcomp:userAvatar
-				                                	avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
-				                                	fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
-			                                </div>
-			                                <div class="media-body">
-			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
-			                                    <span>#{messageThreadData.updateTime}</span>
-			                                    <div class="clear"></div>
-			                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
-			                                </div>
-			                            </div>
-			                            <h:panelGroup rendered="#{!messageThreadData.readed}" id="markerSpan" class="unread hidden">
-			                            </h:panelGroup>
+											<div class="media">
+				                                <div class="media-left">
+				                                    <utilcomp:userAvatar
+					                                	avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
+					                                	fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
+				                                </div>
+				                                
+				                                <div class="media-body">
+				                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
+				                                    <span>#{messageThreadData.updateTime}</span>
+				                                    <div class="clear"></div>
+				                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
+				                                </div>
+				                            </div>
+				                            
+				                            <h:panelGroup rendered="#{!messageThreadData.readed}" id="markerSpan" class="unread hidden" />
 			                            </p:commandLink>
 			                		 </li>
 			                	</ui:repeat>

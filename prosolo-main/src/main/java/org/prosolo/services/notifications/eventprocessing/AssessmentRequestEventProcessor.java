@@ -30,7 +30,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 	List<Long> getReceiverIds() {
 		List<Long> users = new ArrayList<>();
 		try {
-			users.add(event.getObject().getId());
+			users.add(event.getTarget().getId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -55,7 +55,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	long getObjectId() {
-		return event.getTarget().getId();
+		return event.getObject().getId();
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 		return "/manage/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
-				idEncoder.encodeId(event.getTarget().getId());
+				idEncoder.encodeId(event.getObject().getId());
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -38,8 +39,6 @@ import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -51,33 +50,31 @@ public class Profile {
 	
 	private static Logger logger = Logger.getLogger(Profile.class);
 	
-	@Autowired
+	@Inject
 	private SocialNetworksManager socialNetworksManager;
-	/* used only to get id if the studentId parameter is not present */
-	@Autowired
+	@Inject
 	private LoggedUserBean loggedUserBean;
-	@Autowired
+	@Inject
 	private CredentialManager credentialManager;
-	@Autowired
+	@Inject
 	private UrlIdEncoder idEncoder;
-	@Autowired
+	@Inject
 	private UserManager userManager;
-	@Autowired
+	@Inject
 	private Competence1Manager competenceManager;
-	@Autowired 
+	@Inject 
 	private MessagingManager messagingManager;
-	@Autowired 
+	@Inject 
 	private EventFactory eventFactory;
-	@Autowired 
-	@Qualifier("taskExecutor") 
+	@Inject
 	private ThreadPoolTaskExecutor taskExecutor;
 	
 	private SocialNetworksData socialNetworksData;
 	private CredentialAchievementsData credentialAchievementsData;
 	private CompetenceAchievementsData competenceAchievementsData;
-//	private CompetenceAchievementsData unfinishedCompetenceAchievementsData;
 	private CredentialAchievementsData inProgressCredentialAchievementsData;
 	private Map<String, String> nameMap = new HashMap<>();
+	
 	/* parameter that can be provided in the via UI*/
 	private String studentId;
 	private String message;
@@ -91,10 +88,32 @@ public class Profile {
 	private boolean personalProfile;
 	private User currentStudent;
 
-
 	public void init() {
+		
 		try {
 			currentStudent = getUser();
+
+			// fire event here so we know whether another students profile has
+			// been opened or user opened his profile. In the following step
+			// studentId is set, so we won't know whether it existed on the page
+			// load
+			if (StringUtils.isNotBlank(studentId) && 
+					loggedUserBean.isInitialized() && 
+					idEncoder.decodeId(studentId) != loggedUserBean.getUserId()) {
+				
+				String page = FacesContext.getCurrentInstance().getViewRoot().getClientId();
+				
+				taskExecutor.execute(() -> {
+					try {
+						String context = "name:profile|id:" + currentStudent.getId();
+						
+						eventFactory.generateEvent(EventType.View_Profile, loggedUserBean.getUserId(), currentStudent, null, page, context, null, null);
+					} catch (EventException e) {
+						logger.error(e);
+					}
+				});
+			}
+			
 			initializeStudentData(currentStudent);
 			initializeSocialNetworkData(currentStudent);
 			initializeTargetCredentialData(currentStudent);
@@ -260,7 +279,7 @@ public class Profile {
 	
 
 	private User getUser() throws ResourceCouldNotBeLoadedException {
-		return StringUtils.isNotBlank(studentId) 
+		return StringUtils.isNotBlank(studentId)
 				? userManager.get(User.class, idEncoder.decodeId(studentId)) 
 				: userManager.loadResource(User.class, loggedUserBean.getUserId());
 	}

@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -36,6 +38,7 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
@@ -50,6 +53,8 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +74,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CommentManager commentManager;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -737,14 +744,37 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			user.setId(userId);
 			// generate events related to the content
 			//TODO richcontent1 is not a baseentity so event can't be generated
-			generateEventForContent(user, postData.getText(), post);
 			
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
-					lContext, service, null);
-	
+			taskExecutor.execute(() -> {
+				Session session = this.getPersistence().openSession();
+				try {
+					
+					generateEventForContent(user, postData.getText(), post);
+					
+					// generate Post event
+					String page = context != null ? context.getPage() : null;
+					String lContext = context != null ? context.getLearningContext() : null;
+					String service = context != null ? context.getService() : null;
+					eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
+							lContext, service, null);
+					
+					// generate MENTIONED event
+					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
+					
+					if (!mentionedUsers.isEmpty()) {
+						for (long mentionedUserId : mentionedUsers) {
+							User mentionedUser = (User) session.load(User.class, mentionedUserId);
+							
+							eventFactory.generateEvent(EventType.MENTIONED, userId, mentionedUser, post, page, 
+									lContext, service, null);
+						}
+					}
+				} catch (Exception e) {
+					logger.error(e);
+				} finally {
+					HibernateUtil.close(session);
+				}
+			});
 			
 			return post;
 		} catch(Exception e) {
@@ -752,6 +782,21 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving post");
 		}
+	}
+	
+	private List<Long> getMentionedUsers(String postText) {
+		List<Long> userIds = new ArrayList<>();
+		
+		Pattern rulePattern = Pattern.compile("<a data-id=\"(?<userId>[a-zA-Z0-9]+)\"");
+		
+		Matcher ruleMatch = rulePattern.matcher(postText);
+
+		while (ruleMatch.find()) {
+			String userId = ruleMatch.group("userId");
+			
+			userIds.add(idEncoder.decodeId(userId));
+		}
+		return userIds;
 	}
 	
 	@Override
