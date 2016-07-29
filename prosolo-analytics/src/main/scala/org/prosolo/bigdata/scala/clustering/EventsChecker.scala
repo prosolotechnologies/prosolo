@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.scala.clustering
 
-import org.prosolo.bigdata.scala.clustering.ProfileEventsChecker._
+
 import org.prosolo.common.domainmodel.activities.events.EventType
 import org.prosolo.bigdata.events.pojo.LogEvent
 import org.prosolo.bigdata.events.analyzers.ObservationType

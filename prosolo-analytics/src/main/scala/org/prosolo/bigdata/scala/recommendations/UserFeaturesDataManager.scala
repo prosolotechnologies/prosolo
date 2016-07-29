@@ -4,7 +4,13 @@ import org.apache.spark.mllib.linalg.{SparseVector, Vectors}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.jblas.DoubleMatrix
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl
+import com.datastax.spark.connector.cql.CassandraConnector
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.prosolo.bigdata.config.Settings
+import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames}
+import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl.TableNames
+import org.prosolo.common.config.CommonSettings
 
 /**
   * Created by zoran on 19/07/16.
@@ -18,6 +24,10 @@ case class UserCredentials(id:Long, credentials: Seq[String]) {
 object UserFeaturesDataManager {
 
   val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
+ // val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
+
+
+
   /**
     * Loads User credentials from cassandra database and explodes credentials
     * @param sqlContext
@@ -25,8 +35,8 @@ object UserFeaturesDataManager {
     */
   def prepareUsersCredentialDataFrame(sqlContext: SQLContext): (DataFrame, DataFrame) = {
     import sqlContext.implicits._
-    val usersCredentialsDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> "prosolo_logs_zj",
-      "table" -> "usercourses")).load()
+    val usersCredentialsDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
+      "table" -> TablesNames.USER_COURSES)).load()
     usersCredentialsDF.show
 
     //convert users to UsersCredential and explode credentials
@@ -79,13 +89,13 @@ object UserFeaturesDataManager {
    val clustersUsers= groupedByClusters.map(s=>{
       (s._1,s._2.map(row=>row.get(1)))})
    // clustersUsers.saveToCassandra("prosolo_zj","")
-    clustersUsers.saveToCassandra("prosolo_logs_zj","test_x",SomeColumns("cluster","users"))
+    clustersUsers.saveToCassandra(keyspaceName,TablesNames.USERRECOM_CLUSTERUSERS,SomeColumns("cluster","users"))
       //.collect().foreach(s=>println("CLUSTER:"+s._1+" values:"+s._2.mkString(",")))
 
   }
   def loadUsersInClusters(sqlContext: SQLContext):DataFrame={
-    val clustersUsers = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> "prosolo_logs_zj",
-      "table" -> "test_x")).load()
+    val clustersUsers = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
+      "table" -> TablesNames.USERRECOM_CLUSTERUSERS)).load()
     clustersUsers.show
     clustersUsers
   }

@@ -40,16 +40,23 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("CASSANDRA DB FORMATED:" + dbName);
 
 		}
+		ESAdministration esAdmin = new ESAdministrationImpl();
 		if (Settings.getInstance().config.initConfig.formatES) {
-			ESAdministration esAdmin = new ESAdministrationImpl();
+
 			try {
 				esAdmin.deleteIndexes();
-				esAdmin.createIndexes();
-				System.out.println("ELASTICSEARCH FORMATED");
+ 				System.out.println("ELASTICSEARCH FORMATED");
 			} catch (IndexingServiceNotAvailable e) {
 				e.printStackTrace();
 			}
 
+		}
+
+		try {
+			esAdmin.deleteIndexes();
+			esAdmin.createIndexes();
+		} catch (IndexingServiceNotAvailable e) {
+			e.printStackTrace();
 		}
 		// TwitterHashtagsStreamsManagerImpl manager=new
 		// TwitterHashtagsStreamsManagerImpl();

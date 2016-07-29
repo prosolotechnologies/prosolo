@@ -67,11 +67,14 @@ public class UserPreferencesObserver  implements EventObserver{
                     Context currContext=contextsStack.pop();
                     if(eventsChecker.isObjectTypeObserved(currContext.getObjectType())){
                         System.out.println("Should store preference here for:"+currContext.getName()+" id:"+currContext.getId()+" increment:"+increment+" weight:"+weight+" Actor:"+logEvent.getActorId());
-                        long dateEpoch= DateUtil.getDaysSinceEpoch();
-                        Double prevPreferences=UserRecommendationsDBManagerImpl.getInstance().getStudentPreferenceForDate(logEvent.getActorId(),currContext.getObjectType(),currContext.getId(),dateEpoch);
-                        System.out.println("PREVIOUS PREFERENCE:"+prevPreferences+" SHOULD BE NOW:"+(increment*weight+prevPreferences));
-                        UserRecommendationsDBManagerImpl.getInstance()
-                                .insertStudentPreferenceForDate(logEvent.getActorId(),currContext.getObjectType(),currContext.getId(),increment*weight+prevPreferences,dateEpoch);
+                      if(currContext.getId()!=null){
+                          long dateEpoch= DateUtil.getDaysSinceEpoch();
+                          Double prevPreferences=UserRecommendationsDBManagerImpl.getInstance().getStudentPreferenceForDate(logEvent.getActorId(),currContext.getObjectType(),currContext.getId(),dateEpoch);
+                          System.out.println("PREVIOUS PREFERENCE:"+prevPreferences+" SHOULD BE NOW:"+(increment*weight+prevPreferences));
+                          UserRecommendationsDBManagerImpl.getInstance()
+                                  .insertStudentPreferenceForDate(logEvent.getActorId(),currContext.getObjectType(),currContext.getId(),increment*weight+prevPreferences,dateEpoch);
+                      }
+
                     }
                     increment=increment/2;
                 }

@@ -23,8 +23,8 @@ object RecommendationsESIndexer {
 
     val sc=SparkContextLoader.getSC
     val rdd=sc.makeRDD(Seq(UserRecommendations(userId,recommendations)))
-    //val resource=ESIndexNames.INDEX_RECOMMENDATIONDATA+"/"+ESIndexTypes.RECOMMENDED_USERS
-    val resource="spark/docs"
-    EsSpark.saveToEs(rdd, "spark/docs")
+     val resource=ESIndexNames.INDEX_RECOMMENDATIONDATA+"/"+ESIndexTypes.RECOMMENDED_USERS
+    //val resource="spark/docs"
+    EsSpark.saveToEs(rdd, resource)
   }
 }

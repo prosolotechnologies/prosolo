@@ -169,6 +169,9 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String userResourcePreferencesDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +"(userid bigint, resourcetype varchar, resourceid bigint, dateepoch bigint, preference double, PRIMARY KEY (userid, resourcetype, resourceid, dateepoch))";
 		this.ddls.add(userResourcePreferencesDDL);
 
+		String clusterUsersDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_CLUSTERUSERS+"(cluster bigint, users list<bigint>, PRIMARY KEY (cluster))";
+		this.ddls.add(clusterUsersDDL);
+
 
 	}
 

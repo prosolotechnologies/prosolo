@@ -6,8 +6,9 @@ package org.prosolo.bigdata.dal.cassandra.impl;/**
  * zoran 23/07/16
  */
 public class TablesNames {
-    public static final String USERRECOM_USERRESOURCEPREFERENCES_RECORD = "userrecom_userresourcepreferencesrecord";
+    //public static final String USERRECOM_USERRESOURCEPREFERENCES_RECORD = "userrecom_userresourcepreferencesrecord";
     public static final String USERRECOM_USERRESOURCEPREFERENCES = "userrecom_userresourcepreferences";
+    public static final String USERRECOM_CLUSTERUSERS = "userrecom_clusterusers";
 
     public static final String SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW="sna_studentinteractionbytypeoverview";
     public static final String SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW="sna_studentinteractionbypeersoverview";

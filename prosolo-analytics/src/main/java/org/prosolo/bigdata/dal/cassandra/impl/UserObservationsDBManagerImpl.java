@@ -106,6 +106,9 @@ implements Serializable, UserObservationsDBManager{
 
 		String deleteCourseFromUserCourses="UPDATE "+TablesNames.USER_COURSES+" SET courses=courses-? WHERE userid=?;";
 		this.queries.put("deleteCourseFromUserCourses", deleteCourseFromUserCourses);
+
+		String findTotalNumberOfUsers="SELECT count(*) FROM "+TablesNames.USER_COURSES+";";
+		this.queries.put("findTotalNumberOfUsers",findTotalNumberOfUsers);
 		
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
@@ -370,5 +373,25 @@ implements Serializable, UserObservationsDBManager{
 		}catch(Exception ex){
 			ex.getStackTrace();
 		}
+	}
+
+	@Override
+	public Long findTotalNumberOfUsers() {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findTotalNumberOfUsers"));
+
+		Row row =null;
+		Long totalNumber=0l;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			row = rs.one();
+			totalNumber= row.getLong(0);
+
+ 		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
+
+		return totalNumber;
 	}
 }

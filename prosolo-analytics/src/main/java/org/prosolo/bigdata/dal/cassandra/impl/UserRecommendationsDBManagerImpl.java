@@ -9,10 +9,12 @@ import com.datastax.driver.core.Session;
 import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.FIND_USER_PREFERENCE_FOR_DATE;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_CLUSTER_USERS;
 import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_USER_PREFERENCE_FOR_DATE;
 //import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_USER_PREFERENCE_FOR_RESOURCE;
 
@@ -28,7 +30,8 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
     public enum Statements {
        // INSERT_USER_PREFERENCE_FOR_RESOURCE,
         INSERT_USER_PREFERENCE_FOR_DATE,
-        FIND_USER_PREFERENCE_FOR_DATE
+        FIND_USER_PREFERENCE_FOR_DATE,
+        INSERT_CLUSTER_USERS
     }
     private UserRecommendationsDBManagerImpl(){
         super();
@@ -52,6 +55,7 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
        // statements.put(INSERT_USER_PREFERENCE_FOR_RESOURCE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES_RECORD +"(timestamp, userid, resourcetype, resourceid, preference) VALUES(?,?,?,?,?); ");
         statements.put(INSERT_USER_PREFERENCE_FOR_DATE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +"(userid, resourcetype, resourceid, preference, dateepoch) VALUES(?,?,?,?,?); ");
         statements.put(FIND_USER_PREFERENCE_FOR_DATE, "SELECT preference FROM "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +" WHERE userid=? AND resourcetype=? AND resourceid=? AND dateepoch=?; ");
+        statements.put(INSERT_CLUSTER_USERS, "INSERT INTO "+TablesNames.USERRECOM_CLUSTERUSERS +"(cluster, users) VALUES(?,?); ");
        // String getLogEventsInPeriod = "SELECT * FROM logevents where actorid = ?  and timestamp >= ? and timestamp <= ? ALLOW FILTERING;";
           }
 
@@ -103,12 +107,27 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
             statement.setLong(2,resourceid);
             statement.setLong(3,dateEpoch);
             Row row = this.getSession().execute(statement).one();
-            res = (row == null) ? -1 : row.getDouble(0);
+            res = (row == null) ? (0.0) : row.getDouble(0);
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
         }
         return res;
+    }
+    @Override
+    public void insertClusterUsers(Long cluster, List<Long> users) {
+               PreparedStatement prepared = getStatement(getSession(), INSERT_CLUSTER_USERS);
+
+        BoundStatement statement = new BoundStatement(prepared);
+        statement.setLong(0,cluster);
+        statement.setList(1,users);
+
+        try {
+            this.getSession().execute(statement);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+
     }
 
 }
