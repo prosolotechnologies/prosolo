@@ -64,6 +64,14 @@
 	                    <span>or sign in with your email</span>
 	                </div>
 				</c:if>
+				
+				<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+					<div>
+						<a href="http://localhost:8080/saml/login?idp=#{ip.entityId}" >
+							Login with #{ip.displayName}
+						</a>
+					</div>
+				</ui:repeat>
             </div>
 	            
 	           
