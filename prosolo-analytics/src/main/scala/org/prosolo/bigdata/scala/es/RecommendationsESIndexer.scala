@@ -13,13 +13,14 @@ import org.prosolo.common.config.CommonSettings
   * zoran 24/07/16
   */
 case class UserRecommendations(id:Long, recommendedUsers:Array[Recommendations])
-case class Recommendations(id:Long, similarity:Double)
+case class Recommendations(id:Long, score:Double)
 object RecommendationsESIndexer {
   val mapping=Map("es.mapping.id"->"id")
   def storeRecommendedUsersForUser(userId:Long, sortedSims: Array[(Int, Double)]): Unit ={
     val recommendations=sortedSims.map{
       case (user,similarity)=>
-        Recommendations(user,similarity)
+         Recommendations(user,similarity)
+
     }
 
     val sc=SparkContextLoader.getSC
