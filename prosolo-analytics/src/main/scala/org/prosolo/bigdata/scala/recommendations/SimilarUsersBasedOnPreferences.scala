@@ -7,6 +7,8 @@ import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNa
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import com.datastax.spark.connector._
+import org.prosolo.bigdata.config.Settings
+import org.prosolo.bigdata.jobs.{GenerateUserProfileClusters, SimilarUsersBasedOnPreferencesJob}
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -16,20 +18,28 @@ import scala.collection.JavaConverters._
 /**
   * zoran 23/07/16
   */
-object SimilarUsersBasedOnPreferences extends App {
+object SimilarUsersBasedOnPreferences {
 println("FIND SIMILAR USERS BASED ON PREFERENCES")
-  val clusterAproxSize=100
+  val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
+  val clusterAproxSize=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
+  val maxIt1=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration1").toInt;
+  val maxIt2=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration2").toInt;
+  val possibleMaxIterations=Seq(maxIt1, maxIt2)
   val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
   val sc = SparkContextLoader.getSC
   sc.setLogLevel("WARN")
   val sqlContext = SQLContext.getOrCreate(sc)
-  import sqlContext.implicits._
-  val totalNumberOfUsers=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
-  println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers+" MIN-MAX:"+getMinNumClusters().toString())
 
-  if (totalNumberOfUsers>clusterAproxSize*1.5) runKmeans() else createOneCluster()
+  def runJob(): Unit ={
+    import sqlContext.implicits._
+    val totalNumberOfUsers=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
+    println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers+" MIN-MAX:"+getMinNumClusters(totalNumberOfUsers).toString())
 
-  runALSUserRecommender()
+    if (totalNumberOfUsers>clusterAproxSize*1.5) runKmeans(totalNumberOfUsers) else createOneCluster()
+
+    runALSUserRecommender()
+  }
+
 
   /**
     * Stores all users in one cluster without clustering if number of users is small
@@ -52,7 +62,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     * Calculates what are the boundaries for the number of clusters
     * @return
     */
-  private def getMinNumClusters()={
+  private def getMinNumClusters(totalNumberOfUsers:Long)={
     val maxNumber:Int= (totalNumberOfUsers/clusterAproxSize).toInt
     val multiplicator:Int=if(maxNumber>20) maxNumber/10 else 1
     val minNumber:Int=if(maxNumber>5) maxNumber-5*multiplicator else 1
@@ -64,9 +74,9 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     * Performs users clustering, in order to limit data model loading to one specific cluster only.
     * Users are clustered based on the credentials they are assigned to
     */
-  def runKmeans(): Unit ={
-    val possibleNumClusters=getMinNumClusters()
-    val possibleMaxIterations=Seq(15,20)
+  def runKmeans(totalNumberOfUsers:Long): Unit ={
+    val possibleNumClusters=getMinNumClusters(totalNumberOfUsers)
+
     val (usersWithCredentialsDF, usersWithExplodedCredentials)= UserFeaturesDataManager.prepareUsersCredentialDataFrame(sqlContext)
     val resultsDF= FeaturesBuilder.buildAndTransformPipelineModel(usersWithExplodedCredentials)
     val joinedResults=UserFeaturesDataManager.combineUserCredentialVectors(sqlContext, resultsDF, usersWithCredentialsDF)

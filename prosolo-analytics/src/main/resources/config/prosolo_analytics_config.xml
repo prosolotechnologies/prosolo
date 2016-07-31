@@ -96,6 +96,18 @@
 					<schedule>0 0 7 * * ?</schedule><!--0 0 7 * * ? Executes every day at 7AM-->
 				</job>
 			</class>
+			<class name="org.prosolo.bigdata.jobs.SimilarUsersBasedOnPreferencesJob">
+				<job>
+					<activated>true</activated>
+					<on-startup>true</on-startup>
+					<schedule>0 0 1 ? * SUN *</schedule><!--0 0 1 ? * SUN * every Sunday at 1AM-->
+					<properties>
+						<property name="clusterAproximateSize">100</property>
+						<property name="possibleKmeansMaxIteration1">15</property>
+						<property name="possibleKmeansMaxIteration2">20</property>
+					</properties>
+				</job>
+			</class>
 		</quartz-jobs>
 		<streaming-jobs>
 			<twitterStreaming>true</twitterStreaming>

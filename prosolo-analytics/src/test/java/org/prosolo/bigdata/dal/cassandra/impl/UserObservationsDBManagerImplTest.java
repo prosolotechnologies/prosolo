@@ -69,11 +69,11 @@ public class UserObservationsDBManagerImplTest {
         int compMax=100;
         int actMax=300;
         long date=DateUtil.getDaysSinceEpoch();
-        for (int  xd=0;xd<2;xd++){
+        for (int  xd=0;xd<10;xd++){
             long d=date-xd;
            System.out.println("GENERATING DATE:"+d) ;
 
-        for(int i=0;i<200;i++){
+        for(int i=0;i<100;i++){
             long userid = r.nextInt(userMax);
             int weightR=r.nextInt(100);
             Double weight=(double)weightR/100;
