@@ -17,7 +17,7 @@ import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
   */
 object ALSUserRecommender {
   val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
-  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long]) {
+  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int) {
     println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
     val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable(keyspaceName, TablesNames.USERRECOM_USERRESOURCEPREFERENCES)
@@ -36,13 +36,19 @@ object ALSUserRecommender {
     val model = ALS.train(ratings, 50, 10, 0.01)
     println("FINISHED MODEL FOR CLUSTER:" + cId + " users number:" + usersIds.collect().length)
 
-    val recNumber = 10
+     val recNumber = clusterAproxSize
+
     users.foreach(userId => {
     // val recommendations= usersIds.map(userId => {
       println("PROCESSING USER:" + userId)
-      val sortedSims = findSimilarUsers(model, userId, recNumber);
+      val sortedSims: Array[(Int, Double)] = findSimilarUsers(model, userId, recNumber);
+      val nonRelevantUsers:List[Long]=users.filter{uid => !sortedSims.exists(_._1 == uid) }
       println("USER RECOMMENDATIONS:FOR USER:" + sortedSims.size + ":" + userId + " :" + sortedSims.slice(1, recNumber + 1).mkString(","))
-      RecommendationsESIndexer.storeRecommendedUsersForUser(userId, sortedSims)
+      println("NON RELEVANT"+nonRelevantUsers)
+      val nonRel: Array[(Int, Double)]=nonRelevantUsers.map{uid=>(uid.toInt,0.0)}.toArray
+      val recommendations: Array[(Int, Double)]=sortedSims++nonRel
+      println("WHOLE LIST:"+recommendations.mkString(","))
+      RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations)
       //(userId, sortedSims)
    // }
     }

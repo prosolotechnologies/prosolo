@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
 /**
   * zoran 23/07/16
   */
-object SimilarUsersBasedOnPreferences {
+object SimilarUsersBasedOnPreferences extends App {
 println("FIND SIMILAR USERS BASED ON PREFERENCES")
   val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
   val clusterAproxSize=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
@@ -39,7 +39,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
 
     runALSUserRecommender()
   }
-
+runJob()
 
   /**
     * Stores all users in one cluster without clustering if number of users is small
@@ -91,7 +91,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext)
     clustersUsers.foreach {
       row: Row =>
-        ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList)
+        ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize)
     }
   }
 

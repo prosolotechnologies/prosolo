@@ -12,9 +12,10 @@ import org.prosolo.common.config.CommonSettings
 /**
   * zoran 24/07/16
   */
-case class UserRecommendations(userid:Long, recommendedUsers:Array[Recommendations])
+case class UserRecommendations(id:Long, recommendedUsers:Array[Recommendations])
 case class Recommendations(id:Long, similarity:Double)
 object RecommendationsESIndexer {
+  val mapping=Map("es.mapping.id"->"id")
   def storeRecommendedUsersForUser(userId:Long, sortedSims: Array[(Int, Double)]): Unit ={
     val recommendations=sortedSims.map{
       case (user,similarity)=>
@@ -23,8 +24,8 @@ object RecommendationsESIndexer {
 
     val sc=SparkContextLoader.getSC
     val rdd=sc.makeRDD(Seq(UserRecommendations(userId,recommendations)))
-     val resource=ESIndexNames.INDEX_RECOMMENDATIONDATA+"/"+ESIndexTypes.RECOMMENDED_USERS
+     val resource=ESIndexNames.INDEX_RECOMMENDATIONDATA+"/"+ESIndexTypes.SIMILAR_USERS
     //val resource="spark/docs"
-    EsSpark.saveToEs(rdd, resource)
+    EsSpark.saveToEs(rdd, resource,mapping)
   }
 }
