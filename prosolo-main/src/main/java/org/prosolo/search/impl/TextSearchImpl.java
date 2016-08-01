@@ -58,7 +58,7 @@ import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;

@@ -17,7 +17,7 @@ import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.springframework.beans.factory.annotation.Autowired;

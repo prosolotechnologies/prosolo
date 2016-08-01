@@ -16,6 +16,7 @@ import org.elasticsearch.search.SearchHit;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.ESIndexNames;
 
 /**
  * @author Zoran Jeremic May 10, 2015

@@ -21,6 +21,7 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.ESIndexNames;
 
 /**
  * @author Zoran Jeremic May 9, 2015
@@ -92,7 +93,7 @@ public class AssociationRulesIndexerImpl extends AbstractESIndexer implements
 			builder.endArray();
 			builder.endObject();
 			this.indexDocument(builder, String.valueOf(competenceid),
-					ESIndexNames.INDEX_RECOMMENDATIONDATA,
+					ESIndexNames.INDEX_RECOMMENDATION_DATA,
 					ESIndexTypes.FREQ_COMPETENCE_ACTIVITIES);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

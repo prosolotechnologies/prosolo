@@ -10,6 +10,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 
 /**
  * @author Zoran Jeremic Jun 2, 2015
@@ -47,12 +48,12 @@ public class RecommendationDataIndexerImpl extends AbstractESIndexer implements
 			builder.endArray();
 			// builder.field("mostactiveusers",mostactiveusers);
 			this.delete(String.valueOf(counterObject.getLearninggoal()),
-					ESIndexNames.INDEX_RECOMMENDATIONDATA,
+					ESIndexNames.INDEX_RECOMMENDATION_DATA,
 					ESIndexTypes.MOSTACTIVEUSERSFORLEARNINGGOAL);
 			System.out.println("SHOULD INDEX:" + builder.string());
 			this.indexDocument(builder,
 					String.valueOf(counterObject.getLearninggoal()),
-					ESIndexNames.INDEX_RECOMMENDATIONDATA,
+					ESIndexNames.INDEX_RECOMMENDATION_DATA,
 					ESIndexTypes.MOSTACTIVEUSERSFORLEARNINGGOAL);
 			// indexNode(builder, String.valueOf(resource.getId()),ES_INDEX,
 			// indexType);

@@ -172,6 +172,9 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String clusterUsersDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_CLUSTERUSERS+"(cluster bigint, users list<bigint>, PRIMARY KEY (cluster))";
 		this.ddls.add(clusterUsersDDL);
 
+		String newUsersDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_NEWUSERS+"(userid bigint, timestamp bigint,  PRIMARY KEY (userid))";
+		this.ddls.add(clusterUsersDDL);
+
 
 	}
 

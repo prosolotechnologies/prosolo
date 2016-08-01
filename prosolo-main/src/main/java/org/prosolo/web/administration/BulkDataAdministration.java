@@ -29,7 +29,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.PostManager;

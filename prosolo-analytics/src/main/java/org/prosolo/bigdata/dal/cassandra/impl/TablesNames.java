@@ -9,6 +9,8 @@ public class TablesNames {
     //public static final String USERRECOM_USERRESOURCEPREFERENCES_RECORD = "userrecom_userresourcepreferencesrecord";
     public static final String USERRECOM_USERRESOURCEPREFERENCES = "userrecom_userresourcepreferences";
     public static final String USERRECOM_CLUSTERUSERS = "userrecom_clusterusers";
+    public static final String USERRECOM_NEWUSERS = "userrecom_newusers";
+
 
     public static final String SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW="sna_studentinteractionbytypeoverview";
     public static final String SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW="sna_studentinteractionbypeersoverview";
@@ -28,4 +30,5 @@ public class TablesNames {
     public static final String CURRENT_TIMESTAMPS="currenttimestamps";
     public static final String STUDENT_ASSIGN_EVENT = "student_assign_events";
     public static final String USER_COURSES="usercourses";
+
 }

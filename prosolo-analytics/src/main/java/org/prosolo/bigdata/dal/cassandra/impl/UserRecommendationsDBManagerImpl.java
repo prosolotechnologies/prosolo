@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.FIND_USER_PREFERENCE_FOR_DATE;
-import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_CLUSTER_USERS;
-import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_USER_PREFERENCE_FOR_DATE;
+import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.*;
 //import static org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl.Statements.INSERT_USER_PREFERENCE_FOR_RESOURCE;
 
 
@@ -31,7 +29,10 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
        // INSERT_USER_PREFERENCE_FOR_RESOURCE,
         INSERT_USER_PREFERENCE_FOR_DATE,
         FIND_USER_PREFERENCE_FOR_DATE,
-        INSERT_CLUSTER_USERS
+        INSERT_CLUSTER_USERS,
+        INSERT_NEW_USER,
+        FIND_NEW_USER,
+        DELETE_NEW_USER
     }
     private UserRecommendationsDBManagerImpl(){
         super();
@@ -51,33 +52,19 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
         return prepared.get(statement);
     }
 
+
+
     static {
        // statements.put(INSERT_USER_PREFERENCE_FOR_RESOURCE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES_RECORD +"(timestamp, userid, resourcetype, resourceid, preference) VALUES(?,?,?,?,?); ");
         statements.put(INSERT_USER_PREFERENCE_FOR_DATE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +"(userid, resourcetype, resourceid, preference, dateepoch) VALUES(?,?,?,?,?); ");
         statements.put(FIND_USER_PREFERENCE_FOR_DATE, "SELECT preference FROM "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +" WHERE userid=? AND resourcetype=? AND resourceid=? AND dateepoch=?; ");
         statements.put(INSERT_CLUSTER_USERS, "INSERT INTO "+TablesNames.USERRECOM_CLUSTERUSERS +"(cluster, users) VALUES(?,?); ");
-       // String getLogEventsInPeriod = "SELECT * FROM logevents where actorid = ?  and timestamp >= ? and timestamp <= ? ALLOW FILTERING;";
+        statements.put(INSERT_NEW_USER, "INSERT INTO "+TablesNames.USERRECOM_NEWUSERS +"(user, timestamp) VALUES(?,?); ");
+        statements.put(FIND_NEW_USER, "SELECT * FROM "+TablesNames.USERRECOM_NEWUSERS +" WHERE userid=?; ");
+        statements.put(DELETE_NEW_USER, "DELETE FROM "+TablesNames.USERRECOM_NEWUSERS +" WHERE userid=?; ");
           }
 
-  /*  @Override
-    public void insertStudentPreferenceRecord(Long student, String resourcetype, Long resourceid, Double preference, Long timestamp) {
-        System.out.println("INSERT studentPreference... for timestamp:"+timestamp+" student:"+student+" resource type:"+resourcetype+" resourceid:"+resourceid+" preference:"+preference);
-        PreparedStatement prepared = getStatement(getSession(), INSERT_USER_PREFERENCE_FOR_RESOURCE);
 
-        BoundStatement statement = new BoundStatement(prepared);
-        statement.setLong(0,timestamp);
-        statement.setLong(1,student);
-        statement.setString(2,resourcetype);
-        statement.setLong(3,resourceid);
-        statement.setDouble(4,preference);
-
-        try {
-            this.getSession().execute(statement);
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
-
-    }*/
     @Override
     public void insertStudentPreferenceForDate(Long student, String resourcetype, Long resourceid, Double preference, Long dateEpoch) {
         System.out.println("INSERT studentPreference... for date:"+dateEpoch+" student:"+student+" resource type:"+resourcetype+" resourceid:"+resourceid+" preference:"+preference);
@@ -126,6 +113,49 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
             this.getSession().execute(statement);
         }catch(Exception ex){
             ex.printStackTrace();
+        }
+
+    }
+    @Override
+    public void insertNewUser(Long userid, Long timestamp) {
+        PreparedStatement prepared = getStatement(getSession(), INSERT_NEW_USER);
+
+        BoundStatement statement = new BoundStatement(prepared);
+        statement.setLong(0,userid);
+        statement.setLong(1,timestamp);
+
+        try {
+            this.getSession().execute(statement);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    @Override
+    public Boolean isStudentNew(Long user) {
+        Boolean isStudentNew=null;
+        try {
+            BoundStatement statement = new BoundStatement(getStatement(getSession(),FIND_NEW_USER));
+
+            statement.setLong(0,user);
+            Row row = this.getSession().execute(statement).one();
+            isStudentNew = (row == null) ? false : true;
+        } catch(Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+        }
+        return isStudentNew;
+    }
+    @Override
+    public void deleteStudentNew(Long user) {
+        Boolean isStudentNew=null;
+        try {
+            BoundStatement statement = new BoundStatement(getStatement(getSession(),DELETE_NEW_USER));
+
+            statement.setLong(0,user);
+           this.getSession().execute(statement);
+        } catch(Exception e) {
+            logger.error(e);
+            e.printStackTrace();
         }
 
     }

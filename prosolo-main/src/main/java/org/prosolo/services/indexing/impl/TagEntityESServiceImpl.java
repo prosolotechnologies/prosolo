@@ -8,7 +8,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.TagEntityESService;
 import org.springframework.stereotype.Service;
 

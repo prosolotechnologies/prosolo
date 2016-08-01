@@ -38,7 +38,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 //import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.TikaExtractor;

@@ -17,7 +17,7 @@ import org.elasticsearch.search.SearchHits;
 import org.prosolo.recommendation.impl.RecommendedDocument;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.springframework.stereotype.Service;
 

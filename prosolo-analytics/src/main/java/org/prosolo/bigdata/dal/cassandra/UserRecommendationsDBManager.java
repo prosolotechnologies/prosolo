@@ -14,4 +14,10 @@ public interface UserRecommendationsDBManager {
     Double getStudentPreferenceForDate(Long student, String resourcetype, Long resourceid, Long dateEpoch);
 
     void insertClusterUsers(Long cluster, List<Long> users);
+
+    void insertNewUser(Long userid, Long timestamp);
+
+    Boolean isStudentNew(Long user);
+
+    void deleteStudentNew(Long user);
 }
