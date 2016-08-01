@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.es;
+package org.prosolo.bigdata.es.impl;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
@@ -16,6 +16,8 @@ import org.elasticsearch.search.SearchHit;
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.bigdata.es.ESAssociationRulesSearch;
+import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
 
 /**

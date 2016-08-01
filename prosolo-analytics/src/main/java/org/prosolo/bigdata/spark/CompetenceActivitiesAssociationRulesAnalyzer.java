@@ -2,26 +2,16 @@ package org.prosolo.bigdata.spark;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
 import org.prosolo.bigdata.algorithms.fpgrowth.CompetenceAlgoFPGrowth;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AlgoAgrawalFaster94;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRules;
-import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemset;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
-import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
-import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 
 /**
  * @author Zoran Jeremic May 10, 2015

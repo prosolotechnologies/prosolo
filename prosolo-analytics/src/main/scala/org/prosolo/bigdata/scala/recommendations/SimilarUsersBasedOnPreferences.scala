@@ -33,7 +33,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
   def runJob(): Unit ={
     import sqlContext.implicits._
     val totalNumberOfUsers=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
-    println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers+" MIN-MAX:"+getMinNumClusters(totalNumberOfUsers).toString())
+    println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers)
 
     if (totalNumberOfUsers>clusterAproxSize*1.5) runKmeans(totalNumberOfUsers) else createOneCluster()
 
@@ -93,6 +93,10 @@ runJob()
       row: Row =>
         ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize)
     }
+  }
+
+  def recommendBasedOnCredentialsForColdStart(userid:Long, credentials:java.util.Set[java.lang.Long]):Unit={
+    println("Recommend based on Credentials for user:"+userid)
   }
 
   // runKmeans()

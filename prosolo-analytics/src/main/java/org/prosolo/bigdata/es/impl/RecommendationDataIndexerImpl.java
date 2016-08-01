@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.es;
+package org.prosolo.bigdata.es.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,6 +10,8 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.dal.pojo.MostActiveUsersForLearningGoal;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.bigdata.es.AbstractESIndexer;
+import org.prosolo.bigdata.es.RecommendationDataIndexer;
 import org.prosolo.common.ESIndexNames;
 
 /**

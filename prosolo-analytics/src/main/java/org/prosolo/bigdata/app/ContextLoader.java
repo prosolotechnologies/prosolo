@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.ESAdministrationImpl;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;

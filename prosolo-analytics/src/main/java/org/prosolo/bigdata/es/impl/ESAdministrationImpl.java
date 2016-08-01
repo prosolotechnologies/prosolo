@@ -1,24 +1,23 @@
-package org.prosolo.bigdata.es;
+package org.prosolo.bigdata.es.impl;
 
 import static org.elasticsearch.client.Requests.clusterHealthRequest;
 import static org.elasticsearch.client.Requests.createIndexRequest;
 import static org.elasticsearch.client.Requests.deleteIndexRequest;
-import static org.elasticsearch.client.Requests.putMappingRequest;
 //import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
-import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
 import org.elasticsearch.common.settings.Settings;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
 
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.bigdata.es.AbstractESIndexer;
+import org.prosolo.bigdata.es.ESAdministration;
+import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;

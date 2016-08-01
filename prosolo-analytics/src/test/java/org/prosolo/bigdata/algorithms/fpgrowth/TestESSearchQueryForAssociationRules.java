@@ -18,6 +18,7 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.ElasticSearchConnector;
+import org.prosolo.common.ESIndexNames;
 
 
 /**

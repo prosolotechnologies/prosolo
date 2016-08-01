@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.es;/**
+package org.prosolo.bigdata.es.impl;/**
  * Created by zoran on 31/07/16.
  */
 
@@ -20,60 +20,38 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.bigdata.es.AbstractESIndexer;
+import org.prosolo.bigdata.es.DataSearch;
+import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.User;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * zoran 31/07/16
  */
-public class DataSearchImpl  extends AbstractESIndexer implements DataSearch{
+public class DataSearchImpl  extends AbstractESIndexer implements DataSearch {
     private static Logger logger = Logger
             .getLogger(DataSearch.class.getName());
-    public void searchCredentialMembers (
-            String searchTerm,  int page, int limit, long credId) {
-
-
+    @Override
+    public List<Long> findCredentialMembers(long credId,int page, int limit) {
+            List<Long> members=new ArrayList<Long>();
+            System.out.println("SEARCHING");
             int start = 0;
             start = setStart(page, limit);
 
             Client client = ElasticSearchConnector.getClient();
-        try{
-            this.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-        }catch(IndexingServiceNotAvailable isna){
-            logger.error(isna);
-        }
-
-
             BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-            if(searchTerm != null && !searchTerm.isEmpty()) {
-                QueryBuilder qb = QueryBuilders
-                        .queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-                        .defaultOperator(QueryStringQueryBuilder.Operator.AND)
-                        .field("name").field("lastname");
-
-                bQueryBuilder.must(qb);
-            }
-
-
 
             BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
             nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
-           /* if(instructorId != -1) {
-                nestedFB.must(QueryBuilders.termQuery("credentials.instructorId", instructorId));
-            }*/
-            NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
+             NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
                     nestedFB);
-//					.innerHit(new QueryInnerHitBuilder());
             FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
                     nestedFilter1);
-            //bQueryBuilder.must(termQuery("credentials.id", credId));
 
-
-                String[] includes = {"id", "name", "lastname", "avatar", "position"};
+                String[] includes = {"id"};
                 SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
                         .setTypes(ESIndexTypes.USER)
                         .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -83,25 +61,24 @@ public class DataSearchImpl  extends AbstractESIndexer implements DataSearch{
                                         .filter(QueryBuilders.termQuery("credentials.id", credId))
                                         ))
                         .setFetchSource(includes, null);
-
-				/*
-				 * set instructor assign filter as a post filter so it does not influence
-				 * aggregation results
-				 */
-
                     nestedFilter1.innerHit(new QueryInnerHitBuilder());
 
 
                 searchRequestBuilder.setFrom(start).setSize(limit);
 
 
-                //System.out.println(searchRequestBuilder.toString());
+                System.out.println(searchRequestBuilder.toString());
                 SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+        if (sResponse != null) {
+            for (SearchHit hit : sResponse.getHits()) {
+                members.add(Long.valueOf(hit.getSource().get("id").toString()));
+            }
+        }
 
 
 
 
-
+        return members;
     }
 
     private int setStart(int page, int limit){

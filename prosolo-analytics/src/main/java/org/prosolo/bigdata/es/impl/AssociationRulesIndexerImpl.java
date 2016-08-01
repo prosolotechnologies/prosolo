@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.es;
+package org.prosolo.bigdata.es.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,7 +20,9 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.bigdata.es.AbstractESIndexer;
+import org.prosolo.bigdata.es.AssociationRulesIndexer;
+import org.prosolo.bigdata.es.ElasticSearchConnector;
 import org.prosolo.common.ESIndexNames;
 
 /**

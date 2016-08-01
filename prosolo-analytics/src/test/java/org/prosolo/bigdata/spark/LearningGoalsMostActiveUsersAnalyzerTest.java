@@ -1,11 +1,6 @@
 package org.prosolo.bigdata.spark;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-import org.prosolo.bigdata.es.RecommendationDataIndexer;
-import org.prosolo.bigdata.es.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.utils.DateUtil;
 
 /**
