@@ -43,7 +43,6 @@ public class UserEnrollmentObserver  implements EventObserver {
             if(UserRecommendationsDBManagerImpl.getInstance().isStudentNew(userid)){
                 System.out.println("NEW STUDENT. GET SOME RECOMMENDATIONS");
                 Set<Long> credentials= UserObservationsDBManagerImpl.getInstance().findAllUserCourses(userid);
-                System.out.println("CREDENTIALS:"+credentials.size());
                 Long cId=logEvent.getCourseId();
                 credentials.add(cId);
                 SimilarUsersBasedOnPreferences$ recommender=SimilarUsersBasedOnPreferences$.MODULE$;

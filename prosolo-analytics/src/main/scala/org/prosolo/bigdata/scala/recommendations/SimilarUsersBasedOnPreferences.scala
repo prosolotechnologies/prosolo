@@ -100,11 +100,9 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
   }
 
   def recommendBasedOnCredentialsForColdStart(userid:Long, credentials:java.util.Set[java.lang.Long]):Unit={
-    println("CALLED RECOMMEND BASED ON CREDENTIALS FOR USER:"+userid)
     val dataSearch=new DataSearchImpl
     val creds=credentials.asScala
     val recommendations=creds.flatMap { credId =>
-      println("checking credential:"+credId)
       val members = dataSearch.findCredentialMembers(credId, 0, 50).asScala
       members
     }.map{member=>
