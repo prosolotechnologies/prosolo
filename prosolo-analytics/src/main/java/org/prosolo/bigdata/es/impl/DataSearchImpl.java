@@ -37,7 +37,6 @@ public class DataSearchImpl  extends AbstractESIndexer implements DataSearch {
     @Override
     public List<Long> findCredentialMembers(long credId,int page, int limit) {
             List<Long> members=new ArrayList<Long>();
-            System.out.println("SEARCHING");
             int start = 0;
             start = setStart(page, limit);
 
@@ -67,17 +66,13 @@ public class DataSearchImpl  extends AbstractESIndexer implements DataSearch {
                 searchRequestBuilder.setFrom(start).setSize(limit);
 
 
-                System.out.println(searchRequestBuilder.toString());
+             //   System.out.println(searchRequestBuilder.toString());
                 SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
         if (sResponse != null) {
             for (SearchHit hit : sResponse.getHits()) {
                 members.add(Long.valueOf(hit.getSource().get("id").toString()));
             }
         }
-
-
-
-
         return members;
     }
 

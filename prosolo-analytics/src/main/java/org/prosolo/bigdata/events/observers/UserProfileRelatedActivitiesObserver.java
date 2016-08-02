@@ -52,10 +52,10 @@ public class UserProfileRelatedActivitiesObserver implements EventObserver{
 		long userid=logEvent.getActorId();
 		long courseid=logEvent.getCourseId();
 		if(logEvent.getEventType().equals(EventType.ENROLL_COURSE)){
-			courseid=logEvent.getTargetId();
+			//courseid=logEvent.getCourseId();
 			UserObservationsDBManagerImpl.getInstance().enrollUserToCourse(userid,courseid);
 		}else if(logEvent.getEventType().equals(EventType.COURSE_WITHDRAWN)){
-			courseid=logEvent.getTargetId();
+			//courseid=logEvent.getCourseId();
 			UserObservationsDBManagerImpl.getInstance().withdrawUserFromCourse(userid, courseid);
 		}
 		if(eventsChecker.isEventObserved(logEvent)){

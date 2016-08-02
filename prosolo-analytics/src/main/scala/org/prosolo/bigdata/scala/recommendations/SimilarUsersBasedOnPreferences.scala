@@ -8,7 +8,9 @@ import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.config.Settings
+import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.jobs.{GenerateUserProfileClusters, SimilarUsersBasedOnPreferencesJob}
+import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -18,7 +20,7 @@ import scala.collection.JavaConverters._
 /**
   * zoran 23/07/16
   */
-object SimilarUsersBasedOnPreferences extends App {
+object SimilarUsersBasedOnPreferences {
 println("FIND SIMILAR USERS BASED ON PREFERENCES")
   val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
   val clusterAproxSize=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
@@ -39,13 +41,15 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
 
     runALSUserRecommender()
   }
-runJob()
+ //runJob()
 
   /**
     * Stores all users in one cluster without clustering if number of users is small
     */
   def createOneCluster()= {
     println("CREATE ONE CLUSTER ONLY")
+    println("KEYSPACE:"+keyspaceName+" ")
+    if(sqlContext==null)println("SQL CONTEXT IS NULL")
     val usersInTheSystemDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
     usersInTheSystemDF.show
@@ -96,9 +100,26 @@ runJob()
   }
 
   def recommendBasedOnCredentialsForColdStart(userid:Long, credentials:java.util.Set[java.lang.Long]):Unit={
-    println("Recommend based on Credentials for user:"+userid)
-  }
+    println("CALLED RECOMMEND BASED ON CREDENTIALS FOR USER:"+userid)
+    val dataSearch=new DataSearchImpl
+    val creds=credentials.asScala
+    val recommendations=creds.flatMap { credId =>
+      println("checking credential:"+credId)
+      val members = dataSearch.findCredentialMembers(credId, 0, 50).asScala
+      members
+    }.map{member=>
+      (member.toInt,0.0)
+    }.toArray
+    println("STORE RECOMMENDATIONS FOR:"+userid+" REC:"+recommendations.mkString(","))
+    RecommendationsESIndexer.storeRecommendedUsersForUser(userid, recommendations)
 
+
+  }
+  val creds=new java.util.HashSet[java.lang.Long]()
+  creds.add(1l)
+  creds.add(2l)
+  creds.add(3l)
+//recommendBasedOnCredentialsForColdStart(2,creds)
   // runKmeans()
 
 }

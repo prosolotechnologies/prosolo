@@ -45,6 +45,7 @@ public class ContextLoader implements ServletContextListener {
 
 			try {
 				esAdmin.deleteIndexes();
+				esAdmin.createIndexes();
  				System.out.println("ELASTICSEARCH FORMATED");
 			} catch (IndexingServiceNotAvailable e) {
 				e.printStackTrace();
@@ -52,12 +53,7 @@ public class ContextLoader implements ServletContextListener {
 
 		}
 
-		try {
-			esAdmin.deleteIndexes();
-			esAdmin.createIndexes();
-		} catch (IndexingServiceNotAvailable e) {
-			e.printStackTrace();
-		}
+
 		// TwitterHashtagsStreamsManagerImpl manager=new
 		// TwitterHashtagsStreamsManagerImpl();
 		// manager.initialize();

@@ -60,6 +60,11 @@ public class UserObservationsDBManagerImplTest {
             dbManager.enrollUserToCourse(userid,credential);
         }
     }
+
+    @Test
+    public void testNewStudentInsert(){
+        UserRecommendationsDBManagerImpl.getInstance().insertNewUser(45l,123123123l);
+    }
     @Test
     public void randomlyGenerateUserPreferences(){
         UserRecommendationsDBManager dbManager= UserRecommendationsDBManagerImpl.getInstance();

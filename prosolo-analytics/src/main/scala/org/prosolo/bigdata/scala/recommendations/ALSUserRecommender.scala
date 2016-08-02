@@ -6,7 +6,7 @@ import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rat
 import org.apache.spark.rdd.RDD
 import com.datastax.spark.connector._
 import org.jblas.DoubleMatrix
-import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames}
+import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames, UserObservationsDBManagerImpl, UserRecommendationsDBManagerImpl}
 import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
 
 /**
@@ -49,6 +49,7 @@ object ALSUserRecommender {
       val recommendations: Array[(Int, Double)]=sortedSims++nonRel
       println("WHOLE LIST:"+recommendations.mkString(","))
       RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations)
+      UserRecommendationsDBManagerImpl.getInstance.deleteStudentNew(userId)
       //(userId, sortedSims)
    // }
     }

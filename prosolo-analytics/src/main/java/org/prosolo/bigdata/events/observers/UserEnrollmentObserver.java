@@ -17,7 +17,7 @@ import java.util.Set;
  * zoran 31/07/16
  */
 public class UserEnrollmentObserver  implements EventObserver {
-    SimilarUsersBasedOnPreferences$ recommender=SimilarUsersBasedOnPreferences$.MODULE$;
+
     @Override
     public Topic[] getSupportedTopics() {
         return new Topic[]{Topic.LOGS};
@@ -35,14 +35,18 @@ public class UserEnrollmentObserver  implements EventObserver {
         if(logEvent.getEventType().equals(EventType.Registered)) {
 
             long time=logEvent.getTimestamp();
+            System.out.println("NEW USER REGISTERED:"+userid);
             UserRecommendationsDBManagerImpl.getInstance().insertNewUser(userid,time);
 
         }else if (logEvent.getEventType().equals(EventType.ENROLL_COURSE)) {
+            System.out.println("ENROLL USER IN ENROLLMENT OBSERVER");
             if(UserRecommendationsDBManagerImpl.getInstance().isStudentNew(userid)){
                 System.out.println("NEW STUDENT. GET SOME RECOMMENDATIONS");
                 Set<Long> credentials= UserObservationsDBManagerImpl.getInstance().findAllUserCourses(userid);
+                System.out.println("CREDENTIALS:"+credentials.size());
                 Long cId=logEvent.getCourseId();
                 credentials.add(cId);
+                SimilarUsersBasedOnPreferences$ recommender=SimilarUsersBasedOnPreferences$.MODULE$;
                 recommender.recommendBasedOnCredentialsForColdStart(userid, credentials);
             }
         }

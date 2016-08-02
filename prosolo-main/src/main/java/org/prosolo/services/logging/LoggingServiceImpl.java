@@ -222,7 +222,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress) throws LoggingException {
 
-		if (!Settings.getInstance().config.init.formatDB) {
+		//if (!Settings.getInstance().config.init.formatDB) {
 	 
 			if (parameters == null) {
 				parameters = new HashMap<String, String>();
@@ -300,7 +300,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}
 */
-		}
+	//	}
 	}
 
 	private Long extractSocialInteractionTargetUser(JSONObject logObject, EventType eventType){
@@ -606,7 +606,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException {
 
-		if (!Settings.getInstance().config.init.formatDB) {
+		//if (!Settings.getInstance().config.init.formatDB) {
 			 
 			if (parameters == null) {
 				parameters = new HashMap<String, String>();
@@ -677,7 +677,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
-			
+			logger.debug("LOG:"+logObject.toJSONString());
 			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
@@ -705,7 +705,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}*/
 
-		}
+	//	}
 	}
 	
 	@Override

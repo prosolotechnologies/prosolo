@@ -59,7 +59,7 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
         statements.put(INSERT_USER_PREFERENCE_FOR_DATE, "INSERT INTO "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +"(userid, resourcetype, resourceid, preference, dateepoch) VALUES(?,?,?,?,?); ");
         statements.put(FIND_USER_PREFERENCE_FOR_DATE, "SELECT preference FROM "+TablesNames.USERRECOM_USERRESOURCEPREFERENCES +" WHERE userid=? AND resourcetype=? AND resourceid=? AND dateepoch=?; ");
         statements.put(INSERT_CLUSTER_USERS, "INSERT INTO "+TablesNames.USERRECOM_CLUSTERUSERS +"(cluster, users) VALUES(?,?); ");
-        statements.put(INSERT_NEW_USER, "INSERT INTO "+TablesNames.USERRECOM_NEWUSERS +"(user, timestamp) VALUES(?,?); ");
+        statements.put(INSERT_NEW_USER, "INSERT INTO "+TablesNames.USERRECOM_NEWUSERS +"(userid, timestamp) VALUES(?,?); ");
         statements.put(FIND_NEW_USER, "SELECT * FROM "+TablesNames.USERRECOM_NEWUSERS +" WHERE userid=?; ");
         statements.put(DELETE_NEW_USER, "DELETE FROM "+TablesNames.USERRECOM_NEWUSERS +" WHERE userid=?; ");
           }
@@ -147,6 +147,7 @@ public class UserRecommendationsDBManagerImpl  extends SimpleCassandraClientImpl
     }
     @Override
     public void deleteStudentNew(Long user) {
+        System.out.println("DELETE STUDENT NEW:"+user);
         Boolean isStudentNew=null;
         try {
             BoundStatement statement = new BoundStatement(getStatement(getSession(),DELETE_NEW_USER));

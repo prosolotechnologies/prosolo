@@ -43,6 +43,10 @@ public class StreamingManagerImpl {
 		StreamConsumerManager.getInstance().getEventDispatcher()
 				.registerObserver(new UserPreferencesObserver());
 
+		//register user enrollment observer for tracking new users and providing recommendations
+		StreamConsumerManager.getInstance().getEventDispatcher()
+				.registerObserver(new UserEnrollmentObserver());
+
 		// Start streaming from Moodle/Kafka
 		StreamConsumerManager.getInstance().startTopicStreaming(Topic.LOGS, 1);
 		StreamConsumerManager.getInstance().startTopicStreaming(
