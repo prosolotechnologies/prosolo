@@ -33,6 +33,9 @@ import org.prosolo.services.nodes.RoleManager;
 public class AfterContextLoader implements ServletContextListener {
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
+	ReliableConsumer systemConsumer =null;
+	ReliableConsumer sessionConsumer =null;
+	ReliableConsumer broadcastConsumer=null;
 
 	/* Application Startup Event */
 	public void contextInitialized(ServletContextEvent ce) {
@@ -108,16 +111,16 @@ public class AfterContextLoader implements ServletContextListener {
 		
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
-			ReliableConsumer systemConsumer = new ReliableConsumerImpl();
+			 systemConsumer = new ReliableConsumerImpl();
 			systemConsumer.setWorker(new DefaultMessageWorker());
 			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
-			ReliableConsumer sessionConsumer = new ReliableConsumerImpl();
+			 sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());
 			sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 			sessionConsumer.StartAsynchronousConsumer();
 
-			ReliableConsumer broadcastConsumer = new ReliableConsumerImpl();
+			 broadcastConsumer = new ReliableConsumerImpl();
 			broadcastConsumer.setWorker(new DefaultMessageWorker());
 			broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
 			broadcastConsumer.StartAsynchronousConsumer();
@@ -160,7 +163,12 @@ public class AfterContextLoader implements ServletContextListener {
 	}
 
 	/* Application Shutdown Event */
-	public void contextDestroyed(ServletContextEvent ce) { }
+	public void contextDestroyed(ServletContextEvent ce) {
+		 systemConsumer.StopAsynchronousConsumer();
+		sessionConsumer.StopAsynchronousConsumer();
+		broadcastConsumer.StopAsynchronousConsumer();
+
+	}
 	
 	void initRepository(int bc) {
 		switch (bc) {

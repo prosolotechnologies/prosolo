@@ -11,7 +11,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 
 /**

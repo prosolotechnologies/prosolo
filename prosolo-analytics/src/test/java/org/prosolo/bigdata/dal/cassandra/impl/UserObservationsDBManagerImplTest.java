@@ -3,9 +3,15 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
+import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
+import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Random;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -42,6 +48,61 @@ public class UserObservationsDBManagerImplTest {
         dbManager.withdrawUserFromCourse(101l,57l);
         dbManager.withdrawUserFromCourse(101l,58l);
 
+    }
+
+    @Test
+    public void randomlyEnrollUsersToCourses(){
+        UserObservationsDBManager dbManager= UserObservationsDBManagerImpl.getInstance();
+        Random r = new Random();
+        for(int i=0;i<200;i++){
+            long userid = r.nextInt(29);
+            long credential = r.nextInt(100);
+            dbManager.enrollUserToCourse(userid,credential);
+        }
+    }
+
+    @Test
+    public void testNewStudentInsert(){
+        UserRecommendationsDBManagerImpl.getInstance().insertNewUser(45l,123123123l);
+    }
+    @Test
+    public void randomlyGenerateUserPreferences(){
+        UserRecommendationsDBManager dbManager= UserRecommendationsDBManagerImpl.getInstance();
+        Random r = new Random();
+        int userMax=26;
+        int credMax=30;
+        int compMax=100;
+        int actMax=300;
+        long date=DateUtil.getDaysSinceEpoch();
+        for (int  xd=0;xd<10;xd++){
+            long d=date-xd;
+           System.out.println("GENERATING DATE:"+d) ;
+
+        for(int i=0;i<100;i++){
+            long userid = r.nextInt(userMax);
+            int weightR=r.nextInt(100);
+            Double weight=(double)weightR/100;
+            long resourceid1 = r.nextInt(credMax);
+            String resourcetype1= Credential1.class.getSimpleName();
+            int pr1=r.nextInt(100);
+            Double preference1=(double) pr1/100;
+            dbManager.insertStudentPreferenceForDate(userid,resourcetype1,resourceid1,weight/4, d);
+
+                long resourceid2 = r.nextInt(compMax);
+                String resourcetype2 = Competence1.class.getSimpleName();
+                int pr2 = r.nextInt(100);
+                Double preference2 = (double) pr2 / 100;
+                dbManager.insertStudentPreferenceForDate(userid, resourcetype2, resourceid2, weight/2,d);
+
+
+
+                long resourceid3 = r.nextInt(actMax);
+                String resourcetype3 = Activity1.class.getSimpleName();
+                int pr3 = r.nextInt(100);
+                Double preference3 = (double) pr3 / 100;
+                dbManager.insertStudentPreferenceForDate(userid, resourcetype3, resourceid3, weight,d);
+        }
+        }
     }
 
     @Test

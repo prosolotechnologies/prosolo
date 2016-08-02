@@ -7,6 +7,7 @@ package org.prosolo.common.messaging.rabbitmq;
 public interface ReliableConsumer extends ReliableClient{
 
 	void StartAsynchronousConsumer();
+	void StopAsynchronousConsumer();
 
 	void setWorker(MessageWorker worker);
 

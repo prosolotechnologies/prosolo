@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.activityWall.UserDataFactory;
+import org.prosolo.services.es.RecommendedResourcesSearch;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
@@ -45,6 +46,9 @@ public class PeopleBean implements Paginable, Serializable {
 	private PeopleActionBean peopleActionBean;
 	@Inject
 	private UserManager userManager;
+
+	@Inject
+	private RecommendedResourcesSearch resourcesSearch;
 
 	private List<UserData> usersToFollow;
 	private List<UserData> followingUsers;
@@ -87,7 +91,9 @@ public class PeopleBean implements Paginable, Serializable {
 			usersToFollow = new ArrayList<UserData>();
 			List<User> usersToFollowList = cRecommendation
 					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
-			
+			System.out.println("INIT USERS TO FOLLOW");
+			List<User> similarUsers=resourcesSearch.findSimilarUsers(loggedUser.getUserId(),new ArrayList<Long>(),0,10);
+			System.out.println("SIMILAR USERS RETURNED:"+similarUsers.size());
 			if (usersToFollowList != null && !usersToFollowList.isEmpty()) {
 				for (User user : usersToFollowList) {
 					UserData userData = UserDataFactory.createUserData(user);

@@ -39,6 +39,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
@@ -219,7 +220,7 @@ public class FileIndexerTest {
  			System.out.println("************************************************");
  			System.out.println("Duplicates for link:"+name);
  			System.out.println("************************************************");
- 			String indexName=ESIndexNames.INDEX_DOCUMENTS;
+ 			String indexName= ESIndexNames.INDEX_DOCUMENTS;
  			String indexType=ESIndexTypes.DOCUMENT;
  			String mapping = null;
 			try {

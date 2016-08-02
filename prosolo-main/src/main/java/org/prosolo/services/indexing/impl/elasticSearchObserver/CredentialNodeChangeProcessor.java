@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.google.gson.Gson;

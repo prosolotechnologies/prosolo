@@ -1,4 +1,4 @@
-package org.prosolo.services.event.context;
+package org.prosolo.common.event.context;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.events;
+package org.prosolo.bigdata.events.serialization;
 
 import java.lang.reflect.Type;
 
@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import org.prosolo.common.event.context.LearningContext;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015
@@ -35,7 +36,8 @@ public class LogEventDeserializer implements JsonDeserializer<LogEvent> {
 		if(message.has("learningContext")){
 			String learningContext = message.get("learningContext").toString();
 			JsonObject learningContextObject = (JsonObject) parser.parse(learningContext);
-			event.setLearningContext(learningContextObject);
+			event.setLearningContextJson(learningContextObject);
+			LearningContext lContext=context.deserialize(message.get("learningContext"),LearningContext.class);
 		}
 		return event;
 	}

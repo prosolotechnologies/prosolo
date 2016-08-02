@@ -22,7 +22,7 @@ import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;

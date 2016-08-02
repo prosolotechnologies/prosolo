@@ -1,6 +1,6 @@
 package org.prosolo.services.context.util;
 
-import org.prosolo.services.event.context.ContextName;
+import org.prosolo.common.event.context.ContextName;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

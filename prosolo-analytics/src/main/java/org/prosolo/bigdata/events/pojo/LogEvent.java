@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.events.pojo;
 
 import com.google.gson.JsonObject;
+import org.prosolo.common.event.context.LearningContext;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015
@@ -31,8 +32,9 @@ public class LogEvent extends DefaultEvent {
 	private JsonObject parameters;
 
 
-
-	private JsonObject learningContext;
+	@Deprecated
+	private JsonObject learningContextJson;
+	private LearningContext learningContext;
 	public long getCourseId() {	return courseId;}
 
 	public void setCourseId(long courseId) {this.courseId = courseId;}
@@ -127,11 +129,21 @@ public class LogEvent extends DefaultEvent {
 	public long getTargetUserId() {return targetUserId;	}
 
 	public void setTargetUserId(long targetUserId) {this.targetUserId = targetUserId;}
-	public JsonObject getLearningContext() {
-		return learningContext;
+	@Deprecated
+	public JsonObject getLearningContextJson() {
+		return learningContextJson;
+	}
+	@Deprecated
+	public void setLearningContextJson(JsonObject learningContext) {
+		this.learningContextJson = learningContext;
 	}
 
-	public void setLearningContext(JsonObject learningContext) {
-		this.learningContext = learningContext;
+	public LearningContext getLearningContext(){
+		return learningContext;
 	}
+	public void setLearningContext(LearningContext lContext){
+		this.learningContext=lContext;
+	}
+
+
 }

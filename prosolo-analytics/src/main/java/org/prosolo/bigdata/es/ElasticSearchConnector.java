@@ -72,10 +72,7 @@ public class ElasticSearchConnector {
 		ClusterHealthResponse clusterHealth = client.admin().cluster().health(clusterHealthRequest().waitForGreenStatus()).actionGet();
  		} catch (NoNodeAvailableException ex) {
 			logger.error("ElasticSearch node is not available. " + ex);
- 			//throw new IndexingServiceNotAvailable("ElasticSearch node is not available. " + ex);
-//		} catch (Exception ex) {
-//			logger.error("Exception for cluster:" + elasticSearchConfig.clusterName, ex);
-//			return null;
+
  		}
 		return client;
 	}

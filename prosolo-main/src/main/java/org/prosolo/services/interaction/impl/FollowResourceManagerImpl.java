@@ -20,7 +20,7 @@ import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -53,8 +53,8 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	}
 	static {
 
-		statementsQueries.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
-		statementsQueries.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
+		statementsQueries.put(Statements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE "+TablesNames.CURRENT_TIMESTAMPS+"  SET timestamp=? WHERE tablename=?;");
+		statementsQueries.put(Statements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM "+TablesNames.CURRENT_TIMESTAMPS+" ALLOW FILTERING;");
 		}
 
 	public SimpleCassandraClientImpl() {
@@ -127,6 +127,10 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		} else {
 			this.session = this.cluster.connect();
 		}
+	}
+	@Override
+	public String getSchemaName(){
+		return this.dbName;
 	}
 
 	@Override

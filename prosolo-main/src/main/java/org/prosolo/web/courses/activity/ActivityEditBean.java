@@ -17,7 +17,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;

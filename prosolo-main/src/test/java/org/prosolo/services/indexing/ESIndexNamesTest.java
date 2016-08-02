@@ -1,6 +1,7 @@
 package org.prosolo.services.indexing;
 
 import org.junit.Test;
+import org.prosolo.common.ESIndexNames;
 
 public class ESIndexNamesTest {
 

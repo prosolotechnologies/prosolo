@@ -44,14 +44,14 @@ implements Serializable, UserObservationsDBManager{
 
 	private void prepareStatements() {
 	 
-		String updateClusteringusersobservationsbydate = "UPDATE sna_clusteringusersobservationsbydate  SET login=login+?,lmsuse=lmsuse+?, resourceview=resourceview+?, discussionview=discussionview+? WHERE date=? AND userid=?;";
+		String updateClusteringusersobservationsbydate = "UPDATE "+TablesNames.SNA_CLUSTERING_USER_OBSERVATIONS_BYDATE+"  SET login=login+?,lmsuse=lmsuse+?, resourceview=resourceview+?, discussionview=discussionview+? WHERE date=? AND userid=?;";
 		this.queries.put("updateClusteringusersobservationsbydate", updateClusteringusersobservationsbydate);
 		
-		String findClusteringusersobservationsbydate = "SELECT date, userid, discussionview, lmsuse, resourceview FROM sna_clusteringusersobservationsbydate WHERE date=?;";
+		String findClusteringusersobservationsbydate = "SELECT date, userid, discussionview, lmsuse, resourceview FROM "+TablesNames.SNA_CLUSTERING_USER_OBSERVATIONS_BYDATE+" WHERE date=?;";
 		this.queries.put("findClusteringusersobservationsbydate", findClusteringusersobservationsbydate);
 		
 		
-		String updateUserprofileactionsobservationsbydate = "UPDATE profile_userprofileactionsobservationsbydate  "
+		String updateUserprofileactionsobservationsbydate = "UPDATE "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+"  "
 				+ "SET attach=attach+?,progress=progress+?, comment=comment+?, creating=creating+?,"
 				+ "evaluation=evaluation+?, join=join+?,like=like+?, login=login+?,"
 				+ "posting=posting+?, content_access=content_access+?, message=message+?, search=search+? "
@@ -61,51 +61,54 @@ implements Serializable, UserObservationsDBManager{
 		String findUserprofileactionsobservationsbydate = "SELECT date,  userid, "
 				+ "attach,  progress,  comment,  creating,  evaluation,join,like,"
 				+ "login ,posting,content_access,message,search "
-				+ "FROM profile_userprofileactionsobservationsbydate "
+				+ "FROM "+TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE+" "
 				+ "WHERE date=? and course=?;";
 		this.queries.put("findUserprofileactionsobservationsbydate", findUserprofileactionsobservationsbydate);
 
-		String insertUserquartilefeaturesbyprofile  = "INSERT INTO profile_userquartilefeaturesbyprofile(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbyprofile  = "INSERT INTO "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+"(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbyprofile",
 				insertUserquartilefeaturesbyprofile);
 
-		String insertUserquartilefeaturesbydate  = "INSERT INTO profile_userquartilefeaturesbydate(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
+		String insertUserquartilefeaturesbydate  = "INSERT INTO "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE+"(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
 		this.queries.put("insertUserquartilefeaturesbydate",
 				insertUserquartilefeaturesbydate);
 
-		String updateUserCurrentProfile  = "UPDATE profile_usercurrentprofileincourse SET profile=?, profilefullname=?, sequence=? WHERE course=? AND userid=?;";
+		String updateUserCurrentProfile  = "UPDATE "+TablesNames.PROFILE_USER_CURRENT_PROFILE_INCOURSE+" SET profile=?, profilefullname=?, sequence=? WHERE course=? AND userid=?;";
 		this.queries.put("updateUserCurrentProfile",
 				updateUserCurrentProfile);
 
-		String findUserCurrentProfile = "SELECT * FROM profile_usercurrentprofileincourse WHERE course=? AND userid=? ALLOW FILTERING;";
+		String findUserCurrentProfile = "SELECT * FROM "+TablesNames.PROFILE_USER_CURRENT_PROFILE_INCOURSE+" WHERE course=? AND userid=? ALLOW FILTERING;";
 		this.queries.put("findUserCurrentProfile",
 				findUserCurrentProfile);
 
-		String findUserquartilefeaturesbycourse = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbycourse = "SELECT * FROM "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+" WHERE course=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbycourse",
 				findUserquartilefeaturesbycourse);
 
-		String findUserquartilefeaturesbyprofileAndDate = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? and profile=? and date=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyprofileAndDate = "SELECT * FROM "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+" WHERE course=? and profile=? and date=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyprofileanddate",
 				findUserquartilefeaturesbyprofileAndDate);
 
-		String findUserquartilefeaturesbyDate = "SELECT * FROM profile_userquartilefeaturesbydate WHERE course=? and date=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyDate = "SELECT * FROM "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE+" WHERE course=? and date=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbydate",
 				findUserquartilefeaturesbyDate);
 
 
-		String findUserquartilefeaturesbyprofile = "SELECT * FROM profile_userquartilefeaturesbyprofile WHERE course=? and profile=? ALLOW FILTERING;";
+		String findUserquartilefeaturesbyprofile = "SELECT * FROM "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+" WHERE course=? and profile=? ALLOW FILTERING;";
 		this.queries.put("findUserquartilefeaturesbyprofile",
 				findUserquartilefeaturesbyprofile);
 
-		String findUserCourses="SELECT * FROM usercourses WHERE userid=? ALLOW FILTERING;";
+		String findUserCourses="SELECT * FROM "+TablesNames.USER_COURSES+" WHERE userid=? ALLOW FILTERING;";
 		this.queries.put("findUserCourses",findUserCourses);
 
-		String addCourseToUserCourses="UPDATE usercourses SET courses=courses+? WHERE userid=?;";
+		String addCourseToUserCourses="UPDATE "+TablesNames.USER_COURSES+" SET courses=courses+? WHERE userid=?;";
 		this.queries.put("addCourseToUserCourses", addCourseToUserCourses);
 
-		String deleteCourseFromUserCourses="UPDATE usercourses SET courses=courses-? WHERE userid=?;";
+		String deleteCourseFromUserCourses="UPDATE "+TablesNames.USER_COURSES+" SET courses=courses-? WHERE userid=?;";
 		this.queries.put("deleteCourseFromUserCourses", deleteCourseFromUserCourses);
+
+		String findTotalNumberOfUsers="SELECT count(*) FROM "+TablesNames.USER_COURSES+";";
+		this.queries.put("findTotalNumberOfUsers",findTotalNumberOfUsers);
 		
 		Set<String> stQueries = this.queries.keySet();
 		for (String query : stQueries) {
@@ -370,5 +373,25 @@ implements Serializable, UserObservationsDBManager{
 		}catch(Exception ex){
 			ex.getStackTrace();
 		}
+	}
+
+	@Override
+	public Long findTotalNumberOfUsers() {
+		BoundStatement boundStatement = new BoundStatement(
+				preparedStatements.get("findTotalNumberOfUsers"));
+
+		Row row =null;
+		Long totalNumber=0l;
+		try{
+			ResultSet rs = this.getSession().execute(boundStatement);
+			row = rs.one();
+			totalNumber= row.getLong(0);
+
+ 		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
+
+		return totalNumber;
 	}
 }

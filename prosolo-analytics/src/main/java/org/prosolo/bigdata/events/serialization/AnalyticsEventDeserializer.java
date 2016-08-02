@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.events;
+package org.prosolo.bigdata.events.serialization;
 
 import java.lang.reflect.Type;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;

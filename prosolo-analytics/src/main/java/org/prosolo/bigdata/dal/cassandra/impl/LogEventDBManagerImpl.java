@@ -82,8 +82,8 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 			}else{
 				boundStatement.setString(13, "");
 			}
-			if(event.getLearningContext()!=null){
-				boundStatement.setString(14, event.getLearningContext().toString());
+			if(event.getLearningContextJson()!=null){
+				boundStatement.setString(14, event.getLearningContextJson().toString());
 			}else{
 				boundStatement.setString(14, "");
 			}
@@ -111,7 +111,7 @@ public class LogEventDBManagerImpl extends SimpleCassandraClientImpl implements
 			logEvent.setActorFullname(row.getString(2));
 			logEvent.setEventType(EventType.valueOf(row.getString(3)));
 			if(StringUtils.isNotBlank(row.getString(5))){
-				logEvent.setLearningContext(parser.parse(row.getString(5)).getAsJsonObject());
+				logEvent.setLearningContextJson(parser.parse(row.getString(5)).getAsJsonObject());
 			}
 			logEvent.setLink(row.getString(6));
 			logEvent.setObjectId(row.getLong(7));

@@ -1,4 +1,4 @@
-package org.prosolo.web;
+package org.prosolo.common.web;
 
 public enum ApplicationPage {
 

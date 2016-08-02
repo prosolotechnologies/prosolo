@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;

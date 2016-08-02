@@ -170,8 +170,10 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 
 			@Override
 			public void run() {
+			//	boolean alive=true;
 				try {
 					for (;;) {
+					//while(alive){
 						ReliableConsumerImpl.this.waitForConnection();
 						synchronized (this) {
 							// this is very simple: reconnect every 5 seconds
@@ -194,6 +196,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 					
 					}
 				} catch (InterruptedException ex) {
+					//alive=false;
 					// disconnect and exit
 					logger.debug("Disconnect_2");
 						ReliableConsumerImpl.this.disconnect();
@@ -208,7 +211,7 @@ public class ReliableConsumerImpl extends ReliableClientImpl implements Reliable
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableConsumer#
 	 * StopAsynchronousConsumer()
 	 */
-
+@Override
 	public void StopAsynchronousConsumer() {
 		this.exService.shutdownNow();
 	}

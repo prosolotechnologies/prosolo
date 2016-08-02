@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.junit.Test;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AlgoAgrawalFaster94;
 import org.prosolo.bigdata.algorithms.fpgrowth.association_rules.AssocRule;
@@ -15,9 +14,9 @@ import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
 import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.ESAdministrationImpl;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 
 /**
