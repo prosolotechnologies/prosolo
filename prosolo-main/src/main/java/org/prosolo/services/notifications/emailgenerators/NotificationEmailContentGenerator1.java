@@ -17,6 +17,11 @@ public class NotificationEmailContentGenerator1 extends EmailContentGenerator {
 		return "notification";
 	}
 	
+	@Override
+	public String getSubject() {
+		return null;
+	}
+	
 	private String name;
 	private String actor;
 	private String notificationType;

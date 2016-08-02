@@ -17,6 +17,7 @@ public class SymptomManagerImpl extends AbstractManagerImpl implements SymptomMa
 
 	private static final long serialVersionUID = 3794586060152562963L;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public List<Symptom> getAllSymptoms() throws DbConnectionException {
@@ -117,6 +118,17 @@ public class SymptomManagerImpl extends AbstractManagerImpl implements SymptomMa
 			
 		}catch(Exception e){
 			throw new DbConnectionException("Error. Please try again.");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void saveSymptoms(List<String> symptoms) throws DbConnectionException {
+		if(symptoms == null) {
+			return;
+		}
+		for(String s : symptoms) {
+			saveSymptom(0, s);
 		}
 	}
 }

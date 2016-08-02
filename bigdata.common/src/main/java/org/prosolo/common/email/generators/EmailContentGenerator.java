@@ -22,6 +22,8 @@ public abstract class EmailContentGenerator {
 	
 	public abstract String getTemplateName();
 
+	public abstract String getSubject();
+
 	public String generateHTML() throws IOException {
 		return MoustacheUtil.compileTemplate(templateHTMLRoot + getTemplateName() + ".html", getTemplateName() + ".html", this);
 	}
@@ -39,6 +41,11 @@ public abstract class EmailContentGenerator {
 	
 	public String getDomain() {
 		return CommonSettings.getInstance().config.appConfig.domain;
+	}
+	
+	public String getHeaderImageURL() {
+//		return CommonSettings.getInstance().config.appConfig.domain + "/resources/";
+		return "https://s3.amazonaws.com/prosolo.nikola/db8b27c2eb8d208ee013d99c3c673609/email-header.jpg";
 	}
 	
 	public String getYear() {

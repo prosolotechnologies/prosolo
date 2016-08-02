@@ -8,6 +8,7 @@ import org.simpleframework.xml.Element;
  *
  */
 public class RegistrationConfig {
+	
 	@Element(name = "google")
 	public boolean google;
 	
@@ -16,6 +17,9 @@ public class RegistrationConfig {
 	
 	@Element(name = "self-registration")
 	public boolean selfRegistration;
+	
+	@Element(name = "saml")
+	public SamlIdentityProviders samlProviders;
 
 	public boolean isGoogle() {
 		return google;
@@ -27,6 +31,10 @@ public class RegistrationConfig {
 
 	public boolean isSelfRegistration() {
 		return selfRegistration;
+	}
+
+	public SamlIdentityProviders getSamlProviders() {
+		return samlProviders;
 	}
 	
 }

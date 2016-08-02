@@ -121,19 +121,21 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
 			sessionData.setEmail((String) userData.get("email"));
 			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setPassword((String) userData.get("password"));
 			initialized = true;
 		}
 	}
 	
 	public void reinitializeSessionData(User user) {
 		if (user != null) {
-			sessionData = new SessionData();
+//			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			sessionData.setName(user.getName());
+			sessionData.setLastName(user.getLastname());
+			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
 			sessionData.setAvatar(user.getAvatarUrl());
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
-			sessionData.setName(user.getName());
-			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
 			initialized = true;
 		}

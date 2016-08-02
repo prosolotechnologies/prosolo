@@ -13,6 +13,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
     <title>ProSolo - Sign in</title>
     <link href="#{request.contextPath}/resources/css2/bootstrap.min.css" rel="stylesheet" />
     <link href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" rel="stylesheet" />
@@ -63,6 +64,14 @@
 	                    <span>or sign in with your email</span>
 	                </div>
 				</c:if>
+				
+				<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+					<div>
+						<a href="http://localhost:8080/saml/login?idp=#{ip.entityId}" >
+							Login with #{ip.displayName}
+						</a>
+					</div>
+				</ui:repeat>
             </div>
 	            
 	           

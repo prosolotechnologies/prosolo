@@ -262,7 +262,7 @@ public class ActivityWallBean implements Serializable {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
 			
-			newSocialActivity.setText(PostUtil.cleanHTMLTagsExceptBr(newSocialActivity.getText()));
+			newSocialActivity.setText(PostUtil.cleanHTMLTagsExceptBrA(newSocialActivity.getText()));
 			
 			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
 					newSocialActivity, lcd);

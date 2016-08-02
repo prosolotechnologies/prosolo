@@ -285,7 +285,7 @@ public class BusinessCase1_DL extends BusinessCase {
 		String fosSeniorProgrammerOrgPosition = "Senior Programmer";
 		
 		User zoranJeremic = ServiceLocator.getInstance().getService(UserManager.class).
-								createNewUser("Zoran","Jeremic", "zoran.jeremic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+								createNewUser("Zoran","Jeremic", "zoran.jeremic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 		allUsers.add(zoranJeremic);
 		
 		// create default ROLES
@@ -308,39 +308,39 @@ public class BusinessCase1_DL extends BusinessCase {
 
 		try {
 			User bojanTomic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Bojan","Tomic", "tomic.bojan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Bojan","Tomic", "tomic.bojan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			bojanTomic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, bojanTomic);
 			
 			User zoranSevarac = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Zoran","Sevarac", "sevarac.zoran@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Zoran","Sevarac", "sevarac.zoran@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			zoranSevarac = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, zoranSevarac);
 			
 			User draganDjuric = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Dragan","Djuric", "djuric.dragan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Dragan","Djuric", "djuric.dragan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			draganDjuric = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, draganDjuric);
 			
 			User nikolaMilikic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Nikola","Milikic", "nikola.milikic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Nikola","Milikic", "nikola.milikic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			nikolaMilikic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, nikolaMilikic);
 			
 			User vladanDevedzic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Vladan","Devedzic", "devedzic.vladan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Vladan","Devedzic", "devedzic.vladan@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			vladanDevedzic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, vladanDevedzic);
 			
 			User jelenaJovanovic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Jelena","Jovanovic", "jovanovic.jelena@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Jelena","Jovanovic", "jovanovic.jelena@fon.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			jelenaJovanovic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, jelenaJovanovic);
 			
 			User sonjaRadenkovic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Sonja","Radenkovic", "sonjafon@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Sonja","Radenkovic", "sonjafon@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			sonjaRadenkovic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, sonjaRadenkovic);
 			
 			User tanjaMilic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Tanja","Milic", "tanja.milic@fon.b.ac.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Tanja","Milic", "tanja.milic@fon.b.ac.rs", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			tanjaMilic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, tanjaMilic);
 			
 			User sreckoJoksimovic = ServiceLocator.getInstance().getService(UserManager.class).
-					createNewUser("Srecko","Joksimovic", "sreckojoksimovic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null);
+					createNewUser("Srecko","Joksimovic", "sreckojoksimovic@gmail.com", true, "pass", fosSeniorProgrammerOrgPosition, null, null, null);
 			sreckoJoksimovic = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleUser, sreckoJoksimovic);
 			
 			allUsers.add(bojanTomic);

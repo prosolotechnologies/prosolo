@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta charset="utf-8"></meta>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="windowTitle" /></title>
+	</f:facet>
+
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+
+	<script
+		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+</h:head>
+
+<h:body id="admin">
+	<utilcomp:messagesBundle var="msg" />
+
+	<header>
+		<div class="container">
+			<div class="headerTop">
+				<div class="headerTopLeft">
+					<h:link id="logo"
+						onclick="sendLogPageNavigation('index','mainmenu');"
+						outcome="/admin/users">
+						ProSolo
+					</h:link>
+
+					<nav>
+						<ul class="nav nav-pills">
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('dashboard','mainmenu');"
+									value="Dashboard" outcome="/admin/dashboard" />
+							</li>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'users' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('users','mainmenu');"
+									value="Users" outcome="/admin/users" />
+							</li>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
+									value="Roles" outcome="/admin/roles" />
+							</li>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('twitter','mainmenu');"
+									value="Twitter" outcome="/admin/users" />
+							</li>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('other','mainmenu');"
+									value="Other" outcome="/admin/users" />
+							</li>
+						</ul>
+					</nav>
+				</div>
+				<div class="headerTopRight">
+					<h:form id="messagePollingForm">
+						<p:poll interval="#{topInboxBean.refreshRate}" 
+							process="@this"
+							update=":messagesLink :notificationsIcon :notificationsContainer" 
+							widgetVar="messagesPoll" 
+							autoStart="true" />
+					</h:form>
+					
+					<h:link id="messagesLink" class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
+						onclick="sendLogPageNavigation('messages','mainmenu');"
+						outcome="/messages">
+						Messages
+						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+							unreadDot
+						</span>
+					</h:link>
+
+					<div class="dropdown notificationsMenu">
+						<p:commandLink id="notificationsIcon"
+							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}" 
+							pt:data-toggle="dropdown" 
+							pt:aria-haspopup="true" 
+							pt:aria-expanded="true"
+							action="#{topNotificationsBean1.markNotificationsAsRead}"
+							process="@this"
+							update="notificationLoop @this">
+							
+							Notifications
+							
+							<h:panelGroup id="unreadNotificationsDot">
+								<span id="unreadNotificationsSpanId"
+									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+							</h:panelGroup>
+						</p:commandLink>
+					
+						<h:panelGroup layout="block" id="notificationsContainer" 
+							class="dropdown-menu bullet pull-center"
+							aria-labelledby="dropdownMenuNotifications">
+							
+							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
+								<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
+										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
+										(notificationData.notificationType eq 'Mention') ? 'notifMention':
+										(notificationData.notificationType eq 'Assessment_Requested' or 
+											notificationData.notificationType eq 'Assessment_Approved' or 
+											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
+									<h:outputLink value="#{notificationData.link}">
+										<span class="icon"></span>
+										<h3>#{notificationData.actor.fullName}</h3> 
+										#{notificationData.predicate}
+										<h3>#{notificationData.objectTitle}</h3>
+										<span class="timestamp">#{notificationData.datePretty}</span>
+									</h:outputLink>
+								</li>
+							</ui:repeat>
+							
+							<li class="linkAllNotifications">
+								<h:link value="View all"
+									onclick="sendLogPageNavigation('notifications','mainmenu');"
+									outcome="/notifications" />
+							</li>
+						</h:panelGroup>
+					</div>
+
+					<h:form>
+						<div class="dropdown userMenu">
+							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								<utilcomp:userAvatar
+									avatar="#{loggeduser.avatar}"
+									fullName="#{loggeduser.fullName}" />
+									
+								<span class="arrowDown">arrowDown</span>
+							</a>
+
+							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="Account Settings" 
+										onclick="sendLogPageNavigation('settings','mainmenu');"
+										outcome="/admin/settings" />
+								</li>
+								<ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access')}">
+									<li>
+										<h:link value="Switch to Prosolo"
+											onclick="sendLogPageNavigation('index','mainmenu');"
+											outcome="/index" />
+									</li>
+								</ui:fragment>
+								<li>
+									<h:commandLink id="userLogout" 
+										value="Sign Out" 
+										action="#{loggeduser.userLogout()}" />
+								</li>
+							</ul>
+						</div>
+					</h:form>
+				</div>
+			</div>
+			<ui:insert name="resourceTitle" />
+			<ui:insert name="navLinks" />
+		</div>
+	</header>
+
+	<ui:insert name="content" />
+
+	<ui:include src="/resources/components/loggingForm.xhtml" />
+
+	<c:if test="#{loggeduser != null and loggeduser.isLoggedIn()}">
+		<h:form>
+			<!-- If idle 300 seconds, run 'idleDialog' -->
+			<p:idleMonitor timeout="3600000"
+				onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
+				<p:ajax event="idle" listener="#{loggeduser.userLogout()}"></p:ajax>
+			</p:idleMonitor>
+		</h:form>
+	</c:if>
+</h:body>
+</html>

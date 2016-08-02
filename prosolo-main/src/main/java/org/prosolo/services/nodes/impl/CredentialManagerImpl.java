@@ -1993,11 +1993,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String query=
 				"SELECT targetCredential1 " +
 				"FROM TargetCredential1 targetCredential1 " +
-				"WHERE targetCredential1.user.id = :userid " +
-				"ORDER BY targetCredential1.title";
+				"WHERE targetCredential1.user.id = :userid ";
 			
 			if (onlyPubliclyVisible) {
-				query += " AND targetCredential1.hiddenFromProfile = false ";
+				query += "AND targetCredential1.hiddenFromProfile = false ";
 			}
 			
 			query += "ORDER BY targetCredential1.title";

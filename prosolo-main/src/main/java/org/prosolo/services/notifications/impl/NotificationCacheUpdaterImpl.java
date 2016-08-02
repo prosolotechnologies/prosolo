@@ -7,19 +7,13 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.user.notifications.Notification;
-import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.TopNotificationsBean1;
-import org.prosolo.web.notification.exceptions.NotificationNotSupported;
-import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,8 +28,6 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 	
 	private static final long serialVersionUID = -2234740595717219169L;
 	
-	@Inject
-	private DefaultManager defaultManager;
 	@Inject
 	private NotificationManager notificationManager;
 
