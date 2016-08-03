@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.proxy.HibernateProxy;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
@@ -14,6 +15,7 @@ import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class ActivityAssessmentData {
@@ -80,24 +82,24 @@ public class ActivityAssessmentData {
 	
 	//Taken from ActivityDataFactory
 	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
-		if(activity instanceof TextActivity1) {
-			act.setActivityType(ActivityType.TEXT);
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					break;
-			}
-		} else if(activity instanceof ExternalToolActivity1) {
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+		if (activity instanceof HibernateProxy) {
+			activity = HibernateUtil.initializeAndUnproxy(activity);
 		}
-//		TODO what to do when class is eg class org.prosolo.common.domainmodel.credential.Activity1_$$_jvstc67_88 ?
-		if(act.getActivityType() == null) {
+
+		if (activity instanceof TextActivity1) {
 			act.setActivityType(ActivityType.TEXT);
+		} else if (activity instanceof UrlActivity1) {
+			UrlActivity1 urlAct = (UrlActivity1) activity;
+			switch (urlAct.getUrlType()) {
+			case Video:
+				act.setActivityType(ActivityType.VIDEO);
+				break;
+			case Slides:
+				act.setActivityType(ActivityType.SLIDESHARE);
+				break;
+			}
+		} else if (activity instanceof ExternalToolActivity1) {
+			act.setActivityType(ActivityType.EXTERNAL_TOOL);
 		}
 	}
 
