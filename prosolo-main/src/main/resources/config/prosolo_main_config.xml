@@ -87,17 +87,17 @@
 				<provider>
 					<display-name>SSO Circle</display-name>
 					<entity-id>http://idp.ssocircle.com</entity-id>
-					<enabled>true</enabled>
+					<enabled>false</enabled>
 				</provider>
 				<provider>
 					<display-name>Simple Saml</display-name>
 					<entity-id>http://simplesaml.com/simplesaml/saml2/idp/metadata.php</entity-id>
-					<enabled>true</enabled>
+					<enabled>false</enabled>
 				</provider>
 				<provider>
 					<display-name>Simple Saml Shib</display-name>
 					<entity-id>http://simplesaml.com/simplesaml/shib13/idp/metadata.php</entity-id>
-					<enabled>true</enabled>
+					<enabled>false</enabled>
 				</provider>
 			 </saml>
 		</registration>
