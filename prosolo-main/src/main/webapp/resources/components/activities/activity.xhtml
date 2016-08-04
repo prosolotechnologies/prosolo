@@ -25,71 +25,90 @@
      		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
      	
      	<c:choose>
-		    <c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
-		         <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
+			<c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
+				<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
 		    </c:when>
-		    <c:otherwise>
-		    	 <c:choose>
-		    	 	 <c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
-			         	  <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
-			         </c:when>
-			         <c:otherwise>
-			         	  <c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
-		         	 </c:otherwise>
-		    	 </c:choose>
-		    </c:otherwise>
+			<c:otherwise>
+				<c:choose>
+					<c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+						<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
+					</c:when>
+					<c:otherwise>
+						<c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}//"/>
+					</c:otherwise>
+				</c:choose>
+			</c:otherwise>
 		</c:choose>
-		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-     	<div id="#{cc.clientId}">
+		
+		<p:growl id="growlMain" showDetail="true" globalOnly="true" />
+		
+		<div id="#{cc.clientId}">
 	    	<div class="whiteBar">
-	        <div class="container">
-	         <h:form id="formMain">
-	            <div class="whiteBarContent">
-	                <h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
-	                	<p:commandLink
-	                		rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-	                			and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed
-	                			and cc.attrs.bean.nextToLearn}"
-	                		styleClass="btn btn-green btn-sm"
-	                		value="Mark as Complete"
-	                		process="@this"
-	                		action="#{cc.attrs.bean.completeActivity()}"
-	                		update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
-	                		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-	                    	<f:param name="learningContext" value="#{learningContext}"></f:param>
-	                	</p:commandLink>
-	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-	                			and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
-	                			and !cc.attrs.bean.nextToLearn}">
-	                		<a href="javascript:void(0);" 
-	                			class="btn btn-green btn-sm" 
-	                			disabled="disabled" 
-	                			data-toggle="tooltip" 
-	                			title="In order to complete this activity, previous tasks need to be completed.">
-	                			Mark as Complete
-	                		</a>
-                		</ui:fragment>
-	                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-	                		and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
-	                    	<div class="tagCompleted">Completed</div>
-	                    </ui:fragment>
-	                </h:panelGroup>
-	                <div class="whiteBarRight">
-	                    <div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
-	                    <h:link 
-	                    	rendered="#{canEdit and !isPreview}"
-	                    	value="Edit Activity"
-	                    	styleClass="btn btn-green-stroke btn-sm item"
-	                    	outcome="create-activity">
-	                    	<f:param name="id" value="#{param['actId']}"></f:param>
-	                    	<f:param name="compId" value="#{param['compId']}"></f:param>
-	                    	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-	                    </h:link>
-	                </div>
-	            </div>
-	         </h:form>
-	        </div>
-	    	</div>
+				<div class="container">
+					<h:form id="formMain">
+						<div class="whiteBarContent">
+							<h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
+								<p:commandLink
+									rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+										and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed
+										and cc.attrs.bean.nextToLearn}"
+									styleClass="btn btn-green btn-sm item"
+									value="Mark as Complete"
+									process="@this"
+									action="#{cc.attrs.bean.completeActivity()}"
+									update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+									<f:param name="learningContext" value="#{learningContext}"></f:param>
+								</p:commandLink>
+								
+								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+										and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
+										and !cc.attrs.bean.nextToLearn}">
+									<a href="javascript:void(0);" 
+										class="btn btn-green btn-sm item" 
+										disabled="disabled" 
+										data-toggle="tooltip" 
+										title="In order to complete this activity, previous tasks need to be completed.">
+										Mark as Complete
+									</a>
+								</ui:fragment>
+								
+								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+									and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
+									<div class="tagCompleted item">Completed</div>
+									
+									<h:link
+			                			value="Continue"
+			                			styleClass="btn btn-green btn-sm item"
+			                			outcome="activity"
+			                			onclick="sendLogPageNavigation('/activity.xhtml', 
+											'#{facesContext.viewRoot.viewId}', 
+											'#{util:addSubContext(cc.attrs.learningContext, &#34;context:/name:resume_learning/&#34;)}', 
+											'#{cc.attrs.service}');">
+			                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.competenceData.nextActivityToLearnId)}" />
+						            	<f:param name="compId" value="#{param['compId']}" />
+						            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}" />
+			                		</h:link>
+								</ui:fragment>
+							</h:panelGroup>
+							
+							<div class="whiteBarRight">
+								<div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
+								
+								<h:link 
+									rendered="#{canEdit and !isPreview}"
+									value="Edit Activity"
+									styleClass="btn btn-green-stroke btn-sm item"
+									outcome="create-activity">
+									<f:param name="id" value="#{param['actId']}"></f:param>
+									<f:param name="compId" value="#{param['compId']}"></f:param>
+									<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+								</h:link>
+							</div>
+						</div>
+					</h:form>
+				</div>
+			</div>
 	
 		    <div class="container">
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
@@ -159,6 +178,7 @@
 		               		learningContext="#{learningContext}"
 		               />
 		            </div>
+		            
 		            <h:panelGroup layout="block" id="panelCompProgress" styleClass="col-md-4">
 						<div class="sidebarBlock">
 			                <h2>Competence Progress</h2>
@@ -204,11 +224,11 @@
 				</div>
 		    </div>
 		    
-		    <ui:fragment rendered="#{not empty param['comment']}">
-		    	<script>
-			    	scrollTo('comment_' + #{util:decodeId(param['comment'])});
-			    </script>
-		    </ui:fragment>
+			<ui:fragment rendered="#{not empty param['comment']}">
+				<script>
+					scrollTo('comment_' + #{util:decodeId(param['comment'])});
+				</script>
+			</ui:fragment>
 		</div>
 	</composite:implementation>
 </ui:component>
