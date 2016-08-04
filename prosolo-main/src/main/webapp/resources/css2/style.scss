@@ -318,7 +318,11 @@ h3{
 }
 
 .iconCredential,
-.iconCompetence{
+.iconCompetence,
+.iconActivityVideo,
+.iconActivityText,
+.iconActivitySlide,
+.iconActivityExternal{
     width: 24px;
     height: 24px;
     display: inline-block;
@@ -330,6 +334,22 @@ h3{
 
 .iconCompetence{
     background: url("../images2/iconCompetence.svg") no-repeat;
+}
+
+.iconActivityVideo{
+    background: url("../images2/iconActivityVideo.svg") no-repeat;
+}
+
+.iconActivityText{
+    background: url("../images2/iconActivityText.svg") no-repeat;
+}
+
+.iconActivitySlide{
+    background: url("../images2/iconActivitySlide.svg") no-repeat;
+}
+
+.iconActivityExternal{
+    background: url("../images2/iconActivityExternal.svg") no-repeat;
 }
 
 a:focus, :focus, input:focus { outline: none; text-decoration: none;}
@@ -462,12 +482,11 @@ input{
 	> li{
 		margin: 0 30px 0 0;
 		> a{
-			font-size: 12px;
+			font-size: 14px;
 			line-height: 46px;
 			color: #fff;
 			font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 500;
-			text-transform: uppercase;
 			padding: 0;
 			opacity: .5;
 			border: none;
@@ -552,7 +571,8 @@ input{
 	.mandatoryFlow &{
 		margin-bottom: 15px;
 	}
-	&.activityTextBox{
+	&.activityTextBox,
+    &.announcementBox{
 		padding-bottom: 1px;
 	}
 	&.settingsEmailNotifications{
@@ -904,7 +924,8 @@ input{
 }
 #askAssessment,
 #approveAssessment,
-#message{
+#message,
+#newAnnouncementModal{
 	.assessmentModalMeta,
 	.messageModalMeta{
 		background: #F8F9FB;
@@ -957,6 +978,19 @@ input{
 	}
 }
 
+#newAnnouncementModal{
+    .modal-body textarea{
+        height: 200px;
+    }
+    .radioGroup{
+        margin-bottom: 20px;
+        .radio{
+            display: inline;
+            margin-left: 10px;
+        }
+    }
+}
+
 #uploadFile, #addURL{
 	.modal-body{
 		padding-bottom: 10px;
@@ -973,6 +1007,10 @@ input{
 			}
 		}
 	}
+}
+
+.noContentMessage{
+    text-align: center;
 }
 
 .alert{
@@ -1187,6 +1225,31 @@ header{
 		justify-content: space-between;
 		.headerTopLeft{
 			display: flex;
+            .roleChanger{
+                width: 16px;
+                height: 16px;
+                margin: 22px 10px 0 0;
+                > a{
+                    width: 16px;
+                    height: 16px;
+                    background-image: url("../images2/arrowDownWhiteSmall.svg");
+                    background-position: center center;
+                    background-repeat: no-repeat;
+                    @include rounded-corners(8px);
+                    text-indent: -10000px;
+                    background-color: rgba(0,0,0,.1);
+                    -webkit-box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    -moz-box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    &:hover{
+                        background-color: rgba(0,0,0,.3);
+                    }
+                }
+                .dropdown-menu{
+					left: -8px;
+                    top: 20px;
+				}
+            }
 			#logo{
 				width: 86px;
 				height: 30px;
@@ -1198,12 +1261,11 @@ header{
 				height: 30px;
 				padding: 15px 0;
 				.nav > li > a{
-					font-size: 12px;
+					font-size: 14px;
 					line-height: 30px;
 					color: #fff;
 					font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 500;
-					text-transform: uppercase;
 				}
 				.nav-pills{
 					> li{
@@ -1283,6 +1345,13 @@ header{
 					padding-bottom: 0;
 					li{
 						border-bottom: 1px solid #EEEFF3;
+                        &.noNotifications{
+                            display: flex;
+            				height: 100px;
+                            align-items: center;
+                            justify-content: center;
+                            border: none;
+                        }
 						a{
 							padding: 10px 20px 10px 45px;
 							position: relative;
@@ -1323,7 +1392,6 @@ header{
 					}
 				}
 			}
-
 			.userMenu{
 				height: 32px;
 				> a{
@@ -1536,6 +1604,11 @@ header{
     }
 }
 
+.noInProgress{
+    text-align: center;
+    padding-bottom: 30px;
+}
+
 .newWallPost,
 .sharePostModal{
     .textAreaWrapper{
@@ -1629,8 +1702,10 @@ header{
 
 .previewLink,
 .previewFile,
-.previewCredComp{
+.previewCredComp,
+.previewActiv{
     margin: 0 30px 30px 30px;
+    background: #fff;
     border: 1px solid #EEEFF3;
     @include rounded-corners(3px);
     &.previewLinkBig .previewLinkImage{
@@ -1693,7 +1768,11 @@ header{
         h2{
             margin-bottom: 10px;
             .iconCredential,
-            .iconCompetence{
+            .iconCompetence,
+            .iconActivityVideo,
+            .iconActivityText,
+            .iconActivitySlide,
+            .iconActivityExternal{
                 float: left;
                 margin-right: 10px;
                 margin-top: 1px;
@@ -1734,12 +1813,23 @@ header{
     }
 }
 
-.previewCredCompLine{
+.previewActiv{
+    .content .meta .duration{
+        margin-left: 0;
+    }
+}
+
+.previewCredCompLine,
+.previewActivLine{
     margin: 0 30px 30px 30px;
     h2{
         margin-bottom: 0;
         .iconCredential,
-        .iconCompetence{
+        .iconCompetence,
+        .iconActivityVideo,
+        .iconActivityText,
+        .iconActivitySlide,
+        .iconActivityExternal{
             float: left;
             margin-right: 10px;
             margin-top: 1px;
@@ -2261,6 +2351,7 @@ header{
 @-moz-document url-prefix() {
 	.summaryCard .cardDescription::after,
     .previewCredComp .content p::after,
+    .previewActiv .content p::after,
     .previewLink .content p::after,
     .previewFile .content p::after{
 		position: absolute;
@@ -2464,6 +2555,13 @@ header{
 	}
 }
 
+.userRoleBox{
+    padding-bottom: 30px;
+    .buttonBottomBox{
+        margin-top: 20px;
+    }
+}
+
 .activityMain{
 	margin-bottom: 30px;
 }
@@ -2533,6 +2631,9 @@ header{
 		height: 120px;
 		padding: 0 30px;
 		border-bottom: 1px solid #EEEFF3;
+        &.noPeople{
+            justify-content: center;
+        }
 		&:last-child{
 			border: none;
 		}
@@ -2564,6 +2665,10 @@ header{
 					color: $red;
 				}
 			}
+            .userRole{
+                width: 50%;
+				margin-right: 20px;
+            }
 			.assignedTo{
 				width: 40%;
 				> .btn{
@@ -2576,6 +2681,12 @@ header{
 					}
 				}
 			}
+            .userEditOpt{
+                width: 50%;
+                > .btn{
+					margin-right: 20px;
+				}
+            }
 		}
 	}
 	&.peopleListDefaut{
@@ -2595,6 +2706,9 @@ header{
 		height: 120px;
 		padding: 0 30px;
 		border-bottom: 1px solid #EEEFF3;
+        &.noSources{
+            justify-content: center;
+        }
 		&:last-child{
 			border: none;
 		}
@@ -2622,6 +2736,9 @@ header{
 			flex-direction: column;
 			align-items: baseline;
 			justify-content: center;
+            &.noBlogs{
+                align-items: center;
+            }
 			h2{
 				margin-bottom: 10px;
 			}
@@ -3228,6 +3345,12 @@ header{
 				border: none;
 				flex-shrink: 0;
 			}
+            &.noNotifications{
+                display: flex;
+				height: 90px;
+                align-items: center;
+                justify-content: center;
+            }
 			a{
 				display: flex;
 				height: 90px;
@@ -3302,6 +3425,10 @@ header{
 	background: url("../images2/iconNotifAssessment16.svg") no-repeat;
 }
 
+.notifAnnouncement .icon{
+	background: url("../images2/iconNotifAnnouncement16.svg") no-repeat;
+}
+
 #termsPage{
     header{
         background: none;
@@ -3339,7 +3466,72 @@ header{
 	}
 }
 
+/*---------------------------------------------------------------------*/
+/*--- 05. ADMIN ---*/
+/*---------------------------------------------------------------------*/
 
+#admin{
+	header{
+		background: #4a3b5a;
+		#logo{
+			background: url("../images2/logo-admin.svg") no-repeat;
+		}
+	}
+}
+
+.tableRoles{
+    width: 100%;
+    margin-bottom: 30px;
+    .col2,
+    .col3{
+        width: 30%;
+        text-align: center;
+    }
+    td{
+        text-align: center;
+        padding: 10px;
+        &.alignLeft{
+            text-align: left;
+        }
+        > .btn{
+            margin-right: 20px;
+        }
+    }
+    .rowGrey{
+        background: #F8F9FB;
+    }
+}
+
+.tableCapabilities{
+    width: 100%;
+    margin-bottom: 30px;
+    .colCheck{
+        width: 15%;
+        text-align: center;
+    }
+    th{
+        padding: 10px 0;
+    }
+    td{
+        text-align: center;
+        padding: 10px;
+        &.alignLeft{
+            text-align: left;
+        }
+        .checkbox{
+            margin: 0;
+            label:before{
+                margin-left: -16px;
+            }
+            label:after{
+                margin-left: -17px;
+            }
+        }
+    }
+    .rowGrey{
+        background: #F8F9FB;
+    }
+}
 
 
 /* progression page blocks */

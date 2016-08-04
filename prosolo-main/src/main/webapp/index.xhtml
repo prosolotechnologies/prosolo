@@ -92,16 +92,23 @@
             </div>
             <div class="col-md-6">
                 <div class="sidebarBlock">
-                	<ui:fragment rendered="#{not empty credentialsInProgressBean.credentials}">
-	                    <div class="inProgressHead">
-	                        <h2>In Progress</h2>
-	                        <h:link
-							value="View All" outcome="/achievements/inprogress" />
-	                    </div>
-	                    <courses:recentNCredentialsInProgress 
-	                    	learningContext="name:status_wall"
-	                    />
+                    <div class="inProgressHead">
+                        <h2>In Progress</h2>
+	                	<ui:fragment rendered="#{not empty credentialsInProgressBean.credentials}">
+							<h:link value="View All" outcome="/achievements/inprogress" />
+                        </ui:fragment>
+                    </div>
+                       
+                	<ui:fragment rendered="#{empty credentialsInProgressBean.credentials}">
+                        <article class="whiteBox noInProgress">
+	                        <p>You have no credentials in progress.</p>
+	                        <h:link class="btn btn-green btn-sm" value="Browse Credentials" outcome="/credentialLibrary" />
+	                    </article>
 	                </ui:fragment>
+	                
+                    <courses:recentNCredentialsInProgress 
+                    	learningContext="name:status_wall"
+                    />
                 </div>
                 <div class="sidebarBlock">
                     <people:whoToFollow
