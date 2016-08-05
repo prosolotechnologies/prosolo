@@ -56,6 +56,28 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
+					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access')}">
+						<div class="dropdown roleChanger">
+							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
+							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
+								<li>
+									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/manage/credentialLibrary">
+										Manage
+									</h:link>
+								</li>
+								<li>
+									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
+										outcome="/admin/users">
+										Admin
+									</h:link>
+								</li>
+							</ul>
+						</div>
+					</c:if>
+
 					<h:link id="logo"
 						onclick="sendLogPageNavigation('index','mainmenu');"
 						outcome="/credentialLibrary">
