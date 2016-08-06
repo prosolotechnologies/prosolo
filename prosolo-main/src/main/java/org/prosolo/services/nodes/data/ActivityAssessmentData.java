@@ -23,6 +23,9 @@ public class ActivityAssessmentData {
 	private int numberOfMessages;
 	private String encodedDiscussionId;
 	private String encodedTargetActivityId;
+	private Long activityId;
+	private Long competenceId;
+	private Long credentialId;
 	private boolean allRead;
 	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
@@ -31,6 +34,7 @@ public class ActivityAssessmentData {
 			UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
+		populateIds(data,targetActivity,compAssessment);
 		populateDownloadResourceLink(targetActivity,data);
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
@@ -56,6 +60,14 @@ public class ActivityAssessmentData {
 			data.setAllRead(true);
 		}
 		return data;
+	}
+
+
+
+	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
+		data.setActivityId(targetActivity.getActivity().getId());
+		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
+		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
 	}
 
 
@@ -164,6 +176,28 @@ public class ActivityAssessmentData {
 	public void setEncodedTargetActivityId(String encodedTargetActivityId) {
 		this.encodedTargetActivityId = encodedTargetActivityId;
 	}
-	
 
+	public Long getActivityId() {
+		return activityId;
+	}
+
+	public void setActivityId(Long activityId) {
+		this.activityId = activityId;
+	}
+
+	public Long getCompetenceId() {
+		return competenceId;
+	}
+
+	public void setCompetenceId(Long competenceId) {
+		this.competenceId = competenceId;
+	}
+
+	public Long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(Long credentialId) {
+		this.credentialId = credentialId;
+	}
 }
