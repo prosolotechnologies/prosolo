@@ -183,6 +183,8 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 		}
 		else {
+			logger.error("Student "+ loggedUser.getFullName() + " tried to submit assessment request for credential : " 
+		+ credentialData.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
 	}

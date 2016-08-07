@@ -138,8 +138,13 @@
 	                    	<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
 		                        <ul>
 		                            <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{!activityAssessment.allRead ? 'hasNewComments' : ''}">
-		                                <span class="iconType"></span>
-		                                <a href="#" target="_blank">#{activityAssessment.title}</a>
+		                                <h:link outcome="activity">
+													<span class="iconType"></span>
+													#{activityAssessment.title}
+													<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}"/> 
+													<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}"/>
+													<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" disable="#{empty activityAssessmentcredentialId}"/>
+											</h:link>
 		                                
 			                                <a onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)" 
 			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>

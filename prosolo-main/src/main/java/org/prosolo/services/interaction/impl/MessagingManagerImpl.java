@@ -292,7 +292,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 				+ "LEFT JOIN thread.messages message "
 				+ "WHERE thread.id = :threadId "
 				+ "AND message.createdTimestamp >= :fromTime "
-				+ "ORDER BY message.createdTimestamp ASC";
+				+ "ORDER BY message.createdTimestamp DESC";
 
 		@SuppressWarnings("unchecked")
 		List<Message> result = persistence.currentManager().createQuery(query).setLong("threadId", threadId)
