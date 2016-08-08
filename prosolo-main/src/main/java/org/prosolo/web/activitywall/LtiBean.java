@@ -1,9 +1,18 @@
 package org.prosolo.web.activitywall;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.util.roles.RoleNames;
+import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
 @author Zoran Jeremic Dec 13, 2014
 *
@@ -14,11 +23,30 @@ import org.springframework.stereotype.Component;
 @Scope("view")
 public class LtiBean {
 
+	@Inject
+	private LoggedUserBean loggedUser;
+	@Inject
+	private RoleManager roleManager;
+
 	public String launchUrl;
 	public String sharedSecret;
 	public String consumerKey;
 	public long activityId;
 	public long targetActivityId;
+	public String roles;
+
+	@PostConstruct
+	public void init() {
+		List<String> roles = new ArrayList<>();
+		roles.add(RoleNames.MANAGER);
+		roles.add(RoleNames.INSTRUCTOR);
+		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
+		if (hasManagerOrInstructorRole) {
+			this.roles="Instructor";
+		}else{
+			this.roles="Learner";
+		}
+}
 
 	public long getTargetActivityId() {
 		return targetActivityId;
@@ -58,6 +86,12 @@ public class LtiBean {
 
 	public void setLaunchUrl(String launchUrl) {
 		this.launchUrl = launchUrl;
+	}
+	public String getRoles(){
+		return this.roles;
+	}
+	public void setRoles(String roles){
+		this.roles=roles;
 	}
 	
 }

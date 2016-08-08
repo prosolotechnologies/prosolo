@@ -31,6 +31,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="bigdata.common" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.4" level="project" />
     <orderEntry type="library" name="Maven: cglib:cglib:2.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
@@ -72,7 +73,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.6.3" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" name="Maven: ca.prosolo.local:boilerpipe-1.2.0:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.7" level="project" />
     <orderEntry type="library" name="Maven: org.primefaces:primefaces:5.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.myfaces.core:myfaces-api:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-jcdi_1.0_spec:1.0" level="project" />
