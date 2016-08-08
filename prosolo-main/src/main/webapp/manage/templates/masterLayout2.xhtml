@@ -68,14 +68,21 @@
 									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
 										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
 										outcome="/index">
-										Student
+										<span></span>Student
+									</h:link>
+								</li>
+								<li class="selected">
+									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/manage/credentialLibrary">
+										<span></span>Manage
 									</h:link>
 								</li>
 								<li>
 									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
 										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
 										outcome="/admin/users">
-										Admin
+										<span></span>Admin
 									</h:link>
 								</li>
 							</ul>
