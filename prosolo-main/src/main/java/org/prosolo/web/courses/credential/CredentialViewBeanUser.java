@@ -174,6 +174,8 @@ public class CredentialViewBeanUser implements Serializable {
 		//at this point, assessor should be set either from credential data or user-submitted peer id
 		if (assessmentRequestData.isAssessorSet()) {
 			populateAssessmentRequestFields();
+			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
+			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
 			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
