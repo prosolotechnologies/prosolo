@@ -1,0 +1,195 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="templates/masterLayout2.xhtml"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<ui:define name="windowTitle">
+		Announcements
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id"
+				value="#{announcementBean.credentialId}" default="null" />
+			<f:viewAction action="#{announcementBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h1>#{announcementBean.credentialTitle}</h1>
+	</ui:define>
+
+	<ui:define name="navLinks">
+		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
+			credEncodedId="#{param['id']}" credType="UNIVERSITY_CREATED" />
+	</ui:define>
+
+	<ui:define name="content">
+	<script>
+			function setPublishModeValue(publishMode) {
+				setPublishMode([{name:'value', value:publishMode}])
+			}
+			
+			function hideConfirmDialog(dialogId) {
+				$('#'+dialogId).modal('hide');
+				$("body").removeAttr("class").removeAttr("style")
+				$("div.modal-backdrop.fade.in").remove()
+			}
+		</script>
+		<h:panelGroup id="containerDiv" layout="block" styleClass="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<p>
+							Here you can publish an announcement to all credential
+							participants.<br />
+							<br />
+							<a href="#" class="btn btn-green" data-toggle="modal"
+								data-target="#newAnnouncementModal">New Announcement</a>
+						</p>
+						<div class="clear"></div>
+						<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
+							role="dialog" aria-labelledby="newAnnouncement">
+							<h:form id="newAnnouncementForm">
+								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBean.setPublishMode}"></p:remoteCommand>
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header alignLeft">
+											<button type="button" class="close" data-dismiss="modal"
+												aria-label="Close">
+												<span aria-hidden="true">×</span>
+											</button>
+											<h2 class="modal-title" id="newAnnouncement">New
+												Announcement</h2>
+										</div>
+										<div class="assessmentModalMeta">
+											<div class="assessmentModalMetaLine">
+												<div class="assessmentModalMetaLeft">Credential:</div>
+												<div class="assessmentModalMetaRight">
+													<h3>#{announcementBean.credentialTitle}</h3>
+												</div>
+											</div>
+										</div>
+										<div class="modal-body alignLeft">
+											<p:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}" id="newAnnouncementText" />
+											<div class="radioGroup">
+												Send to:
+												<div class="radio">
+													<input checked="checked" onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio1"
+														value="option1" /><label for="radio1">All
+														students</label>
+												</div>
+												<div class="radio">
+													<input onchange="setPublishModeValue('Active')" type="radio" name="radio2" id="radio2"
+														value="option2"/><label for="radio2">Only
+														active students</label>
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer alignLeft">
+											<p:commandLink value="Publish"
+			                                    	styleClass="btn btn-green" 
+			                                    	action="#{announcementBean.publishAnnouncement()}" 
+			                                    	update=":containerDiv"
+			                                    	oncomplete="hideConfirmDialog('newAnnouncementModal')" 
+		                                    	/>
+										</div>
+									</div>
+								</div>
+							</h:form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<h2>Previous Annoncements</h2>
+			<div class="row">
+				<div class="col-md-8">
+					<article class="whiteBox announcementBox">
+						<h2>Praesent feugiat ante ex</h2>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+							Praesent feugiat ante ex, at pellentesque ex pharetra tincidunt.
+							Donec a mauris sodales purus semper scelerisque. Maecenas magna
+							augue, tristique sed condimentum quis, tincidunt ut diam. Quisque
+							ac augue eget est vulputate volutpat. Vivamus rhoncus orci vitae
+							urna maximus, sit amet volutpat ex blandit. In sit amet suscipit
+							quam, et porta orci. In metus enim, tempor non magna sit amet,
+							gravida sodales orci. Aenean tempor ullamcorper elit vel
+							faucibus.</p>
+						<ul>
+							<li>Integer faucibus tempus tristique</li>
+							<li>Nam faucibus turpis tortor, eu rhoncus risus dignissim
+								sed</li>
+							<li>Donec nec sollicitudin nibh</li>
+						</ul>
+						<p>Cras in aliquam odio. Ut aliquam pretium leo, in feugiat
+							sapien pellentesque at. Etiam rhoncus nisi sed enim varius
+							vulputate. Morbi imperdiet est vel mollis vehicula. Duis bibendum
+							ultricies fringilla. Sed vitae turpis lobortis, tincidunt ante
+							sed, sagittis nulla. Sed sit amet mi a lectus accumsan tempor.
+							Curabitur viverra est id tristique vulputate. Integer pretium sem
+							varius enim condimentum tristique. Vivamus rutrum at lectus
+							tempor viverra. Fusce et ipsum quis est congue rhoncus. Cras
+							iaculis, mauris et lobortis consequat, velit dui dictum lorem, id
+							finibus tortor eros et est. Morbi ut consequat leo, at venenatis
+							enim. Morbi pharetra et purus ac feugiat.</p>
+					</article>
+				</div>
+				<div class="col-md-4">
+					<div class="sidebarBlock">
+						<h2>Posted on July 25, 2016, by</h2>
+						<div class="user32">
+							<a href="#"><img src="images2/temp-walter.png"
+								class="img-circle" width="32" height="32" alt="Walter White" /></a>
+							<h3>
+								<a href="#">Walter White</a>
+							</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8">
+					<article class="whiteBox announcementBox">
+						<h2>Praesent feugiat ante ex</h2>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+							Praesent feugiat ante ex, at pellentesque ex pharetra tincidunt.
+							Donec a mauris sodales purus semper scelerisque. Maecenas magna
+							augue, tristique sed condimentum quis, tincidunt ut diam. Quisque
+							ac augue eget est vulputate volutpat. Vivamus rhoncus orci vitae
+							urna maximus, sit amet volutpat ex blandit. In sit amet suscipit
+							quam, et porta orci. In metus enim, tempor non magna sit amet,
+							gravida sodales orci. Aenean tempor ullamcorper elit vel
+							faucibus.</p>
+					</article>
+				</div>
+				<div class="col-md-4">
+					<div class="sidebarBlock">
+						<h2>Posted on January 19, 2016, by</h2>
+						<div class="user32">
+							<a href="#"><img src="images2/temp-walter.png"
+								class="img-circle" width="32" height="32" alt="Walter White" /></a>
+							<h3>
+								<a href="#">Walter White</a>
+							</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<nav class="paginationWrapper">
+				<ul class="pagination">
+					<li><a href="#" aria-label="Previous"><span
+							aria-hidden="true">Prev</span></a></li>
+					<li><a href="#">1</a></li>
+					<li class="active"><a href="#">2</a></li>
+					<li>...</li>
+					<li><a href="#">7</a></li>
+					<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+				</ul>
+			</nav>
+		</h:panelGroup>
+	</ui:define>
+</ui:composition>
