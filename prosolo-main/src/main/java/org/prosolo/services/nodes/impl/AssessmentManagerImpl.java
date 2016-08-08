@@ -136,6 +136,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		User assessor = (User) persistence.currentManager().load(User.class, assessmentRequestData.getAssessorId());
 		CredentialAssessment assessment = new CredentialAssessment();
 		Date creationDate = new Date();
+		assessment.setMessage(assessmentRequestData.getMessageText());
 		assessment.setDateCreated(creationDate);
 		assessment.setApproved(false);
 		assessment.setAssessedStudent(student);

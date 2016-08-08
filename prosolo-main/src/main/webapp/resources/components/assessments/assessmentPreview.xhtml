@@ -49,221 +49,328 @@
 		<h:form prependId="false" id="remoteCommandForm">
 			<p:remoteCommand action="#{cc.attrs.bean.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
 		</h:form>
-		 <div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-                	<h:form id="assessCredentialForm" prependId="false">
-                	<p:growl id="assessCredentialFormGrowl"></p:growl>
-                	<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
-                    	<div class="tagApproved left item">Approved</div>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor()}">
-	                    <a href="#" class="btn btn-green btn-sm" data-toggle="modal" data-target="#approveAssessment">Approve</a>
-	                    <div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
-	                        <div class="modal-dialog" role="document">
-	                            <div class="modal-content">
-	                                <div class="modal-header alignLeft">
-	                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-	                                    <h2 class="modal-title" id="apprAssessment">Approve Assessment</h2>
-	                                </div>
-	                                <div class="assessmentModalMeta">
-	                                    <div class="assessmentModalMetaLine">
-	                                        <div class="assessmentModalMetaLeft">
-	                                            Credential:
-	                                        </div>
-	                                        <div class="assessmentModalMetaRight">
-	                                            <h3>#{cc.attrs.bean.fullAssessmentData.title}</h3>
-	                                        </div>
-	                                    </div>
-	                                    <div class="assessmentModalMetaLine">
-	                                        <div class="assessmentModalMetaLeft">
-	                                            Student:
-	                                        </div>
-	                                        <div class="assessmentModalMetaRight">
-												<utilcomp:userAvatar
-													avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-													fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
-					                            <h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                                <div class="modal-body alignLeft">
-	                                	 <p:inputTextarea placeholder="Type a review that will be shown on student's profile..." 
-	                                	 	value="#{cc.attrs.bean.reviewText}" id="reviewContentTextarea" >
-	                                    </p:inputTextarea>
-	                                </div>
-	                                <div class="modal-footer alignLeft">
-	                                	<p:commandLink update="@all" action="#{cc.attrs.bean.approveCredential()}" 
-	                                		oncomplete="hideConfirmDialog('approveAssessment')"
-	                                		styleClass="btn btn-green">Submit</p:commandLink>
-	                                </div>
-	                            </div>
-	                        </div>
-	                    </div>
-                    </ui:fragment>
-                   </h:form>
-                </div>
+		
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+						<h:form id="assessCredentialForm" prependId="false">
+							<p:growl id="assessCredentialFormGrowl"></p:growl>
+							
+							<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
+								<div class="tagApproved left item">Approved</div>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+								<a href="#" class="btn btn-green btn-sm" data-toggle="modal" data-target="#approveAssessment">Approve</a>
+								<div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
+									<div class="modal-dialog" role="document">
+										<div class="modal-content">
+											<div class="modal-header alignLeft">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h2 class="modal-title" id="apprAssessment">Approve Assessment</h2>
+											</div>
+											
+											<div class="assessmentModalMeta">
+												<div class="assessmentModalMetaLine">
+													<div class="assessmentModalMetaLeft">
+														Credential:
+													</div>
+													<div class="assessmentModalMetaRight">
+														<h3>#{cc.attrs.bean.fullAssessmentData.title}</h3>
+													</div>
+												</div>
+												
+												<div class="assessmentModalMetaLine">
+													<div class="assessmentModalMetaLeft">
+														Student:
+													</div>
+													<div class="assessmentModalMetaRight">
+														<utilcomp:userAvatar
+															avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+															fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
+														<h3>#{cc.attrs.bean.fullAssessmentData.studentFullName}</h3>
+													</div>
+												</div>
+											</div>
+											
+											<div class="modal-body alignLeft">
+												<p:inputTextarea placeholder="Type a review that will be shown on student's profile..." 
+													value="#{cc.attrs.bean.reviewText}" id="reviewContentTextarea" />
+											</div>
+											
+											<div class="modal-footer alignLeft">
+												<p:commandLink update="@all" action="#{cc.attrs.bean.approveCredential()}" 
+													oncomplete="hideConfirmDialog('approveAssessment')"
+													styleClass="btn btn-green">Submit</p:commandLink>
+											</div>
+										</div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+					</div>
+					
+					<div class="whiteBarRight">
+						<h:panelGroup rendered="#{cc.attrs.bean.fullAssessmentData.mandatoryFlow}" styleClass="mandatoryTag item" layout="block"/>
+						<div class="duration item">#{cc.attrs.bean.fullAssessmentData.duration}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8 mandatoryFlow">
+					<p>
+						#{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the creddential, you will be asked for a public review that will be shown on student's profile.
+					</p>
 
-                <div class="whiteBarRight">
-                    <h:panelGroup rendered="#{cc.attrs.bean.fullAssessmentData.mandatoryFlow}" styleClass="mandatoryTag item" layout="block"/>
-                    <div class="duration item">#{cc.attrs.bean.fullAssessmentData.duration}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-     <div class="container">
-        <div class="row">
-            <div class="col-md-8 mandatoryFlow">
-                <p>
-                    #{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the creddential, you will be asked for a public review that will be shown on student's profile.
-                </p>
-                <ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
-                	 <article class="whiteBox summaryCard summaryCompetence summaryAssessments">
-                    <div class="innerWrapper">
-                    	<h:form name="competenceAssessment_#{competenceAssessment.competenceAssessmentEncodedId}_topForm" 
-                    		prependId="false" id="competenceAssessment_#{competenceAssessment.competenceAssessmentEncodedId}_topForm">
-	                        <p:growl></p:growl>
-	                        <h2><a href="#">#{competenceAssessment.title}</a></h2>
-	                        <h:panelGroup rendered="#{competenceAssessment.approved}" styleClass="tagApproved" layout="block">Approved</h:panelGroup>
-	                    	<p:commandLink actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}" 
-	                    			update="@form" rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}" 
-	                    			styleClass="linkApprove">Approve<span></span>
-	                    	</p:commandLink>
-	                        <div class="clear"></div>
-                        </h:form>
-                    </div>
-                    <ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
-	                    <h:panelGroup id="activityAssessmentWrapper#{compAssIndex.index}" layout="block" styleClass="assessmentActivityList">
-	                    	<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
-		                        <ul>
-		                            <li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{!activityAssessment.allRead ? 'hasNewComments' : ''}">
-		                                <h:link outcome="activity">
+					<div class="whiteBox assessmentInitialMessage">
+						<h2>Message</h2>
+						<p><h:outputText value="#{cc.attrs.bean.fullAssessmentData.message}" escape="false"/></p>
+						<div class="clear"></div>
+					</div>
+
+					<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
+						<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+							<div class="innerWrapper">
+								<h:form name="competenceAssessment_#{competenceAssessment.competenceAssessmentEncodedId}_topForm"
+									prependId="false"
+									id="competenceAssessment_#{competenceAssessment.competenceAssessmentEncodedId}_topForm">
+									<p:growl />
+									
+									<h2>
+										<a href="#">#{competenceAssessment.title}</a>
+									</h2>
+									
+									<h:panelGroup rendered="#{competenceAssessment.approved}"
+										styleClass="tagApproved" layout="block">
+										Approved
+									</h:panelGroup>
+									
+									<p:commandLink styleClass="linkApprove"
+										actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}"
+										update="@form"
+										rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+										Approve<span></span>
+									</p:commandLink>
+									
+									<div class="clear"></div>
+								</h:form>
+							</div>
+							
+							<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
+								<h:panelGroup layout="block" styleClass="assessmentActivityList"
+									id="activityAssessmentWrapper#{compAssIndex.index}">
+									<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
+										<ul>
+											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{!activityAssessment.allRead ? 'hasNewComments' : ''}">
+												<h:link outcome="activity">
 													<span class="iconType"></span>
 													#{activityAssessment.title}
-													<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}"/> 
-													<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}"/>
-													<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" disable="#{empty activityAssessmentcredentialId}"/>
-											</h:link>
-		                                
-			                                <a onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)" 
-			                                		href="#" class="commentsIcon" data-toggle="modal" data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">#{activityAssessment.numberOfMessages}</a>
-			                                <div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
-			                                    <div class="modal-dialog modal-lg">
-			                                        <div class="modal-content">
-			                                            <div class="modal-header alignLeft">
-			                                                <button onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                                                <h2 class="modal-title">Comments</h2>
-			                                            </div>
-			                                            <h:form id="newCommentForm-#{activityAssessment.encodedDiscussionId}" prependId="false">
-			                                            <div class="discussion">
-			                                                <div class="comments">
-			                                                	<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
-			                                                		<ul class="media-list">
-				                                                		<ui:repeat var="activityMessageData" value="#{activityAssessment.activityDiscussionMessageData}">
-				                                                        <li class="media">
-				                                                            <div class="media-left">
-				                                                                <utilcomp:userAvatar
-																						avatar="#{activityMessageData.senderAvatarUrl}"
-																						fullName="#{activityMessageData.senderFullName}"/>
-				                                                            </div>
-				                                                            <div class="media-body">
-				                                                                	<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-				                                                                		<div class="commentMain">
-						                                                                    <span class="commentTime">Edited: #{activityMessageData.dateUpdatedFormat}</span>
-						                                                                    <h3 class="media-heading">#{activityMessageData.senderFullName}
-						                                                                    	<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-						                                                                    		<span>INSTRUCTOR</span>
-						                                                                    	</ui:fragment>
-						                                                                    </h3>
-						                                                                    <p class="commentText">#{activityMessageData.content}</p>
-						                                                                    <div class="editComment hidden">
-						                                                                        <p:inputTextarea name="name" styleClass="contentEditableComment" style="width:100%;" rows="1" value="#{activityMessageData.content}"></p:inputTextarea>
-						                                                                        <p:commandLink oncomplete="hideEditComment(this)" update="@form" 
-						                                                                        	actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}" 
-						                                                                        	type="button" styleClass="btn btn-sm btn-green" name="button">Submit</p:commandLink>
-						                                                                        <a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
-						                                                                    </div>
-						                                                                    <div class="commentOptions">
-						                                                                        <a href="javascript:void(0)" class="edit" onclick="showEditComment(this)"><span class="icon"></span>Edit</a>
-						                                                                    </div>
-					                                                                    </div>
-				                                                                    </ui:fragment>
-				                                                                    <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-				                                                                    	<div class="commentMain">
-						                                                                    <span class="commentTime">Edited: #{activityMessageData.dateCreatedFormat}</span>
-						                                                                    <h3 class="media-heading">#{activityMessageData.senderFullName}
-						                                                                    	<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-						                                                                    		<span>INSTRUCTOR</span>
-						                                                                    	</ui:fragment>
-						                                                                    </h3>
-						                                                                    <p>#{activityMessageData.content}</p>
-						                                                               </div>
-						                                                               <div class="media replyInput hidden">
-					                                                                    	<div class="media-left">
-					                                                                			<utilcomp:userAvatar
-																										avatar="#{activityMessageData.senderAvatarUrl}"
-																										fullName="#{activityMessageData.senderFullName}"/>
-					                                                            			</div>
-					                                                                    	<div class="media-body replyComment">
-					                                                                        	<div class="commentForm">
-					                                                                            	<textarea placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></textarea>
-					                                                                            	<button type="button" class="btn btn-sm btn-green hidden" name="button">Submit</button>
-					                                                                        	</div>
-					                                                                    	</div>
-				                                                                	    </div>
-				                                                                  </ui:fragment>
-				                                                            </div>
-				                                                        </li>
-				                                                    </ui:repeat>
-			                                                    </ul>
-			                                                	</ui:fragment>
-			                                                </div>
-			                                                <div class="addComment">
-			                                                   <utilcomp:userAvatar
-																		avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
-																		fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}"/>
-			                                                    <div class="commentForm">
-				                                                        <p:inputTextarea styleClass="contentEditableComment" style="width:100%;" rows="1" value="#{cc.attrs.bean.newCommentValue}" placeholder="Add Comment..."  onkeyup="displaySubmitButton(this)"></p:inputTextarea>
-				                                                        <p:commandLink update="@form" actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion(activityAssessment.encodedDiscussionId,activityAssessment.encodedTargetActivityId,competenceAssessment.competenceAssessmentEncodedId)}" 
-				                                                        	type="button" styleClass="btn btn-green hidden" name="button">Submit</p:commandLink>
-			                                                    </div>
-			                                                </div>
-			                                            </div>
-			                                            </h:form> 
-			                                        </div>
-			                                    </div>
-			                                </div>
-			                                <ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
-			                                	 <ui:repeat  var="url" value="#{activityAssessment.downloadResourceUrls}">
-			                                	 	<a href="#{url}" target="_blank" class="download" data-toggle="tooltip" title="" data-original-title="Download Result" download="download">Download</a>
-			                                	 </ui:repeat>
-			                                </ui:fragment>
-		                            </li>
-		                        </ul>
-		                   </ui:repeat>
-	                    </h:panelGroup>
-                    </ui:fragment>
-                </article>
-                </ui:repeat>
-            </div>
-            <div class="col-md-4">
-                <div class="sidebarBlock">
-                    <h2>Student</h2>
-                    <div class="user32">
-                        <a href="assessment-preview.html">
-							<utilcomp:userAvatar avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
-								fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"/>
-                        </a>
-                        <h3><a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a></h3>
-                    </div>
-                </div>
-                <div class="sidebarBlock">
-                    <h2>Requested</h2>
-                    <p>#{cc.attrs.bean.fullAssessmentData.dateValue}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+													<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+													<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
+													<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}"
+														disable="#{empty activityAssessmentcredentialId}" />
+												</h:link>
+												
+												<a class="commentsIcon" data-toggle="modal"
+													onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)"
+													href="#"  data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">
+													#{activityAssessment.numberOfMessages}
+												</a>
+												
+												<div class="modal fade assessmentCommentsModal"
+													id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
+													tabindex="-1" role="dialog"
+													aria-labelledby="assessmentCommentsModal">
+													
+													<div class="modal-dialog modal-lg">
+														<div class="modal-content">
+															<div class="modal-header alignLeft">
+																<button
+																	onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')"
+																	type="button" class="close" data-dismiss="modal"
+																	aria-label="Close">
+																	<span aria-hidden="true">×</span>
+																</button>
+																<h2 class="modal-title">Comments</h2>
+															</div>
+															
+															<h:form id="newCommentForm-#{activityAssessment.encodedDiscussionId}" prependId="false">
+																<div class="discussion">
+																	<div class="comments">
+																		<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
+																			<ul class="media-list">
+																				<ui:repeat var="activityMessageData" value="#{activityAssessment.activityDiscussionMessageData}">
+																					<li class="media">
+																						<div class="media-left">
+																							<utilcomp:userAvatar
+																								avatar="#{activityMessageData.senderAvatarUrl}"
+																								fullName="#{activityMessageData.senderFullName}" />
+																						</div>
+																						
+																						<div class="media-body">
+																							<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																								<div class="commentMain">
+																									<span class="commentTime">
+																										Edited: #{activityMessageData.dateUpdatedFormat}
+																									</span>
+																									
+																									<h3 class="media-heading">
+																										#{activityMessageData.senderFullName}
+																										<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																											<span>INSTRUCTOR</span>
+																										</ui:fragment>
+																									</h3>
+																									
+																									<p class="commentText">#{activityMessageData.content}</p>
+																									
+																									<div class="editComment hidden">
+																										<p:inputTextarea name="name"
+																											styleClass="contentEditableComment"
+																											style="width:100%;" rows="1"
+																											value="#{activityMessageData.content}"></p:inputTextarea>
+																										<p:commandLink styleClass="btn btn-sm btn-green"
+																											oncomplete="hideEditComment(this)"
+																											update="@form"
+																											actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}"
+																											type="button"
+																											name="button">
+																											Submit
+																										</p:commandLink>
+																										
+																										<a href="javascript:void(0)"
+																											class="btn btn-sm btn-green-stroke"
+																											onclick="hideEditComment(this)">Cancel</a>
+																									</div>
+																									
+																									<div class="commentOptions">
+																										<a href="javascript:void(0)" class="edit"
+																											onclick="showEditComment(this)">
+																											<span class="icon"></span>Edit
+																										</a>
+																									</div>
+																								</div>
+																							</ui:fragment>
+																							
+																							<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																								<div class="commentMain">
+																									<span class="commentTime">
+																										Edited: #{activityMessageData.dateCreatedFormat}
+																									</span>
+																									<h3 class="media-heading">
+																										#{activityMessageData.senderFullName}
+																										<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																											<span>INSTRUCTOR</span>
+																										</ui:fragment>
+																									</h3>
+																									<p>#{activityMessageData.content}</p>
+																								</div>
+																								
+																								<div class="media replyInput hidden">
+																									<div class="media-left">
+																										<utilcomp:userAvatar
+																											avatar="#{activityMessageData.senderAvatarUrl}"
+																											fullName="#{activityMessageData.senderFullName}" />
+																									</div>
+																									
+																									<div class="media-body replyComment">
+																										<div class="commentForm">
+																											<textarea placeholder="Add Comment..." onkeyup="displaySubmitButton(this)"></textarea>
+																											<button type="button"
+																												class="btn btn-sm btn-green hidden"
+																												name="button">
+																												Submit
+																											</button>
+																										</div>
+																									</div>
+																								</div>
+																							</ui:fragment>
+																						</div>
+																					</li>
+																				</ui:repeat>
+																			</ul>
+																		</ui:fragment>
+																	</div>
+																	
+																	<div class="addComment">
+																		<utilcomp:userAvatar
+																			avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
+																			fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}" />
+																			
+																		<div class="commentForm">
+																			<p:inputTextarea styleClass="contentEditableComment"
+																				style="width:100%;" rows="1"
+																				value="#{cc.attrs.bean.newCommentValue}"
+																				placeholder="Add Comment..."
+																				onkeyup="displaySubmitButton(this)" />
+																			<p:commandLink update="@form"
+																				actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion(activityAssessment.encodedDiscussionId,activityAssessment.encodedTargetActivityId,competenceAssessment.competenceAssessmentEncodedId)}"
+																				type="button" styleClass="btn btn-green hidden"
+																				name="button">
+																				Submit
+																			</p:commandLink>
+																		</div>
+																	</div>
+																</div>
+															</h:form>
+														</div>
+													</div>
+												</div> 
+												
+												<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
+													<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
+														<a data-original-title="Download Result" 
+															href="#{url}" target="_blank" 
+															class="download" data-toggle="tooltip" title="">Download</a>
+													</ui:repeat>
+												</ui:fragment>
+											</li>
+										</ul>
+									</ui:repeat>
+								</h:panelGroup>
+							</ui:fragment>
+						</article>
+					</ui:repeat>
+				</div>
+
+				<div class="col-md-4">
+					<div class="sidebarBlock">
+						<h2>Student</h2>
+						<div class="user32">
+							<a href="assessment-preview.html"> 
+								<utilcomp:userAvatar
+									avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
+									fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
+							</a>
+							<h3>
+								<a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a>
+							</h3>
+						</div>
+					</div>
+
+					<div class="sidebarBlock">
+						<h2>Assessor</h2>
+						<div class="user32">
+							<a href="assessment-preview.html">
+								<utilcomp:userAvatar
+									avatar="#{cc.attrs.bean.fullAssessmentData.assessorAvatarUrl}"
+									fullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}" />
+							</a>
+							<h3>
+								<a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</a>
+							</h3>
+						</div>
+					</div>
+
+					<div class="sidebarBlock">
+						<h2>Requested</h2>
+						<p>#{cc.attrs.bean.fullAssessmentData.dateValue}</p>
+					</div>
+				</div>
+			</div>
+    	</div>
 	</composite:implementation>
 </ui:component>

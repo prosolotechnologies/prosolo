@@ -24,7 +24,6 @@
 		            <div class="col-md-9">
 		                <h:panelGroup layout="block" id="panelNotifications" styleClass="whiteBox profileNotifications">
 		                    <ul>
-		                    
 		                    	<ui:fragment rendered="#{empty notificationBean.notifications}">
 									<li class="noNotifications">
 										No recent activity.
@@ -33,7 +32,7 @@
 								
 		                    	<ui:repeat var="notification" value="#{notificationBean.notifications}">
 		                    		 <li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notification.notificationType)}">
-			                            <h:link outcome="#{notification.link}">
+			                            <h:outputLink value="#{notification.link}">
 			                                <div class="icon"></div>
 			                                
 			                                <utilcomp:userAvatar
@@ -44,7 +43,7 @@
 			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3>
 			                                </div>
 			                                <span class="timestamp">#{notification.datePretty}</span>
-			                            </h:link>
+			                            </h:outputLink>
 			                        </li>
 		                    	</ui:repeat>
 		                    </ul>
