@@ -5,7 +5,8 @@
 	template="templates/masterLayout2.xhtml"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
 		Announcements
@@ -40,8 +41,32 @@
 				$("div.modal-backdrop.fade.in").remove()
 			}
 		</script>
+		
+		<div class="whiteBar">
+        <div class="container">
+            <div class="whiteBarContent">
+                <div class="whiteBarLeft">
+
+                </div>
+				<div class="whiteBarRight">
+					 <h:panelGroup rendered="#{announcementBean.credentialMandatoryFlow}" styleClass="mandatoryTag item">
+					 	Mandatory flow
+					 </h:panelGroup>
+					 <div class="duration item">#{announcementBean.credentialDurationString}</div>
+				 </div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="container">
+        	<ol class="breadcrumb">
+            	<li><a href="#">Credentials</a></li>
+            	<li class="active">#{announcementBean.credentialTitle}</li>
+        	</ol>
+    	</div>
+		
 		<h:panelGroup id="containerDiv" layout="block" styleClass="container">
-			<div class="row">
+			<h:panelGroup styleClass="row" layout="block" rendered="#{request.isUserInRole('COURSE.ANNOUNCEMENTS.CREATE')}">
 				<div class="col-md-12">
 					<div class="whiteBox">
 						<p>
@@ -104,92 +129,39 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</h:panelGroup>
 			<h2>Previous Annoncements</h2>
-			<div class="row">
-				<div class="col-md-8">
-					<article class="whiteBox announcementBox">
-						<h2>Praesent feugiat ante ex</h2>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							Praesent feugiat ante ex, at pellentesque ex pharetra tincidunt.
-							Donec a mauris sodales purus semper scelerisque. Maecenas magna
-							augue, tristique sed condimentum quis, tincidunt ut diam. Quisque
-							ac augue eget est vulputate volutpat. Vivamus rhoncus orci vitae
-							urna maximus, sit amet volutpat ex blandit. In sit amet suscipit
-							quam, et porta orci. In metus enim, tempor non magna sit amet,
-							gravida sodales orci. Aenean tempor ullamcorper elit vel
-							faucibus.</p>
-						<ul>
-							<li>Integer faucibus tempus tristique</li>
-							<li>Nam faucibus turpis tortor, eu rhoncus risus dignissim
-								sed</li>
-							<li>Donec nec sollicitudin nibh</li>
-						</ul>
-						<p>Cras in aliquam odio. Ut aliquam pretium leo, in feugiat
-							sapien pellentesque at. Etiam rhoncus nisi sed enim varius
-							vulputate. Morbi imperdiet est vel mollis vehicula. Duis bibendum
-							ultricies fringilla. Sed vitae turpis lobortis, tincidunt ante
-							sed, sagittis nulla. Sed sit amet mi a lectus accumsan tempor.
-							Curabitur viverra est id tristique vulputate. Integer pretium sem
-							varius enim condimentum tristique. Vivamus rutrum at lectus
-							tempor viverra. Fusce et ipsum quis est congue rhoncus. Cras
-							iaculis, mauris et lobortis consequat, velit dui dictum lorem, id
-							finibus tortor eros et est. Morbi ut consequat leo, at venenatis
-							enim. Morbi pharetra et purus ac feugiat.</p>
-					</article>
-				</div>
-				<div class="col-md-4">
-					<div class="sidebarBlock">
-						<h2>Posted on July 25, 2016, by</h2>
-						<div class="user32">
-							<a href="#"><img src="images2/temp-walter.png"
-								class="img-circle" width="32" height="32" alt="Walter White" /></a>
-							<h3>
-								<a href="#">Walter White</a>
-							</h3>
+				<ui:repeat var="announcementData" value="#{announcementBean.credentialAnnouncements}">
+					<div class="row">
+						<div class="col-md-8">
+							<article class="whiteBox announcementBox">
+								<h2>#{empty announcementData.title ? "Announcement" : announcementData.title}</h2>
+								<p>#{announcementData.text}</p>
+							</article>
+						</div>
+						<div class="col-md-4">
+							<div class="sidebarBlock">
+								<h2>Posted on #{announcementData.formattedCreationDate}, by</h2>
+								<div class="user32">
+									<a href="#">
+										<utilcomp:userAvatar
+												avatar="#{announcementData.creatorAvatarUrl}"
+												fullName="#{announcementData.creatorFullName}" />
+									</a>
+									<h3>
+										<a href="#">#{announcementData.creatorFullName}</a>
+									</h3>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-8">
-					<article class="whiteBox announcementBox">
-						<h2>Praesent feugiat ante ex</h2>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							Praesent feugiat ante ex, at pellentesque ex pharetra tincidunt.
-							Donec a mauris sodales purus semper scelerisque. Maecenas magna
-							augue, tristique sed condimentum quis, tincidunt ut diam. Quisque
-							ac augue eget est vulputate volutpat. Vivamus rhoncus orci vitae
-							urna maximus, sit amet volutpat ex blandit. In sit amet suscipit
-							quam, et porta orci. In metus enim, tempor non magna sit amet,
-							gravida sodales orci. Aenean tempor ullamcorper elit vel
-							faucibus.</p>
-					</article>
-				</div>
-				<div class="col-md-4">
-					<div class="sidebarBlock">
-						<h2>Posted on January 19, 2016, by</h2>
-						<div class="user32">
-							<a href="#"><img src="images2/temp-walter.png"
-								class="img-circle" width="32" height="32" alt="Walter White" /></a>
-							<h3>
-								<a href="#">Walter White</a>
-							</h3>
-						</div>
-					</div>
-				</div>
-			</div>
-			<nav class="paginationWrapper">
-				<ul class="pagination">
-					<li><a href="#" aria-label="Previous"><span
-							aria-hidden="true">Prev</span></a></li>
-					<li><a href="#">1</a></li>
-					<li class="active"><a href="#">2</a></li>
-					<li>...</li>
-					<li><a href="#">7</a></li>
-					<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
-				</ul>
-			</nav>
+				</ui:repeat>
+				
+			<utilcomp:pagination
+							id="pagination" 
+							bean="#{announcementBean}"
+							links="#{announcementBean.paginationLinks}"
+							toUpdate=":containerDiv" />
 		</h:panelGroup>
 	</ui:define>
 </ui:composition>

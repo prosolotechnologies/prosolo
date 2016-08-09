@@ -9,7 +9,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -17,6 +16,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
@@ -44,26 +44,37 @@ public class AnnouncementBean implements Serializable, Paginable {
 	@Inject
 	private CredentialManager credManager;
 	
+	//credential related data
 	private String credentialId;
 	private List<AnnouncementData> credentialAnnouncements = new ArrayList<>();
 	private String credentialTitle;
+	private boolean credentialMandatoryFlow;
+	private String credentialDurationString;
 
+	//new announcement related data
 	private String newAnnouncementTitle;
 	private String newAnnouncementText;
 	private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ALL_STUDENTS;
 
+	//pagination related data
 	private int page = 1;
-	private int limit = 3;
+	private int limit = 10;
 	private int numberOfPages;
 	private List<PaginationLink> paginationLinks;
+	private int totalNumberOfAnnouncements = 0;
 
 	public void init() {
+		resetNewAnnouncementValues();
 		if (StringUtils.isNotBlank(credentialId)) {
 			try {
 				credentialAnnouncements = announcementManager
 						.getAllAnnouncementsForCredential(idEncoder.decodeId(credentialId), page - 1, limit);
-				credentialTitle = credManager.getCredentialTitleForCredentialWithType(
-						idEncoder.decodeId(credentialId), LearningResourceType.UNIVERSITY_CREATED);
+				totalNumberOfAnnouncements = announcementManager.numberOfAnnouncementsForCredential(
+						idEncoder.decodeId(credentialId));
+				CredentialData basicCredentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
+				credentialTitle = basicCredentialData.getTitle();
+				credentialMandatoryFlow = basicCredentialData.isMandatoryFlow();
+				credentialDurationString = basicCredentialData.getDurationString();
 				generatePagination();
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Could not initialize list of announcements", e);
@@ -75,8 +86,15 @@ public class AnnouncementBean implements Serializable, Paginable {
 		}
 	}
 	
+	private void resetNewAnnouncementValues() {
+		newAnnouncementTitle = "";
+		newAnnouncementText = "";
+	}
+
 	public void publishAnnouncement() {
-		System.out.println(newAnnouncementText);
+		announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
+				newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
+		init();
 	}
 	
 	public void setPublishMode() {
@@ -147,7 +165,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 	}
 
 	private void generatePagination() {
-		Paginator paginator = new Paginator(credentialAnnouncements.size(), limit, page, 1, "...");
+		Paginator paginator = new Paginator(totalNumberOfAnnouncements, limit, page, 1, "...");
 		numberOfPages = paginator.getNumberOfPages();
 		paginationLinks = paginator.generatePaginationLinks();
 	}
@@ -183,7 +201,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 	@Override
 	public boolean isResultSetEmpty() {
-		return credentialAnnouncements == null ? true : credentialAnnouncements.size() == 0;
+		return totalNumberOfAnnouncements == 0;
 	}
 
 	public List<PaginationLink> getPaginationLinks() {
@@ -208,6 +226,22 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 	public void setCredentialTitle(String credentialTitle) {
 		this.credentialTitle = credentialTitle;
+	}
+
+	public boolean isCredentialMandatoryFlow() {
+		return credentialMandatoryFlow;
+	}
+
+	public void setCredentialMandatoryFlow(boolean credentialMandatoryFlow) {
+		this.credentialMandatoryFlow = credentialMandatoryFlow;
+	}
+
+	public String getCredentialDurationString() {
+		return credentialDurationString;
+	}
+
+	public void setCredentialDurationString(String credentialDurationString) {
+		this.credentialDurationString = credentialDurationString;
 	}
 
 }
