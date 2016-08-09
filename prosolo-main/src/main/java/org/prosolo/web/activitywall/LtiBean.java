@@ -35,6 +35,21 @@ public class LtiBean {
 	public long targetActivityId;
 	public String roles;
 
+
+
+	public String title;
+	public String description;
+
+	public String getContextName() {
+		return contextName;
+	}
+
+	public void setContextName(String contextName) {
+		this.contextName = contextName;
+	}
+
+	public String contextName;
+
 	@PostConstruct
 	public void init() {
 		List<String> roles = new ArrayList<>();
@@ -92,6 +107,22 @@ public class LtiBean {
 	}
 	public void setRoles(String roles){
 		this.roles=roles;
+	}
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		System.out.println("SET LTI description:"+description);
+		this.description = description;
 	}
 	
 }

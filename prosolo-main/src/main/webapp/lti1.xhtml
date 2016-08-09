@@ -35,13 +35,13 @@
 				<form action="#{ltiBean.launchUrl}" name="ltiLaunchForm" target="basicLtiLaunchFrame" 
 					onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 					enctype="application/x-www-form-urlencoded">
-						<input type="hidden" name="context_id" value="3" />
-						<input type="hidden" name="context_label" value="lesson_label" />
-						<input type="hidden" name="context_title" value="lesson_title" />
+						<input type="hidden" name="context_id" value="#{ltiBean.targetActivityId}" />
+						<input type="hidden" name="context_label" value="#{ltiBean.title}" />
+						<input type="hidden" name="context_title" value="#{ltiBean.title}" />
 						<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
 						<input type="hidden" name="lti_version" value="LTI-1p0" />
-						<input type="hidden" name="resource_link_id" value="#{ltiBean.activityId}" />           
-						<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
+						<input type="hidden" name="resource_link_id" value="#{ltiBean.activityId}" />
+			 			<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
 						<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
 						<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />
 						<input type="hidden" name="lis_person_name_family" value="#{loggeduser.lastName}" />

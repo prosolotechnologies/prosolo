@@ -28,23 +28,27 @@
 	<f:viewParam name="consumerKey" value="#{ltiBean.consumerKey}" />
 	<f:viewParam name="activityId" value="#{ltiBean.activityId}" />
 	<f:viewParam name="targetActivityId" value="#{ltiBean.targetActivityId}" />
+	<f:viewParam name="title" value="#{ltiBean.title}" />
+	<f:viewParam name="description" value="#{ltiBean.description}" />
+	<f:viewParam name="contextName" value="#{ltiBean.contextName}" />
 </f:metadata>
 	
 <h:body>
 	<h:outputScript library="javascript" name="oauth.js" target="head" />
 	<h:outputScript library="javascript" name="sha1.js" target="head" />
 	<h:outputScript library="javascript" name="prosolo.lti.js" target="head" />
-	
-			
+
 	<form action="#{ltiBean.launchUrl}" name="ltiLaunchForm" target="basicLtiLaunchFrame" 
 		onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 		enctype="application/x-www-form-urlencoded">
-			<input type="hidden" name="context_id" value="3" />
-			<input type="hidden" name="context_label" value="lesson_label" />
-			<input type="hidden" name="context_title" value="lesson_title" />
+			<input type="hidden" name="context_id" value="#{ltiBean.targetActivityId}" />
+		<input type="hidden" name="context_label" value="#{ltiBean.contextName}" />
+		<input type="hidden" name="context_title" value="#{ltiBean.contextName}" />
 			<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
 			<input type="hidden" name="lti_version" value="LTI-1p0" />
-			<input type="hidden" name="resource_link_id" value="#{ltiBean.activityId}" />           
+			<input type="hidden" name="resource_link_id" value="#{ltiBean.activityId}" />
+			<input type="hidden" name="resource_link_title" value="#{ltiBean.title}" />
+			<input type="hidden" name="resource_link_description" value="#{ltiBean.description}" />
 			<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
 			<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
 			<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />

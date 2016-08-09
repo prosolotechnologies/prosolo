@@ -47,6 +47,7 @@ public class ActivityWallData extends SocialActivityData implements Comparable<A
 	private CompetenceDataCache compData;
 	
 	public ActivityWallData(TargetActivity targetActivity) {
+		System.out.println("INIT activity wall data");
 		this.id = targetActivity.getId();
 		setActivity(new NodeData(targetActivity));
 		setDateCreated(targetActivity.getDateCreated());

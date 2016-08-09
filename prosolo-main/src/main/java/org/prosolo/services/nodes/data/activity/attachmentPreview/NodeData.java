@@ -27,10 +27,10 @@ public class NodeData implements Serializable {
 	private String sharedSecret;
 	private String consumerKey;
 	
-	public NodeData() { }
+	public NodeData() {System.out.println("NODE DATA 1"); }
 	
 	public NodeData(BaseEntity resource) {
-	 
+		System.out.println("NODE DATA 2");
 	 	resource=HibernateUtil.initializeAndUnproxy(resource);
 		this.id = resource.getId();
 		this.clazz = resource.getClass();
@@ -41,11 +41,13 @@ public class NodeData implements Serializable {
 			this.launchUrl = ((ExternalToolActivity) resource).getLaunchUrl();
 			this.sharedSecret = ((ExternalToolActivity) resource).getSharedSecret();
 			this.setConsumerKey(((ExternalToolActivity) resource).getConsumerKey());
+			System.out.println("EXTERNAL TOOL INITIALISED:"+this.launchUrl+" title:"+this.title);
 		}
 	}
 	
 	public NodeData(long id, String shortType, Class<? extends BaseEntity> clazz, String title) {
 		super();
+		System.out.println("NODE DATA 3");
 		this.id = id;
 		this.shortType = shortType;
 		this.clazz = clazz;
@@ -107,6 +109,7 @@ public class NodeData implements Serializable {
 	}
 
 	public String getLaunchUrl() {
+		System.out.println("NODE DATA getLaunchUrl");
 		return launchUrl;
 	}
 

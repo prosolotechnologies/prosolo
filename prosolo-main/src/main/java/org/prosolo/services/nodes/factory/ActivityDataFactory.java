@@ -265,7 +265,7 @@ public class ActivityDataFactory {
 		
 		//or add targetCompetenceId to activitydata
 		act.setCompetenceId(activity.getTargetCompetence().getId());
-		
+		act.setCompetenceName(activity.getTargetCompetence().getTitle());
 		populateTypeSpecificData(act, activity);
 
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
