@@ -2,6 +2,8 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -11,17 +13,19 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.PageUtil;
@@ -44,6 +48,7 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private UploadManager uploadManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
+	@Inject private RoleManager roleManager;
 
 	private String actId;
 	private long decodedActId;
@@ -57,8 +62,23 @@ public class ActivityViewBeanUser implements Serializable {
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
+	private String roles;
+	
+	public String getRoles() {
+		return roles;
+	}
 
 	public void init() {	
+		List<String> roles = new ArrayList<>();
+		roles.add(RoleNames.MANAGER);
+		roles.add(RoleNames.INSTRUCTOR);
+		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
+		if (hasManagerOrInstructorRole) {
+			this.roles="Instructor";
+		}else{
+			this.roles="Learner";
+		}
+		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedActId > 0 && decodedCompId > 0) {

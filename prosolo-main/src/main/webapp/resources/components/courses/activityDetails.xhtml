@@ -43,34 +43,80 @@
 			</ui:fragment>
 			
 			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}">
-				<h:link 
-					style="display:none;"
-					value="Load"
-					styleClass="linkLoadExternalActivity"
-					outcome="/lti" 
-					target="extActivityFrame"
-					onclick="sendLogPageNavigationWithParameters('/lti', {});">
-					<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
-					<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
-					<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
-					<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
-					<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
-					<f:param name="title" value="#{cc.attrs.activity.title}"/>
-					<f:param name="description" value="#{cc.attrs.activity.description}"/>
-					<f:param name="contextName" value="#{cc.attrs.activity.competenceName}"/>
-				</h:link>
-			
-				<iframe name="extActivityFrame"
-					width="731" height="413" frameborder="0"
-					marginwidth="0" marginheight="0" scrolling="yes"
-					style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
-				</iframe>
+				<ui:fragment rendered="#{!cc.attrs.activity.openInNewWindow}">
+					<h:link 
+						style="display:none;"
+						value="Load"
+						styleClass="linkLoadExternalActivity"
+						outcome="/lti" 
+						target="extActivityFrame"
+						onclick="sendLogPageNavigationWithParameters('/lti', {});">
+						<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
+						<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
+						<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
+						<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
+						<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
+						<f:param name="title" value="#{cc.attrs.activity.title}"/>
+						<f:param name="description" value="#{cc.attrs.activity.description}"/>
+						<f:param name="contextName" value="#{cc.attrs.activity.competenceName}"/>
+					</h:link>
 				
-				<script>
-				$(function(){
-					document.getElementsByClassName("linkLoadExternalActivity")[0].click();
-				});
-				</script>
+					<iframe name="extActivityFrame"
+						width="731" height="413" frameborder="0"
+						marginwidth="0" marginheight="0" scrolling="yes"
+						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+					</iframe>
+					
+					<script>
+					$(function(){
+						document.getElementsByClassName("linkLoadExternalActivity")[0].click();
+					});
+					</script>
+				</ui:fragment>
+			
+				<ui:fragment rendered="#{cc.attrs.activity.openInNewWindow}">
+					<h:outputScript library="javascript" name="oauth.js" target="head" />
+					<h:outputScript library="javascript" name="sha1.js" target="head" />
+					<h:outputScript library="javascript" name="prosolo.lti.js" target="head" />
+					
+					<form action="#{cc.attrs.activity.launchUrl}" name="ltiLaunchForm" target="_blank" 
+						onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
+						enctype="application/x-www-form-urlencoded">
+							<input type="hidden" name="context_id" value="#{cc.attrs.activity.targetActivityId}" />
+							<input type="hidden" name="context_label" value="#{cc.attrs.activity.competenceName}" />
+							<input type="hidden" name="context_title" value="#{cc.attrs.activity.competenceName}" />
+							<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
+							<input type="hidden" name="tool_consumer_instance_guid" value="prosolo.ca" />
+							<input type="hidden" name="tool_consumer_instance_description" value="ProSolo" />
+							<input type="hidden" name="lti_version" value="LTI-1p0" />
+							<input type="hidden" name="resource_link_id" value="#{cc.attrs.activity.activityId}" />
+							<input type="hidden" name="resource_link_title" value="#{cc.attrs.activity.title}" />
+							<input type="hidden" name="resource_link_description" value="#{cc.attrs.activity.description}" />
+							<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
+							<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
+							<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />
+							<input type="hidden" name="lis_person_name_family" value="#{loggeduser.lastName}" />
+							<input type="hidden" name="lis_person_name_given" value="#{loggeduser.name}" />
+							<input type="hidden" name="lis_person_contact_email_primary" value="#{loggeduser.email}" />
+							<input type="hidden" name="tool_consumer_instance_url" value="#{applicationbean.domain}" />
+							<input type="hidden" name="lis_result_sourcedid"  value="#{loggeduser.userId}::#{cc.attrs.activity.activityId}::#{cc.attrs.activity.targetActivityId}" />
+							<input type="hidden" name="oauth_version" value="1.0" />
+							<input type="hidden" name="oauth_consumer_key" value="#{cc.attrs.activity.consumerKey}" />
+							<input type="hidden" name="oauth_callback" value="about:blank" />
+							<input type="hidden" name="oauth_signature" value="blahs" />
+							<input type="hidden" name="launch_presentation_locale" value="en-US" />
+							<input type="hidden" name="oauth_nonce" value="0" />
+							<input type="hidden" name="oauth_timestamp" value="0" />
+							<input type="hidden" name="roles" value="#{activityViewBean.roles}" />
+							<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1" />            
+							<input type="hidden" name="ltiLaunchForm" value="" />
+							<input type="button" hidden="true" onclick="doOnLoad('#{cc.attrs.activity.sharedSecret}','#{cc.attrs.activity.launchUrl}',this.form)" 
+								id="submitLTILaunchFormButton" name="submit_form_button" class="hidden" value="Launch external tool" />
+					</form>
+					
+					<a href="javascript:void(0)" onclick="$('#submitLTILaunchFormButton').click()">LINK</a>
+				</ui:fragment>
+				
 			</ui:fragment>
            
             <ui:fragment rendered="#{not empty cc.attrs.activity.description}">

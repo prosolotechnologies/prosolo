@@ -134,6 +134,7 @@ public class ActivityDataFactory {
 			act.setSharedSecret(extAct.getSharedSecret());
 			act.setConsumerKey(extAct.getConsumerKey());
 			act.setAcceptGrades(extAct.isAcceptGrades());
+			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
 		}
 	}
 	
@@ -308,6 +309,7 @@ public class ActivityDataFactory {
 			act.setLaunchUrl(extAct.getLaunchUrl());
 			act.setSharedSecret(extAct.getSharedSecret());
 			act.setConsumerKey(extAct.getConsumerKey());
+			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
 		}
 	}
 	
@@ -404,6 +406,7 @@ public class ActivityDataFactory {
 				extAct.setSharedSecret(activity.getSharedSecret());
 				extAct.setConsumerKey(activity.getConsumerKey());
 				extAct.setAcceptGrades(activity.isAcceptGrades());
+				extAct.setOpenInNewWindow(activity.isOpenInNewWindow());
 				return extAct;
 			default: 
 				return null;

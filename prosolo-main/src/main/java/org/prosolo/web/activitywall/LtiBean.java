@@ -57,11 +57,11 @@ public class LtiBean {
 		roles.add(RoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
-			this.roles="Instructor";
-		}else{
-			this.roles="Learner";
+			this.roles = "Instructor";
+		} else {
+			this.roles = "Learner";
 		}
-}
+	}
 
 	public long getTargetActivityId() {
 		return targetActivityId;

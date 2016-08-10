@@ -79,7 +79,6 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -112,7 +111,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Autowired private RoleManager roleManager;
     @Autowired private FeedSourceManager feedSourceManager;
     @Inject private CourseManager courseManager;
-    @Inject private LearningGoalManager goalManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
