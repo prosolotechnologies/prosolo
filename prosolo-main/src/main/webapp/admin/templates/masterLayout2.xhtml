@@ -160,7 +160,8 @@
 							
 							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
 								<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
-										(notificationData.notificationType eq 'Comment') ? 'notifComment': 
+										(notificationData.notificationType eq 'Comment') ? 'notifComment':
+										(notificationData.notificationType eq 'AnnouncementPublished') ? 'notifAnnouncement' :
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
 										(notificationData.notificationType eq 'Mention') ? 'notifMention':
 										(notificationData.notificationType eq 'Assessment_Requested' or 

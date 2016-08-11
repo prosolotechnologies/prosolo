@@ -114,7 +114,8 @@ public enum EventType {
 	RemoveBookmark, 
 	AssessmentRequested, 
 	AssessmentApproved,
-	AssessmentComment;
+	AssessmentComment, 
+	AnnouncementPublished;
 	
 	private String customText;
 	

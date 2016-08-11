@@ -42,6 +42,7 @@ public class Credential1 extends BaseEntity {
 	private Credential1 draftVersion;
 	private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
+	private List<Announcement> announcements;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
@@ -232,5 +233,15 @@ public class Credential1 extends BaseEntity {
 	public void setExcludedFeedSources(List<FeedSource> excludedFeedSources) {
 		this.excludedFeedSources = excludedFeedSources;
 	}
+
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+	public List<Announcement> getAnnouncements() {
+		return announcements;
+	}
+
+	public void setAnnouncements(List<Announcement> announcements) {
+		this.announcements = announcements;
+	}
+	
 	
 }
