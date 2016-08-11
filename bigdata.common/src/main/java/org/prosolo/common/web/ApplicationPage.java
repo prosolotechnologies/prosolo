@@ -37,6 +37,7 @@ public enum ApplicationPage {
 	CREDENTIAL_ASSESSMENT_MANAGE("/manage/credential-assessment.xhtml"),
 	CREDENTIAL_ASSESSMENT("/credential-assessment.xhtml"),
 	CREDENTIAL_ANNOUNCEMENTS("/manage/announcements.xhtml"),
+	ANNOUNCEMENT("/announcement.xhtml"),
 	ASSESSMENT("/assessments.xhtml"),
 	//STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),

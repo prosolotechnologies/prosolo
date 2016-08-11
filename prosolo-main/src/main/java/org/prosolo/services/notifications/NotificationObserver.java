@@ -70,7 +70,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.Post,
 				EventType.AssessmentRequested,
 				EventType.AssessmentApproved,
-				EventType.AssessmentComment
+				EventType.AssessmentComment,
+				EventType.AnnouncementPublished
 		};
 	}
 

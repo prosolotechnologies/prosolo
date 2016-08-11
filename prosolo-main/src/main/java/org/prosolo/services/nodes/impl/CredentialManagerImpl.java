@@ -2385,6 +2385,55 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
+	public List<Long> getUserIdsForCredential(long credId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT targetCredential.user.id " +
+					"FROM TargetCredential1 targetCredential " +
+					"WHERE targetCredential.credential.id = :credentialId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query)
+					.setLong("credentialId", credId)
+					.list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT targetCredential.user.id " +
+					"FROM TargetCredential1 targetCredential " +
+					"WHERE targetCredential.credential.id = :credentialId "+ 
+					"AND targetCredential.progress > 30";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager().createQuery(query)
+					.setLong("credentialId", credId)
+					.list();
+			if(res == null) {
+				return new ArrayList<>();
+			} 
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user id");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) 
 			throws DbConnectionException {
 		try {

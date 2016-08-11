@@ -329,4 +329,8 @@ public interface CredentialManager extends AbstractManager {
 	
 	void updateTargetCredentialLastAction(long userId, long credentialId) 
 			throws DbConnectionException;
+
+	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
+	
+	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
 }

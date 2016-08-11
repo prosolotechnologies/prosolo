@@ -10,14 +10,16 @@ public interface AnnouncementManager {
 	
 	public AnnouncementData createAnnouncement(Long credentialId, String title, String text, Long creatorId, AnnouncementPublishMode publishMode);
 	
+	public AnnouncementData getAnnouncement(Long announcementId) throws ResourceCouldNotBeLoadedException;
+	
 	public void readAnnouncement(Long announcementId, Long userId);
 	
-	public List<AnnouncementData> getUnseenAnnouncements(Long credentialId, Long userId);
-	
 	public List<AnnouncementData> getAllAnnouncementsForCredential(Long credentialId,int page, int numberPerPage) throws ResourceCouldNotBeLoadedException;
-	
-	public AnnouncementData get(Long id) throws ResourceCouldNotBeLoadedException;
 
-	public int numberOfAnnouncementsForCredential(long credentialId);
+	public int numberOfAnnouncementsForCredential(Long credentialId);
+	
+	public Long getLastAnnouncementIdIfNotSeen(Long credentialId, Long userId);
+	
+	public AnnouncementData getLastAnnouncementForCredential(Long credentialId);
 
 }

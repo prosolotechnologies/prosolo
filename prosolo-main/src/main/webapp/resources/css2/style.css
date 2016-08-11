@@ -528,30 +528,39 @@ input {
   /* line 578, style.scss */
   .whiteBox.settingsEmailNotifications {
     padding-bottom: 30px; }
+  /* line 581, style.scss */
+  .whiteBox.assessmentInitialMessage {
+    margin-bottom: 30px !important; }
 
-/* line 583, style.scss */
+/* line 586, style.scss */
 .mandatoryArrow {
   height: 14px;
   margin-bottom: 15px;
   background: url("../images2/mandatoryArrow.svg") no-repeat center center; }
 
-/* line 589, style.scss */
+/* line 592, style.scss */
 .madeByUser,
-.madeByUniversity {
+.madeByUniversity,
+.numberAssessments {
   width: 20px;
   height: 20px;
+  margin-left: 20px;
   display: block;
   text-indent: -10000px; }
 
-/* line 597, style.scss */
+/* line 602, style.scss */
 .madeByUser {
   background: url("../images2/iconUser20.svg") no-repeat; }
 
-/* line 601, style.scss */
+/* line 606, style.scss */
 .madeByUniversity {
   background: url("../images2/iconUniversity20.svg") no-repeat; }
 
-/* line 605, style.scss */
+/* line 610, style.scss */
+.numberAssessments {
+  background: url("../images2/iconAssessment20.svg") no-repeat; }
+
+/* line 614, style.scss */
 .duration,
 .mandatoryTag,
 .dateCompleted {
@@ -560,15 +569,15 @@ input {
   font-size: 13px;
   color: #AAB1B5; }
 
-/* line 614, style.scss */
+/* line 623, style.scss */
 .duration {
   background: url("../images2/iconClock20.svg") no-repeat; }
 
-/* line 618, style.scss */
+/* line 627, style.scss */
 .mandatoryTag {
   background: url("../images2/iconMandFlow20.svg") no-repeat; }
 
-/* line 622, style.scss */
+/* line 631, style.scss */
 .tooltip-inner {
   background: #1e1e1e;
   padding: 15px;
@@ -576,16 +585,16 @@ input {
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500; }
 
-/* line 630, style.scss */
+/* line 639, style.scss */
 .tooltip.top .tooltip-arrow {
   border-top-color: #1e1e1e; }
 
-/* line 634, style.scss */
+/* line 643, style.scss */
 .progressBar {
   display: flex;
   font-size: 13px;
   align-items: center; }
-  /* line 638, style.scss */
+  /* line 647, style.scss */
   .progressBar .progress {
     width: 100px;
     height: 4px;
@@ -598,7 +607,7 @@ input {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none; }
-    /* line 648, style.scss */
+    /* line 657, style.scss */
     .progressBar .progress .progress-bar {
       background-color: #FCA567;
       -webkit-border-radius: 2px;
@@ -608,20 +617,20 @@ input {
       -moz-box-shadow: none;
       box-shadow: none; }
 
-/* line 658, style.scss */
+/* line 667, style.scss */
 .sortDrop,
 .showDrop {
   display: flex;
   line-height: 30px;
   padding: 8px 0;
   color: #AAB1B5; }
-  /* line 664, style.scss */
+  /* line 673, style.scss */
   .sortDrop > a,
   .showDrop > a {
     margin-left: 10px;
     color: #859095; }
 
-/* line 670, style.scss */
+/* line 679, style.scss */
 .tagCompleted {
   color: #64BFCD;
   font-size: 13px;
@@ -631,7 +640,7 @@ input {
   line-height: 32px;
   background: url("../images2/iconCheck20Green.svg") no-repeat left center; }
 
-/* line 680, style.scss */
+/* line 689, style.scss */
 .linkViewEvidence {
   font-size: 13px;
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -640,7 +649,7 @@ input {
   line-height: 32px;
   background: url("../images2/iconFile20.svg") no-repeat left center; }
 
-/* line 689, style.scss */
+/* line 698, style.scss */
 .linkCompare {
   font-size: 13px;
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -649,43 +658,43 @@ input {
   line-height: 32px;
   background: url("../images2/iconCompare20.svg") no-repeat left center; }
 
-/* line 698, style.scss */
+/* line 707, style.scss */
 .check {
   display: block;
   width: 20px;
   height: 20px;
   background: url("../images2/iconCheck20Green.svg") no-repeat; }
 
-/* line 705, style.scss */
+/* line 714, style.scss */
 .iconType {
   display: block;
   width: 20px;
   height: 20px; }
 
-/* line 711, style.scss */
+/* line 720, style.scss */
 .activityVideo .iconType {
   background: url("../images2/iconVideo20.svg") no-repeat; }
 
-/* line 714, style.scss */
+/* line 723, style.scss */
 .activityText .iconType {
   background: url("../images2/iconText20.svg") no-repeat; }
 
-/* line 717, style.scss */
+/* line 726, style.scss */
 .activitySlide .iconType {
   background: url("../images2/iconSlide20.svg") no-repeat; }
 
-/* line 720, style.scss */
+/* line 729, style.scss */
 .activityExternal .iconType {
   background: url("../images2/iconExternal20.svg") no-repeat; }
 
-/* line 724, style.scss */
+/* line 733, style.scss */
 .editOptions {
   display: flex;
   align-items: center; }
-  /* line 727, style.scss */
+  /* line 736, style.scss */
   .editOptions .linkEdit {
     margin-right: 10px; }
-  /* line 730, style.scss */
+  /* line 739, style.scss */
   .editOptions .moveUp,
   .editOptions .moveDown {
     display: inline-block;
@@ -696,36 +705,36 @@ input {
     opacity: .5;
     transition: all 0.2s ease;
     -webkit-transition: all 0.2s ease; }
-    /* line 740, style.scss */
+    /* line 749, style.scss */
     .editOptions .moveUp.disabled, .editOptions .moveUp[disabled],
     .editOptions .moveDown.disabled,
     .editOptions .moveDown[disabled] {
       opacity: 0.2 !important; }
-    /* line 744, style.scss */
+    /* line 753, style.scss */
     .editOptions .moveUp:hover,
     .editOptions .moveDown:hover {
       opacity: 1; }
-  /* line 748, style.scss */
+  /* line 757, style.scss */
   .editOptions .moveUp {
     background: url("../images2/arrowUp.svg") no-repeat center center; }
-  /* line 751, style.scss */
+  /* line 760, style.scss */
   .editOptions .moveDown {
     background: url("../images2/arrowDown.svg") no-repeat center center; }
 
-/* line 756, style.scss */
+/* line 765, style.scss */
 .paginationWrapper {
   display: flex;
   justify-content: center; }
-  /* line 759, style.scss */
+  /* line 768, style.scss */
   .paginationWrapper .pagination {
     margin: 0 0 30px 0; }
-    /* line 761, style.scss */
+    /* line 770, style.scss */
     .paginationWrapper .pagination li {
       display: inline-block;
       float: left;
       margin: 0 5px;
       line-height: 30px; }
-      /* line 766, style.scss */
+      /* line 775, style.scss */
       .paginationWrapper .pagination li a {
         display: inline-block;
         min-width: 30px;
@@ -741,30 +750,30 @@ input {
         -webkit-border-radius: 5px;
         -moz-border-radius: 5px;
         border-radius: 5px; }
-        /* line 779, style.scss */
+        /* line 788, style.scss */
         .paginationWrapper .pagination li a:hover {
           color: #363636;
           background: none; }
-      /* line 784, style.scss */
+      /* line 793, style.scss */
       .paginationWrapper .pagination li.active a, .paginationWrapper .pagination li.active a:hover {
         color: #363636;
         background: #EDEFF1; }
 
-/* line 793, style.scss */
+/* line 802, style.scss */
 .sidebarBlock {
   margin-bottom: 30px; }
-  /* line 795, style.scss */
+  /* line 804, style.scss */
   .sidebarBlock > h2 {
     margin-bottom: 20px; }
 
-/* line 800, style.scss */
+/* line 809, style.scss */
 .tags {
   padding: 0; }
-  /* line 802, style.scss */
+  /* line 811, style.scss */
   .tags li {
     display: inline-block;
     margin: 0 10px 10px 0; }
-    /* line 805, style.scss */
+    /* line 814, style.scss */
     .tags li a {
       display: inline-block;
       padding: 0 10px;
@@ -777,51 +786,51 @@ input {
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       font-size: 13px; }
-      /* line 815, style.scss */
+      /* line 824, style.scss */
       .tags li a:hover {
         color: #363636; }
 
-/* line 822, style.scss */
+/* line 831, style.scss */
 .user32 {
   display: flex;
   height: 32px;
   margin-bottom: 10px;
   align-items: center; }
-  /* line 827, style.scss */
+  /* line 836, style.scss */
   .user32 img, .user32 .letterAvatar32 {
     margin-right: 10px; }
-  /* line 830, style.scss */
+  /* line 839, style.scss */
   .user32 h3 {
     margin: 0; }
 
-/* line 835, style.scss */
+/* line 844, style.scss */
 .listWhoToFollow {
   list-style: none;
   padding: 0; }
-  /* line 838, style.scss */
+  /* line 847, style.scss */
   .listWhoToFollow li {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid #ECEDF1; }
-    /* line 844, style.scss */
+    /* line 853, style.scss */
     .listWhoToFollow li:last-child {
       border-bottom: none; }
-    /* line 847, style.scss */
+    /* line 856, style.scss */
     .listWhoToFollow li .user32 {
       margin: 0 20px 0 0;
       flex-shrink: 0; }
-    /* line 851, style.scss */
+    /* line 860, style.scss */
     .listWhoToFollow li .btn {
       flex-shrink: 0; }
 
-/* line 857, style.scss */
+/* line 866, style.scss */
 .messageMenu,
 .optMoreMenu {
   width: 20px;
   height: 20px; }
-  /* line 861, style.scss */
+  /* line 870, style.scss */
   .messageMenu > a,
   .optMoreMenu > a {
     display: block;
@@ -830,12 +839,12 @@ input {
     text-indent: -10000px;
     background: url("../images2/iconMore20.svg") no-repeat;
     opacity: .5; }
-    /* line 868, style.scss */
+    /* line 877, style.scss */
     .messageMenu > a:hover,
     .optMoreMenu > a:hover {
       opacity: 1; }
 
-/* line 874, style.scss */
+/* line 883, style.scss */
 .modal-content {
   border: none;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
@@ -844,49 +853,49 @@ input {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 880, style.scss */
+  /* line 889, style.scss */
   .modal-content .modal-header {
     border: none;
     padding: 30px;
     text-align: center;
     position: relative; }
-    /* line 885, style.scss */
+    /* line 894, style.scss */
     .modal-content .modal-header.alignLeft {
       text-align: left; }
-    /* line 888, style.scss */
+    /* line 897, style.scss */
     .modal-content .modal-header .modal-title {
       margin: 0; }
-    /* line 891, style.scss */
+    /* line 900, style.scss */
     .modal-content .modal-header .close {
       position: absolute;
       top: 6px;
       right: 10px; }
-    /* line 898, style.scss */
+    /* line 907, style.scss */
     .summaryCard .modal-content .modal-header h2, .publishBox .modal-content .modal-header h2 {
       float: none; }
-  /* line 903, style.scss */
+  /* line 912, style.scss */
   .modal-content .modal-body {
     padding: 0 30px;
     text-align: center; }
-    /* line 906, style.scss */
+    /* line 915, style.scss */
     .modal-content .modal-body.alignLeft {
       text-align: left; }
-    /* line 909, style.scss */
+    /* line 918, style.scss */
     .modal-content .modal-body small {
       color: #AAB1B5; }
-  /* line 913, style.scss */
+  /* line 922, style.scss */
   .modal-content .modal-footer {
     border: none;
     padding: 0 30px 30px 30px;
     text-align: center; }
-    /* line 917, style.scss */
+    /* line 926, style.scss */
     .modal-content .modal-footer.alignLeft {
       text-align: left; }
-    /* line 920, style.scss */
+    /* line 929, style.scss */
     .modal-content .modal-footer .btn + .btn {
       margin-left: 10px; }
 
-/* line 929, style.scss */
+/* line 938, style.scss */
 #askAssessment .assessmentModalMeta,
 #askAssessment .messageModalMeta,
 #approveAssessment .assessmentModalMeta,
@@ -901,7 +910,7 @@ input {
   display: flex;
   flex-direction: column;
   padding: 0 30px; }
-  /* line 937, style.scss */
+  /* line 946, style.scss */
   #askAssessment .assessmentModalMeta .assessmentModalMetaLine,
   #askAssessment .assessmentModalMeta .messageModalMetaLine,
   #askAssessment .messageModalMeta .assessmentModalMetaLine,
@@ -920,7 +929,7 @@ input {
   #newAnnouncementModal .messageModalMeta .messageModalMetaLine {
     display: flex;
     padding-top: 10px; }
-    /* line 941, style.scss */
+    /* line 950, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child,
     #askAssessment .assessmentModalMeta .messageModalMetaLine:last-child,
     #askAssessment .messageModalMeta .assessmentModalMetaLine:last-child,
@@ -938,7 +947,7 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine:last-child,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine:last-child {
       padding-bottom: 10px; }
-    /* line 944, style.scss */
+    /* line 953, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1003,10 +1012,11 @@ input {
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+      position: relative;
       display: flex;
       line-height: 32px;
       align-items: center; }
-      /* line 951, style.scss */
+      /* line 961, style.scss */
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
       #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
@@ -1072,7 +1082,7 @@ input {
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
       #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
         margin: 0; }
-    /* line 955, style.scss */
+    /* line 965, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
@@ -1090,7 +1100,7 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
       width: 80px; }
-    /* line 958, style.scss */
+    /* line 968, style.scss */
     #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1108,41 +1118,286 @@ input {
     #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
       width: 30px; }
-    /* line 963, style.scss */
-    #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
-    #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-    #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
-      margin-right: 10px; }
-/* line 969, style.scss */
+    /* line 971, style.scss */
+    #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+      flex-grow: 1; }
+      /* line 974, style.scss */
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
+        margin-right: 10px; }
+      /* line 977, style.scss */
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"] {
+        width: 100%;
+        height: 30px;
+        line-height: 20px;
+        padding: 0;
+        border: none;
+        background: none;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none; }
+      /* line 988, style.scss */
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
+        top: 30px; }
+        /* line 990, style.scss */
+        #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
+          height: 52px; }
+          /* line 992, style.scss */
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
+            float: left;
+            margin-right: 15px; }
+          /* line 997, style.scss */
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #askAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #message .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #message .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #message .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #message .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #message .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #message .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #message .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #message .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #newAnnouncementModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
+            margin: 7px 0 0 0; }
+/* line 1005, style.scss */
 #askAssessment .modal-body textarea,
 #approveAssessment .modal-body textarea,
 #message .modal-body textarea,
@@ -1156,86 +1411,86 @@ input {
   -moz-box-shadow: none;
   box-shadow: none; }
 
-/* line 982, style.scss */
+/* line 1018, style.scss */
 #newAnnouncementModal .modal-body textarea {
   height: 200px; }
-/* line 985, style.scss */
+/* line 1021, style.scss */
 #newAnnouncementModal .radioGroup {
   margin-bottom: 20px; }
-  /* line 987, style.scss */
+  /* line 1023, style.scss */
   #newAnnouncementModal .radioGroup .radio {
     display: inline;
     margin-left: 10px; }
 
-/* line 995, style.scss */
+/* line 1031, style.scss */
 #uploadFile .modal-body, #addURL .modal-body {
   padding-bottom: 10px; }
-  /* line 997, style.scss */
+  /* line 1033, style.scss */
   #uploadFile .modal-body input[type="text"], #addURL .modal-body input[type="text"] {
     margin-bottom: 20px;
     width: 100%; }
-  /* line 1001, style.scss */
+  /* line 1037, style.scss */
   #uploadFile .modal-body .chooseFileBox, #addURL .modal-body .chooseFileBox {
     display: flex;
     align-items: center;
     padding-bottom: 20px; }
-    /* line 1005, style.scss */
+    /* line 1041, style.scss */
     #uploadFile .modal-body .chooseFileBox .btn, #addURL .modal-body .chooseFileBox .btn {
       margin-right: 10px; }
 
-/* line 1012, style.scss */
+/* line 1048, style.scss */
 .noContentMessage {
   text-align: center; }
 
-/* line 1016, style.scss */
+/* line 1052, style.scss */
 .alert {
   padding: 15px 30px;
   border: none;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 1020, style.scss */
+  /* line 1056, style.scss */
   .alert a, .alert a:focus {
     color: #fff;
     text-decoration: underline; }
-    /* line 1023, style.scss */
+    /* line 1059, style.scss */
     .alert a:hover, .alert a:focus:hover {
       text-decoration: none; }
 
-/* line 1029, style.scss */
+/* line 1065, style.scss */
 .alert-success,
 .alert-info,
 .alert-warning,
 .alert-danger {
   color: #fff; }
 
-/* line 1036, style.scss */
+/* line 1072, style.scss */
 .alert-success {
   background: #87BA54; }
 
-/* line 1040, style.scss */
+/* line 1076, style.scss */
 .alert-info {
   background: #5197D8; }
 
-/* line 1044, style.scss */
+/* line 1080, style.scss */
 .alert-warning {
   background: #F2B24F; }
 
-/* line 1048, style.scss */
+/* line 1084, style.scss */
 .alert-danger {
   background: #E45E5E; }
 
-/* line 1052, style.scss */
+/* line 1088, style.scss */
 .alert-dismissible .close {
   text-shadow: none;
   color: #000;
   opacity: .2;
   top: -11px; }
-  /* line 1057, style.scss */
+  /* line 1093, style.scss */
   .alert-dismissible .close:hover {
     opacity: .5; }
 
-/* line 1062, style.scss */
+/* line 1098, style.scss */
 .ui-growl-item-container {
   border: 1px solid #E6E7EC;
   background: #fff;
@@ -1246,18 +1501,18 @@ input {
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
   opacity: .95; }
-  /* line 1070, style.scss */
+  /* line 1106, style.scss */
   .ui-growl-item-container .ui-growl-image-info {
     background: url("../images2/growlInfo.svg") no-repeat; }
-  /* line 1073, style.scss */
+  /* line 1109, style.scss */
   .ui-growl-item-container .ui-growl-image-error {
     background: url("../images2/growlAlert.svg") no-repeat; }
-  /* line 1076, style.scss */
+  /* line 1112, style.scss */
   .ui-growl-item-container .ui-growl-image-warn {
     background: url("../images2/growlWarning.svg") no-repeat; }
 
 /*--- FORM ELEMENTS ---*/
-/* line 1083, style.scss */
+/* line 1119, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -1270,7 +1525,7 @@ textarea {
   -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1); }
-  /* line 1093, style.scss */
+  /* line 1129, style.scss */
   input[type="text"].inputError,
   input[type="email"].inputError,
   input[type="password"].inputError,
@@ -1278,60 +1533,60 @@ textarea {
     border: 1px solid #E45E5E;
     margin-bottom: 5px !important; }
 
-/* line 1099, style.scss */
+/* line 1135, style.scss */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
   line-height: 30px;
   padding: 5px 10px; }
 
-/* line 1106, style.scss */
+/* line 1142, style.scss */
 button {
   transition: all 0.2s ease;
   -webkit-transition: all 0.2s ease; }
 
-/* line 1111, style.scss */
+/* line 1147, style.scss */
 textarea {
   height: auto;
   padding: 10px;
   resize: none; }
 
-/* line 1117, style.scss */
+/* line 1153, style.scss */
 .inputErrorInfo {
   display: block;
   color: #E45E5E;
   margin-bottom: 20px; }
 
-/* line 1124, style.scss */
+/* line 1160, style.scss */
 .formWrapper .formLine {
   display: flex;
   padding-bottom: 30px; }
-  /* line 1127, style.scss */
+  /* line 1163, style.scss */
   .formWrapper .formLine > label {
     min-width: 170px;
     font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500;
     color: #363636;
     line-height: 40px; }
-  /* line 1134, style.scss */
+  /* line 1170, style.scss */
   .formWrapper .formLine .formLineRight {
     flex-grow: 1; }
-    /* line 1136, style.scss */
+    /* line 1172, style.scss */
     .formWrapper .formLine .formLineRight input[type="text"],
     .formWrapper .formLine .formLineRight textarea {
       width: 100%; }
-    /* line 1140, style.scss */
+    /* line 1176, style.scss */
     .formWrapper .formLine .formLineRight textarea {
       height: 100px; }
-      /* line 1142, style.scss */
+      /* line 1178, style.scss */
       .formWrapper .formLine .formLineRight textarea.textareaBig {
         height: 300px; }
-    /* line 1146, style.scss */
+    /* line 1182, style.scss */
     .formWrapper .formLine .formLineRight .bootstrap-select,
     .formWrapper .formLine .formLineRight > p {
       margin-bottom: 0; }
 
-/* line 1154, style.scss */
+/* line 1190, style.scss */
 .bootstrap-tagsinput {
   background-color: #fff;
   border: 1px solid #E6E7EC;
@@ -1348,7 +1603,7 @@ textarea {
   line-height: 22px;
   cursor: text; }
 
-/* line 1170, style.scss */
+/* line 1206, style.scss */
 .bootstrap-tagsinput input {
   border: none !important;
   box-shadow: none !important;
@@ -1360,12 +1615,12 @@ textarea {
   width: auto !important;
   max-width: inherit; }
 
-/* line 1182, style.scss */
+/* line 1218, style.scss */
 .bootstrap-tagsinput input:focus {
   border: none;
   box-shadow: none; }
 
-/* line 1186, style.scss */
+/* line 1222, style.scss */
 .bootstrap-tagsinput .tag {
   margin-right: 2px;
   color: #859095;
@@ -1376,12 +1631,12 @@ textarea {
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400; }
 
-/* line 1196, style.scss */
+/* line 1232, style.scss */
 .bootstrap-tagsinput .tag [data-role="remove"] {
   margin-left: 8px;
   cursor: pointer; }
 
-/* line 1200, style.scss */
+/* line 1236, style.scss */
 .bootstrap-tagsinput .tag [data-role="remove"]:after {
   content: "x";
   color: #859095;
@@ -1390,27 +1645,27 @@ textarea {
 /*---------------------------------------------------------------------*/
 /*--- 02. HEADER ---*/
 /*---------------------------------------------------------------------*/
-/* line 1216, style.scss */
+/* line 1252, style.scss */
 header {
   width: 100%;
   background: #444C5A;
   -webkit-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: inset 0px -1px 2px 0px rgba(0, 0, 0, 0.1); }
-  /* line 1222, style.scss */
+  /* line 1258, style.scss */
   header .headerTop {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between; }
-    /* line 1226, style.scss */
+    /* line 1262, style.scss */
     header .headerTop .headerTopLeft {
       display: flex; }
-      /* line 1228, style.scss */
+      /* line 1264, style.scss */
       header .headerTop .headerTopLeft .roleChanger {
         width: 16px;
         height: 16px;
         margin: 22px 10px 0 0; }
-        /* line 1232, style.scss */
+        /* line 1268, style.scss */
         header .headerTop .headerTopLeft .roleChanger > a {
           width: 16px;
           height: 16px;
@@ -1425,46 +1680,56 @@ header {
           -webkit-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           -moz-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1); }
-          /* line 1244, style.scss */
+          /* line 1280, style.scss */
           header .headerTop .headerTopLeft .roleChanger > a:hover {
             background-color: rgba(0, 0, 0, 0.3); }
-        /* line 1248, style.scss */
+        /* line 1284, style.scss */
         header .headerTop .headerTopLeft .roleChanger .dropdown-menu {
           left: -8px;
           top: 20px; }
-      /* line 1253, style.scss */
+          /* line 1287, style.scss */
+          header .headerTop .headerTopLeft .roleChanger .dropdown-menu li a span {
+            float: left;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin: 2px 10px 0 0; }
+          /* line 1294, style.scss */
+          header .headerTop .headerTopLeft .roleChanger .dropdown-menu li.selected a span {
+            background: url("../images2/iconCheck12.svg") no-repeat center center; }
+      /* line 1299, style.scss */
       header .headerTop .headerTopLeft #logo {
         width: 86px;
         height: 30px;
         margin: 15px 20px 15px 0;
         background: url("../images2/logo.svg") no-repeat;
         text-indent: -10000px; }
-      /* line 1260, style.scss */
+      /* line 1306, style.scss */
       header .headerTop .headerTopLeft nav {
         height: 30px;
         padding: 15px 0; }
-        /* line 1263, style.scss */
+        /* line 1309, style.scss */
         header .headerTop .headerTopLeft nav .nav > li > a {
           font-size: 14px;
           line-height: 30px;
           color: #fff;
           font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
           font-weight: 500; }
-        /* line 1271, style.scss */
+        /* line 1317, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li {
           margin: 0 10px 0 0; }
-          /* line 1273, style.scss */
+          /* line 1319, style.scss */
           header .headerTop .headerTopLeft nav .nav-pills > li > a {
             -webkit-border-radius: 5px;
             -moz-border-radius: 5px;
             border-radius: 5px;
             padding: 0 10px;
             opacity: .5; }
-            /* line 1277, style.scss */
+            /* line 1323, style.scss */
             header .headerTop .headerTopLeft nav .nav-pills > li > a:hover {
               background: none;
               opacity: 1; }
-        /* line 1283, style.scss */
+        /* line 1329, style.scss */
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:focus,
         header .headerTop .headerTopLeft nav .nav-pills > li.active > a:hover {
@@ -1473,12 +1738,12 @@ header {
           -webkit-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           -moz-box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
           box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.1), inset 0px 1px 0px 0px rgba(0, 0, 0, 0.1); }
-    /* line 1295, style.scss */
+    /* line 1341, style.scss */
     header .headerTop .headerTopRight {
       display: flex;
       height: 32px;
       padding: 14px 0; }
-      /* line 1299, style.scss */
+      /* line 1345, style.scss */
       header .headerTop .headerTopRight .iconMessages,
       header .headerTop .headerTopRight .iconNotifications {
         display: block;
@@ -1488,15 +1753,15 @@ header {
         opacity: .5;
         text-indent: -10000px;
         position: relative; }
-        /* line 1308, style.scss */
+        /* line 1354, style.scss */
         header .headerTop .headerTopRight .iconMessages:hover,
         header .headerTop .headerTopRight .iconNotifications:hover {
           opacity: 1; }
-        /* line 1311, style.scss */
+        /* line 1357, style.scss */
         header .headerTop .headerTopRight .iconMessages.active,
         header .headerTop .headerTopRight .iconNotifications.active {
           opacity: 1; }
-          /* line 1313, style.scss */
+          /* line 1359, style.scss */
           header .headerTop .headerTopRight .iconMessages.active .unreadDot,
           header .headerTop .headerTopRight .iconNotifications.active .unreadDot {
             display: block;
@@ -1506,51 +1771,51 @@ header {
             background: url("../images2/unreadDot.svg") no-repeat;
             top: 0;
             right: -2px; }
-      /* line 1324, style.scss */
+      /* line 1370, style.scss */
       header .headerTop .headerTopRight .iconMessages {
         background: url("../images2/iconEnvelope20White.svg") no-repeat;
         margin-right: 20px; }
-      /* line 1328, style.scss */
+      /* line 1374, style.scss */
       header .headerTop .headerTopRight .iconNotifications {
         background: url("../images2/iconBell20White.svg") no-repeat; }
-      /* line 1331, style.scss */
+      /* line 1377, style.scss */
       header .headerTop .headerTopRight .createMenu {
         height: 32px;
         margin-right: 20px; }
-        /* line 1334, style.scss */
+        /* line 1380, style.scss */
         header .headerTop .headerTopRight .createMenu > a {
           margin: 0;
           font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
           font-weight: 500; }
-      /* line 1340, style.scss */
+      /* line 1386, style.scss */
       header .headerTop .headerTopRight .notificationsMenu {
         height: 32px;
         margin-right: 20px; }
-        /* line 1343, style.scss */
+        /* line 1389, style.scss */
         header .headerTop .headerTopRight .notificationsMenu .dropdown-menu {
           width: 280px;
           padding-bottom: 0; }
-          /* line 1346, style.scss */
+          /* line 1392, style.scss */
           header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li {
             border-bottom: 1px solid #EEEFF3; }
-            /* line 1348, style.scss */
+            /* line 1394, style.scss */
             header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li.noNotifications {
               display: flex;
               height: 100px;
               align-items: center;
               justify-content: center;
               border: none; }
-            /* line 1355, style.scss */
+            /* line 1401, style.scss */
             header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a {
               padding: 10px 20px 10px 45px;
               position: relative;
               font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
               font-weight: 400;
               white-space: normal; }
-              /* line 1361, style.scss */
+              /* line 1407, style.scss */
               header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a:hover {
                 color: #859095; }
-              /* line 1364, style.scss */
+              /* line 1410, style.scss */
               header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a .icon {
                 display: block;
                 position: absolute;
@@ -1558,118 +1823,118 @@ header {
                 left: 20px;
                 width: 16px;
                 height: 16px; }
-              /* line 1372, style.scss */
+              /* line 1418, style.scss */
               header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a h3 {
                 margin: 0;
                 display: inline; }
-              /* line 1376, style.scss */
+              /* line 1422, style.scss */
               header .headerTop .headerTopRight .notificationsMenu .dropdown-menu li a .timestamp {
                 display: block;
                 font-size: 12px;
                 color: #AAB1B5; }
-          /* line 1383, style.scss */
+          /* line 1429, style.scss */
           header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllNotifications {
             text-align: center;
             border-bottom: none; }
-            /* line 1386, style.scss */
+            /* line 1432, style.scss */
             header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllNotifications a {
               padding: 10px 0; }
-              /* line 1388, style.scss */
+              /* line 1434, style.scss */
               header .headerTop .headerTopRight .notificationsMenu .dropdown-menu .linkAllNotifications a:hover {
                 color: #363636; }
-      /* line 1395, style.scss */
+      /* line 1441, style.scss */
       header .headerTop .headerTopRight .userMenu {
         height: 32px; }
-        /* line 1397, style.scss */
+        /* line 1443, style.scss */
         header .headerTop .headerTopRight .userMenu > a {
           width: 54px;
           height: 32px; }
-          /* line 1400, style.scss */
+          /* line 1446, style.scss */
           header .headerTop .headerTopRight .userMenu > a .arrowDown {
             background: url("../images2/arrowDownWhite.svg") no-repeat; }
-        /* line 1404, style.scss */
+        /* line 1450, style.scss */
         header .headerTop .headerTopRight .userMenu .dropdown-menu {
           right: -10px; }
-  /* line 1410, style.scss */
+  /* line 1456, style.scss */
   header h1 {
     color: #fff;
     margin-top: 10px;
     margin-bottom: 30px; }
-    /* line 1414, style.scss */
+    /* line 1460, style.scss */
     header h1 span {
       opacity: .5; }
-  /* line 1418, style.scss */
+  /* line 1464, style.scss */
   header .profileHeader {
     padding-top: 20px;
     margin-bottom: 30px; }
-    /* line 1421, style.scss */
+    /* line 1467, style.scss */
     header .profileHeader .letterAvatar, header .profileHeader img {
       float: left;
       margin-right: 30px; }
-    /* line 1425, style.scss */
+    /* line 1471, style.scss */
     header .profileHeader .profileHeaderInfo {
       color: #fff; }
-      /* line 1427, style.scss */
+      /* line 1473, style.scss */
       header .profileHeader .profileHeaderInfo h1 {
         margin: 0 0 3px 0; }
-      /* line 1430, style.scss */
+      /* line 1476, style.scss */
       header .profileHeader .profileHeaderInfo div {
         margin-bottom: 8px; }
-      /* line 1433, style.scss */
+      /* line 1479, style.scss */
       header .profileHeader .profileHeaderInfo .socialLinks {
         list-style: none;
         padding-top: 3px; }
-        /* line 1436, style.scss */
+        /* line 1482, style.scss */
         header .profileHeader .profileHeaderInfo .socialLinks li {
           display: inline;
           margin-right: 10px; }
-          /* line 1439, style.scss */
+          /* line 1485, style.scss */
           header .profileHeader .profileHeaderInfo .socialLinks li a {
             display: inline-block;
             width: 16px;
             height: 16px;
             text-indent: -10000px;
             opacity: .5; }
-            /* line 1445, style.scss */
+            /* line 1491, style.scss */
             header .profileHeader .profileHeaderInfo .socialLinks li a:hover {
               opacity: 1; }
-        /* line 1450, style.scss */
+        /* line 1496, style.scss */
         header .profileHeader .profileHeaderInfo .socialLinks .linkedIn a {
           background: url("../images2/iconLinkedIn16White.svg") no-repeat; }
-        /* line 1453, style.scss */
+        /* line 1499, style.scss */
         header .profileHeader .profileHeaderInfo .socialLinks .twitter a {
           background: url("../images2/iconTwitter16White.svg") no-repeat; }
-        /* line 1456, style.scss */
+        /* line 1502, style.scss */
         header .profileHeader .profileHeaderInfo .socialLinks .facebook a {
           background: url("../images2/iconFacebook16White.svg") no-repeat; }
-        /* line 1459, style.scss */
+        /* line 1505, style.scss */
         header .profileHeader .profileHeaderInfo .socialLinks .website a {
           background: url("../images2/iconWebsite16White.svg") no-repeat; }
-  /* line 1465, style.scss */
+  /* line 1511, style.scss */
   header .headerSubmenu {
     margin-top: -20px; }
 
 /*---------------------------------------------------------------------*/
 /*--- 03. MAIN  ---*/
 /*---------------------------------------------------------------------*/
-/* line 1474, style.scss */
+/* line 1520, style.scss */
 .loginBox {
   width: 400px;
   margin: 70px auto 0 auto; }
-  /* line 1477, style.scss */
+  /* line 1523, style.scss */
   .loginBox .logo {
     width: 143px;
     height: 50px;
     margin: 0 auto 20px auto;
     background: url("../images2/logo-black.svg") no-repeat;
     text-indent: -10000px; }
-  /* line 1484, style.scss */
+  /* line 1530, style.scss */
   .loginBox .whiteBox {
     margin-bottom: 20px; }
-    /* line 1486, style.scss */
+    /* line 1532, style.scss */
     .loginBox .whiteBox .loginTop {
       text-align: center; }
-      /* line 1488, style.scss */
+      /* line 1534, style.scss */
       .loginBox .whiteBox .loginTop .buttonBox a {
         margin-bottom: 20px;
         width: 100%;
@@ -1690,112 +1955,112 @@ header {
         background: -webkit-linear-gradient(top, #ffffff 0%, #fcfcfc 100%);
         background: linear-gradient(to bottom, #ffffff 0%, #fcfcfc 100%);
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fcfcfc',GradientType=0 ); }
-        /* line 1506, style.scss */
+        /* line 1552, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a:hover {
           color: #363636;
           background: #fff; }
-        /* line 1510, style.scss */
+        /* line 1556, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a span {
           height: 20px;
           display: inline-block;
           margin-right: 10px; }
-        /* line 1515, style.scss */
+        /* line 1561, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a.btnGoogle span {
           width: 19px;
           background: url("../images2/loginGoogle.svg") no-repeat center center; }
-        /* line 1519, style.scss */
+        /* line 1565, style.scss */
         .loginBox .whiteBox .loginTop .buttonBox a.btnedX span {
           width: 43px;
           background: url("../images2/loginedX.svg") no-repeat; }
-      /* line 1524, style.scss */
+      /* line 1570, style.scss */
       .loginBox .whiteBox .loginTop .loginSeparator {
         width: 100%;
         height: 20px;
         margin-bottom: 30px;
         background: url("../images2/loginSeparator.svg") no-repeat center 11px; }
-        /* line 1529, style.scss */
+        /* line 1575, style.scss */
         .loginBox .whiteBox .loginTop .loginSeparator span {
           padding: 0 10px;
           background: #fff; }
-    /* line 1535, style.scss */
+    /* line 1581, style.scss */
     .loginBox .whiteBox input {
       width: 100%;
       margin-bottom: 20px; }
-    /* line 1539, style.scss */
+    /* line 1585, style.scss */
     .loginBox .whiteBox .loginOpt {
       display: flex;
       justify-content: space-between;
       height: 41px;
       margin-bottom: 10px;
       align-items: center; }
-    /* line 1546, style.scss */
+    /* line 1592, style.scss */
     .loginBox .whiteBox .bottomLine {
       text-align: center;
       font-size: 12px;
       padding-bottom: 30px; }
-    /* line 1551, style.scss */
+    /* line 1597, style.scss */
     .loginBox .whiteBox .btn {
       width: 100%;
       margin-bottom: 30px; }
-  /* line 1556, style.scss */
+  /* line 1602, style.scss */
   .loginBox .loginFooter {
     text-align: center;
     font-size: 12px; }
-    /* line 1559, style.scss */
+    /* line 1605, style.scss */
     .loginBox .loginFooter ul {
       list-style: none;
       margin-bottom: 0; }
-      /* line 1562, style.scss */
+      /* line 1608, style.scss */
       .loginBox .loginFooter ul li {
         padding: 0 10px;
         display: inline; }
-  /* line 1569, style.scss */
+  /* line 1615, style.scss */
   .loginBox .registerForm input[type="password"] {
     margin-bottom: 5px; }
-  /* line 1572, style.scss */
+  /* line 1618, style.scss */
   .loginBox .registerForm small {
     display: block;
     line-height: 16px;
     margin-bottom: 20px; }
 
-/* line 1580, style.scss */
+/* line 1626, style.scss */
 .wallTimeline {
   padding-bottom: 50px; }
-  /* line 1582, style.scss */
+  /* line 1628, style.scss */
   .wallTimeline .timelineHead {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 30px; }
-    /* line 1587, style.scss */
+    /* line 1633, style.scss */
     .wallTimeline .timelineHead h2 {
       margin: 0; }
-    /* line 1590, style.scss */
+    /* line 1636, style.scss */
     .wallTimeline .timelineHead .showDrop {
       padding: 0;
       line-height: 26px; }
 
-/* line 1597, style.scss */
+/* line 1643, style.scss */
 .inProgressHead {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 30px; }
-  /* line 1602, style.scss */
+  /* line 1648, style.scss */
   .inProgressHead h2 {
     margin: 0; }
 
-/* line 1607, style.scss */
+/* line 1653, style.scss */
 .noInProgress {
   text-align: center;
   padding-bottom: 30px; }
 
-/* line 1614, style.scss */
+/* line 1660, style.scss */
 .newWallPost .textAreaWrapper,
 .sharePostModal .textAreaWrapper {
   position: relative;
   padding: 20px 30px !important; }
-  /* line 1617, style.scss */
+  /* line 1663, style.scss */
   .newWallPost .textAreaWrapper .contentEditable,
   .sharePostModal .textAreaWrapper .contentEditable {
     position: relative;
@@ -1806,7 +2071,7 @@ header {
     padding: 0;
     word-wrap: break-word;
     color: #859095; }
-    /* line 1626, style.scss */
+    /* line 1672, style.scss */
     .newWallPost .textAreaWrapper .contentEditable:empty:before, .newWallPost .textAreaWrapper .contentEditable:empty:focus:before,
     .sharePostModal .textAreaWrapper .contentEditable:empty:before,
     .sharePostModal .textAreaWrapper .contentEditable:empty:focus:before {
@@ -1816,39 +2081,39 @@ header {
       height: 100%;
       cursor: text;
       color: #D5D8DA; }
-  /* line 1636, style.scss */
+  /* line 1682, style.scss */
   .newWallPost .textAreaWrapper .searchResultsDrop,
   .sharePostModal .textAreaWrapper .searchResultsDrop {
     top: 40px; }
-    /* line 1638, style.scss */
+    /* line 1684, style.scss */
     .newWallPost .textAreaWrapper .searchResultsDrop li a,
     .sharePostModal .textAreaWrapper .searchResultsDrop li a {
       height: 52px; }
-      /* line 1640, style.scss */
+      /* line 1686, style.scss */
       .newWallPost .textAreaWrapper .searchResultsDrop li a img,
       .newWallPost .textAreaWrapper .searchResultsDrop li a .letterAvatar,
       .sharePostModal .textAreaWrapper .searchResultsDrop li a img,
       .sharePostModal .textAreaWrapper .searchResultsDrop li a .letterAvatar {
         float: left;
         margin-right: 15px; }
-      /* line 1645, style.scss */
+      /* line 1691, style.scss */
       .newWallPost .textAreaWrapper .searchResultsDrop li a h3,
       .sharePostModal .textAreaWrapper .searchResultsDrop li a h3 {
         margin: 7px 0 0 0; }
-/* line 1651, style.scss */
+/* line 1697, style.scss */
 .newWallPost .postOptions,
 .sharePostModal .postOptions {
   display: flex;
   padding: 0 0 30px 30px; }
-  /* line 1654, style.scss */
+  /* line 1700, style.scss */
   .newWallPost .postOptions > .btn,
   .sharePostModal .postOptions > .btn {
     margin-right: 20px; }
-  /* line 1657, style.scss */
+  /* line 1703, style.scss */
   .newWallPost .postOptions .btnUploadFile,
   .sharePostModal .postOptions .btnUploadFile {
     line-height: 32px; }
-    /* line 1659, style.scss */
+    /* line 1705, style.scss */
     .newWallPost .postOptions .btnUploadFile span,
     .sharePostModal .postOptions .btnUploadFile span {
       display: block;
@@ -1860,34 +2125,34 @@ header {
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 1670, style.scss */
+    /* line 1716, style.scss */
     .newWallPost .postOptions .btnUploadFile:hover span,
     .sharePostModal .postOptions .btnUploadFile:hover span {
       opacity: 1; }
 
-/* line 1678, style.scss */
+/* line 1724, style.scss */
 .sharePostModal .textAreaWrapper {
   padding: 0 !important; }
 
-/* line 1684, style.scss */
+/* line 1730, style.scss */
 #uploadFileModal input[type="text"],
 #uploadFileModal textarea {
   width: 540px;
   margin-bottom: 30px; }
-/* line 1689, style.scss */
+/* line 1735, style.scss */
 #uploadFileModal .fileLine {
   display: flex; }
-  /* line 1691, style.scss */
+  /* line 1737, style.scss */
   #uploadFileModal .fileLine .btn {
     margin: 0 20px 30px 0; }
-  /* line 1694, style.scss */
+  /* line 1740, style.scss */
   #uploadFileModal .fileLine span {
     line-height: 32px; }
-  /* line 1697, style.scss */
+  /* line 1743, style.scss */
   #uploadFileModal .fileLine .loaderSvg {
     margin-top: 6px; }
 
-/* line 1703, style.scss */
+/* line 1749, style.scss */
 .previewLink,
 .previewFile,
 .previewCredComp,
@@ -1898,7 +2163,7 @@ header {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
-  /* line 1711, style.scss */
+  /* line 1757, style.scss */
   .previewLink.previewLinkBig .previewLinkImage,
   .previewFile.previewLinkBig .previewLinkImage,
   .previewCredComp.previewLinkBig .previewLinkImage,
@@ -1915,7 +2180,7 @@ header {
     -moz-border-radius-topright: 2px;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px; }
-    /* line 1724, style.scss */
+    /* line 1770, style.scss */
     .previewLink.previewLinkBig .previewLinkImage img,
     .previewFile.previewLinkBig .previewLinkImage img,
     .previewCredComp.previewLinkBig .previewLinkImage img,
@@ -1923,7 +2188,7 @@ header {
       flex-shrink: 0;
       min-width: 100%;
       min-height: 100%; }
-  /* line 1730, style.scss */
+  /* line 1776, style.scss */
   .previewLink.previewLinkSmall .previewLinkImage,
   .previewFile.previewLinkSmall .previewLinkImage,
   .previewCredComp.previewLinkSmall .previewLinkImage,
@@ -1942,7 +2207,7 @@ header {
     -moz-border-radius-bottomleft: 2px;
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px; }
-    /* line 1745, style.scss */
+    /* line 1791, style.scss */
     .previewLink.previewLinkSmall .previewLinkImage img,
     .previewFile.previewLinkSmall .previewLinkImage img,
     .previewCredComp.previewLinkSmall .previewLinkImage img,
@@ -1950,14 +2215,14 @@ header {
       flex-shrink: 0;
       min-width: 100%;
       min-height: 100%; }
-  /* line 1751, style.scss */
+  /* line 1797, style.scss */
   .previewLink .content,
   .previewFile .content,
   .previewCredComp .content,
   .previewActiv .content {
     padding: 15px 20px;
     position: relative; }
-    /* line 1754, style.scss */
+    /* line 1800, style.scss */
     .previewLink .content .previewRemove,
     .previewFile .content .previewRemove,
     .previewCredComp .content .previewRemove,
@@ -1971,19 +2236,19 @@ header {
       text-indent: -10000px;
       background: url("../images2/removeX.svg") no-repeat;
       opacity: .5; }
-      /* line 1764, style.scss */
+      /* line 1810, style.scss */
       .previewLink .content .previewRemove:hover,
       .previewFile .content .previewRemove:hover,
       .previewCredComp .content .previewRemove:hover,
       .previewActiv .content .previewRemove:hover {
         opacity: 1; }
-    /* line 1768, style.scss */
+    /* line 1814, style.scss */
     .previewLink .content h2,
     .previewFile .content h2,
     .previewCredComp .content h2,
     .previewActiv .content h2 {
       margin-bottom: 10px; }
-      /* line 1770, style.scss */
+      /* line 1816, style.scss */
       .previewLink .content h2 .iconCredential,
       .previewLink .content h2 .iconCompetence,
       .previewLink .content h2 .iconActivityVideo,
@@ -2011,7 +2276,7 @@ header {
         float: left;
         margin-right: 10px;
         margin-top: 1px; }
-    /* line 1781, style.scss */
+    /* line 1827, style.scss */
     .previewLink .content p,
     .previewFile .content p,
     .previewCredComp .content p,
@@ -2023,26 +2288,26 @@ header {
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden; }
-    /* line 1790, style.scss */
+    /* line 1836, style.scss */
     .previewLink .content .meta,
     .previewFile .content .meta,
     .previewCredComp .content .meta,
     .previewActiv .content .meta {
       display: flex;
       padding: 6px 0; }
-      /* line 1793, style.scss */
+      /* line 1839, style.scss */
       .previewLink .content .meta .duration,
       .previewFile .content .meta .duration,
       .previewCredComp .content .meta .duration,
       .previewActiv .content .meta .duration {
         margin-left: 20px; }
-    /* line 1797, style.scss */
+    /* line 1843, style.scss */
     .previewLink .content small,
     .previewFile .content small,
     .previewCredComp .content small,
     .previewActiv .content small {
       color: #AAB1B5; }
-    /* line 1800, style.scss */
+    /* line 1846, style.scss */
     .previewLink .content .twitterUsername,
     .previewFile .content .twitterUsername,
     .previewCredComp .content .twitterUsername,
@@ -2051,7 +2316,7 @@ header {
       padding-left: 21px;
       margin-bottom: 10px;
       background: url("../images2/iconTwitterBlue.svg") no-repeat left 4px; }
-    /* line 1806, style.scss */
+    /* line 1852, style.scss */
     .previewLink .content .fileName,
     .previewFile .content .fileName,
     .previewCredComp .content .fileName,
@@ -2062,19 +2327,19 @@ header {
       line-height: 20px;
       background: url("../images2/iconUploadFile20.svg") no-repeat left top; }
 
-/* line 1817, style.scss */
+/* line 1863, style.scss */
 .previewActiv .content .meta .duration {
   margin-left: 0; }
 
-/* line 1822, style.scss */
+/* line 1868, style.scss */
 .previewCredCompLine,
 .previewActivLine {
   margin: 0 30px 30px 30px; }
-  /* line 1825, style.scss */
+  /* line 1871, style.scss */
   .previewCredCompLine h2,
   .previewActivLine h2 {
     margin-bottom: 0; }
-    /* line 1827, style.scss */
+    /* line 1873, style.scss */
     .previewCredCompLine h2 .iconCredential,
     .previewCredCompLine h2 .iconCompetence,
     .previewCredCompLine h2 .iconActivityVideo,
@@ -2091,40 +2356,40 @@ header {
       margin-right: 10px;
       margin-top: 1px; }
 
-/* line 1842, style.scss */
+/* line 1888, style.scss */
 .wallPost .wallPostHead,
 .sharePostModal .wallPostHead {
   padding: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between; }
-  /* line 1847, style.scss */
+  /* line 1893, style.scss */
   .wallPost .wallPostHead .user32,
   .sharePostModal .wallPostHead .user32 {
     margin: 0; }
-    /* line 1849, style.scss */
+    /* line 1895, style.scss */
     .wallPost .wallPostHead .user32 h3 span,
     .sharePostModal .wallPostHead .user32 h3 span {
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400;
       color: #859095; }
-  /* line 1855, style.scss */
+  /* line 1901, style.scss */
   .wallPost .wallPostHead .wallPostHeadRight,
   .sharePostModal .wallPostHead .wallPostHeadRight {
     display: flex;
     margin-left: 20px;
     padding-top: 1px; }
-    /* line 1859, style.scss */
+    /* line 1905, style.scss */
     .wallPost .wallPostHead .wallPostHeadRight .optDrop,
     .sharePostModal .wallPostHead .wallPostHeadRight .optDrop {
       float: right;
       margin: 8px 0 0 10px; }
-      /* line 1862, style.scss */
+      /* line 1908, style.scss */
       .wallPost .wallPostHead .wallPostHeadRight .optDrop > a,
       .sharePostModal .wallPostHead .wallPostHeadRight .optDrop > a {
         display: block;
         width: 12px; }
-    /* line 1867, style.scss */
+    /* line 1913, style.scss */
     .wallPost .wallPostHead .wallPostHeadRight .timestamp,
     .sharePostModal .wallPostHead .wallPostHeadRight .timestamp {
       font-size: 12px;
@@ -2133,26 +2398,26 @@ header {
       font-weight: 400;
       margin-top: 1px;
       flex-shrink: 0; }
-      /* line 1874, style.scss */
+      /* line 1920, style.scss */
       .wallPost .wallPostHead .wallPostHeadRight .timestamp:hover,
       .sharePostModal .wallPostHead .wallPostHeadRight .timestamp:hover {
         color: #859095; }
-/* line 1881, style.scss */
+/* line 1927, style.scss */
 .wallPost .wallPostBody .wallPostContent,
 .sharePostModal .wallPostBody .wallPostContent {
   margin-bottom: 20px;
   padding: 0 30px; }
-  /* line 1884, style.scss */
+  /* line 1930, style.scss */
   .wallPost .wallPostBody .wallPostContent.commentPreview,
   .sharePostModal .wallPostBody .wallPostContent.commentPreview {
     padding: 10px 30px 0 50px;
     background: url("../images2/iconQuote.svg") no-repeat 30px 0; }
-/* line 1890, style.scss */
+/* line 1936, style.scss */
 .wallPost .wallPostFooter,
 .sharePostModal .wallPostFooter {
   display: flex;
   padding: 0 30px 30px 30px; }
-  /* line 1893, style.scss */
+  /* line 1939, style.scss */
   .wallPost .wallPostFooter a,
   .sharePostModal .wallPostFooter a {
     display: flex;
@@ -2162,7 +2427,7 @@ header {
     font-weight: 400;
     font-size: 13px;
     margin-right: 20px; }
-    /* line 1901, style.scss */
+    /* line 1947, style.scss */
     .wallPost .wallPostFooter a .icon,
     .sharePostModal .wallPostFooter a .icon {
       display: inline-block;
@@ -2170,56 +2435,56 @@ header {
       height: 12px;
       margin-right: 5px;
       margin-bottom: 2px; }
-      /* line 1907, style.scss */
+      /* line 1953, style.scss */
       .wallPost .wallPostFooter a .icon #triangle,
       .sharePostModal .wallPostFooter a .icon #triangle {
         transition: all 0.2s ease;
         -webkit-transition: all 0.2s ease; }
-    /* line 1913, style.scss */
+    /* line 1959, style.scss */
     .wallPost .wallPostFooter a.commentsNumber .icon,
     .sharePostModal .wallPostFooter a.commentsNumber .icon {
       background: url("../images2/iconComments12.svg") no-repeat;
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 1919, style.scss */
+    /* line 1965, style.scss */
     .wallPost .wallPostFooter a.commentsNumber:hover .icon,
     .sharePostModal .wallPostFooter a.commentsNumber:hover .icon {
       opacity: 1; }
-    /* line 1924, style.scss */
+    /* line 1970, style.scss */
     .wallPost .wallPostFooter a.sharePost .icon,
     .sharePostModal .wallPostFooter a.sharePost .icon {
       background: url("../images2/iconSharePost12.svg") no-repeat;
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 1930, style.scss */
+    /* line 1976, style.scss */
     .wallPost .wallPostFooter a.sharePost:hover .icon,
     .sharePostModal .wallPostFooter a.sharePost:hover .icon {
       opacity: 1; }
-    /* line 1934, style.scss */
+    /* line 1980, style.scss */
     .wallPost .wallPostFooter a:hover,
     .sharePostModal .wallPostFooter a:hover {
       color: #363636; }
-      /* line 1936, style.scss */
+      /* line 1982, style.scss */
       .wallPost .wallPostFooter a:hover #triangle,
       .sharePostModal .wallPostFooter a:hover #triangle {
         fill: #FCA567; }
-    /* line 1941, style.scss */
+    /* line 1987, style.scss */
     .wallPost .wallPostFooter a.liked #triangle,
     .sharePostModal .wallPostFooter a.liked #triangle {
       fill: #FCA567; }
-/* line 1947, style.scss */
+/* line 1993, style.scss */
 .wallPost .discussion,
 .sharePostModal .discussion {
   padding: 30px 30px 0 30px;
   border-top: 1px solid #EEEFF3; }
-  /* line 1950, style.scss */
+  /* line 1996, style.scss */
   .wallPost .discussion .comments,
   .sharePostModal .discussion .comments {
     margin: 0; }
 
-/* line 1956, style.scss */
+/* line 2002, style.scss */
 .sharedPostBox {
   margin: 0 30px 30px 30px;
   background: #F8F9FB;
@@ -2227,45 +2492,45 @@ header {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
-  /* line 1961, style.scss */
+  /* line 2007, style.scss */
   .sharedPostBox .wallPostHead {
     padding: 10px 10px 20px 10px; }
-  /* line 1965, style.scss */
+  /* line 2011, style.scss */
   .sharedPostBox .wallPostBody .wallPostContent {
     padding: 0 10px; }
-  /* line 1968, style.scss */
+  /* line 2014, style.scss */
   .sharedPostBox .wallPostBody .previewLink,
   .sharedPostBox .wallPostBody .previewFile {
     margin: 0 10px 10px 10px; }
-  /* line 1973, style.scss */
+  /* line 2019, style.scss */
   .sharePostModal .sharedPostBox {
     margin: 30px 0; }
 
-/* line 1979, style.scss */
+/* line 2025, style.scss */
 .whiteBarContent .whiteBarLeft {
   display: flex;
   align-items: center; }
-  /* line 1982, style.scss */
+  /* line 2028, style.scss */
   .whiteBarContent .whiteBarLeft .searchBox {
     height: 46px;
     padding-left: 30px;
     background: url("../images2/iconSearch20.svg") no-repeat left center; }
-    /* line 1986, style.scss */
+    /* line 2032, style.scss */
     .whiteBarContent .whiteBarLeft .searchBox input {
       width: 300px;
       line-height: 32px;
       padding: 8px 0;
       border: none; }
-  /* line 1993, style.scss */
+  /* line 2039, style.scss */
   .whiteBarContent .whiteBarLeft .item {
     margin-right: 30px; }
-  /* line 1996, style.scss */
+  /* line 2042, style.scss */
   .whiteBarContent .whiteBarLeft .progressBar {
     margin-left: 20px; }
-  /* line 1999, style.scss */
+  /* line 2045, style.scss */
   .whiteBarContent .whiteBarLeft .btnMessage {
     margin-left: 20px; }
-    /* line 2001, style.scss */
+    /* line 2047, style.scss */
     .whiteBarContent .whiteBarLeft .btnMessage span {
       float: left;
       width: 20px;
@@ -2273,32 +2538,32 @@ header {
       margin: 5px 10px 0 0;
       display: block;
       background: url("../images2/iconEnvelope20White.svg") no-repeat; }
-/* line 2011, style.scss */
+/* line 2057, style.scss */
 .whiteBarContent .whiteBarRight {
   display: flex;
   align-items: center; }
-  /* line 2014, style.scss */
+  /* line 2060, style.scss */
   .whiteBarContent .whiteBarRight .item {
     margin-left: 30px; }
 
-/* line 2020, style.scss */
+/* line 2066, style.scss */
 .pageSubmenu {
   margin-top: -28px; }
-  /* line 2022, style.scss */
+  /* line 2068, style.scss */
   .pageSubmenu > li > a {
     color: #AAB1B5;
     opacity: 1; }
-    /* line 2025, style.scss */
+    /* line 2071, style.scss */
     .pageSubmenu > li > a:hover {
       color: #363636; }
-  /* line 2029, style.scss */
+  /* line 2075, style.scss */
   .pageSubmenu > li.active > a,
   .pageSubmenu > li.active > a:focus,
   .pageSubmenu > li.active > a:hover {
     color: #363636;
     border-bottom: 2px solid #FCA567; }
 
-/* line 2037, style.scss */
+/* line 2083, style.scss */
 .innerSubmenu {
   display: flex;
   background: #F8F9FB;
@@ -2307,23 +2572,23 @@ header {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px; }
-  /* line 2043, style.scss */
+  /* line 2089, style.scss */
   .innerSubmenu > li {
     margin: 0;
     flex-grow: 1; }
-    /* line 2046, style.scss */
+    /* line 2092, style.scss */
     .innerSubmenu > li:first-child a {
       border-left: 0 !important;
       border-radius: 4px 0px 0px 4px;
       -moz-border-radius: 4px 0px 0px 4px;
       -webkit-border-radius: 4px 0px 0px 4px; }
-    /* line 2052, style.scss */
+    /* line 2098, style.scss */
     .innerSubmenu > li:last-child a {
       border-right: 0 !important;
       border-radius: 0px 4px 4px 0px;
       -moz-border-radius: 0px 4px 4px 0px;
       -webkit-border-radius: 0px 4px 4px 0px; }
-    /* line 2058, style.scss */
+    /* line 2104, style.scss */
     .innerSubmenu > li > a {
       color: #AAB1B5;
       opacity: 1;
@@ -2334,11 +2599,11 @@ header {
       -webkit-border-radius: 0px;
       -moz-border-radius: 0px;
       border-radius: 0px; }
-      /* line 2066, style.scss */
+      /* line 2112, style.scss */
       .innerSubmenu > li > a:hover {
         color: #363636;
         border: none; }
-  /* line 2072, style.scss */
+  /* line 2118, style.scss */
   .innerSubmenu > li.active > a,
   .innerSubmenu > li.active > a:focus,
   .innerSubmenu > li.active > a:hover {
@@ -2348,26 +2613,26 @@ header {
     border-bottom: 0;
     background: #fff; }
 
-/* line 2083, style.scss */
+/* line 2129, style.scss */
 .summaryCard {
   position: relative; }
-  /* line 2085, style.scss */
+  /* line 2131, style.scss */
   .summaryCard h2 {
     float: left;
     margin-top: 0;
     margin-bottom: 20px; }
-    /* line 2089, style.scss */
+    /* line 2135, style.scss */
     .summaryCard h2 span {
       color: #AAB1B5; }
-  /* line 2093, style.scss */
+  /* line 2139, style.scss */
   .summaryCard.summaryAssessments h2 {
     margin-bottom: 30px; }
-  /* line 2096, style.scss */
+  /* line 2142, style.scss */
   .summaryCard .linkApprove,
   .summaryCard .tagApproved {
     float: right;
     margin-top: 3px; }
-  /* line 2101, style.scss */
+  /* line 2147, style.scss */
   .summaryCard .cardDescription {
     position: relative;
     height: 66px;
@@ -2375,41 +2640,41 @@ header {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden; }
-  /* line 2109, style.scss */
+  /* line 2155, style.scss */
   .summaryCard .metaBox {
     display: flex;
     justify-content: space-between;
     padding-bottom: 30px; }
-    /* line 2113, style.scss */
+    /* line 2159, style.scss */
     .summaryCard .metaBox .metaLeft {
       display: flex; }
-      /* line 2115, style.scss */
+      /* line 2161, style.scss */
       .summaryCard .metaBox .metaLeft .progressBar {
         height: 32px;
         margin-left: 20px; }
-        /* line 2118, style.scss */
+        /* line 2164, style.scss */
         .summaryCard .metaBox .metaLeft .progressBar.noMargin {
           margin-left: 0; }
-      /* line 2122, style.scss */
+      /* line 2168, style.scss */
       .summaryCard .metaBox .metaLeft .linkRed {
         margin-left: 20px;
         line-height: 32px; }
-      /* line 2126, style.scss */
+      /* line 2172, style.scss */
       .summaryCard .metaBox .metaLeft .checkLine {
         margin-top: 0;
         margin-bottom: 9px; }
-    /* line 2131, style.scss */
+    /* line 2177, style.scss */
     .summaryCard .metaBox .metaRight {
       display: flex;
       padding: 6px 0; }
-      /* line 2134, style.scss */
+      /* line 2180, style.scss */
       .summaryCard .metaBox .metaRight .duration {
         margin-left: 20px; }
-  /* line 2139, style.scss */
+  /* line 2185, style.scss */
   .summaryCard .editOptions {
     float: right;
     margin-top: 4px; }
-  /* line 2143, style.scss */
+  /* line 2189, style.scss */
   .summaryCard .bookmarkStar {
     position: absolute;
     display: block;
@@ -2419,17 +2684,17 @@ header {
     top: 30px;
     right: 30px;
     visibility: hidden;
-    background: url("../images2/iconStar20Gray.svg") no-repeat;
+    background: url("../images2/iconBookmark20Gray.svg") no-repeat;
     transition: none;
     -webkit-transition: none; }
-    /* line 2155, style.scss */
+    /* line 2201, style.scss */
     .summaryCard .bookmarkStar.active, .summaryCard .bookmarkStar:hover {
       visibility: visible;
-      background: url("../images2/iconStar20Yellow.svg") no-repeat; }
-  /* line 2161, style.scss */
+      background: url("../images2/iconBookmark20Red.svg") no-repeat; }
+  /* line 2207, style.scss */
   .summaryCard:hover .bookmarkStar {
     visibility: visible; }
-  /* line 2165, style.scss */
+  /* line 2211, style.scss */
   .summaryCard .collapseActivityList .collapseButton {
     display: flex;
     justify-content: center;
@@ -2437,14 +2702,14 @@ header {
     height: 40px;
     line-height: 40px;
     border-top: 1px solid #EEEFF3; }
-    /* line 2172, style.scss */
+    /* line 2218, style.scss */
     .summaryCard .collapseActivityList .collapseButton span {
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease;
       color: #AAB1B5;
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400; }
-    /* line 2179, style.scss */
+    /* line 2225, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: inline-block;
@@ -2455,52 +2720,52 @@ header {
       opacity: .5;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 2191, style.scss */
+    /* line 2237, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover span {
       color: #859095; }
-    /* line 2194, style.scss */
+    /* line 2240, style.scss */
     .summaryCard .collapseActivityList .collapseButton:hover .arrowUp,
     .summaryCard .collapseActivityList .collapseButton:hover .arrowDown {
       opacity: 1; }
-    /* line 2199, style.scss */
+    /* line 2245, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       background: url("../images2/arrowUp.svg") no-repeat center center; }
-    /* line 2202, style.scss */
+    /* line 2248, style.scss */
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       background: url("../images2/arrowDown.svg") no-repeat center center; }
-    /* line 2205, style.scss */
+    /* line 2251, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textShow,
     .summaryCard .collapseActivityList .collapseButton .arrowDown {
       display: none; }
-    /* line 2209, style.scss */
+    /* line 2255, style.scss */
     .summaryCard .collapseActivityList .collapseButton .textHide,
     .summaryCard .collapseActivityList .collapseButton .arrowUp {
       display: inline-block; }
-    /* line 2214, style.scss */
+    /* line 2260, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textShow,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowDown {
       display: inline-block; }
-    /* line 2218, style.scss */
+    /* line 2264, style.scss */
     .summaryCard .collapseActivityList .collapseButton.collapsed .textHide,
     .summaryCard .collapseActivityList .collapseButton.collapsed .arrowUp {
       display: none; }
-  /* line 2224, style.scss */
+  /* line 2270, style.scss */
   .summaryCard .collapseActivityList ul {
     margin: 0;
     padding: 0;
     list-style: none; }
-    /* line 2229, style.scss */
+    /* line 2275, style.scss */
     .summaryCard .collapseActivityList ul li .iconType {
       float: left;
       margin-right: 20px; }
-    /* line 2233, style.scss */
+    /* line 2279, style.scss */
     .summaryCard .collapseActivityList ul li.noLink {
       display: block;
       line-height: 20px;
       padding: 10px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3; }
-    /* line 2240, style.scss */
+    /* line 2286, style.scss */
     .summaryCard .collapseActivityList ul li a {
       display: block;
       line-height: 20px;
@@ -2510,44 +2775,44 @@ header {
       color: #859095;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3; }
-      /* line 2249, style.scss */
+      /* line 2295, style.scss */
       .summaryCard .collapseActivityList ul li a:hover {
         color: #363636; }
-      /* line 2252, style.scss */
+      /* line 2298, style.scss */
       .summaryCard .collapseActivityList ul li a .check {
         float: right;
         margin-left: 30px; }
-  /* line 2261, style.scss */
+  /* line 2307, style.scss */
   .summaryCard .assessmentActivityList > ul {
     margin: 0;
     padding: 0;
     list-style: none; }
-    /* line 2265, style.scss */
+    /* line 2311, style.scss */
     .summaryCard .assessmentActivityList > ul > li {
       display: block;
       line-height: 20px;
       padding: 10px 30px;
       border-top: 1px solid #EEEFF3; }
-      /* line 2270, style.scss */
+      /* line 2316, style.scss */
       .summaryCard .assessmentActivityList > ul > li .iconType {
         float: left;
         margin-right: 20px; }
-      /* line 2274, style.scss */
+      /* line 2320, style.scss */
       .summaryCard .assessmentActivityList > ul > li > a {
         font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 400;
         color: #859095; }
-        /* line 2279, style.scss */
+        /* line 2325, style.scss */
         .summaryCard .assessmentActivityList > ul > li > a:hover {
           color: #363636; }
-      /* line 2283, style.scss */
+      /* line 2329, style.scss */
       .summaryCard .assessmentActivityList > ul > li .commentsIcon {
         position: relative;
         width: 50px;
         float: right;
         margin-left: 20px;
         padding-left: 30px; }
-        /* line 2289, style.scss */
+        /* line 2335, style.scss */
         .summaryCard .assessmentActivityList > ul > li .commentsIcon::before {
           content: '';
           display: block;
@@ -2560,14 +2825,14 @@ header {
           opacity: .5;
           transition: all 0.2s ease;
           -webkit-transition: all 0.2s ease; }
-        /* line 2302, style.scss */
+        /* line 2348, style.scss */
         .summaryCard .assessmentActivityList > ul > li .commentsIcon:hover::before {
           opacity: 1; }
-      /* line 2306, style.scss */
+      /* line 2352, style.scss */
       .summaryCard .assessmentActivityList > ul > li.hasNewComments .commentsIcon::before {
         background: url("../images2/iconComments20Orange.svg") no-repeat;
         opacity: 1; }
-      /* line 2310, style.scss */
+      /* line 2356, style.scss */
       .summaryCard .assessmentActivityList > ul > li .download {
         display: block;
         float: right;
@@ -2577,33 +2842,33 @@ header {
         text-indent: -10000px;
         opacity: .5;
         background: url("../images2/iconDownload20.svg") no-repeat; }
-        /* line 2319, style.scss */
+        /* line 2365, style.scss */
         .summaryCard .assessmentActivityList > ul > li .download:hover {
           opacity: 1; }
 
-/* line 2329, style.scss */
+/* line 2375, style.scss */
 .assessmentItem h2 {
   margin-bottom: 20px;
   float: left; }
-/* line 2333, style.scss */
+/* line 2379, style.scss */
 .assessmentItem .user32 {
   margin-bottom: 20px;
   float: left; }
-/* line 2337, style.scss */
+/* line 2383, style.scss */
 .assessmentItem .commentsNumber {
   float: right;
   padding-top: 6px; }
-/* line 2341, style.scss */
+/* line 2387, style.scss */
 .assessmentItem .date {
   padding-bottom: 30px; }
-/* line 2344, style.scss */
+/* line 2390, style.scss */
 .assessmentItem .tagApproved,
 .assessmentItem .tagPending {
   float: right;
   margin-top: 3px; }
 
 @-moz-document url-prefix() {
-  /* line 2352, style.scss */
+  /* line 2398, style.scss */
   .summaryCard .cardDescription::after,
   .previewCredComp .content p::after,
   .previewActiv .content p::after,
@@ -2619,7 +2884,7 @@ header {
     background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0%, white 70%, white 100%);
     background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, white 70%, white 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=1 ); } }
-/* line 2370, style.scss */
+/* line 2416, style.scss */
 .newCompetenceBox {
   display: flex;
   height: 180px;
@@ -2631,66 +2896,66 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 2379, style.scss */
+  /* line 2425, style.scss */
   .newCompetenceBox .elementsWrapper {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap; }
-    /* line 2383, style.scss */
+    /* line 2429, style.scss */
     .newCompetenceBox .elementsWrapper .btn {
       margin-bottom: 30px; }
-    /* line 2386, style.scss */
+    /* line 2432, style.scss */
     .newCompetenceBox .elementsWrapper span {
       line-height: 40px;
       margin: 0 20px;
       color: #AAB1B5; }
-    /* line 2391, style.scss */
+    /* line 2437, style.scss */
     .newCompetenceBox .elementsWrapper .elementsRight {
       display: flex;
       flex-direction: column;
       position: relative; }
-      /* line 2395, style.scss */
+      /* line 2441, style.scss */
       .newCompetenceBox .elementsWrapper .elementsRight input {
         width: 300px;
         margin-bottom: 8px; }
-      /* line 2399, style.scss */
+      /* line 2445, style.scss */
       .newCompetenceBox .elementsWrapper .elementsRight .searchResultsDrop {
         top: 41px; }
 
-/* line 2406, style.scss */
+/* line 2452, style.scss */
 .activitiesList {
   padding: 0; }
-  /* line 2408, style.scss */
+  /* line 2454, style.scss */
   .activitiesList .activityItem {
     display: flex;
     align-items: center;
     min-height: 60px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2414, style.scss */
+    /* line 2460, style.scss */
     .activitiesList .activityItem .check,
     .activitiesList .activityItem .iconType,
     .activitiesList .activityItem .iconPlus {
       margin-right: 20px;
       flex-shrink: 0; }
-    /* line 2420, style.scss */
+    /* line 2466, style.scss */
     .activitiesList .activityItem h3 {
       flex-grow: 1;
       margin: 0 10px 0 0; }
-    /* line 2424, style.scss */
+    /* line 2470, style.scss */
     .activitiesList .activityItem .editOptions {
       flex-shrink: 0; }
-      /* line 2426, style.scss */
+      /* line 2472, style.scss */
       .activitiesList .activityItem .editOptions .optMoreMenu {
         margin-right: 10px; }
-    /* line 2430, style.scss */
+    /* line 2476, style.scss */
     .activitiesList .activityItem .duration {
       flex-shrink: 0; }
-    /* line 2433, style.scss */
+    /* line 2479, style.scss */
     .activitiesList .activityItem.addActivity {
       line-height: 60px;
       border: none; }
-      /* line 2436, style.scss */
+      /* line 2482, style.scss */
       .activitiesList .activityItem.addActivity .iconPlus {
         display: block;
         width: 20px;
@@ -2699,56 +2964,56 @@ header {
         opacity: .5;
         transition: all 0.2s ease;
         -webkit-transition: all 0.2s ease; }
-      /* line 2445, style.scss */
+      /* line 2491, style.scss */
       .activitiesList .activityItem.addActivity:hover .iconPlus {
         opacity: 1; }
-    /* line 2449, style.scss */
+    /* line 2495, style.scss */
     .activitiesList .activityItem:last-child {
       border-bottom: none; }
 
-/* line 2455, style.scss */
+/* line 2501, style.scss */
 .competenceProgressList {
   list-style: none;
   padding: 0; }
-  /* line 2458, style.scss */
+  /* line 2504, style.scss */
   .competenceProgressList li {
     display: flex;
     align-items: center;
     margin-bottom: 30px; }
-    /* line 2462, style.scss */
+    /* line 2508, style.scss */
     .competenceProgressList li .check,
     .competenceProgressList li .iconType {
       margin-right: 20px;
       flex-shrink: 0; }
-    /* line 2467, style.scss */
+    /* line 2513, style.scss */
     .competenceProgressList li h3 {
       margin: 0; }
-      /* line 2469, style.scss */
+      /* line 2515, style.scss */
       .competenceProgressList li h3 a {
         color: #859095; }
-        /* line 2471, style.scss */
+        /* line 2517, style.scss */
         .competenceProgressList li h3 a:hover {
           color: #363636; }
-    /* line 2476, style.scss */
+    /* line 2522, style.scss */
     .competenceProgressList li.active h3 a {
       color: #363636; }
 
-/* line 2483, style.scss */
+/* line 2529, style.scss */
 .formLineRight .addedItems {
   padding: 10px 0 2px 0;
   margin-bottom: 10px;
   list-style: none; }
-  /* line 2487, style.scss */
+  /* line 2533, style.scss */
   .formLineRight .addedItems li {
     margin-bottom: 10px; }
-    /* line 2489, style.scss */
+    /* line 2535, style.scss */
     .formLineRight .addedItems li h3 {
       float: left;
       margin: 0; }
-    /* line 2493, style.scss */
+    /* line 2539, style.scss */
     .formLineRight .addedItems li a {
       word-break: break-word; }
-    /* line 2496, style.scss */
+    /* line 2542, style.scss */
     .formLineRight .addedItems li .removeX {
       float: right;
       width: 12px;
@@ -2757,71 +3022,71 @@ header {
       display: block;
       text-indent: -10000px;
       background: url("../images2/removeX.svg") no-repeat; }
-/* line 2507, style.scss */
+/* line 2553, style.scss */
 .formLineRight .evidenceLink {
   margin-left: 10px; }
 
-/* line 2512, style.scss */
+/* line 2558, style.scss */
 .externalCompetence {
   border-bottom: 1px solid #EEEFF3; }
-  /* line 2514, style.scss */
+  /* line 2560, style.scss */
   .externalCompetence .btnSaveChanges {
     margin-right: 20px; }
 
-/* line 2519, style.scss */
+/* line 2565, style.scss */
 .btnAddNew {
   margin: 30px 0 30px 200px; }
 
-/* line 2523, style.scss */
+/* line 2569, style.scss */
 .publishBox {
   padding-bottom: 30px; }
-  /* line 2525, style.scss */
+  /* line 2571, style.scss */
   .publishBox h2 {
     float: left; }
-  /* line 2528, style.scss */
+  /* line 2574, style.scss */
   .publishBox .checkLine {
     margin-bottom: 20px; }
-  /* line 2531, style.scss */
+  /* line 2577, style.scss */
   .publishBox .linkPreview {
     float: right;
     margin-top: 4px; }
-  /* line 2535, style.scss */
+  /* line 2581, style.scss */
   .publishBox .publishRow {
     display: flex;
     justify-content: space-between;
     align-items: center; }
-  /* line 2541, style.scss */
+  /* line 2587, style.scss */
   .publishBox .estimatedTime > p {
     margin-bottom: 10px; }
-  /* line 2544, style.scss */
+  /* line 2590, style.scss */
   .publishBox .estimatedTime .selectRow {
     display: flex;
     align-items: center; }
-    /* line 2547, style.scss */
+    /* line 2593, style.scss */
     .publishBox .estimatedTime .selectRow .bootstrap-select {
       width: 70px !important;
       margin-right: 10px; }
-    /* line 2551, style.scss */
+    /* line 2597, style.scss */
     .publishBox .estimatedTime .selectRow .pickMinutes {
       margin-left: 10px; }
 
-/* line 2558, style.scss */
+/* line 2604, style.scss */
 .userRoleBox {
   padding-bottom: 30px; }
-  /* line 2560, style.scss */
+  /* line 2606, style.scss */
   .userRoleBox .buttonBottomBox {
     margin-top: 20px; }
 
-/* line 2565, style.scss */
+/* line 2611, style.scss */
 .activityMain {
   margin-bottom: 30px; }
 
-/* line 2569, style.scss */
+/* line 2615, style.scss */
 .activityLinksBox,
 .activityFilesBox,
 .activityResultBox {
   list-style: none; }
-  /* line 2573, style.scss */
+  /* line 2619, style.scss */
   .activityLinksBox li,
   .activityFilesBox li,
   .activityResultBox li {
@@ -2831,22 +3096,22 @@ header {
     height: 100px;
     padding: 0 30px 0 70px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2580, style.scss */
+    /* line 2626, style.scss */
     .activityLinksBox li:last-child,
     .activityFilesBox li:last-child,
     .activityResultBox li:last-child {
       border: none; }
-    /* line 2583, style.scss */
+    /* line 2629, style.scss */
     .activityLinksBox li .actBoxLeft,
     .activityFilesBox li .actBoxLeft,
     .activityResultBox li .actBoxLeft {
       margin-right: 20px; }
-      /* line 2585, style.scss */
+      /* line 2631, style.scss */
       .activityLinksBox li .actBoxLeft h3,
       .activityFilesBox li .actBoxLeft h3,
       .activityResultBox li .actBoxLeft h3 {
         margin-bottom: 10px; }
-    /* line 2589, style.scss */
+    /* line 2635, style.scss */
     .activityLinksBox li .actBoxLeft > span,
     .activityLinksBox li .deleteLink,
     .activityFilesBox li .actBoxLeft > span,
@@ -2855,25 +3120,25 @@ header {
     .activityResultBox li .deleteLink {
       font-size: 12px;
       word-break: break-word; }
-    /* line 2594, style.scss */
+    /* line 2640, style.scss */
     .activityLinksBox li a,
     .activityFilesBox li a,
     .activityResultBox li a {
       width: 100px; }
 
-/* line 2600, style.scss */
+/* line 2646, style.scss */
 .activityLinksBox li {
   background: url("../images2/iconLink20.svg") no-repeat 30px center; }
 
-/* line 2604, style.scss */
+/* line 2650, style.scss */
 .activityFilesBox li {
   background: url("../images2/iconFile20.svg") no-repeat 30px center; }
 
-/* line 2608, style.scss */
+/* line 2654, style.scss */
 .activityResultBox li {
   background: url("../images2/iconResult20.svg") no-repeat 30px center; }
 
-/* line 2612, style.scss */
+/* line 2658, style.scss */
 .uploadResultBox {
   display: flex;
   flex-direction: column;
@@ -2885,132 +3150,132 @@ header {
   border-radius: 5px;
   justify-content: center;
   align-items: center; }
-  /* line 2621, style.scss */
+  /* line 2667, style.scss */
   .uploadResultBox h3, .uploadResultBox p {
     margin-bottom: 10px; }
 
-/* line 2626, style.scss */
+/* line 2672, style.scss */
 .peopleList {
   list-style: none; }
-  /* line 2628, style.scss */
+  /* line 2674, style.scss */
   .peopleList > li {
     display: flex;
     align-items: center;
     height: 120px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2634, style.scss */
+    /* line 2680, style.scss */
     .peopleList > li.noPeople {
       justify-content: center; }
-    /* line 2637, style.scss */
+    /* line 2683, style.scss */
     .peopleList > li:last-child {
       border: none; }
-    /* line 2640, style.scss */
+    /* line 2686, style.scss */
     .peopleList > li .peopleListLeft {
       width: 50%;
       display: flex;
       align-items: center; }
-      /* line 2644, style.scss */
+      /* line 2690, style.scss */
       .peopleList > li .peopleListLeft img, .peopleList > li .peopleListLeft .letterAvatar {
         margin-right: 20px; }
-      /* line 2647, style.scss */
+      /* line 2693, style.scss */
       .peopleList > li .peopleListLeft h2 {
         margin: 0 20px 0 0; }
-    /* line 2651, style.scss */
+    /* line 2697, style.scss */
     .peopleList > li .peopleListRight {
       width: 50%;
       display: flex;
       align-items: center; }
-      /* line 2655, style.scss */
+      /* line 2701, style.scss */
       .peopleList > li .peopleListRight > .progressBar,
       .peopleList > li .peopleListRight .studentsNum {
         width: 50%;
         margin-right: 20px; }
-      /* line 2660, style.scss */
+      /* line 2706, style.scss */
       .peopleList > li .peopleListRight .studentsNum span {
         font-size: 18px;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 500; }
-        /* line 2664, style.scss */
+        /* line 2710, style.scss */
         .peopleList > li .peopleListRight .studentsNum span.redText {
           color: #E45E5E; }
-      /* line 2668, style.scss */
+      /* line 2714, style.scss */
       .peopleList > li .peopleListRight .userRole {
         width: 50%;
         margin-right: 20px; }
-      /* line 2672, style.scss */
+      /* line 2718, style.scss */
       .peopleList > li .peopleListRight .assignedTo {
         width: 40%; }
-        /* line 2674, style.scss */
+        /* line 2720, style.scss */
         .peopleList > li .peopleListRight .assignedTo > .btn {
           margin-right: 20px; }
-        /* line 2677, style.scss */
+        /* line 2723, style.scss */
         .peopleList > li .peopleListRight .assignedTo p {
           margin: 0; }
-          /* line 2679, style.scss */
+          /* line 2725, style.scss */
           .peopleList > li .peopleListRight .assignedTo p span {
             font-size: 12px; }
-      /* line 2684, style.scss */
+      /* line 2730, style.scss */
       .peopleList > li .peopleListRight .userEditOpt {
         width: 50%; }
-        /* line 2686, style.scss */
+        /* line 2732, style.scss */
         .peopleList > li .peopleListRight .userEditOpt > .btn {
           margin-right: 20px; }
-  /* line 2694, style.scss */
+  /* line 2740, style.scss */
   .peopleList.peopleListDefaut > li .peopleListLeft {
     width: 100%; }
 
-/* line 2701, style.scss */
+/* line 2747, style.scss */
 .rssList {
   list-style: none; }
-  /* line 2703, style.scss */
+  /* line 2749, style.scss */
   .rssList > li {
     display: flex;
     align-items: center;
     height: 120px;
     padding: 0 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2709, style.scss */
+    /* line 2755, style.scss */
     .rssList > li.noSources {
       justify-content: center; }
-    /* line 2712, style.scss */
+    /* line 2758, style.scss */
     .rssList > li:last-child {
       border: none; }
-    /* line 2715, style.scss */
+    /* line 2761, style.scss */
     .rssList > li .rssListLeft {
       width: 75%;
       display: flex;
       align-items: center; }
-      /* line 2719, style.scss */
+      /* line 2765, style.scss */
       .rssList > li .rssListLeft a {
         margin: 0 20px 0 0; }
-    /* line 2723, style.scss */
+    /* line 2769, style.scss */
     .rssList > li .rssListRight {
       width: 25%;
       display: flex;
       align-items: center; }
-      /* line 2728, style.scss */
+      /* line 2774, style.scss */
       .rssList > li .rssListRight .buttons > .btn {
         margin-right: 20px; }
-  /* line 2735, style.scss */
+  /* line 2781, style.scss */
   .rssList.participants > li {
     flex-direction: column;
     align-items: baseline;
     justify-content: center; }
-    /* line 2739, style.scss */
+    /* line 2785, style.scss */
     .rssList.participants > li.noBlogs {
       align-items: center; }
-    /* line 2742, style.scss */
+    /* line 2788, style.scss */
     .rssList.participants > li h2 {
       margin-bottom: 10px; }
 
-/* line 2750, style.scss */
+/* line 2796, style.scss */
 .assignInstructorModal .maxStudents {
   margin: 0 0 30px 30px; }
-  /* line 2752, style.scss */
+  /* line 2798, style.scss */
   .assignInstructorModal .maxStudents input {
     width: 50px; }
-/* line 2756, style.scss */
+/* line 2802, style.scss */
 .assignInstructorModal .searchInstructors {
   height: 46px;
   margin: 0;
@@ -3018,123 +3283,123 @@ header {
   border-top: 1px solid #EEEFF3;
   border-bottom: 1px solid #EEEFF3;
   background: #F8F9FB url("../images2/iconSearch20.svg") no-repeat 30px center; }
-  /* line 2763, style.scss */
+  /* line 2809, style.scss */
   .assignInstructorModal .searchInstructors input {
     width: 500px;
     line-height: 32px;
     padding: 8px 0;
     border: none;
     background: none; }
-  /* line 2770, style.scss */
+  /* line 2816, style.scss */
   .assignInstructorModal .searchInstructors .showDrop {
     float: right;
     padding: 7px 0; }
-/* line 2775, style.scss */
+/* line 2821, style.scss */
 .assignInstructorModal ul.list {
   max-height: 400px;
   padding-bottom: 30px;
   overflow: scroll;
   list-style: none; }
-  /* line 2780, style.scss */
+  /* line 2826, style.scss */
   .assignInstructorModal ul.list li {
     display: flex;
     justify-content: space-between;
     flex-shrink: 0;
     padding: 10px 30px;
     border-bottom: 1px solid #EEEFF3; }
-    /* line 2786, style.scss */
+    /* line 2832, style.scss */
     .assignInstructorModal ul.list li .instructorInfo {
       display: flex; }
-      /* line 2788, style.scss */
+      /* line 2834, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .checkbox {
         float: left;
         padding-top: 5px;
         margin-right: 10px; }
-        /* line 2792, style.scss */
+        /* line 2838, style.scss */
         .assignInstructorModal ul.list li .instructorInfo .checkbox label {
           width: 0;
           padding: 0; }
-      /* line 2797, style.scss */
+      /* line 2843, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .letterAvatar, .assignInstructorModal ul.list li .instructorInfo img {
         float: left;
         margin-right: 20px; }
-      /* line 2801, style.scss */
+      /* line 2847, style.scss */
       .assignInstructorModal ul.list li .instructorInfo .infoWrap {
         display: flex;
         flex-direction: column;
         justify-content: center; }
-        /* line 2805, style.scss */
+        /* line 2851, style.scss */
         .assignInstructorModal ul.list li .instructorInfo .infoWrap h3 {
           margin: 0; }
-    /* line 2810, style.scss */
+    /* line 2856, style.scss */
     .assignInstructorModal ul.list li .progressWrapper {
       display: flex;
       align-items: center; }
-    /* line 2814, style.scss */
+    /* line 2860, style.scss */
     .assignInstructorModal ul.list li .assignOpt {
       display: flex;
       align-items: center; }
-      /* line 2817, style.scss */
+      /* line 2863, style.scss */
       .assignInstructorModal ul.list li .assignOpt .buttonWrapper {
         width: 150px;
         text-align: right; }
-      /* line 2821, style.scss */
+      /* line 2867, style.scss */
       .assignInstructorModal ul.list li .assignOpt span {
         font-size: 18px;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 500; }
-        /* line 2825, style.scss */
+        /* line 2871, style.scss */
         .assignInstructorModal ul.list li .assignOpt span.redText {
           color: #E45E5E; }
 
-/* line 2835, style.scss */
+/* line 2881, style.scss */
 .newFeedModal input[type="text"] {
   width: 540px;
   margin-bottom: 30px; }
 
-/* line 2842, style.scss */
+/* line 2888, style.scss */
 .removeInstructorModal p {
   margin-bottom: 20px !important; }
-/* line 2845, style.scss */
+/* line 2891, style.scss */
 .removeInstructorModal .radioGroup {
   width: 350px;
   text-align: left;
   margin: 0 auto 30px auto; }
 
-/* line 2853, style.scss */
+/* line 2899, style.scss */
 .assessmentCommentsModal .discussion {
   padding: 0 30px 30px 30px; }
-  /* line 2855, style.scss */
+  /* line 2901, style.scss */
   .assessmentCommentsModal .discussion .comments {
     padding-bottom: 30px; }
-    /* line 2857, style.scss */
+    /* line 2903, style.scss */
     .assessmentCommentsModal .discussion .comments ul {
       margin: 0; }
-  /* line 2861, style.scss */
+  /* line 2907, style.scss */
   .assessmentCommentsModal .discussion .addComment {
     margin: 0; }
 
-/* line 2868, style.scss */
+/* line 2914, style.scss */
 .discussion h2 {
   display: inline-block; }
-/* line 2871, style.scss */
+/* line 2917, style.scss */
 .discussion .sortDrop {
   float: right;
   padding: 0; }
-/* line 2875, style.scss */
+/* line 2921, style.scss */
 .discussion img,
 .discussion .letterAvatar {
   margin: 6px 20px 0 0; }
-/* line 2879, style.scss */
+/* line 2925, style.scss */
 .discussion .addComment {
   display: flex;
   margin-bottom: 30px;
   justify-content: space-between; }
-/* line 2884, style.scss */
+/* line 2930, style.scss */
 .discussion .commentForm,
 .discussion .editComment {
   flex-grow: 1; }
-  /* line 2887, style.scss */
+  /* line 2933, style.scss */
   .discussion .commentForm .contentEditableComment,
   .discussion .editComment .contentEditableComment {
     float: left;
@@ -3154,7 +3419,7 @@ header {
     -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
     box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.1); }
-    /* line 2903, style.scss */
+    /* line 2949, style.scss */
     .discussion .commentForm .contentEditableComment:empty:before, .discussion .commentForm .contentEditableComment:empty:focus:before,
     .discussion .editComment .contentEditableComment:empty:before,
     .discussion .editComment .contentEditableComment:empty:focus:before {
@@ -3164,43 +3429,43 @@ header {
       height: 100%;
       cursor: text;
       color: #D5D8DA; }
-  /* line 2913, style.scss */
+  /* line 2959, style.scss */
   .discussion .commentForm .btn,
   .discussion .editComment .btn {
     margin: 15px 10px 0 0; }
-/* line 2917, style.scss */
+/* line 2963, style.scss */
 .discussion .commentForm {
   min-height: 50px; }
-/* line 2920, style.scss */
+/* line 2966, style.scss */
 .discussion .editComment {
   padding-bottom: 20px; }
-/* line 2923, style.scss */
+/* line 2969, style.scss */
 .discussion .comments {
   padding-bottom: 30px; }
-  /* line 2925, style.scss */
+  /* line 2971, style.scss */
   .discussion .comments > ul {
     margin-bottom: 0; }
-  /* line 2928, style.scss */
+  /* line 2974, style.scss */
   .discussion .comments .loadReplies {
     margin-top: 15px;
     display: inline-block; }
-  /* line 2932, style.scss */
+  /* line 2978, style.scss */
   .discussion .comments .media-left, .discussion .comments .media > .pull-left {
     padding: 0; }
-  /* line 2935, style.scss */
+  /* line 2981, style.scss */
   .discussion .comments .media-body {
     padding-top: 12px; }
-    /* line 2937, style.scss */
+    /* line 2983, style.scss */
     .discussion .comments .media-body.replyComment {
       padding-top: 0; }
-    /* line 2940, style.scss */
+    /* line 2986, style.scss */
     .discussion .comments .media-body .commentMain {
       position: relative; }
-      /* line 2942, style.scss */
+      /* line 2988, style.scss */
       .discussion .comments .media-body .commentMain h3 {
         margin-bottom: 10px;
         position: relative; }
-        /* line 2945, style.scss */
+        /* line 2991, style.scss */
         .discussion .comments .media-body .commentMain h3 span {
           display: inline-block;
           margin-left: 10px;
@@ -3212,7 +3477,7 @@ header {
           -webkit-border-radius: 5px;
           -moz-border-radius: 5px;
           border-radius: 5px; }
-      /* line 2956, style.scss */
+      /* line 3002, style.scss */
       .discussion .comments .media-body .commentMain .commentTime {
         position: absolute;
         top: 0;
@@ -3220,16 +3485,16 @@ header {
         font-size: 12px;
         color: #AAB1B5;
         display: none; }
-      /* line 2964, style.scss */
+      /* line 3010, style.scss */
       .discussion .comments .media-body .commentMain:hover > .commentTime {
         display: block; }
-      /* line 2967, style.scss */
+      /* line 3013, style.scss */
       .discussion .comments .media-body .commentMain p {
         margin-bottom: 10px; }
-      /* line 2970, style.scss */
+      /* line 3016, style.scss */
       .discussion .comments .media-body .commentMain .commentOptions {
         display: flex; }
-        /* line 2972, style.scss */
+        /* line 3018, style.scss */
         .discussion .comments .media-body .commentMain .commentOptions a {
           display: flex;
           align-items: center;
@@ -3238,61 +3503,61 @@ header {
           font-weight: 400;
           font-size: 13px;
           margin-right: 20px; }
-          /* line 2980, style.scss */
+          /* line 3026, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a .icon {
             display: inline-block;
             width: 12px;
             height: 12px;
             margin-right: 5px;
             margin-bottom: 2px; }
-            /* line 2986, style.scss */
+            /* line 3032, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a .icon #triangle {
               transition: all 0.2s ease;
               -webkit-transition: all 0.2s ease; }
-          /* line 2992, style.scss */
+          /* line 3038, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply .icon {
             background: url("../images2/iconReply12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 2998, style.scss */
+          /* line 3044, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.reply:hover .icon {
             opacity: 1; }
-          /* line 3003, style.scss */
+          /* line 3049, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit .icon {
             background: url("../images2/iconEdit12.svg") no-repeat;
             opacity: .5;
             transition: all 0.2s ease;
             -webkit-transition: all 0.2s ease; }
-          /* line 3009, style.scss */
+          /* line 3055, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.edit:hover .icon {
             opacity: 1; }
-          /* line 3013, style.scss */
+          /* line 3059, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a:hover {
             color: #363636; }
-            /* line 3015, style.scss */
+            /* line 3061, style.scss */
             .discussion .comments .media-body .commentMain .commentOptions a:hover #triangle {
               fill: #FCA567; }
-          /* line 3020, style.scss */
+          /* line 3066, style.scss */
           .discussion .comments .media-body .commentMain .commentOptions a.liked #triangle {
             fill: #FCA567; }
 
-/* line 3031, style.scss */
+/* line 3077, style.scss */
 .twitterBtnBox {
   padding-top: 20px; }
-  /* line 3033, style.scss */
+  /* line 3079, style.scss */
   .twitterBtnBox .btnTwitterConnect, .twitterBtnBox .btnTwitterConnect:focus {
     float: left;
     margin-right: 10px;
     color: #fff;
     background: #55ACEE;
     border: 1px solid #55ACEE; }
-    /* line 3039, style.scss */
+    /* line 3085, style.scss */
     .twitterBtnBox .btnTwitterConnect:hover, .twitterBtnBox .btnTwitterConnect:focus:hover {
       color: #fff;
       background: #3ea1ec;
       border-color: #3ea1ec; }
-    /* line 3044, style.scss */
+    /* line 3090, style.scss */
     .twitterBtnBox .btnTwitterConnect span, .twitterBtnBox .btnTwitterConnect:focus span {
       float: left;
       margin: 8px 10px 0 0;
@@ -3302,74 +3567,74 @@ header {
       background: url("../images2/iconTwitter.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 3054, style.scss */
+    /* line 3100, style.scss */
     .twitterBtnBox .btnTwitterConnect.btnDisconnect, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus {
       color: #55ACEE;
       background: #fff; }
-      /* line 3057, style.scss */
+      /* line 3103, style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus span {
         background: url("../images2/iconTwitterBlue.svg") no-repeat; }
-      /* line 3060, style.scss */
+      /* line 3106, style.scss */
       .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover {
         color: #fff;
         background: #3ea1ec;
         border-color: #3ea1ec; }
-        /* line 3064, style.scss */
+        /* line 3110, style.scss */
         .twitterBtnBox .btnTwitterConnect.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect.btnDisconnect:focus:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:hover span, .twitterBtnBox .btnTwitterConnect:focus.btnDisconnect:focus:hover span {
           background: url("../images2/iconTwitter.svg") no-repeat; }
-  /* line 3070, style.scss */
+  /* line 3116, style.scss */
   .twitterBtnBox small {
     line-height: 16px;
     display: block; }
 
-/* line 3077, style.scss */
+/* line 3123, style.scss */
 .yourPhotoBox .yourPhotoContent {
   display: flex;
   padding-bottom: 30px; }
-  /* line 3080, style.scss */
+  /* line 3126, style.scss */
   .yourPhotoBox .yourPhotoContent img,
   .yourPhotoBox .yourPhotoContent .letterAvatar {
     margin-right: 20px; }
-  /* line 3085, style.scss */
+  /* line 3131, style.scss */
   .yourPhotoBox .yourPhotoContent .chooseBtnBox .btn {
     margin-bottom: 20px; }
-/* line 3090, style.scss */
+/* line 3136, style.scss */
 .yourPhotoBox .cropButtons {
   padding: 30px 0; }
-  /* line 3092, style.scss */
+  /* line 3138, style.scss */
   .yourPhotoBox .cropButtons .btn-green {
     margin-right: 10px; }
 
-/* line 3098, style.scss */
+/* line 3144, style.scss */
 .settingsEmailNotifications .checkLine {
   margin-bottom: 20px; }
 
-/* line 3102, style.scss */
+/* line 3148, style.scss */
 .settingsChangePassword .formLine {
   width: 400px; }
 
-/* line 3106, style.scss */
+/* line 3152, style.scss */
 .messagesListHead {
   height: 50px; }
-  /* line 3108, style.scss */
+  /* line 3154, style.scss */
   .messagesListHead .showDrop {
     float: left;
     padding: 10px 0; }
-    /* line 3111, style.scss */
+    /* line 3157, style.scss */
     .messagesListHead .showDrop > a {
       margin: 0;
       font-size: 13px; }
-    /* line 3115, style.scss */
+    /* line 3161, style.scss */
     .messagesListHead .showDrop .dropdown-menu {
       top: 40px; }
-  /* line 3119, style.scss */
+  /* line 3165, style.scss */
   .messagesListHead .newMessageBtn {
     float: right;
     height: 30px;
     line-height: 30px;
     margin-top: 10px;
     font-size: 13px; }
-    /* line 3125, style.scss */
+    /* line 3171, style.scss */
     .messagesListHead .newMessageBtn span {
       width: 12px;
       height: 12px;
@@ -3380,47 +3645,47 @@ header {
       background: url("../images2/iconEdit12.svg") no-repeat;
       transition: all 0.2s ease;
       -webkit-transition: all 0.2s ease; }
-    /* line 3136, style.scss */
+    /* line 3182, style.scss */
     .messagesListHead .newMessageBtn:hover span {
       opacity: 1; }
 
-/* line 3143, style.scss */
+/* line 3189, style.scss */
 .messagesList ul {
   list-style: none;
   padding: 0;
   border-top: 1px solid #ECEDF1; }
-  /* line 3147, style.scss */
+  /* line 3193, style.scss */
   .messagesList ul li {
     position: relative;
     height: 68px;
     padding: 16px 8px;
     border-bottom: 1px solid #ECEDF1;
     border-left: 2px solid #F8F9FB; }
-    /* line 3153, style.scss */
+    /* line 3199, style.scss */
     .messagesList ul li.active {
       border-left: 2px solid #FCA567; }
-    /* line 3156, style.scss */
+    /* line 3202, style.scss */
     .messagesList ul li .media {
       margin: 0; }
-      /* line 3159, style.scss */
+      /* line 3205, style.scss */
       .messagesList ul li .media .media-body h3 {
         float: left;
         margin-top: 0;
         margin-bottom: 0;
         line-height: 20px; }
-      /* line 3165, style.scss */
+      /* line 3211, style.scss */
       .messagesList ul li .media .media-body span {
         float: right;
         margin-top: 0;
         font-size: 12px;
         line-height: 20px;
         color: #AAB1B5; }
-      /* line 3172, style.scss */
+      /* line 3218, style.scss */
       .messagesList ul li .media .media-body p {
         font-size: 13px;
         margin: 0;
         line-height: 20px; }
-    /* line 3179, style.scss */
+    /* line 3225, style.scss */
     .messagesList ul li .unread {
       display: block;
       position: absolute;
@@ -3429,54 +3694,54 @@ header {
       background: url("../images2/unreadDot.svg") no-repeat;
       top: 42px;
       right: 8px; }
-    /* line 3188, style.scss */
+    /* line 3234, style.scss */
     .messagesList ul li.unreadMessage .unread {
       display: block !important; }
-/* line 3193, style.scss */
+/* line 3239, style.scss */
 .messagesList .noMessagesList {
   border-top: 1px solid #ECEDF1;
   text-align: center;
   padding-top: 30px;
   font-size: 13px; }
 
-/* line 3201, style.scss */
+/* line 3247, style.scss */
 .messageColumn {
   display: flex;
   /* set height based on browser height */ }
-  /* line 3204, style.scss */
+  /* line 3250, style.scss */
   .messageColumn .messagesPane {
     width: 100%; }
-    /* line 3206, style.scss */
+    /* line 3252, style.scss */
     .messageColumn .messagesPane.noSelected {
       min-height: 300px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column; }
-      /* line 3212, style.scss */
+      /* line 3258, style.scss */
       .messageColumn .messagesPane.noSelected > h2 {
         color: #AAB1B5; }
-    /* line 3216, style.scss */
+    /* line 3262, style.scss */
     .messageColumn .messagesPane .messagePaneHead {
       position: relative;
       display: flex;
       height: 60px;
       justify-content: space-between; }
-      /* line 3221, style.scss */
+      /* line 3267, style.scss */
       .messageColumn .messagesPane .messagePaneHead > h2 {
         float: left;
         margin: 18px 0 0 30px; }
-      /* line 3225, style.scss */
+      /* line 3271, style.scss */
       .messageColumn .messagesPane .messagePaneHead .messageMenu {
         float: right;
         margin: 20px 30px; }
-      /* line 3229, style.scss */
+      /* line 3275, style.scss */
       .messageColumn .messagesPane .messagePaneHead .toBox {
         display: inline-block;
         line-height: 60px;
         width: 20px;
         margin: 0 10px 0 30px; }
-      /* line 3235, style.scss */
+      /* line 3281, style.scss */
       .messageColumn .messagesPane .messagePaneHead input[type="text"] {
         width: 100%;
         border: none;
@@ -3486,63 +3751,63 @@ header {
         color: #363636;
         font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-weight: 500; }
-      /* line 3245, style.scss */
+      /* line 3291, style.scss */
       .messageColumn .messagesPane .messagePaneHead .searchResultsDrop {
         top: 60px; }
-        /* line 3247, style.scss */
+        /* line 3293, style.scss */
         .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a {
           height: 52px; }
-          /* line 3249, style.scss */
+          /* line 3295, style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a img,
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
-          /* line 3254, style.scss */
+          /* line 3300, style.scss */
           .messageColumn .messagesPane .messagePaneHead .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
-    /* line 3260, style.scss */
+    /* line 3306, style.scss */
     .messageColumn .messagesPane .greyBar {
       padding: 1px 30px;
       background: #F8F9FB;
       border-top: 1px solid #EEEFF3;
       border-bottom: 1px solid #EEEFF3; }
-      /* line 3265, style.scss */
+      /* line 3311, style.scss */
       .messageColumn .messagesPane .greyBar .assessmentModalMetaLine {
         display: flex;
         padding-top: 10px; }
-        /* line 3268, style.scss */
+        /* line 3314, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine:last-child {
           padding-bottom: 10px; }
-        /* line 3271, style.scss */
+        /* line 3317, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft,
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight {
           display: flex;
           line-height: 32px;
           align-items: center; }
-          /* line 3276, style.scss */
+          /* line 3322, style.scss */
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft h3,
           .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight h3 {
             margin: 0; }
-        /* line 3280, style.scss */
+        /* line 3326, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaLeft {
           width: 80px; }
-        /* line 3283, style.scss */
+        /* line 3329, style.scss */
         .messageColumn .messagesPane .greyBar .assessmentModalMetaLine .assessmentModalMetaRight img {
           margin-right: 10px; }
-    /* line 3290, style.scss */
+    /* line 3336, style.scss */
     .messageColumn .messagesPane .media .media-body h3 {
       float: left;
       margin-top: 7px; }
-    /* line 3294, style.scss */
+    /* line 3340, style.scss */
     .messageColumn .messagesPane .media .media-body span {
       float: right;
       margin-top: 7px;
       font-size: 12px;
       color: #AAB1B5; }
-    /* line 3300, style.scss */
+    /* line 3346, style.scss */
     .messageColumn .messagesPane .media .media-body p {
       margin-bottom: 20px; }
-    /* line 3305, style.scss */
+    /* line 3351, style.scss */
     .messageColumn .messagesPane .newMessagesSeparator {
       height: 20px;
       line-height: 20px;
@@ -3552,19 +3817,19 @@ header {
       text-transform: uppercase;
       color: #FCA567;
       background: url("../images2/newMessagesLine.svg") no-repeat 85px 9px; }
-    /* line 3315, style.scss */
+    /* line 3361, style.scss */
     .messageColumn .messagesPane .typeBox {
       min-height: 32px;
       padding: 20px 30px; }
-      /* line 3318, style.scss */
+      /* line 3364, style.scss */
       .messageColumn .messagesPane .typeBox .media-body > div {
         display: flex;
         justify-content: space-between; }
-        /* line 3321, style.scss */
+        /* line 3367, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div .btn {
           height: 32px;
           margin-left: 10px; }
-        /* line 3325, style.scss */
+        /* line 3371, style.scss */
         .messageColumn .messagesPane .typeBox .media-body > div textarea {
           width: 100%;
           height: 32px;
@@ -3574,23 +3839,23 @@ header {
           -moz-box-shadow: none;
           box-shadow: none; }
 
-/* line 3340, style.scss */
+/* line 3386, style.scss */
 .profileNotifications ul {
   list-style: none; }
-  /* line 3342, style.scss */
+  /* line 3388, style.scss */
   .profileNotifications ul li {
     border-bottom: 1px solid #EEEFF3; }
-    /* line 3344, style.scss */
+    /* line 3390, style.scss */
     .profileNotifications ul li:last-child {
       border: none;
       flex-shrink: 0; }
-    /* line 3348, style.scss */
+    /* line 3394, style.scss */
     .profileNotifications ul li.noNotifications {
       display: flex;
       height: 90px;
       align-items: center;
       justify-content: center; }
-    /* line 3354, style.scss */
+    /* line 3400, style.scss */
     .profileNotifications ul li a {
       display: flex;
       height: 90px;
@@ -3599,29 +3864,29 @@ header {
       color: #859095;
       font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-weight: 400; }
-      /* line 3362, style.scss */
+      /* line 3408, style.scss */
       .profileNotifications ul li a:hover {
         background: #F8F9FB; }
-    /* line 3366, style.scss */
+    /* line 3412, style.scss */
     .profileNotifications ul li .icon {
       display: block;
       width: 16px;
       height: 16px;
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 3373, style.scss */
+    /* line 3419, style.scss */
     .profileNotifications ul li img, .profileNotifications ul li .letterAvatar {
       margin-right: 10px;
       flex-shrink: 0; }
-    /* line 3377, style.scss */
+    /* line 3423, style.scss */
     .profileNotifications ul li .notContent {
       margin: 0;
       flex-grow: 1; }
-      /* line 3380, style.scss */
+      /* line 3426, style.scss */
       .profileNotifications ul li .notContent h3 {
         display: inline;
         margin: 0; }
-    /* line 3385, style.scss */
+    /* line 3431, style.scss */
     .profileNotifications ul li .timestamp {
       font-size: 12px;
       color: #AAB1B5;
@@ -3630,49 +3895,49 @@ header {
       flex-shrink: 0;
       text-align: right; }
 
-/* line 3397, style.scss */
+/* line 3443, style.scss */
 .checkLinks {
   padding-bottom: 30px; }
-  /* line 3399, style.scss */
+  /* line 3445, style.scss */
   .checkLinks span {
     margin: 0 7px; }
 
-/* line 3404, style.scss */
+/* line 3450, style.scss */
 .notifFollowed .icon {
   background: url("../images2/iconNotifFollow16.svg") no-repeat; }
 
-/* line 3408, style.scss */
+/* line 3454, style.scss */
 .notifComment .icon {
   background: url("../images2/iconNotifComment16.svg") no-repeat; }
 
-/* line 3412, style.scss */
+/* line 3458, style.scss */
 .notifLikeComment .icon {
   background: url("../images2/iconNotifLikeComment16.svg") no-repeat; }
 
-/* line 3416, style.scss */
+/* line 3462, style.scss */
 .notifLearning .icon {
   background: url("../images2/iconNotifLearning16.svg") no-repeat; }
 
-/* line 3420, style.scss */
+/* line 3466, style.scss */
 .notifMention .icon {
   background: url("../images2/iconNotifMention16.svg") no-repeat; }
 
-/* line 3424, style.scss */
+/* line 3470, style.scss */
 .notifAssessment .icon {
   background: url("../images2/iconNotifAssessment16.svg") no-repeat; }
 
-/* line 3428, style.scss */
+/* line 3474, style.scss */
 .notifAnnouncement .icon {
   background: url("../images2/iconNotifAnnouncement16.svg") no-repeat; }
 
-/* line 3433, style.scss */
+/* line 3479, style.scss */
 #termsPage header {
   background: none;
   height: 60px;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 3439, style.scss */
+  /* line 3485, style.scss */
   #termsPage header #logo {
     float: left;
     display: block;
@@ -3682,7 +3947,7 @@ header {
     background: url("../images2/logo-black.svg") no-repeat;
     background-size: 86px 30px;
     text-indent: -10000px; }
-  /* line 3449, style.scss */
+  /* line 3495, style.scss */
   #termsPage header .btn {
     float: right;
     margin-top: 14px; }
@@ -3690,93 +3955,93 @@ header {
 /*---------------------------------------------------------------------*/
 /*--- 04. MANAGER ---*/
 /*---------------------------------------------------------------------*/
-/* line 3461, style.scss */
+/* line 3507, style.scss */
 #manage header {
   background: #3A3C3C; }
-  /* line 3463, style.scss */
+  /* line 3509, style.scss */
   #manage header #logo {
     background: url("../images2/logo-manage.svg") no-repeat; }
 
 /*---------------------------------------------------------------------*/
 /*--- 05. ADMIN ---*/
 /*---------------------------------------------------------------------*/
-/* line 3474, style.scss */
+/* line 3520, style.scss */
 #admin header {
   background: #4a3b5a; }
-  /* line 3476, style.scss */
+  /* line 3522, style.scss */
   #admin header #logo {
     background: url("../images2/logo-admin.svg") no-repeat; }
 
-/* line 3482, style.scss */
+/* line 3528, style.scss */
 .tableRoles {
   width: 100%;
   margin-bottom: 30px; }
-  /* line 3485, style.scss */
+  /* line 3531, style.scss */
   .tableRoles .col2,
   .tableRoles .col3 {
     width: 30%;
     text-align: center; }
-  /* line 3490, style.scss */
+  /* line 3536, style.scss */
   .tableRoles td {
     text-align: center;
     padding: 10px; }
-    /* line 3493, style.scss */
+    /* line 3539, style.scss */
     .tableRoles td.alignLeft {
       text-align: left; }
-    /* line 3496, style.scss */
+    /* line 3542, style.scss */
     .tableRoles td > .btn {
       margin-right: 20px; }
-  /* line 3500, style.scss */
+  /* line 3546, style.scss */
   .tableRoles .rowGrey {
     background: #F8F9FB; }
 
-/* line 3505, style.scss */
+/* line 3551, style.scss */
 .tableCapabilities {
   width: 100%;
   margin-bottom: 30px; }
-  /* line 3508, style.scss */
+  /* line 3554, style.scss */
   .tableCapabilities .colCheck {
     width: 15%;
     text-align: center; }
-  /* line 3512, style.scss */
+  /* line 3558, style.scss */
   .tableCapabilities th {
     padding: 10px 0; }
-  /* line 3515, style.scss */
+  /* line 3561, style.scss */
   .tableCapabilities td {
     text-align: center;
     padding: 10px; }
-    /* line 3518, style.scss */
+    /* line 3564, style.scss */
     .tableCapabilities td.alignLeft {
       text-align: left; }
-    /* line 3521, style.scss */
+    /* line 3567, style.scss */
     .tableCapabilities td .checkbox {
       margin: 0; }
-      /* line 3523, style.scss */
+      /* line 3569, style.scss */
       .tableCapabilities td .checkbox label:before {
         margin-left: -16px; }
-      /* line 3526, style.scss */
+      /* line 3572, style.scss */
       .tableCapabilities td .checkbox label:after {
         margin-left: -17px; }
-  /* line 3531, style.scss */
+  /* line 3577, style.scss */
   .tableCapabilities .rowGrey {
     background: #F8F9FB; }
 
 /* progression page blocks */
-/* line 3539, style.scss */
+/* line 3585, style.scss */
 .bgGreen {
   background: #64BFCD; }
 
-/* line 3543, style.scss */
+/* line 3589, style.scss */
 .bgBlue {
   background: #FCA567; }
 
-/* line 3547, style.scss */
+/* line 3593, style.scss */
 .blockRow {
   margin-bottom: 80px;
   padding: 0 46px;
   position: relative; }
 
-/* line 3553, style.scss */
+/* line 3599, style.scss */
 .progressBlock {
   width: 180px;
   height: 210px;
@@ -3787,20 +4052,20 @@ header {
   margin-right: 40px;
   position: relative; }
 
-/* line 3564, style.scss */
+/* line 3610, style.scss */
 .progressBlock:hover {
   text-decoration: none;
   cursor: pointer; }
 
-/* line 3569, style.scss */
+/* line 3615, style.scss */
 .progressBlock.competence {
   height: 250px; }
 
-/* line 3574, style.scss */
+/* line 3620, style.scss */
 .progressBlock.selected {
   background-color: #fff; }
 
-/* line 3578, style.scss */
+/* line 3624, style.scss */
 .progressBlock h3 {
   color: #333333;
   font-size: 12px;
@@ -3809,7 +4074,7 @@ header {
   margin: 15px;
   margin-bottom: 0; }
 
-/* line 3587, style.scss */
+/* line 3633, style.scss */
 .progressBlock .progress {
   position: relative;
   width: 100px;
@@ -3818,13 +4083,13 @@ header {
   border-radius: 0;
   margin: 20px auto 0; }
 
-/* line 3597, style.scss */
+/* line 3643, style.scss */
 .progressBlock .progress .progression {
   position: absolute;
   bottom: 0;
   width: 100%; }
 
-/* line 3604, style.scss */
+/* line 3650, style.scss */
 .progressBlock .progress .progressMask {
   background-image: url(../images2/progressMask.png);
   background-repeat: no-repeat;
@@ -3835,11 +4100,11 @@ header {
   top: 0;
   width: 100%; }
 
-/* line 3615, style.scss */
+/* line 3661, style.scss */
 .progressBlock.selected .progress .progressMask {
   background-position: 0 0; }
 
-/* line 3619, style.scss */
+/* line 3665, style.scss */
 .progressBlock .progress .percentage {
   position: absolute;
   top: 45px;
@@ -3851,7 +4116,7 @@ header {
   width: 100%;
   text-align: center; }
 
-/* line 3632, style.scss */
+/* line 3678, style.scss */
 .blockBar {
   background-color: #FFF;
   height: 32px;
@@ -3861,11 +4126,11 @@ header {
   width: 100%;
   line-height: 30px; }
 
-/* line 3642, style.scss */
+/* line 3688, style.scss */
 .blockBar:hover {
   cursor: auto; }
 
-/* line 3647, style.scss */
+/* line 3693, style.scss */
 .blockBar .assessments {
   width: 145px;
   border-right: 1px solid #f1f1f1;
@@ -3876,53 +4141,53 @@ header {
   padding-left: 10px;
   float: left; }
 
-/* line 3658, style.scss */
+/* line 3704, style.scss */
 .progressBlock .assessments .count {
   float: right;
   font-weight: 900;
   font-size: 12px; }
 
-/* line 3664, style.scss */
+/* line 3710, style.scss */
 .good {
   margin-right: 5px;
   color: #00ae0c; }
 
-/* line 3669, style.scss */
+/* line 3715, style.scss */
 .bad {
   margin-right: 10px;
   color: #ff0000; }
 
-/* line 3674, style.scss */
+/* line 3720, style.scss */
 .assessmentExpand {
   float: right;
   text-align: center;
   width: 33px; }
 
-/* line 3680, style.scss */
+/* line 3726, style.scss */
 .trophy.achieved {
   color: #ffcc00; }
 
-/* line 3684, style.scss */
+/* line 3730, style.scss */
 .icons {
   font-size: 14px; }
 
-/* line 3688, style.scss */
+/* line 3734, style.scss */
 .icons .trophy {
   position: inherit;
   color: #d8d8d8;
   font-size: 14px; }
 
-/* line 3694, style.scss */
+/* line 3740, style.scss */
 .icons .trophy.achieved {
   color: #ffcc00; }
 
-/* line 3700, style.scss */
+/* line 3746, style.scss */
 .assessmentExpand .dropdown-menu {
   border-radius: 3px;
   padding: 0;
   width: 390px; }
 
-/* line 3706, style.scss */
+/* line 3752, style.scss */
 .ddPanelHeader {
   background-color: #f7f7f7;
   height: 30px;
@@ -3930,7 +4195,7 @@ header {
   padding-top: 8px;
   padding-left: 10px; }
 
-/* line 3714, style.scss */
+/* line 3760, style.scss */
 .ddPanelHeader h4 {
   margin: 0;
   padding: 0;
@@ -3941,21 +4206,21 @@ header {
   font-size: 12px;
   float: left; }
 
-/* line 3724, style.scss */
+/* line 3770, style.scss */
 .ddPanelHeader .close {
   margin-top: -3px;
   margin-right: 10px; }
 
-/* line 3729, style.scss */
+/* line 3775, style.scss */
 .assessment {
   border-bottom: 1px solid #f1f1f1;
   padding: 10px; }
 
-/* line 3735, style.scss */
+/* line 3781, style.scss */
 .assessmentExpand .dropdown-menu .assessment:last-of-type {
   border-bottom: 0; }
 
-/* line 3740, style.scss */
+/* line 3786, style.scss */
 .assessment p {
   color: #212121;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -3964,39 +4229,39 @@ header {
   line-height: 14px;
   margin-bottom: 2px; }
 
-/* line 3749, style.scss */
+/* line 3795, style.scss */
 .userInfo {
   font-size: 12px;
   color: #999;
   margin-bottom: 7px; }
 
-/* line 3755, style.scss */
+/* line 3801, style.scss */
 .date {
   color: #212121; }
 
-/* line 3759, style.scss */
+/* line 3805, style.scss */
 .userInfo .icons {
   float: right; }
 
-/* line 3762, style.scss */
+/* line 3808, style.scss */
 .userInfo .icons .fa {
   margin-right: 5px; }
 
-/* line 3768, style.scss */
+/* line 3814, style.scss */
 .fa-check-circle:hover,
 .fa-trophy:hover {
   cursor: pointer; }
 
-/* line 3775, style.scss */
+/* line 3821, style.scss */
 .activitiesBlock .activitiesBlockLeft {
   float: left;
   width: 50%;
   margin-bottom: 20px; }
-  /* line 3779, style.scss */
+  /* line 3825, style.scss */
   .activitiesBlock .activitiesBlockLeft h3 {
     margin-right: 15px;
     margin-bottom: 10px; }
-    /* line 3782, style.scss */
+    /* line 3828, style.scss */
     .activitiesBlock .activitiesBlockLeft h3 a {
       position: relative;
       display: block;
@@ -4007,25 +4272,25 @@ header {
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px; }
-      /* line 3790, style.scss */
+      /* line 3836, style.scss */
       .activitiesBlock .activitiesBlockLeft h3 a .iconType,
       .activitiesBlock .activitiesBlockLeft h3 a .check {
         position: absolute;
         left: 10px;
         top: 10px; }
-    /* line 3797, style.scss */
+    /* line 3843, style.scss */
     .activitiesBlock .activitiesBlockLeft h3.selected a {
       background: #fff; }
-/* line 3802, style.scss */
+/* line 3848, style.scss */
 .activitiesBlock .activitiesBlockRight {
   float: right;
   width: 50%; }
-  /* line 3805, style.scss */
+  /* line 3851, style.scss */
   .activitiesBlock .activitiesBlockRight .graph {
     margin-left: 15px; }
 
 /* Activities hexagon */
-/* line 3814, style.scss */
+/* line 3860, style.scss */
 .hexagon {
   position: relative;
   width: 22px;
@@ -4038,7 +4303,7 @@ header {
   left: 10px;
   top: 15px; }
 
-/* line 3827, style.scss */
+/* line 3873, style.scss */
 .hexagon:before,
 .hexagon:after {
   content: "";
@@ -4052,37 +4317,37 @@ header {
   background-color: inherit;
   left: 2.2218px; }
 
-/* line 3841, style.scss */
+/* line 3887, style.scss */
 .hexagon:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e7e7e7;
   border-right: solid 1.4142px #e7e7e7; }
 
-/* line 3847, style.scss */
+/* line 3893, style.scss */
 .hexagon:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e7e7e7;
   border-left: solid 1.4142px #e7e7e7; }
 
-/* line 3855, style.scss */
+/* line 3901, style.scss */
 .hexagon.done {
   background-color: #e45b68;
   border-left: solid 1px #e45b68;
   border-right: solid 1px #e45b68; }
 
-/* line 3861, style.scss */
+/* line 3907, style.scss */
 .hexagon.done:before {
   top: -7.7782px;
   border-top: solid 1.4142px #e45b68;
   border-right: solid 1.4142px #e45b68; }
 
-/* line 3867, style.scss */
+/* line 3913, style.scss */
 .hexagon.done:after {
   bottom: -7.7782px;
   border-bottom: solid 1.4142px #e45b68;
   border-left: solid 1.4142px #e45b68; }
 
-/* line 3873, style.scss */
+/* line 3919, style.scss */
 .fileContainer {
   border: 1px solid #eeeeee;
   background-color: #FFF;
@@ -4090,25 +4355,25 @@ header {
   font-size: 13px;
   color: #999999; }
 
-/* line 3881, style.scss */
+/* line 3927, style.scss */
 .fileUrl {
   margin-left: 52px; }
 
-/* line 3885, style.scss */
+/* line 3931, style.scss */
 .fileContainer .col-md-10 {
   padding-left: 0; }
 
-/* line 3889, style.scss */
+/* line 3935, style.scss */
 .fileContainer h5 {
   margin: 7px 0 1px 0; }
 
-/* line 3893, style.scss */
+/* line 3939, style.scss */
 .fileContainer h5 a {
   font-size: 14px;
   font-family: 'prosolo_semibold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500; }
 
-/* line 3899, style.scss */
+/* line 3945, style.scss */
 .fileSizeTime {
   font-size: 18px;
   font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -4117,24 +4382,24 @@ header {
   text-align: right;
   line-height: 48px; }
 
-/* line 3908, style.scss */
+/* line 3954, style.scss */
 .fileIcon {
   float: left;
   margin-right: 15px; }
 
-/* line 3913, style.scss */
+/* line 3959, style.scss */
 .fileIcon .fa {
   font-size: 48px; }
 
-/* line 3918, style.scss */
+/* line 3964, style.scss */
 .youtube {
   color: #E62117; }
 
-/* line 3922, style.scss */
+/* line 3968, style.scss */
 .pdf {
   color: #ed1b24; }
 
-/* line 3928, style.scss */
+/* line 3974, style.scss */
 .sliderIconLeft {
   position: absolute;
   left: 0;
@@ -4145,11 +4410,11 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3938, style.scss */
+/* line 3984, style.scss */
 .sliderIconLeft:hover {
   opacity: 1; }
 
-/* line 3942, style.scss */
+/* line 3988, style.scss */
 .sliderIconRight {
   position: absolute;
   right: 0;
@@ -4160,11 +4425,11 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3952, style.scss */
+/* line 3998, style.scss */
 .sliderIconRight:hover {
   opacity: 1; }
 
-/* line 3956, style.scss */
+/* line 4002, style.scss */
 .sliderIconLeftCred {
   position: absolute;
   left: 0;
@@ -4175,15 +4440,15 @@ header {
   background: url("../images2/sliderArrowLeft.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3966, style.scss */
+/* line 4012, style.scss */
 .sliderIconLeftCred:hover {
   opacity: 1; }
 
-/* line 3970, style.scss */
+/* line 4016, style.scss */
 .sliderIconLeftCred .fa {
   font-size: 36px; }
 
-/* line 3974, style.scss */
+/* line 4020, style.scss */
 .sliderIconRightCred {
   position: absolute;
   right: 0;
@@ -4194,66 +4459,66 @@ header {
   background: url("../images2/sliderArrowRight.svg") no-repeat center center;
   opacity: .5; }
 
-/* line 3984, style.scss */
+/* line 4030, style.scss */
 .sliderIconRightCred:hover {
   opacity: 1; }
 
-/* line 3990, style.scss */
+/* line 4036, style.scss */
 .timelineGraph .timelineGraphFilters .checkbox {
   display: inline-block;
   margin-right: 20px; }
-/* line 3995, style.scss */
+/* line 4041, style.scss */
 .timelineGraph #timeline-graph {
   padding-bottom: 30px; }
-/* line 3998, style.scss */
+/* line 4044, style.scss */
 .timelineGraph .timeline-tooltip {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
-/* line 4003, style.scss */
+/* line 4049, style.scss */
 .socialGraph {
   padding-bottom: 30px; }
-  /* line 4005, style.scss */
+  /* line 4051, style.scss */
   .socialGraph .socialLeft {
     width: 35%;
     float: left; }
-    /* line 4008, style.scss */
+    /* line 4054, style.scss */
     .socialGraph .socialLeft h2 {
       margin-bottom: 10px; }
-    /* line 4011, style.scss */
+    /* line 4057, style.scss */
     .socialGraph .socialLeft .user32 {
       margin-bottom: 30px; }
-    /* line 4014, style.scss */
+    /* line 4060, style.scss */
     .socialGraph .socialLeft #social-interactions-bytype-table,
     .socialGraph .socialLeft #social-interactions-bypeer-table {
       margin-bottom: 30px; }
-      /* line 4017, style.scss */
+      /* line 4063, style.scss */
       .socialGraph .socialLeft #social-interactions-bytype-table td,
       .socialGraph .socialLeft #social-interactions-bypeer-table td {
         padding: 0 10px; }
-  /* line 4022, style.scss */
+  /* line 4068, style.scss */
   .socialGraph .socialRight {
     width: 65%;
     float: right; }
 
-/* line 4028, style.scss */
+/* line 4074, style.scss */
 .observationBox {
   position: relative; }
-  /* line 4030, style.scss */
+  /* line 4076, style.scss */
   .observationBox .observationInfo {
     margin-bottom: 20px; }
-    /* line 4032, style.scss */
+    /* line 4078, style.scss */
     .observationBox .observationInfo p {
       margin-bottom: 10px; }
-  /* line 4036, style.scss */
+  /* line 4082, style.scss */
   .observationBox .subHead {
     margin-bottom: 10px; }
-  /* line 4039, style.scss */
+  /* line 4085, style.scss */
   .observationBox .observationOpt {
     padding-top: 10px;
     border-top: 1px solid #ECEDF1; }
-    /* line 4042, style.scss */
+    /* line 4088, style.scss */
     .observationBox .observationOpt .bullet {
       display: inline-block;
       width: 3px;
@@ -4261,72 +4526,72 @@ header {
       margin: 0 5px;
       background: url("../images2/bulletGrey.svg") no-repeat center center; }
 
-/* line 4054, style.scss */
+/* line 4100, style.scss */
 #newObservation .panel,
 #editObservation .panel {
   border: 1px solid #EEEFF3;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-  /* line 4059, style.scss */
+  /* line 4105, style.scss */
   #newObservation .panel .panel-heading,
   #editObservation .panel .panel-heading {
     background: #F8F9FB; }
-    /* line 4061, style.scss */
+    /* line 4107, style.scss */
     #newObservation .panel .panel-heading .panel-title,
     #editObservation .panel .panel-heading .panel-title {
       font-size: 14px; }
-  /* line 4065, style.scss */
+  /* line 4111, style.scss */
   #newObservation .panel .panel-body,
   #editObservation .panel .panel-body {
     border-top: none; }
-    /* line 4067, style.scss */
+    /* line 4113, style.scss */
     #newObservation .panel .panel-body textarea,
     #editObservation .panel .panel-body textarea {
       display: 100%;
       width: 100%; }
 
-/* line 4075, style.scss */
+/* line 4121, style.scss */
 .observationBtn {
   margin-bottom: 10px; }
 
-/* line 4079, style.scss */
+/* line 4125, style.scss */
 .observationBox .userInfo {
   margin: 0 auto;
   width: 165px;
   margin-bottom: 15px; }
 
-/* line 4085, style.scss */
+/* line 4131, style.scss */
 .observationBox .labels {
   margin-bottom: 10px; }
 
-/* line 4089, style.scss */
+/* line 4135, style.scss */
 .dottedDivider {
   border-top: 1px dotted #e8e8e8;
   margin-bottom: 15px; }
 
-/* line 4095, style.scss */
+/* line 4141, style.scss */
 .observationBox .labels span {
   width: 100%; }
 
-/* line 4100, style.scss */
+/* line 4146, style.scss */
 .observationsList .observationLine {
   border-bottom: 1px solid #EEEFF3; }
-  /* line 4102, style.scss */
+  /* line 4148, style.scss */
   .observationsList .observationLine:last-child {
     border: none; }
-  /* line 4105, style.scss */
+  /* line 4151, style.scss */
   .observationsList .observationLine .user32 {
     padding-bottom: 20px; }
-  /* line 4108, style.scss */
+  /* line 4154, style.scss */
   .observationsList .observationLine .obsBlocks {
     float: left;
     width: 33%;
     display: inline-block; }
-    /* line 4112, style.scss */
+    /* line 4158, style.scss */
     .observationsList .observationLine .obsBlocks h3 {
       margin-bottom: 10px; }
-    /* line 4115, style.scss */
+    /* line 4161, style.scss */
     .observationsList .observationLine .obsBlocks .bullet {
       display: inline-block;
       width: 3px;

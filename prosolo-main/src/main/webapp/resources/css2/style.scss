@@ -578,6 +578,9 @@ input{
 	&.settingsEmailNotifications{
 		padding-bottom: 30px;
 	}
+    &.assessmentInitialMessage{
+        margin-bottom: 30px!important;
+    }
 }
 
 .mandatoryArrow{
@@ -587,9 +590,11 @@ input{
 }
 
 .madeByUser,
-.madeByUniversity{
+.madeByUniversity,
+.numberAssessments{
 	width: 20px;
 	height: 20px;
+    margin-left: 20px;
 	display: block;
 	text-indent: -10000px;
 }
@@ -600,6 +605,10 @@ input{
 
 .madeByUniversity{
 	background: url("../images2/iconUniversity20.svg") no-repeat;
+}
+
+.numberAssessments{
+    background: url("../images2/iconAssessment20.svg") no-repeat;
 }
 
 .duration,
@@ -945,6 +954,7 @@ input{
 			.assessmentModalMetaRight,
 			.messageModalMetaLeft,
 			.messageModalMetaRight{
+                position: relative;
 				display: flex;
 				line-height: 32px;
 				align-items: center;
@@ -960,9 +970,35 @@ input{
 			}
 			.assessmentModalMetaRight,
 			.messageModalMetaRight{
+                flex-grow: 1;
 				img{
 					margin-right: 10px;
 				}
+                input[type="text"]{
+                    width: 100%;
+                    height: 30px;
+                    line-height: 20px;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                    -webkit-box-shadow: none;
+            		-moz-box-shadow: none;
+            		box-shadow: none;
+                }
+                .searchResultsDrop{
+                    top: 30px;
+                    li a{
+                        height: 52px;
+                        img,
+                        .letterAvatar{
+                            float: left;
+                            margin-right: 15px;
+                        }
+                        h3{
+                            margin: 7px 0 0 0;
+                        }
+                    }
+                }
 			}
 		}
 	}
@@ -1248,6 +1284,16 @@ header{
                 .dropdown-menu{
 					left: -8px;
                     top: 20px;
+                    li a span{
+                        float: left;
+                        display: inline-block;
+                        width: 16px;
+                        height: 16px;
+                        margin: 2px 10px 0 0;
+                    }
+                    li.selected a span{
+                        background: url("../images2/iconCheck12.svg") no-repeat center center;
+                    }
 				}
             }
 			#logo{
@@ -2149,13 +2195,13 @@ header{
 		top: 30px;
 		right: 30px;
 		visibility: hidden;
-		background: url("../images2/iconStar20Gray.svg") no-repeat;
+		background: url("../images2/iconBookmark20Gray.svg") no-repeat;
 		transition: none;
 		-webkit-transition: none;
 		&.active,
 		&:hover{
 			visibility: visible;
-			background: url("../images2/iconStar20Yellow.svg") no-repeat;
+			background: url("../images2/iconBookmark20Red.svg") no-repeat;
 		}
 	}
 	&:hover .bookmarkStar{

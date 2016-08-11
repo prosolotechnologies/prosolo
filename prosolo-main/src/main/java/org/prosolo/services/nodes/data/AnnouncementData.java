@@ -7,6 +7,7 @@ public class AnnouncementData {
 	private String text;
 	private String title;
 	private String creatorAvatarUrl;
+	private String encodedId;
 	
 	public String getCreatorFullName() {
 		return creatorFullName;
@@ -37,6 +38,12 @@ public class AnnouncementData {
 	}
 	public void setCreatorAvatarUrl(String creatorAvatarUrl) {
 		this.creatorAvatarUrl = creatorAvatarUrl;
+	}
+	public String getEncodedId() {
+		return encodedId;
+	}
+	public void setEncodedId(String encodedId) {
+		this.encodedId = encodedId;
 	}
 	
 

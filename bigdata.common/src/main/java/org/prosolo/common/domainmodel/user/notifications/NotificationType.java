@@ -9,5 +9,6 @@ public enum NotificationType {
 	Assessment_Requested,
 	Assessment_Approved,
 	Assessment_Comment,
-	Started_Learning;
+	Started_Learning, 
+	AnnouncementPublished;
 }

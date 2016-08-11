@@ -8,6 +8,7 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -31,6 +32,8 @@ public class NotificationEventProcessorFactory {
 	private FollowResourceManager followResourceManager;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private CredentialManager credentialManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -62,7 +65,8 @@ public class NotificationEventProcessorFactory {
 			return new AssessmentApprovedEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		case AssessmentRequested:
 			return new AssessmentRequestEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-			
+		case AnnouncementPublished:
+			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager);
 		default:
 			return null;
 		}

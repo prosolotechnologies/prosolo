@@ -2,6 +2,7 @@ package org.prosolo.web.courses.credential;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +12,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
@@ -24,6 +27,7 @@ import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "announcementBean")
@@ -43,6 +47,10 @@ public class AnnouncementBean implements Serializable, Paginable {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private CredentialManager credManager;
+	@Inject
+	private ThreadPoolTaskExecutor taskExecutor;
+	@Inject
+	private EventFactory eventFactory;
 	
 	//credential related data
 	private String credentialId;
@@ -92,8 +100,14 @@ public class AnnouncementBean implements Serializable, Paginable {
 	}
 
 	public void publishAnnouncement() {
-		announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
+		AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
 				newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
+		//TODO need to get theese parameters
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()), page, 
+				lContext, service, idEncoder.decodeId(credentialId));
 		init();
 	}
 	
@@ -106,6 +120,23 @@ public class AnnouncementBean implements Serializable, Paginable {
 		else {
 			newAnouncementPublishMode = AnnouncementPublishMode.fromString(publishModeValue);
 		}
+	}
+	
+	private void notifyForAnnouncementAsync(long announcementId, String page, String lContext, String service,
+			long credentialId) {
+		taskExecutor.execute(() -> {
+			Announcement announcement = new Announcement();
+			announcement.setId(announcementId);
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", credentialId + "");
+			parameters.put("publishMode", newAnouncementPublishMode.getText());
+			try {
+				eventFactory.generateEvent(EventType.AnnouncementPublished, loggedUser.getUserId(), announcement, null,
+						page, lContext, service, parameters);
+			} catch (Exception e) {
+				logger.error("Eror sending notification for announcement", e);
+			}
+		});
 	}
 
 	public LoggedUserBean getLoggedUser() {
@@ -242,6 +273,22 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 	public void setCredentialDurationString(String credentialDurationString) {
 		this.credentialDurationString = credentialDurationString;
+	}
+
+	public ThreadPoolTaskExecutor getTaskExecutor() {
+		return taskExecutor;
+	}
+
+	public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
+		this.taskExecutor = taskExecutor;
+	}
+
+	public EventFactory getEventFactory() {
+		return eventFactory;
+	}
+
+	public void setEventFactory(EventFactory eventFactory) {
+		this.eventFactory = eventFactory;
 	}
 
 }
