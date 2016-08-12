@@ -62,13 +62,17 @@
 					</ui:fragment>
 					
 					<ui:repeat var="targetCompetence"
-						value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}"
+						value="#{competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}"
 						varStatus="iterator">
 
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
-									<h:link value="#{targetCompetence.title}" outcome="#{targetCompetence.link}" />
+									<h:link	outcome="/competence">
+										#{targetCompetence.title}
+				                		<f:param name="credId" value="#{util:encodeId(targetCompetence.credentialId)}"/>
+				                		<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
+									</h:link>
 								</h2>
 
 								<div class="clear"></div>
