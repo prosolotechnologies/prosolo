@@ -68,7 +68,7 @@ public class ActivityViewBeanUser implements Serializable {
 		return roles;
 	}
 
-	public void init() {	
+	public void init() {
 		List<String> roles = new ArrayList<>();
 		roles.add(RoleNames.MANAGER);
 		roles.add(RoleNames.INSTRUCTOR);
