@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -10,6 +11,7 @@ public class ExternalToolTargetActivity1 extends TargetActivity1 {
 	private String launchUrl;
 	private String sharedSecret;
 	private String consumerKey;
+	private boolean openInNewWindow;
 	
 	public String getLaunchUrl() {
 		return launchUrl;
@@ -33,6 +35,15 @@ public class ExternalToolTargetActivity1 extends TargetActivity1 {
 	
 	public void setConsumerKey(String consumerKey) {
 		this.consumerKey = consumerKey;
+	}
+	
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isOpenInNewWindow() {
+		return openInNewWindow;
+	}
+
+	public void setOpenInNewWindow(boolean openInNewWindow) {
+		this.openInNewWindow = openInNewWindow;
 	}
 	
 }

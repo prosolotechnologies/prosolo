@@ -13,6 +13,7 @@ public class ExternalActivityResourceData extends ResourceData {
 
 	public ExternalActivityResourceData(String launchUrl, String sharedSecret, String consumerKey,
 			boolean acceptGrades) {
+		System.out.println("LAUNCH URL IS:"+launchUrl);
 		this.launchUrl = launchUrl;
 		this.sharedSecret = sharedSecret;
 		this.consumerKey = consumerKey;

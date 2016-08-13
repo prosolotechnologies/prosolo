@@ -56,6 +56,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private String sharedSecret;
 	private String consumerKey;
 	private boolean acceptGrades;
+	private boolean openInNewWindow;
 	
 	//TextActivity specific
 	private String text;
@@ -377,6 +378,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 		observeAttributeChange("acceptGrades", this.acceptGrades, acceptGrades);
 		this.acceptGrades = acceptGrades;
 	}
+	
+	public boolean isOpenInNewWindow() {
+		return openInNewWindow;
+	}
+
+	public void setOpenInNewWindow(boolean openInNewWindow) {
+		observeAttributeChange("openInNewWindow", this.openInNewWindow, openInNewWindow);
+		this.openInNewWindow = openInNewWindow;
+	}
 
 	public String getText() {
 		return text;
@@ -492,6 +502,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	public boolean isAcceptGradesChanged() {
 		return changedAttributes.containsKey("acceptGrades");
+	}
+	
+	public boolean isOpenInNewWindowChanged() {
+		return changedAttributes.containsKey("openInNewWindow");
 	}
 	
 	public boolean isTextChanged() {

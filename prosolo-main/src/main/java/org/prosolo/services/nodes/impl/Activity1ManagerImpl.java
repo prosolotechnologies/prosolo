@@ -331,6 +331,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extTargetAct.setLaunchUrl(extAct.getLaunchUrl());
 				extTargetAct.setSharedSecret(extAct.getSharedSecret());
 				extTargetAct.setConsumerKey(extAct.getConsumerKey());
+				extTargetAct.setOpenInNewWindow(extAct.isOpenInNewWindow());
 				targetAct = extTargetAct;
 			}
 			
@@ -919,7 +920,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    		data.isLinkChanged(), 
 	    		data.isLaunchUrlChanged(), 
 	    		data.isConsumerKeyChanged(), 
-	    		data.isSharedSecretChanged());
+	    		data.isSharedSecretChanged(),
+	    		data.isOpenInNewWindowChanged());
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -944,7 +946,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		Map<String, String> params = new HashMap<>();
 	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
 	    		actClass, true, true, true, true, true, true, true, true, true, true, 
-	    		true, true, true);
+	    		true, true, true, true);
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -1156,6 +1158,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extAct.setSharedSecret(data.getSharedSecret());
 				extAct.setConsumerKey(data.getConsumerKey());
 				extAct.setAcceptGrades(data.isAcceptGrades());
+				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
 			}
 		    
 			if(publishTransition == EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION) {
@@ -1742,7 +1745,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					|| changeTracker.isDurationChanged() || changeTracker.isUploadResultChanged()
 					|| changeTracker.isTextChanged() || changeTracker.isUrlChanged() 
 					|| changeTracker.isLaunchUrlChanged() || changeTracker.isConsumerKeyChanged() 
-					|| changeTracker.isSharedSecretChanged()) {
+					|| changeTracker.isSharedSecretChanged() || changeTracker.isOpenInNewWindowChanged()) {
 				updateTargetActivityBasicDataForUncompletedCredentials(actId, 
 						changeTracker.getActivityClass());
 				
@@ -1966,7 +1969,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				} else if(activityClass == ExternalToolActivity1.class) {
 					builder.append(",act.launchUrl = :launchUrl " +
 							       ",act.sharedSecret = :sharedSecret " +
-							       ",act.consumerKey = :consumerKey ");
+							       ",act.consumerKey = :consumerKey " +
+								   ",act.openInNewWindow = :openInNewWindow ");
 				}
 				builder.append("WHERE act.id IN (:actIds)");				    
 	
@@ -1987,7 +1991,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
 					q.setString("launchUrl", extAct.getLaunchUrl())
 					 .setString("sharedSecret", extAct.getSharedSecret())
-					 .setString("consumerKey", extAct.getConsumerKey());
+					 .setString("consumerKey", extAct.getConsumerKey())
+					 .setBoolean("openInNewWindow", extAct.isOpenInNewWindow());
 				}
 					
 				q.executeUpdate();
@@ -2258,6 +2263,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			extAct.setSharedSecret(extDraftAct.getSharedSecret());
 			extAct.setConsumerKey(extDraftAct.getConsumerKey());
 			extAct.setAcceptGrades(extDraftAct.isAcceptGrades());
+			extAct.setOpenInNewWindow(extDraftAct.isOpenInNewWindow());
 		}
 		delete(draftActivity);
 		return originalActivity;

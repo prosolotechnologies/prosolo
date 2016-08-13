@@ -261,6 +261,18 @@
                 <label>&#160;</label>
                 <div class="formLineRight">
                     <div class="checkbox checkLine">
+                    	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
+                    		value="#{cc.attrs.activity.openInNewWindow}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <label for="#{cc.clientId}:checkOpenInNewWindow">Open in new window</label>
+                    </div>
+                </div>
+            </div>
+            <div class="formLine">
+                <label>&#160;</label>
+                <div class="formLineRight">
+                    <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
                     		onchange="updateStatusToDraft();">

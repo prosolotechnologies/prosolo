@@ -18,6 +18,7 @@ public class ActivityChangeTracker extends LearningResourceChangeTracker {
 	private boolean launchUrlChanged;
 	private boolean consumerKeyChanged;
 	private boolean sharedSecretChanged;
+	private boolean openInNewWindowChanged;
 	
 	public ActivityChangeTracker() {
 		
@@ -27,7 +28,7 @@ public class ActivityChangeTracker extends LearningResourceChangeTracker {
 			boolean versionChanged, boolean titleChanged, boolean descriptionChanged, 
 			boolean durationChanged, boolean linksChanged, boolean filesChanged, 
 			boolean uploadResultChanged, boolean textChanged, boolean urlChanged, 
-			boolean launchUrlChanged, boolean consumerKeyChanged, boolean sharedSecretChanged) {
+			boolean launchUrlChanged, boolean consumerKeyChanged, boolean sharedSecretChanged, boolean openInNewWindowChanged) {
 		super(published, versionChanged, titleChanged, descriptionChanged, durationChanged);
 		this.activityClass = activityClass;
 		this.linksChanged = linksChanged;
@@ -38,6 +39,7 @@ public class ActivityChangeTracker extends LearningResourceChangeTracker {
 		this.launchUrlChanged = launchUrlChanged;
 		this.consumerKeyChanged = consumerKeyChanged;
 		this.sharedSecretChanged = sharedSecretChanged;
+		this.openInNewWindowChanged = openInNewWindowChanged;
 		
 		setActivityType();
 	}
@@ -128,6 +130,14 @@ public class ActivityChangeTracker extends LearningResourceChangeTracker {
 
 	public void setSharedSecretChanged(boolean sharedSecretChanged) {
 		this.sharedSecretChanged = sharedSecretChanged;
+	}
+	
+	public boolean isOpenInNewWindowChanged() {
+		return openInNewWindowChanged;
+	}
+
+	public void setOpenInNewWindowChanged(boolean openInNewWindowChanged) {
+		this.openInNewWindowChanged = openInNewWindowChanged;
 	}
 
 	public ActivityDBType getActivityType() {

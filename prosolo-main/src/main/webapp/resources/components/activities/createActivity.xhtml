@@ -98,13 +98,13 @@
 			                                    		value="#{activityEditBean.activityData.title}"
 			                                    		onkeyup="updateStatusToDraft();"
 			                                    		required="true"
-														requiredMessage="Title is required"/>
+														requiredMessage="Title is required" />
 													<h:panelGroup 
 							                        	layout="block" 
 							                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}" 
 							                        	styleClass="alert alert-danger" 
 							                        	pt:role="alert">
-							                            <h:message for="inputTitle"></h:message>
+							                            <h:message for="inputTitle" />
 							                        </h:panelGroup>
 			                                    </div>
 			                                </div>
@@ -114,12 +114,12 @@
 			                                    	<h:inputTextarea
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.description}"
-			                                    		onkeyup="updateStatusToDraft();">
-			                                    	</h:inputTextarea>
+			                                    		onkeyup="updateStatusToDraft();" />
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
 			                                    <label>Activity type</label>
+			                                    
 			                                    <h:panelGroup 
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
@@ -142,7 +142,8 @@
 			                                        	</ui:repeat>   
 			                                        </ul>
 			                                    </h:panelGroup>
-			                                    <h:panelGroup 
+			                                    
+			                                    <h:panelGroup
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"

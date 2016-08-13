@@ -12,6 +12,7 @@ public class ExternalToolActivity1 extends Activity1 {
 	private String sharedSecret;
 	private String consumerKey;
 	private boolean acceptGrades;
+	private boolean openInNewWindow;
 	
 	public String getLaunchUrl() {
 		return launchUrl;
@@ -29,6 +30,14 @@ public class ExternalToolActivity1 extends Activity1 {
 		this.sharedSecret = sharedSecret;
 	}
 	
+	public String getConsumerKey() {
+		return consumerKey;
+	}
+	
+	public void setConsumerKey(String consumerKey) {
+		this.consumerKey = consumerKey;
+	}
+	
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isAcceptGrades() {
 		return acceptGrades;
@@ -37,13 +46,14 @@ public class ExternalToolActivity1 extends Activity1 {
 	public void setAcceptGrades(boolean acceptGrades) {
 		this.acceptGrades = acceptGrades;
 	}
-	
-	public String getConsumerKey() {
-		return consumerKey;
+
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isOpenInNewWindow() {
+		return openInNewWindow;
 	}
-	
-	public void setConsumerKey(String consumerKey) {
-		this.consumerKey = consumerKey;
+
+	public void setOpenInNewWindow(boolean openInNewWindow) {
+		this.openInNewWindow = openInNewWindow;
 	}
 	
 }
