@@ -63,7 +63,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 				+ CommonSettings.getInstance().config.getNamespaceSufix();
 		try {
-			this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
+			this.connect(dbConfig.dbHost, dbConfig.dbPort, dbName, dbConfig.replicationFactor);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -74,7 +74,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		this.session = null;
 		this.cluster = null;
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-		this.connect(dbConfig.dbHost, dbName, dbConfig.replicationFactor);
+		this.connect(dbConfig.dbHost, dbConfig.dbPort,dbName, dbConfig.replicationFactor);
 	}
 	private PreparedStatement getStatement(Session session, Statements statement) {
 		// If two threads access preparedStatements map concurrently, preparedStatements can be repeated twice.
@@ -95,7 +95,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	}
 
 	@Override
-	public void connect(String node, String keyspace, int replicationFactor) {
+	public void connect(String node, int dbPort, String keyspace, int replicationFactor) {
 		System.out.println("CONNECTING CASSANDRA:"+node+" keyspace:"+keyspace);
 		if (this.session != null) {
 			return;
@@ -108,6 +108,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				.withPoolingOptions( getPoolingOptions())
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
 				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
+				.withPort(dbPort)
 				.addContactPoint(node).build();
 		Metadata metadata = cluster.getMetadata();
 		System.out.printf("Connected to cluster: %s\n",

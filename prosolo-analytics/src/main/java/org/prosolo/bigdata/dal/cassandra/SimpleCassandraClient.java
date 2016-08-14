@@ -11,7 +11,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl;
 
 public interface SimpleCassandraClient {
 
-	void connect(String node, String keyspace, int replicationFactor);
+	void connect(String node, int port, String keyspace, int replicationFactor);
 
 	void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor);
