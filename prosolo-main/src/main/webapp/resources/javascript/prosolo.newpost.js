@@ -113,7 +113,7 @@ function stripTagsExceptBr(html) {
 			}).on('keyup', function(e) {
                 //window.clearInterval(core.textTimer);           
                 // copy from the editable div to textfield
-				core.inputHiddenTextarea.text($(this).html());
+				core.inputHiddenTextarea.val($(this).html());
                 
                 var code = (e.keyCode ? e.keyCode : e.which);
                 
@@ -250,7 +250,7 @@ function stripTagsExceptBr(html) {
 			// hide user suggestions
 			core.clearUserSuggestion();
 			
-			core.inputHiddenTextarea.text(core.inputTextField.html());
+			core.inputHiddenTextarea.val(core.inputTextField.html());
 			
 			return obj;
 		};
