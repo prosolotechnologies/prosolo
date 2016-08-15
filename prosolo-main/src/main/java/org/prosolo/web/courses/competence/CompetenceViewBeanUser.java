@@ -85,7 +85,7 @@ public class CompetenceViewBeanUser implements Serializable {
 						String credTitle = null;
 						if(competenceData.isEnrolled()) {
 							CredentialData cd = credManager
-									.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+									.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
 											loggedUser.getUserId());
 							if(cd != null) {
 								credTitle = cd.getTitle();

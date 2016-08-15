@@ -321,7 +321,7 @@ public interface CredentialManager extends AbstractManager {
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;
 	
-	CredentialData getTargetCredentialTitleAndNextCompToLearn(long credId, long userId) 
+	CredentialData getTargetCredentialTitleAndNextCompAndActivityToLearn(long credId, long userId) 
 			throws DbConnectionException;
 
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
@@ -333,4 +333,7 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
 	
 	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
+	
+	CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
+			throws DbConnectionException;
 }
