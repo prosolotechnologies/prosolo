@@ -35,6 +35,7 @@ public class CompetenceDataFactory {
 		comp.setDraft(competence.isDraft());
 		comp.setPublished(competence.isPublished());
 		comp.setType(competence.getType());
+		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
 		comp.setCompStatus();
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
