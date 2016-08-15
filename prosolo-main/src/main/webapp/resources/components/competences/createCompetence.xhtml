@@ -143,6 +143,22 @@
 			                                    </div>
 			                                </div>
 			                                <script>$('.tagsInputCompTag').tagsinput();</script>
+			                                <div class="formLine">
+			                                    <label>Other</label>
+			                                    <div class="formLineRight">                           
+			                                        <div class="checkbox checkLine">
+														<h:selectBooleanCheckbox 
+															id="selectAllowStudentsToAddActivities"
+															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
+															onchange="updateStatusToDraft();">
+														</h:selectBooleanCheckbox>
+														
+														<h:outputLabel for="selectAllowStudentsToAddActivities">
+															Allow students to add activities
+														</h:outputLabel>
+													</div>
+			                                    </div>
+			                                </div>
 			                            </div>
 			                        </div>
 			                    </div>
@@ -173,8 +189,6 @@
 			                
 			            	<courses:rightSideBar
 			            		id="compSideBar"
-			            		chooseOptionText="Allow students to add activities"
-			            		chooseOptionValue="#{competenceEditBean.competenceData.studentAllowedToAddActivities}"
 			            		publishValues="#{competenceEditBean.compStatusArray}" 
 			            		publishValue="#{competenceEditBean.competenceData.status}"
 			            		saveAction="#{competenceEditBean.save}"
