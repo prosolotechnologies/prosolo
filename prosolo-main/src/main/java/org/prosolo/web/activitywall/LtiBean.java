@@ -33,7 +33,7 @@ public class LtiBean {
 	public String consumerKey;
 	public long activityId;
 	public long targetActivityId;
-	public String roles;
+	public String roles="Learner";
 
 
 

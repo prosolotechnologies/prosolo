@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -62,7 +63,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
-	private String roles;
+	private String roles="Learner";
 	
 	public String getRoles() {
 		return roles;
