@@ -56,7 +56,7 @@
 									value="Mark as Complete"
 									process="@this"
 									action="#{cc.attrs.bean.completeActivity()}"
-									update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress">
+									update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress panelResumeLearning">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 									<f:param name="learningContext" value="#{learningContext}"></f:param>
 								</p:commandLink>
@@ -77,18 +77,21 @@
 									and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
 									<div class="tagCompleted item">Completed</div>
 									
-									<h:link
-			                			value="Continue"
-			                			styleClass="btn btn-green btn-sm item"
-			                			outcome="activity"
-			                			onclick="sendLogPageNavigation('/activity.xhtml', 
-											'#{facesContext.viewRoot.viewId}', 
-											'#{util:addSubContext(cc.attrs.learningContext, &#34;context:/name:resume_learning/&#34;)}', 
-											'#{cc.attrs.service}');">
-			                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.competenceData.nextActivityToLearnId)}" />
-						            	<f:param name="compId" value="#{param['compId']}" />
-						            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}" />
-			                		</h:link>
+									<h:panelGroup id="panelResumeLearning">
+										<h:link
+											rendered="#{cc.attrs.bean.nextCompToLearn ne 0}"
+				                			value="Continue"
+				                			styleClass="btn btn-green btn-sm item"
+				                			outcome="activity"
+				                			onclick="sendLogPageNavigation('/activity.xhtml', 
+												'#{facesContext.viewRoot.viewId}', 
+												'#{util:addSubContext(cc.attrs.learningContext, &#34;context:/name:resume_learning/&#34;)}', 
+												'#{cc.attrs.service}');">
+				                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.nextActivityToLearn)}" />
+							            	<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.nextCompToLearn)}" />
+							            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}" />
+				                		</h:link>				             
+			                		</h:panelGroup>
 								</ui:fragment>
 							</h:panelGroup>
 							

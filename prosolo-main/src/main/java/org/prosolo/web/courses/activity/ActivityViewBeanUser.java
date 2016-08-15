@@ -57,6 +57,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
+	private long nextActivityToLearn;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
@@ -118,10 +119,11 @@ public class ActivityViewBeanUser implements Serializable {
 //				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
 //						.getUser().getId());
 				CredentialData cd = credManager
-						.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+						.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
 								loggedUser.getUserId());
 				credTitle = cd.getTitle();
 				nextCompToLearn = cd.getNextCompetenceToLearnId();
+				nextActivityToLearn = cd.getNextActivityToLearnId();
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -184,6 +186,15 @@ public class ActivityViewBeanUser implements Serializable {
 				if (ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
 					ad.setCompleted(true);
 				}
+			}
+			
+			try {
+				CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
+						decodedCredId, loggedUser.getUserId());
+				nextCompToLearn = cd.getNextCompetenceToLearnId();
+				nextActivityToLearn = cd.getNextActivityToLearnId();
+			} catch(DbConnectionException e) {
+				logger.error(e);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -300,6 +311,22 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public long getNextCompToLearn() {
+		return nextCompToLearn;
+	}
+
+	public void setNextCompToLearn(long nextCompToLearn) {
+		this.nextCompToLearn = nextCompToLearn;
+	}
+
+	public long getNextActivityToLearn() {
+		return nextActivityToLearn;
+	}
+
+	public void setNextActivityToLearn(long nextActivityToLearn) {
+		this.nextActivityToLearn = nextActivityToLearn;
 	}
 	
 }
