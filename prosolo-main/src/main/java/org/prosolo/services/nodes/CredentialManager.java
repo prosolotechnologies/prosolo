@@ -336,4 +336,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
 			throws DbConnectionException;
+	
+	long getNumberOfUsersLearningCredential(long credId) 
+			throws DbConnectionException;
 }

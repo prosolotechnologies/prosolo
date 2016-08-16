@@ -15,6 +15,7 @@ public class UserData implements Serializable {
 	private String avatarUrl;
 	private String position;
 	private String email;
+	private boolean followedByCurrentUser;
 	
 	public UserData() {}
 	
@@ -92,4 +93,12 @@ public class UserData implements Serializable {
 		this.email = email;
 	}
 
+	public boolean isFollowedByCurrentUser() {
+		return followedByCurrentUser;
+	}
+
+	public void setFollowedByCurrentUser(boolean followedByCurrentUser) {
+		this.followedByCurrentUser = followedByCurrentUser;
+	}
+	
 }

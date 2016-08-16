@@ -4,21 +4,13 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.common.domainmodel.activities.ResourceActivity;
-import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
@@ -66,20 +58,12 @@ public class NodeChangeObserver extends EventObserver {
 	@Override
 	public Class<? extends BaseEntity>[] getResourceClasses() {
 		return new Class[] { 
-			LearningGoal.class, 
-			TargetLearningGoal.class,
-			TargetCompetence.class, 
-			Competence.class,
-			Course.class,
-			Activity.class,
-			ResourceActivity.class, 
-			ExternalToolActivity.class,
-			UploadAssignmentActivity.class,
 			User.class,
 			CourseEnrollment.class,
 			Credential1.class,
 			Competence1.class, 
-			CredentialBookmark.class
+			CredentialBookmark.class,
+			TargetCredential1.class
 		};
 	}
 
