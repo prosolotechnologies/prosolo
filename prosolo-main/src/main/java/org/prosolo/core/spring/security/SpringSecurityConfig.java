@@ -546,37 +546,37 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		return extendedMetadataDelegate;
 	}
 	
-	@Bean
-	@Qualifier("idp-simplesaml")
-	public ExtendedMetadataDelegate simpleSamlProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata.php";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
-	
-	@Bean
-	@Qualifier("idp-simplesaml-shib")
-	public ExtendedMetadataDelegate simpleSamlShibProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/shib13/idp/metadata.php";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
+//	@Bean
+//	@Qualifier("idp-simplesaml")
+//	public ExtendedMetadataDelegate simpleSamlProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata3.php";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate = 
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
+//	
+//	@Bean
+//	@Qualifier("idp-simplesaml-shib")
+//	public ExtendedMetadataDelegate simpleSamlShibProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/shib13/idp/metadata.php";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate = 
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
  
     // IDP Metadata configuration + sp metadata configuration
     @Bean
@@ -584,8 +584,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
         List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
         providers.add(ssoCircleExtendedMetadataProvider());
-        providers.add(simpleSamlProvider());
-        providers.add(simpleSamlShibProvider());
+        //providers.add(simpleSamlProvider());
+        //providers.add(simpleSamlShibProvider());
         //our metadata
         providers.add(prosoloSPMetadata());
         return new CachingMetadataManager(providers);
