@@ -68,13 +68,20 @@ public class AnnouncementStudentBean implements Serializable {
 		try {
 			Long lastAnnouncementSeenId = announcementManager
 					.getLastAnnouncementIdIfNotSeen(idEncoder.decodeId(credentialId), loggedUser.getUserId());
-			//we could not find SeenAnnouncement for last announcement for this credential - user did not see it
+			//we could not find SeenAnnouncement for last announcement for this credential - user did not see it, or there are no announcements
 			if(lastAnnouncementSeenId == null) {
 				announcementData = announcementManager.getLastAnnouncementForCredential(idEncoder.decodeId(credentialId));
-				//initialize data so we can use it for components
-				this.credentialId = credentialId;
-				this.announcementId = announcementData.getEncodedId();
-				return true;
+				if(announcementData != null) {
+					//initialize data so we can use it for components
+					this.credentialId = credentialId;
+					this.announcementId = announcementData.getEncodedId();
+					return true;
+				}
+				else {
+					//there are no announcements for this credential
+					return false;
+				}
+
 			}
 		} catch (Exception e) {
 			logger.error("Error while fetching las announcement data",e);
