@@ -2721,4 +2721,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential data");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getNumberOfUsersLearningCredential(long credId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(cred.id) " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.credential.id = :credId";
+			
+			Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			return res != null ? res : 0;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of users learning credential");
+		}
+	}
 }
