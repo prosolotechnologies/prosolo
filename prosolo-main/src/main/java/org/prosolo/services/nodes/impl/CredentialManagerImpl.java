@@ -594,7 +594,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"AND cred.draft = :draft ");
 			
 			if(role == Role.User) {
-				queryBuilder.append("AND cred.createdBy.id = :user");
+				queryBuilder.append("AND cred.type = :type " +
+									"AND cred.createdBy.id = :user");
 			} else {
 				queryBuilder.append("AND cred.type = :type");
 			}
@@ -606,6 +607,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setBoolean("draft", false);
 			
 			if(role == Role.User) {
+				q.setParameter("type", LearningResourceType.USER_CREATED);
 				q.setLong("user", creatorId);
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);

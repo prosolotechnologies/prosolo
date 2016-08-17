@@ -22,7 +22,7 @@
 	<composite:implementation>
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
      	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
      	
      	<c:choose>
 			<c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
