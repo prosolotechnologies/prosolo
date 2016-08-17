@@ -137,18 +137,20 @@
 						    		View #{comment.numberOfReplies} replies
 						    	</p:commandLink>
 							</ui:fragment>
-					    	<ui:repeat var="child" value="#{comment.childComments}">
-								<div class="media" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
-									<post:comment1
-										id="childComment"
-										comments="#{cc.attrs.comments}"
-										comment="#{child}"
-										newestCommentId="#{cc.attrs.newestCommentId}"
-										isTopLevel="false"
-										toUpdate="#{cc.attrs.toUpdate}"
-										learningContext="#{cc.attrs.learningContext}"/>
-								</div>
-							</ui:repeat>
+							<div class="repliesWrapper">
+						    	<ui:repeat var="child" value="#{comment.childComments}">
+									<div class="media" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
+										<post:comment1
+											id="childComment"
+											comments="#{cc.attrs.comments}"
+											comment="#{child}"
+											newestCommentId="#{cc.attrs.newestCommentId}"
+											isTopLevel="false"
+											toUpdate="#{cc.attrs.toUpdate}"
+											learningContext="#{cc.attrs.learningContext}"/>
+									</div>
+								</ui:repeat>
+							</div>
 						</ui:fragment>
 				    </h:panelGroup>
 					
