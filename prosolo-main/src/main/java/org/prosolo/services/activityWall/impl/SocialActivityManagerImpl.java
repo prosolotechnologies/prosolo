@@ -352,7 +352,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
 				}
 				return q + specificPartOfTheCondition +	
-					"GROUP BY sa.id " +
+					"GROUP BY sa.id, compActivity.competence " +
 					"ORDER BY sa.last_action DESC, sa.id DESC \n" +
 					"LIMIT :limit \n" +
 					"OFFSET :offset";
