@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,14 +31,21 @@ public class TargetActivity1 extends BaseEntity {
 	private long duration;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	private ActivityResultType resultType;
+	@Deprecated
 	private boolean uploadAssignment;
 	private Date dateCompleted;
 	//is activity added by student
 	private boolean added;
 	
 	//uploaded file
+	@Deprecated
 	private String assignmentLink;
+	@Deprecated
 	private String assignmentTitle;
+	
+	//activity result - uploaded file link or textual response
+	private String result;
 	
 	private long timeSpent;
 	
@@ -167,4 +176,21 @@ public class TargetActivity1 extends BaseEntity {
 		this.createdBy = createdBy;
 	}
 	
+	@Column(length = 90000)
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
 }

@@ -23,6 +23,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
@@ -67,6 +68,8 @@ public class ActivityEditBean implements Serializable {
 	private ActivityType[] activityTypes;
 	
 	private PublishedStatus[] actStatusArray;
+	
+	private ActivityResultType[] resultTypes;
 	
 	private String context;
 	
@@ -117,6 +120,7 @@ public class ActivityEditBean implements Serializable {
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
 		actStatusArray = PublishedStatus.values();
+		resultTypes = ActivityResultType.values();
 	}
 
 	private void loadCompAndCredTitle() {
@@ -451,6 +455,14 @@ public class ActivityEditBean implements Serializable {
 
 	public void setCredentialTitle(String credentialTitle) {
 		this.credentialTitle = credentialTitle;
+	}
+
+	public ActivityResultType[] getResultTypes() {
+		return resultTypes;
+	}
+
+	public void setResultTypes(ActivityResultType[] resultTypes) {
+		this.resultTypes = resultTypes;
 	}
 
 }

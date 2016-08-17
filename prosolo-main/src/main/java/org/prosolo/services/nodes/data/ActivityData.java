@@ -25,6 +25,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean completed;
 	private String assignmentLink;
 	private String assignmentTitle; 
+	private String result;
+	private ActivityResultType resultType;
 	
 	private int order;
 	private int durationHours;
@@ -38,7 +40,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
-	private boolean uploadAssignment;
 	private String typeString;
 	private LearningResourceType type;
 	
@@ -69,6 +70,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
+		resultType = ActivityResultType.NONE;
 	}
 	
 	@Override
@@ -307,15 +309,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.files = files;
 	}
 
-	public boolean isUploadAssignment() {
-		return uploadAssignment;
-	}
-
-	public void setUploadAssignment(boolean uploadAssignment) {
-		observeAttributeChange("uploadAssignment", this.uploadAssignment, uploadAssignment);
-		this.uploadAssignment = uploadAssignment;
-	}
-
 	public ActivityType getActivityType() {
 		return activityType;
 	}
@@ -541,6 +534,23 @@ public class ActivityData extends StandardObservable implements Serializable {
 		} else {
 			return Optional.of(dur);
 		}
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		observeAttributeChange("resultType", this.resultType, resultType);
+		this.resultType = resultType;
 	}
 	
 }

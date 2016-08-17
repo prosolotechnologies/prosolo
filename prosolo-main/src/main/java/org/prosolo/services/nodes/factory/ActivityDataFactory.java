@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
@@ -46,7 +47,7 @@ public class ActivityDataFactory {
 		act.setDraft(activity.isDraft());
 		act.setHasDraft(activity.isHasDraft());
 		act.setActivityStatus();
-		act.setUploadAssignment(activity.isUploadAssignment());
+		act.setResultType(getResultType(activity.getResultType()));
 		act.setDateCreated(activity.getDateCreated());
 		act.setType(activity.getType());
 		act.setCreatorId(activity.getCreatedBy().getId());
@@ -91,6 +92,35 @@ public class ActivityDataFactory {
 		return act;
 	}
 	
+	public ActivityResultType getResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
+		if(resultType == null) {
+			return ActivityResultType.NONE;
+		}
+		switch(resultType) {
+			case FILE_UPLOAD:
+				return ActivityResultType.FILE_UPLOAD;
+			case TEXT:
+				return ActivityResultType.TEXT;
+			default:
+				return ActivityResultType.NONE;
+		}
+	}
+	
+	public org.prosolo.common.domainmodel.credential.ActivityResultType getResultType(
+			ActivityResultType resultType) {
+		if(resultType == null) {
+			return org.prosolo.common.domainmodel.credential.ActivityResultType.NONE;
+		}
+		switch(resultType) {
+			case FILE_UPLOAD:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.FILE_UPLOAD;
+			case TEXT:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.TEXT;
+			default:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.NONE;
+		}
+	}
+
 	public ActivityData getActivityData(Activity1 act, long compId, int order, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges) {
 		CompetenceActivity1 ca = new CompetenceActivity1();
@@ -224,7 +254,7 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
-		act.setUploadAssignment(activity.isUploadAssignment());
+		act.setResultType(getResultType(activity.getResultType()));
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
 		act.setAssignmentLink(activity.getAssignmentLink());
@@ -368,7 +398,7 @@ public class ActivityDataFactory {
 		act.setDescription(activity.getDescription());
 		act.setDuration(activity.getDurationHours() * 60 + activity.getDurationMinutes());
 		act.setPublished(activity.isPublished());
-		act.setUploadAssignment(activity.isUploadAssignment());
+		act.setResultType(getResultType(activity.getResultType()));
 		act.setDateCreated(activity.getDateCreated());
 		act.setType(activity.getType());
 	}

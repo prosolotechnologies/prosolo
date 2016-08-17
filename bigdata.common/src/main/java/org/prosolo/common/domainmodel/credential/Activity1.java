@@ -27,7 +27,9 @@ public class Activity1 extends BaseEntity {
 	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	@Deprecated
 	private boolean uploadAssignment;
+	private ActivityResultType resultType;
 	private LearningResourceType type;
 	
 	private Activity1 draftVersion;
@@ -136,4 +138,12 @@ public class Activity1 extends BaseEntity {
 		this.type = type;
 	}
 	
+	@Enumerated(EnumType.STRING)
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
 }

@@ -341,7 +341,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			targetAct.setActivity(act);
 			targetAct.setOrder(compActivity.getOrder());
 			targetAct.setDuration(act.getDuration());
-			targetAct.setUploadAssignment(act.isUploadAssignment());
+			targetAct.setResultType(act.getResultType());
+			//targetAct.setUploadAssignment(act.isUploadAssignment());
 			targetAct.setCreatedBy(act.getCreatedBy());
 			
 			if(act.getLinks() != null) {
@@ -1134,7 +1135,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
 			actToUpdate.setPublished(data.isPublished());
-			actToUpdate.setUploadAssignment(data.isUploadAssignment());
+			actToUpdate.setResultType(activityFactory.getResultType(data.getResultType()));
+			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks(), actToUpdate, 
 					(activityForUpdate, links) -> activityForUpdate.setLinks(links) , publishTransition);
