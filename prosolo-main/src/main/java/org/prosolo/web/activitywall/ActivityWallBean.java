@@ -245,12 +245,14 @@ public class ActivityWallBean implements Serializable {
 	//						parameters.put("courseId", String.valueOf(courseId1));
 	//					}
 						
-						actionLogger.logEvent(EventType.FILTER_CHANGE, parameters);
+						actionLogger.logEventWithIp(EventType.FILTER_CHANGE, loggedUser.getIpAddress(), 
+								parameters);
 					}
 				});
 			}
 		} catch(Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 		}
 	}
