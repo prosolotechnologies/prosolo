@@ -10,7 +10,7 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:define name="windowTitle">
-	ProSolo - Admin | Users
+	#{userEditBean.isCreateUseCase() ? 'New' : 'Edit'} User
 </ui:define>
 
 <ui:define name="metadata">
