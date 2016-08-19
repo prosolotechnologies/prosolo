@@ -257,8 +257,13 @@ public class ActivityDataFactory {
 		act.setResultType(getResultType(activity.getResultType()));
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
-		act.setAssignmentLink(activity.getAssignmentLink());
-		act.setAssignmentTitle(activity.getAssignmentTitle());
+		act.setType(activity.getLearningResourceType());
+		act.setResult(activity.getResult());
+		if(act.getResult() != null && !act.getResult().isEmpty() 
+				&& act.getResultType() == ActivityResultType.FILE_UPLOAD) {
+			act.setAssignmentTitle(act.getResult().substring(act.getResult().lastIndexOf("/") + 1));
+		}
+		act.setResultPostDate(activity.getResultPostDate());
 		act.setCreatorId(activity.getCreatedBy().getId());
 		
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);

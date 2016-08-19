@@ -115,7 +115,10 @@ public enum EventType {
 	AssessmentRequested, 
 	AssessmentApproved,
 	AssessmentComment, 
-	AnnouncementPublished;
+	AnnouncementPublished,
+	
+	Typed_Response_Posted,
+	Typed_Response_Edit;
 	
 	private String customText;
 	

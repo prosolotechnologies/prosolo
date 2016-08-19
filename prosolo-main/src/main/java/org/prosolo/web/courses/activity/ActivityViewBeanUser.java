@@ -3,6 +3,7 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -15,12 +16,14 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.upload.UploadManager;
@@ -49,6 +52,7 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private RoleManager roleManager;
+	@Inject private CommentManager commentManager;
 
 	private String actId;
 	private long decodedActId;
@@ -111,6 +115,17 @@ public class ActivityViewBeanUser implements Serializable {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					commentBean.loadComments(commentsData);
+					//load result comments number
+					ActivityData ad = competenceData.getActivityToShowWithDetails();
+					if(ad.isEnrolled()) {
+						int numberOfComments = (int) commentManager.getCommentsNumber(
+								CommentedResourceType.ActivityResult, 
+								ad.getTargetActivityId());
+						CommentsData commData = new CommentsData(CommentedResourceType.ActivityResult, 
+								ad.getTargetActivityId(), false);
+						commData.setNumberOfComments(numberOfComments);
+						ad.setResultComments(commData);
+					}
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
@@ -157,6 +172,18 @@ public class ActivityViewBeanUser implements Serializable {
 		competenceData.setCredentialId(decodedCredId);
 		competenceData.setCredentialTitle(credTitle);
 		
+	}
+	
+	public void initializeResultCommentsIfNotInitialized(ActivityData activity) {
+		try {
+			CommentsData cd = activity.getResultComments();
+			if(!cd.isInitialized()) {
+				cd.setInstructor(false);
+				commentBean.loadComments(activity.getResultComments());
+			}
+		} catch(Exception e) {
+			logger.error(e);
+		}
 	}
 	
 	public boolean isNextToLearn() {
@@ -224,6 +251,38 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
+	public void saveTextResponse() {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			Date postDate = new Date();
+			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
+					.getTargetActivityId(), competenceData.getActivityToShowWithDetails().getResult(), 
+					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
+					new LearningContextData(page, lContext, service));
+			competenceData.getActivityToShowWithDetails().setResultPostDate(postDate);
+		} catch(Exception e) {
+			logger.error(e);
+			competenceData.getActivityToShowWithDetails().setResult(null);
+			PageUtil.fireErrorMessage("Error while saving response");
+		}
+	}
+	
+	public void updateTextResponse() {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			activityManager.updateTextResponse(competenceData.getActivityToShowWithDetails()
+					.getTargetActivityId(), competenceData.getActivityToShowWithDetails().getResult(), 
+					loggedUser.getUserId(), new LearningContextData(page, lContext, service));
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while saving response");
+		}
+	}
+	
 	public void handleFileUpload(FileUploadEvent event) {
 		UploadedFile uploadedFile = event.getFile();
 		String page = (String) event.getComponent().getAttributes().get("page");
@@ -232,11 +291,13 @@ public class ActivityViewBeanUser implements Serializable {
 		try {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
+			Date postDate = new Date();
 			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), fileName, fullPath, loggedUser.getUserId(),
-					new LearningContextData(page, lContext, service));
+					.getTargetActivityId(), fullPath, postDate, loggedUser.getUserId(),
+					ActivityResultType.FILE_UPLOAD, new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
+			competenceData.getActivityToShowWithDetails().setResult(fullPath);
+			competenceData.getActivityToShowWithDetails().setResultPostDate(postDate);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while uploading assignment");
@@ -252,7 +313,7 @@ public class ActivityViewBeanUser implements Serializable {
 					.getTargetActivityId(), loggedUser.getUserId(), 
 					new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().setAssignmentTitle(null);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(null);
+			competenceData.getActivityToShowWithDetails().setResult(null);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

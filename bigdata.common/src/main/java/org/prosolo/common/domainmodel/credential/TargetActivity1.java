@@ -46,10 +46,12 @@ public class TargetActivity1 extends BaseEntity {
 	
 	//activity result - uploaded file link or textual response
 	private String result;
+	private Date resultPostDate;
 	
 	private long timeSpent;
 	
 	private User createdBy;
+	private LearningResourceType learningResourceType;
 	
 	public TargetActivity1() {
 		
@@ -193,4 +195,22 @@ public class TargetActivity1 extends BaseEntity {
 	public void setResultType(ActivityResultType resultType) {
 		this.resultType = resultType;
 	}
+
+	public Date getResultPostDate() {
+		return resultPostDate;
+	}
+
+	public void setResultPostDate(Date resultPostDate) {
+		this.resultPostDate = resultPostDate;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public LearningResourceType getLearningResourceType() {
+		return learningResourceType;
+	}
+
+	public void setLearningResourceType(LearningResourceType learningResourceType) {
+		this.learningResourceType = learningResourceType;
+	}
+	
 }

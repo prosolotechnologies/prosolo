@@ -43,6 +43,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -344,6 +345,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			targetAct.setResultType(act.getResultType());
 			//targetAct.setUploadAssignment(act.isUploadAssignment());
 			targetAct.setCreatedBy(act.getCreatedBy());
+			targetAct.setLearningResourceType(act.getType());
 			
 			if(act.getLinks() != null) {
     			Set<ResourceLink> activityLinks = new HashSet<>();
@@ -1523,18 +1525,51 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void saveAssignment(long targetActId, String fileName, String path, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void saveAssignment(long targetActId, String path, Date postDate, long userId, 
+			ActivityResultType resType, LearningContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
-						   "act.assignmentLink = :path, " +
-						   "act.assignmentTitle = :fileName " +
+						   "act.result = :path, " +
+						   "act.resultPostDate = :date " +
 						   "WHERE act.id = :actId";
 			
 			persistence.currentManager()
 				.createQuery(query)
 				.setLong("actId", targetActId)
-				.setString("fileName", fileName)
+				.setString("path", path)
+				.setTimestamp("date", postDate)
+				.executeUpdate();
+			
+			User user = new User();
+			user.setId(userId);
+			TargetActivity1 tAct = new TargetActivity1();
+			tAct.setId(targetActId);
+			String lcPage = context != null ? context.getPage() : null; 
+			String lcContext = context != null ? context.getLearningContext() : null; 
+			String lcService = context != null ? context.getService() : null;
+			EventType evType = resType == ActivityResultType.FILE_UPLOAD
+					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
+			eventFactory.generateEvent(evType, user.getId(), tAct, null,
+					lcPage, lcContext, lcService, null);
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving assignment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTextResponse(long targetActId, String path, long userId, 
+			LearningContextData context) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetActivity1 act SET " +
+						   "act.result = :path " +
+						   "WHERE act.id = :actId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("actId", targetActId)
 				.setString("path", path)
 				.executeUpdate();
 			
@@ -1545,12 +1580,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			String lcPage = context != null ? context.getPage() : null; 
 			String lcContext = context != null ? context.getLearningContext() : null; 
 			String lcService = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.AssignmentUploaded, user.getId(), tAct, null,
+			eventFactory.generateEvent(EventType.Typed_Response_Edit, user.getId(), tAct, null,
 					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving assignment");
+			throw new DbConnectionException("Error while editing response");
 		}
 	}
 	
@@ -1709,8 +1744,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
-						   "act.assignmentLink = :nullString, " +
-						   "act.assignmentTitle = :nullString " +
+						   "act.assignmentLink = :nullString " +
 						   "WHERE act.id = :id";
 			persistence.currentManager()
 				.createQuery(query)

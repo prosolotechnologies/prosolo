@@ -33,6 +33,27 @@ function toggleReplyInput(replyBtn) {
     return false;
 }
 
+function showEditResponse(editBtn) {
+    $(editBtn).parent().prev().find('.editComment').toggleClass('hidden');
+    $(editBtn).parent().prev().find('.commentText').toggleClass('hidden');
+    $(editBtn).addClass('hidden');
+    return false;
+}
+
+function hideEditResponse(cancelBtn) {
+    var editCommentContainer = $(cancelBtn).parent().parent();
+    var commentContainer = editCommentContainer.prev('.commentText');
+
+    editCommentContainer.addClass('hidden');
+    commentContainer.removeClass('hidden');
+
+    var editableDiv = editCommentContainer.find('.contentEditableComment').first();
+	editableDiv.html(commentContainer.text());
+
+    editCommentContainer.parent().next('.activityResultFooter').find('a.edit').removeClass('hidden');
+    return false;
+}
+
 function showEditComment(editBtn) {
     $(editBtn).parent().prev('.editComment').toggleClass('hidden');
     $(editBtn).parent().prevAll('.commentText').toggleClass('hidden');
@@ -47,8 +68,8 @@ function hideEditComment(cancelBtn) {
     editCommentContainer.addClass('hidden');
     commentContainer.removeClass('hidden');
 
-    var textarea1 = editCommentContainer.find('textarea').first();
-    textarea1.val(commentContainer.text());
+    var textarea1 = editCommentContainer.find('.contentEditableComment').first();
+    textarea1.html(commentContainer.text());
 
     $(cancelBtn).parent().next('.commentOptions').find('a.edit').removeClass('hidden');
     return false;
