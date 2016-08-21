@@ -11,6 +11,7 @@ public class AccountDataToPageMapper implements IDataToPageMapper<AccountData, U
 	public AccountData mapDataToPageObject(User user) {
 		AccountData accountData = new AccountData();
 		accountData.setId(user.getId());
+		accountData.setEmail(user.getEmail());
 		accountData.setAvatarPath(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 		accountData.setFirstName(user.getName());
 		accountData.setLastName(user.getLastname());
