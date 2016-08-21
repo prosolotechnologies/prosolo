@@ -27,7 +27,6 @@ import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-//import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -84,9 +83,6 @@ public class ProfileSettingsBean implements Serializable {
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired
 	private SocialNetworksManager socialNetworksManager;
-
-	@Autowired
-	private PeopleRecommenderBean peopleRecommenderBean;
 
 	private AccountData accountData;
 	private SocialNetworksData socialNetworksData;
