@@ -60,14 +60,12 @@ public class NotificationEmailGeneratorFactory {
 				return new CommentLikeNotificationEmailGenerator(name, actor, predicate, targetType, targetTitle, date, link);
 			case Mention:
 				return new MentionNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
-//			case Assessment_Requested:
-//				return new FollowUserNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
 			case Assessment_Requested:
 			case Assessment_Comment:
 			case Assessment_Approved:
 				return new AssessmentNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link, type);
-//			case Assessment_Comment:
-//				return new FollowUserNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
+			case AnnouncementPublished:
+				return new AnnouncementPublishedNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link, type);
 			default:
 				break;
 			}
