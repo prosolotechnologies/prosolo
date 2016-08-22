@@ -16,13 +16,13 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -36,7 +36,8 @@ import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageSection;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -77,9 +78,9 @@ public class CredentialEditBean implements Serializable {
 	
 	public void init() {
 		initializeValues();
-		String section = PageUtil.getSectionForView();
-		manageSection = "/manage".equals(section);
-		if(id == null) {
+		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
+		
+		if (id == null) {
 			credentialData = new CredentialData(false);
 		} else {
 			try {
@@ -163,9 +164,8 @@ public class CredentialEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				extContext.redirect(extContext.getRequestContextPath() + section +
+				PageSection section = PageUtil.getSectionForView();
+				extContext.redirect(extContext.getRequestContextPath() + section.getPrefix() +
 						"/competences/new?credId=" + id);
 			} catch (IOException e) {
 				logger.error(e);

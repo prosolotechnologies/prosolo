@@ -31,7 +31,7 @@ import org.prosolo.web.goals.data.AvailableLearningPlan;
 import org.prosolo.web.goals.data.LastActivityAware;
 import org.prosolo.web.goals.data.TargetCompetenceData;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;

@@ -28,7 +28,7 @@ import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.home.data.ResourceAvailability;
 import org.prosolo.web.portfolio.PortfolioBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

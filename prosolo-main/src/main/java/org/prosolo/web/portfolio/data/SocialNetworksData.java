@@ -19,23 +19,23 @@ public class SocialNetworksData implements Serializable, IData {
 
 	private static final long serialVersionUID = 2744838596870425737L;
 
-	private static final String FACEBOOK = "https://www.facebook.com/"; 
-	private static final String TWITTER = "https://twitter.com/"; 
-	private static final String LINKEDIN = "https://www.linkedin.com/in/"; 
+	private static final String FACEBOOK_URL_PREFIX = "https://www.facebook.com/"; 
+	private static final String TWITTER_URL_PREFIX = "https://twitter.com/"; 
+	private static final String LINKEDIN_URL_PREFIX = "https://www.linkedin.com/in/"; 
 	
 	private long id;
 
-	private Map<String, SocialNetworkAccountData> socialNetworkAccountDatas;
+	private Map<String, SocialNetworkAccountData> socialNetworkAccountsData;
 
 	public SocialNetworksData() {
-		socialNetworkAccountDatas = new LinkedHashMap<>();
-		socialNetworkAccountDatas.put(SocialNetworkName.LINKEDIN.toString(),
+		socialNetworkAccountsData = new LinkedHashMap<>();
+		socialNetworkAccountsData.put(SocialNetworkName.LINKEDIN.toString(),
 				new SocialNetworkAccountData(SocialNetworkName.LINKEDIN));
-		socialNetworkAccountDatas.put(SocialNetworkName.TWITTER.toString(),
+		socialNetworkAccountsData.put(SocialNetworkName.TWITTER.toString(),
 				new SocialNetworkAccountData(SocialNetworkName.TWITTER));
-		socialNetworkAccountDatas.put(SocialNetworkName.FACEBOOK.toString(),
+		socialNetworkAccountsData.put(SocialNetworkName.FACEBOOK.toString(),
 				new SocialNetworkAccountData(SocialNetworkName.FACEBOOK));
-		socialNetworkAccountDatas.put(SocialNetworkName.BLOG.toString(),
+		socialNetworkAccountsData.put(SocialNetworkName.BLOG.toString(),
 				new SocialNetworkAccountData(SocialNetworkName.BLOG));
 	}
 
@@ -47,16 +47,12 @@ public class SocialNetworksData implements Serializable, IData {
 		this.id = id;
 	}
 
-	public Map<String, SocialNetworkAccountData> getSocialNetworkAccountDatas() {
-		return socialNetworkAccountDatas;
-	}
-
-	public void setSocialNetworkAccountDatas(Map<String, SocialNetworkAccountData> socialNetworkAccountDatas) {
-		this.socialNetworkAccountDatas = socialNetworkAccountDatas;
+	public Map<String, SocialNetworkAccountData> getSocialNetworkAccountsData() {
+		return socialNetworkAccountsData;
 	}
 
 	public void setAccount(SocialNetworkAccount account) {
-		SocialNetworkAccountData socialNetworkAccountData = socialNetworkAccountDatas
+		SocialNetworkAccountData socialNetworkAccountData = socialNetworkAccountsData
 				.get(account.getSocialNetwork().toString());
 		String prefixUrl = getPrefixUrlForSocialNetwork(account.getSocialNetwork());
 		socialNetworkAccountData.setLinkEdit(account.getLink());
@@ -69,11 +65,11 @@ public class SocialNetworksData implements Serializable, IData {
 			case BLOG:
 				return "";
 			case FACEBOOK:
-				return FACEBOOK;
+				return FACEBOOK_URL_PREFIX;
 			case TWITTER:
-				return TWITTER;
+				return TWITTER_URL_PREFIX;
 			case LINKEDIN:
-				return LINKEDIN;
+				return LINKEDIN_URL_PREFIX;
 			default:
 				return "";
 		}

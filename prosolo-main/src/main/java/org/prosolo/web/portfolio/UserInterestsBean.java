@@ -22,7 +22,7 @@ import org.prosolo.util.nodes.NodeTitleComparator;
 import org.prosolo.util.nodes.NodeUtil;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.portfolio.data.UserInterestsData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

@@ -23,7 +23,7 @@ import org.prosolo.web.dialogs.data.ExternalCreditData;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.portfolio.data.AchievedCompetenceData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

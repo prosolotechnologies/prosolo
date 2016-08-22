@@ -30,7 +30,7 @@ import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.search.data.SortingOption;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

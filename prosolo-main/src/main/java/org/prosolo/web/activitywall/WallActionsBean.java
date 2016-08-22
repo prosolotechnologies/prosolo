@@ -14,7 +14,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

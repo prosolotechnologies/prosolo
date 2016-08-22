@@ -36,7 +36,7 @@ import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.useractions.data.NewPostData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;

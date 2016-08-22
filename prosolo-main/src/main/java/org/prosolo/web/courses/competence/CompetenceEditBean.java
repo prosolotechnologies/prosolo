@@ -28,7 +28,8 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageSection;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -113,8 +114,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	private void loadCompetenceData(long credId, long id) {
-		String section = PageUtil.getSectionForView();
-		if("/manage".equals(section)) {
+		PageSection section = PageUtil.getSectionForView();
+		if (PageSection.MANAGE.equals(section)) {
 			competenceData = compManager
 					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
 		} else {
@@ -164,9 +165,8 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				builder.append(extContext.getRequestContextPath() + section + "/competences/" + id + "/newActivity");
+				PageSection section = PageUtil.getSectionForView();
+				builder.append(extContext.getRequestContextPath() + section.getPrefix() + "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -188,9 +188,8 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				extContext.redirect(extContext.getRequestContextPath() + section +
+				PageSection section = PageUtil.getSectionForView();
+				extContext.redirect(extContext.getRequestContextPath() + section.getPrefix() +
 						"/credentials/" + credId +"/edit?compAdded=true");
 			} catch (IOException e) {
 				logger.error(e);

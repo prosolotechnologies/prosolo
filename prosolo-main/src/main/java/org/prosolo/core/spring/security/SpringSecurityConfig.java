@@ -158,6 +158,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/achievements/achievements-credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/edit").hasAuthority("BASIC.USER.ACCESS")
@@ -190,6 +191,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/messages").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings/password").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings/email").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/settings/twitterOAuth").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   //manage competence
 		   .antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
@@ -250,6 +252,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
 		   .antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/settings/twitterOAuth").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings_old").hasAuthority("BASIC.ADMIN.ACCESS")

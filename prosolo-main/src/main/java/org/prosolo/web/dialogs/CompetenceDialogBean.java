@@ -39,7 +39,7 @@ import org.prosolo.web.goals.util.AvailableLearningPlanConverter;
 import org.prosolo.web.goals.util.CompWallActivityConverter;
 import org.prosolo.web.useractions.DislikeActionBean;
 import org.prosolo.web.useractions.LikeActionBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

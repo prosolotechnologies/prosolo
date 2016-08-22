@@ -30,7 +30,7 @@ import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.people.PeopleActionBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

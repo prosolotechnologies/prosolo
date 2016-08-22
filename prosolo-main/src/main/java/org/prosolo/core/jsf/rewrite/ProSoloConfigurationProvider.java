@@ -71,6 +71,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/settings_old").to("/settings_old.xhtml"))
 				.addRule(Join.path("/settings/password").to("/settings/password.xhtml"))
 				.addRule(Join.path("/settings/email").to("/settings/email.xhtml"))
+				.addRule(Join.path("/settings/twitterOAuth").to("/settings/twitterOAuth.xhtml"))
 				.addRule(Join.path("/settings").to("/settings.xhtml"))
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
 				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
