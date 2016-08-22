@@ -131,7 +131,7 @@ public abstract class AbstractManagerImpl implements AbstractManager {
 	@Override
 	@Transactional(readOnly = true)
 	public <T> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException {
-		return loadResource(clazz, id, persistence.currentManager());
+		return (T) loadResource(clazz, id, persistence.currentManager());
 	}
 	
 	@SuppressWarnings("unchecked")

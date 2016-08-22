@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Announcement;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
@@ -127,15 +128,22 @@ public class AnnouncementBean implements Serializable, Paginable {
 		taskExecutor.execute(() -> {
 			Announcement announcement = new Announcement();
 			announcement.setId(announcementId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			parameters.put("publishMode", newAnouncementPublishMode.getText());
+			
 			try {
-				eventFactory.generateEvent(EventType.AnnouncementPublished, loggedUser.getUserId(), announcement, null,
-						page, lContext, service, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for announcement", e);
+				Credential1 cred = credManager.loadResource(Credential1.class, credentialId, true);
+				Map<String, String> parameters = new HashMap<>();
+				parameters.put("credentialId", credentialId + "");
+				parameters.put("publishMode", newAnouncementPublishMode.getText());
+				try {
+					eventFactory.generateEvent(EventType.AnnouncementPublished, loggedUser.getUserId(), announcement, cred,
+							page, lContext, service, parameters);
+				} catch (Exception e) {
+					logger.error("Eror sending notification for announcement", e);
+				}
+			} catch (Exception e1) {
+				logger.error(e1);
 			}
+			
 		});
 	}
 
