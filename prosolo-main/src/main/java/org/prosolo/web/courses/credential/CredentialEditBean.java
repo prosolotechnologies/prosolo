@@ -164,8 +164,7 @@ public class CredentialEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				PageSection section = PageUtil.getSectionForView();
-				extContext.redirect(extContext.getRequestContextPath() + section.getPrefix() +
+				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
 						"/competences/new?credId=" + id);
 			} catch (IOException e) {
 				logger.error(e);

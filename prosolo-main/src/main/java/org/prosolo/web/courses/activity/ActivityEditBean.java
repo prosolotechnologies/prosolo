@@ -296,10 +296,7 @@ public class ActivityEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				PageSection section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				
-				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + section.getPrefix() +
+				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
 						"/competences/" + compId + "/edit?actAdded=true");
 				if(credId != null && !credId.isEmpty()) {
 					url.append("&credId=" + credId);

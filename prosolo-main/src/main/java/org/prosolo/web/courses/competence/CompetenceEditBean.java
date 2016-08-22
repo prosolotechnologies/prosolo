@@ -165,8 +165,7 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				PageSection section = PageUtil.getSectionForView();
-				builder.append(extContext.getRequestContextPath() + section.getPrefix() + "/competences/" + id + "/newActivity");
+				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() + "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -188,8 +187,7 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				PageSection section = PageUtil.getSectionForView();
-				extContext.redirect(extContext.getRequestContextPath() + section.getPrefix() +
+				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
 						"/credentials/" + credId +"/edit?compAdded=true");
 			} catch (IOException e) {
 				logger.error(e);
