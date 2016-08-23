@@ -129,7 +129,7 @@
 					
 					<h:link id="messagesLink" class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
 						onclick="sendLogPageNavigation('messages','mainmenu');"
-						outcome="/messages">
+						outcome="/admin/messages">
 						Messages
 						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
 							unreadDot
@@ -201,13 +201,6 @@
 										onclick="sendLogPageNavigation('settings','mainmenu');"
 										outcome="/admin/settings" />
 								</li>
-								<ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access')}">
-									<li>
-										<h:link value="Switch to Prosolo"
-											onclick="sendLogPageNavigation('index','mainmenu');"
-											outcome="/index" />
-									</li>
-								</ui:fragment>
 								<li>
 									<h:commandLink id="userLogout" 
 										value="Sign Out" 

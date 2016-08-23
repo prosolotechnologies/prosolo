@@ -15,7 +15,7 @@ import org.prosolo.services.openid.GoogleOpenIdAuthenticatorService;
 import org.prosolo.services.openid.exception.OpenIdException;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
 import org.prosolo.web.openid.provider.OpenIdProvider;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;

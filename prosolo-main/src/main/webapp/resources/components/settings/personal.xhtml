@@ -50,9 +50,9 @@
 								<div class="formLine">
 									<label>Email</label>
 									<div class="formLineRight">
-										<h:inputText id="editEmail" class="editEmail"
+										<h:inputText id="editEmail" class="editEmail" disabled="true"
 											value="#{profileSettings.accountData.email}" />
-										<small>Email will not be publicly displayed.</small>
+										<small>Email can not be changed. Email will not be publicly displayed.</small>
 									</div>
 								</div>
 								
@@ -112,7 +112,7 @@
 									<div class="formLine">
 										<label>LinkedIn profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['LINKEDIN'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
 										</div>
 									</div>
 									
@@ -120,11 +120,11 @@
 										<label>Twitter profile URL</label>
 										
 										<div class="formLineRight">
-											<h:inputText id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['TWITTER'].linkEdit}" />
+											<h:inputText id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
 											
 											<div class="twitterBtnBox">
 												<h:panelGroup id="twitter">
-													<h:panelGroup rendered="#{!twitterBean.connectedToTwitter}">
+													<h:panelGroup rendered="#{!profileSettings.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.startTweeterOauthAuthProcess}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
@@ -135,7 +135,7 @@
 															your tweets to your ProSolo followers.</small>
 													</h:panelGroup>
 													
-													<h:panelGroup rendered="#{twitterBean.connectedToTwitter}">
+													<h:panelGroup rendered="#{profileSettings.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.disconnectUserAccount}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
@@ -150,14 +150,14 @@
 									<div class="formLine">
 										<label>Facebook profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['FACEBOOK'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
 										</div>
 									</div>
 									
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountDatas['BLOG'].linkEdit}" />
+											<h:inputText value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									

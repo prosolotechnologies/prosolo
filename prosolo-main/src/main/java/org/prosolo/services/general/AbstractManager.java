@@ -37,9 +37,9 @@ public interface AbstractManager extends Serializable {
 	
 	//<T extends BaseEntity> T loadResourceByUri(Class<T> clazz, String resourceUri) throws ResourceCouldNotBeLoadedException;
 	
-	<T extends BaseEntity> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
+	<T> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException;
 	
-	<T extends BaseEntity> T loadResource(Class<T> clazz, long id, Session session) throws ResourceCouldNotBeLoadedException;
+	<T> T loadResource(Class<T> clazz, long id, Session session) throws ResourceCouldNotBeLoadedException;
 	
 	<T extends BaseEntity> T loadResource(Class<T> clazz, long id, boolean unproxy, Session session)
 			throws ResourceCouldNotBeLoadedException;

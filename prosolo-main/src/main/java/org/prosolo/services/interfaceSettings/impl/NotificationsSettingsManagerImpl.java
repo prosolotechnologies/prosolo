@@ -122,6 +122,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment_Like, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Mention, true));
+		notificationTypes.add(new NotificationSettings(NotificationType.AnnouncementPublished, true));
 		
 		return notificationTypes;
 	}

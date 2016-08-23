@@ -33,7 +33,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.lti.data.ExternalToolData;
 import org.prosolo.web.lti.data.ExternalToolFilterData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

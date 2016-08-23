@@ -40,7 +40,7 @@ import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.EvaluationSubmissionData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

@@ -38,7 +38,7 @@ import org.prosolo.web.datatopagemappers.CredentialAchievementsDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;

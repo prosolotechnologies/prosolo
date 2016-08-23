@@ -1,4 +1,4 @@
-package org.prosolo.web.util;
+package org.prosolo.web.util.page;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -11,6 +11,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.web.util.ResourceBundleUtil;
 
 public class PageUtil {
 	
@@ -90,19 +91,25 @@ public class PageUtil {
 	 * /manage.
 	 * @return
 	 */
-	public static String getSectionForView() {
+	public static PageSection getSectionForView() {
 		String viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-		logger.info("VIEWID " + viewId);
 		/*
-		 * find section by returning viewId substring from the beggining to the second
+		 * find section by returning viewId substring from the beginning to the second
 		 * occurrence of '/' character. That is because viewId always starts with 
 		 * "/section/page" (if there is a section)
 		 */
 		int secondSlashIndex = StringUtils.ordinalIndexOf(viewId, "/", 2);
 		String section = "";
-		if(secondSlashIndex != -1) {
+		if (secondSlashIndex != -1) {
 			section = viewId.substring(0, secondSlashIndex);
 		}
-		return section;
+		
+		if (section.equals(PageSection.ADMIN.getPrefix())) {
+			return PageSection.ADMIN;
+		} else if (section.equals(PageSection.MANAGE.getPrefix())) {
+			return PageSection.MANAGE;
+		} else {
+			return PageSection.STUDENT;
+		}
 	}
 }

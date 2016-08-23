@@ -17,6 +17,7 @@ import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -127,4 +128,8 @@ public interface TextSearch extends AbstractManager {
 	 */
 	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
 			String term, int page, int limit, boolean paginate, long roleId);
+	
+	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long userId, CredentialMembersSortOption sortOption);
 }

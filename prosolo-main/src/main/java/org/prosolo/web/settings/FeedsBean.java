@@ -20,7 +20,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.portfolio.PortfolioBean;
 import org.prosolo.web.settings.data.AddFeedSourceFormData;
 import org.prosolo.web.settings.data.FeedSourceData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -77,7 +77,7 @@ public class FeedsBean {
 		}
 
 		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
-		this.personalBlogSource = portfolio.getSocialNetworksData().getSocialNetworkAccountDatas()
+		this.personalBlogSource = portfolio.getSocialNetworksData().getSocialNetworkAccountsData()
 				.get(SocialNetworkName.BLOG.toString()).getLink();
 
 		this.subscribedRssSources = new ArrayList<FeedSourceData>();
@@ -209,7 +209,7 @@ public class FeedsBean {
 		PortfolioBean portfolio = PageUtil.getSessionScopedBean("portfolio", PortfolioBean.class);
 
 		if (portfolio != null) {
-			portfolio.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.BLOG.toString())
+			portfolio.getSocialNetworksData().getSocialNetworkAccountsData().get(SocialNetworkName.BLOG.toString())
 					.setLinkEdit(this.personalBlogSource);
 			portfolio.saveSocialNetworks();
 		}

@@ -30,7 +30,8 @@ import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageSection;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -129,8 +130,8 @@ public class ActivityEditBean implements Serializable {
 	}
 
 	private void loadActivityData(long credId, long compId, long actId) {
-		String section = PageUtil.getSectionForView();
-		if("/manage".equals(section)) {
+		PageSection section = PageUtil.getSectionForView();
+		if (PageSection.MANAGE.equals(section)) {
 			activityData = activityManager.getCurrentVersionOfActivityForManager(credId, compId, actId);
 		} else {
 			activityData = activityManager.getActivityDataForEdit(credId, compId, actId, 
@@ -295,10 +296,7 @@ public class ActivityEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				
-				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + section +
+				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
 						"/competences/" + compId + "/edit?actAdded=true");
 				if(credId != null && !credId.isEmpty()) {
 					url.append("&credId=" + credId);

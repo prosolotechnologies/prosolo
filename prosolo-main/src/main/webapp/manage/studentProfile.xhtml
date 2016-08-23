@@ -15,7 +15,7 @@
 	xmlns:communications="http://java.sun.com/jsf/composite/components/communications">
 
 	<ui:define name="windowTitle">
-		ProSolo - Students
+		Student - #{studentProfileBean.student.name}
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -39,7 +39,7 @@
                 <div>#{studentProfileBean.student.position}</div>
                 <div>#{studentProfileBean.student.location}</div>
                 <ul class="socialLinks">
-                	<ui:repeat value="#{studentProfileBean.socialNetworksData.socialNetworkAccountDatas.entrySet().toArray()}" 
+                	<ui:repeat value="#{studentProfileBean.socialNetworksData.socialNetworkAccountsData.entrySet().toArray()}" 
                 			var="socialNetworkData" varStatus="iterator">
                 		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
 	                      <li class="#{studentProfileBean.getAlternativeName(socialNetworkData.value.socialNetworkName)}">

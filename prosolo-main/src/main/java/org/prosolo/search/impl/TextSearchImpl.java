@@ -39,6 +39,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -58,12 +59,14 @@ import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.search.util.credential.LearningStatus;
+import org.prosolo.search.util.credential.LearningStatusFilter;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -98,6 +101,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private CredentialManager credentialManager;
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private RoleManager roleManager;
+	@Inject private FollowResourceManager followResourceManager;
 
 	@Override
 	@Transactional
@@ -1882,5 +1886,162 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long userId, CredentialMembersSortOption sortOption) {
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
+					nestedFB);
+//					.innerHit(new QueryInnerHitBuilder());
+			//instead of deprecated filteredquery
+			BoolQueryBuilder bqb = QueryBuilders.boolQuery();
+			bqb.must(bQueryBuilder);
+			bqb.filter(nestedFilter1);
+//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+//					nestedFilter1);
+			//bQueryBuilder.must(termQuery("credentials.id", credId));
+			
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bqb)
+						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+								.subAggregation(AggregationBuilders.filter("filtered")
+										.filter(QueryBuilders.termQuery("credentials.id", credId))
+								.subAggregation(
+										AggregationBuilders.terms("inactive")
+										.field("credentials.progress")
+										.include(new long[] {100}))))
+						.setFetchSource(includes, null);
+				
+				/*
+				 * set learning status filter as a post filter so it does not influence
+				 * aggregation results
+				 */
+				if(filter == LearningStatus.Active) {
+					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
+					assignFilter.mustNot(QueryBuilders.termQuery("credentials.progress", 100));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * credentials for users matched by query
+					 */
+					assignFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
+							assignFilter).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+				} else {
+					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+				}
+				
+				searchRequestBuilder.setFrom(start).setSize(limit);	
+				
+				//add sorting
+				for(String field : sortOption.getSortFields()) {
+					SortOrder sortOrder = sortOption.getSortOrder() == 
+							org.prosolo.services.util.SortingOption.ASC ? 
+							SortOrder.ASC : SortOrder.DESC;
+					searchRequestBuilder.addSort(field, sortOrder);
+				}
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							StudentData student = new StudentData();
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							boolean followed = followResourceManager.isUserFollowingUser(
+									userId, user.getId());
+							userData.setFollowedByCurrentUser(followed);
+							student.setUser(userData);
+							
+							SearchHits innerHits = sh.getInnerHits().get("credentials");
+							long totalInnerHits = innerHits.getTotalHits();
+							if(totalInnerHits == 1) {
+								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								
+								if(credential != null) {
+									student.setCredProgress(Integer.parseInt(
+											credential.get("progress").toString()));
+//									@SuppressWarnings("unchecked")
+//									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
+//								    if(profile != null && !profile.isEmpty()) {
+//								    	resMap.put("profileType", profile.get("profileType"));
+//								    	resMap.put("profileTitle", profile.get("profileTitle"));
+//								    }
+									response.addFoundNode(student);
+								}
+							}				
+						}
+						
+						//get number of unassigned students
+						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+						Filter filtered = nestedAgg.getAggregations().get("filtered");
+						Terms terms = filtered.getAggregations().get("inactive");
+						//Terms terms = nestedAgg.getAggregations().get("unassigned");
+						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+						long inactive = 0;
+						if(it.hasNext()) {
+							inactive = it.next().getDocCount();
+						}
+						
+						LearningStatusFilter[] filters = new LearningStatusFilter[2];
+						filters[0] = new LearningStatusFilter(LearningStatus.All,
+								filtered.getDocCount());
+								//nestedAgg.getDocCount());
+						filters[1] = new LearningStatusFilter(LearningStatus.Active, 
+								filtered.getDocCount() - inactive);
+						Map<String, Object> additionalInfo = new HashMap<>();
+						additionalInfo.put("filters", filters);
+						additionalInfo.put("selectedFilter", filters[0].getStatus() == filter
+								? filters[0] : filters[1]);
+						response.setAdditionalInfo(additionalInfo);
+						
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
 	}
 }

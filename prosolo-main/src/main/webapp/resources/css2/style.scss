@@ -1002,6 +1002,15 @@ input{
 			}
 		}
 	}
+    .modal-body input[type="text"]{
+		width: 100%;
+		margin-top: 20px;
+		padding: 0;
+		border: none;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+	}
 	.modal-body textarea{
 		width: 100%;
 		height: 100px;
@@ -1291,8 +1300,11 @@ header{
                         height: 16px;
                         margin: 2px 10px 0 0;
                     }
-                    li.selected a span{
-                        background: url("../images2/iconCheck12.svg") no-repeat center center;
+                    li.selected a{
+                        color: $darkText;
+                        span{
+                            background: url("../images2/iconCheck12.svg") no-repeat center center;
+                        }
                     }
 				}
             }
@@ -2309,15 +2321,17 @@ header{
 			padding: 0;
 			list-style: none;
 			> li{
-				display: block;
+				display: flex;
+                justify-content: space-between;
 				line-height: 20px;
 				padding: 10px 30px;
 				border-top: 1px solid #EEEFF3;
 				.iconType{
-					float: left;
+                    flex-shrink: 0;
 					margin-right: 20px;
 				}
 				> a{
+                    flex-grow: 1;
 					font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 400;
 					color: $normalText;
@@ -2326,46 +2340,91 @@ header{
 						color: $darkText;
 					}
 				}
-				.commentsIcon{
-					position: relative;
-					width: 50px;
-					float: right;
-					margin-left: 20px;
-					padding-left: 30px;
-					&::before{
-						content: '';
-						display: block;
-						width: 20px;
-						height: 20px;
-						position: absolute;
-						top: 0;
-						left: 0;
-						background: url("../images2/iconComments20.svg") no-repeat;
-						opacity: .5;
-						transition: all 0.2s ease;
-						-webkit-transition: all 0.2s ease;
-					}
-					&:hover::before{
-						opacity: 1;
-					}
-				}
-				&.hasNewComments .commentsIcon::before{
-					background: url("../images2/iconComments20Orange.svg") no-repeat;
-					opacity: 1;
-				}
-				.download{
-					display: block;
-					float: right;
-					width: 20px;
-					height: 20px;
-					margin-left: 30px;
-					text-indent: -10000px;
-					opacity: .5;
-					background: url("../images2/iconDownload20.svg") no-repeat;
-					&:hover{
-						opacity: 1;
-					}
-				}
+                .activityOptions{
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 160px;
+                    margin-left: 30px;
+                    .commentsIcon{
+                        flex-shrink: 0;
+    					position: relative;
+    					width: 50px;
+    					margin-left: 20px;
+    					padding-left: 30px;
+                        color: $normalText;
+                        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    					font-weight: 400;
+                        &:hover{
+    						color: $darkText;
+    					}
+    					&::before{
+    						content: '';
+    						display: block;
+    						width: 20px;
+    						height: 20px;
+    						position: absolute;
+    						top: 0;
+    						left: 0;
+    						background: url("../images2/iconComments20.svg") no-repeat;
+    						opacity: .5;
+    						transition: all 0.2s ease;
+    						-webkit-transition: all 0.2s ease;
+    					}
+    					&:hover::before{
+    						opacity: 1;
+    					}
+    				}
+    				&.hasNewComments .commentsIcon::before{
+    					background: url("../images2/iconComments20Orange.svg") no-repeat;
+    					opacity: 1;
+    				}
+    				.download,
+                    .viewResult{
+                        flex-shrink: 0;
+    					width: 20px;
+    					height: 20px;
+    					text-indent: -10000px;
+    					opacity: .5;
+    					&:hover{
+    						opacity: 1;
+    					}
+    				}
+                    .download{
+                        background: url("../images2/iconDownload20.svg") no-repeat;
+                    }
+                    .viewResult{
+                        background: url("../images2/iconResult20.svg") no-repeat;
+                    }
+                    .grade{
+                        flex-shrink: 0;
+    					position: relative;
+    					width: 50px;
+    					margin-left: 20px;
+    					padding-left: 30px;
+                        color: $normalText;
+                        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    					font-weight: 400;
+                        &:hover{
+    						color: $darkText;
+    					}
+    					&::before{
+    						content: '';
+    						display: block;
+    						width: 20px;
+    						height: 20px;
+    						position: absolute;
+    						top: 0;
+    						left: 0;
+    						background: url("../images2/iconAssessment20.svg") no-repeat;
+    						opacity: .5;
+    						transition: all 0.2s ease;
+    						-webkit-transition: all 0.2s ease;
+    					}
+    					&:hover::before{
+    						opacity: 1;
+    					}
+                    }
+                }
 			}
 		}
 	}
@@ -2631,6 +2690,9 @@ header{
             h3{
     			margin-bottom: 10px;
     		}
+            &.noUrl h3{
+                margin-bottom: 0;
+            }
         }
 		.actBoxLeft > span,
 		.deleteLink{
@@ -2653,6 +2715,10 @@ header{
 
 .activityResultBox li{
 	background: url("../images2/iconResult20.svg") no-repeat 30px center;
+    &.highlighted{
+        background-color: rgba(255, 236, 0, 0.1);
+
+    }
 }
 
 .uploadResultBox{
@@ -2667,6 +2733,113 @@ header{
 	h3, p{
 		margin-bottom: 10px;
 	}
+}
+
+.writeResult{
+    textarea{
+        height: 100px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .btn{
+        margin-bottom: 30px;
+    }
+}
+
+.activityStudentResult{
+    padding-bottom: 1px;
+    .activityStudentResultHead{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        .user32{
+            margin-bottom: 0;
+        }
+        .timestamp{
+            font-size: 12px;
+        }
+    }
+    .resultOptions{
+        display: flex;
+        padding-bottom: 30px;
+        .commentsIcon{
+            flex-shrink: 0;
+            position: relative;
+            width: 50px;
+            padding-left: 30px;
+            color: $normalText;
+            font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            &:hover{
+                color: $darkText;
+            }
+            &::before{
+                content: '';
+                display: block;
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: url("../images2/iconComments20.svg") no-repeat;
+                opacity: .5;
+                transition: all 0.2s ease;
+                -webkit-transition: all 0.2s ease;
+            }
+            &:hover::before{
+                opacity: 1;
+            }
+        }
+        &.hasNewComments .commentsIcon::before{
+            background: url("../images2/iconComments20Orange.svg") no-repeat;
+            opacity: 1;
+        }
+        .download{
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            text-indent: -10000px;
+            opacity: .5;
+            background: url("../images2/iconDownload20.svg") no-repeat;
+            &:hover{
+                opacity: 1;
+            }
+        }
+        .grade{
+            flex-shrink: 0;
+            position: relative;
+            width: 50px;
+            margin-left: 20px;
+            padding-left: 30px;
+            color: $normalText;
+            font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            &:hover{
+                color: $darkText;
+            }
+            &::before{
+                content: '';
+                display: block;
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: url("../images2/iconAssessment20.svg") no-repeat;
+                opacity: .5;
+                transition: all 0.2s ease;
+                -webkit-transition: all 0.2s ease;
+            }
+            &:hover::before{
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.btnAllResults{
+    margin-bottom: 30px;
 }
 
 .peopleList{
@@ -2700,7 +2873,7 @@ header{
 			align-items: center;
 			> .progressBar,
 			.studentsNum{
-				width: 50%;
+				width: 40%;
 				margin-right: 20px;
 			}
 			.studentsNum span{
@@ -2716,7 +2889,9 @@ header{
 				margin-right: 20px;
             }
 			.assignedTo{
-				width: 40%;
+                display: flex;
+                align-items: center;
+				width: 60%;
 				> .btn{
 					margin-right: 20px;
 				}
@@ -2727,6 +2902,16 @@ header{
 					}
 				}
 			}
+            .studentFollowOpt{
+                width: 50%;
+                > .btn{
+                    width: 100px;
+					margin-right: 20px;
+                    &.btn-default{
+                        margin-right: 0;
+                    }
+				}
+            }
             .userEditOpt{
                 width: 50%;
                 > .btn{
@@ -2975,6 +3160,9 @@ header{
             margin-top: 15px;
             display: inline-block;
         }
+        .repliesWrapper{
+            padding-top: 15px;
+        }
 		.media-left, .media>.pull-left{
 			padding: 0;
 		}
@@ -2985,6 +3173,9 @@ header{
 			}
 			.commentMain{
 				position: relative;
+                &.highlighted{
+                    background: rgba(255, 236, 0, 0.1);
+                }
 				h3{
 					margin-bottom: 10px;
 					position: relative;
@@ -3473,6 +3664,10 @@ header{
 
 .notifAnnouncement .icon{
 	background: url("../images2/iconNotifAnnouncement16.svg") no-repeat;
+}
+
+.notifInstructor .icon{
+	background: url("../images2/iconNotifFollow16.svg") no-repeat;
 }
 
 #termsPage{

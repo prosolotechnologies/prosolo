@@ -594,7 +594,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"AND cred.draft = :draft ");
 			
 			if(role == Role.User) {
-				queryBuilder.append("AND cred.createdBy.id = :user");
+				queryBuilder.append("AND cred.type = :type " +
+									"AND cred.createdBy.id = :user");
 			} else {
 				queryBuilder.append("AND cred.type = :type");
 			}
@@ -606,6 +607,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setBoolean("draft", false);
 			
 			if(role == Role.User) {
+				q.setParameter("type", LearningResourceType.USER_CREATED);
 				q.setLong("user", creatorId);
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
@@ -2719,6 +2721,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential data");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getNumberOfUsersLearningCredential(long credId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(cred.id) " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.credential.id = :credId";
+			
+			Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			return res != null ? res : 0;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of users learning credential");
 		}
 	}
 }

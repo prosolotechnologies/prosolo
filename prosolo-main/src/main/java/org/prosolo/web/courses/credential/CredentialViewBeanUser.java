@@ -29,7 +29,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -58,6 +58,8 @@ public class CredentialViewBeanUser implements Serializable {
 	private String mode;
 	private boolean justEnrolled;
 	
+	private long numberOfUsersLearningCred;
+	
 	private CredentialData credentialData;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
@@ -85,6 +87,11 @@ public class CredentialViewBeanUser implements Serializable {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
+					}
+				} else {
+					if(credentialData.isEnrolled()) {
+						numberOfUsersLearningCred = credentialManager
+								.getNumberOfUsersLearningCredential(decodedId);
 					}
 				}
 			} catch(Exception e) {
@@ -146,6 +153,8 @@ public class CredentialViewBeanUser implements Serializable {
 			CredentialData cd = credentialManager.enrollInCredential(decodedId, 
 					loggedUser.getUserId(), lcd);
 			credentialData = cd;
+			numberOfUsersLearningCred = credentialManager
+					.getNumberOfUsersLearningCredential(decodedId);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -299,6 +308,14 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setEventFactory(EventFactory eventFactory) {
 		this.eventFactory = eventFactory;
+	}
+
+	public long getNumberOfUsersLearningCred() {
+		return numberOfUsersLearningCred;
+	}
+
+	public void setNumberOfUsersLearningCred(long numberOfUsersLearningCred) {
+		this.numberOfUsersLearningCred = numberOfUsersLearningCred;
 	}
 	
 }

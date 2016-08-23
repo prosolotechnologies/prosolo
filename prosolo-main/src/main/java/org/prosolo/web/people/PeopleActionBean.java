@@ -16,7 +16,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.FollowResourceAsyncManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -43,12 +43,7 @@ public class PeopleActionBean implements Serializable {
 
 	public void followCollegueById(String userToFollowName, long userToFollowId) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-
-			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-			followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, lcxt);
+			followUserById(userToFollowId);
 			PageUtil.fireSuccessfulInfoMessage("Started following " + userToFollowName + ".");
 		} catch(EntityAlreadyExistsException ex) {
 			PageUtil.fireErrorMessage("You are already following " + userToFollowName);
@@ -59,12 +54,7 @@ public class PeopleActionBean implements Serializable {
 
 	public void unfollowCollegueById(String userToUnfollowName, long userToUnfollowId) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-
-			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-			followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, lcxt);
+			unfollowUserById(userToUnfollowId);
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -72,14 +62,28 @@ public class PeopleActionBean implements Serializable {
 		PageUtil.fireSuccessfulInfoMessage("Stopped following " + userToUnfollowName + ".");
 	}
 	
+	public void followUserById(long userToFollowId) 
+			throws EntityAlreadyExistsException, DbConnectionException {
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+
+		LearningContextData lcxt = new LearningContextData(page, learningContext, null);
+
+		followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, lcxt);
+	}
+
+	public void unfollowUserById(long userToUnfollowId) throws EventException {
+		String page = PageUtil.getPostParameter("page");
+		String learningContext = PageUtil.getPostParameter("learningContext");
+
+		LearningContextData lcxt = new LearningContextData(page, learningContext, null);
+
+		followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, lcxt);
+	}
+	
 	public void followCollegue(UserData user) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-
-			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-			followResourceManager.followUser(loggedUser.getUserId(), user.getId(), lcxt);
+			followUserById(user.getId());
 			user.setFollowed(true);
 			PageUtil.fireSuccessfulInfoMessage("Started following " + user.getName() + ".");
 		} catch(EntityAlreadyExistsException ex) {
@@ -92,12 +96,7 @@ public class PeopleActionBean implements Serializable {
 
 	public void unfollowCollegue(UserData user) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-
-			LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-			followResourceManager.unfollowUser(loggedUser.getUserId(), user.getId(), lcxt);
+			unfollowUserById(user.getId());
 			user.setFollowed(false);
 		} catch (EventException e) {
 			logger.error(e);

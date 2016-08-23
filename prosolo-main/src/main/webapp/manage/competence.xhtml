@@ -13,7 +13,7 @@
 	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
-		ProSolo - Competence
+		Competence - #{competenceViewBeanManager.competenceData.title}
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -27,7 +27,7 @@
 	</ui:define>
 
     <ui:define name="resourceTitle">
-    	<h1>#{competenceViewBeanManager.competenceData.title} 
+    	<h1>#{competenceViewBeanManager.competenceData.title}
     		<span>#{competenceViewBeanManager.getLabelForCompetence()}</span></h1>
     </ui:define>
     

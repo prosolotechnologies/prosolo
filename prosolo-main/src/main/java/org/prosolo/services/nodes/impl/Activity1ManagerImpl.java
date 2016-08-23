@@ -543,7 +543,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					"AND compAct.competence.id IN (:compIds)");
 			
 			if(role == Role.User) {
-				queryBuilder1.append("AND act.createdBy.id = :user");
+				queryBuilder1.append("AND act.type = :type " +
+									 "AND act.createdBy.id = :user");
 			} else {
 				queryBuilder1.append("AND act.type = :type ");
 			}
@@ -556,6 +557,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.setBoolean("draft", false);
 			
 			if(role == Role.User) {
+				q.setParameter("type", LearningResourceType.USER_CREATED);
 				q.setLong("user", creatorId);
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);

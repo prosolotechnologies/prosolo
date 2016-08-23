@@ -158,7 +158,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/achievements/achievements-credentials").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/new").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/competences/new").hasAuthority("BASIC.USER.ACCESS")
@@ -189,6 +191,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/messages").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings/password").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings/email").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/settings/twitterOAuth").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/settings").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   //manage competence
 		   .antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
@@ -249,7 +252,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/roles").hasAuthority("ROLES.VIEW")
 		   .antMatchers("/admin/dashboard").hasAuthority("ADMINDASHBOARD.VIEW")
 		   .antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/settings/twitterOAuth").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings_old").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/analyticsSettings").hasAuthority("BASIC.ADMIN.ACCESS")
 		  
@@ -545,37 +550,37 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		return extendedMetadataDelegate;
 	}
 	
-	@Bean
-	@Qualifier("idp-simplesaml")
-	public ExtendedMetadataDelegate simpleSamlProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata.php";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
-	
-	@Bean
-	@Qualifier("idp-simplesaml-shib")
-	public ExtendedMetadataDelegate simpleSamlShibProvider()
-			throws MetadataProviderException {
-		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/shib13/idp/metadata.php";
-		Timer backgroundTaskTimer = new Timer(true);
-		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-		httpMetadataProvider.setParserPool(parserPool());
-		ExtendedMetadataDelegate extendedMetadataDelegate = 
-				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-		extendedMetadataDelegate.setMetadataTrustCheck(true);
-		extendedMetadataDelegate.setMetadataRequireSignature(false);
-		return extendedMetadataDelegate;
-	}
+//	@Bean
+//	@Qualifier("idp-simplesaml")
+//	public ExtendedMetadataDelegate simpleSamlProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata3.php";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate = 
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
+//	
+//	@Bean
+//	@Qualifier("idp-simplesaml-shib")
+//	public ExtendedMetadataDelegate simpleSamlShibProvider()
+//			throws MetadataProviderException {
+//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/shib13/idp/metadata.php";
+//		Timer backgroundTaskTimer = new Timer(true);
+//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+//		httpMetadataProvider.setParserPool(parserPool());
+//		ExtendedMetadataDelegate extendedMetadataDelegate = 
+//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+//		extendedMetadataDelegate.setMetadataTrustCheck(true);
+//		extendedMetadataDelegate.setMetadataRequireSignature(false);
+//		return extendedMetadataDelegate;
+//	}
  
     // IDP Metadata configuration + sp metadata configuration
     @Bean
@@ -583,8 +588,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
         List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
         providers.add(ssoCircleExtendedMetadataProvider());
-        providers.add(simpleSamlProvider());
-        providers.add(simpleSamlShibProvider());
+        //providers.add(simpleSamlProvider());
+        //providers.add(simpleSamlShibProvider());
         //our metadata
         providers.add(prosoloSPMetadata());
         return new CachingMetadataManager(providers);

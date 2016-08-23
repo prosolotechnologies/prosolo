@@ -29,7 +29,7 @@ import org.prosolo.web.manage.students.data.observantions.EditObservationData;
 import org.prosolo.web.manage.students.data.observantions.ObservationData;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
 import org.prosolo.web.manage.students.data.observantions.SymptomData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

@@ -25,7 +25,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.CompetenceData;
 import org.prosolo.web.search.data.SortingOption;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

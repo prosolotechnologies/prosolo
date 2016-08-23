@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.ChangeProgressEvent;
@@ -65,8 +66,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					event.getObject().getId());
 	    } else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
-	    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cpe.getObject().getId(), 
-	    			cpe.getNewProgressValue());
+	    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
+	    	Credential1 cr = tc.getCredential();
+	    	if(cr != null) {
+		    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), 
+		    			cpe.getNewProgressValue());
+	    	}
 	    } else if(eventType == EventType.Edit_Profile) {
 	    	BaseEntity obj = event.getObject();
 	    	long userId = 0;

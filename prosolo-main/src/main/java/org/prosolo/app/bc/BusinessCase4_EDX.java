@@ -803,13 +803,21 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCredentialDataForEdit(cred.getId(), 
-				creator.getId(), true);
+		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
 		
-		credentialData.setPublished(true);
+		if (credentialData == null) {
+			CredentialData credentialData1 = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+			System.out.println(credentialData1);
+		}
 		
-		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
-				org.prosolo.services.nodes.data.Role.Manager, null);
+		if (credentialData != null) {
+			credentialData.setPublished(true);
+			
+			credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(),
+					org.prosolo.services.nodes.data.Role.Manager, null);
+		} else {
+			logger.error("Could not load credential " + cred.getId());
+		}
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,

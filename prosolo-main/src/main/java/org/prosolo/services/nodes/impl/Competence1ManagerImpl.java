@@ -519,7 +519,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						"AND comp.draft = :draft ");
 			}
 			if(role == Role.User) {
-				queryBuilder.append("AND comp.createdBy.id = :user");
+				queryBuilder.append("AND comp.type = :type " +
+									"AND comp.createdBy.id = :user");
 			} else {
 				queryBuilder.append("AND comp.type = :type ");
 			}
@@ -531,6 +532,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setBoolean("draft", false);
 			
 			if(role == Role.User) {
+				q.setParameter("type", LearningResourceType.USER_CREATED);
 				q.setLong("user", creatorId);
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
