@@ -281,15 +281,16 @@ public class MessagesBean implements Serializable {
 			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
 				//new recipients have been set, send message to them (and create or re-use existing thread)
 				message = messagingManager.sendMessage(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
+				initializeThreadData(message.getMessageThread());
 			}
 			else {
 				//no recipients set, assume current thread is used
 				message = messagingManager.sendMessages(loggedUser.getUserId(), 
 						threadData.getParticipants(), messageText, threadData.getId(), "");
 			}
-			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId() + " with content: '"+this.messageText+"'");
+			//at this point, threadData is initialized (either through init method, or now, by sending very first message)
+			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId()+ " with content: '"+this.messageText+"'");
 			publishSentMessage(loggedUser.getUserId(), threadData.getParticipants(), message);
-			
 			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Message sent");
 			//set archived to false, as sending message unarchives thread
 			archiveView = false;
@@ -297,7 +298,7 @@ public class MessagesBean implements Serializable {
 			messagesThreads = null;
 			init();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Exception while sending message", e);
 		}
 	}
 	
