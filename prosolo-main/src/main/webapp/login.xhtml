@@ -67,7 +67,7 @@
 				
 				<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
 					<div>
-						<a href="http://localhost:8080/saml/login?idp=#{ip.entityId}" >
+						<a href="#{applicationbean.domain}/saml/login?idp=#{ip.entityId}" >
 							Login with #{ip.displayName}
 						</a>
 					</div>
