@@ -1,0 +1,90 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+		<composite:attribute name="canEdit" default="" />
+		<composite:attribute name="isPreview" default="" />
+		<composite:attribute name="toUpdateOnActivityComplete" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		
+    	<h:form id="formMain">
+			<div class="whiteBarContent">
+				<h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
+					<p:commandLink
+						rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+							and !cc.attrs.isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed
+							and cc.attrs.bean.nextToLearn}"
+						styleClass="btn btn-green btn-sm item"
+						value="Mark as Complete"
+						process="@this"
+						action="#{cc.attrs.bean.completeActivity()}"
+						update=":#{cc.clientId}:formMain:panelComplete #{cc.attrs.toUpdateOnActivityComplete}">
+						<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+						<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+					</p:commandLink>
+					
+					<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+							and !cc.attrs.isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
+							and !cc.attrs.bean.nextToLearn}">
+						<a href="javascript:void(0);" 
+							class="btn btn-green btn-sm item" 
+							disabled="disabled" 
+							data-toggle="tooltip" 
+							title="In order to complete this activity, previous tasks need to be completed.">
+							Mark as Complete
+						</a>
+					</ui:fragment>
+					
+					<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
+						and !cc.attrs.isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
+						<div class="tagCompleted item">Completed</div>
+						
+						<h:link
+							rendered="#{cc.attrs.bean.nextCompToLearn ne 0}"
+                			value="Continue"
+                			styleClass="btn btn-green btn-sm item"
+                			outcome="activity"
+                			onclick="sendLogPageNavigation('/activity.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(cc.attrs.learningContext, &#34;context:/name:resume_learning/&#34;)}', 
+								'#{cc.attrs.service}');">
+                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.nextActivityToLearn)}" />
+			            	<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.nextCompToLearn)}" />
+			            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}" />
+                		</h:link>				             
+					</ui:fragment>
+				</h:panelGroup>
+				
+				<div class="whiteBarRight">
+					<div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
+					
+					<h:link 
+						rendered="#{cc.attrs.canEdit and !cc.attrs.isPreview}"
+						value="Edit Activity"
+						styleClass="btn btn-green-stroke btn-sm item"
+						outcome="create-activity">
+						<f:param name="id" value="#{param['actId']}"></f:param>
+						<f:param name="compId" value="#{param['compId']}"></f:param>
+						<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+					</h:link>
+				</div>
+			</div>
+		</h:form>
+	</composite:implementation>
+</ui:component>

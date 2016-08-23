@@ -62,6 +62,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/competences/{compId}/{id}/edit").to("/create-activity.xhtml"))
 				.addRule(Join.path("/competences/{compId}/newActivity").to("/create-activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}").to("/activity.xhtml"))
+				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}/results").to("/activity-results.xhtml"))
 				/* student viewing his assessment request (assessment-preview.html)*/
 				.addRule(Join.path("/competences/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/digest").to("/digest.xhtml"))
@@ -139,6 +140,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/competences/{compId}/{id}/edit").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/newActivity").to("/manage/create-activity.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}").to("/manage/activity.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/results").to("/manage/activity-results.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/{actId}").to("/manage/activity.xhtml"))
 				//manage library
 				.addRule(Join.path("/manage/library").to("/manage/credentialLibrary.xhtml"))

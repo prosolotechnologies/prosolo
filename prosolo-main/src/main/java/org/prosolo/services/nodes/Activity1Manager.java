@@ -159,5 +159,9 @@ public interface Activity1Manager {
 	
 	List<TargetActivity1> getTargetActivities(long targetCompId) 
 			throws DbConnectionException;
+	
+	CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
+			long credId, long compId, long actId, long userId) 
+					throws DbConnectionException;
 
 }

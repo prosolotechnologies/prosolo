@@ -857,7 +857,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setCompetenceId(compId);
 		actData.setDurationMinutes(durationMinutes);
 		actData.setDurationHours(durationHours);
-		actData.setResultType(resultType);
+		actData.getResultData().setResultType(resultType);
 		
 		if (nameLink != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();

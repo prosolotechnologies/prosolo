@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
-import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.util.TimeUtil;
 
 public class ActivityData extends StandardObservable implements Serializable {
@@ -25,11 +23,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	//target activity specific
 	private boolean enrolled;
 	private boolean completed;
-	private String assignmentTitle; 
-	private String result;
-	private Date resultPostDate;
-	private ActivityResultType resultType;
-	private CommentsData resultComments;
+	private ActivityResultData resultData;
 	
 	private int order;
 	private int durationHours;
@@ -68,12 +62,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private long competenceId;
 	private String competenceName;
 	
+	private List<ActivityResultData> studentResults;
+	
 	public ActivityData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
-		resultType = ActivityResultType.NONE;
+		resultData = new ActivityResultData();
 	}
 	
 	@Override
@@ -392,14 +388,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		observeAttributeChange("text", this.text, text);
 		this.text = text;
 	}
-
-	public String getAssignmentTitle() {
-		return assignmentTitle;
-	}
-
-	public void setAssignmentTitle(String assignmentTitle) {
-		this.assignmentTitle = assignmentTitle;
-	}
 	
 	public String getEmbedId() {
 		return embedId;
@@ -531,44 +519,20 @@ public class ActivityData extends StandardObservable implements Serializable {
 		}
 	}
 
-	public String getResult() {
-		return result;
+	public ActivityResultData getResultData() {
+		return resultData;
 	}
 
-	public void setResult(String result) {
-		this.result = result;
+	public void setResultData(ActivityResultData resultData) {
+		this.resultData = resultData;
 	}
 
-	public ActivityResultType getResultType() {
-		return resultType;
+	public List<ActivityResultData> getStudentResults() {
+		return studentResults;
 	}
 
-	public void setResultType(ActivityResultType resultType) {
-		observeAttributeChange("resultType", this.resultType, resultType);
-		this.resultType = resultType;
-	}
-
-	public Date getResultPostDate() {
-		return resultPostDate;
-	}
-
-	public void setResultPostDate(Date resultPostDate) {
-		this.resultPostDate = resultPostDate;
-	}
-	
-	public String getPrettyResultPostDate() {
-		if(resultPostDate == null) {
-			return "";
-		}
-		return DateUtil.getTimeAgoFromNow(resultPostDate);
-	}
-
-	public CommentsData getResultComments() {
-		return resultComments;
-	}
-
-	public void setResultComments(CommentsData resultComments) {
-		this.resultComments = resultComments;
+	public void setStudentResults(List<ActivityResultData> studentResults) {
+		this.studentResults = studentResults;
 	}
 	
 }

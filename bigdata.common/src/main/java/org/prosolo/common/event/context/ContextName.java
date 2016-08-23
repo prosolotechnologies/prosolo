@@ -54,7 +54,8 @@ public enum ContextName {
 	SETTINGS_PASSWORD("User"),
 	MESSAGES(""),
 	UPLOAD_RESULT_DIALOG(""),
-	RESULT("");
+	RESULT("TargetActivity1"),
+	RESULTS("");
 	
     private String objectType; 
     

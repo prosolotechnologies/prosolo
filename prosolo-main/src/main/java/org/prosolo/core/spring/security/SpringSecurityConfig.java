@@ -167,6 +167,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/announcements").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/*/*").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/*/*/results").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 		   //.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
@@ -225,6 +226,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/*/edit").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/competences/*/newActivity").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/*/*/*").hasAnyAuthority("COMPETENCES.VIEW")
+		   .antMatchers("/manage/credentials/*/*/*/results").hasAuthority("COMPETENCES.VIEW")
 		   .antMatchers("/manage/competences/*/*").hasAnyAuthority("COMPETENCES.VIEW")
 		   //
 		   .antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
@@ -458,10 +460,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         DefaultResourceLoader loader = new DefaultResourceLoader();
         Resource storeFile = loader
                 .getResource("classpath:security/keystore.jks");
-        String storePass = "prosolo123";
+//        String storePass = "prosolo123";
+//        Map<String, String> passwords = new HashMap<String, String>();
+//        passwords.put("prosolo", "prosolo123");
+//        String defaultKey = "prosolo";
+        String storePass = "prosolopass";
         Map<String, String> passwords = new HashMap<String, String>();
-        passwords.put("prosolo", "prosolo123");
-        String defaultKey = "prosolo";
+        passwords.put("prosoloalias", "prosolopass");
+        String defaultKey = "prosoloalias";
         return new JKSKeyManager(storeFile, storePass, passwords, defaultKey);
     }
  
@@ -509,6 +515,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public SAMLEntryPoint samlEntryPoint() {
         SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
         samlEntryPoint.setDefaultProfileOptions(defaultWebSSOProfileOptions());
+      //  samlEntryPoint.setFilterProcessesUrl("/prosolo/saml/login");
         return samlEntryPoint;
     }
     
@@ -546,21 +553,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		return extendedMetadataDelegate;
 	}
 	
-//	@Bean
-//	@Qualifier("idp-simplesaml")
-//	public ExtendedMetadataDelegate simpleSamlProvider()
-//			throws MetadataProviderException {
-//		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata3.php";
-//		Timer backgroundTaskTimer = new Timer(true);
-//		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
-//				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
-//		httpMetadataProvider.setParserPool(parserPool());
-//		ExtendedMetadataDelegate extendedMetadataDelegate = 
-//				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
-//		extendedMetadataDelegate.setMetadataTrustCheck(true);
-//		extendedMetadataDelegate.setMetadataRequireSignature(false);
-//		return extendedMetadataDelegate;
-//	}
+	@Bean
+	@Qualifier("idp-simplesaml")
+	public ExtendedMetadataDelegate simpleSamlProvider()
+			throws MetadataProviderException {
+		String idpSSOCircleMetadataURL = "http://simplesaml.com/simplesaml/saml2/idp/metadata.php";
+		Timer backgroundTaskTimer = new Timer(true);
+		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+		httpMetadataProvider.setParserPool(parserPool());
+		ExtendedMetadataDelegate extendedMetadataDelegate = 
+				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+		extendedMetadataDelegate.setMetadataTrustCheck(true);
+		extendedMetadataDelegate.setMetadataRequireSignature(false);
+		return extendedMetadataDelegate;
+	}
 //	
 //	@Bean
 //	@Qualifier("idp-simplesaml-shib")
@@ -584,7 +591,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
         List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
         providers.add(ssoCircleExtendedMetadataProvider());
-        //providers.add(simpleSamlProvider());
+        providers.add(simpleSamlProvider());
         //providers.add(simpleSamlShibProvider());
         //our metadata
         providers.add(prosoloSPMetadata());

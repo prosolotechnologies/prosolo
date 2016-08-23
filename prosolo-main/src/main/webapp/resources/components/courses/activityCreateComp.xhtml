@@ -191,7 +191,7 @@
                  <div class="formLineRight">
                  	 <h:selectOneMenu 
                  	 	styleClass="selectpicker"
-                 	 	value="#{cc.attrs.activity.resultType}"
+                 	 	value="#{cc.attrs.activity.resultData.resultType}"
                  	 	onchange="updateStatusToDraft();">
                  	 	<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
 							itemValue="#{resType}" itemLabel="#{resType.label}" />
