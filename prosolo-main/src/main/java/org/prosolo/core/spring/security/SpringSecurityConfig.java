@@ -464,8 +464,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .getResource("classpath:security/keystore.jks");
         String storePass = "prosolopass";
         Map<String, String> passwords = new HashMap<String, String>();
-        passwords.put("prosolo", "prosolopass");
-        String defaultKey = "prosolo";
+        passwords.put("prosoloalias", "prosolopass");
+        String defaultKey = "prosoloalias";
         return new JKSKeyManager(storeFile, storePass, passwords, defaultKey);
     }
  
@@ -549,6 +549,38 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		extendedMetadataDelegate.setMetadataRequireSignature(false);
 		return extendedMetadataDelegate;
 	}
+
+	@Bean
+	@Qualifier("idp-testutaedu")
+	public ExtendedMetadataDelegate ssoUtaTestExtendedMetadataProvider()
+			throws MetadataProviderException {
+		String idpSSOCircleMetadataURL = "https://idp-test.uta.edu/idp/shibboleth";
+		Timer backgroundTaskTimer = new Timer(true);
+		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+		httpMetadataProvider.setParserPool(parserPool());
+		ExtendedMetadataDelegate extendedMetadataDelegate =
+				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+		extendedMetadataDelegate.setMetadataTrustCheck(true);
+		extendedMetadataDelegate.setMetadataRequireSignature(false);
+		return extendedMetadataDelegate;
+	}
+
+	@Bean
+	@Qualifier("idp-produtaedu")
+	public ExtendedMetadataDelegate ssoUtaProdExtendedMetadataProvider()
+			throws MetadataProviderException {
+		String idpSSOCircleMetadataURL = "https://idp.uta.edu/idp/shibboleth";
+		Timer backgroundTaskTimer = new Timer(true);
+		HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(
+				backgroundTaskTimer, httpClient(), idpSSOCircleMetadataURL);
+		httpMetadataProvider.setParserPool(parserPool());
+		ExtendedMetadataDelegate extendedMetadataDelegate =
+				new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
+		extendedMetadataDelegate.setMetadataTrustCheck(true);
+		extendedMetadataDelegate.setMetadataRequireSignature(false);
+		return extendedMetadataDelegate;
+	}
 	
 //	@Bean
 //	@Qualifier("idp-simplesaml")
@@ -588,6 +620,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
         List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
         providers.add(ssoCircleExtendedMetadataProvider());
+		providers.add(ssoUtaTestExtendedMetadataProvider());
+		providers.add(ssoUtaProdExtendedMetadataProvider());
         //providers.add(simpleSamlProvider());
         //providers.add(simpleSamlShibProvider());
         //our metadata
