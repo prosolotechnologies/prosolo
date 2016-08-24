@@ -27,10 +27,12 @@ public class SamlLoginBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		identityProviders = Settings.getInstance().config.application.registration.samlProviders.samlProviders;
-		if(identityProviders == null) {
+
+		if (identityProviders == null) {
 			identityProviders = new ArrayList<>();
 		} else {
-			identityProviders = identityProviders.stream().filter(ip -> ip.isEnabled())
+			identityProviders = identityProviders.stream()
+					.filter(ip -> ip.isEnabled())
 					.collect(Collectors.toList());
 		}
 	}

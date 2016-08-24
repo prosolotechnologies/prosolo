@@ -53,9 +53,17 @@
 					            	<span></span>Sign in with edX
 				            	</h:commandLink>
 		                    </c:if>
+		                
+							<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+								<a href="#{applicationbean.domain}saml/login?idp=#{ip.entityId}" 
+									class="#{ip.styleClass}">
+									<span></span>Sign in with #{ip.displayName}
+								</a>
+							</ui:repeat>
 		                </div>
 	                </h:form>
                 </c:if>
+				
 		                
                 <c:if test="#{(applicationbean.config.application.registration.google or 
 								applicationbean.config.application.registration.edx) and 
@@ -64,14 +72,6 @@
 	                    <span>or sign in with your email</span>
 	                </div>
 				</c:if>
-				
-				<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
-					<div>
-						<a href="#{applicationbean.domain}/saml/login?idp=#{ip.entityId}" >
-							Login with #{ip.displayName}
-						</a>
-					</div>
-				</ui:repeat>
             </div>
 	            
 	           

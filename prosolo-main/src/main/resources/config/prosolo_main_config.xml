@@ -81,13 +81,15 @@
 			 <saml>
 				<provider>
 					<display-name>UTA</display-name>
-					<entity-id>/</entity-id>
+					<entity-id>https://idp-test.uta.edu/idp/shibboleth</entity-id>
 					<enabled>false</enabled>
+					<style-class>btnUTA</style-class>
 				</provider>
 				<provider>
 					<display-name>SSO Circle</display-name>
 					<entity-id>https://idp.ssocircle.com</entity-id>
 					<enabled>false</enabled>
+					<style-class>btnDefault</style-class>
 				</provider>
 			 </saml>
 		</registration>
