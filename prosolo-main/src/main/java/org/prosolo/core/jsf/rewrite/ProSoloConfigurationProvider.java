@@ -71,6 +71,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/settings_old").to("/settings_old.xhtml"))
 				.addRule(Join.path("/settings/password").to("/settings/password.xhtml"))
 				.addRule(Join.path("/settings/email").to("/settings/email.xhtml"))
+				.addRule(Join.path("/settings/twitterOAuth").to("/settings/twitterOAuth.xhtml"))
 				.addRule(Join.path("/settings").to("/settings.xhtml"))
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
 				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
@@ -156,6 +157,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings/password").to("/admin/settings/password.xhtml"))
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
+				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
 				.addRule(Join.path("/admin/analyticsSettings").to("/admin/analyticsSettings.xhtml"));
 	}
 }

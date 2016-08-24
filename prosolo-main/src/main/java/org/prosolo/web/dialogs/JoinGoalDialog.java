@@ -18,7 +18,7 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

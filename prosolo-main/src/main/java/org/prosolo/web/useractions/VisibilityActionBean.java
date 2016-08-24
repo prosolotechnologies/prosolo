@@ -13,7 +13,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.VisibilityManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.data.NewPostData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

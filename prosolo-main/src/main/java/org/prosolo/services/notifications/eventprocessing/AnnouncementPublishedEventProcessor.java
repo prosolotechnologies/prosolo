@@ -60,12 +60,12 @@ public class AnnouncementPublishedEventProcessor extends NotificationEventProces
 
 	@Override
 	ObjectType getObjectType() {
-		return ObjectType.Announcement;
+		return ObjectType.Credential;
 	}
 
 	@Override
 	long getObjectId() {
-		return event.getObject().getId();
+		return event.getTarget().getId(); // return credential id
 	}
 
 	@Override

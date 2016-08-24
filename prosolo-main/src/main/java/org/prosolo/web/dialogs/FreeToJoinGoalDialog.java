@@ -18,7 +18,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.data.GoalData;
 import org.prosolo.web.home.MessagesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

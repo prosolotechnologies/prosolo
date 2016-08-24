@@ -25,7 +25,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.util.ICommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

@@ -8,7 +8,6 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.SocialNetworksManager;
-import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +21,8 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	public UserSocialNetworks getSocialNetworks(long userId) throws ResourceCouldNotBeLoadedException {
 		String query = 
 				"SELECT socialNetwork " + 
-				"FROM UserSocialNetworks socialNetwork "
-				+ "WHERE socialNetwork.user.id = :userId ";
+				"FROM UserSocialNetworks socialNetwork " +
+				"WHERE socialNetwork.user.id = :userId ";
 
 		UserSocialNetworks result = (UserSocialNetworks) persistence.currentManager().createQuery(query)
 				.setLong("userId", userId)
@@ -46,22 +45,39 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		account.setLink(link);
 		return saveEntity(account);
 	}
+	
+	@Override
+	public void addSocialNetworkAccount(long userId, SocialNetworkName name, String link) throws ResourceCouldNotBeLoadedException {
+		UserSocialNetworks socialNetworks = getSocialNetworks(userId);
+		SocialNetworkAccount account = createSocialNetworkAccount(name, link);
+		
+		socialNetworks.addSocialNetworkAccount(account);
+		saveEntity(socialNetworks);
+	}
 
 	@Override
 	@Transactional(readOnly = false)
-	public void updateSocialNetworkAccount(SocialNetworkAccountData socialNetowrkAccountData, long userId)
+	public void updateSocialNetworkAccount(SocialNetworkAccount account)
 			throws DbConnectionException {
+		try {
+			saveEntity(account);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			throw new DbConnectionException();
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateSocialNetworkAccount(long id, String newLink)
+			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+		SocialNetworkAccount account = loadResource(SocialNetworkAccount.class, id);
 		
-		SocialNetworkAccount account = getSocialNetworkAccount(userId, socialNetowrkAccountData.getSocialNetworkName());
-		
-		if (account != null) {
-			account.setLink(socialNetowrkAccountData.getLinkEdit());
-			try {
-				saveEntity(account);
-			} catch (DbConnectionException e) {
-				e.printStackTrace();
-				throw new DbConnectionException();
-			}
+		try {
+			saveEntity(account);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			throw new DbConnectionException();
 		}
 	}
 

@@ -15,8 +15,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

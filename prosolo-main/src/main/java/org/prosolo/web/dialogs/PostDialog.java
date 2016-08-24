@@ -29,7 +29,7 @@ import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.PostActionBean;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.useractions.util.PostUtil;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

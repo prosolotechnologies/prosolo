@@ -2,7 +2,7 @@ package org.prosolo.web.lti.message.extract;
 
 import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.message.LTILaunchMessage;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 
 public class Lti1LaunchMessageBuilder extends LtiLaunchMessageBuilder{
 

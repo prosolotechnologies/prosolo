@@ -12,7 +12,7 @@ import javax.faces.context.FacesContext;
 import org.apache.log4j.Logger;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MessagesBean implements Serializable {

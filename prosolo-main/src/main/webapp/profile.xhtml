@@ -12,7 +12,7 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
 	
 	<ui:define name="windowTitle">
-		Prosolo - Profile
+		#{profile.studentFullName}
 	</ui:define>
 	
 	<ui:define name="metadata">
@@ -37,7 +37,7 @@
                    <div>#{profile.studentAffiliation}</div>
                    <div>#{profile.studentLocation}</div>
                    <ul class="socialLinks">
-                   	<ui:repeat value="#{profile.socialNetworksData.socialNetworkAccountDatas.entrySet().toArray()}" 
+                   	<ui:repeat value="#{profile.socialNetworksData.socialNetworkAccountsData.entrySet().toArray()}" 
                    			var="socialNetworkData" varStatus="iterator">
                    		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
 	                        <li class="#{profile.getAlternativeName(socialNetworkData.value.socialNetworkName)}">

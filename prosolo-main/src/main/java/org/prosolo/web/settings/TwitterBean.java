@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -12,17 +11,16 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.omnifaces.util.Ajax;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -53,23 +51,24 @@ public class TwitterBean implements Serializable {
 	@Inject
 	private LoggedUserBean loggedUser;
 	@Inject
-	private ProfileSettingsBean profileSettingsBean;
-	@Inject
 	private AnalyticalServiceCollector analyticalServiceCollector;
 	@Inject
 	private SocialNetworksManager socialNetworksManager;
+	@Inject
+	private ProfileSettingsBean profileSettingsBean;
 
 	private OauthAccessToken accessToken = null;
-	private boolean connectedToTwitter;
 
 	private String hashTags;
 
-	@PostConstruct
 	public void init() {
+		boolean redirected = false;
+		
 		// checking whether there is "oauth_verifier" query parameter in URL. If there are, that means that 
 		// user is doing Twitter authentication
 		try {
-			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+			FacesContext context = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = context.getExternalContext();
 			Map<String, String> parameterMap = (Map<String, String>) externalContext.getRequestParameterMap();
 			String oauthVerifier = parameterMap.get("oauth_verifier");
 			
@@ -78,25 +77,29 @@ public class TwitterBean implements Serializable {
 				
 				if (accessToken != null) {
 					PageUtil.fireSuccessfulInfoMessage("You have connected your Twitter account with ProSolo");
+					context.getExternalContext().getFlash().setKeepMessages(true);
 					
-					SocialNetworkAccountData twitterData = profileSettingsBean.getSocialNetworksData().getSocialNetworkAccountDatas().get(SocialNetworkName.TWITTER.toString());
+					SocialNetworkAccount twitterAccount = socialNetworksManager.getSocialNetworkAccount(loggedUser.getUserId(), SocialNetworkName.TWITTER);
 					
-					if (twitterData != null) {
-						twitterData.setLinkEdit(accessToken.getProfileLink());
-//						profileSettingsBean.saveSocialNetworkChanges();
-						
-						if (twitterData.isChanged()) {
-							if (twitterData.getId() == 0) {
-								socialNetworksManager.createSocialNetworkAccount(
-										twitterData.getSocialNetworkName(),
-										twitterData.getLinkEdit());
-							} else {
-								socialNetworksManager.updateSocialNetworkAccount(twitterData, loggedUser.getUserId());
-							}
+					if (twitterAccount != null) {
+						if (twitterAccount.getLink().isEmpty() || !twitterAccount.getLink().equals(accessToken.getProfileLink())) {
+							socialNetworksManager.updateSocialNetworkAccount(twitterAccount);
 						}
-						Ajax.update("settings:socialNetworksSettingsForm:twitterProfileUrl");
-						
-						analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(), true);
+					} else {
+						socialNetworksManager.addSocialNetworkAccount(
+								loggedUser.getUserId(),
+								SocialNetworkName.TWITTER,
+								accessToken.getProfileLink());
+					}
+					
+					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(), true);
+					
+					try {
+						String settingsUrl = PageUtil.getSectionForView().getPrefix() + "/settings";
+						externalContext.redirect(settingsUrl);
+						redirected = true;
+					} catch (IOException e) {
+						logger.error(e);
 					}
 				}
 			} else {
@@ -106,8 +109,15 @@ public class TwitterBean implements Serializable {
 			logger.error("Exception in checking twitter status for user:" + loggedUser.getSessionData().getName() + " "
 					+ loggedUser.getSessionData().getLastName(), e);
 		}
-
-		this.connectedToTwitter = accessToken != null;
+		
+		if (!redirected) {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				logger.error(ioe);
+			}
+		}
 	}
 
 	public void initHashTags() {
@@ -141,7 +151,7 @@ public class TwitterBean implements Serializable {
 		String port = null;
 		port = (portNumber != 80) ? (":" + portNumber) : "";
 		String app = request.getContextPath();
-		String publicLink = "http://" + host + port + app + "/settings";
+		String publicLink = "http://" + host + port + app + "/settings/twitterOAuth?section=" + PageUtil.getSectionForView();
 		return publicLink;
 	}
 
@@ -151,8 +161,8 @@ public class TwitterBean implements Serializable {
 		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
 		analyticalServiceCollector.updateTwitterUser(deletedUserId, false);
 		
-		this.connectedToTwitter = false;
-
+		profileSettingsBean.setConnectedToTwitter(false);
+		
 		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
 				"Your Twitter account is disconnected from ProSolo.");
 	}
@@ -256,10 +266,6 @@ public class TwitterBean implements Serializable {
 		this.twitterProfile = twitterProfile;
 	}
 
-	public boolean isConnectedToTwitter() {
-		return connectedToTwitter;
-	}
-	
 	public String getTwitterUsername() {
 		return accessToken != null ? accessToken.getProfileLink() : "";
 	}

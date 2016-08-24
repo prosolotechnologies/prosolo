@@ -10,7 +10,7 @@
 	xmlns:settings="http://java.sun.com/jsf/composite/components/settings">
 
 	<ui:define name="windowTitle">
-		Account Settings
+		Account Settings - Personal Info
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -25,7 +25,7 @@
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'settings' ? 'active' : ''}">
 					<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
-						value="Personal info"
+						value="Personal Info"
 						outcome="/admin/settings" />
 				</li>
 				<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'password' ? 'active' : ''}">
