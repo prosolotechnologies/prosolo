@@ -462,9 +462,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         DefaultResourceLoader loader = new DefaultResourceLoader();
         Resource storeFile = loader
                 .getResource("classpath:security/keystore.jks");
-        String storePass = "prosolo123";
+        String storePass = "prosolopass";
         Map<String, String> passwords = new HashMap<String, String>();
-        passwords.put("prosolo", "prosolo123");
+        passwords.put("prosolo", "prosolopass");
         String defaultKey = "prosolo";
         return new JKSKeyManager(storeFile, storePass, passwords, defaultKey);
     }
