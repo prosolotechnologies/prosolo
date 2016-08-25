@@ -1,5 +1,9 @@
 package org.prosolo.bigdata.jobs;
 
+import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,6 +19,9 @@ import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.SchedulerConfig;
 import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.utils.ScriptRunner;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.MySQLConfig;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -189,18 +196,59 @@ public class CronSchedulerImpl implements CronScheduler {
 	public void startScheduler() throws SchedulerException  {
 		// System.getProperties()
 		// .put("org.quartz.properties", "quartz.properties");
-		// DBConfig dbConfig=Settings.getInstance().config.dbConfig;
+		MySQLConfig mySQLConfig=CommonSettings.getInstance().config.mysqlConfig;
+		String username = mySQLConfig.user;
+		String password = mySQLConfig.password;
+		String host = mySQLConfig.host;
+		int port = mySQLConfig.port;
+		 String database = mySQLConfig.database;
+		//String database="prosolo2";
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 
 		// String
 		// mongoUri="mongodb://"+serverConfig.dbHost+":"+serverConfig.dbPort;
 		SchedulerConfig schedConfig = Settings.getInstance().config.schedulerConfig;
+		// Main Quartz configuration
 		logger.info("STARTING CRON SCHEDULER:");
 		System.setProperty("org.quartz.scheduler.instanceName",
 				schedConfig.instanceName);
-		System.setProperty("org.quartz.threadPool.threadCount",
-				String.valueOf(schedConfig.threadCount));
-		System.setProperty("org.quartz.jobStore.class",
-				schedConfig.jobStoreClass);
+		//System.setProperty("org.quartz.threadPool.threadCount",
+		//		String.valueOf(schedConfig.threadCount));
+		//System.setProperty("org.quartz.jobStore.class",
+			//	schedConfig.jobStoreClass);
+		 System.setProperty("org.quartz.scheduler.skipUpdateCheck","true");
+		System.setProperty("org.quartz.scheduler.instanceName","DatabaseScheduler");
+		System.setProperty("org.quartz.scheduler.instanceId","NON_CLUSTERED");
+		System.setProperty("org.quartz.scheduler.jobFactory.class","org.quartz.simpl.SimpleJobFactory");
+		System.setProperty("org.quartz.jobStore.class","org.quartz.impl.jdbcjobstore.JobStoreTX");
+		System.setProperty("org.quartz.jobStore.driverDelegateClass","org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+		System.setProperty("org.quartz.jobStore.dataSource","quartzDataSource");
+		System.setProperty("org.quartz.jobStore.tablePrefix","QRTZ_");
+		System.setProperty("org.quartz.threadPool.class","org.quartz.simpl.SimpleThreadPool");
+		System.setProperty("org.quartz.threadPool.threadCount","5");
+
+// JobStore: JDBC jobStoreTX
+		System.setProperty("org.quartz.dataSource.quartzDataSource.driver","com.mysql.jdbc.Driver");
+		System.setProperty("org.quartz.dataSource.quartzDataSource.URL", url);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
+
+	try{
+		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
+		ScriptRunner runner = new ScriptRunner(con, true, true);
+		InputStream inpStream = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
+		runner.runScript(new InputStreamReader(inpStream));
+	}catch(SQLException ex){
+		logger.error(ex);
+	}catch(FileNotFoundException fex){
+		logger.error(fex);
+	}catch(IOException ioex){
+		logger.error(ioex);
+	}
+
+
 		// System.setProperty("org.quartz.jobStore.mongoUri",mongoUri);
 		// System.setProperty("org.quartz.jobStore.dbName",dbConfig.dbQuartzName);
 		// System.setProperty("org.quartz.jobStore.collectionPrefix",schedConfig.collectionPrefix);
