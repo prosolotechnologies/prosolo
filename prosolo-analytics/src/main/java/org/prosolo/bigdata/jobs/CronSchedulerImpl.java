@@ -233,7 +233,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
-
+if(Settings.getInstance().config.initConfig.formatDB){
 	try{
 		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
 		ScriptRunner runner = new ScriptRunner(con, true, true);
@@ -247,7 +247,7 @@ public class CronSchedulerImpl implements CronScheduler {
 	}catch(IOException ioex){
 		logger.error(ioex);
 	}
-
+}
 
 		// System.setProperty("org.quartz.jobStore.mongoUri",mongoUri);
 		// System.setProperty("org.quartz.jobStore.dbName",dbConfig.dbQuartzName);

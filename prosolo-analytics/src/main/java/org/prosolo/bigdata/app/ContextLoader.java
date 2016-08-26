@@ -40,8 +40,8 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("CASSANDRA DB FORMATED:" + dbName);
 
 		}
-		ESAdministration esAdmin = new ESAdministrationImpl();
-		if (Settings.getInstance().config.initConfig.formatES) {
+		//ESAdministration esAdmin = new ESAdministrationImpl();
+		/*if (Settings.getInstance().config.initConfig.formatES) {
 
 			try {
 				esAdmin.deleteIndexes();
@@ -51,7 +51,7 @@ public class ContextLoader implements ServletContextListener {
 				e.printStackTrace();
 			}
 
-		}
+		}*/
 
 
 		// TwitterHashtagsStreamsManagerImpl manager=new
