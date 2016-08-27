@@ -74,7 +74,13 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			//String email = credential.getNameID().getValue();
 			//String email = credential.getAttributeAsString("email");
 			//String eduPersonPrincipalName=credential.getAttributeAsString("eduPersonPrincipalName");
-			String email=credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
+			String email=credential.getAttributeAsString("urn:oid:0.9.2342.19200300.100.1.3");//should be email attribute
+			if(email==null || email.length()<5){
+				//dirty hack as temporary solution since UTA is not providing emails for test accounts as email attribute, but as eduPersonPrincipalName
+				email=credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
+				logger.info("Email is returned as eduPersonPrincipalName:"+email);
+			}
+
 			String firstname = credential.getAttributeAsString("urn:oid:2.5.4.42");
 			String lastname = credential.getAttributeAsString("urn:oid:2.5.4.4");
 			logger.info("SAML RETURNED:email:"+email+" firstname:"+firstname+" lastname:"+lastname+" nameID:"+credential.getNameID().getValue());
