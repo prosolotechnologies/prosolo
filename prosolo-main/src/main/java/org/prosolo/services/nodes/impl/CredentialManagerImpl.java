@@ -102,7 +102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					data.getTagsString(), data.getHashtagsString(), creatorId,
 					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
-					!data.isAutomaticallyAssingStudents(), data.getCompetences());
+					!data.isAutomaticallyAssingStudents(), data.getCompetences(),data.getSheduledPublishDate());
 			
 			//generate create event only if credential is published
 			String page = context != null ? context.getPage() : null; 

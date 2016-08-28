@@ -119,7 +119,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
 			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps);
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
 
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method

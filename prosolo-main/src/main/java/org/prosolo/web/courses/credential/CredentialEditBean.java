@@ -2,6 +2,8 @@ package org.prosolo.web.courses.credential;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -70,6 +73,7 @@ public class CredentialEditBean implements Serializable {
 	private int competenceForRemovalIndex;
 	
 	private PublishedStatus[] courseStatusArray;
+	private String scheduledPublishDateValue;
 	private Role role;
 
 	private boolean manageSection;
@@ -203,6 +207,13 @@ public class CredentialEditBean implements Serializable {
 				if(saveAsDraft) {
 					credentialData.setStatus(PublishedStatus.DRAFT);
 				}
+				
+				if(StringUtils.isNotBlank(scheduledPublishDateValue)) {
+					SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+					credentialData.setSheduledPublishDate(sdf.parse(scheduledPublishDateValue));
+					credentialData.setStatus(PublishedStatus.SCHEDULED);
+				}
+				
 				Credential1 cred = credentialManager.saveNewCredential(credentialData,
 						loggedUser.getUserId(), lcd);
 				credentialData.setId(cred.getId());
@@ -219,7 +230,10 @@ public class CredentialEditBean implements Serializable {
 			return true;
 		} catch(DbConnectionException | CredentialEmptyException | CompetenceEmptyException e) {
 			logger.error(e);
-			//e.printStackTrace();
+			PageUtil.fireErrorMessage(e.getMessage());
+			return false;
+		} catch (ParseException e) {
+			logger.error(String.format("Could not parse scheduled publish time : %s",scheduledPublishDateValue),e);
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
 		}
@@ -450,4 +464,14 @@ public class CredentialEditBean implements Serializable {
 	public void setCompetenceForRemovalIndex(int competenceForRemovalIndex) {
 		this.competenceForRemovalIndex = competenceForRemovalIndex;
 	}
+
+	public String getScheduledPublishDateValue() {
+		return scheduledPublishDateValue;
+	}
+
+	public void setScheduledPublishDateValue(String scheduledPublishDateValue) {
+		this.scheduledPublishDateValue = scheduledPublishDateValue;
+	}
+	
+	
 }

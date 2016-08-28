@@ -2,6 +2,7 @@ package org.prosolo.bigdata.jobs;
 
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.quartz.Job;
+import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 
 /**
@@ -23,5 +24,7 @@ public interface CronScheduler {
 	// clazz);
 
 	<T extends Job> void startJobForSpecificJobClass(Class<T> clazz);
+	
+	public boolean isJobAlreadyRunning(String jobId, String groupId) throws SchedulerException;
 
 }

@@ -884,7 +884,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Credential1 createCredential(String title, String description, String tagsString, 
     		String hashtagsString, long creatorId, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) {
+    		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -895,6 +895,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
 		     cred.setPublished(published);
 		     cred.setDuration(duration);
+		     cred.setScheduledPublishDate(scheduledDate);
 		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
 		     cred.setManuallyAssignStudents(manuallyAssign);

@@ -1,34 +1,41 @@
 package org.prosolo.bigdata.jobs;
 
-import java.io.*;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 //import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.config.DBConfig;
-import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.SchedulerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.utils.ScriptRunner;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.MySQLConfig;
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.DateBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-
-import static org.quartz.JobKey.jobKey;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-import static org.quartz.TriggerKey.triggerKey;
-import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
 
 /**
  * @author Zoran Jeremic May 18, 2015
@@ -317,5 +324,12 @@ if(Settings.getInstance().config.initConfig.formatDB){
 
 		}
 
+	}
+
+
+
+	@Override
+	public boolean isJobAlreadyRunning(String jobId, String groupId) throws SchedulerException {
+		return sched.checkExists(jobKey(jobId, groupId));
 	}
 }

@@ -1,11 +1,13 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,6 +45,7 @@ public class Credential1 extends BaseEntity {
 	private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
 	private List<Announcement> announcements;
+	private Date scheduledPublishDate;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
@@ -241,6 +244,15 @@ public class Credential1 extends BaseEntity {
 
 	public void setAnnouncements(List<Announcement> announcements) {
 		this.announcements = announcements;
+	}
+
+	@Column(name="scheduled_publish_date")
+	public Date getScheduledPublishDate() {
+		return scheduledPublishDate;
+	}
+
+	public void setScheduledPublishDate(Date scheduledPublishDate) {
+		this.scheduledPublishDate = scheduledPublishDate;
 	}
 	
 	

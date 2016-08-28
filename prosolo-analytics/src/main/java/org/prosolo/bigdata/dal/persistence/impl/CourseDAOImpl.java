@@ -62,4 +62,16 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 		}
 		return title;
 	}
+
+	@Override
+	public void publishCredential(long credentialId) {
+		String query = 
+				"UPDATE Credential1 " +
+				"SET published = 1, " +
+				"scheduledPublishDate = null"
+				+ " WHERE id = :credId";
+		session.createQuery(query)
+		 	.setParameter("credId", credentialId)
+		 .executeUpdate();
+	}
 }

@@ -49,4 +49,10 @@ public class PublishingServiceImpl implements PublishingService {
         String identity=PUBLISHCREDENTIALPREFIX+credentialId;
         CronSchedulerImpl.getInstance().removeJobTrigger(identity,PUBLISHGROUP);//removeJobTriggerAndWrapper(identity);
     }
+
+	@Override
+	public boolean publishJobExists(long credentialId) throws SchedulerException {
+		String identity=PUBLISHCREDENTIALPREFIX+credentialId;
+		return CronSchedulerImpl.getInstance().isJobAlreadyRunning(identity, PUBLISHGROUP);
+	}
 }

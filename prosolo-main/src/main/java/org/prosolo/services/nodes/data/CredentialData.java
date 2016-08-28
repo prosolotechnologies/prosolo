@@ -53,6 +53,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private Date date;
 	private boolean instructorPresent;
 	
+	private Date sheduledPublishDate;
+	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		competences = new ArrayList<>();
@@ -420,5 +422,15 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setInstructorPresent(boolean instructorPresent) {
 		this.instructorPresent = instructorPresent;
 	}
+
+	public Date getSheduledPublishDate() {
+		return sheduledPublishDate;
+	}
+
+	public void setSheduledPublishDate(Date sheduledPublishDate) {
+		this.sheduledPublishDate = sheduledPublishDate;
+	}
+	
+	
 
 }

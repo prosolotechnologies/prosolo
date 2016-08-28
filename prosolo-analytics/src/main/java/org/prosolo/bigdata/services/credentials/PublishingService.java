@@ -4,6 +4,8 @@ package org.prosolo.bigdata.services.credentials;/**
 
 import java.util.Date;
 
+import org.quartz.SchedulerException;
+
 /**
  * zoran 27/08/16
  */
@@ -13,4 +15,6 @@ public interface PublishingService {
     void updatePublishingCredentialAtSpecificTime(long credentialId, Date startDate);
 
     void deletePublishingCredential(long credentialId);
+    
+    boolean publishJobExists(long credentialId) throws SchedulerException;
 }

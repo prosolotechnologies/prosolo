@@ -47,14 +47,21 @@
 			<script>
 				$('.selectpicker').selectpicker('refresh');
 				$(function () {
-				    $('#datetimepicker4').datetimepicker();
+				    $("[id$=datetimepicker4]").datetimepicker();
+				    $("[id$=datetimepicker4]").keypress(function(event) {event.preventDefault();});
+				    var status = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
+					if(status != "SCHEDULED") {
+						$("[id$=datetimepicker4]").hide();
+					}
 				});
+				
 			</script>
 			
 			<div class="datePickerRow">
-                 <input style="width:100%" type="text" id="datetimepicker4" placeholder="Date and Time" />
+                 <h:inputText value="#{credentialEditBean.scheduledPublishDateValue}" style="width:100%;" 
+                 type="text" id="datetimepicker4" placeholder="Date and Time" />
             </div>
-			
+			<br />
 			<div class="publishRow">
 				<p:commandLink 
 					styleClass="btn btn-green" 

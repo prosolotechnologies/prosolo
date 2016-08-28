@@ -7,5 +7,7 @@ public interface CourseDAO {
 	List<Long> getAllCredentialIds();
 	
 	String getCredentialTitle(long courseId);
+	
+	public void publishCredential(long credentialId);
 
 }
