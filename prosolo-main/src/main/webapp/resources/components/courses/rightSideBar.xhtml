@@ -44,7 +44,16 @@
 					itemValue="#{status}" itemLabel="#{status.label}" />
 			</h:selectOneMenu>
 			
-			<script>$('.selectpicker').selectpicker('refresh');</script>
+			<script>
+				$('.selectpicker').selectpicker('refresh');
+				$(function () {
+				    $('#datetimepicker4').datetimepicker();
+				});
+			</script>
+			
+			<div class="datePickerRow">
+                 <input style="width:100%" type="text" id="datetimepicker4" placeholder="Date and Time" />
+            </div>
 			
 			<div class="publishRow">
 				<p:commandLink 
