@@ -36,41 +36,43 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		User user = null;
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
-		if(eventType == EventType.ENROLL_COURSE) {
+		
+		if (eventType == EventType.ENROLL_COURSE) {
 			Credential1 cred = (Credential1) event.getObject();
 			long instructorId = Long.parseLong(params.get("instructorId"));
 			String dateEnrolledString = params.get("dateEnrolled");
-			userEntityESService.addCredentialToUserIndex(cred.getId(), event.getActorId(), 
-					instructorId, dateEnrolledString);
+			userEntityESService.addCredentialToUserIndex(
+					cred.getId(), 
+					event.getActorId(), 
+					instructorId, 
+					dateEnrolledString);
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
+			
 			long credId = Long.parseLong(params.get("credId"));
 			/*
 			 * if unassigned, we should set instructorId to 0 in user index for this credential,
 			 * if assigned, we should set id of instructor that is assigned
 			 */
 			long instructorId = 0;
-			if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR 
+			if (eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 					|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 				instructorId = event.getTarget().getId();
 			}
-			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), 
-					credId, instructorId);
+			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), credId, instructorId);
 		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_COURSE) {
 			String dateAssigned = params.get("dateAssigned");
-			userEntityESService.addInstructorToCredential(event.getTarget().getId(), 
-					event.getObject().getId(), dateAssigned);
+			userEntityESService.addInstructorToCredential(event.getTarget().getId(), event.getObject().getId(), dateAssigned);
 	    } else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_COURSE) {
-			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), 
-					event.getObject().getId());
+			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), event.getObject().getId());
 	    } else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
 	    	Credential1 cr = tc.getCredential();
-	    	if(cr != null) {
-		    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), 
-		    			cpe.getNewProgressValue());
+	    	
+			if (cr != null) {
+		    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
 	    	}
 	    } else if(eventType == EventType.Edit_Profile) {
 	    	BaseEntity obj = event.getObject();
@@ -79,15 +81,15 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	    	 * this means that actor is not the owner of edited profile.
 	    	 * This is the case when admin is editing someone else's profile.
 	    	 */
-	    	if(obj != null && obj instanceof User) {
-	    		userId = obj.getId();
-	    	} else {
-	    		userId = event.getActorId();
-	    	}
+			if (obj != null && obj instanceof User) {
+				userId = obj.getId();
+			} else {
+				userId = event.getActorId();
+			}
 	    	user = (User) session.load(User.class, userId);
 	    	userEntityESService.updateBasicUserData(user, session);
 		} else {
-			if(userRole == EventUserRole.Subject) {
+			if (userRole == EventUserRole.Subject) {
 				long userId = event.getActorId();
 				user = (User) session.load(User.class, userId);
 			} else if(userRole == EventUserRole.Object) {

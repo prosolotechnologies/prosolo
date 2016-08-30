@@ -22,5 +22,22 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	void changeCredentialProgress(long userId, long credId, int progress);
 	
 	void updateBasicUserData(User user, Session session);
+	
+	
+//	/**
+//	 * For particular user adds user that followed him.
+//	 * 
+//	 * @param userId
+//	 * @param followerId
+//	 */
+//	void addFollowerForUser(long followerId, long userId);
+//	
+//	/**
+//	 * For particular user removes user that unfollowed him.
+//	 * 
+//	 * @param userId
+//	 * @param followerId
+//	 */
+//	void removeFollowerForUser(long followerId, long userId);
 
 }
