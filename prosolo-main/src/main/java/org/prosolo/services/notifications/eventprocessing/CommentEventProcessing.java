@@ -47,6 +47,9 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 			case Competence:
 				objectType = ObjectType.Competence;	
 				break;
+			case SocialActivity:
+				objectType = ObjectType.SocialActivity;	
+				break;
 		}
 	}
 
@@ -57,12 +60,14 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	@Override
 	List<Long> getReceiverIds() {
 		List<Long> users = null;
+		
 		try {
 			Long resCreatorId = commentManager.getCommentedResourceCreatorId(resource.getResourceType(), 
 					resource.getCommentedResourceId());
-			if(resCreatorId != null) {
+			if (resCreatorId != null) {
 				List<Long> usersToExclude = new ArrayList<>();
 				usersToExclude.add(resCreatorId);
+				
 				users = commentManager.getIdsOfUsersThatCommentedResource(resource.getResourceType(),
 						resource.getCommentedResourceId(), usersToExclude);
 				users.add(resCreatorId);
@@ -111,11 +116,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 		switch(objectType) {
 			case Activity:
 				Long compId = activityManager.getCompetenceIdForActivity(getObjectId());
-				if(compId != null) {
-//					return "/activity.xhtml?compId=" + idEncoder.encodeId(compId) + "&actId=" 
-//							+ idEncoder.encodeId(getObjectId()) + "&comment=" +
-//									idEncoder.encodeId(resource.getId());
-					
+				if (compId != null) {
 					return "/competences/" +
 							idEncoder.encodeId(compId) + "/" +
 							idEncoder.encodeId(getObjectId())+
@@ -123,10 +124,11 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 				}
 				break;
 			case Competence:
-//				return "/competence.xhtml?compId=" + idEncoder.encodeId(getObjectId()) + "&comment=" +
-//					idEncoder.encodeId(resource.getId());
-				
 				return "/competences/" +
+					idEncoder.encodeId(getObjectId()) +
+					"?comment=" +  idEncoder.encodeId(resource.getId());
+			case SocialActivity:
+				return "/post/" +
 					idEncoder.encodeId(getObjectId()) +
 					"?comment=" +  idEncoder.encodeId(resource.getId());
 			default:
@@ -143,7 +145,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(userId, roles);
 		if (hasManagerOrInstructorRole) {
 			return "/manage";
-		} 
+		}
 		return "";
 	}
 
