@@ -60,7 +60,8 @@
 					</c:if>
 					
 
-					<div class="comments">
+					<h:panelGroup layout="block" class="comments"
+						rendered="#{not empty cc.attrs.comments.comments}">
 						<ul class="media-list">
 								<li class="loadMoreComments">
 									<p:commandLink rendered="#{cc.attrs.comments.moreToLoad}"
@@ -80,7 +81,7 @@
 								</li>
 							</ui:repeat>
 						</ul>
-					</div>
+					</h:panelGroup>
 					
 					<div class="addComment">
 						<utilcomp:userAvatar
