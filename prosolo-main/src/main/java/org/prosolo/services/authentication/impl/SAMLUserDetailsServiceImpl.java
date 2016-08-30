@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
