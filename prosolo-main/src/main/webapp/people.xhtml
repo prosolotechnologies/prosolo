@@ -7,7 +7,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:settings="http://java.sun.com/jsf/composite/components/settings">
+	xmlns:settings="http://java.sun.com/jsf/composite/components/settings"
+	xmlns:people="http://java.sun.com/jsf/composite/components/people">
 
 	<ui:define name="windowTitle">
 		People
@@ -27,18 +28,16 @@
 
 	<ui:define name="content">
 		<div class="whiteBar">
-		<ui:remove>
 			<div class="container">
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft">
 						<div class="searchBox">
-							<input type="search" name="name" value="" placeholder="Search People" />
+							<input name="name" value="" placeholder="Search People" type="search" />
 						</div>
 					</div>
 					<div class="whiteBarRight"></div>
 				</div>
 			</div>
-		</ui:remove>
 		</div>
 
 		<div class="container">
@@ -78,52 +77,16 @@
 							links="#{peopleBean.paginationLinks}"
 							toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
 					</h:panelGroup>
-
-					<ui:fragment rendered="#{not empty peopleBean.usersToFollow}">
-						<div class="col-md-4">
-							<div class="sidebarBlock">
-								<h2>Who to Follow</h2>
-								
-								<ul class="listWhoToFollow">
-									<ui:repeat var="user" value="#{peopleBean.usersToFollow}">
-										<li>
-											<div class="user32">
-												<h:link outcome="/profile">
-													<utilcomp:userAvatar avatar="#{user.avatarUrl}" fullName="#{user.name}" width="32" height="32" />
-													<f:param name="id" value="#{util:encodeId(user.id)}" />
-												</h:link>
-												<h3>
-													<h:link outcome="/profile">
-														#{user.name}
-														<f:param name="id" value="#{util:encodeId(user.id)}" />
-													</h:link>
-												</h3>
-											</div> 
-											
-											<p:commandLink id="followButton"
-												rendered="#{!peopleActionBean.isLoggedUserFollowingUser(user.id)}"
-												action="#{peopleBean.followCollegueById(user.name, user.id)}"
-												update="@form" process="@this"
-												styleClass="btn btn-green btn-xs">
-												<f:param name="page" value="/people.xhtml" />
-												<f:param name="learningContext" value="name:who_to_follow|id:#{user.id}" />
-											Follow
-											</p:commandLink>
-											<p:commandLink id="unfollowButton"
-												rendered="#{peopleActionBean.isLoggedUserFollowingUser(user.id)}"
-												action="#{peopleBean.unfollowCollegueById(user.name, user.id)}"
-												update="@form" process="@this"
-												styleClass="btn btn-green-stroke btn-xs">
-												<f:param name="page" value="/people.xhtml" />
-												<f:param name="learningContext" value="name:who_to_follow|id:#{user.id}" />
-												Following
-											</p:commandLink>
-										</li>
-									</ui:repeat>
-								</ul>
-							</div>
-						</div>
-					</ui:fragment>
+					
+					<div class="col-md-4">
+						<div class="sidebarBlock">
+							<people:whoToFollow
+		                    	learningContext="people"
+		                    	toUpdate=":formMainFollowingUsers"
+		                    	callbackAction="#{peopleBean.init()}"
+		                    />
+	                    </div>
+					</div>
 				</h:form>
 			</div>
 		</div>

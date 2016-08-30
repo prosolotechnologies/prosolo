@@ -49,13 +49,11 @@ import org.prosolo.common.domainmodel.activitywall.old.comments.SocialActivityCo
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -355,24 +353,24 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return targetUserId != null ? targetUserId : 0;
 	}
 
-	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId=extractCourseIdFromContext(learningContext.getContext());
-		/*if(learningContext != null && learningContext.getContext() != null) {
-			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
-					courseId=learningContext.getContext().getContext().getId();
-					System.out.println("ExtractedCourse id:"+courseId);
-			}
-		}*/
-		System.out.println("EXTRACTED COURSE ID:"+courseId);
-		return courseId;
-	}
-	private Long extractCourseIdFromContext(Context context){
-		if(context==null){
-			return 0l;
-		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
-			return context.getId();
-		}else return extractCourseIdFromContext(context.getContext());
-	}
+//	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
+//		Long courseId=extractCourseIdFromContext(learningContext.getContext());
+//		if(learningContext != null && learningContext.getContext() != null) {
+//			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
+//					courseId=learningContext.getContext().getContext().getId();
+//					System.out.println("ExtractedCourse id:"+courseId);
+//			}
+//		}
+//		System.out.println("EXTRACTED COURSE ID:"+courseId);
+//		return 0L;
+//	}
+//	private Long extractCourseIdFromContext(Context context){
+//		if(context==null){
+//			return 0l;
+//		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
+//			return context.getId();
+//		}else return extractCourseIdFromContext(context.getContext());
+//	}
 
 
 	@Override
@@ -647,7 +645,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 			}
 
-			logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
+			//logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
 			Long targetUserId=(long) 0;
 
 			if (parameters != null && !parameters.isEmpty()) {
