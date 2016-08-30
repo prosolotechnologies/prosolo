@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -33,14 +32,13 @@ import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.LearningContext;
+import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -65,8 +63,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private AuthenticationService authenticationService;
 	@Inject
 	private InterfaceSettingsManager interfaceSettingsManager;
-	@Inject
-	private NotificationsSettingsManager notificationsSettingsManager;
 	@Inject
 	private ApplicationBean applicationBean;
 	@Inject
@@ -110,35 +106,36 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		session.removeAttribute("user");
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initializeData(Map<String, Object> userData) {
 		if (userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
-			sessionData.setAvatar((String) userData.get("avatar"));
-			sessionData.setPosition((String) userData.get("position"));
-			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
-			sessionData.setIpAddress((String) userData.get("ipAddress"));
-			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
-			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
-			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
-			sessionData.setEmail((String) userData.get("email"));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
+			sessionData.setAvatar((String) userData.get("avatar"));
+			sessionData.setPosition((String) userData.get("position"));
+			sessionData.setIpAddress((String) userData.get("ipAddress"));
+//			sessionData.setPagesTutorialPlayed((Set<String>) userData.get("pagesTutorialPlayed"));
+			sessionData.setSelectedStatusWallFilter((Filter) userData.get("statusWallFilter"));
+			sessionData.setUserSettings((UserSettings) userData.get("userSettings"));
+			sessionData.setEmail((String) userData.get("email"));
+			sessionData.setNotificationsSettings((UserNotificationsSettings) userData.get("notificationsSettings"));
+			sessionData.setPassword((String) userData.get("password"));
 			initialized = true;
 		}
 	}
 	
 	public void reinitializeSessionData(User user) {
 		if (user != null) {
-			sessionData = new SessionData();
+//			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			sessionData.setName(user.getName());
+			sessionData.setLastName(user.getLastname());
+			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
 			sessionData.setAvatar(user.getAvatarUrl());
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
-			sessionData.setName(user.getName());
-			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
 			initialized = true;
 		}
@@ -189,10 +186,6 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
-	}
-
-	public void refreshNotificationsSettings() {
-		setNotificationsSettings(notificationsSettingsManager.getOrCreateNotificationsSettings(getUserId()));
 	}
 
 	public void loginOpenId(String email) {
@@ -365,9 +358,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		sData.setEmail(email);
 	}
 
-	public String getPassword() {
-		return getSessionData() == null ? null : getSessionData().getPassword();
-	}
+//	public String getPassword() {
+//		return getSessionData() == null ? null : getSessionData().getPassword();
+//	}
 
 	public void setPassword(String password) {
 		getSessionData().setPassword(password);

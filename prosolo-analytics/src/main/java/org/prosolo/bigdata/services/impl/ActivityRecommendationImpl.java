@@ -3,10 +3,6 @@ package org.prosolo.bigdata.services.impl;
 import java.util.List;
 
 import org.prosolo.bigdata.common.dal.pojo.ActivityAccessCount;
-import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
-import org.prosolo.bigdata.es.ESAssociationRulesSearch;
-import org.prosolo.bigdata.es.ESAssociationRulesSearchImpl;
 import org.prosolo.bigdata.services.ActivityRecommendation;
 
 /**

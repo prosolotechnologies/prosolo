@@ -3,7 +3,8 @@ $(function () {
     timelineGraph.load({
     	element : root,
     	apiHost : $(root).attr('data-api'),
-		studentId : $(root).attr('student-data-id')
+		studentId : $(root).attr('student-data-id'),
+		totalDaysZoomTreshold : 35
     });
     
     $("input[type=checkbox][id^=timeline]").click(function(){

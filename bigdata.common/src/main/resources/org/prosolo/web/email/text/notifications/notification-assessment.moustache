@@ -1,0 +1,8 @@
+Hi {{name}},
+
+{{actor}} gave you an assessment</strong> for a credential {{objectTitle}}.
+
+View assessment{{#request}} request{{/request}} at {{link}}.
+
+
+ProSolo Team

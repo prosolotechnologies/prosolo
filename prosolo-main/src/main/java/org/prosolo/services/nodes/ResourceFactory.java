@@ -9,6 +9,7 @@ import java.util.Map;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -50,7 +51,7 @@ import org.prosolo.web.competences.data.ActivityType;
 
 public interface ResourceFactory extends AbstractManager {
 
-    public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
+    public Role createNewRole(String name, String description, boolean systemDefined);
 
     LearningGoal createNewLearningGoal(long userId, String name, String description, Date deadline, 
             Collection<Tag> keywords, Collection<Tag> hashtags) throws EventException;
@@ -88,7 +89,7 @@ public interface ResourceFactory extends AbstractManager {
             Class<? extends EventObserver>[] observersToExclude) throws EventException;
 
     User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
-            String position, boolean system, InputStream imageInputStream, String avatarFilename) throws EventException;
+            String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
 
     Activity createNewActivity(long userId,
             ActivityFormData activityFormData, VisibilityType vis)
@@ -173,5 +174,12 @@ public interface ResourceFactory extends AbstractManager {
 			throws DbConnectionException;
 	
 	PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException;
+	
+	PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
+   			throws DbConnectionException;
+	
+	User updateUser(long userId, String name, String lastName, String email,
+			boolean emailVerified, boolean changePassword, String password, 
+			String position, List<Long> roles) throws DbConnectionException;
 
 }

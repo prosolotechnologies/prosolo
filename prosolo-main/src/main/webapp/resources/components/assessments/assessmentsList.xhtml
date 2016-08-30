@@ -19,100 +19,114 @@
 	
 	<composite:implementation>
 		<script>
-	function flipCheckboxes(id1, id2, value) {
-		$('#'+id1).prop('checked', value);
-		$('#'+id2).prop('checked', value);
-	}
-	</script>
-		 <div class="whiteBar">
-    </div>
-	<h:form id="filterAssessmentsForm">
-    <div class="container">
-        <div class="row">
-        		<div class="col-md-9">
-        		<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
-	                <article class="whiteBox assessmentItem">
-	                    <h2>
-	                    	<ui:fragment rendered="#{cc.attrs.assessor}">
-		                    	<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
-			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
-			                    </h:link>
-	                    	</ui:fragment>
-		                    <ui:fragment rendered="#{not cc.attrs.assessor}">
-		                    	<h:link outcome="/credential-assessment">#{assessmentData.title}
-			                    	<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-			                    	<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
-			                    </h:link>
-	                    	</ui:fragment>
-	                    </h2>
-	                     <ui:fragment rendered="#{assessmentData.approved}">
-	                     	<div class="tagApproved">Approved</div>
-	                     </ui:fragment>
-	                     <ui:fragment rendered="#{not assessmentData.approved}">
-	                     	<div class="tagPending">Pending</div>
-	                     </ui:fragment>
-	                    <div class="clear"></div>
-	                    <div class="user32">
-	                        Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
-	                        		<!-- when avatar is null, display initials div -->
-	                        		 <utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
-													fullName="#{assessmentData.studentFullName}"/>
-	                        <h3>#{assessmentData.studentFullName}</h3>
-	                    </div>
-	                    <div class="commentsNumber">
-	                        Comments: #{assessmentData.totalNumberOfMessages}
-	                    </div>
-	                    <div class="clear"></div>
-	                    <div class="date">
-	                        Requested: #{assessmentData.dateValue}
-	                    </div>
-	                </article>
-              </ui:repeat>
-              <utilcomp:pagination
-		        	id="pagination" 
-		        	bean="#{cc.attrs.bean}"
-		        	links="#{cc.attrs.bean.paginationLinks}"
-		        	toUpdate=":#{cc.attrs.id}:filterAssessmentsForm" />
-            </div>
-            
-          
+		function flipCheckboxes(id1, id2, value) {
+			$('#'+id1).prop('checked', value);
+			$('#'+id2).prop('checked', value);
+		}
+		</script>
+		
+		<div class="whiteBar"></div>
 
-            
-            <div class="col-md-3 pull-right">
-                <div class="whiteBox">
-                    <h2>Show</h2>
-                    
-	                    <div class="checkbox checkLine">
-	                         <h:selectBooleanCheckbox id="searchForPendingCheckbox"  value="#{cc.attrs.bean.searchForPending}">
-            					<f:ajax execute="@this" event="change" update=":form"/>
-        					 </h:selectBooleanCheckbox>
-	                        <label for="checkPending">Pending</label>
-	                    </div>
-	                    <div class="checkbox checkLine">
-	                        <h:selectBooleanCheckbox id="searchForApprovedCheckbox" value="#{cc.attrs.bean.searchForApproved}">
-            					<f:ajax execute="@this" event="change" update=":form"/>
-        					</h:selectBooleanCheckbox>
-	                        <label for="checkApproved">Approved</label>
-	                    </div>
-	                    <div class="checkLinks">
-	                    	<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', true)" 
-	                    		process="@this" update="@form" action="#{cc.attrs.bean.searchForAll()}">Check all</p:commandLink>
-	                    		|
-	                    	<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', false)" 
-	                    		process="@this" update="@form" action="#{cc.attrs.bean.searchForNone()}">Clear all</p:commandLink>
-	                        
-	                    </div>
-	                
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-    	$('label[for^=check]').click(function(){
-			$(this).parent().find('input[type=checkbox]').click()
-		})
-    </script>
-    </h:form>
+		<h:form id="filterAssessmentsForm">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-9">
+						<ui:fragment rendered="#{empty cc.attrs.bean.assessmentData}">
+							<div class="noContentMessage">
+								<p>
+									No assessments.
+								</p>
+							</div>
+						</ui:fragment>
+					
+						<ui:repeat var="assessmentData" value="#{cc.attrs.bean.assessmentData}">
+							<article class="whiteBox assessmentItem">
+								<h2>
+									<ui:fragment rendered="#{cc.attrs.assessor}">
+										<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+										</h:link>
+									</ui:fragment>
+									
+									<ui:fragment rendered="#{not cc.attrs.assessor}">
+										<h:link outcome="/credential-assessment">#{assessmentData.title}
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+										</h:link>
+									</ui:fragment>
+								</h2>
+								
+								<ui:fragment rendered="#{assessmentData.approved}">
+									<div class="tagApproved">Approved</div>
+								</ui:fragment>
+								
+								<ui:fragment rendered="#{not assessmentData.approved}">
+									<div class="tagPending">Pending</div>
+								</ui:fragment>
+								<div class="clear"></div>
+								
+								<div class="user32">
+									Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+									<!-- when avatar is null, display initials div -->
+									<utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
+										fullName="#{assessmentData.studentFullName}"/>
+									<h3>#{assessmentData.studentFullName}</h3>
+								</div>
+								
+								<div class="commentsNumber">
+									Comments: #{assessmentData.totalNumberOfMessages}
+								</div>
+								<div class="clear"></div>
+								
+								<div class="date">
+									Requested: #{assessmentData.dateValue}
+								</div>
+							</article>
+						</ui:repeat>
+						
+						<utilcomp:pagination
+							id="pagination" 
+							bean="#{cc.attrs.bean}"
+							links="#{cc.attrs.bean.paginationLinks}"
+							toUpdate=":#{cc.attrs.id}:filterAssessmentsForm" />
+					</div>
+						        
+					<div class="col-md-3 pull-right">
+						<div class="whiteBox">
+							<h2>Show</h2>
+							
+							<div class="checkbox checkLine">
+								<h:selectBooleanCheckbox id="searchForPendingCheckbox"  value="#{cc.attrs.bean.searchForPending}">
+									<f:ajax execute="@this" event="change" update=":form"/>
+								</h:selectBooleanCheckbox>
+								<label for="checkPending">Pending</label>
+							</div>
+							
+							<div class="checkbox checkLine">
+								<h:selectBooleanCheckbox id="searchForApprovedCheckbox" value="#{cc.attrs.bean.searchForApproved}">
+									<f:ajax execute="@this" event="change" update=":form"/>
+								</h:selectBooleanCheckbox>
+								<label for="checkApproved">Approved</label>
+							</div>
+							
+							<div class="checkLinks">
+								<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', true)" 
+									process="@this" update="@form" action="#{cc.attrs.bean.searchForAll()}">Check all</p:commandLink>
+								|
+								<p:commandLink oncomplete="flipCheckboxes('searchForPendingCheckbox','searchForApprovedCheckbox', false)" 
+									process="@this" update="@form" action="#{cc.attrs.bean.searchForNone()}">Clear all</p:commandLink>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+				$('label[for^=check]').click(function() {
+					$(this).parent().find('input[type=checkbox]').click()
+				})
+			</script>
+		</h:form>
 	</composite:implementation>
 </ui:component>

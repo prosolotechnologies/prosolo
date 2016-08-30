@@ -1,0 +1,16 @@
+Hi {{name}},
+
+You requested your password to be reset for ProSolo. If you did not make this request, please ignore this email. 
+
+To reset your password, just click this link:
+
+{{link}}
+
+Please note that this link is valid only for 24 hours.
+ 
+		
+If the above URL does not work try copying and pasting it into your browser.
+If you continue to have problem please reply to this email.
+
+
+ProSolo Team

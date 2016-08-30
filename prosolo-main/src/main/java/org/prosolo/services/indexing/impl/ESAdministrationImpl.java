@@ -39,7 +39,7 @@ import org.prosolo.recommendation.impl.DocumentType;
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.es.impl.MoreDocumentsLikeThisImpl;
 import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.TikaExtractor;
 import org.springframework.stereotype.Service;

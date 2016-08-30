@@ -23,7 +23,7 @@ import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.notification.data.GoalStatus;
 import org.prosolo.web.notification.util.NotificationDataConverter;
 import org.prosolo.web.search.data.LearningGoalData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

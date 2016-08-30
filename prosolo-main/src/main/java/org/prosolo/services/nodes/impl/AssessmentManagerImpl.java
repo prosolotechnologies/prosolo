@@ -34,49 +34,73 @@ import com.google.common.collect.Lists;
 
 @Service("org.prosolo.services.nodes.AssessmentManager")
 public class AssessmentManagerImpl extends AbstractManagerImpl implements AssessmentManager {
+	
+	private static final long serialVersionUID = -8110039668804348981L;
+	private static Logger logger = Logger.getLogger(AssessmentManager.class);
 
 	@Inject
 	private UrlIdEncoder encoder;
+	
+	private static final String PENDING_ASSESSMENTS_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " + 
+			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+				"AND credentialAssessment.assessor.id = :assessorId " + 
+				"AND credentialAssessment.approved = false " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
+	
+	private static final String APPROVED_ASSESSMENTS_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " +
+			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+				"AND credentialAssessment.assessor.id = :assessorId " + 
+				"AND credentialAssessment.approved = true " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
+	
+	private static final String ALL_ASSESSMENTS_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " +
+			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+				"AND credentialAssessment.assessor.id = :assessorId " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
 
-	private static final long serialVersionUID = -8110039668804348981L;
-	private static Logger logger = Logger.getLogger(AssessmentManager.class);
-	private static final String PENDING_ASSESSMENTS_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.assessor.id = :assessorId AND credentialAssessment.approved = false";
-	private static final String APPROVED_ASSESSMENTS_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.assessor.id = :assessorId AND credentialAssessment.approved = true";
-	private static final String ALL_ASSESSMENTS_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.assessor.id = :assessorId";
+	private static final String ALL_ASSESSMENTS_FOR_USER_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " + 
+			"WHERE credentialAssessment.assessedStudent.id = :studentId " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
+	
+	private static final String ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " +
+			"WHERE credentialAssessment.assessedStudent.id = :studentId " +
+				"AND credentialAssessment.approved = false " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
+	
+	private static final String ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY = 
+			"FROM CredentialAssessment AS credentialAssessment " +
+			"WHERE credentialAssessment.assessedStudent.id = :studentId " +
+				"AND credentialAssessment.approved = true " +
+			"ORDER BY credentialAssessment.dateCreated DESC";
 
-	private static final String ALL_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :studentId";
-	private static final String ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :studentId "
-			+ "AND credentialAssessment.approved = false";
-	private static final String ALL_APPROVED_ASSESSMENTS_FOR_USER_QUERY = "FROM CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.assessedStudent.id = :studentId AND "
-			+ "credentialAssessment.approved = true";
-
-	private static final String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
-			+ "WHERE credentialAssessment.targetCredential.credential.id = :credentialId AND "
-			+ "credentialAssessment.assessedStudent.id = :assessedStudentId";
+	private static final String ASSESSMENT_FOR_USER_CREDENTIAL_NUMBER = 
+			"SELECT COUNT(*) from CredentialAssessment AS credentialAssessment " + 
+			"WHERE credentialAssessment.targetCredential.credential.id = :credentialId " +
+				"AND credentialAssessment.assessedStudent.id = :assessedStudentId";
 	
 	private static final String ALL_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId";
+	
 	private static final String PENDING_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = false";
+	
 	private static final String APPROVED_ASSESSMENTS_FOR_USER_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessedStudent.id = :assessedStudentId AND credentialAssessment.approved = true";
 	
 	private static final String ALL_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
 			+ "credentialAssessment.targetCredential.credential.id = :credentialId";
+	
 	private static final String PENDING_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
 			+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
 			+ "credentialAssessment.approved = false";
+	
 	private static final String APPROVED_ASSESSMENTS_FOR_ASSESSOR_NUMBER = "SELECT COUNT(*) from CredentialAssessment AS credentialAssessment "
 			+ "WHERE credentialAssessment.assessor.id = :assessorId AND "
 			+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
@@ -84,16 +108,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	private static final String APPROVE_CREDENTIAL_QUERY = "UPDATE CredentialAssessment set approved = true "
 			+ " where id = :credentialAssessmentId";
+	
 	private static final String APPROVE_COMPETENCES_QUERY = "UPDATE CompetenceAssessment set approved = true"
 			+ " where credentialAssessment.id = :credentialAssessmentId";
+	
 	private static final String APPROVE_COMPETENCE_QUERY = "UPDATE CompetenceAssessment set approved = true"
 			+ " where id = :competenceAssessmentId";
+	
 	private static final String UPDATE_TARGET_CREDENTIAL_REVIEW = "UPDATE TargetCredential1 set finalReview = :finalReview"
 			+ " where id = :targetCredentialId";
+	
 	private static final String MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER = "UPDATE ActivityDiscussionParticipant set read = true"
 			+ " where participant.id = :userId and activityDiscussion.id = :activityDiscussionId";
-	private static final String ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED = "SELECT id from CredentialAssessment WHERE "
-			+ "targetCredential.id = :tagretCredentialId AND assessedStudent.id = :assessedStudentId";
+	
+	private static final String ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED = 
+			"SELECT id " + 
+			"FROM CredentialAssessment " +
+			"WHERE targetCredential.id = :tagretCredentialId " + 
+				"AND assessedStudent.id = :assessedStudentId";
 
 	@Override
 	@Transactional
@@ -104,6 +136,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		User assessor = (User) persistence.currentManager().load(User.class, assessmentRequestData.getAssessorId());
 		CredentialAssessment assessment = new CredentialAssessment();
 		Date creationDate = new Date();
+		assessment.setMessage(assessmentRequestData.getMessageText());
 		assessment.setDateCreated(creationDate);
 		assessment.setApproved(false);
 		assessment.setAssessedStudent(student);
@@ -132,7 +165,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
 		return FullAssessmentData.fromAssessment(assessment, encoder, userId, dateFormat);
-
 	}
 
 	@Override
@@ -153,7 +185,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			return assesmentData;
 		}
-
 	}
 
 	@Override
@@ -162,6 +193,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat, int page,
 			int numberPerPage) {
 		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved, page, numberPerPage);
+		
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
 			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
@@ -170,6 +202,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			@SuppressWarnings("unchecked")
 			List<CredentialAssessment> assessments = query.list();
 			List<AssessmentData> assesmentData = new ArrayList<>(assessments.size());
+			
 			for (CredentialAssessment credAssessment : assessments) {
 				assesmentData.add(AssessmentData.fromAssessment(credAssessment, idEncoder, simpleDateFormat));
 			}
@@ -235,7 +268,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId) {
+			long senderId) throws ResourceCouldNotBeLoadedException {
 		Date now = new Date();
 		ActivityDiscussion activityDiscussion = new ActivityDiscussion();
 		activityDiscussion.setDateCreated(now);
@@ -245,12 +278,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		CompetenceAssessment competenceAssessment = new CompetenceAssessment();
 		competenceAssessment.setId(competenceAssessmentId);
 		// merge(competenceAssessment);
+		
 		List<ActivityDiscussionParticipant> participants = new ArrayList<>();
 		for (Long userId : participantIds) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
-			User user = new User();
-			user.setId(userId);
-			// merge(user);
+			User user = loadResource(User.class, userId);
 			participant.setActivityDiscussion(activityDiscussion);
 			participant.setDateCreated(now);
 			if (userId != senderId) {
@@ -274,6 +306,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throws ResourceCouldNotBeLoadedException {
 		ActivityDiscussion discussion = get(ActivityDiscussion.class, actualDiscussionId);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
+		
 		Date now = new Date();
 		// create new comment
 		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
@@ -320,7 +353,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			merge(participant);
 		}
 		merge(message);
-
 	}
 
 	@Override

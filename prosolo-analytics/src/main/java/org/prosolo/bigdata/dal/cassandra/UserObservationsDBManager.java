@@ -48,4 +48,6 @@ public interface UserObservationsDBManager {
 	void enrollUserToCourse(Long userId, Long courseId);
 
 	void withdrawUserFromCourse(Long userId, Long courseId);
+
+   Long findTotalNumberOfUsers();
 }

@@ -15,7 +15,7 @@ import org.prosolo.services.common.exception.CredentialEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -27,7 +27,8 @@ import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsExcept
 
 public interface CredentialManager extends AbstractManager {
 
-	Credential1 saveNewCredential(CredentialData data, long creatorId) throws DbConnectionException;
+	Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+			throws DbConnectionException;
 	
 	/**
 	 * Deletes credential by setting deleted flag to true on original credential and 
@@ -130,7 +131,8 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 			throws DbConnectionException;
 	
-	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role) 
+	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role,
+			LearningContextData context) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
 	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);
@@ -236,20 +238,35 @@ public interface CredentialManager extends AbstractManager {
 			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all completed credentials (credentials that has progress == 100)
-	 * @return 
+	 * Method for getting all credentials (nevertheless the progress)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCompletedCredentials(Long userId) throws DbConnectionException;
-	
-	List<TargetCredential1> getAllCompletedCredentials(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	List<TargetCredential1> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
-	 * Method for getting all credentials (nevertheless the progress)
-	 * @return 
+	 * Method for getting all completed credentials (credentials that has progress == 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredential1> getAllCredentials(Long userId) throws DbConnectionException;
+	List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getAllInProgressCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+
 		
 	/**
 	 * Updated hidden_from_profile_field
@@ -301,22 +318,25 @@ public interface CredentialManager extends AbstractManager {
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
 	
-	/**
-	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCredential1> getAllInProgressCredentials(Long userId) throws DbConnectionException;
-	
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;
 	
-	CredentialData getTargetCredentialTitleAndNextCompToLearn(long credId, long userId) 
+	CredentialData getTargetCredentialTitleAndNextCompAndActivityToLearn(long credId, long userId) 
 			throws DbConnectionException;
 
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
 			throws DbConnectionException;
 	
 	void updateTargetCredentialLastAction(long userId, long credentialId) 
+			throws DbConnectionException;
+
+	List<Long> getUserIdsForCredential(long credId) throws DbConnectionException;
+	
+	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
+	
+	CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
+			throws DbConnectionException;
+	
+	long getNumberOfUsersLearningCredential(long credId) 
 			throws DbConnectionException;
 }

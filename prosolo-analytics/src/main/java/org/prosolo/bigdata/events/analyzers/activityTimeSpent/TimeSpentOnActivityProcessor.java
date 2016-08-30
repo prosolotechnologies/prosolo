@@ -63,8 +63,8 @@ public abstract class TimeSpentOnActivityProcessor {
 //			    this.activityId = Long.parseLong(m.group(3));
 //			    return true;
 //			}
-			JsonObject lContext = event.getLearningContext();
-			if(lContext == null) {
+			JsonObject lContext = event.getLearningContextJson();
+			if(lContext == null || lContext.get("context") == null) {
 				return false;
 			}
 			return checkIfTargetActivityContext(lContext.get("context").getAsJsonObject());

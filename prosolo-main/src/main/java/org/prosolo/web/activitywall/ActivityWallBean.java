@@ -19,26 +19,33 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
+import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
+import org.prosolo.services.activityWall.factory.ObjectDataFactory;
 import org.prosolo.services.activityWall.factory.RichContentDataFactory;
+import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.activityWall.impl.data.UserData;
+import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.StatusWallFilter;
+import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -62,6 +69,7 @@ public class ActivityWallBean implements Serializable {
 	@Inject private UploadManager uploadManager;
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private CommentBean commentBean;
+	@Inject private ObjectDataFactory objectFactory;
 
 	private int offset = 0;
 	private int limit = 7;
@@ -73,6 +81,9 @@ public class ActivityWallBean implements Serializable {
 	private SocialActivityData1 newSocialActivity = new SocialActivityData1();
 	private String link;
 	private AttachmentPreview1 uploadFile = new AttachmentPreview1();
+	
+	private String postShareText;
+	private SocialActivityData1 socialActivityForShare;
 	
 	private StatusWallFilter filter;
 	private StatusWallFilter[] filters;
@@ -157,11 +168,6 @@ public class ActivityWallBean implements Serializable {
 				socialActivities.addAll(acts);
 			}
 		}
-	}
-	
-	public void refresh() {
-		//TODO
-		//activityWallDisplayer.refresh();
 	}
 	
 	public void updatePost(SocialActivityData1 socialActivityData) {
@@ -255,6 +261,9 @@ public class ActivityWallBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
+			
+			newSocialActivity.setText(PostUtil.cleanHTMLTagsExceptBrA(newSocialActivity.getText()));
+			
 			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
 					newSocialActivity, lcd);
 			
@@ -262,7 +271,7 @@ public class ActivityWallBean implements Serializable {
 			newSocialActivity.setId(post.getId());
 			//set actor from session
 			newSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
-					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), true));
+					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
 			newSocialActivity.setDateCreated(post.getDateCreated());
 			newSocialActivity.setLastAction(post.getLastAction());
 			socialActivities.add(0, newSocialActivity);
@@ -271,6 +280,45 @@ public class ActivityWallBean implements Serializable {
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while posting status");
+		}
+	}
+	
+	public void sharePost() {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData lcd = new LearningContextData(page, lContext, service);
+			PostReshareSocialActivity postShare = socialActivityManger.sharePost(loggedUser.getUserId(), 
+					postShareText, socialActivityForShare.getId(), lcd);
+			
+			PageUtil.fireSuccessfulInfoMessage("Post successfully shared!");
+			SocialActivityData1 postShareSocialActivity = new SocialActivityData1();
+			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
+			postShareSocialActivity.setId(postShare.getId());
+			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null, 
+					ObjectType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
+					socialActivityForShare.getActor().getFullName(), 
+					loggedUser.getLocale());
+			postShareSocialActivity.setObject(obj);
+			postShareSocialActivity.setText(postShareText);
+			postShareSocialActivity.setOriginalSocialActivity(socialActivityForShare);
+			//set actor from session
+			postShareSocialActivity.setActor(new UserData(loggedUser.getUserId(), 
+					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
+			postShareSocialActivity.setDateCreated(postShare.getDateCreated());
+			postShareSocialActivity.setLastAction(postShare.getLastAction());
+			postShareSocialActivity.setPredicate(ResourceBundleUtil.getActionName(
+					postShareSocialActivity.getType().name(), loggedUser.getLocale()));
+			socialActivities.add(0, postShareSocialActivity);
+			
+			//socialActivityForShare.setShareCount(socialActivityForShare.getShareCount() + 1);
+			
+			socialActivityForShare = null;
+			postShareText = null;
+		} catch (DbConnectionException e) {
+			logger.error(e.getMessage());
+			PageUtil.fireErrorMessage("Error while sharing post!");
 		}
 	}
 	
@@ -437,6 +485,22 @@ public class ActivityWallBean implements Serializable {
 
 	public void setMoreToLoad(boolean moreToLoad) {
 		this.moreToLoad = moreToLoad;
+	}
+
+	public SocialActivityData1 getSocialActivityForShare() {
+		return socialActivityForShare;
+	}
+
+	public void setSocialActivityForShare(SocialActivityData1 socialActivityForShare) {
+		this.socialActivityForShare = socialActivityForShare;
+	}
+
+	public String getPostShareText() {
+		return postShareText;
+	}
+
+	public void setPostShareText(String postShareText) {
+		this.postShareText = postShareText;
 	}
 	
 }

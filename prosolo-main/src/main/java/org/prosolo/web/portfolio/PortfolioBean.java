@@ -52,8 +52,8 @@ import org.prosolo.web.portfolio.util.CompletedGoalDataConverter;
 import org.prosolo.web.portfolio.util.ExternalCreditsDataConverter;
 import org.prosolo.web.settings.SettingsBean;
 import org.prosolo.web.useractions.data.NewPostData;
-import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.nodes.ActivityUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -257,7 +257,7 @@ public class PortfolioBean implements Serializable {
 //		boolean newSocialNetworkAccountIsAdded = false;
 //
 //		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData
-//				.getSocialNetworkAccountDatas();
+//				.getSocialNetworkAccountsData();
 //		try {
 //			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
 //				if (socialNetowrkAccountData.isChanged()) {

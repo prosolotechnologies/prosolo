@@ -29,9 +29,9 @@ import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 
 //import org.prosolo.bigdata.es.AssociationRulesIndexer;
-//import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
+//import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 import org.prosolo.bigdata.es.RecommendationDataIndexer;
-import org.prosolo.bigdata.es.RecommendationDataIndexerImpl;
+import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.scala.analyzers.LearningGoalsMostActiveUsers;
 import org.prosolo.bigdata.utils.DateUtil;

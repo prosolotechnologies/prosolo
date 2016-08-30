@@ -19,11 +19,21 @@ public class CredentialAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -1120206934780603166L;
 	
+	private String message;
 	private User assessor;
 	private User assessedStudent;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
 	private List<CompetenceAssessment> competenceAssessments;
+
+	@Column(length = 90000)
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	public User getAssessor() {

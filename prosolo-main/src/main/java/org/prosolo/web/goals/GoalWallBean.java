@@ -34,7 +34,7 @@ import org.prosolo.web.activitywall.displayers.GoalWallSocialActivitiesDisplayer
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.data.NewPostData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

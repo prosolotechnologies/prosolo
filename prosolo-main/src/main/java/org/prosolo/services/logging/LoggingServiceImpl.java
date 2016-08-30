@@ -52,14 +52,12 @@ import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.Context;
-import org.prosolo.services.event.context.ContextName;
-import org.prosolo.services.event.context.LearningContext;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
-import org.prosolo.services.nodes.CourseManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -224,7 +222,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress) throws LoggingException {
 
-		if (!Settings.getInstance().config.init.formatDB) {
+		//if (!Settings.getInstance().config.init.formatDB) {
 	 
 			if (parameters == null) {
 				parameters = new HashMap<String, String>();
@@ -302,7 +300,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}
 */
-		}
+	//	}
 	}
 
 	private Long extractSocialInteractionTargetUser(JSONObject logObject, EventType eventType){
@@ -608,7 +606,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String targetType, long targetId,
 			Map<String, String> parameters, String ipAddress, LearningContext learningContext) throws LoggingException {
 
-		if (!Settings.getInstance().config.init.formatDB) {
+		//if (!Settings.getInstance().config.init.formatDB) {
 			 
 			if (parameters == null) {
 				parameters = new HashMap<String, String>();
@@ -679,7 +677,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
-			
+			logger.debug("LOG:"+logObject.toJSONString());
 			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
 		 			"\nactorId: " + logObject.get("actorId") + 
@@ -707,7 +705,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				logger.error("Exception to log observed event for:" + logObject.toString(), e);
 			}*/
 
-		}
+	//	}
 	}
 	
 	@Override

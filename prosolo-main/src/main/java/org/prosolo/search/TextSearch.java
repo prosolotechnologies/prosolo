@@ -17,6 +17,7 @@ import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -113,4 +114,22 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
 			int page, int limit);
+	
+	/**
+	 * Call {@link TextSearchResponse1#getAdditionalInfo()} to get search filters: 
+	 * under key 'filters' all filters can be retrieved with type {@code List<RoleFilter>},
+	 * under key 'selectedFilter' applied filter can be retrieved with type {@code RoleFilter}.
+	 * @param term
+	 * @param page
+	 * @param limit
+	 * @param paginate
+	 * @param roleId pass 0 if All filter and role id otherwise
+	 * @return
+	 */
+	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId);
+	
+	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long userId, CredentialMembersSortOption sortOption);
 }

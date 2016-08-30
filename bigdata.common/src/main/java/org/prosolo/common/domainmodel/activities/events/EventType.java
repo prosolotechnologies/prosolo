@@ -21,6 +21,7 @@ public enum EventType {
 	Edit, 
 	Edit_Profile, 
 	Edit_Draft,
+	View_Profile, 
 	Create,
 	Create_Manager,
 	Create_Draft,
@@ -70,6 +71,7 @@ public enum EventType {
 	
 	SEND_MESSAGE,
 	START_MESSAGE_THREAD, 
+	READ_MESSAGE_THREAD, 
 	UPDATE_MESSAGE_THREAD,
 	
 	ENROLL_COURSE,
@@ -112,7 +114,8 @@ public enum EventType {
 	RemoveBookmark, 
 	AssessmentRequested, 
 	AssessmentApproved,
-	AssessmentComment;
+	AssessmentComment, 
+	AnnouncementPublished;
 	
 	private String customText;
 	

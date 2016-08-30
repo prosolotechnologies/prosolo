@@ -23,45 +23,48 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		 <div id="#{cc.clientId}">
-	     <ui:repeat id="compList" var="comp" value="#{cc.attrs.competences}" varStatus="status">
-                	<article class="whiteBox summaryCard summaryCompetence">
-                    <div class="innerWrapper">
-                        <h2>
-                        	<ui:fragment rendered="#{cc.attrs.isEdit}">
-                        		#{comp.title}
-                        		<h:panelGroup rendered="#{!comp.published}"><span>(Draft)</span></h:panelGroup>
-                        	</ui:fragment>
-                        	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
-                        		<h:link
-                        			value="#{comp.title}"
-                        			outcome="competence">
-                        			<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-                        			<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-                        		</h:link>             
-                        	</ui:fragment>
-                        	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
-                        		#{comp.title}     
-                        	</ui:fragment>
-                        </h2>
-                        <h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
-                        	<ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfComps - 1}">
+		<div id="#{cc.clientId}">
+			<ui:repeat id="compList" var="comp" value="#{cc.attrs.competences}" varStatus="status">
+				<article class="whiteBox summaryCard summaryCompetence">
+					<div class="innerWrapper">
+						<h2>
+							<ui:fragment rendered="#{cc.attrs.isEdit}">
+								#{comp.title}
+								<h:panelGroup rendered="#{!comp.published}"><span>(Draft)</span></h:panelGroup>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+								<h:link
+									value="#{comp.title}"
+									outcome="competence">
+									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+								</h:link>
+							</ui:fragment>
+							
+							<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
+								#{comp.title}     
+							</ui:fragment>
+						</h2>
+
+						<h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
+							<ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfComps - 1}">
 								<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
 							</ui:fragment>
-                   
-                        	<p:commandLink
-                        		styleClass="moveDown"
+
+							<p:commandLink
+								styleClass="moveDown"
 								rendered="#{status.index != cc.attrs.bean.currentNumberOfComps - 1}"
 								process="@this"
 								action="#{cc.attrs.bean.moveDown(status.index)}"
 								update=":#{cc.clientId} #{cc.attrs.toUpdate}">
 								down
 							</p:commandLink>
-							
+
 							<ui:fragment rendered="#{status.index == 0}">
 								<a href="javascript:void(0);" class="moveUp" disabled="disabled">up</a>
 							</ui:fragment>
-						
+
 							<p:commandLink 
 								styleClass="moveUp"
 								rendered="#{status.index != 0}"
@@ -70,136 +73,144 @@
 								update=":#{cc.clientId} #{cc.attrs.toUpdate}">
 								up
 							</p:commandLink>
-				
-                        </h:panelGroup>
-                        <div class="clear"></div>
-                        <p class="cardDescription">#{comp.description}</p>
-                        <div class="metaBox">
-                            <div class="metaLeft">
-                            	<ui:fragment rendered="#{cc.attrs.isEdit and (cc.attrs.role == 'MANAGER' and comp.type == 'UNIVERSITY_CREATED' || cc.attrs.bean.isCompetenceCreator(comp))}">
-                        			<h:link 
-                        				styleClass="btn btn-green-stroke btn-sm"
-                        				value="Edit" 
-                        				outcome="create-competence">
-                        				<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
-                        				<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-                        			</h:link> 
-                        		</ui:fragment>
+						</h:panelGroup>
+						<div class="clear"></div>
+						
+						<p class="cardDescription">#{comp.description}</p>
+                        
+						<div class="metaBox">
+							<div class="metaLeft">
+								<ui:fragment rendered="#{cc.attrs.isEdit and (cc.attrs.role == 'MANAGER' and comp.type == 'UNIVERSITY_CREATED' || comp.type == 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp))}">
+									<h:link 
+										styleClass="btn btn-green-stroke btn-sm"
+										value="Edit" 
+										outcome="create-competence">
+										<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
+										<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+									</h:link> 
+								</ui:fragment>
                         		
-                        		<ui:fragment rendered="#{cc.attrs.isEdit}">
-	                        		<p:commandLink
-                        				value="Remove"
-					            	  	process="@this"
-					            	  	action="#{cc.attrs.bean.setCompetenceForRemovalIndex(status.index)}"
-					            	  	oncomplete="$('#modalRemoveComp').modal('show');"
-					            	  	styleClass="linkRed"
-					            	  	pt:data-toggle="modal">	            
-					            	</p:commandLink>
-					            </ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.isEdit}">
+									<p:commandLink
+										value="Remove"
+										process="@this"
+										action="#{cc.attrs.bean.setCompetenceForRemovalIndex(status.index)}"
+										oncomplete="$('#modalRemoveComp').modal('show');"
+										styleClass="linkRed"
+										pt:data-toggle="modal" />
+								</ui:fragment>
                             	
-                            	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
-                        			<ui:fragment rendered="#{cc.attrs.startedLearning}">
-                        				<h:link rendered="#{(!cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId) and comp.progress lt 100}"
-				                			value="#{comp.progress != 0 ? 'Resume' : 'Start'}"
-				                			styleClass="btn btn-green btn-sm"
-				                			outcome="activity">
-				                			<f:param name="actId" value="#{util:encodeId(comp.nextActivityToLearnId)}"></f:param>
-							            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
-							            	<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
-				                		</h:link>
-				                		<ui:fragment rendered="#{cc.attrs.bean.credentialData.mandatoryFlow and comp.competenceId != cc.attrs.bean.credentialData.nextCompetenceToLearnId and comp.progress lt 100}">
-					                		<a href="javascript:void(0);" 
-					                			class="btn btn-green btn-sm" 
-					                			disabled="disabled" 
-					                			data-toggle="tooltip" 
-					                			title="In order to start this competence, previous tasks need to be completed.">
-					                			#{comp.progress != 0 ? 'Resume' : 'Start'}
-					                		</a>
-				                		</ui:fragment>
-				                		<h:panelGroup layout="block" rendered="#{comp.progress lt 100}" styleClass="progressBar">
-		                                    <span>#{comp.progress}</span>
-		                                    <div class="progress">
-		                                        <div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
-		                                       </div>
-		                                    </div>
-	                                	</h:panelGroup>
-		                                <h:panelGroup 
-		                                	layout="block" 
-		                                	styleClass="tagCompleted"
-		                                	rendered="#{comp.progress == 100}">Completed
-		                                </h:panelGroup>
-	                            	</ui:fragment>
-
-                        		</ui:fragment>
-                            	
-                            </div>
-                            <div class="metaRight">
-                                <div class="duration">#{comp.durationString}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="collapseActivityList">
-                        <div id="comp#{comp.competenceId}" class="collapse">
-                        	<h:panelGroup id="actList">
-                            <ul>
-                            	<ui:fragment rendered="#{cc.attrs.isEdit}">
-                            		<ui:repeat var="act" value="#{comp.activities}">
-	                            		<li class="noLink #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-	                                        <span class="iconType"></span>
-	                                        #{act.title}
-	                                	</li>
-	                            	</ui:repeat>   
-                            	</ui:fragment>
-                            	<ui:fragment rendered="#{!cc.attrs.isEdit}">
-                            		<ui:repeat var="act" value="#{comp.activities}">
-	                            		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
-		                                    <h:link outcome="activity">
-		                                        <span class="iconType"></span>
-		                                        #{act.title}
-		                                        <ui:fragment rendered="#{act.completed}">
-		                                        	<span class="check"></span>
-		                                        </ui:fragment>
-		                                        <f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
-		                                        <f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
-	                        					<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-		                                    </h:link>
-	                                	</li>
-	                            	</ui:repeat>   
-                            	</ui:fragment>                 
-                            </ul>
-                            </h:panelGroup>
-                        </div>
-                        <h:panelGroup id="panelExpandActivityList">
-	                        <h:panelGroup rendered="#{comp.activitiesInitialized}">
-		                        <a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
-		                            <span class="textShow">Show Activities</span>
-		                            <span class="arrowDown">down</span>
-		                            <span class="textHide">Hide Activities</span>
-		                            <span class="arrowUp">up</span>
-		                        </a>
-	                        </h:panelGroup>
-	                        <p:commandLink  
-	                        	rendered="#{!comp.activitiesInitialized}"
-	                        	styleClass="collapseButton collapsed"
-	                        	process="@this"
-	                        	action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
-	                        	update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
-	                        	oncomplete="$('#comp#{comp.competenceId}').collapse();">
-		                            <span class="textShow">Show Activities</span>
-		                            <span class="arrowDown">down</span>
-		                            <span class="textHide">Hide Activities</span>
-		                            <span class="arrowUp">up</span>
-		                    </p:commandLink>
-	                    </h:panelGroup>
-                    </div>
-               		</article>
-               		<h:panelGroup 
-               			rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index) or cc.attrs.isEdit}"
-               			layout="block" 
-               			styleClass="mandatoryArrow"
-               			style="#{cc.attrs.bean.credentialData.mandatoryFlow ? '' : 'display:none;'}">
-               		</h:panelGroup>
-                </ui:repeat>
-                </div>
+								<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+									<ui:fragment rendered="#{cc.attrs.startedLearning}">
+										<h:link rendered="#{(!cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId) and comp.progress lt 100}"
+											value="#{comp.progress != 0 ? 'Resume' : 'Start'}"
+											styleClass="btn btn-green btn-sm"
+											outcome="activity">
+											<f:param name="actId" value="#{util:encodeId(comp.nextActivityToLearnId)}"></f:param>
+											<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
+											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
+										</h:link>
+										
+										<ui:fragment rendered="#{cc.attrs.bean.credentialData.mandatoryFlow and comp.competenceId != cc.attrs.bean.credentialData.nextCompetenceToLearnId and comp.progress lt 100}">
+											<a href="javascript:void(0);" 
+												class="btn btn-green btn-sm" 
+												disabled="disabled" 
+												data-toggle="tooltip" 
+												title="In order to start this competence, previous tasks need to be completed.">
+												#{comp.progress != 0 ? 'Resume' : 'Start'}
+											</a>
+										</ui:fragment>
+										
+										<h:panelGroup layout="block" rendered="#{comp.progress lt 100}" styleClass="progressBar">
+											<span>#{comp.progress}</span>
+											<div class="progress">
+												<div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
+											</div>
+											</div>
+										</h:panelGroup>
+										
+										<h:panelGroup 
+											layout="block" 
+											styleClass="tagCompleted"
+											rendered="#{comp.progress == 100}">
+											Completed
+										</h:panelGroup>
+									</ui:fragment>
+								</ui:fragment>
+							</div>
+                            
+							<div class="metaRight">
+								<div class="duration">#{comp.durationString}</div>
+							</div>
+						</div>
+					</div>
+	                    
+					<div class="collapseActivityList">
+						<div id="comp#{comp.competenceId}" class="collapse">
+							<h:panelGroup id="actList">
+								<ul>
+									<ui:fragment rendered="#{cc.attrs.isEdit}">
+										<ui:repeat var="act" value="#{comp.activities}">
+											<li class="noLink #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
+												<span class="iconType"></span>
+												#{act.title}
+											</li>
+										</ui:repeat>   
+									</ui:fragment>
+									
+									<ui:fragment rendered="#{!cc.attrs.isEdit}">
+										<ui:repeat var="act" value="#{comp.activities}">
+											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
+												<h:link outcome="activity">
+													<span class="iconType"></span>
+													#{act.title}
+													<ui:fragment rendered="#{act.completed}">
+														<span class="check"></span>
+													</ui:fragment>
+													<f:param name="actId" value="#{util:encodeId(act.activityId)}"/> 
+													<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
+													<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+												</h:link>
+											</li>
+										</ui:repeat>   
+									</ui:fragment>                 
+								</ul>
+							</h:panelGroup>
+						</div>
+						
+						<h:panelGroup id="panelExpandActivityList">
+							<h:panelGroup rendered="#{comp.activitiesInitialized}">
+								<a href="javascript:void(0);" data-toggle="collapse" data-target="#comp#{comp.competenceId}" class="collapseButton collapsed">
+									<span class="textShow">Show Activities</span>
+									<span class="arrowDown">down</span>
+									<span class="textHide">Hide Activities</span>
+									<span class="arrowUp">up</span>
+								</a>
+							</h:panelGroup>
+							
+							<p:commandLink  
+								rendered="#{!comp.activitiesInitialized}"
+								styleClass="collapseButton collapsed"
+								process="@this"
+								action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
+								update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+								oncomplete="$('#comp#{comp.competenceId}').collapse();">
+								<span class="textShow">Show Activities</span>
+								<span class="arrowDown">down</span>
+								<span class="textHide">Hide Activities</span>
+								<span class="arrowUp">up</span>
+							</p:commandLink>
+						</h:panelGroup>
+					</div>
+				</article>
+              		
+				<h:panelGroup
+					rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index) or cc.attrs.isEdit}"
+					layout="block" 
+					styleClass="mandatoryArrow"
+					style="#{cc.attrs.bean.credentialData.mandatoryFlow ? '' : 'display:none;'}">
+				</h:panelGroup>
+			</ui:repeat>
+		</div>
 	</composite:implementation>
 </ui:component>

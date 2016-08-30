@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
@@ -23,8 +23,9 @@ import org.prosolo.services.interaction.data.CommentSortOption;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.util.ICommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -52,20 +53,6 @@ public class CommentBean implements Serializable, ICommentBean {
 		sortOptions = CommentSortOption.values();
 	}
 	
-//	public void init(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
-//		try {
-//			sortOptions = CommentSortOption.values();
-//			this.resourceType = resourceType;
-//			this.resourceId = resourceId;
-//			this.isInstructor = isInstructor;
-//			loadComments();
-//			logger.info("Comments for resource " + resourceType.toString() + 
-//					" with id " + resourceId + " is loaded");
-//		} catch(DbConnectionException e) {
-//			logger.error(e);
-//		}
-//	}
-
 	public void loadComments(CommentsData commentsData) {
 		try {
 			List<CommentData> comments = retrieveComments(commentsData);
@@ -174,13 +161,18 @@ public class CommentBean implements Serializable, ICommentBean {
 		}
 		newComment.setCommentedResourceId(commentsData.getResourceId());
 		newComment.setDateCreated(new Date());
+		
+		// strip all tags except <br>
+		newComment.setComment(PostUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
+		
 		UserData creator = new UserData(
 				loggedUser.getUserId(), 
 				loggedUser.getSessionData().getName(),
 				loggedUser.getSessionData().getLastName(),
 				loggedUser.getSessionData().getAvatar(),
 				loggedUser.getSessionData().getPosition(),
-				loggedUser.getSessionData().getEmail());
+				loggedUser.getSessionData().getEmail(),
+				true);
 		
 		newComment.setCreator(creator);
 		newComment.setInstructor(commentsData.isInstructor());

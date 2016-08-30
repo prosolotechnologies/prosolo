@@ -1,17 +1,18 @@
 package org.prosolo.bigdata.scala.analyzers
 
 import java.util
-import java.util.{Comparator, Collections}
+import java.util.{Collections, Comparator}
 
-import com.google.gson.{JsonPrimitive, JsonObject}
+import com.google.gson.{JsonObject, JsonPrimitive}
 import org.apache.spark.rdd.RDD
 import org.prosolo.bigdata.common.dal.pojo.{MostActiveUsersForLearningGoal, UserLearningGoalActivitiesCount}
-import org.prosolo.bigdata.common.events.pojo.{DataType, DataName}
+import org.prosolo.bigdata.common.events.pojo.{DataName, DataType}
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl
-import org.prosolo.bigdata.es.RecommendationDataIndexerImpl
+import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.utils.DateUtil
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

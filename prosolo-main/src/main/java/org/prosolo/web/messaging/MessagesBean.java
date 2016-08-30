@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,9 +36,7 @@ import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
 import org.prosolo.web.useractions.data.NewPostData;
-import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -55,10 +54,12 @@ public class MessagesBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(MessagesBean.class);
 	
-	@Autowired private MessagingManager messagingManager;
-	@Autowired private LoggedUserBean loggedUser;
+	@Inject private MessagingManager messagingManager;
+	@Inject private LoggedUserBean loggedUser;
 	@Inject private UrlIdEncoder idEncoder;
-	@Autowired private EventFactory eventFactory;
+	@Inject private EventFactory eventFactory;
+	@Inject private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private TopInboxBean topInboxBean;
 	
 	protected List<UserData> receivers;
 	
@@ -78,11 +79,9 @@ public class MessagesBean implements Serializable {
 	
 	private String messageText = "";
 	
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	private List<MessagesThreadData> messagesThreads;
-	@Autowired
-	private TopInboxBean topInboxBean;
 	private int messagesLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
+	private List<Long> newMessageThreadParticipantIds = new ArrayList<>();
 	
 	private enum MessageProcessingResult {
 		OK, FORBIDDEN, ERROR, NO_MESSAGES
@@ -91,6 +90,7 @@ public class MessagesBean implements Serializable {
 	public void init() {
 		messageText = "";
 		newMessageView = false;
+		newMessageThreadParticipantIds.clear();
 		decodedThreadId = idEncoder.decodeId(threadId);
 		initMessageThreadData();
 		MessageProcessingResult result = tryToInitMessages();
@@ -138,7 +138,7 @@ public class MessagesBean implements Serializable {
 				try {
 					thread = messagingManager.get(MessageThread.class, decodedThreadId);
 					
-					if (thread == null || userShouldSeeThread(thread)) {
+					if (thread == null || !userShouldSeeThread(thread)) {
 						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
 						return MessageProcessingResult.FORBIDDEN;
 					}
@@ -170,6 +170,25 @@ public class MessagesBean implements Serializable {
 			this.messages = new LinkedList<MessageData>();
 			loadMessages();
 		}
+		
+		String page = PageUtil.getPostParameter("page");
+		String context = PageUtil.getPostParameter("context");
+		
+		taskExecutor.execute(() -> {
+			try {
+				String page1 = (page == null) ? page : "messages";
+				String context1 = (context == null) ? context : "name:messages";
+
+				Map<String, String> parameters = new HashMap<String, String>();
+        		parameters.put("context", context1);
+        		parameters.put("threadId", String.valueOf(threadData.getId()));
+        		
+        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(), thread, null, page1, context1, null, parameters);
+        	} catch (EventException e) {
+        		logger.error(e);
+        	}
+		});
+		
 		return MessageProcessingResult.OK;
 	}
 	
@@ -250,29 +269,40 @@ public class MessagesBean implements Serializable {
 		for (Message message : readMessages) {
 			this.messages.add(new MessageData(message, loggedUser.getUserId(), true));
 		}
-		//it can happen that sum of messages is > limit, (as +1 read is fetched, to set the flag), 
-		//cut them off (but beware that unread.size might be > limit, then we must display them all + 2 read ones)
+		//As we sorted them by date DESC, now show them ASC (so last message will be last one created)
+		Collections.sort(messages,(a,b) -> a.getCreated().compareTo(b.getCreated()));
 	}
 
 
 	public void sendMessage(){
 		try {
 			//TODO what is the context?
-			Message message = messagingManager.sendMessages(loggedUser.getUserId(), 
-					threadData.getParticipants(), messageText, threadData.getId(), "");
-			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId() + " with content: '"+this.messageText+"'");
+			Message message = null;
+			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
+				//new recipients have been set, send message to them (and create or re-use existing thread)
+				message = messagingManager.sendMessage(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0), messageText); //single recipient, for now
+				initializeThreadData(message.getMessageThread());
+			}
+			else {
+				//no recipients set, assume current thread is used
+				message = messagingManager.sendMessages(loggedUser.getUserId(), 
+						threadData.getParticipants(), messageText, threadData.getId(), "");
+			}
+			//at this point, threadData is initialized (either through init method, or now, by sending very first message)
+			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId()+ " with content: '"+this.messageText+"'");
 			publishSentMessage(loggedUser.getUserId(), threadData.getParticipants(), message);
-
 			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Message sent");
-			//set archived to false, as sending messge unarchives thread
+			//set archived to false, as sending message unarchives thread
 			archiveView = false;
+			//reset message data, so we can re-fetch messages and messages threads
+			messagesThreads = null;
 			init();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Exception while sending message", e);
 		}
 	}
 	
-	public void setupNewMessageThread() {
+	public void setupNewMessageThreadRecievers() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String ids = params.get("newThreadRecipients");
 		if(StringUtils.isBlank(ids)){
@@ -280,20 +310,8 @@ public class MessagesBean implements Serializable {
 			PageUtil.fireErrorMessage("messagesFormGrowl", "Unable to send message");
 		}
 		else {
-			List<Long> participantIds = getRecieverIdsFromParameters(ids);
-			participantIds.add(loggedUser.getUserId());
-			try {
-				MessageThread newMessageThread = messagingManager.createNewMessagesThread(loggedUser.getUserId(), participantIds, "");
-				addNewMessageThread(newMessageThread);
-				//only trigger re-fetching if we were on archived view (new thread will not be archived, and we change set the view to inbox in any case)
-				if(archiveView){
-					messagesThreads = null;
-				}
-				archiveView = false;
-				init();
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			}
+			newMessageThreadParticipantIds = getRecieverIdsFromParameters(ids);
+
 		}
 	}
 	
@@ -390,12 +408,22 @@ public class MessagesBean implements Serializable {
 		this.messageText = messageText;
 	}
 	
+	
+	
 //	public void logInboxServiceUse(){
 //		loggingNavigationBean.logServiceUse(
 //				ComponentName.INBOX,
 //				"action",  "openInbox",
 //				"numberOfUnreadThreads", String.valueOf(this.unreadThreadsNo));
 //	}
+
+	public List<Long> getNewMessageThreadParticipantIds() {
+		return newMessageThreadParticipantIds;
+	}
+
+	public void setNewMessageThreadParticipantIds(List<Long> newMessageThreadParticipantIds) {
+		this.newMessageThreadParticipantIds = newMessageThreadParticipantIds;
+	}
 
 	public TopInboxBean getTopInboxBean() {
 		return topInboxBean;

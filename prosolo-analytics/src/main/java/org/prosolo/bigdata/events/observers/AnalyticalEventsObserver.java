@@ -59,7 +59,7 @@ public class AnalyticalEventsObserver implements EventObserver {
 	public void handleEvent(DefaultEvent event) {
 		if (event instanceof AnalyticsEvent) {
 			AnalyticsEvent analyticsEvent = (AnalyticsEvent) event;
-			Gson g = new Gson();
+			//Gson g = new Gson();
 			if (analyticsEvent.getDataType().equals(DataType.COUNTER)) {
 				AnalyticalEventDBManagerImpl.getInstance().updateAnalyticsEventCounter(analyticsEvent);
 			} else if (analyticsEvent.getDataType().equals(DataType.RECORD)) {
@@ -86,7 +86,7 @@ public class AnalyticalEventsObserver implements EventObserver {
 					AnalyticalEventDBManagerImpl.getInstance().insertAnalyticsEventRecord(analyticsEvent);
 				}
 			} else if (analyticsEvent.getDataType().equals(DataType.PROCESS)) {
-				System.out.println("EVENT:" + g.toJson(analyticsEvent));
+				//System.out.println("EVENT:" + g.toJson(analyticsEvent));
 				if (analyticsEvent.getDataName()
 						.equals(DataName.UPDATEHASHTAGS)) {
 					hashtagsUpdatesBuffer.addEvent(analyticsEvent);

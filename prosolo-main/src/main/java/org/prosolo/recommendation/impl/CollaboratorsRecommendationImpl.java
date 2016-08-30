@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
@@ -20,9 +22,7 @@ import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.es.RecommendedResourcesSearch;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.LearningGoalManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.similarity.ResourceTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 /*
 import com.mongodb.DBCursor;
@@ -34,15 +34,16 @@ public class CollaboratorsRecommendationImpl implements CollaboratorsRecommendat
 	
 	private static Logger logger = Logger.getLogger(CollaboratorsRecommendationImpl.class);
 	
-	@Autowired private MoreUsersLikeThis mult;
-	@Autowired private ResourceTokenizer resTokenizer;
-	@Autowired private LearningGoalManager learningGoalManager; 
-	//@Autowired private LoggingDBManager loggingDBManager;
-	@Autowired private UserManager userManager;
-	@Autowired private FollowResourceManager followResourceManager;
-	@Autowired private RecommendedResourcesSearch recommendedResourcesSearch;
-	
-	private List<User> mostActiveRecommendedUsers = new ArrayList<User>();
+	@Inject
+	private MoreUsersLikeThis mult;
+	@Inject
+	private ResourceTokenizer resTokenizer;
+	@Inject
+	private LearningGoalManager learningGoalManager;
+	@Inject
+	private FollowResourceManager followResourceManager;
+	@Inject
+	private RecommendedResourcesSearch recommendedResourcesSearch;
 	
 	@Override
 	public List<User> getRecommendedCollaboratorsForLearningGoal(long userId, long targetGoalId, int limit) {

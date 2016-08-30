@@ -35,8 +35,11 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
@@ -56,15 +59,19 @@ import org.prosolo.search.util.credential.CredentialSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
+import org.prosolo.search.util.credential.LearningStatus;
+import org.prosolo.search.util.credential.LearningStatusFilter;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexNames;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -93,6 +100,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credentialManager;
 	@Inject private CredentialInstructorManager credInstructorManager;
+	@Inject private RoleManager roleManager;
+	@Inject private FollowResourceManager followResourceManager;
 
 	@Override
 	@Transactional
@@ -225,6 +234,142 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId) {
+		
+		TextSearchResponse1<org.prosolo.web.administration.data.UserData> response = 
+				new TextSearchResponse1<>();
+		
+		try {
+			int start = 0;
+			int size = 1000;
+			if(paginate) {
+				start = setStart(page, limit);
+				size = limit;
+			}
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+			
+			SearchResponse sResponse = null;
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "roles"};
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFrom(start).setSize(size)
+					.addSort("name", SortOrder.ASC)
+					.addAggregation(AggregationBuilders.terms("roles")
+							.field("roles.id"))
+					.addAggregation(AggregationBuilders.count("docCount")
+							.field("id"))
+					.setFetchSource(includes, null);
+			
+			//set as a post filter so it does not influence aggregation results
+			if(roleId > 0) {
+				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
+				srb.setPostFilter(bqb);
+			}
+			
+			//System.out.println(srb.toString());
+			sResponse = srb.execute().actionGet();
+			
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+				List<org.prosolo.common.domainmodel.organization.Role> roles = roleManager.getAllRoles();
+				for(SearchHit sh : sResponse.getHits()) {
+					Map<String, Object> fields = sh.getSource();
+					User user = new User();
+					user.setId(Long.parseLong(fields.get("id") + ""));
+					user.setName((String) fields.get("name"));
+					user.setLastname((String) fields.get("lastname"));
+					user.setAvatarUrl((String) fields.get("avatar"));
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
+					List<org.prosolo.common.domainmodel.organization.Role> userRoles = new ArrayList<>();
+					if(rolesList != null) {
+						for(Map<String, Object> map : rolesList) {
+							org.prosolo.common.domainmodel.organization.Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
+							if(r != null) {
+								userRoles.add(r);
+							}
+						}
+					}
+					org.prosolo.web.administration.data.UserData userData = 
+							new org.prosolo.web.administration.data.UserData(user, userRoles);
+					
+					response.addFoundNode(userData);			
+				}
+				
+				//get facets
+				ValueCount docCount = sResponse.getAggregations().get("docCount");
+				Terms terms = sResponse.getAggregations().get("roles");
+				List<Terms.Bucket> buckets = terms.getBuckets();
+				
+				List<RoleFilter> roleFilters = new ArrayList<>();
+				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
+				roleFilters.add(defaultFilter);
+				RoleFilter selectedFilter = defaultFilter;
+				for(org.prosolo.common.domainmodel.organization.Role role : roles) {
+					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
+					int number = 0;
+					if(bucket != null) {
+						number = (int) bucket.getDocCount();
+					}
+			    	RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+			    	roleFilters.add(rf);
+			    	if(role.getId() == roleId) {
+			    		selectedFilter = rf;
+			    	}
+				}
+				
+				Map<String, Object> additionalInfo = new HashMap<>();
+				additionalInfo.put("filters", roleFilters);
+				additionalInfo.put("selectedFilter", selectedFilter);
+				
+				response.setAdditionalInfo(additionalInfo);
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private Bucket getBucketForRoleId(long id, List<Bucket> buckets) {
+		if(buckets != null) {
+			for(Bucket b : buckets) {
+				if(Long.parseLong(b.getKey().toString()) == id) {
+					return b;
+				}
+			}
+		}
+		return null;
+	}
+
+	private org.prosolo.common.domainmodel.organization.Role getRoleDataForId(List<org.prosolo.common.domainmodel.organization.Role> roles, 
+			long roleId) {
+		if(roles != null) {
+			for(org.prosolo.common.domainmodel.organization.Role r : roles) {
+				if(roleId == r.getId()) {
+					return r;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -1741,5 +1886,162 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
+			long userId, CredentialMembersSortOption sortOption) {
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
+					nestedFB);
+//					.innerHit(new QueryInnerHitBuilder());
+			//instead of deprecated filteredquery
+			BoolQueryBuilder bqb = QueryBuilders.boolQuery();
+			bqb.must(bQueryBuilder);
+			bqb.filter(nestedFilter1);
+//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+//					nestedFilter1);
+			//bQueryBuilder.must(termQuery("credentials.id", credId));
+			
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bqb)
+						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
+								.subAggregation(AggregationBuilders.filter("filtered")
+										.filter(QueryBuilders.termQuery("credentials.id", credId))
+								.subAggregation(
+										AggregationBuilders.terms("inactive")
+										.field("credentials.progress")
+										.include(new long[] {100}))))
+						.setFetchSource(includes, null);
+				
+				/*
+				 * set learning status filter as a post filter so it does not influence
+				 * aggregation results
+				 */
+				if(filter == LearningStatus.Active) {
+					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
+					assignFilter.mustNot(QueryBuilders.termQuery("credentials.progress", 100));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * credentials for users matched by query
+					 */
+					assignFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
+							assignFilter).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+				} else {
+					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+				}
+				
+				searchRequestBuilder.setFrom(start).setSize(limit);	
+				
+				//add sorting
+				for(String field : sortOption.getSortFields()) {
+					SortOrder sortOrder = sortOption.getSortOrder() == 
+							org.prosolo.services.util.SortingOption.ASC ? 
+							SortOrder.ASC : SortOrder.DESC;
+					searchRequestBuilder.addSort(field, sortOrder);
+				}
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							StudentData student = new StudentData();
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							boolean followed = followResourceManager.isUserFollowingUser(
+									userId, user.getId());
+							userData.setFollowedByCurrentUser(followed);
+							student.setUser(userData);
+							
+							SearchHits innerHits = sh.getInnerHits().get("credentials");
+							long totalInnerHits = innerHits.getTotalHits();
+							if(totalInnerHits == 1) {
+								Map<String, Object> credential = innerHits.getAt(0).getSource();
+								
+								if(credential != null) {
+									student.setCredProgress(Integer.parseInt(
+											credential.get("progress").toString()));
+//									@SuppressWarnings("unchecked")
+//									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
+//								    if(profile != null && !profile.isEmpty()) {
+//								    	resMap.put("profileType", profile.get("profileType"));
+//								    	resMap.put("profileTitle", profile.get("profileTitle"));
+//								    }
+									response.addFoundNode(student);
+								}
+							}				
+						}
+						
+						//get number of unassigned students
+						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+						Filter filtered = nestedAgg.getAggregations().get("filtered");
+						Terms terms = filtered.getAggregations().get("inactive");
+						//Terms terms = nestedAgg.getAggregations().get("unassigned");
+						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
+						long inactive = 0;
+						if(it.hasNext()) {
+							inactive = it.next().getDocCount();
+						}
+						
+						LearningStatusFilter[] filters = new LearningStatusFilter[2];
+						filters[0] = new LearningStatusFilter(LearningStatus.All,
+								filtered.getDocCount());
+								//nestedAgg.getDocCount());
+						filters[1] = new LearningStatusFilter(LearningStatus.Active, 
+								filtered.getDocCount() - inactive);
+						Map<String, Object> additionalInfo = new HashMap<>();
+						additionalInfo.put("filters", filters);
+						additionalInfo.put("selectedFilter", filters[0].getStatus() == filter
+								? filters[0] : filters[1]);
+						response.setAdditionalInfo(additionalInfo);
+						
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
 	}
 }

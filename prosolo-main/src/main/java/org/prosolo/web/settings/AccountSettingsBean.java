@@ -6,13 +6,12 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -62,8 +61,8 @@ public class AccountSettingsBean implements Serializable {
 			}
 
 			try {
-				User user = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
-				loggedUser.getSessionData().setPassword(user.getPassword());
+				String newPassEncrypted = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
+				loggedUser.getSessionData().setPassword(newPassEncrypted);
 				
 				PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
 			} catch (ResourceCouldNotBeLoadedException e) {

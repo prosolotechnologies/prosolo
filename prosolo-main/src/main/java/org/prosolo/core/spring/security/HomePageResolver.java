@@ -35,7 +35,7 @@ public class HomePageResolver {
 		 if(cap != null) {
 			 switch (cap) {
 			 	case "basic.admin.access":
-			 		return "/admin/users";
+			 		return "/admin";
 			 	case "basic.manager.access":
 			 	case "basic.instructor.access":
 			 		return "/manage";

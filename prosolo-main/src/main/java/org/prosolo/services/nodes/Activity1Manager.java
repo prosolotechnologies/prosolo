@@ -8,7 +8,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -17,7 +17,7 @@ import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTrac
 
 public interface Activity1Manager {
 	
-	Activity1 saveNewActivity(ActivityData data, long userId) 
+	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
 	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
@@ -51,11 +51,11 @@ public interface Activity1Manager {
 	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
 			throws DbConnectionException;
 	
-	ActivityData getActivityDataForEdit(long competenceId, long activityId, long creatorId) 
-			throws DbConnectionException;
+	ActivityData getActivityDataForEdit(long credId, long competenceId, long activityId, 
+			long creatorId) throws DbConnectionException;
 	
-	Activity1 updateActivity(long originalActivityId, ActivityData data, long userId) 
-			throws DbConnectionException;
+	Activity1 updateActivity(long originalActivityId, ActivityData data, long userId, 
+			LearningContextData context) throws DbConnectionException;
 	
 	Activity1 updateActivityData(ActivityData data, long userId);
 	
@@ -128,7 +128,7 @@ public interface Activity1Manager {
 			LearningContextData contextData) throws DbConnectionException;
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId) throws DbConnectionException;
+			long actId, long userId, boolean shouldReturnDraft) throws DbConnectionException;
 
 	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -140,13 +140,14 @@ public interface Activity1Manager {
 	
 	/**
 	 * Returns draft version of activity if exists, original version otherwise
+	 * @param credId
 	 * @param competenceId
 	 * @param activityId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	ActivityData getCurrentVersionOfActivityForManager(long competenceId, long activityId) 
-			throws DbConnectionException;
+	ActivityData getCurrentVersionOfActivityForManager(long credId, long competenceId, 
+			long activityId) throws DbConnectionException;
 	
 	List<EventData> publishDraftActivities(List<Long> actIds) 
 			throws DbConnectionException;

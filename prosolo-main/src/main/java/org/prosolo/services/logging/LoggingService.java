@@ -3,8 +3,8 @@ package org.prosolo.services.logging;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.services.event.context.LearningContext;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 
 //import com.mongodb.DBObject;

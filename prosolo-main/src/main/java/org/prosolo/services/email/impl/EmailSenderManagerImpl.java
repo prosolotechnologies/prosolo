@@ -53,7 +53,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 		AccountCreatedEmailGenerator contentGenerator = new AccountCreatedEmailGenerator(user.getName(), resetAddress);
 		
 		try {
-			emailSender.sendEmail(contentGenerator, email, "Account Initialization Instructions");
+			emailSender.sendEmail(contentGenerator, email);
 			return true;
 		} catch (AddressException e) {
 			logger.error(e);
@@ -74,7 +74,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 		EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator(user.getName(), verificationAddress);
 		
 		try {
-			emailSender.sendEmail(contentGenerator, user.getEmail(), "Email Verification Instructions");
+			emailSender.sendEmail(contentGenerator, user.getEmail());
 			return true;
 		} catch (AddressException e) {
 			logger.error(e);

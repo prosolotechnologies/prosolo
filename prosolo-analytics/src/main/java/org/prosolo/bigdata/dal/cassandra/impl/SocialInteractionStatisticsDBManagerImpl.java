@@ -29,35 +29,34 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 	
 	private static final Map<SocialInteractionsStatements, String> statements = new HashMap<SocialInteractionsStatements, String>();
 
-	//private Map<TableNames, Long> currenttimestamps;
+	//private Map<TablesNames, Long> currenttimestamps;
 
-	/*public enum TableNames{
+	/*public enum TablesNames{
 		INSIDE_CLUSTER_INTERACTIONS,
 		OUTSIDE_CLUSTER_INTERACTIONS,
 		STUDENT_CLUSTER
 	}*/
 
 	static {
-		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM sna_socialinteractionscount where course=?;");
-		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM sna_socialinteractionscount where course=? and source = ?;");
-		statements.put(SocialInteractionsStatements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE currenttimestamps  SET timestamp=? WHERE tablename=?;");
-		statements.put(SocialInteractionsStatements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM currenttimestamps ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_insideclustersinteractions(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
-		statements.put(SocialInteractionsStatements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO sna_outsideclustersinteractions(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
-		statements.put(SocialInteractionsStatements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_outsideclustersinteractions WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM sna_insideclustersinteractions WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.INSERT_STUDENT_CLUSTER, "INSERT INTO sna_studentcluster(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
-		statements.put(SocialInteractionsStatements.FIND_STUDENT_CLUSTER, "SELECT * FROM sna_studentcluster WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.UPDATE_FROMINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET fromuser=fromuser+1, touser=touser+0 WHERE course=? AND student=? AND interactiontype=?;");
-		statements.put(SocialInteractionsStatements.UPDATE_TOINTERACTION,"UPDATE sna_interactionsbytypeforstudent  SET touser=touser+1,fromuser=fromuser+0 WHERE course=? AND student=? AND interactiontype=?;");
+		statements.put(FIND_SOCIAL_INTERACTION_COUNTS,  "SELECT * FROM "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" where course=?;");
+		statements.put(FIND_STUDENT_SOCIAL_INTERACTION_COUNTS, "SELECT * FROM "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" where course=? and source = ?;");
+		statements.put(SocialInteractionsStatements.UPDATE_CURRENT_TIMESTAMPS,"UPDATE "+TablesNames.CURRENT_TIMESTAMPS+"  SET timestamp=? WHERE tablename=?;");
+		statements.put(SocialInteractionsStatements.FIND_CURRENT_TIMESTAMPS,  "SELECT * FROM "+TablesNames.CURRENT_TIMESTAMPS+" ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.INSERT_INSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO "+TablesNames.SNA_INSIDE_CLUSTER_INTERACTIONS+"(timestamp, course, cluster, student, interactions) VALUES(?,?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_OUTSIDE_CLUSTERS_INTERACTIONS, "INSERT INTO "+TablesNames.SNA_OUTSIDE_CLUSTER_INTERACTIONS+"(timestamp, course,  student,direction, cluster, interactions) VALUES(?,?,?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.FIND_OUTSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM "+TablesNames.SNA_OUTSIDE_CLUSTER_INTERACTIONS+" WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.FIND_INSIDE_CLUSTER_INTERACTIONS, "SELECT * FROM "+TablesNames.SNA_INSIDE_CLUSTER_INTERACTIONS+" WHERE timestamp = ? AND course = ? AND cluster = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_CLUSTER, "INSERT INTO "+TablesNames.SNA_STUDENT_CLUSTER+"(timestamp, course,  student,cluster) VALUES(?,?,?,?); ");
+		statements.put(SocialInteractionsStatements.FIND_STUDENT_CLUSTER, "SELECT * FROM "+TablesNames.SNA_STUDENT_CLUSTER+" WHERE timestamp = ? AND course = ? AND student = ? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.UPDATE_FROMINTERACTION,"UPDATE "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT+"  SET fromuser=fromuser+1, touser=touser+0 WHERE course=? AND student=? AND interactiontype=?;");
+		statements.put(SocialInteractionsStatements.UPDATE_TOINTERACTION,"UPDATE "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT+"  SET touser=touser+1,fromuser=fromuser+0 WHERE course=? AND student=? AND interactiontype=?;");
 
-		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM sna_interactionsbytypeforstudent WHERE course=? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPEOVERVIEW,"SELECT * FROM sna_studentinteractionbytypeoverview WHERE course=? AND student=? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW,"SELECT * FROM sna_studentinteractionbypeersoverview WHERE course=? AND student=? ALLOW FILTERING;");
-		//statements.put(SocialInteractionsStatements.UPDATE_SOCIALINTERACTIONCOUNT, "UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT+" WHERE course=? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPEOVERVIEW,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW+" WHERE course=? AND student=? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+"WHERE course=? AND student=? ALLOW FILTERING;");
 
-		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO sna_studentinteractionbypeersoverview(course, student, interactions) VALUES(?,?,?); ");
-		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO sna_studentinteractionbytypeoverview(course, student, interactions) VALUES(?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+"(course, student, interactions) VALUES(?,?,?); ");
+		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW+"(course, student, interactions) VALUES(?,?,?); ");
 	}
 
 	private SocialInteractionStatisticsDBManagerImpl(){

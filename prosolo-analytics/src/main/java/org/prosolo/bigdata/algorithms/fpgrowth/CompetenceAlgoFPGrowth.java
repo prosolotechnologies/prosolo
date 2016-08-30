@@ -1,6 +1,5 @@
 package org.prosolo.bigdata.algorithms.fpgrowth;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +15,9 @@ import org.prosolo.bigdata.algorithms.fpgrowth.patterns.Itemsets;
 import org.prosolo.bigdata.algorithms.fpgrowth.patterns.MemoryLogger;
 //import org.prosolo.bigdata.algorithms.fpgrowth.patterns.MemoryLogger;
 import org.prosolo.bigdata.common.dal.pojo.TargetCompetenceActivities;
-import org.prosolo.bigdata.dal.cassandra.AnalyticalEventDBManager;
-import org.prosolo.bigdata.dal.cassandra.AnalyzedResultsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
-import org.prosolo.bigdata.dal.cassandra.impl.AnalyzedResultsDBmanagerImpl;
 import org.prosolo.bigdata.es.AssociationRulesIndexer;
-import org.prosolo.bigdata.es.AssociationRulesIndexerImpl;
+import org.prosolo.bigdata.es.impl.AssociationRulesIndexerImpl;
 
 /**
  * @author Zoran Jeremic May 3, 2015

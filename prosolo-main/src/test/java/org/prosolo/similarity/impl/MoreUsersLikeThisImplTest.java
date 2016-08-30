@@ -10,7 +10,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 
 /**
  *

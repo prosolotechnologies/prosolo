@@ -24,7 +24,7 @@ import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.data.CredentialStructure;
 import org.prosolo.web.search.data.SortingOption;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

@@ -9,8 +9,8 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
-import org.prosolo.services.event.context.Context;
-import org.prosolo.services.event.context.ContextName;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.nodes.CredentialManager;
 import org.springframework.stereotype.Service;
 

@@ -10,12 +10,13 @@
 	xmlns:settings="http://java.sun.com/jsf/composite/components/settings">
 
 	<ui:define name="windowTitle">
-		Account Settings
+		Account Settings - Personal Info
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{profileSettings.accountData.id}"></f:viewParam>
+			<f:viewParam name="id" value="#{profileSettings.accountData.id}" />
+			<f:viewAction action="#{profileSettings.init()}" />
 		</f:metadata>
 	</ui:define>
 

@@ -29,7 +29,7 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.PostManager;
@@ -38,7 +38,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -133,11 +133,11 @@ public class BulkDataAdministration implements Serializable {
 		
 		try {
 			for (User user : users) {
-				if (!user.isSystem()) {
-					user = (User) session.merge(user);
-					logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-					userEntityESService.saveUserNode(user, session);
-				}
+				//if (!user.isSystem()) {
+				user = (User) session.merge(user);
+				logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
+				userEntityESService.saveUserNode(user, session);
+				//}
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);
@@ -204,11 +204,11 @@ public class BulkDataAdministration implements Serializable {
 		try {
 			Collection<User> users = userManager.getAllUsers();
 			for (User user : users) {
-				if (!user.isSystem()) {
-					user = (User) session.merge(user);
-					logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
-					userEntityESService.saveUserNode(user, session);
-				}
+				//if (!user.isSystem()) {
+				user = (User) session.merge(user);
+				logger.debug("indexing user:" + user.getId() + ". " + user.getName() + " " + user.getLastname());
+				userEntityESService.saveUserNode(user, session);
+				//}
 			}
 
 //			List<Node> nodes = new ArrayList<Node>();

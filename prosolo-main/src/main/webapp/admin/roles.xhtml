@@ -3,234 +3,177 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout1.xhtml"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-	<ui:define name="windowTitle">
-	Roles &amp; cCapabilities | Admin 
+<ui:define name="windowTitle">
+	Roles
+</ui:define>
+
+<ui:define name="metadata">
+	<f:metadata>
+
+	</f:metadata>
 </ui:define>
 
 <ui:define name="content">
-	<dlg:newRole id="newRole" />
-	<dlg:editRole id="editRole" />
+	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+    <div class="whiteBar">
+        <div class="container">
+            <div class="whiteBarContent">
+                <div class="whiteBarLeft">
+                    <p:commandLink 
+                    	styleClass="btn btn-green btn-sm item" 
+                    	pt:data-toggle="modal" 
+                    	action="#{roles.prepareAddRole()}"
+                    	update=":formEditRole:panelNewRoleContent"
+                    	oncomplete="$('#newRoleModal').modal('show');">New Role
+                    </p:commandLink>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<section class="heading">
-		<header>
-			<i class="fa fa-sitemap headIcon"></i>
-			<div class="headerTitle">
-				<h1>Roles &amp; Capabilities</h1>
-				<p>Manage user roles and capabilities in the application.</p>
-			</div>
-			
-			<ul class="basicStats pull-right">
-				<li>
-					<p:commandLink immediate="true" id="newRoleBtn"
-						value="Add"
-						pt:role="button"
-						styleClass="btn btn-primary"
-						action="#{roles.prepareAddRole()}"
-						onclick='$("#newRoleModalDialog").dialog("open");'
-						update=":newRole:newRoleForm" />
-				</li>
-			</ul>
-		</header>
-	</section>
-	
-	<section class="container-fluid mainArea">
-		<div class="row">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-       				<h3 class="panel-title">Roles</h3>
-				</div>
-				
-				<div class="panel-body">
-					<div class="row">
-						<div class="col-md-12">
-							<h:form id="rolesForm" prependId="false">
-							
-								<table class="panel table tableProsolo">
-									<thead>
-										<tr>
-											<th class="colNo" scope="col">
-												No.
-											</th>
-											<th class="colStudent" scope="col">
-												Title
-											</th>
-											<th class="colStudent" scope="col">
-										    	Description
-											</th>
-											<th class="colEmail" scope="col">
-										    	Users no.
-											</th>
-											<th class="colActions" scope="col">
-										    	Actions
-											</th>
-										</tr>
-									</thead>
-									<tbody>
-										<ui:repeat var="role" value="#{roles.roles}" varStatus="status">
-											<tr>
-												<td class="colNoD">#{status.index + 1}.</td>
-												<td class="colStudentD">
-													#{role.name}
-												</td>
-												<td class="colStudentD">
-													<h:outputText value="#{role.description}" />
-												</td>
-												<td class="colProfileD">
-													<p:commandLink rendered="#{not empty role.userIds}"
-														value="#{role.userIds.size()} users"
-														action="#{peopleListDialog.initializePeopleWithIds(role.userIds)}"
-														onclick="$('#peopleListDialog').dialog('open');"
-														update=":peopleListForm" />
-								
-													<h:outputText rendered="#{empty role.userIds}" value="0 users" />
-												</td>
-												<td class="actions">
-													<p:commandLink immediate="true" value="Edit"
-														pt:role="button"
-														styleClass="btn btn-info" 
-														onclick="$('#editRoleModalDialog').dialog('open');"
-														action="#{roles.prepareEdit(role)}"
-														update=":editRole:editRoleForm" />
-														
-													<p:commandLink value="Delete"
-														pt:role="button"
-														styleClass="btn btn-danger" 
-														rendered="#{!roles.isRoleUsed(role)}"
-														onclick="$('#deleteRoleDialog').dialog('open');"
-														action="#{roles.setRoleToDelete(role)}"
-														update=":deleteRoleDialogForm" />
-								
-													<p:commandLink value="Delete"
-														pt:role="button"
-														styleClass="btn btn-default disabled hasTooltip" 
-														rendered="#{roles.isRoleUsed(role)}"
-														title="#{msg['admin.roles.delete.disabled.tooltip']}" />
-												</td>
-											</tr>
-										</ui:repeat>
-									</tbody>
-								</table>
-							</h:form>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="row">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-       				<h3 class="panel-title">Capabilities</h3>
-				</div>
-				
-				<div class="panel-body">
-					<div class="row">
-						<div class="col-md-12">
-							<h:form id="capabilitiesForm" prependId="false">
-							
-								<table class="panel table tableProsolo">
-									<thead>
-										<tr>
-											<th class="colNo" scope="col">
-												No.
-											</th>
-											<th class="colStudent" scope="col">
-												Title
-											</th>
-											
-											<c:forEach items="#{roles.roles}" var="role">
-												<th class="" scope="col">
-					    							#{role.name}
-					    						</th>
-											</c:forEach>
-										</tr>
-									</thead>
-									<tbody>
-										<ui:repeat var="cap" value="#{roles.capabilities}" varStatus="status">
-											<tr>
-												<td class="colNoD">#{status.index + 1}.</td>
-												<td class="colStudentD">
-													#{cap.description}
-												</td>
-												
-												<c:forEach items="#{roles.roles}" var="role">
-													<td class="">
-						        						<h:selectBooleanCheckbox checked="#{roles.isSelected(cap,role)}">
-															<p:ajax event="click" process="@this"
-																listener="#{roles.capabilityChanged(cap, role)}" update=":capabilitiesForm:growlMsg @this" />
-														</h:selectBooleanCheckbox>
-							    					</td>
-												</c:forEach>
-											</tr>
-										</ui:repeat>
-									</tbody>
-								</table>
-								
-								<p:growl id="growlMsg" showDetail="true"/>
-							</h:form>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<div id="deleteRoleDialog" class="deleteRoleDialog"
-		style="display: none;">
-		<h:form id="deleteRoleDialogForm">
-			<h4 class="warningMessage">
-				Are you sure you want to delete role #{roles.roleToDelete.name}?
-			</h4>
-
-			<div class="actions">
-				<p:commandLink value="Yes" 
-					pt:role="button"
-					styleClass="btn btn-danger"
-					onclick="$('#deleteRoleDialog').dialog('close');"
-					action="#{roles.delete()}" update=":rolesForm" />
-					
-				&#160;
-				<a href="#"
-					role="button"
-					class="btn btn-default"
-					onclick="$('#deleteRoleDialog').dialog('close');">Cancel</a>
-			</div>
-		</h:form>
-	</div>
-
-		<script>
-			$(function() {
-				$('#deleteRoleDialog').dialog({
-					title : 'Delete Role',
-					dialogClass : 'warning',
-					show : 'slide',
-					autoOpen : false,
-					width : 400,
-					modal : true,
-					resizable : false,
-					open : function() {
-						$(this).children(':first')
-							.css('text-align', 'center')
-							.css('padding-top', '50px')
-							.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
-
-							if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
-								$(this).parent()
-									.children('.ui-dialog-titlebar')
-									.prepend('<span class="warningIcon"></span>');
-							}
-					}
-				});
-				$('#deleteRoleDialog').show();
-			});
-		</script>
-		
-		<utilcomp:tooltip target=".hasTooltip[title]" />
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="whiteBox">
+                    <h2>Roles</h2>
+                    <h:panelGroup id="panelRoles">
+	                    <table class="tableRoles">
+	                    	<ui:repeat var="role" value="#{roles.roles}" varStatus="status">
+	                    		<tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
+		                            <td class="col1 alignLeft">#{role.name}</td>
+		                            <td class="col2">
+		                            	<h:link rendered="#{not empty role.userIds}" 
+		                            		outcome="/admin/users">
+		                            		<f:param name="role" value="#{util:encodeId(role.id)}"></f:param>
+		                            		#{role.userIds.size()} users
+		                            	</h:link>
+		                            	<h:outputText rendered="#{empty role.userIds}" value="0 users" />
+		                            </td>
+		                            <td class="col3">
+		                            	 <p:commandLink 
+					                    	styleClass="btn btn-green-stroke btn-sm" 
+					                    	pt:data-toggle="modal" 
+					                    	action="#{roles.prepareEditRole(role)}"
+					                    	update=":formEditRole:panelNewRoleContent"
+					                    	oncomplete="$('#newRoleModal').modal('show');">
+					                    	Rename
+					                     </p:commandLink>
+		                              	 <p:commandLink 
+		                              	 	rendered="#{!roles.isRoleUsed(role)}"
+		                                	styleClass="linkRed"
+		                                	pt:data-toggle="modal"
+		                                	action="#{roles.setRoleToDelete(role)}"
+		                                	update=":deleteRoleModal"
+		                                	oncomplete="$('#deleteModal').modal('show');">
+		                                	Delete
+		                                </p:commandLink>
+		                                <ui:fragment rendered="#{roles.isRoleUsed(role)}">
+		                                	<a href="javascript:void(0);" class="linkRed" data-toggle="tooltip" 
+		                                		title="There are users with this role, so it cannot be deleted">
+		                                		Delete
+		                                	</a>
+		                            	</ui:fragment>
+		                            </td>
+		                        </tr>
+	                    	</ui:repeat>
+	                    </table>
+                    </h:panelGroup>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="whiteBox">
+                    <h2>Capabilities</h2>
+                    <h:form id="formCapabilities">
+                    	<p:growl id="growlCaps" showDetail="true" globalOnly="true"></p:growl>
+	                    <table class="tableCapabilities">
+	                        <tr>
+	                            <th class="col1">&#160;</th>
+	                            <c:forEach items="#{roles.roles}" var="role">
+									<th class="colCheck">
+		    							#{role.name}
+		    						</th>
+								</c:forEach>
+	                        </tr>
+	                        <ui:repeat var="cap" value="#{roles.capabilities}" varStatus="status">
+	                          <tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
+	                            <td class="alignLeft">#{cap.description}</td>
+	                            <c:forEach items="#{roles.roles}" var="role" varStatus="status1">
+									<td>
+										<div class="checkbox">
+			        						<h:selectBooleanCheckbox id="checkboxCapRole#{status1.index}" checked="#{roles.isSelected(cap,role)}">
+												<p:ajax event="click" process="@this"
+													listener="#{roles.capabilityChanged(cap, role)}" update=":formCapabilities:growlCaps @this" />
+											</h:selectBooleanCheckbox>
+											<h:outputLabel for="checkboxCapRole#{status1.index}">
+												&#160;
+											</h:outputLabel>
+										</div>
+			    					</td>
+								</c:forEach>
+	                          </tr>
+	                        </ui:repeat>
+	                    </table>
+                    </h:form>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h:form id="formEditRole">
+      <div class="modal fade newFeedModal" id="newRoleModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+          <div class="modal-dialog">
+              <h:panelGroup layout="block" id="panelNewRoleContent" styleClass="modal-content">
+              	<ui:fragment rendered="#{not empty roles.formData}">
+                  <div class="modal-header alignLeft">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                      <h2 class="modal-title">#{roles.isCreateRoleUseCase() ? 'Add New Role' : 'Rename Role'}</h2>
+                  </div>
+                  <div class="modal-body alignLeft">
+                  	  <h:inputText id="inputRoleName" 
+							value="#{roles.formData.name}" 
+							required="true" 
+							requiredMessage="Name is required"
+							validator="#{roles.validateName}" 
+							placeholder="Role Name"/>
+					  <h:panelGroup 
+                      	layout="block" 
+                      	rendered="#{not empty facesContext.getMessageList('formEditRole:inputRoleName')}" 
+                      	styleClass="alert alert-danger" 
+                      	pt:role="alert">
+                          <h:message for="inputRoleName"></h:message>
+                      </h:panelGroup>
+                  </div>
+                  <div class="modal-footer alignLeft">
+                      <p:commandLink 
+                      	styleClass="btn btn-green"
+                      	oncomplete="
+							if (args &amp;&amp; !args.validationFailed)
+								$('#newRoleModal').modal('hide');"
+					 	action="#{roles.saveRole}" 
+					 	update=":formEditRole:panelNewRoleContent :panelRoles :formCapabilities">
+                      	#{roles.isCreateRoleUseCase() ? 'Add' : 'Save'}
+                      </p:commandLink>
+                      <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                  </div>
+                 </ui:fragment>
+              </h:panelGroup>
+          </div>
+      </div>
+    </h:form>
+	<courses:deleteModalDialog id="deleteRoleModal"
+   			deleteActionMethodName="delete"     	
+          	deleteAction="#{roles.delete}"
+          	toUpdate=":panelRoles :formCapabilities :growlMain" 
+          	modalDeleteTitle="role"
+          	modalDeleteText="role '#{roles.roleToDelete.name}'"/>
 	</ui:define>
 </ui:composition>

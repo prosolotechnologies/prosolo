@@ -7,7 +7,9 @@ public enum ObjectType {
 	Comment("Comment1"),
 	CredentialAssessment("CredentialAssessment"),
 	Credential("Credential1"),
-	PostSocialActivity("PostSocialActivity1");
+	PostSocialActivity("PostSocialActivity1"), 
+	Announcement("Announcement"),
+	SocialActivity("SocialActivity1");
 
 	private String dbTableName;
 	

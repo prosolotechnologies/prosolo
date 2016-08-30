@@ -28,7 +28,7 @@ import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.prosolo.web.lti.message.extract.LtiMessageBuilder;
 import org.prosolo.web.lti.message.extract.LtiMessageBuilderFactory;
 import org.prosolo.web.lti.urlbuilder.ToolLaunchUrlBuilderFactory;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

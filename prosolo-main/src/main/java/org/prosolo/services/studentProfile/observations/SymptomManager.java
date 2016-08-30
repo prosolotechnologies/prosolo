@@ -18,4 +18,6 @@ public interface SymptomManager {
 	public List<Long> getSymptomIdsWithName(String name) throws DbConnectionException;
 	
 	public String getSymptomNameForId(long id) throws DbConnectionException;
+	
+	void saveSymptoms(List<String> symptoms) throws DbConnectionException;
 }

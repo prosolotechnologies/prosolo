@@ -7,15 +7,20 @@ import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(
+		uniqueConstraints=@UniqueConstraint(columnNames={"user", "followed_user"})
+)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public  abstract class FollowedEntity extends BaseEntity {
 

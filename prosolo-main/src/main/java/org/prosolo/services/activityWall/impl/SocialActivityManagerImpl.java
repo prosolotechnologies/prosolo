@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -36,6 +38,7 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
@@ -45,11 +48,13 @@ import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +74,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CommentManager commentManager;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	
 	/**
 	 * Retrieves {@link SocialActivity1} instances for a given user and their filter. Method will return limit+1 number of instances if available; that is 
@@ -87,8 +94,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				case MY_NETWORK:
 					return getMyNetworkSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case TWITTER:
-					//return getTwitterSocialActivities(user, offset, limit);
-					return new ArrayList<>();
+					return getTwitterSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case ALL_PROSOLO:
 					return getAllProSoloSocialActivities(userId, offset, limit, previousId, previousDate, locale);
 				case ALL:
@@ -133,66 +139,19 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		return res;
 	}
 	
-//	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit) {
-//		String query = 
-//				getSelectPart() +
-//				"FROM social_activity sa \n" +
-//				"	LEFT JOIN node AS node_object \n" +
-//				"		ON sa.node_object = node_object.id \n" +
-//				"	LEFT JOIN post AS post_object \n" +
-//				"		ON sa.post_object = post_object.id \n" +
-//				"	LEFT JOIN node AS node_target \n" +
-//				"		ON sa.node_target = node_target.id \n" +
-//				"	LEFT JOIN node AS goal_target \n" +
-//				"		ON sa.goal_target = goal_target.id \n" +
-//				"	LEFT JOIN social_activity_config AS config \n" +
-//				"		ON config.social_activity = sa.id \n" +
-//				"	LEFT JOIN social_activity_hashtags AS sa_tag \n" +
-//				"		ON sa.id = sa_tag.social_activity \n" +
-//				"	LEFT JOIN tag AS tag \n" +
-//				"		ON sa_tag.hashtags = tag.id \n" +
-//				"	LEFT JOIN user_topic_preference_preferred_hashtags_tag AS pref_tag \n" +
-//				"		ON tag.id = pref_tag.preferred_hashtags \n" +
-//				"	LEFT JOIN user_preference AS pref \n" +
-//				"		ON pref_tag.user_preference = pref.id \n" +
-//				"	LEFT JOIN user AS sa_maker \n" +
-//				"		ON sa.maker = sa_maker.id \n" +
-//				"	LEFT JOIN course_enrollment AS course_enrollment \n" +
-//				"		ON sa.course_enrollment_object = course_enrollment.id \n" +
-//				"	LEFT JOIN course AS course \n" +
-//				"		ON course_enrollment.course = course.id \n" +
-//				"	LEFT JOIN rich_content AS rich_content \n" +
-//				"		ON sa.rich_content = rich_content.id \n" +
-//				"	LEFT JOIN annotation AS annotation \n" +
-//				"		ON annotation.social_activity = sa.id \n" +
-//
-//				"WHERE sa.dtype = 'TwitterPostSocialActivity' \n" +		// it is social activity of type TwitterPostSocialActivity
-//				"	AND sa.visibility != 'PRIVATE' \n" + 	// exclude private social activities
-//				"	AND sa.deleted = false \n" +
-//				"	AND (config.id IS NULL OR \n" +
-//				"		(config.user = :userId AND config.hidden = 'F')) \n" +
-//				"	AND pref.dtype = 'TopicPreference' \n" +
-//				"	AND pref.user = :userId \n" +		// user follows Twitter hashtag that is contained in a social activity
-//				"	AND (annotation.maker IS NULL OR " +
-//				"			annotation.maker = :logged_user) \n" +
-//				"	AND sa.action NOT IN ('Comment') " +
-//				"ORDER BY sa.last_action DESC \n" +
-//				"LIMIT :limit \n" +
-//				"OFFSET :offset";
-//		
-//		@SuppressWarnings("unchecked")
-//		List<SocialActivityData1> result = persistence.currentManager().createSQLQuery(query)
-//				.setLong("userId", user)
-//				.setInteger("limit", limit + 1) // +1 because it always loads one extra in order to inform whether there are more to load
-//				.setInteger("offset", offset)
-//				.setLong("logged_user", user)
-//				.setString("liked_annotation_type", AnnotationType.Like.name())
-//				.setString("disliked_annotation_type", AnnotationType.Dislike.name())
-//				.setResultTransformer(SocialActivityDataResultTransformer.getConstructor())
-//				.list();
-//		
-//		return result;
-//	}
+	private List<SocialActivityData1> getTwitterSocialActivities(long user, int offset, int limit,
+			long previousId, Date previousDate, Locale locale) {
+		String specificCondition = "AND sa.dtype = :twitterPostDType \n ";
+		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
+				previousDate, locale);
+		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
+		@SuppressWarnings("unchecked")
+		List<SocialActivityData1> res = q.list();
+		if(res == null) {
+			return new ArrayList<>();
+		}
+		return res;
+	}
 	
 	private List<SocialActivityData1> getAllProSoloSocialActivities(long user, int offset, int limit,
 			long previousId, Date previousDate, Locale locale) {
@@ -242,7 +201,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"sa.twitter_post_url AS twitterPostUrl, " +
 				"sa.twitter_user_type AS twitterUserType, " +
 				//post social activity
-				"sa.share_count AS sa_share_count, " +
 				"sa.rich_content_title AS richContentTitle, " +
 				"sa.rich_content_description AS richContentDescription, " +
 				"sa.rich_content_content_type AS richContentType, " +
@@ -263,6 +221,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"postObject.actor AS postObjectActorId, " +
 				"postObjectActor.name AS postObjectActorName, " +
 				"postObjectActor.lastname AS postObjectActorLastName, " +
+				"postObjectActor.avatar_url AS postObjectActorAvatar, " +
+				"postObject.created AS postObjectDateCreated, " +
 				//credential enroll and credential complete social activity
 				"sa.credential_object AS credObjectId, " +
 				"credObject.title AS credObjectTitle, " +
@@ -282,6 +242,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"sa.activity_target AS actTargetId, " +
 				"actTarget.title AS actTargetTitle, " +
 				"compActivity.competence AS actTargetCompId, " +
+				"actTarget.dtype AS actTargetDType, " +
+				"actTarget.url_type AS actTargetUrlType, " +
 				//activity complete
 				"tActObject.activity AS actObjectId, " +
 				"actObject.title AS actObjectTitle, " +
@@ -439,64 +401,67 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(String) tuple[14], 
 							(String) tuple[15], 
 							(Integer) tuple[16], 
-							(Integer) tuple[17], 
+							(String) tuple[17], 
 							(String) tuple[18], 
 							(String) tuple[19], 
 							(String) tuple[20], 
-							(String) tuple[21], 
+							(String) tuple[21],
 							(String) tuple[22],
 							(String) tuple[23],
-							(String) tuple[24],
-							(BigInteger) tuple[25], 
+							(BigInteger) tuple[24], 
+							(String) tuple[25], 
 							(String) tuple[26], 
 							(String) tuple[27], 
 							(String) tuple[28], 
 							(String) tuple[29], 
 							(String) tuple[30], 
-							(String) tuple[31], 
+							(String) tuple[31],
 							(String) tuple[32],
-							(String) tuple[33],
-							(BigInteger) tuple[34], 
+							(BigInteger) tuple[33], 
+							(String) tuple[34], 
 							(String) tuple[35], 
-							(String) tuple[36], 
-							(BigInteger) tuple[37], 
-							(String) tuple[38], 
-							(BigInteger) tuple[39],
-							(String) tuple[40],
-							(BigInteger) tuple[41],
-							(String) tuple[42],
+							(String) tuple[36],
+							(Date) tuple[37],
+							(BigInteger) tuple[38], 
+							(String) tuple[39], 
+							(BigInteger) tuple[40],
+							(String) tuple[41],
+							(BigInteger) tuple[42],
 							(String) tuple[43],
 							(String) tuple[44],
-							(BigInteger) tuple[45], 
-							(String) tuple[46], 
-							(BigInteger) tuple[47], 
-							(String) tuple[48], 
-							(BigInteger) tuple[49], 
-							(String) tuple[50],
-							(BigInteger) tuple[51],
-							(BigInteger) tuple[52], 
+							(String) tuple[45],
+							(BigInteger) tuple[46], 
+							(String) tuple[47], 
+							(BigInteger) tuple[48], 
+							(String) tuple[49], 
+							(BigInteger) tuple[50], 
+							(String) tuple[51],
+							(BigInteger) tuple[52],
 							(String) tuple[53],
-							(BigInteger) tuple[54],
-							(String) tuple[55],
-							(BigInteger) tuple[56],
-							(String) tuple[57],
+							(String) tuple [54],
+							(BigInteger) tuple[55], 
+							(String) tuple[56],
+							(BigInteger) tuple[57],
 							(String) tuple[58],
-							(String) tuple[59],
+							(BigInteger) tuple[59],
 							(String) tuple[60],
 							(String) tuple[61],
-							(BigInteger) tuple[62],
-							(BigInteger) tuple[63],
-							(BigInteger) tuple[64], 
-							(String) tuple[65], 
+							(String) tuple[62],
+							(String) tuple[63],
+							(String) tuple[64],
+							(BigInteger) tuple[65],
 							(BigInteger) tuple[66],
-							(String) tuple[67],
-							(BigInteger) tuple[68],
-							(String) tuple[69],
+							(BigInteger) tuple[67], 
+							(String) tuple[68], 
+							(BigInteger) tuple[69],
 							(String) tuple[70],
-							(String) tuple[71],
-							(BigInteger) tuple[72],
-							(Integer) tuple[73],
-							(BigInteger) tuple[74],
+							(BigInteger) tuple[71],
+							(String) tuple[72],
+							(String) tuple[73],
+							(String) tuple[74],
+							(BigInteger) tuple[75],
+							(Integer) tuple[76],
+							(BigInteger) tuple[77],
 							locale);
 				}
 				
@@ -779,20 +744,81 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			user.setId(userId);
 			// generate events related to the content
 			//TODO richcontent1 is not a baseentity so event can't be generated
-			generateEventForContent(user, postData.getText(), post);
 			
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
-					lContext, service, null);
-	
+			taskExecutor.execute(() -> {
+				Session session = this.getPersistence().openSession();
+				try {
+					
+					generateEventForContent(user, postData.getText(), post);
+					
+					// generate Post event
+					String page = context != null ? context.getPage() : null;
+					String lContext = context != null ? context.getLearningContext() : null;
+					String service = context != null ? context.getService() : null;
+					eventFactory.generateEvent(EventType.Post, user.getId(), post, null, page, 
+							lContext, service, null);
+					
+					// generate MENTIONED event
+					List<Long> mentionedUsers = getMentionedUsers(postData.getText());
+					
+					if (!mentionedUsers.isEmpty()) {
+						for (long mentionedUserId : mentionedUsers) {
+							User mentionedUser = (User) session.load(User.class, mentionedUserId);
+							
+							eventFactory.generateEvent(EventType.MENTIONED, userId, mentionedUser, post, page, 
+									lContext, service, null);
+						}
+					}
+				} catch (Exception e) {
+					logger.error(e);
+				} finally {
+					HibernateUtil.close(session);
+				}
+			});
 			
 			return post;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving post");
+		}
+	}
+	
+	private List<Long> getMentionedUsers(String postText) {
+		List<Long> userIds = new ArrayList<>();
+		
+		Pattern rulePattern = Pattern.compile("<a data-id=\"(?<userId>[a-zA-Z0-9]+)\"");
+		
+		Matcher ruleMatch = rulePattern.matcher(postText);
+
+		while (ruleMatch.find()) {
+			String userId = ruleMatch.group("userId");
+			
+			userIds.add(idEncoder.decodeId(userId));
+		}
+		return userIds;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
+			LearningContextData context) throws DbConnectionException {
+		try {
+			PostReshareSocialActivity postShare = resourceFactory.sharePost(userId, text, originalPostId);
+			
+			User user = new User();
+			user.setId(userId);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.PostShare, user.getId(), postShare, null, page, 
+					lContext, service, null);
+			
+			return postShare;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while sharing post");
 		}
 	}
 	

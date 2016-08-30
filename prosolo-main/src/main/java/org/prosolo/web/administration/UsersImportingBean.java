@@ -19,8 +19,8 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -83,7 +83,7 @@ public class UsersImportingBean implements Serializable {
 							User user = ServiceLocator
 									.getInstance()
 									.getService(UserManager.class)
-									.createNewUser(firstName, lastName, emailAddress, true, "pass", rolePosition, null, null);
+									.createNewUser(firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null);
 							
 							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
 							

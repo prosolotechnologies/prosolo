@@ -15,8 +15,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.PageUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class PasswordReset implements Serializable {
 		User user = userManager.getUser(email);
 	
 		if (user != null) {
-			boolean resetLinkSent = passwordResetManager.resetPassword(user, email, Settings.getInstance().config.application.domain + "recovery");
+			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, email, Settings.getInstance().config.application.domain + "recovery");
 			
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have ben sent to "+email);

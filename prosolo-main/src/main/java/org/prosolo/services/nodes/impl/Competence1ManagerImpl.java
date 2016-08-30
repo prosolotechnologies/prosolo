@@ -33,6 +33,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -76,8 +77,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId) 
-			throws DbConnectionException {
+	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
+			LearningContextData context) throws DbConnectionException {
 		Competence1 comp = null;
 		try {
 			/*
@@ -96,14 +97,22 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * generate events for event data returned
 			 */
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
 			for(EventData ev : res.getEvents()) {
+				ev.setPage(page);
+				ev.setContext(lContext);
+				ev.setService(service);
 				eventFactory.generateEvent(ev);
 			}
 
 			if(data.isPublished()) {
-				eventFactory.generateEvent(EventType.Create, creatorId, comp);
+				eventFactory.generateEvent(EventType.Create, creatorId, comp, null, page, lContext,
+						service, null);
 			} else {
-				eventFactory.generateEvent(EventType.Create_Draft, creatorId, comp);
+				eventFactory.generateEvent(EventType.Create_Draft, creatorId, comp, null, page, lContext,
+						service, null);
 			}
 
 			return comp;
@@ -474,45 +483,69 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceDataForEdit(long competenceId, long creatorId, 
+	public CompetenceData1 getCompetenceDataForEdit(long credId, long competenceId, long creatorId, 
 			boolean loadActivities) throws DbConnectionException {
-		return getCurrentVersionOfCompetenceBasedOnRole(competenceId, creatorId, false, 
+		return getCurrentVersionOfCompetenceBasedOnRole(credId, competenceId, creatorId, false, 
 				loadActivities, Role.User);
 	}
 	
 	@Transactional(readOnly = true)
-	private CompetenceData1 getCurrentVersionOfCompetenceBasedOnRole(long competenceId, long creatorId,
-			boolean loadCreator, boolean loadActivities, Role role) throws DbConnectionException {
+	private CompetenceData1 getCurrentVersionOfCompetenceBasedOnRole(long credId, long competenceId, 
+			long creatorId, boolean loadCreator, boolean loadActivities, Role role) 
+					throws DbConnectionException {
 		try {
-			StringBuilder queryBuilder = new StringBuilder();
-			queryBuilder.append("SELECT comp " +
-					   "FROM Competence1 comp " + 
-					   "LEFT JOIN fetch comp.tags tags ");
+			StringBuilder queryBuilder = new StringBuilder("SELECT comp ");
+			if(credId > 0) {
+				queryBuilder.append("FROM CredentialCompetence1 credComp " +
+							   		"INNER JOIN credComp.competence comp " +
+							   			"WITH comp.id = :compId " +
+							   			"AND comp.deleted = :deleted " +
+							   			"AND comp.draft = :draft ");
+			} else {
+				queryBuilder.append("FROM Competence1 comp ");
+			}
+			queryBuilder.append("LEFT JOIN fetch comp.tags tags ");
 
 			if(loadCreator) {
 				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
 			}
 			
-			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
-			queryBuilder1.append("WHERE comp.id = :compId " +
-					"AND comp.deleted = :deleted " +
-					"AND comp.draft = :draft ");
-			if(role == Role.User) {
-				queryBuilder1.append("AND comp.createdBy.id = :user");
+			//StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+			if(credId > 0) {
+				queryBuilder.append("WHERE credComp.credential.id IN (:credIds) ");
 			} else {
-				queryBuilder1.append("AND comp.type = :type ");
+				queryBuilder.append("WHERE comp.id = :compId " +
+						"AND comp.deleted = :deleted " +
+						"AND comp.draft = :draft ");
+			}
+			if(role == Role.User) {
+				queryBuilder.append("AND comp.type = :type " +
+									"AND comp.createdBy.id = :user");
+			} else {
+				queryBuilder.append("AND comp.type = :type ");
 			}
 						   
 			Query q = persistence.currentManager()
-					.createQuery(queryBuilder1.toString())
+					.createQuery(queryBuilder.toString())
 					.setLong("compId", competenceId)
 					.setBoolean("deleted", false)
 					.setBoolean("draft", false);
 			
 			if(role == Role.User) {
+				q.setParameter("type", LearningResourceType.USER_CREATED);
 				q.setLong("user", creatorId);
 			} else {
 				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
+			}
+			if(credId > 0) {
+				List<Long> ids = new ArrayList<>();
+				ids.add(credId);
+				Optional<Long> draftVersionCredId = credentialManager
+						.getDraftVersionIdIfExists(credId);
+				if(draftVersionCredId.isPresent()) {
+					ids.add(draftVersionCredId.get());
+				}
+				q.setParameterList("credIds", ids);
 			}
 			
 			Competence1 res = (Competence1) q.uniqueResult();
@@ -520,10 +553,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(res != null) {
 				CompetenceData1 cd = null;
 				if(res.isHasDraft()) {
-					String query2 = queryBuilder.toString() + 
-							" WHERE comp = :draftVersion";
+					StringBuilder queryBuilder1 = new StringBuilder();
+					queryBuilder1.append("SELECT comp " +
+							   "FROM Competence1 comp " + 
+							   "LEFT JOIN fetch comp.tags tags ");
+
+					if(loadCreator) {
+						queryBuilder1.append("INNER JOIN fetch comp.createdBy ");
+					}
+					
+					queryBuilder1.append("WHERE comp = :draftVersion "); 
+
 					Competence1 draftComp = (Competence1) persistence.currentManager()
-							.createQuery(query2)
+							.createQuery(queryBuilder1.toString())
 							.setEntity("draftVersion", res.getDraftVersion())
 							.uniqueResult();
 					if(draftComp != null) {
@@ -557,7 +599,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId) 
+	public Competence1 updateCompetence(long originalCompId, CompetenceData1 data, long userId, 
+			LearningContextData context) 
 			throws DbConnectionException, CompetenceEmptyException {
 		try {
 			/*
@@ -576,16 +619,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			Competence1 updatedComp = resourceFactory.updateCompetence(data);		  
 		    
-			 if(data.isPublished()) {
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
+			if(data.isPublished()) {
 				//competence remains published
 				if(!data.isPublishedChanged()) {
-					fireSameVersionCompEditEvent(data, userId, updatedComp, 0);
+					fireSameVersionCompEditEvent(data, userId, updatedComp, 0, page, lContext,
+							service);
 				} 
 				/*
 				 * this means that competence is published for the first time
 				 */
 				else if(!data.isDraft()) {
-					eventFactory.generateEvent(fireFirstTimePublishCompEvent(userId, updatedComp));
+					EventData ev = fireFirstTimePublishCompEvent(userId, updatedComp);
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
+					eventFactory.generateEvent(ev);
 				}
 				/*
 				 * Competence becomes published again. Because data can show what has changed
@@ -593,9 +644,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * original competence, so all fields are treated as changed.
 				 */
 				else {
-					eventFactory.generateEvent(fireCompPublishedAgainEditEvent(userId, updatedComp, 
-							data.getCompetenceId()));
+					EventData ev = fireCompPublishedAgainEditEvent(userId, updatedComp, 
+							data.getCompetenceId());
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
+					eventFactory.generateEvent(ev);
 				}
+			
 			} else {
 				/*
 				 * if competence remains draft
@@ -605,7 +661,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					if(data.isDraft()) {
 						originalVersionId = originalCompId;
 					}
-					fireSameVersionCompEditEvent(data, userId, updatedComp, originalVersionId);
+					fireSameVersionCompEditEvent(data, userId, updatedComp, originalVersionId, page, 
+							lContext, service);
 				} 
 				/*
 				 * This means that competence was published before so draft version is created.
@@ -613,6 +670,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				else {
 					EventData ev = fireDraftVersionCompCreatedEvent(updatedComp, userId, 
 							data.getCompetenceId());
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
 					eventFactory.generateEvent(ev);
 				}
 			}
@@ -638,7 +698,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	private void fireSameVersionCompEditEvent(CompetenceData1 data, long userId, 
-			Competence1 updatedComp, long originalVersionId) throws EventException {
+			Competence1 updatedComp, long originalVersionId, String page, String context, String service) 
+					throws EventException {
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
 	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
@@ -650,7 +711,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    	params.put("originalVersionId", originalVersionId + "");
 	    }
 	    EventType event = data.isPublished() ? EventType.Edit : EventType.Edit_Draft;
-	    eventFactory.generateEvent(event, userId, updatedComp, null, params);
+	    eventFactory.generateEvent(event, userId, updatedComp, null, page, context, service, params);
 	}
 	
 	private EventData fireCompPublishedAgainEditEvent(long userId, 
@@ -1709,9 +1770,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCurrentVersionOfCompetenceForManager(long competenceId,
+	public CompetenceData1 getCurrentVersionOfCompetenceForManager(long credId, long competenceId,
 			boolean loadCreator, boolean loadActivities) throws DbConnectionException {
-			return getCurrentVersionOfCompetenceBasedOnRole(competenceId, 0, loadCreator, 
+			return getCurrentVersionOfCompetenceBasedOnRole(credId, competenceId, 0, loadCreator, 
 					loadActivities, Role.Manager);
 	}
 	

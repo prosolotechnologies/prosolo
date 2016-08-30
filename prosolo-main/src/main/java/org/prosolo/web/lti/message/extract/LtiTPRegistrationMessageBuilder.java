@@ -3,7 +3,7 @@ package org.prosolo.web.lti.message.extract;
 import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.message.LTIMessage;
 import org.prosolo.web.lti.message.ToolProxyRegistrationMessage;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 
 public class LtiTPRegistrationMessageBuilder extends LtiMessageBuilder{
 

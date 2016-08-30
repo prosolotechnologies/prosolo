@@ -13,7 +13,8 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ProSolo - Sign in</title>
+    <link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+    <title>Sign in</title>
     <link href="#{request.contextPath}/resources/css2/bootstrap.min.css" rel="stylesheet" />
     <link href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" rel="stylesheet" />
     <link href="#{request.contextPath}/resources/css2/style.css" rel="stylesheet" />
@@ -24,7 +25,6 @@
 </f:metadata>
 	
 <h:body>
-	
     <div class="loginBox">
         <div class="logo"></div>
         <div class="whiteBox">
@@ -32,7 +32,8 @@
                 <h1>Sign in</h1>
                 
                 <c:if test="#{applicationbean.config.application.registration.google or 
-					applicationbean.config.application.registration.edx}">
+					applicationbean.config.application.registration.edx or
+					not empty samlLoginBean.identityProviders}">
 					
 					<h:form prependId="false" id="openFormId">
 		                <div class="buttonBox">
@@ -53,20 +54,32 @@
 					            	<span></span>Sign in with edX
 				            	</h:commandLink>
 		                    </c:if>
+		                
+							<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+								<a href="#{applicationbean.domain}saml/login?idp=#{ip.entityId}" 
+									class="#{ip.styleClass}">
+									<span></span>#{ip.displayName}
+								</a>
+							</ui:repeat>
 		                </div>
 	                </h:form>
                 </c:if>
+				
 		                
                 <c:if test="#{(applicationbean.config.application.registration.google or 
-								applicationbean.config.application.registration.edx) and 
+								applicationbean.config.application.registration.edx or
+								not empty samlLoginBean.identityProviders) and 
 							applicationbean.config.application.registration.selfRegistration}">
 	                <div class="loginSeparator">
 	                    <span>or sign in with your email</span>
 	                </div>
 				</c:if>
             </div>
-	            
-	           
+
+			<c:if test="#{!applicationbean.config.application.registration.selfRegistration}">
+				<div style="display: inline-block;"></div>
+			</c:if>
+			   
 	        <c:if test="#{applicationbean.config.application.registration.selfRegistration}">
 				<form method="POST" action='loginspring'>
 					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
@@ -76,7 +89,12 @@
 					</c:if>
 					<c:if test="${not empty param.error}">
 						<div class="alert alert-danger" role="alert">
-							Wrong email or password! Please try again.
+							#{param.error}}
+						</div>
+					</c:if>
+					<c:if test="${not empty param.success}">
+						<div class="alert alert-info" role="alert">
+							#{param.success}
 						</div>
 					</c:if>
 					<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />

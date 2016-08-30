@@ -1,0 +1,151 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="templates/masterLayout1.xhtml"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">>
+
+<ui:define name="windowTitle">
+	ProSolo Administration: Roles
+</ui:define>
+
+<ui:define name="content">
+	<utilcomp:messagesBundle var="msg" />
+	
+	<section class="heading">
+		<header>
+			<i class="fa fa-cogs headIcon"></i>
+			<div class="headerTitle">
+				<h1>Settings</h1>
+				<p>Global application settings.</p>
+			</div>
+		</header>
+	</section>
+
+	<section class="container-fluid mainArea settings">
+		<div class="row">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-12">
+							<h:form id="generalSettingsForm">
+								<p:growl id="generalSettingsFormGrowl" showDetail="true" />
+							
+								<div class="resource">
+									<h3 class="marginBottom10">Resource Settings</h3>
+									
+									<div>
+										<div class="checkbox checkbox-primary">
+											<h:selectBooleanCheckbox id="userCanCreateCompetence" value="#{adminSettings.settings.userCanCreateCompetence}" />
+											<label for="generalSettingsForm:userCanCreateCompetence">#{msg['admin.generalSettings.userCanCreateCompetence']}</label>
+										</div>
+										<div class="separator"></div>
+									</div>
+								</div>
+								
+								<div class="clear marginTop10 marginBottom10 separator"></div>
+								
+								<div class="evaluation">
+									<h3 class="marginBottom10">#{msg['admin.generalSettings.sectionTitle.evaluationSettings']}</h3>
+									
+									<div>
+										<div class="checkbox checkbox-primary">
+											<h:selectBooleanCheckbox id="goalAcceptanceDependendOnCompetence" 
+												value="#{adminSettings.settings.goalAcceptanceDependendOnCompetence}" />
+												
+											<label for="generalSettingsForm:goalAcceptanceDependendOnCompetence">#{msg['admin.generalSettings.goalAcceptanceDependendOnCompetence']}</label>
+										</div>
+										<div class="separator"></div>
+										
+										<div class="checkbox checkbox-primary">
+											<h:selectBooleanCheckbox id="individualCompetencesCanNotBeEvaluated" 
+												value="#{adminSettings.settings.individualCompetencesCanNotBeEvaluated}" />
+												
+											<label for="generalSettingsForm:individualCompetencesCanNotBeEvaluated">#{msg['admin.generalSettings.individualCompetencesCanNotBeEvaluated']}</label>
+										</div>
+										<div class="separator"></div>
+										
+										<div class="checkbox checkbox-primary">
+											<h:selectBooleanCheckbox id="selectedUsersCanDoEvaluation" 
+												value="#{adminSettings.settings.selectedUsersCanDoEvaluation}" />
+											
+											<label for="generalSettingsForm:selectedUsersCanDoEvaluation">#{msg['admin.generalSettings.selectedUsersCanDoEvaluation']}</label>
+											
+
+											<script>
+												$('.evaluation input[type="checkbox"][name="generalSettingsForm:selectedUsersCanDoEvaluation"]').on('change', function(event){
+													if ($(this).is(":checked")) {
+														console.info('checked');
+														$('#usersToDoEvaluation').show();
+													} else {
+														$('#usersToDoEvaluation').hide();
+													}
+												});
+											</script>
+										</div>
+										<div class="separator"></div>
+									</div>
+				
+									<div id="usersToDoEvaluation" class="relative">
+										<utilcomp:userInputField id="selectedEvaluatorSearch"
+								    		users="#{evaluationSettings.selectedEvaluators}"
+								    		toExcludeIds="#{evaluationSettings.toExcludeIds}"
+								    		keywordHolder="#{evaluationSettings.keyword}"
+								    		actionBean="#{evaluationSettings}"
+								    		searchResult="#{evaluationSettings.userSearchResults}"
+								    		regionToUpdateOnAdd=":generalSettingsForm:hiddenUserNo"
+								    		regionToUpdateOnRemove=":generalSettingsForm:hiddenUserNo"
+								    	/>
+								    	
+								    	<h:inputText id="hiddenUserNo" class="hiddenUserNo" style="display: none;"
+									  		value="#{evaluationSettings.userNo}" />
+									  		
+									  	<div id="noEvaluatorMessage" aria-live="polite" 
+									  		class="ui-message ui-message-error ui-widget ui-corner-all hidden">
+									  		<span class="ui-message-error-icon"></span>
+									  		<span class="ui-message-error-detail">#{msg['admin.generalSettings.selectedUsersCanDoEvaluation.errorMessage']}</span>
+									  	</div>
+									  	
+									  	<script>
+											if (!$('.evaluation input[type="checkbox"][name="generalSettingsForm:selectedUsersCanDoEvaluation"]').is(":checked")){
+												$('#usersToDoEvaluation').hide();
+											};
+										</script>
+									</div>
+								</div>
+				
+								<div class="clear marginTop10 marginBottom10 separator"></div>
+								
+								<div class="actions">
+									<p:commandLink styleClass="btn btn-primary"
+										onclick="if ($('#settings .evaluation .hiddenUserNo').val() == '' &amp;&amp; $('#settings .selectedUsersCanDoEvaluation').is(':checked')) {$('#noEvaluatorMessage').show();return false;}"
+								    	action="#{adminSettings.updateSettings()}"
+								    	update="@form generalSettingsFormGrowl">
+								    	<i class="fa fa-save"></i>
+								    	Save
+									</p:commandLink>
+								</div>
+								
+								<c:if test="false">
+									<div class="separator"></div>
+									<h3 style="margin-bottom: 0px; color: red">Only system user available action. Use this only if you know what you are doing.</h3>
+									
+									<p:commandLink
+										value="FIX COURSES"
+										styleClass="submit button green size30 "
+								    	action="#{adminSettings.fixCourses()}"
+								    	update=":generalSettingsForm"
+									/>
+								</c:if>
+							</h:form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</ui:define>
+
+</ui:composition>

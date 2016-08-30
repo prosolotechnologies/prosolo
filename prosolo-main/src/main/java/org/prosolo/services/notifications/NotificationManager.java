@@ -72,7 +72,7 @@ public interface NotificationManager extends AbstractManager {
 			Session session, Locale locale) throws DbConnectionException;
 	
 	boolean sendNotificationByEmail(String email, String receiverName, String actor, 
-			String predicate, String objectTitle, String link, String date);
+			String predicate, long objectId, ObjectType objectType, String objectTitle, String link, String date, NotificationType notificationType);
 	
 	int getNumberOfNotificationsForUser(long userId, List<NotificationType> types) 
 			throws DbConnectionException;

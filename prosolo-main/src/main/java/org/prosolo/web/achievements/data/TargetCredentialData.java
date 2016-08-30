@@ -18,13 +18,17 @@ public class TargetCredentialData implements Serializable {
 	private String description;
 	private String title;
 	private boolean hiddenFromProfile;
-	private String link;
 	private long duration = 0l;
 	private LearningResourceType learningResourceType;
 	private long credentialId;
+	private int progress;
+	
+	private long nextCompetenceToLearnId;
+	private long nextActivityToLearnId;
 
 	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
-			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType, long credentialId) {
+			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType, long credentialId,
+			int progress, long nextCompetenceToLearnId, long nextActivityToLearnId) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
@@ -32,7 +36,9 @@ public class TargetCredentialData implements Serializable {
 		this.duration = duration;
 		this.learningResourceType = learningResourceType;
 		this.credentialId = credentialId;
-		link =  "/credential.xhtml?id=" + idEncoder.encodeId(credentialId);
+		this.progress = progress;
+		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public Long getId() {
@@ -67,14 +73,6 @@ public class TargetCredentialData implements Serializable {
 		this.hiddenFromProfile = hiddenFromProfile;
 	}
 
-	public String getLink() {
-		return link;
-	}
-
-	public void setLink(String link) {
-		this.link = link;
-	}
-
 	public long getDuration() {
 		return duration;
 	}
@@ -95,5 +93,28 @@ public class TargetCredentialData implements Serializable {
 		this.credentialId = credentialId;
 	}
 	
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	public long getNextCompetenceToLearnId() {
+		return nextCompetenceToLearnId;
+	}
+
+	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
+		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
+	}
+
+	public long getNextActivityToLearnId() {
+		return nextActivityToLearnId;
+	}
+
+	public void setNextActivityToLearnId(long nextActivityToLearnId) {
+		this.nextActivityToLearnId = nextActivityToLearnId;
+	}
 	
 }

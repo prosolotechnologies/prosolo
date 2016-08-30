@@ -27,7 +27,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
@@ -677,127 +677,84 @@ public class CompetenceManagerImpl extends AbstractManagerImpl implements Compet
 
 	@Transactional
 	@Override
-	public void updateHiddenTargetCompetenceFromProfile(long id, boolean hiddenFromProfile)
+	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
 			throws DbConnectionException {
-		String query = "SELECT targetComptence1 " + "FROM TargetCompetence1 targetComptence1 "
-				+ "WHERE targetComptence1.id = :id ";
-
-		TargetCompetence1 targetComptence1 = (TargetCompetence1) persistence.currentManager().createQuery(query)
-				.setLong("id", id).uniqueResult();
-
-		targetComptence1.setHiddenFromProfile(hiddenFromProfile);
 		try {
-			saveEntity(targetComptence1);
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
-		}
-		
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Transactional
-	@Override
-	public List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException {
-		List<TargetCompetence1> result = new ArrayList();
-		try {
-			String query;
-			query = "SELECT targetComp " +
-					"FROM TargetCredential1 targetCred " + 
-					"LEFT JOIN targetCred.targetCompetences targetComp " + 
-					"WHERE targetCred.user.id = :userId " +
-					"AND targetComp.progress = :progress " +
-					"ORDER BY targetComp.title";
-			  	
-			result = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setInteger("progress", 100)
-				  	.list();
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
-		}
-		return result;
-	}
+			String query = 
+				"UPDATE TargetCompetence1 targetComptence1 " +
+				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetComptence1.id = :compId ";
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Transactional
-	@Override
-	public List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException {
-		List<TargetCompetence1> result = new ArrayList<>();
-		List<Long> listOfCredentialIds = new ArrayList<>();
-		try {
-			String query;
-			query = "SELECT targetCredential1.id " +
-					"FROM TargetCredential1  targetCredential1 " + 
-					"WHERE targetCredential1.user.id = :userId ";
-			
-			listOfCredentialIds = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-				  	.list();
-			
-			query =
-					"SELECT targetComptence1 " +
-					"FROM TargetCompetence1 targetComptence1 " +
-					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
-				    "AND targetComptence1.progress = :progress "+ 
-					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
-			
-			if(!listOfCredentialIds.isEmpty()) {
-				result = persistence.currentManager()
-						.createQuery(query)
-						.setParameterList("listOfCredentialIds", listOfCredentialIds)
-						.setInteger("progress", 100)
-						.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					  	.list();
-			}
-			  	
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			throw new DbConnectionException();
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
 		}
-		return result;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	@Transactional
 	@Override
-	public List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		List<TargetCompetence1> result = new ArrayList<>();
-		List<Long> listOfCredentialIds = new ArrayList<>();
+	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
 		try {
-			String query;
-			query = "SELECT targetCredential1.id " +
-					"FROM TargetCredential1  targetCredential1 " + 
-					"WHERE targetCredential1.user.id = :userId ";
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress = 100 ";
 			
-			listOfCredentialIds = persistence.currentManager()
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
-				  	.list();
-			
-			query =
-					"SELECT targetComptence1 " +
-					"FROM TargetCompetence1 targetComptence1 " +
-					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
-				    "AND targetComptence1.progress != 100 "+ 
-					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
-			
-			if(!listOfCredentialIds.isEmpty()) {
-				result = persistence.currentManager()
-						.createQuery(query)
-						.setParameterList("listOfCredentialIds", listOfCredentialIds)
-						.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					  	.list();
-			}
-			  	
+					.list();
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();
 		}
-		return result;
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Transactional (readOnly = true)
+	@Override
+	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
 	}
 }

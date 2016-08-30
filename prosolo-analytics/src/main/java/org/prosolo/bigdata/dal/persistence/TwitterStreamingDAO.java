@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.twitter.StreamListData;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
 import org.prosolo.common.domainmodel.content.TwitterPost;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
@@ -23,15 +24,17 @@ public interface TwitterStreamingDAO extends GenericDAO {
 
 	Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds(Session session);
 
-	TwitterPost createNewTwitterPost(User maker, Date created, String postLink,
-			long tweetId, String creatorName, String screenName,
-			String userUrl, String profileImage, String text,
-			VisibilityType visibility, Collection<String> hashtags,
-			boolean toSave, Session session);
+//	TwitterPost createNewTwitterPost(User maker, Date created, String postLink,
+//			long tweetId, String creatorName, String screenName,
+//			String userUrl, String profileImage, String text,
+//			VisibilityType visibility, Collection<String> hashtags,
+//			boolean toSave, Session session);
 
 //	User getUserByTwitterUserId(long userId);
 //
-	SocialActivity createTwitterPostSocialActivity(TwitterPost tweet, Session session);
+	SocialActivity1 createTwitterPostSocialActivity(User actor, Date dateCreated, String postLink, 
+			long tweetId, String creatorName, String screenName, String userUrl, String profileImage,
+			String text, Collection<String> hashtags, Session session);
 
 	List<Long> getAllTwitterUsersTokensUserIds(Session session);
 

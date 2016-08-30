@@ -21,7 +21,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;

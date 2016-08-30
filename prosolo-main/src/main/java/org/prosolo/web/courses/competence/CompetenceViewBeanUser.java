@@ -18,7 +18,7 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -58,8 +58,8 @@ public class CompetenceViewBeanUser implements Serializable {
 							decodedCredId, decodedCompId, loggedUser.getUserId());
 				} else {
 					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceDataForEdit(decodedCompId, 
-								loggedUser.getUserId(), true);
+						competenceData = competenceManager.getCompetenceDataForEdit(decodedCredId, 
+								decodedCompId, loggedUser.getUserId(), true);
 
 						ResourceCreator rc = new ResourceCreator();
 						rc.setFullName(loggedUser.getFullName());
@@ -85,7 +85,7 @@ public class CompetenceViewBeanUser implements Serializable {
 						String credTitle = null;
 						if(competenceData.isEnrolled()) {
 							CredentialData cd = credManager
-									.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+									.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
 											loggedUser.getUserId());
 							if(cd != null) {
 								credTitle = cd.getTitle();

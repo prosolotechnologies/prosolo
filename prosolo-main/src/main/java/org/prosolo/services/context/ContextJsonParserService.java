@@ -1,7 +1,7 @@
 package org.prosolo.services.context;
 
-import org.prosolo.services.event.context.Context;
-import org.prosolo.services.event.context.LearningContext;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.LearningContext;
 
 public interface ContextJsonParserService {
 

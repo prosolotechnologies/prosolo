@@ -1,195 +1,340 @@
-{{> org/prosolo/web/email/html/header.html}}
-
-<table style="border-collapse: collapse" width="100%">
-	<tr style="padding: 0;">
-		<td style="padding: 30px 0;">
-			<h1 style="font-size: 24px;
-						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-						color: #555; 
-						font-weight: bold; 
-						margin: 0;">
-				Hi {{name}},
-			</h1>
-			<p style="font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-						color: #555; 
-						font-size: 14px; 
-						line-height: 1.3; 
-						margin-bottom: 20px">
-				Here are your updates from ProSolo based on your preferences.
-			</p>
-		 
-			{{#feedsDigests}}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>ProSolo</title>
+		<style type="text/css">
+			body {
+			    background: #f0f0ed;  
+				font: 12px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+				color: #555;
+			}
+			a {
+				color:#4090ba;
+			}
+			a:hover {
+				color:#4090ba;
+				text-decoration:none;
+			}
+			p {
+				font-size: 14px;
+			}
+			p.small, li.small {
+				font-size: 12.5px;
+			}
+			.headline {
+				margin: 0;
+				padding: 20px 15px;
+				color: #fff;
+				background: 2e7ab4;
+				background: -moz-linear-gradient(top, #539fda 0%, #2e7ab4 100%);
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#539fda), color-stop(100%,#2e7ab4));
+				background: -webkit-linear-gradient(top, #539fda 0%,#2e7ab4 100%);
+				background: -o-linear-gradient(top, #539fda 0%,#2e7ab4 100%);
+				background: -ms-linear-gradient(top, #539fda 0%,#2e7ab4 100%);
+				background: linear-gradient(top, #539fda 0%,#2e7ab4 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#539fda', endColorstr='#2e7ab4',GradientType=0 );
+			}
+		</style>
+	</head>
+	<body style="background-color: #EDF0F5; 
+				font: 12px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+				padding: 20px">
+	
+		<table style="background:#edeff0;
+						height:100%!important;
+						margin:0;
+						padding:0;
+						width:100%!important;
+						font-size:14px;
+						color:#9ba6b0" height="100%" border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+		        <td style="vertical-align:top;
+		        			padding-bottom:15px;
+		        			border-collapse:collapse" align="center">	
 			
-			<h2 style="font-size: 18px;
-						font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-						color: #555; 
-						font-weight: bold; 
-						margin-bottom: 15px;">
-				{{categoryName}}
-			</h2>
-			<table>
-				{{#entries}}
-				<tr>
-					<td>
-						<div style="margin: 0 0 10px 0; 
-							border-bottom: 1px solid #e5e5e5;
-							padding-bottom: 10px;">
-							
-							{{#image}}
-								<div class="feedContent box">
-									<div class="imgInfoContainer100" style="max-width: 100px;
-																			max-height: 100px;
-																			overflow: hidden;
-																			float: left;
-																			padding: 0 10px 0 0;
-																			margin: 0;">
-																			
-										<div class="actImages" style="overflow: hidden;
-																		display: inline;">
+					<table height="100%" border="0" cellpadding="0" cellspacing="0" width="100%" 
+						style="background: #fff; 
+								width: 90%; 
+								max-width: 600px;
+								margin-right: 5%;
+								margin-left: 5%;
+								-webkit-border-radius: 2px;
+								-moz-border-radius: 2px;
+								border-radius: 2px;">
+						<tr>
+							<td style="padding: 15px 30px;
+										color: #fff;
+										text-align: center;
+										background: 2e7ab4; 
+										background: -moz-linear-gradient(top, #539fda 0%, #2e7ab4 100%); 
+										background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#539fda), color-stop(100%,#2e7ab4)); 
+										background: -webkit-linear-gradient(top, #539fda 0%,#2e7ab4 100%); 
+										background: -o-linear-gradient(top, #539fda 0%,#2e7ab4 100%); 
+										background: -ms-linear-gradient(top, #539fda 0%,#2e7ab4 100%); 
+										background: linear-gradient(top, #539fda 0%,#2e7ab4 100%); 
+										filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#539fda', endColorstr='#2e7ab4',GradientType=0 )">
+								<h1 class="headline" style="font-size: 24px;
+															font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+															font-weight: bold; 
+															margin: 0;">
+									<a href="http://www.prosolo.ca" style="width: 146px;
+																			height: 50px;
+																			display: inline-block;
+																			text-indent: -10000px;
+																			background: url('http://www.prosolo.ca/wp-content/themes/prosolo/images/sprites.png') no-repeat scroll 0px 0px transparent;">
+										
+									</a>
+								</h1>
+							</td>
+						</tr>
+					
+						<tr>
+							<td style="padding: 0 30px;">
+
+								<table style="border-collapse: collapse" width="100%">
+									<tr style="padding: 0;">
+										<td style="padding: 30px 0;">
+											<h1 style="font-size: 24px;
+														font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+														color: #555; 
+														font-weight: bold; 
+														margin: 0;">
+												Hi {{name}},
+											</h1>
+											<p style="font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+														color: #555; 
+														font-size: 14px; 
+														line-height: 1.3; 
+														margin-bottom: 20px">
+												Here are your updates from ProSolo based on your preferences.
+											</p>
+										 
+											{{#feedsDigests}}
+											
+											<h2 style="font-size: 18px;
+														font: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+														color: #555; 
+														font-weight: bold; 
+														margin-bottom: 15px;">
+												{{categoryName}}
+											</h2>
+											<table>
+												{{#entries}}
+												<tr>
+													<td>
+														<div style="margin: 0 0 10px 0; 
+															border-bottom: 1px solid #e5e5e5;
+															padding-bottom: 10px;">
+															
+															{{#image}}
+																<div class="feedContent box">
+																	<div class="imgInfoContainer100" style="max-width: 100px;
+																											max-height: 100px;
+																											overflow: hidden;
+																											float: left;
+																											padding: 0 10px 0 0;
+																											margin: 0;">
+																											
+																		<div class="actImages" style="overflow: hidden;
+																										display: inline;">
+																									
+																			<img src="{{image}}" style="max-width: 100px;
+																							max-height: 100px;
+																							overflow: hidden;
+																							float: left;
+																							padding: 0 10px 0 0;"/>	
+																		</div>
+																	</div>
 																	
-											<img src="{{image}}" style="max-width: 100px;
-															max-height: 100px;
-															overflow: hidden;
-															float: left;
-															padding: 0 10px 0 0;"/>	
-										</div>
-									</div>
-									
-									<div class="feedInfo short" style="width: 419px;
-																		display: inline-block;">
-																		
-										<a href="{{systemLink}}" target="_blank" style="width: 355px;
-																		font-size: 13px;
-																		display: block;
-																		font-weight: bold;
-																		word-break: break-all;
-																		word-wrap: break-word;
-																		white-space: normal;
-																		color: #136DB2;
-																		text-decoration: none;
-																		float: left;">
-											{{title}}
-										</a>												
-
-										<span class="date" style="margin: 0;
-																	float: right;
-																	color: #a1a1a1;
-																	font-size: 10px;">
-											{{date}}
-										</span>
-										
-										<div class="clear" style="clear: both;
-																	height: 1px;">
-										</div>
-										
-										<a href="{{systemLink}}" target="_blank" style="font-size: 10px;
-																			display: block;
-																			word-break: break-all;
-																			color: #136DB2;
-																			text-decoration: none;">
-											{{link}}
-										</a>
-									</div>
-									<div class="clear" style="clear: both;
-																		height: 1px;">
-											</div>
-									
-									<p style="margin: 10px 0;">
-										{{description}}
-									</p>
-								</div>
-							{{/image}}
+																	<div class="feedInfo short" style="width: 419px;
+																										display: inline-block;">
+																										
+																		<a href="{{systemLink}}" target="_blank" style="width: 355px;
+																										font-size: 13px;
+																										display: block;
+																										font-weight: bold;
+																										word-break: break-all;
+																										word-wrap: break-word;
+																										white-space: normal;
+																										color: #136DB2;
+																										text-decoration: none;
+																										float: left;">
+																			{{title}}
+																		</a>												
 								
-							{{^image}}
-								<div class="feedContent box">
-									<div class="feedInfo short" style="width: 100%;
-																		display: inline-block;">
+																		<span class="date" style="margin: 0;
+																									float: right;
+																									color: #a1a1a1;
+																									font-size: 10px;">
+																			{{date}}
+																		</span>
 																		
-										<a href="{{systemLink}}" target="_blank" style="width: 470px;
-																		font-size: 13px;
-																		display: block;
-																		float: left;
-																		font-weight: bold;
-																		word-break: break-all;
-																		word-wrap: break-word;
-																		white-space: normal;
-																		color: #136DB2;
-																		text-decoration: none;
-																		float: left;"">
-											{{title}}
-										</a>												
+																		<div class="clear" style="clear: both;
+																									height: 1px;">
+																		</div>
+																		
+																		<a href="{{systemLink}}" target="_blank" style="font-size: 10px;
+																											display: block;
+																											word-break: break-all;
+																											color: #136DB2;
+																											text-decoration: none;">
+																			{{link}}
+																		</a>
+																	</div>
+																	<div class="clear" style="clear: both;
+																										height: 1px;">
+																			</div>
+																	
+																	<p style="margin: 10px 0;">
+																		{{description}}
+																	</p>
+																</div>
+															{{/image}}
+																
+															{{^image}}
+																<div class="feedContent box">
+																	<div class="feedInfo short" style="width: 100%;
+																										display: inline-block;">
+																										
+																		<a href="{{systemLink}}" target="_blank" style="width: 470px;
+																										font-size: 13px;
+																										display: block;
+																										float: left;
+																										font-weight: bold;
+																										word-break: break-all;
+																										word-wrap: break-word;
+																										white-space: normal;
+																										color: #136DB2;
+																										text-decoration: none;
+																										float: left;"">
+																			{{title}}
+																		</a>												
+								
+																		<span class="date" style="margin: 0;
+																									float: right;
+																									color: #a1a1a1;
+																									font-size: 10px;">
+																			{{date}}
+																		</span>
+																		
+																		<div class="clear" style="clear: both;
+																									height: 1px;">
+																		</div>
+																		
+																		<a href="{{systemLink}}" target="_blank" style="font-size: 10px;
+																											display: block;
+																											word-break: break-all;
+																											color: #136DB2;
+																											text-decoration: none;">
+																			{{link}}
+																		</a>
+																	</div>
+																	<div class="clear" style="clear: both;
+																										height: 1px;">
+																			</div>
+																	
+																	<p style="margin: 10px 0;">
+																		{{description}}
+																	</p>
+																</div>
+															{{/image}}
+															<div class="clear"></div>
+														</div>
+													<td>
+												<tr>
+												{{/entries}}
+											</table>
+											
+											{{#moreToLoad}}
+												<a href="{{domain}}/digest.xhtml?filter={{filter}}&interval={{interval}}&date={{dashedDate}}" class="ui-commandlink ui-widget loadMore" style="height: 28px;
+													  display: block;
+													  line-height: 28px;
+													  text-align: center;
+													  text-transform: uppercase;
+													  background: #f8f8f8;
+													  background: -moz-linear-gradient(top, #ffffff 0%, #f8f8f8 100%);
+													  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f8f8f8));
+													  background: -webkit-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+													  background: -o-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+													  background: -ms-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+													  background: linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
+													  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f8f8f8',GradientType=0 );
+													  -webkit-border-radius: 2px;
+													  -moz-border-radius: 2px;
+													  border-radius: 2px;
+													  border: 1px solid #f1f1f1;
+													  color: #a1a1a1;
+													  cursor: pointer;
+													  text-decoration: none;">
+													  
+													Show more
+												</a>
+											{{/moreToLoad}}
+											
+											{{^entries}}
+												<span style="font-size: 11px;
+															color: #A1A1A1;">
+													There are no updates.
+												</span>
+											{{/entries}}
+											
+											{{/feedsDigests}}
+										</td>
+									</tr>
+								</table>
 
-										<span class="date" style="margin: 0;
-																	float: right;
-																	color: #a1a1a1;
-																	font-size: 10px;">
-											{{date}}
-										</span>
-										
-										<div class="clear" style="clear: both;
-																	height: 1px;">
-										</div>
-										
-										<a href="{{systemLink}}" target="_blank" style="font-size: 10px;
-																			display: block;
-																			word-break: break-all;
-																			color: #136DB2;
-																			text-decoration: none;">
-											{{link}}
-										</a>
-									</div>
-									<div class="clear" style="clear: both;
-																		height: 1px;">
-											</div>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td style="vertical-align: top; border-collapse: collapse" align="left">
+			
+					<table style="width: 100%" border="0" cellpadding="0" cellspacing="0">
+						<tr>
+							<td style="text-align: center; 
+										vertical-align: top; 
+										padding: 5px 0; 
+										border-collapse: collapse">
+								<p style="font: 'Helvetica Neue', Helvetica, Arial, sans-serif;  
+											line-height: 160%; 
+											color: #b7c0c7; 
+											font-size: 12px; 
+											margin-top: 0; 
+											margin-bottom: 0">
+									ProSolo Technologies Inc © {{year}}
+								</p>
+								
+								<p style="font:'Helvetica Neue', Helvetica, Arial, sans-serif;  
+											line-height: 160%; 
+											color: #b7c0c7; 
+											font-size: 12px; 
+											margin-top: 0; 
+											margin-bottom: 0">
+											
+									<a href="mailto:{{senderEmail}}" target="_blank"
+										style="font-weight: bold; 
+												text-decoration: none; 
+												color: #9ba6b0;">
+										{{senderEmail}}
+									</a>
+									&nbsp;&nbsp;
+									<span style="color: #b7c0c7;">|</span>&nbsp;&nbsp;
 									
-									<p style="margin: 10px 0;">
-										{{description}}
-									</p>
-								</div>
-							{{/image}}
-							<div class="clear"></div>
-						</div>
-					<td>
-				<tr>
-				{{/entries}}
-			</table>
-			
-			{{#moreToLoad}}
-				<a href="{{domain}}/digest.xhtml?filter={{filter}}&interval={{interval}}&date={{dashedDate}}" class="ui-commandlink ui-widget loadMore" style="height: 28px;
-					  display: block;
-					  line-height: 28px;
-					  text-align: center;
-					  text-transform: uppercase;
-					  background: #f8f8f8;
-					  background: -moz-linear-gradient(top, #ffffff 0%, #f8f8f8 100%);
-					  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#f8f8f8));
-					  background: -webkit-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
-					  background: -o-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
-					  background: -ms-linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
-					  background: linear-gradient(top, #ffffff 0%,#f8f8f8 100%);
-					  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f8f8f8',GradientType=0 );
-					  -webkit-border-radius: 2px;
-					  -moz-border-radius: 2px;
-					  border-radius: 2px;
-					  border: 1px solid #f1f1f1;
-					  color: #a1a1a1;
-					  cursor: pointer;
-					  text-decoration: none;">
-					  
-					Show more
-				</a>
-			{{/moreToLoad}}
-			
-			{{^entries}}
-				<span style="font-size: 11px;
-							color: #A1A1A1;">
-					There are no updates.
-				</span>
-			{{/entries}}
-			
-			{{/feedsDigests}}
-		</td>
-	</tr>
-</table>
-
-{{> org/prosolo/web/email/html/footer.html}}
+									<a href="{{domain}}settings.xhtml?tab=notifications" target="_blank"
+										style="font-weight: bold; 
+												text-decoration: none; 
+												color: #9ba6b0">
+										Notification Settings
+									</a>
+								</p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

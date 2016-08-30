@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.proxy.HibernateProxy;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
@@ -14,6 +15,7 @@ import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class ActivityAssessmentData {
@@ -23,6 +25,9 @@ public class ActivityAssessmentData {
 	private int numberOfMessages;
 	private String encodedDiscussionId;
 	private String encodedTargetActivityId;
+	private Long activityId;
+	private Long competenceId;
+	private Long credentialId;
 	private boolean allRead;
 	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
@@ -31,6 +36,7 @@ public class ActivityAssessmentData {
 			UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
+		populateIds(data,targetActivity,compAssessment);
 		populateDownloadResourceLink(targetActivity,data);
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
@@ -60,6 +66,14 @@ public class ActivityAssessmentData {
 
 
 
+	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
+		data.setActivityId(targetActivity.getActivity().getId());
+		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
+		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
+	}
+
+
+
 	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
 		if(CollectionUtils.isNotEmpty(targetActivity.getFiles()) && targetActivity.isUploadAssignment()) {
 			data.setDownloadResourceUrls(new ArrayList<>());
@@ -80,24 +94,24 @@ public class ActivityAssessmentData {
 	
 	//Taken from ActivityDataFactory
 	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
-		if(activity instanceof TextActivity1) {
-			act.setActivityType(ActivityType.TEXT);
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					break;
-			}
-		} else if(activity instanceof ExternalToolActivity1) {
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+		if (activity instanceof HibernateProxy) {
+			activity = HibernateUtil.initializeAndUnproxy(activity);
 		}
-//		TODO what to do when class is eg class org.prosolo.common.domainmodel.credential.Activity1_$$_jvstc67_88 ?
-		if(act.getActivityType() == null) {
+
+		if (activity instanceof TextActivity1) {
 			act.setActivityType(ActivityType.TEXT);
+		} else if (activity instanceof UrlActivity1) {
+			UrlActivity1 urlAct = (UrlActivity1) activity;
+			switch (urlAct.getUrlType()) {
+			case Video:
+				act.setActivityType(ActivityType.VIDEO);
+				break;
+			case Slides:
+				act.setActivityType(ActivityType.SLIDESHARE);
+				break;
+			}
+		} else if (activity instanceof ExternalToolActivity1) {
+			act.setActivityType(ActivityType.EXTERNAL_TOOL);
 		}
 	}
 
@@ -164,6 +178,28 @@ public class ActivityAssessmentData {
 	public void setEncodedTargetActivityId(String encodedTargetActivityId) {
 		this.encodedTargetActivityId = encodedTargetActivityId;
 	}
-	
 
+	public Long getActivityId() {
+		return activityId;
+	}
+
+	public void setActivityId(Long activityId) {
+		this.activityId = activityId;
+	}
+
+	public Long getCompetenceId() {
+		return competenceId;
+	}
+
+	public void setCompetenceId(Long competenceId) {
+		this.competenceId = competenceId;
+	}
+
+	public Long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(Long credentialId) {
+		this.credentialId = credentialId;
+	}
 }

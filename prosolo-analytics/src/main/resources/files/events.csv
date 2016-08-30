@@ -1,6 +1,4 @@
-ATTACH,Attach,ResourceActivity
-ATTACH,Attach,TargetActivity
-ATTACH,Attach,TargetCompetence
+ATTACH,Attach,Competence1
 PROGRESS,ChangeProgress,TargetLearningGoal
 PROGRESS,Completion,TargetActivity
 PROGRESS,Completion,TargetCompetence

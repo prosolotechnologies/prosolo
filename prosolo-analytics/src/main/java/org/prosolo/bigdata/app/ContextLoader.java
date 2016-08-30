@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
 import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.ESAdministrationImpl;
+import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
@@ -40,17 +40,20 @@ public class ContextLoader implements ServletContextListener {
 			System.out.println("CASSANDRA DB FORMATED:" + dbName);
 
 		}
+		ESAdministration esAdmin = new ESAdministrationImpl();
 		if (Settings.getInstance().config.initConfig.formatES) {
-			ESAdministration esAdmin = new ESAdministrationImpl();
+
 			try {
 				esAdmin.deleteIndexes();
 				esAdmin.createIndexes();
-				System.out.println("ELASTICSEARCH FORMATED");
+ 				System.out.println("ELASTICSEARCH FORMATED");
 			} catch (IndexingServiceNotAvailable e) {
 				e.printStackTrace();
 			}
 
 		}
+
+
 		// TwitterHashtagsStreamsManagerImpl manager=new
 		// TwitterHashtagsStreamsManagerImpl();
 		// manager.initialize();

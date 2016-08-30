@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -26,7 +28,8 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageSection;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +46,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private ContextJsonParserService contextParser;
 
 	private String id;
 	private String credId;
@@ -63,6 +67,8 @@ public class CompetenceEditBean implements Serializable {
 	
 	private String credTitle;
 	
+	private String context;
+	
 	public void init() {
 		try {
 			initializeValues();
@@ -75,8 +81,9 @@ public class CompetenceEditBean implements Serializable {
 			} else {
 				decodedId = idEncoder.decodeId(id);
 				logger.info("Editing competence with id " + decodedId);
-				loadCompetenceData(decodedId);
+				loadCompetenceData(decodedCredId, decodedId);
 			}
+			setContext();
 			if(decodedCredId > 0) {
 				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
 						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
@@ -97,13 +104,22 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	private void loadCompetenceData(long id) {
-		String section = PageUtil.getSectionForView();
-		if("/manage".equals(section)) {
+	private void setContext() {
+		if(decodedCredId > 0) {
+			context = "name:CREDENTIAL|id:" + decodedCredId;
+		}
+		if(decodedId > 0) {
+			context = contextParser.addSubContext(context, "name:COMPETENCE|id:" + decodedId);
+		}
+	}
+	
+	private void loadCompetenceData(long credId, long id) {
+		PageSection section = PageUtil.getSectionForView();
+		if (PageSection.MANAGE.equals(section)) {
 			competenceData = compManager
-					.getCurrentVersionOfCompetenceForManager(id, false, true);
+					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
 		} else {
-			competenceData = compManager.getCompetenceDataForEdit(id, 
+			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
 					loggedUser.getUserId(), true);
 		}
 		
@@ -149,9 +165,7 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				builder.append(extContext.getRequestContextPath() + section + "/competences/" + id + "/newActivity");
+				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() + "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -173,9 +187,7 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				String section = PageUtil.getSectionForView();
-				logger.info("SECTION " + section);
-				extContext.redirect(extContext.getRequestContextPath() + section +
+				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
 						"/credentials/" + credId +"/edit?compAdded=true");
 			} catch (IOException e) {
 				logger.error(e);
@@ -185,6 +197,14 @@ public class CompetenceEditBean implements Serializable {
 	
 	public boolean saveCompetenceData(boolean saveAsDraft, boolean reloadData) {
 		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			String learningContext = context;
+			if(lContext != null && !lContext.isEmpty()) {
+				learningContext = contextParser.addSubContext(context, lContext);
+			}
+			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if(competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if(competenceData.hasObjectChanged()) {
@@ -192,7 +212,7 @@ public class CompetenceEditBean implements Serializable {
 						competenceData.setStatus(PublishedStatus.DRAFT);
 					}
 					compManager.updateCompetence(decodedId, competenceData, 
-							loggedUser.getUserId());
+							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
@@ -201,15 +221,16 @@ public class CompetenceEditBean implements Serializable {
 				long credentialId = addToCredential ? decodedCredId : 0;
 				//competenceData.setDuration(4);
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
-						loggedUser.getUserId(), credentialId);
+						loggedUser.getUserId(), credentialId, lcd);
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
 				competenceData.startObservingChanges();
+				setContext();
 			}
 			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
-				loadCompetenceData(decodedId);
+				loadCompetenceData(decodedCredId, decodedId);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;

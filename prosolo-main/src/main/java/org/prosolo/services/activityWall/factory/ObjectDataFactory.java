@@ -18,7 +18,21 @@ public class ObjectDataFactory {
 		obj.setTitle(title);
 		obj.setType(type);
 		if(userId > 0) {
-			UserData user = new UserData(userId, firstName, lastName, null, null, null);
+			UserData user = new UserData(userId, firstName, lastName, null, null, null, false);
+			obj.setCreator(user);
+		}
+		obj.setShortType(ResourceBundleUtil.getResourceType(obj.getType().name(), locale));
+		return obj;
+	}
+	
+	public ObjectData getObjectData(long id, String title, ObjectType type, long userId, String fullName, 
+			Locale locale) {
+		ObjectData obj = new ObjectData();
+		obj.setId(id);
+		obj.setTitle(title);
+		obj.setType(type);
+		if(userId > 0) {
+			UserData user = new UserData(userId, fullName, null, null, null, false);
 			obj.setCreator(user);
 		}
 		obj.setShortType(ResourceBundleUtil.getResourceType(obj.getType().name(), locale));

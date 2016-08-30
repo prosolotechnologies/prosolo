@@ -15,6 +15,7 @@ public class UserData implements Serializable {
 	private String avatarUrl;
 	private String position;
 	private String email;
+	private boolean followedByCurrentUser;
 	
 	public UserData() {}
 	
@@ -27,18 +28,29 @@ public class UserData implements Serializable {
 	}
 	
 	public UserData(long id, String firstName, String lastName, String avatar, String position,
-			String email) {
+			String email, boolean isAvatarReady) {
+		this(id, getFullName(firstName, lastName) , avatar, position, email, isAvatarReady);
+	}
+	
+	public UserData(long id, String fullName, String avatar, String position,
+			String email, boolean isAvatarReady) {
 		this.id = id;
-		setFullName(firstName, lastName);
-		if(avatar != null) {
-			this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+		this.fullName = fullName;
+		String readyAvatar = avatar;
+		if(avatar != null && !isAvatarReady) {
+			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
 		}
+		this.avatarUrl = readyAvatar;
 		this.position = position;
 		this.email = email;
 	}
 	
 	public void setFullName(String name, String lastName) {
-		this.fullName = name + (lastName != null ? " " + lastName : "");
+		this.fullName = getFullName(name, lastName);
+	}
+	
+	private static String getFullName(String name, String lastName) {
+		return name + (lastName != null ? " " + lastName : "");
 	}
 
 	public long getId() {
@@ -81,4 +93,12 @@ public class UserData implements Serializable {
 		this.email = email;
 	}
 
+	public boolean isFollowedByCurrentUser() {
+		return followedByCurrentUser;
+	}
+
+	public void setFollowedByCurrentUser(boolean followedByCurrentUser) {
+		this.followedByCurrentUser = followedByCurrentUser;
+	}
+	
 }

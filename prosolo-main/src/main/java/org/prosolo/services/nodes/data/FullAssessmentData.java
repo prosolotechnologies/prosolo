@@ -12,8 +12,11 @@ import org.prosolo.web.util.AvatarUtils;
 
 public class FullAssessmentData {
 
+	private String message;
 	private String studentFullName;
 	private String studentAvatarUrl;
+	private String assessorFullName;
+	private String assessorAvatarUrl;
 	private long assessorId;
 	private long assessedStrudentId;
 	private String dateValue;
@@ -32,8 +35,11 @@ public class FullAssessmentData {
 			long userId, DateFormat dateFormat) {
 		
 		FullAssessmentData data = new FullAssessmentData();
+		data.setMessage(assessment.getMessage());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size34x34));
+		data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+		data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size34x34));
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -69,6 +75,14 @@ public class FullAssessmentData {
 			return "N/A";
 		}
 	}
+	
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	public String getStudentFullName() {
 		return studentFullName;
@@ -84,6 +98,22 @@ public class FullAssessmentData {
 
 	public void setStudentAvatarUrl(String studentAvatarUrl) {
 		this.studentAvatarUrl = studentAvatarUrl;
+	}
+	
+	public String getAssessorFullName() {
+		return assessorFullName;
+	}
+
+	public void setAssessorFullName(String assessorFullName) {
+		this.assessorFullName = assessorFullName;
+	}
+
+	public String getAssessorAvatarUrl() {
+		return assessorAvatarUrl;
+	}
+
+	public void setAssessorAvatarUrl(String assessorAvatarUrl) {
+		this.assessorAvatarUrl = assessorAvatarUrl;
 	}
 
 	public String getDateValue() {

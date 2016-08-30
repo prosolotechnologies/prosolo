@@ -1,7 +1,7 @@
 [
     {
     	"id":"course.enroll",
-    	"name":"Enroll course",
+    	"name":"Enroll credential",
     	"type":"Credentials"
     },
     {
@@ -15,8 +15,8 @@
     	"type":"Activities"
     },
     {
-    	"id":"learn.goal.complete",
-    	"name":"Goal completed",
-    	"type":"Competences"
+    	"id":"learn.credential.complete",
+    	"name":"Credential completed",
+    	"type":"Credentials"
     }
 ]

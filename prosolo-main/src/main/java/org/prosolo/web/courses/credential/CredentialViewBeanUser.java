@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -29,7 +29,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -58,6 +58,8 @@ public class CredentialViewBeanUser implements Serializable {
 	private String mode;
 	private boolean justEnrolled;
 	
+	private long numberOfUsersLearningCred;
+	
 	private CredentialData credentialData;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
@@ -85,6 +87,11 @@ public class CredentialViewBeanUser implements Serializable {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
+					}
+				} else {
+					if(credentialData.isEnrolled()) {
+						numberOfUsersLearningCred = credentialManager
+								.getNumberOfUsersLearningCredential(decodedId);
 					}
 				}
 			} catch(Exception e) {
@@ -146,6 +153,8 @@ public class CredentialViewBeanUser implements Serializable {
 			CredentialData cd = credentialManager.enrollInCredential(decodedId, 
 					loggedUser.getUserId(), lcd);
 			credentialData = cd;
+			numberOfUsersLearningCred = credentialManager
+					.getNumberOfUsersLearningCredential(decodedId);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -166,20 +175,27 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 	
 	public void submitAssessment() {
-		if(credentialData.isInstructorPresent()) {
-			//there is instructor, set it from existing data (it was set from getFullTargetCredentialOrCredentialData)
+		if (credentialData.isInstructorPresent()) {
+			// there is instructor, set it from existing data (it was set from
+			// getFullTargetCredentialOrCredentialData)
 			assessmentRequestData.setAssessorId(credentialData.getInstructorId());
 		}
 		//at this point, assessor should be set either from credential data or user-submitted peer id
-		if(assessmentRequestData.isAssessorSet()) {
-				populateAssessmentRequestFields();
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				notifyAssessmentRequestedAsync(assessmentId, page, lContext, service);
+		if (assessmentRequestData.isAssessorSet()) {
+			populateAssessmentRequestFields();
+			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
+			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
+			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			notifyAssessmentRequestedAsync(assessmentId, page, lContext, service);
+
+			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 		}
 		else {
+			logger.error("Student "+ loggedUser.getFullName() + " tried to submit assessment request for credential : " 
+		+ credentialData.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
 	}
@@ -194,7 +210,7 @@ public class CredentialViewBeanUser implements Serializable {
 			parameters.put("credentialId", decodedId+""); 
 			try {
 				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), 
-						instructor, assessment, 
+						assessment, instructor, 
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -292,6 +308,14 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public void setEventFactory(EventFactory eventFactory) {
 		this.eventFactory = eventFactory;
+	}
+
+	public long getNumberOfUsersLearningCred() {
+		return numberOfUsersLearningCred;
+	}
+
+	public void setNumberOfUsersLearningCred(long numberOfUsersLearningCred) {
+		this.numberOfUsersLearningCred = numberOfUsersLearningCred;
 	}
 	
 }

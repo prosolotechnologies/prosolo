@@ -8,7 +8,7 @@ import org.prosolo.web.lti.json.data.MessageParameter;
 import org.prosolo.web.lti.json.data.ResourceHandler;
 import org.prosolo.web.lti.json.data.ToolProxy;
 import org.prosolo.web.lti.message.LTILaunchMessage;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 
 public class Lti2LaunchMessageBuilder extends LtiLaunchMessageBuilder {
 

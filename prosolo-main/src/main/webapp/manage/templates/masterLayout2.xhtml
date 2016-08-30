@@ -18,8 +18,7 @@
 		<meta charset="utf-8"></meta>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-		<link rel="icon" href="#{request.contextPath}/favicon.ico"
-			type="image/x-icon" />
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
 
@@ -61,6 +60,35 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
+					<c:if test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')}">
+						<div class="dropdown roleChanger">
+							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
+							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
+								<li>
+									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/index">
+										<span></span>Student
+									</h:link>
+								</li>
+								<li class="selected">
+									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/manage/credentialLibrary">
+										<span></span>Manage
+									</h:link>
+								</li>
+								<li>
+									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
+										outcome="/admin/users">
+										<span></span>Admin
+									</h:link>
+								</li>
+							</ul>
+						</div>
+					</c:if>
+					
 					<a href="#" id="logo">ProSolo</a>
 
 					<nav>
@@ -152,13 +180,13 @@
 										(notificationData.notificationType eq 'Assessment_Requested' or 
 											notificationData.notificationType eq 'Assessment_Approved' or 
 											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
-									<h:link outcome="#{notificationData.link}">
+									<h:outputLink value="#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}
 										<h3>#{notificationData.objectTitle}</h3>
 										<span class="timestamp">#{notificationData.datePretty}</span>
-									</h:link>
+									</h:outputLink>
 								</li>
 							</ui:repeat>
 							

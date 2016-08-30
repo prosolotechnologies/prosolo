@@ -318,7 +318,11 @@ h3{
 }
 
 .iconCredential,
-.iconCompetence{
+.iconCompetence,
+.iconActivityVideo,
+.iconActivityText,
+.iconActivitySlide,
+.iconActivityExternal{
     width: 24px;
     height: 24px;
     display: inline-block;
@@ -330,6 +334,22 @@ h3{
 
 .iconCompetence{
     background: url("../images2/iconCompetence.svg") no-repeat;
+}
+
+.iconActivityVideo{
+    background: url("../images2/iconActivityVideo.svg") no-repeat;
+}
+
+.iconActivityText{
+    background: url("../images2/iconActivityText.svg") no-repeat;
+}
+
+.iconActivitySlide{
+    background: url("../images2/iconActivitySlide.svg") no-repeat;
+}
+
+.iconActivityExternal{
+    background: url("../images2/iconActivityExternal.svg") no-repeat;
 }
 
 a:focus, :focus, input:focus { outline: none; text-decoration: none;}
@@ -462,12 +482,11 @@ input{
 	> li{
 		margin: 0 30px 0 0;
 		> a{
-			font-size: 12px;
+			font-size: 14px;
 			line-height: 46px;
 			color: #fff;
 			font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight: 500;
-			text-transform: uppercase;
 			padding: 0;
 			opacity: .5;
 			border: none;
@@ -543,7 +562,9 @@ input{
 	&.rssList,
 	&.newWallPost,
 	&.wallPost,
-    &.observationsList{
+    &.observationsList,
+    &.activityResultText,
+    &.activityResultFile{
 		padding: 0;
 		.innerWrapper{
 			padding: 30px 30px 0 30px;
@@ -552,12 +573,19 @@ input{
 	.mandatoryFlow &{
 		margin-bottom: 15px;
 	}
-	&.activityTextBox{
+	&.activityTextBox,
+    &.announcementBox{
 		padding-bottom: 1px;
 	}
 	&.settingsEmailNotifications{
 		padding-bottom: 30px;
 	}
+    &.assessmentInitialMessage{
+        margin-bottom: 30px!important;
+    }
+    &.highlighted{
+        border: 5px solid rgba(255, 236, 0, 0.1);
+    }
 }
 
 .mandatoryArrow{
@@ -567,9 +595,11 @@ input{
 }
 
 .madeByUser,
-.madeByUniversity{
+.madeByUniversity,
+.numberAssessments{
 	width: 20px;
 	height: 20px;
+    margin-left: 20px;
 	display: block;
 	text-indent: -10000px;
 }
@@ -580,6 +610,10 @@ input{
 
 .madeByUniversity{
 	background: url("../images2/iconUniversity20.svg") no-repeat;
+}
+
+.numberAssessments{
+    background: url("../images2/iconAssessment20.svg") no-repeat;
 }
 
 .duration,
@@ -904,7 +938,8 @@ input{
 }
 #askAssessment,
 #approveAssessment,
-#message{
+#message,
+#newAnnouncementModal{
 	.assessmentModalMeta,
 	.messageModalMeta{
 		background: #F8F9FB;
@@ -924,6 +959,7 @@ input{
 			.assessmentModalMetaRight,
 			.messageModalMetaLeft,
 			.messageModalMetaRight{
+                position: relative;
 				display: flex;
 				line-height: 32px;
 				align-items: center;
@@ -939,11 +975,46 @@ input{
 			}
 			.assessmentModalMetaRight,
 			.messageModalMetaRight{
+                flex-grow: 1;
 				img{
 					margin-right: 10px;
 				}
+                input[type="text"]{
+                    width: 100%;
+                    height: 30px;
+                    line-height: 20px;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                    -webkit-box-shadow: none;
+            		-moz-box-shadow: none;
+            		box-shadow: none;
+                }
+                .searchResultsDrop{
+                    top: 30px;
+                    li a{
+                        height: 52px;
+                        img,
+                        .letterAvatar{
+                            float: left;
+                            margin-right: 15px;
+                        }
+                        h3{
+                            margin: 7px 0 0 0;
+                        }
+                    }
+                }
 			}
 		}
+	}
+    .modal-body input[type="text"]{
+		width: 100%;
+		margin-top: 20px;
+		padding: 0;
+		border: none;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
 	}
 	.modal-body textarea{
 		width: 100%;
@@ -955,6 +1026,19 @@ input{
 		-moz-box-shadow: none;
 		box-shadow: none;
 	}
+}
+
+#newAnnouncementModal{
+    .modal-body textarea{
+        height: 200px;
+    }
+    .radioGroup{
+        margin-bottom: 20px;
+        .radio{
+            display: inline;
+            margin-left: 10px;
+        }
+    }
 }
 
 #uploadFile, #addURL{
@@ -973,6 +1057,10 @@ input{
 			}
 		}
 	}
+}
+
+.noContentMessage{
+    text-align: center;
 }
 
 .alert{
@@ -1187,6 +1275,44 @@ header{
 		justify-content: space-between;
 		.headerTopLeft{
 			display: flex;
+            .roleChanger{
+                width: 16px;
+                height: 16px;
+                margin: 22px 10px 0 0;
+                > a{
+                    width: 16px;
+                    height: 16px;
+                    background-image: url("../images2/arrowDownWhiteSmall.svg");
+                    background-position: center center;
+                    background-repeat: no-repeat;
+                    @include rounded-corners(8px);
+                    text-indent: -10000px;
+                    background-color: rgba(0,0,0,.1);
+                    -webkit-box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    -moz-box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    box-shadow: 0px 1px 0px 0px rgba(255,255,255,0.1), inset 0px 1px 0px 0px rgba(0,0,0,.1);
+                    &:hover{
+                        background-color: rgba(0,0,0,.3);
+                    }
+                }
+                .dropdown-menu{
+					left: -8px;
+                    top: 20px;
+                    li a span{
+                        float: left;
+                        display: inline-block;
+                        width: 16px;
+                        height: 16px;
+                        margin: 2px 10px 0 0;
+                    }
+                    li.selected a{
+                        color: $darkText;
+                        span{
+                            background: url("../images2/iconCheck12.svg") no-repeat center center;
+                        }
+                    }
+				}
+            }
 			#logo{
 				width: 86px;
 				height: 30px;
@@ -1198,12 +1324,11 @@ header{
 				height: 30px;
 				padding: 15px 0;
 				.nav > li > a{
-					font-size: 12px;
+					font-size: 14px;
 					line-height: 30px;
 					color: #fff;
 					font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 500;
-					text-transform: uppercase;
 				}
 				.nav-pills{
 					> li{
@@ -1283,6 +1408,13 @@ header{
 					padding-bottom: 0;
 					li{
 						border-bottom: 1px solid #EEEFF3;
+                        &.noNotifications{
+                            display: flex;
+            				height: 100px;
+                            align-items: center;
+                            justify-content: center;
+                            border: none;
+                        }
 						a{
 							padding: 10px 20px 10px 45px;
 							position: relative;
@@ -1323,7 +1455,6 @@ header{
 					}
 				}
 			}
-
 			.userMenu{
 				height: 32px;
 				> a{
@@ -1452,6 +1583,10 @@ header{
 					width: 43px;
 					background: url("../images2/loginedX.svg") no-repeat;
 				}
+                &.btnUTA span{
+					width: 19px;
+					background: url("../images2/loginUTA.png") no-repeat center center;
+				}
 			}
 			.loginSeparator{
 				width: 100%;
@@ -1536,8 +1671,15 @@ header{
     }
 }
 
-.newWallPost{
+.noInProgress{
+    text-align: center;
+    padding-bottom: 30px;
+}
+
+.newWallPost,
+.sharePostModal{
     .textAreaWrapper{
+        position: relative;
         padding: 20px 30px !important;
         .contentEditable{
             position: relative;
@@ -1558,6 +1700,20 @@ header{
                 color: $placeholderText;
             }
     	}
+        .searchResultsDrop{
+            top: 40px;
+            li a{
+                height: 52px;
+                img,
+                .letterAvatar{
+                    float: left;
+                    margin-right: 15px;
+                }
+                h3{
+                    margin: 7px 0 0 0;
+                }
+            }
+        }
     }
     .postOptions{
         display: flex;
@@ -1585,6 +1741,12 @@ header{
     }
 }
 
+.sharePostModal{
+    .textAreaWrapper{
+        padding: 0 !important;
+    }
+}
+
 #uploadFileModal{
     input[type="text"],
     textarea{
@@ -1607,8 +1769,10 @@ header{
 
 .previewLink,
 .previewFile,
-.previewCredComp{
+.previewCredComp,
+.previewActiv{
     margin: 0 30px 30px 30px;
+    background: #fff;
     border: 1px solid #EEEFF3;
     @include rounded-corners(3px);
     &.previewLinkBig .previewLinkImage{
@@ -1671,7 +1835,11 @@ header{
         h2{
             margin-bottom: 10px;
             .iconCredential,
-            .iconCompetence{
+            .iconCompetence,
+            .iconActivityVideo,
+            .iconActivityText,
+            .iconActivitySlide,
+            .iconActivityExternal{
                 float: left;
                 margin-right: 10px;
                 margin-top: 1px;
@@ -1712,7 +1880,32 @@ header{
     }
 }
 
-.wallPost{
+.previewActiv{
+    .content .meta .duration{
+        margin-left: 0;
+    }
+}
+
+.previewCredCompLine,
+.previewActivLine{
+    margin: 0 30px 30px 30px;
+    h2{
+        margin-bottom: 0;
+        .iconCredential,
+        .iconCompetence,
+        .iconActivityVideo,
+        .iconActivityText,
+        .iconActivitySlide,
+        .iconActivityExternal{
+            float: left;
+            margin-right: 10px;
+            margin-top: 1px;
+        }
+    }
+}
+
+.wallPost,
+.sharePostModal{
 	.wallPostHead{
 		padding: 30px;
 		display: flex;
@@ -1732,7 +1925,7 @@ header{
             padding-top: 1px;
             .optDrop{
                 float: right;
-                margin: 7px 0 0 20px;
+                margin: 8px 0 0 10px;
                 > a{
                     display: block;
                     width: 12px;
@@ -1752,7 +1945,7 @@ header{
         }
 	}
 	.wallPostBody{
-		> p{
+		.wallPostContent{
 			margin-bottom: 20px;
 			padding: 0 30px;
             &.commentPreview{
@@ -1794,6 +1987,17 @@ header{
 					opacity: 1;
 				}
 			}
+            &.sharePost{
+				.icon{
+					background: url("../images2/iconSharePost12.svg") no-repeat;
+					opacity: .5;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover .icon{
+					opacity: 1;
+				}
+			}
 			&:hover{
 				color: $darkText;
 				#triangle{
@@ -1814,6 +2018,28 @@ header{
 			margin: 0;
 		}
 	}
+}
+
+.sharedPostBox{
+    margin: 0 30px 30px 30px;
+    background: #F8F9FB;
+    border: 1px solid #EEEFF3;
+    @include rounded-corners(3px);
+    .wallPostHead{
+        padding: 10px 10px 20px 10px;
+    }
+    .wallPostBody{
+        .wallPostContent{
+            padding: 0 10px;
+        }
+        .previewLink,
+        .previewFile{
+            margin: 0 10px 10px 10px;
+        }
+    }
+    .sharePostModal &{
+        margin: 30px 0;
+    }
 }
 
 .whiteBarContent{
@@ -1990,13 +2216,13 @@ header{
 		top: 30px;
 		right: 30px;
 		visibility: hidden;
-		background: url("../images2/iconStar20Gray.svg") no-repeat;
+		background: url("../images2/iconBookmark20Gray.svg") no-repeat;
 		transition: none;
 		-webkit-transition: none;
 		&.active,
 		&:hover{
 			visibility: visible;
-			background: url("../images2/iconStar20Yellow.svg") no-repeat;
+			background: url("../images2/iconBookmark20Red.svg") no-repeat;
 		}
 	}
 	&:hover .bookmarkStar{
@@ -2104,15 +2330,17 @@ header{
 			padding: 0;
 			list-style: none;
 			> li{
-				display: block;
+				display: flex;
+                justify-content: space-between;
 				line-height: 20px;
 				padding: 10px 30px;
 				border-top: 1px solid #EEEFF3;
 				.iconType{
-					float: left;
+                    flex-shrink: 0;
 					margin-right: 20px;
 				}
 				> a{
+                    flex-grow: 1;
 					font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
 					font-weight: 400;
 					color: $normalText;
@@ -2121,46 +2349,91 @@ header{
 						color: $darkText;
 					}
 				}
-				.commentsIcon{
-					position: relative;
-					width: 50px;
-					float: right;
-					margin-left: 20px;
-					padding-left: 30px;
-					&::before{
-						content: '';
-						display: block;
-						width: 20px;
-						height: 20px;
-						position: absolute;
-						top: 0;
-						left: 0;
-						background: url("../images2/iconComments20.svg") no-repeat;
-						opacity: .5;
-						transition: all 0.2s ease;
-						-webkit-transition: all 0.2s ease;
-					}
-					&:hover::before{
-						opacity: 1;
-					}
-				}
-				&.hasNewComments .commentsIcon::before{
-					background: url("../images2/iconComments20Orange.svg") no-repeat;
-					opacity: 1;
-				}
-				.download{
-					display: block;
-					float: right;
-					width: 20px;
-					height: 20px;
-					margin-left: 30px;
-					text-indent: -10000px;
-					opacity: .5;
-					background: url("../images2/iconDownload20.svg") no-repeat;
-					&:hover{
-						opacity: 1;
-					}
-				}
+                .activityOptions{
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 160px;
+                    margin-left: 30px;
+                    .commentsIcon{
+                        flex-shrink: 0;
+    					position: relative;
+    					width: 50px;
+    					margin-left: 20px;
+    					padding-left: 30px;
+                        color: $normalText;
+                        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    					font-weight: 400;
+                        &:hover{
+    						color: $darkText;
+    					}
+    					&::before{
+    						content: '';
+    						display: block;
+    						width: 20px;
+    						height: 20px;
+    						position: absolute;
+    						top: 0;
+    						left: 0;
+    						background: url("../images2/iconComments20.svg") no-repeat;
+    						opacity: .5;
+    						transition: all 0.2s ease;
+    						-webkit-transition: all 0.2s ease;
+    					}
+    					&:hover::before{
+    						opacity: 1;
+    					}
+    				}
+    				&.hasNewComments .commentsIcon::before{
+    					background: url("../images2/iconComments20Orange.svg") no-repeat;
+    					opacity: 1;
+    				}
+    				.download,
+                    .viewResult{
+                        flex-shrink: 0;
+    					width: 20px;
+    					height: 20px;
+    					text-indent: -10000px;
+    					opacity: .5;
+    					&:hover{
+    						opacity: 1;
+    					}
+    				}
+                    .download{
+                        background: url("../images2/iconDownload20.svg") no-repeat;
+                    }
+                    .viewResult{
+                        background: url("../images2/iconResult20.svg") no-repeat;
+                    }
+                    .grade{
+                        flex-shrink: 0;
+    					position: relative;
+    					width: 50px;
+    					margin-left: 20px;
+    					padding-left: 30px;
+                        color: $normalText;
+                        font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    					font-weight: 400;
+                        &:hover{
+    						color: $darkText;
+    					}
+    					&::before{
+    						content: '';
+    						display: block;
+    						width: 20px;
+    						height: 20px;
+    						position: absolute;
+    						top: 0;
+    						left: 0;
+    						background: url("../images2/iconAssessment20.svg") no-repeat;
+    						opacity: .5;
+    						transition: all 0.2s ease;
+    						-webkit-transition: all 0.2s ease;
+    					}
+    					&:hover::before{
+    						opacity: 1;
+    					}
+                    }
+                }
 			}
 		}
 	}
@@ -2192,6 +2465,7 @@ header{
 @-moz-document url-prefix() {
 	.summaryCard .cardDescription::after,
     .previewCredComp .content p::after,
+    .previewActiv .content p::after,
     .previewLink .content p::after,
     .previewFile .content p::after{
 		position: absolute;
@@ -2377,6 +2651,12 @@ header{
 		justify-content: space-between;
 		align-items: center;
 	}
+    .datePickerRow{
+        input[type="text"]{
+            width: 100%;
+            margin-bottom: 30px;
+        }
+    }
 	.estimatedTime{
 		> p{
 			margin-bottom: 10px;
@@ -2393,6 +2673,13 @@ header{
 			}
 		}
 	}
+}
+
+.userRoleBox{
+    padding-bottom: 30px;
+    .buttonBottomBox{
+        margin-top: 20px;
+    }
 }
 
 .activityMain{
@@ -2418,6 +2705,9 @@ header{
             h3{
     			margin-bottom: 10px;
     		}
+            &.noUrl h3{
+                margin-bottom: 0;
+            }
         }
 		.actBoxLeft > span,
 		.deleteLink{
@@ -2440,6 +2730,9 @@ header{
 
 .activityResultBox li{
 	background: url("../images2/iconResult20.svg") no-repeat 30px center;
+    &.highlighted{
+        background-color: rgba(255, 236, 0, 0.1);
+    }
 }
 
 .uploadResultBox{
@@ -2456,6 +2749,245 @@ header{
 	}
 }
 
+.writeResult{
+    textarea{
+        height: 100px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .btn{
+        margin-bottom: 30px;
+    }
+}
+
+.activityResultText{
+    padding-bottom: 1px;
+    .activityResultTextContent{
+        margin: 30px;
+        .editComment{
+    		flex-grow: 1;
+    		.contentEditableComment{
+    			float: left;
+                position: relative;
+        		width: 100%;
+        		min-height: 22px;
+                line-height: 22px;
+        		margin: 0;
+                padding: 10px;
+                word-wrap: break-word;
+                color: $normalText;
+                background: #fff;
+            	border: 1px solid #E6E7EC;
+            	@include rounded-corners(5px);
+            	-webkit-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+            	-moz-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+            	box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+                &:empty:before,
+                &:empty:focus:before{
+                    content: attr(placeholder);
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    cursor: text;
+                    color: $placeholderText;
+                }
+    		}
+    		.btn{
+    			margin: 15px 10px 0 0;
+    		}
+    	}
+    }
+}
+
+.activityResultFile{
+    .resultWrapper{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 100px;
+		padding: 0 30px 0 70px;
+        background: url("../images2/iconResult20.svg") no-repeat 30px center;
+        .actBoxLeft{
+            margin-right: 20px;
+            h3{
+    			margin-bottom: 10px;
+    		}
+            &.noUrl h3{
+                margin-bottom: 0;
+            }
+        }
+		.actBoxLeft > span,
+		.deleteLink,
+        .newFileLink{
+			font-size: 12px;
+            word-break: break-word;
+		}
+		> a{
+			width: 100px;
+		}
+	}
+}
+
+.activityResultText,
+.activityResultFile{
+    .activityResultHead{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 30px;
+        padding-top: 30px;
+        .user32{
+            margin-bottom: 0;
+        }
+        .timestamp{
+            font-size: 12px;
+        }
+    }
+    .resultOptions{
+        display: flex;
+        margin: 0 30px 30px 30px;
+        padding: 10px;
+        border: 1px solid #EEEFF3;
+        @include rounded-corners(5px);
+        .commentsIcon{
+            flex-shrink: 0;
+            position: relative;
+            width: 50px;
+            margin-left: 30px;
+            padding-left: 30px;
+            color: $normalText;
+            font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            &:hover{
+                color: $darkText;
+            }
+            &::before{
+                content: '';
+                display: block;
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: url("../images2/iconComments20.svg") no-repeat;
+                opacity: .5;
+                transition: all 0.2s ease;
+                -webkit-transition: all 0.2s ease;
+            }
+            &:hover::before{
+                opacity: 1;
+            }
+        }
+        &.hasNewComments .commentsIcon::before{
+            background: url("../images2/iconComments20Orange.svg") no-repeat;
+            opacity: 1;
+        }
+        .download{
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            text-indent: -10000px;
+            opacity: .5;
+            background: url("../images2/iconDownload20.svg") no-repeat;
+            &:hover{
+                opacity: 1;
+            }
+        }
+        .grade{
+            flex-shrink: 0;
+            position: relative;
+            width: 50px;
+            margin-left: 20px;
+            padding-left: 30px;
+            color: $normalText;
+            font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            &:hover{
+                color: $darkText;
+            }
+            &::before{
+                content: '';
+                display: block;
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: url("../images2/iconAssessment20.svg") no-repeat;
+                opacity: .5;
+                transition: all 0.2s ease;
+                -webkit-transition: all 0.2s ease;
+            }
+            &:hover::before{
+                opacity: 1;
+            }
+        }
+    }
+    .activityResultFooter{
+		display: flex;
+		padding: 0 30px 30px 30px;
+		a{
+			display: flex;
+			align-items: center;
+			color: $normalText;
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 400;
+			font-size: 13px;
+			margin-right: 20px;
+			.icon{
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				margin-right: 5px;
+				margin-bottom: 2px;
+				#triangle{
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+			}
+			&.commentsNumber{
+				.icon{
+					background: url("../images2/iconComments12.svg") no-repeat;
+					opacity: .5;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover .icon{
+					opacity: 1;
+				}
+			}
+            &.edit{
+                .icon{
+                    background: url("../images2/iconEdit12.svg") no-repeat;
+                    opacity: .5;
+                    transition: all 0.2s ease;
+                    -webkit-transition: all 0.2s ease;
+                }
+                &:hover .icon{
+                    opacity: 1;
+                }
+            }
+			&:hover{
+				color: $darkText;
+				#triangle{
+					fill: $orange;
+				}
+			}
+		}
+	}
+    .discussion{
+		padding: 30px 30px 0 30px;
+		border-top: 1px solid #EEEFF3;
+		.comments{
+			margin: 0;
+		}
+	}
+}
+
+.btnAllResults{
+    margin-bottom: 30px;
+}
+
 .peopleList{
 	list-style: none;
 	> li{
@@ -2464,6 +2996,9 @@ header{
 		height: 120px;
 		padding: 0 30px;
 		border-bottom: 1px solid #EEEFF3;
+        &.noPeople{
+            justify-content: center;
+        }
 		&:last-child{
 			border: none;
 		}
@@ -2484,7 +3019,7 @@ header{
 			align-items: center;
 			> .progressBar,
 			.studentsNum{
-				width: 50%;
+				width: 40%;
 				margin-right: 20px;
 			}
 			.studentsNum span{
@@ -2495,8 +3030,14 @@ header{
 					color: $red;
 				}
 			}
+            .userRole{
+                width: 50%;
+				margin-right: 20px;
+            }
 			.assignedTo{
-				width: 40%;
+                display: flex;
+                align-items: center;
+				width: 60%;
 				> .btn{
 					margin-right: 20px;
 				}
@@ -2507,6 +3048,22 @@ header{
 					}
 				}
 			}
+            .studentFollowOpt{
+                width: 50%;
+                > .btn{
+                    width: 100px;
+					margin-right: 20px;
+                    &.btn-default{
+                        margin-right: 0;
+                    }
+				}
+            }
+            .userEditOpt{
+                width: 50%;
+                > .btn{
+					margin-right: 20px;
+				}
+            }
 		}
 	}
 	&.peopleListDefaut{
@@ -2526,6 +3083,9 @@ header{
 		height: 120px;
 		padding: 0 30px;
 		border-bottom: 1px solid #EEEFF3;
+        &.noSources{
+            justify-content: center;
+        }
 		&:last-child{
 			border: none;
 		}
@@ -2553,6 +3113,9 @@ header{
 			flex-direction: column;
 			align-items: baseline;
 			justify-content: center;
+            &.noBlogs{
+                align-items: center;
+            }
 			h2{
 				margin-bottom: 10px;
 			}
@@ -2743,6 +3306,9 @@ header{
             margin-top: 15px;
             display: inline-block;
         }
+        .repliesWrapper{
+            padding-top: 15px;
+        }
 		.media-left, .media>.pull-left{
 			padding: 0;
 		}
@@ -2753,6 +3319,9 @@ header{
 			}
 			.commentMain{
 				position: relative;
+                &.highlighted{
+                    background: rgba(255, 236, 0, 0.1);
+                }
 				h3{
 					margin-bottom: 10px;
 					position: relative;
@@ -2887,18 +3456,26 @@ header{
 	}
 }
 
-.yourPhotoContent{
-	display: flex;
-	padding-bottom: 30px;
-	img,
-	.letterAvatar{
-		margin-right: 20px;
-	}
-	.chooseBtnBox{
-		.btn{
-			margin-bottom: 20px;
-		}
-	}
+.yourPhotoBox{
+    .yourPhotoContent{
+    	display: flex;
+    	padding-bottom: 30px;
+    	img,
+    	.letterAvatar{
+    		margin-right: 20px;
+    	}
+    	.chooseBtnBox{
+    		.btn{
+    			margin-bottom: 20px;
+    		}
+    	}
+    }
+    .cropButtons{
+        padding: 30px 0;
+        .btn-green{
+            margin-right: 10px;
+        }
+    }
 }
 
 .settingsEmailNotifications .checkLine{
@@ -3151,6 +3728,12 @@ header{
 				border: none;
 				flex-shrink: 0;
 			}
+            &.noNotifications{
+                display: flex;
+				height: 90px;
+                align-items: center;
+                justify-content: center;
+            }
 			a{
 				display: flex;
 				height: 90px;
@@ -3225,6 +3808,14 @@ header{
 	background: url("../images2/iconNotifAssessment16.svg") no-repeat;
 }
 
+.notifAnnouncement .icon{
+	background: url("../images2/iconNotifAnnouncement16.svg") no-repeat;
+}
+
+.notifInstructor .icon{
+	background: url("../images2/iconNotifFollow16.svg") no-repeat;
+}
+
 #termsPage{
     header{
         background: none;
@@ -3262,7 +3853,72 @@ header{
 	}
 }
 
+/*---------------------------------------------------------------------*/
+/*--- 05. ADMIN ---*/
+/*---------------------------------------------------------------------*/
 
+#admin{
+	header{
+		background: #4a3b5a;
+		#logo{
+			background: url("../images2/logo-admin.svg") no-repeat;
+		}
+	}
+}
+
+.tableRoles{
+    width: 100%;
+    margin-bottom: 30px;
+    .col2,
+    .col3{
+        width: 30%;
+        text-align: center;
+    }
+    td{
+        text-align: center;
+        padding: 10px;
+        &.alignLeft{
+            text-align: left;
+        }
+        > .btn{
+            margin-right: 20px;
+        }
+    }
+    .rowGrey{
+        background: #F8F9FB;
+    }
+}
+
+.tableCapabilities{
+    width: 100%;
+    margin-bottom: 30px;
+    .colCheck{
+        width: 15%;
+        text-align: center;
+    }
+    th{
+        padding: 10px 0;
+    }
+    td{
+        text-align: center;
+        padding: 10px;
+        &.alignLeft{
+            text-align: left;
+        }
+        .checkbox{
+            margin: 0;
+            label:before{
+                margin-left: -16px;
+            }
+            label:after{
+                margin-left: -17px;
+            }
+        }
+    }
+    .rowGrey{
+        background: #F8F9FB;
+    }
+}
 
 
 /* progression page blocks */

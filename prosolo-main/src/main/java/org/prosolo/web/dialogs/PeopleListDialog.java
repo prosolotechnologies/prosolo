@@ -27,7 +27,7 @@ import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.home.ColleguesBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
-import org.prosolo.web.useractions.PeopleActionBean;
+import org.prosolo.web.people.PeopleActionBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

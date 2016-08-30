@@ -20,7 +20,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
@@ -104,33 +104,33 @@ public interface CompetenceManager extends AbstractManager {
 	
 	/**
 	 * Method for getting all completed competences (competences that has progress == 100)
-	 * @return 
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllCompletedCompetences(Long userId) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all completed competences (competences that has progress == 100)
-	 * and a hiddenFromProfile flag set to a certain value
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all unfinished competences (competences that has progress != 100)
-	 * and a hiddenFromProfile flag set to a certain value
-	 * @return 
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
+	List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
 	
 	/**
-	 * Updated hidden_from_profile_field
-	 * @param id
-	 * @param duration
+	 * Update whether a competence should be visible on the profile or not.
+	 * 
+	 * @param compId
+	 * @param hiddenFromProfile
 	 * @throws DbConnectionException
 	 */
-	void updateHiddenTargetCompetenceFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
+	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 	
 }

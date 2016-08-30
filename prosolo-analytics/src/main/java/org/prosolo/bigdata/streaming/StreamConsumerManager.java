@@ -20,6 +20,7 @@ public class StreamConsumerManager {
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	private EventDispatcher eventDispatcher;
+	private Map<Topic,ReliableConsumerImpl> reliableConsumers=new HashMap();
 
 	public static class StreamingManagerHolder {
 		public static final StreamConsumerManager INSTANCE = new StreamConsumerManager();
@@ -43,7 +44,11 @@ public class StreamConsumerManager {
 		reliableConsumer.setWorker(new DefaultMessageWorker(topic,
 				this.eventDispatcher));
 		reliableConsumer.StartAsynchronousConsumer();
+		reliableConsumers.put(topic,reliableConsumer);
 
+	}
+	public void stopStreaming(Topic topic){
+		reliableConsumers.get(topic).StopAsynchronousConsumer();
 	}
 
 	public EventDispatcher getEventDispatcher() {

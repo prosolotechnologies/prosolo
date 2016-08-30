@@ -12,8 +12,6 @@ import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.FilterBuilder;
-//import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -28,10 +26,9 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.UserManager;
-//import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +85,6 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 			
 			if (sResponse != null) {
 				for (SearchHit hit : sResponse.getHits()) {
-					// String url = (String) hit.getSource().get("url");
 					int id = (int) hit.getSource().get("id");
 					try {
 						User user = userManager.loadResource(User.class, id);
@@ -215,7 +211,7 @@ public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUs
 			
 			QueryBuilder qb = null;
 			
-	        qb = QueryBuilders.moreLikeThisQuery(moreUsersLikeThisFields)//moreLikeThisFieldQuery(moreNodesLikeThisFields)
+	        qb = QueryBuilders.moreLikeThisQuery(moreUsersLikeThisFields)
 	                .likeText(likeText)
 	                .minTermFreq(1)
 	                .minDocFreq(1)

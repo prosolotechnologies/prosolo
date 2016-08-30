@@ -230,7 +230,7 @@
                 </div>
             </div>
             <div class="formLine">
-                <label>Shared secred</label>
+                <label>Shared secret</label>
                 <div class="formLineRight">
                      <h:inputText 
                      	id="inputSecret"
@@ -258,8 +258,15 @@
                 </div>
             </div>
             <div class="formLine">
-                <label>&#160;</label>
+                <label>Other</label>
                 <div class="formLineRight">
+                    <div class="checkbox checkLine">
+                    	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
+                    		value="#{cc.attrs.activity.openInNewWindow}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <h:outputLabel for="checkOpenInNewWindow">Open in new window</h:outputLabel>
+                    </div>
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
@@ -268,7 +275,7 @@
                         <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
                     </div>
                 </div>
-            </div>
+            </div>     
         </h:panelGroup>
     	</div>
 	</composite:implementation>

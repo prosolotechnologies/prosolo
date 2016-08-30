@@ -3,7 +3,6 @@ package org.prosolo.web.util;
 
 import java.io.File;
 import java.util.Date;
-import java.util.UUID;
 
 import org.hibernate.Hibernate;
 import org.prosolo.app.Settings;
@@ -22,9 +21,9 @@ import org.prosolo.util.StringUtils;
 
 public class AvatarUtils {
 
-	public static String generateAvatarUrl(String org, String imageType) {
-		return "resources/images/users/" + org + "/format/" + UUID.randomUUID() + "." + imageType;
-	}
+//	public static String generateAvatarUrl(String org, String imageType) {
+//		return "resources/images/users/" + org + "/format/" + UUID.randomUUID() + "." + imageType;
+//	}
 	
 //	public static String getDefaultAvatarUrl(){
 //		return CommonSettings.getInstance().config.services.userService.defaultAvatarName;
@@ -97,6 +96,10 @@ public class AvatarUtils {
 	}
 	
 	public static String getInitials(String fullName) {
+		//TODO for Nikola to check
+		if(fullName == null || fullName.isEmpty()) {
+			return "NN";
+		}
 		String[] parts = fullName.split(" ");
 		
 		String initials = "";

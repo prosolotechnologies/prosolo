@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -19,6 +19,7 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -29,6 +30,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
@@ -41,15 +43,13 @@ import org.prosolo.web.goals.GoalWallBean;
 import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.home.PeopleRecommenderBean;
 import org.prosolo.web.notification.TopNotificationsBean;
 import org.prosolo.web.notification.data.NotificationData;
 import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
-import org.prosolo.web.util.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -68,31 +68,30 @@ public class ProfileSettingsBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(ProfileSettingsBean.class);
 
-	@Autowired
+	@Inject
 	private LoggedUserBean loggedUser;
-	@Autowired
+	@Inject
 	private UserManager userManager;
-	@Autowired
+	@Inject
 	private AvatarProcessor avatarProcessor;
-	@Autowired
+	@Inject
 	private EventFactory eventFactory;
-	@Autowired
+	@Inject
 	private ApplicationBean applicationBean;
-	@Autowired
+	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired
+	@Inject
 	private SocialNetworksManager socialNetworksManager;
-
-	@Autowired
-	private PeopleRecommenderBean peopleRecommenderBean;
+	@Inject
+	private UserOauthTokensManager oauthAccessTokenManager;
 
 	private AccountData accountData;
 	private SocialNetworksData socialNetworksData;
+	private boolean connectedToTwitter;
 
 	private UserSocialNetworks userSocialNetworks;
 
-	@PostConstruct
 	public void init() {
 		initAccountData();
 		initSocialNetworksData();
@@ -108,6 +107,8 @@ public class ProfileSettingsBean implements Serializable {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error loading the data");
 			}
+			
+			connectedToTwitter = oauthAccessTokenManager.hasOAuthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
 		}
 	}
 
@@ -127,7 +128,6 @@ public class ProfileSettingsBean implements Serializable {
 		try {
 			User user = userManager.loadResource(User.class, loggedUser.getUserId());
 		
-		
 			boolean changed = false;
 	
 			if (!accountData.getFirstName().equals(user.getName())) {
@@ -144,6 +144,7 @@ public class ProfileSettingsBean implements Serializable {
 				user.setPosition(accountData.getPosition());
 				changed = true;
 			}
+			
 			if ((accountData.getLocationName() != null && user.getLocationName() == null)
 					|| (!accountData.getLocationName().equals(user.getLocationName()))) {
 				try {
@@ -151,7 +152,6 @@ public class ProfileSettingsBean implements Serializable {
 					user.setLatitude(Double.valueOf(accountData.getLatitude()));
 					user.setLongitude(Double.valueOf(accountData.getLongitude()));
 					changed = true;
-					peopleRecommenderBean.initLocationRecommend();
 				} catch (NumberFormatException nfe) {
 					logger.debug("Can not convert to double. " + nfe);
 				}
@@ -162,7 +162,10 @@ public class ProfileSettingsBean implements Serializable {
 				loggedUser.reinitializeSessionData(user);
 				
 				try {
-					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId());
+					String page = PageUtil.getPostParameter("page");
+					String lContext = PageUtil.getPostParameter("learningContext");
+					
+					eventFactory.generateEvent(EventType.Edit_Profile, loggedUser.getUserId(), null, null, page, lContext, null, null);
 				} catch (EventException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Changes are not saved!");
@@ -353,7 +356,7 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveSocialNetworkChanges() {
 		boolean newSocialNetworkAccountIsAdded = false;
 
-		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccountDatas();
+		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = socialNetworksData.getSocialNetworkAccountsData();
 		
 		try {
 			for (SocialNetworkAccountData socialNetowrkAccountData : newSocialNetworkAccounts.values()) {
@@ -366,9 +369,12 @@ public class ProfileSettingsBean implements Serializable {
 						userSocialNetworks.getSocialNetworkAccounts().add(account);
 						newSocialNetworkAccountIsAdded = true;
 					} else {
-						socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData, loggedUser.getUserId());
+						try {
+							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLink());
+						} catch (ResourceCouldNotBeLoadedException e) {
+							logger.error(e);
+						}
 					}
-
 				}
 			}
 			
@@ -418,4 +424,12 @@ public class ProfileSettingsBean implements Serializable {
 		this.socialNetworksData = socialNetworksData;
 	}
 
+	public boolean isConnectedToTwitter() {
+		return connectedToTwitter;
+	}
+
+	public void setConnectedToTwitter(boolean connectedToTwitter) {
+		this.connectedToTwitter = connectedToTwitter;
+	}
+	
 }

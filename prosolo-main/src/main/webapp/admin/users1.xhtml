@@ -1,0 +1,229 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout1.xhtml"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/admin/dialogs"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<ui:define name="windowTitle">
+	Users | Admin
+</ui:define>
+
+<ui:define name="metadata">
+	<f:metadata>
+
+	</f:metadata>
+</ui:define>
+
+<ui:define name="content">
+	<style>
+		.usersActions {
+			padding: 15px 0 0 0;
+		}
+		
+		.container {
+			background-color: #fff;
+			padding: 50px;
+		}
+	</style>
+	
+	<h:form id="usersForm" class="usersForm" prependId="false" enctype="multipart/form-data">
+	
+		<p:growl id="usersFormGrowl" showDetail="true" />
+
+		<section class="heading">
+			<header>
+				<i class="fa fa-users headIcon"></i>
+				<div class="headerTitle">
+					<h1>Users</h1>
+					<p>Manage users and their roles.</p>
+				</div>
+				
+				<ul class="basicStats pull-right">
+					<li>
+						<p:commandLink id="newUserBtn"
+							value="Add"
+							pt:role="button"
+							styleClass="btn btn-primary"
+							action="#{adminUsers.prepareAdd}"
+							onclick='$("#newUserDetailsDialog").dialog("open");'
+							update=":newUser:userDetailsForm" />
+					</li>
+					<li>
+						<p:commandLink value="Import"
+							pt:role="button"
+							styleClass="btn btn-primary"
+							onclick='$("#usersImportModalDialog").dialog("open");' />
+					</li>
+					<li>
+						<p:commandLink value="Reindex ElasticSearch"
+							pt:role="button"
+							styleClass="btn btn-info" 
+							action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+						/>
+					</li>
+					<li>
+						<p:commandLink value="Reindex Users"
+							pt:role="button"
+							styleClass="btn btn-info"
+							action="#{bulkDataAdministration.deleteAndReindexUsers}"
+						/>
+					</li>
+					<li>
+						<p:commandLink value="Reindex Documents"
+							pt:role="button"
+							styleClass="btn btn-info"
+							action="#{bulkDataAdministration.deleteAndReindexDocuments}"
+						/>
+					</li>
+					<li>
+						<p:commandLink value="Delete Twitter posts"
+							pt:role="button"
+							styleClass="btn btn-danger"
+							action="#{bulkDataAdministration.deleteOldTwitterPosts}"
+							update="usersFormGrowl" />
+					</li>
+				</ul>
+			</header>
+		</section>
+		
+		<section class="container-fluid mainArea">
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-12">
+							
+								<table class="panel table tableProsolo">
+									<thead>
+										<tr>
+											<th class="colNo" scope="col">
+												No.
+											</th>
+											<th class="colStudent" scope="col">
+										    	User
+											</th>
+											<th class="colEmail" scope="col">
+										    	Email
+											</th>
+											<th class="colActions" scope="col">
+										    	Actions
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<ui:repeat var="user" value="#{adminUsers.users}" varStatus="status">
+											<tr>
+												<td class="colNoD">#{status.index + 1}.</td>
+												<td class="colStudentD">
+													<span class="userProfileImageLarge">
+														<h:graphicImage id="userImageId"
+															value="#{user.avatarUrl}"
+															title="#{user.name} #{user.lastName}"
+															alt="#{user.name} #{user.lastName}" />
+													</span>
+													<div class="name">
+														<h1>
+															#{user.name} #{user.lastName}
+														</h1>
+														<h2>#{user.position}</h2>
+													</div>
+												</td>
+												<td class="colProfileD">
+													#{user.email}
+												</td>
+												<td class="actions">
+													<p:commandLink value="Edit"
+														pt:role="button"
+														styleClass="btn btn-info"
+														onclick="$('#editUserDetailsDialog').dialog('open');"
+														action="#{adminUsers.prepareEdit(user)}"
+														update=":editUser:userDetailsForm" />
+														
+													<p:commandLink value="Roles"
+														pt:role="button"
+														styleClass="btn btn-info"
+														action="#{roles.prepareEditUserRoles(user)}"
+														onclick='$("#userRolesModalDialog").dialog("open");'
+														update=":userRoles:userRolesForm" />
+														
+													<p:commandLink value="Delete"
+														pt:role="button"
+														styleClass="btn btn-danger"
+														onclick="$('#deleteUserDialog').dialog('open');"
+														action="#{adminUsers.setUserToDelete(user)}" 
+														update=":deleteUserDialogForm" />
+												</td>
+											</tr>
+										</ui:repeat>
+									</tbody>
+								</table>
+							
+								<script>
+							 	$('#usersForm .button.uploadUsers').on('click', function(e){
+									$('.usersUploadContainer .browseFile').trigger('click');
+								});
+								</script>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</h:form>
+		
+	<div id="deleteUserDialog" class="deleteUserDialog" style="display: none;">
+		<h:form id="deleteUserDialogForm">
+			<h4 class="warningMessage">
+				Are you sure you want to delete user #{adminUsers.userToDelete.name} #{adminUsers.userToDelete.lastName}?
+			</h4>
+			
+			<p:commandLink value="Yes"
+				styleClass="button green size30 right"
+				onclick="$('#deleteUserDialog').dialog('close');"
+			 	action="#{adminUsers.delete()}"
+			 	update=":usersForm"
+				/>
+			&#160;
+			<p:commandLink value="Cancel"
+				styleClass="button gray size30 right"
+				onclick="$('#deleteUserDialog').dialog('close');"
+		 	/>
+		</h:form>
+	</div>
+			
+	<script>
+	$(function() {
+		$('#deleteUserDialog').dialog({
+			title: 'Delete User',
+			dialogClass: 'warning',
+			show : 'slide',
+			autoOpen: false,
+			width: 400,
+			modal: true,
+			resizable: false,
+			open: function() {
+				$(this).children(':first')
+					.css('text-align', 'center')
+					.css('padding-top', '50px')
+					.html('<img src="#{request.contextPath}/resources/images/style/ajax-loader-black.gif" style="vertical-align:middle;"/>');
+				
+				if ($(this).parent().find('.ui-dialog-titlebar .warningIcon').length == 0) {
+					$(this).parent()
+				        .children('.ui-dialog-titlebar')
+				        .prepend('<span class="warningIcon"></span>');
+				}
+			}
+		});
+		$('#deleteUserDialog').show();
+	});
+	</script>
+	
+	<dlg:newUser id="newUser" />
+	<dlg:editUser id="editUser" />
+	<dlg:importUsers id="importUsers" />
+	<dlg:userRoles id="userRoles" />
+</ui:define>
+</ui:composition>

@@ -834,7 +834,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		credentialData.setPublished(true);
 		
 		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
-				org.prosolo.services.nodes.data.Role.Manager);
+				org.prosolo.services.nodes.data.Role.Manager, null);
 	}
 
 //	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
@@ -868,7 +868,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator
 					.getInstance()
@@ -910,7 +910,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				.getService(Activity1Manager.class)
 				.saveNewActivity(
 						actData,
-						userNickPowell.getId());
+						userNickPowell.getId(), null);
 		return act;
 	}
 
@@ -925,7 +925,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, userNickPowell.getId());
+				.saveNewCredential(credentialData, userNickPowell.getId(), null);
 		
 		return credNP1;
 	}
@@ -946,7 +946,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				.saveNewCompetence(
 						compData,
 						user.getId(),
-						credentialId);
+						credentialId, null);
 		
 		return comp;
 	}

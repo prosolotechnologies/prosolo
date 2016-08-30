@@ -18,21 +18,27 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
+import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
+import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.indexing.impl.ESAdministrationImpl;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
 public class AfterContextLoader implements ServletContextListener {
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
+	ReliableConsumer systemConsumer =null;
+	ReliableConsumer sessionConsumer =null;
+	ReliableConsumer broadcastConsumer=null;
 
 	/* Application Startup Event */
 	public void contextInitialized(ServletContextEvent ce) {
@@ -46,6 +52,15 @@ public class AfterContextLoader implements ServletContextListener {
 				ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
 			}catch(Exception e){
 			    logger.error(e);
+			}
+		}
+		
+		if(settings.config.init.formatDB) {
+			try {
+				ServiceLocator.getInstance().getService(ObservationConfigLoaderService.class)
+					.initializeObservationConfig();
+			} catch(DbConnectionException e) {
+				logger.error(e);
 			}
 		}
 		
@@ -108,16 +123,16 @@ public class AfterContextLoader implements ServletContextListener {
 		
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
-			ReliableConsumer systemConsumer = new ReliableConsumerImpl();
+			 systemConsumer = new ReliableConsumerImpl();
 			systemConsumer.setWorker(new DefaultMessageWorker());
 			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
-			ReliableConsumer sessionConsumer = new ReliableConsumerImpl();
+			 sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());
 			sessionConsumer.setQueue(QueueNames.SESSION.name().toLowerCase());
 			sessionConsumer.StartAsynchronousConsumer();
 
-			ReliableConsumer broadcastConsumer = new ReliableConsumerImpl();
+			 broadcastConsumer = new ReliableConsumerImpl();
 			broadcastConsumer.setWorker(new DefaultMessageWorker());
 			broadcastConsumer.setQueue(QueueNames.BROADCAST.name().toLowerCase());
 			broadcastConsumer.StartAsynchronousConsumer();
@@ -130,7 +145,7 @@ public class AfterContextLoader implements ServletContextListener {
 	
 	private void initStaticData() {
 		try {
-			User adminUser = ServiceLocator.getInstance().getService(ResourceFactory.class)
+			User adminUser = ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
 							Settings.getInstance().config.init.defaultUser.name,
 							Settings.getInstance().config.init.defaultUser.lastname,
@@ -138,9 +153,10 @@ public class AfterContextLoader implements ServletContextListener {
 							true,
 							Settings.getInstance().config.init.defaultUser.pass,
 							null, 
-							true,
 							null,
-							null);
+							null,
+							null,
+							true);
 	
 			String roleAdminTitle = "Admin";
 			
@@ -156,11 +172,18 @@ public class AfterContextLoader implements ServletContextListener {
 //					.createBadge(BadgeType.STAR, "Excellence Badge");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (UserAlreadyRegisteredException e) {
+			logger.error(e);
 		}
 	}
 
 	/* Application Shutdown Event */
-	public void contextDestroyed(ServletContextEvent ce) { }
+	public void contextDestroyed(ServletContextEvent ce) {
+		 systemConsumer.StopAsynchronousConsumer();
+		sessionConsumer.StopAsynchronousConsumer();
+		broadcastConsumer.StopAsynchronousConsumer();
+
+	}
 	
 	void initRepository(int bc) {
 		switch (bc) {

@@ -197,15 +197,15 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 					else return e.getValue().matcher(event.getLink()).matches();
 				}
 				case CONTEXT_KEY : {
-					if(event.getParameters() == null || event.getParameters().get("context") == null) return false;
+					if(event.getLearningContextJson() == null) return false;
 					else {
-						return e.getValue().matcher(event.getParameters().get("context").getAsString()).matches();
+						return e.getValue().matcher(event.getLearningContextJson().toString()).matches();
 					}
 				}
 				case ACTION_KEY : {
-					if(event.getParameters() == null || event.getParameters().get("action") == null) return false;
+					if(event.getParameters() == null || event.getParameters().get(ACTION_KEY) == null) return false;
 					else {
-						return e.getValue().matcher(event.getParameters().get("action").getAsString()).matches();
+						return e.getValue().matcher(event.getParameters().get(ACTION_KEY).getAsString()).matches();
 					}
 				}
 				default : return false;

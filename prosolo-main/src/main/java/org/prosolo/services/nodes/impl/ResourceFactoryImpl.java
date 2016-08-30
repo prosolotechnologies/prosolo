@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -51,7 +52,6 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -79,7 +79,6 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.LearningGoalManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -112,7 +111,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Autowired private RoleManager roleManager;
     @Autowired private FeedSourceManager feedSourceManager;
     @Inject private CourseManager courseManager;
-    @Inject private LearningGoalManager goalManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
@@ -122,18 +120,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities){
+    public Role createNewRole(String name, String description, boolean systemDefined){
         Role role = new Role();
         role.setTitle(name);
         role.setDescription(description);
         role.setDateCreated(new Date());
         role.setSystem(systemDefined);
         role = saveEntity(role);
-        for(long capId:capabilities){
-            Capability cap = (Capability) persistence.currentManager().load(Capability.class, capId);
-            cap.getRoles().add(role);
-            saveEntity(cap);
-        }
+      
         return role;
     }
 
@@ -553,7 +547,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
-            String password, String position, boolean system, InputStream avatarStream, String avatarFilename) throws EventException {
+            String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
         
     	emailAddress = emailAddress.toLowerCase();
         
@@ -574,7 +568,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.setPosition(position);
             
         user.setUserType(UserType.REGULAR_USER);
-        user.addRole(roleManager.getRoleByName("User"));
+        if(roles == null) {
+        	user.addRole(roleManager.getRoleByName("User"));
+        } else {
+			for(Long id : roles) {
+				Role role = (Role) persistence.currentManager().load(Role.class, id);
+				user.addRole(role);
+			}
+        }
         user = saveEntity(user);
         
         try {
@@ -1108,6 +1109,33 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 	}
     
     @Override
+   	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+   	public PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId) 
+   			throws DbConnectionException {
+   		try {
+   			User user = (User) persistence.currentManager().load(User.class, userId);
+   			PostSocialActivity1 post = (PostSocialActivity1) persistence.currentManager().load(
+   					PostSocialActivity1.class, socialActivityId);
+   			PostReshareSocialActivity postShare = new PostReshareSocialActivity();
+   			postShare.setDateCreated(new Date());
+   			postShare.setLastAction(new Date());
+   			postShare.setActor(user);
+   			postShare.setText(text);
+   			postShare.setPostObject(post);
+   			postShare = saveEntity(postShare);
+   			
+   			//post.setShareCount(post.getShareCount() + 1);
+   			
+   			return postShare;
+   		} catch(Exception e) {
+   			logger.error(e);
+   			e.printStackTrace();
+   			throw new DbConnectionException("Error while saving new post");
+   		}
+   		
+   	}
+    
+    @Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException {
 		try {
@@ -1122,6 +1150,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while updating post");
 		}
 		
+	}
+    
+    @Override
+	@Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public User updateUser(long userId, String name, String lastName, String email,
+			boolean emailVerified, boolean changePassword, String password, 
+			String position, List<Long> roles) throws DbConnectionException {
+		try {
+			User user = loadResource(User.class, userId);
+			user.setName(name);
+			user.setLastname(lastName);
+			user.setPosition(position);
+			user.setEmail(email);
+			user.setVerified(true);
+			
+			if (changePassword) {
+				user.setPassword(passwordEncrypter.encodePassword(password));
+				user.setPasswordLength(password.length());
+			}
+			
+			if(roles != null) {
+				user.getRoles().clear();
+				for(Long id : roles) {
+					Role role = (Role) persistence.currentManager().load(Role.class, id);
+					user.addRole(role);
+				}
+			}
+			return user;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user data");
+		}
 	}
     
 }

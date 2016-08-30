@@ -55,7 +55,6 @@ function stripTagsExceptBr(html) {
         	
         	var userSearchQuery = text.substring(text.lastIndexOf('@') + 1, text.length);
         	$this.find(opts.userSearchInputSelector).val(userSearchQuery);
-        	console.log(userSearchQuery);
         	if (userSearchQuery.length > 0) {
         		$this.find(opts.userSuggestionRegionSelector).show();
         		opts.userSearchAction();
@@ -74,26 +73,31 @@ function stripTagsExceptBr(html) {
 			core.postOptions = $this.find(opts.postOptionsSelector);
 			core.inputTextField = $this.find(opts.editableDivSelector);
 			core.inputHiddenTextarea = $this.find(opts.textAreaSelector);
-			$(document).click(function() {
-				if (core.inputTextField.html() == '' && !core.fileUploaded && !core.linkPreviewSet) {
-					core.postOptions.hide();
-				}
-			});
-			$(opts.newPostContainerSelector).click(function(ev) {
-				ev.stopPropagation();
-			});
-			$(opts.uploadFileModalSelector).click(function(ev) {
-				ev.stopPropagation();
-			});
+			if(opts.showHidePostOptions) {
+				$(document).click(function() {
+					if (core.inputTextField.html() == '' && !core.fileUploaded && !core.linkPreviewSet) {
+						core.postOptions.hide();
+					}
+				});
+				$(opts.newPostContainerSelector).click(function(ev) {
+					ev.stopPropagation();
+				});
+				$(opts.uploadFileModalSelector).click(function(ev) {
+					ev.stopPropagation();
+				});
+			}
 			// hide some elements
 			//reset();
 			
 			// events on inputTextField
-			core.inputTextField.focus(function(){
-				if ($(this).html() == '') {
-					core.postOptions.show();
-			    }
-			}).keydown(function(e) {
+			if(opts.showHidePostOptions) {
+				core.inputTextField.focus(function(){
+					if ($(this).html() == '') {
+						core.postOptions.show();
+				    }
+				});
+			}
+			core.inputTextField.keydown(function(e) {
 				// disable user suggestions id space or enter are pressed
 				if (e.keyCode == 13 || e.keyCode == 32) { //Enter or space keycode
 					core.clearUserSuggestion();
@@ -109,15 +113,17 @@ function stripTagsExceptBr(html) {
 			}).on('keyup', function(e) {
                 //window.clearInterval(core.textTimer);           
                 // copy from the editable div to textfield
-				core.inputHiddenTextarea.text($(this).html());
+				core.inputHiddenTextarea.val($(this).html());
                 
                 var code = (e.keyCode ? e.keyCode : e.which);
                 
-                if (code == 13 || code == 32) { //Enter or space keycode
+                if (opts.allowUrlPreview && (code == 13 || code == 32)) { //Enter or space keycode
                     core.textUpdate(core.inputTextField.html());
                 }  
-                core.resolvePostButtonStatus();
-                
+                if(opts.showHidePostOptions) {
+                	core.resolvePostButtonStatus();
+                }
+          
                 // check if user suggest should be activated
                 var last = $(this).html().charAt($(this).html().length - 1);
                 
@@ -148,15 +154,19 @@ function stripTagsExceptBr(html) {
 				    // copy from the editable div to textfield
 				    core.inputHiddenTextarea.val(inputTextField.html());
 				    
-				    if (e.originalEvent.clipboardData) {
-				    	core.textUpdate(inputTextField.html());
+				    if(opts.allowUrlPreview) {
+					    if (e.originalEvent.clipboardData) {
+					    	core.textUpdate(inputTextField.html());
+					    }
 				    }
 				}, 150);
 			});
 			
-			$this.find(opts.addUrlButtonSelector).on('click', function () {
-				obj.showLinkLoader();
-			});
+			if(opts.allowUrlPreview) {
+				$this.find(opts.addUrlButtonSelector).on('click', function () {
+					obj.showLinkLoader();
+				});
+			}
 
 			// process inputed text after every keyup to detect links
 //			$this.find('.expandableInputBox .linkInput').on('keyup', function(e) {
@@ -240,7 +250,7 @@ function stripTagsExceptBr(html) {
 			// hide user suggestions
 			core.clearUserSuggestion();
 			
-			core.inputHiddenTextarea.text(core.inputTextField.html());
+			core.inputHiddenTextarea.val(core.inputTextField.html());
 			
 			return obj;
 		};
@@ -297,7 +307,8 @@ function stripTagsExceptBr(html) {
 	};
 	
 	$.fn.newpost.defaults = {
-		
+		allowUrlPreview : true,
+		showHidePostOptions : true
 	};
 	
 	

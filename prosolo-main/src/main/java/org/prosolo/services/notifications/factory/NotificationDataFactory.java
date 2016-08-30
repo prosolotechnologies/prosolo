@@ -31,6 +31,7 @@ public class NotificationDataFactory {
 		}
 		
 		n.setLink(notification.getLink());
+		n.setObjectId(notification.getObjectId());
 		n.setObjectType(notification.getObjectType());
 		n.setObjectTitle(objectTitle != null ? objectTitle : "");
 

@@ -40,7 +40,7 @@ import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.EvaluationSubmissionData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.portfolio.data.SocialNetworksData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -154,7 +154,7 @@ public class StudentProfileBean implements Serializable {
 	private void initCredentials() {
 		try {
 			credentials = new ArrayList<>();
-			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId);
+			List<TargetCredential1> userCredentials = credentialManager.getAllCredentials(decodedId, false);
 			boolean first = true;
 
 			for (TargetCredential1 targetCred : userCredentials) {

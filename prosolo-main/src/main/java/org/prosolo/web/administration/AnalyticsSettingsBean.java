@@ -20,7 +20,7 @@ import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
 import org.prosolo.web.manage.students.data.observantions.SymptomData;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

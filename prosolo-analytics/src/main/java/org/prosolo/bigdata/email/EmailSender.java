@@ -18,7 +18,6 @@ import javax.mail.internet.MimeMultipart;
 
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 
@@ -31,12 +30,8 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
  *
  */
 public class EmailSender {
-	public void sendEmailToUser(User user, EmailContentGenerator html, String subject) throws AddressException, MessagingException, FileNotFoundException, IOException {
-		sendEmail(html, user.getEmail(), subject);
-	}
-	
-	public void sendEmail(EmailContentGenerator contentGenerator, String email, String subject) throws AddressException, MessagingException, FileNotFoundException, IOException {
-SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
+	public void sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
+		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		
 		String host = smtpConfig.host;
 		String user = smtpConfig.user;
@@ -63,7 +58,7 @@ SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpCo
 		message.setFrom(new InternetAddress(from));
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
 		
-		message.setSubject(subject);
+		message.setSubject(contentGenerator.getSubject());
 		
 		// Unformatted text version
 		final MimeBodyPart textPart = new MimeBodyPart();
@@ -85,10 +80,11 @@ SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpCo
 		transport.sendMessage(message, message.getAllRecipients());
 		transport.close();
 	}
+	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		try {
 			EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Nik", "http://example.com");
-			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com" , "Verify email 2");
+			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com");
 		} catch (AddressException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {

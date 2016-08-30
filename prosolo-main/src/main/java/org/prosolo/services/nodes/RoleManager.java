@@ -16,7 +16,7 @@ public interface RoleManager extends AbstractManager {
 
 	List<Long> getRoleIdsForName(String name);
 	
-	public Role createNewRole(String name, String description, boolean systemDefined, List<Long> capabilities);
+	Role createNewRole(String name, String description, boolean systemDefined);
 	
 	User assignRoleToUser(Role role, User user);
 
@@ -37,7 +37,7 @@ public interface RoleManager extends AbstractManager {
 
 	User updateUserRoles(long userId, List<String> roles) throws ResourceCouldNotBeLoadedException;
 
-	public Role updateRole(long id, String title, String description, List<Long> capabilities, List<Long> capabilitiesBeforeUpdate) throws ResourceCouldNotBeLoadedException;
+	Role updateRole(long id, String title, String description) throws ResourceCouldNotBeLoadedException;
 
 	void deleteRole(long id) throws ResourceCouldNotBeLoadedException;
 
@@ -54,4 +54,5 @@ public interface RoleManager extends AbstractManager {
 	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
 	
 	boolean hasAnyRole(long userId, List<String> roleNames) throws DbConnectionException;
+	
 }

@@ -2,6 +2,8 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -11,20 +13,22 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +48,7 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private UploadManager uploadManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
+	@Inject private RoleManager roleManager;
 
 	private String actId;
 	private long decodedActId;
@@ -57,22 +62,40 @@ public class ActivityViewBeanUser implements Serializable {
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
+	
+	private String roles="Learner";
+	
+	public String getRoles() {
+		return roles;
+	}
 
-	public void init() {	
+	private long nextActivityToLearn;
+
+	public void init() {
+		List<String> roles = new ArrayList<>();
+		roles.add(RoleNames.MANAGER);
+		roles.add(RoleNames.INSTRUCTOR);
+		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
+		if (hasManagerOrInstructorRole) {
+			this.roles="Instructor";
+		}else{
+			this.roles="Learner";
+		}
+		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
+				boolean shouldReturnDraft = false;
+				if("preview".equals(mode)) {
+					shouldReturnDraft = true;
+				}
 				if(decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId());
-				} else {
-					boolean shouldReturnDraft = false;
-					if("preview".equals(mode)) {
-						shouldReturnDraft = true;
-					} 
+									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
+				} else { 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
 									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
@@ -118,10 +141,11 @@ public class ActivityViewBeanUser implements Serializable {
 //				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
 //						.getUser().getId());
 				CredentialData cd = credManager
-						.getTargetCredentialTitleAndNextCompToLearn(decodedCredId, 
+						.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
 								loggedUser.getUserId());
 				credTitle = cd.getTitle();
 				nextCompToLearn = cd.getNextCompetenceToLearnId();
+				nextActivityToLearn = cd.getNextActivityToLearnId();
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -172,16 +196,27 @@ public class ActivityViewBeanUser implements Serializable {
 			String learningContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
 					decodedCredId, 
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
-			for(ActivityData ad : competenceData.getActivities()) {
-				if(ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
+			
+			for (ActivityData ad : competenceData.getActivities()) {
+				if (ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
 					ad.setCompleted(true);
 				}
+			}
+			
+			try {
+				CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
+						decodedCredId, loggedUser.getUserId());
+				nextCompToLearn = cd.getNextCompetenceToLearnId();
+				nextActivityToLearn = cd.getNextActivityToLearnId();
+			} catch(DbConnectionException e) {
+				logger.error(e);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -298,6 +333,22 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public long getNextCompToLearn() {
+		return nextCompToLearn;
+	}
+
+	public void setNextCompToLearn(long nextCompToLearn) {
+		this.nextCompToLearn = nextCompToLearn;
+	}
+
+	public long getNextActivityToLearn() {
+		return nextActivityToLearn;
+	}
+
+	public void setNextActivityToLearn(long nextActivityToLearn) {
+		this.nextActivityToLearn = nextActivityToLearn;
 	}
 	
 }

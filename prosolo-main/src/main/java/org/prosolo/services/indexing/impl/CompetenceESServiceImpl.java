@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.services.indexing.ESIndexNames;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;

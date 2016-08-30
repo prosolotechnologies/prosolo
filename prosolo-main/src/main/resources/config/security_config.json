@@ -193,6 +193,24 @@
                 "Manager",
                 "Instructor"
             ]
+        },
+        {
+        	"name": "course.announcements.view",
+            "description": "View announcements for credentials",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
+        
+        },
+        {
+        	"name": "course.announcements.create",
+            "description": "Create announcements for credentials",
+            "roles": [
+                "Manager",
+                "Instructor"
+            ]
+        
         }
     ]
 }

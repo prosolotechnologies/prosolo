@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.email.emailLinks.contextParser.EmailLinkContextParser;
 import org.prosolo.services.email.emailLinks.data.LinkObjectContextData;
 import org.prosolo.services.email.emailLinks.data.LinkObjectData;
-import org.prosolo.services.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.logging.LoggingNavigationBean;

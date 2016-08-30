@@ -9,12 +9,12 @@
 	xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Achievements competences
+		Achievements - Competences
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{targetCompetenceBean.init()}" />
+			<f:viewAction action="#{competenceAchievementsBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
@@ -24,18 +24,17 @@
 		<h:panelGroup id="panelTitle">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('credentials','mainmenu');"
-						value="Credentials" outcome="/achievements/credentials" /></li>
+					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}">
+					<h:link value="Credentials" outcome="/achievements/credentials" />
+				</li>
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('competences','mainmenu');"
-						value="Competences" outcome="/achievements/competences" /></li>
+					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}">
+					<h:link value="Competences" outcome="/achievements/competences" />
+				</li>
 				<li role="presentation"
-					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}"><h:link
-						onclick="sendLogPageNavigation('/achievements/inprogress','mainmenu');"
-						value="In
-						Progress" outcome="/achievements/inprogress" /></li>
+					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
+					<h:link value="In Progress" outcome="/achievements/inprogress" />
+				</li>
 			</ul>
 		</h:panelGroup>
 	</ui:define>
@@ -48,14 +47,32 @@
 			<div class="row">
 				<h:form id="completedCompetencesForm">
 					<p:growl id="completedCompetencesGrowl" showDetail="true"></p:growl>
+					
+					<ui:fragment rendered="#{empty competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}">
+						<div class="col-md-12">
+							<div class="noContentMessage">
+								<p>
+									No completed competences yet.<br/>
+									<h:link outcome="/credentialLibrary">
+										Browse competences
+									</h:link>
+								</p>
+							</div>
+						</div>
+					</ui:fragment>
+					
 					<ui:repeat var="targetCompetence"
-						value="#{targetCompetenceBean.competenceAchievementsData.targetCompetenceDataList}">
+						value="#{competenceAchievementsBean.competenceAchievementsData.targetCompetenceDataList}"
+						varStatus="iterator">
 
 						<div class="col-md-6">
 							<article class="whiteBox summaryCard">
 								<h2>
-									<h:link value="#{targetCompetence.title}"
-										outcome="#{targetCompetence.link}" />
+									<h:link	outcome="/competence">
+										#{targetCompetence.title}
+				                		<f:param name="credId" value="#{util:encodeId(targetCompetence.credentialId)}"/>
+				                		<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
+									</h:link>
 								</h2>
 
 								<div class="clear"></div>
@@ -65,11 +82,11 @@
 									<div class="metaLeft">
 										<div class="checkbox checkLine">
 
-											<h:inputHidden value="#{targetCompetence.id}"></h:inputHidden>
+											<h:inputHidden value="#{targetCompetence.id}" />
 											<h:selectBooleanCheckbox id="competenceAchievements"
 												value="#{targetCompetence.hiddenFromProfile}">
 												<f:ajax event="click" execute="@form"
-													listener="#{targetCompetenceBean.hideTargetCompetenceFromProfile(targetCompetence.id)}"
+													listener="#{competenceAchievementsBean.hideTargetCompetenceFromProfile(targetCompetence.id)}"
 													render="completedCompetencesForm" />
 											</h:selectBooleanCheckbox>
 											<h:outputLabel for="competenceAchievements">Hide from Public Profile</h:outputLabel>
@@ -80,6 +97,10 @@
 								</div>
 							</article>
 						</div>
+						
+						<ui:fragment rendered="#{iterator.index % 2 == 1}">
+		        			<div class="clear"></div>
+		        		</ui:fragment>
 					</ui:repeat>
 				</h:form>
 			</div>

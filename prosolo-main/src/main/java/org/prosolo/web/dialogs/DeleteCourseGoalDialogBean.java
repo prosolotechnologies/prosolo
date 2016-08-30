@@ -7,7 +7,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.web.courses.CoursePortfolioBean;
 import org.prosolo.web.courses.data.CourseData;
 import org.prosolo.web.logging.LoggingNavigationBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;

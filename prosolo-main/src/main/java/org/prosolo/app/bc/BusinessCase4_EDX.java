@@ -8,12 +8,9 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -25,14 +22,14 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.following.FollowedEntity;
-import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -59,19 +56,8 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.app.bc.BusinessCase4_EDX")
 public class BusinessCase4_EDX extends BusinessCase {
 
-public Map<String, Tag> allTags = new HashMap<String, Tag>();
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 	
-	public void setFollowedUser(User user, User followedUser) {
-
-		FollowedEntity fe = new FollowedUserEntity();
-		fe.setUser(user);
-		fe.setFollowedResource(followedUser);
-		fe = ServiceLocator.getInstance().getService(DefaultManager.class)
-				.saveEntity(fe);
-		user = ServiceLocator.getInstance().getService(DefaultManager.class)
-				.saveEntity(user);
-	}
-
 	public void initRepository() {
 		System.out.println("BusinessCaseTest - initRepository() with BC 3");
 		
@@ -166,6 +152,8 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 
 		Competence1 comp1cred1 = null;
 		Activity1 act1comp1cred1 = null;
+		Activity1 act2comp1cred1 = null;
+		Activity1 act4comp1cred1 = null;
 		try {
 			comp1cred1 = createCompetence(
 						userNickPowell,
@@ -187,7 +175,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					"Slides",
 					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 			
-			createActivity(
+			act2comp1cred1 = createActivity(
 					userNickPowell, 
 					"Example dataset",
 					null,
@@ -213,7 +201,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					"CCK11 dataset for social network analysis",
 					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 			
-			createActivity(
+			act4comp1cred1 = createActivity(
 					userNickPowell, 
 					"Network measures",
 					"Dragan Gasevic discusses network measures (degree centrality, betweenness centrality, closeness centrality, degree, diameter)  for week 3 of DALMOOC.",
@@ -275,12 +263,6 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		} catch (EventException e) {
 			logger.error(e);
 		}
-		
-		// Adding instrucotrs
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userAnnaHallowell.getId(), 10);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userTimothyRivera.getId(), 0);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
 		
 		Competence1 comp2cred1 = null;
 		try {
@@ -572,7 +554,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 						cred3.getId(),
 						"academic performance, creative potential, social network analysis");
 			
-			createActivity(
+			Activity1 act1comp1cred3 = createActivity(
 					userNickPowell, 
 					"Getting Started With Data Analytics Tools",
 					"A basic overview of the Data Anlytics tools by George Siemens",
@@ -652,56 +634,6 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		}
 		
 		
-		// Generating comments for the act1comp1cred1
-		CommentManager commentManager = ServiceLocator.getInstance().getService(CommentManager.class);
-		
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
-		
-		try {
-			CommentData comment1Data = new CommentData();
-			comment1Data.setComment("Very good presentation. Wel suited for the novices like I am.");
-			comment1Data.setCommentedResourceId(act1comp1cred1.getId());
-			comment1Data.setCreator(new UserData(userKevinMitchell));
-			comment1Data.setDateCreated(dateFormatter.parse("10.06.2016. 15:24"));
-			
-			Comment1 comment1 = commentManager.saveNewComment(comment1Data, userIdaFritz.getId(), 
-					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
-
-			CommentData comment2Data = new CommentData();
-			comment2Data.setComment("The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
-			comment2Data.setCommentedResourceId(act1comp1cred1.getId());
-			comment2Data.setCreator(new UserData(userAnthonyMoore));
-			comment2Data.setDateCreated(dateFormatter.parse("12.06.2016. 09:50"));
-			
-			Comment1 comment2 = commentManager.saveNewComment(comment2Data, userAnthonyMoore.getId(), 
-					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
-			
-			CommentData comment3Data = new CommentData();
-			comment3Data.setComment("anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
-			comment3Data.setCommentedResourceId(act1comp1cred1.getId());
-			comment3Data.setCreator(new UserData(userErikaAmes));
-			comment3Data.setDateCreated(dateFormatter.parse("13.06.2016. 13:02"));
-			
-			Comment1 comment3 = commentManager.saveNewComment(comment3Data, userErikaAmes.getId(), 
-					CommentedResourceType.Activity, new LearningContextData("/activity.xhtml", "name:credential|id:1|context:/name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1///", null));
-		
-			comment3.setParentComment(comment2);
-			ServiceLocator
-				.getInstance()
-				.getService(DefaultManager.class).saveEntity(comment3);
-
-			CommentData comment4Data = new CommentData();
-			comment4Data.setComment("The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge.");
-			comment4Data.setCommentedResourceId(comp1cred1.getId());
-			comment4Data.setCreator(new UserData(userKarenWhite));
-			comment4Data.setDateCreated(dateFormatter.parse("05.06.2016. 11:46"));
-			
-			Comment1 comment4 = commentManager.saveNewComment(comment4Data, userKarenWhite.getId(), 
-					CommentedResourceType.Competence, new LearningContextData("/competence.xhtml", "name:credential|id:1|context:/context:/name:comment/|name:competence|id:1/", null));
-		} catch (ParseException e1) {
-			logger.error(e1);
-		}
-		
 		try {
 			ServiceLocator
 					.getInstance()
@@ -719,20 +651,173 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
- 	}
+		
+		/* 
+		 * Enrolling students to credentials
+		 */
+		CredentialData cred1DataKevinHall = ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(),  new LearningContextData());
+		
+		/* 
+		 * Adding instructors
+		 */
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
+		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+		
+		ServiceLocator.getInstance().getService(DefaultManager.class).flush();
+		/*
+		 * Assigning instructors to students
+		 */
+//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userAnnaHallowell.getId(), userPhillAmstrong.getId(), cred1.getId());
+//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userAkikoKido.getId(), userKarenWhite.getId(), cred1.getId());
+//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userKevinHall.getId(), userKarenWhite.getId(), cred1.getId());
+//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userRichardAnderson.getId(), userKarenWhite.getId(), cred1.getId());
+//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userIdaFritz.getId(), userErikaAmes.getId(), cred1.getId());
+		
+		/*
+		 * Kevin Hall learning cred1
+		 */
+		
+		int activitiesToComplete = 3;
+		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
+			for (ActivityData actData : compData.getActivities()) {
+				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
+						actData.getTargetActivityId(), 
+						compData.getCompetenceId(), 
+						cred1.getId(), 
+						userKevinHall.getId(),
+						 new LearningContextData());
+				
+				if (activitiesToComplete-- == 0) {
+					break comLoop;
+				}
+			}
+		}
+		
+		/*
+		 * Commenting on activities/ competences
+		 */
+		CommentData comment1 = commentOnActivity(userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.");
+		CommentData comment2 = commentOnActivity(userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
+		CommentData comment3 = commentOnActivity(userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+		CommentData comment4 = commentOnActivity(userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge");
+		
+		
+		CommentData comment5 = commentOnActivity(userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks");
+		CommentData comment6 = commentOnActivity(userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)");
+		CommentData comment7 = commentOnActivity(userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.");
+		CommentData comment8 = commentOnActivity(userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks");
+		CommentData comment9 = commentOnActivity(userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks");
+		CommentData comment10 = commentOnActivity(userPhillAmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.");
+		CommentData comment11 = commentOnActivity(userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+		
+		CommentData comment12 = commentOnActivity(userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!");
+		CommentData comment13 = commentOnActivity(userPhillAmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.");
+		CommentData comment14 = commentOnActivity(userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ");
+		CommentData comment15 = commentOnActivity(userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ");
+		CommentData comment16 = commentOnActivity(userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.");
+		
+		/*
+		 * Liking comments
+		 */
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAkikoKido.getId(), comment5.getCommentId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment5.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment5.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment5.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment5.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment6.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userKevinHall.getId(), comment6.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment6.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment9.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment9.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userPhillAmstrong.getId(), comment12.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userAnnaHallowell.getId(), comment12.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userIdaFritz.getId(), comment13.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userRichardAnderson.getId(), comment13.getCommentId(),  new LearningContextData());
+		ServiceLocator.getInstance().getService(CommentManager.class).likeComment(userGeorgeYoung.getId(), comment14.getCommentId(),  new LearningContextData());
+		
+		/*
+		 * Sending private messages
+		 */
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Hi Richard");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userRichardAnderson.getId(), "Can you help me with a task");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userRichardAnderson.getId(), userKevinHall.getId(), "Sure. What's the problem?");
+		
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Hi Anna");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userKevinHall.getId(), userAnnaHallowell.getId(), "Do you have time to help me with something?");
+		
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi George");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userIdaFritz.getId(), userGeorgeYoung.getId(), "Hi Ida");
+		
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userAnnaHallowell.getId(), userPhillAmstrong.getId(), "Hello Phill");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Hi");
+		ServiceLocator.getInstance().getService(MessagingManager.class).sendMessage(userPhillAmstrong.getId(), userAnnaHallowell.getId(), "Did you maybe have time to complete the latest assignment?");
+ 	
+		/*
+		 * User following
+		 */
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userPhillAmstrong.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userAnnaHallowell.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userGeorgeYoung.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userKevinHall.getId(), userIdaFritz.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userIdaFritz.getId(), userKevinHall.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userKevinHall.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userPhillAmstrong.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAnnaHallowell.getId(), userIdaFritz.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userSheriLaureano.getId(), userPhillAmstrong.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userLoriAbner.getId(), userPhillAmstrong.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userLoriAbner.getId(), userKevinHall.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userTaniaCortese.getId(), userIdaFritz.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userJosephGarcia.getId(), userSheriLaureano.getId(), new LearningContextData());
+		ServiceLocator.getInstance().getService(FollowResourceManager.class).followUser(userAngelicaFallon.getId(), userKevinHall.getId(), new LearningContextData());
+	}
+
+	private CommentData commentOnActivity(User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
+		CommentData newComment = new CommentData();
+		newComment.setCommentedResourceId(act1comp1cred1.getId());
+		try {
+			newComment.setDateCreated(dateFormatter.parse(date));
+		} catch (ParseException e) {
+			logger.error(e);
+		}
+		newComment.setComment(commentText);
+		newComment.setCreator(new UserData(userKevinHall));
+		newComment.setParent(parent);
+		
+		LearningContextData context = new LearningContextData("/activity.xhtml", null, null);
+		
+		Comment1 comment = ServiceLocator.getInstance().getService(CommentManager.class).saveNewComment(newComment, userKevinHall.getId(), 
+				CommentedResourceType.Activity, context);
+		
+		newComment.setCommentId(comment.getId());
+		
+		return newComment;
+	}
 	
 	private void publishCredential(Credential1 cred, User creator) {
 		CredentialManager credentialManager = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCredentialDataForEdit(cred.getId(), 
-				creator.getId(), true);
+		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
 		
-		credentialData.setPublished(true);
+		if (credentialData == null) {
+			CredentialData credentialData1 = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+			System.out.println(credentialData1);
+		}
 		
-		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
-				org.prosolo.services.nodes.data.Role.Manager);
+		if (credentialData != null) {
+			credentialData.setPublished(true);
+			
+			credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(),
+					org.prosolo.services.nodes.data.Role.Manager, null);
+		} else {
+			logger.error("Could not load credential " + cred.getId());
+		}
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
@@ -742,7 +827,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 					.getInstance()
 					.getService(UserManager.class)
 					.createNewUser(name, lastname, emailAddress,
-							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar);
+							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator
 					.getInstance()
@@ -800,7 +885,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				.getService(Activity1Manager.class)
 				.saveNewActivity(
 						actData,
-						userNickPowell.getId());
+						userNickPowell.getId(), null);
 		return act;
 	}
 
@@ -815,7 +900,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, userNickPowell.getId());
+				.saveNewCredential(credentialData, userNickPowell.getId(), null);
 		
 		return credNP1;
 	}
@@ -836,7 +921,7 @@ public Map<String, Tag> allTags = new HashMap<String, Tag>();
 				.saveNewCompetence(
 						compData,
 						user.getId(),
-						credentialId);
+						credentialId, null);
 		
 		return comp;
 	}

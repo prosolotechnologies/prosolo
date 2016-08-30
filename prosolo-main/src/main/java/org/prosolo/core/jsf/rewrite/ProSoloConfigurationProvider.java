@@ -31,14 +31,15 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/accessDenied").to("/accessDenied.xhtml"))
 				.addRule(Join.path("/reset/successful/{email}").to("/login-forgot-message.xhtml"))
 				.addRule(Join.path("/reset").to("/login-forgot-password.xhtml"))
-				.addRule(Join.path("/recovery").to("/recovery.xhtml"))
+				.addRule(Join.path("/recovery/{key}").to("/login-new-password.xhtml"))
 				.addRule(Join.path("/register").to("/register.xhtml"))
 				.addRule(Join.path("/verify").to("/verify.xhtml"))
 				.addRule(Join.path("/terms").to("/terms.xhtml"))
 				.addRule(Join.path("/maintenance").to("/maintenance.xhtml"))
 				.addRule(Join.path("/notfound").to("/notfound.xhtml"))
 				
-				.addRule(Join.path("/").to("/credentialLibrary.xhtml"))
+				.addRule(Join.path("/").to("/index.xhtml"))
+				.addRule(Join.path("/index").to("/index.xhtml"))
 				.addRule(Join.path("/learn/{id}/{comp}").to("/learn.xhtml"))
 				.addRule(Join.path("/learn/{id}").to("/learn.xhtml"))
 				.addRule(Join.path("/learn").to("/learn.xhtml"))
@@ -49,9 +50,12 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/credentials/new").to("/create-credential.xhtml"))
 				//.addRule(Join.path("/credentials/{id}").to("/course.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
+				.addRule(Join.path("/credentials/{id}/announcements/{announcementId}").to("/announcement.xhtml"))
 				//TODO validate these competence patterns 
 				.addRule(Join.path("/competences/{id}/edit").to("/create-competence.xhtml"))
 				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
+				.addRule(Join.path("/credentials/{id}/students").to("/credential-students.xhtml"))
+				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
 				.addRule(Join.path("/competences/{compId}").to("/competence.xhtml"))
@@ -59,7 +63,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/competences/{compId}/newActivity").to("/create-activity.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}/{actId}").to("/activity.xhtml"))
 				/* student viewing his assessment request (assessment-preview.html)*/
-				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
 				.addRule(Join.path("/competences/{compId}/{actId}").to("/activity.xhtml"))
 				.addRule(Join.path("/digest").to("/digest.xhtml"))
 				.addRule(Join.path("/communications/{tab}").to("/communications.xhtml"))
@@ -68,6 +71,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/settings_old").to("/settings_old.xhtml"))
 				.addRule(Join.path("/settings/password").to("/settings/password.xhtml"))
 				.addRule(Join.path("/settings/email").to("/settings/email.xhtml"))
+				.addRule(Join.path("/settings/twitterOAuth").to("/settings/twitterOAuth.xhtml"))
 				.addRule(Join.path("/settings").to("/settings.xhtml"))
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
 				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
@@ -114,6 +118,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assId}").to("/manage/assessment-preview.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/rss").to("/manage/credential-rss.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/announcements").to("/manage/announcements.xhtml"))
 				
 				.addRule(Join.path("/manage/competences/{id}/edit").to("/manage/create-competence.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/competences/new").to("/manage/create-competence.xhtml"))
@@ -141,10 +146,18 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competences").to("/manage/competenceLibrary.xhtml"))
 				
+				//admin
+				.addRule(Join.path("/admin").to("/admin/users.xhtml"))
+				.addRule(Join.path("/admin/").to("/admin/users.xhtml"))
+				.addRule(Join.path("/admin/users/{id}/edit").to("/admin/userEdit.xhtml"))
+				.addRule(Join.path("/admin/users/new").to("/admin/userEdit.xhtml"))
 				.addRule(Join.path("/admin/users").to("/admin/users.xhtml"))
 				.addRule(Join.path("/admin/roles").to("/admin/roles.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))
+				.addRule(Join.path("/admin/settings/password").to("/admin/settings/password.xhtml"))
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
+				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
+				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
 				.addRule(Join.path("/admin/analyticsSettings").to("/admin/analyticsSettings.xhtml"));
 	}
 }

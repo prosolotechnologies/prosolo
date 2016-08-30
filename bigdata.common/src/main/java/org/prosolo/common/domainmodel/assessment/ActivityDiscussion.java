@@ -62,9 +62,9 @@ public class ActivityDiscussion extends BaseEntity {
 	}
 
 	public ActivityDiscussionParticipant getParticipantByUserId(long id) {
-		if(participants != null && participants.size() > 0) {
-			for(ActivityDiscussionParticipant participant : participants) {
-				if(participant.getParticipant().getId() == id) {
+		if (participants != null && participants.size() > 0) {
+			for (ActivityDiscussionParticipant participant : participants) {
+				if (participant.getParticipant().getId() == id) {
 					return participant;
 				}
 			}

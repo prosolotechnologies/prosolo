@@ -130,14 +130,14 @@ public abstract class AbstractManagerImpl implements AbstractManager {
  
 	@Override
 	@Transactional(readOnly = true)
-	public <T extends BaseEntity> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException {
-		return loadResource(clazz, id, persistence.currentManager());
+	public <T> T loadResource(Class<T> clazz, long id) throws ResourceCouldNotBeLoadedException {
+		return (T) loadResource(clazz, id, persistence.currentManager());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public <T extends BaseEntity> T loadResource(Class<T> clazz, long id,
+	public <T> T loadResource(Class<T> clazz, long id,
 			Session persistence) throws ResourceCouldNotBeLoadedException {
 		try {
 			T object = (T) persistence.load(clazz, id);

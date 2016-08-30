@@ -1,36 +1,25 @@
 package org.prosolo.web.administration;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.html.HtmlSelectBooleanCheckbox;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.omnifaces.util.Ajax;
-import org.primefaces.event.FileUploadEvent;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.event.EventException;
+import org.prosolo.search.TextSearch;
+import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.web.LoggedUserBean;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.administration.data.UserData;
-import org.prosolo.web.util.PageUtil;
-import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.courses.util.pagination.Paginable;
+import org.prosolo.web.courses.util.pagination.PaginationLink;
+import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -38,33 +27,98 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "adminUsers")
 @Component("adminUsers")
 @Scope("view")
-public class UsersBean implements Serializable {
+public class UsersBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = 138952619791500473L;
 
 	protected static Logger logger = Logger.getLogger(UsersBean.class);
 
 	@Autowired private UserManager userManager;
-	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private EmailSenderManager emailSenderManager;
 	@Autowired private UserEntityESService userEntityESService;
+	@Inject private TextSearch textSearch;
+	@Inject private UrlIdEncoder idEncoder;
 
-	private UserData formData;
-
+	
+	private String roleId;
+	
 	private List<UserData> users;
-	private boolean editMode;
 	
 	private UserData userToDelete;
 
 	// used for search
-	private List<UserData> filteredUsers;
-	private String keyword;
+	private String searchTerm = "";
+	private int usersNumber;
+	private int page = 1;
+	private int limit = 10;
+	private List<PaginationLink> paginationLinks;
+	private int numberOfPages;
+	private RoleFilter filter;
+	private List<RoleFilter> filters;
 
-	@PostConstruct
 	public void init() {
 		logger.debug("initializing");
-		resetFormData();
+		long filterId = 0;
+		long decodedRoleId = idEncoder.decodeId(roleId);
+		if(decodedRoleId > 0) {
+			filterId = decodedRoleId;
+		}
+		filter = new RoleFilter(filterId, "All", 0);
 		loadUsers();
+	}
+	
+	public void resetAndSearch() {
+		this.page = 1;
+		loadUsers();
+	}
+
+	private void generatePagination() {
+		//if we don't want to generate all links
+		Paginator paginator = new Paginator(usersNumber, limit, page, 
+				1, "...");
+		//if we want to generate all links in paginator
+//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
+//				true, "...");
+		numberOfPages = paginator.getNumberOfPages();
+		paginationLinks = paginator.generatePaginationLinks();
+	}
+	
+	public void applySearchFilter(RoleFilter filter) {
+		this.filter = filter;
+		this.page = 1;
+		loadUsers();
+	}
+
+	@Override
+	public boolean isCurrentPageFirst() {
+		return page == 1 || numberOfPages == 0;
+	}
+	
+	@Override
+	public boolean isCurrentPageLast() {
+		return page == numberOfPages || numberOfPages == 0;
+	}
+	
+	@Override
+	public void changePage(int page) {
+		if(this.page != page) {
+			this.page = page;
+			loadUsers();
+		}
+	}
+
+	@Override
+	public void goToPreviousPage() {
+		changePage(page - 1);
+	}
+
+	@Override
+	public void goToNextPage() {
+		changePage(page + 1);
+	}
+
+	@Override
+	public boolean isResultSetEmpty() {
+		return usersNumber == 0;
 	}
 
 	public void delete() {
@@ -74,174 +128,38 @@ public class UsersBean implements Serializable {
 				user.setDeleted(true);
 				userManager.saveEntity(user);
 				
-				resetFormData();
 				userEntityESService.deleteNodeFromES(user);
-				loadUsers();
-				
+				users.remove(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getName()+" "+userToDelete.getLastName()+" is deleted.");
-				
 				userToDelete = null;
 			} catch (Exception ex) {
 				logger.error(ex);
+				PageUtil.fireErrorMessage("Error while trying to delete user");
 			}
 		}
 	}
 
-	public void validatePassword(FacesContext context, UIComponent component, Object value) {
-		boolean isValid;
-		boolean isChangePassword = false;
-
-		String reenterpassword = value != null ? value.toString() : "";
-
-		if (this.editMode) {
-			HtmlSelectBooleanCheckbox changePass = (HtmlSelectBooleanCheckbox) component.findComponent("changepassword");
-			isChangePassword = changePass != null ? (Boolean) changePass
-					.getLocalValue() : true;
-		}
-
-		String password = ((UIInput) component.findComponent("password")).getLocalValue().toString();
-
-		if (this.editMode) {
-			isValid = !isChangePassword ? true : password.equals(reenterpassword);
-		} else {
-			isValid = password.equals(reenterpassword);
-		}
-
-		if (isValid && (password.isEmpty() || reenterpassword.isEmpty())) {
-			FacesMessage message = new FacesMessage(
-					"Please enter password.");
-			throw new ValidatorException(message);
-		} else if (!isValid) {
-			FacesMessage message = new FacesMessage(
-					"Entered passwords do not match!");
-			throw new ValidatorException(message);
-		}
-	}
-
-	public void handleFileUpload(FileUploadEvent event) {
-		PageUtil.fireSuccessfulInfoMessage(event.getFile().getFileName()
-				+ " is uploaded.");
-	}
-
-	public void prepareAdd() {
-		this.editMode = false;
-		this.resetFormData();
-	}
-
+	@SuppressWarnings("unchecked")
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
-
-		Collection<User> allUsers = userManager.getAllUsers();
-
-		if (allUsers != null && !allUsers.isEmpty()) {
-			List<User> list = new ArrayList<User>(allUsers);
-			for (User user : list) {
-				this.users.add(new UserData(user));
-			}
-		}
-	}
-
-	public void saveNewUser() {
-		logger.debug("Creating new User for the user " + loggedUser.getUserId());
-
 		try {
-			User user = userManager.createNewUser(
-					formData.getName(), 
-					formData.getLastName(), 
-					formData.getEmail(),
-					true,
-					formData.getPassword(), 
-					formData.getPosition(),
-					null,
-					null);
-
-			if (formData.isSendEmail()) {
-				emailSenderManager.sendEmailAboutNewAccount(user,
-						formData.getEmail());
-			}
-
-			logger.debug("New User (" + user.getName() + " "
-					+ user.getLastname() + ") for the user "
-					+ loggedUser.getUserId());
-			
-			try {
-				PageUtil.fireSuccessfulInfoMessage(
-						ResourceBundleUtil.getMessage(
-								"admin.users.created", 
-								loggedUser.getLocale(), 
-								user.getName() + " " + user.getLastname()));
-				
-				// this will display the growl message and refresh the data
-				Ajax.update("usersForm");
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}
-
-			resetFormData();
-			loadUsers();
-		} catch (UserAlreadyRegisteredException e) {
-			logger.debug(e);
-		} catch (EventException e) {
-			logger.debug(e);
-		} catch (FileNotFoundException e) {
-			logger.debug(e);
-		} catch (IOException e) {
-			logger.debug(e);
-		}
-	}
-
-	public void prepareEdit(UserData user) {
-		this.editMode = true;
-		this.setFormData(user);
-	}
-	
-	public void updateUser() {
-		logger.debug("Updating User " + formData.getId() + " by the user "
-				+ loggedUser.getUserId());
-
-		try {
-			User user = userManager.updateUser(
-				this.formData.getId(),
-				this.formData.getName(),
-				this.formData.getLastName(),
-				this.formData.getEmail(),
-				true,
-				this.formData.isChangePassword(),
-				this.formData.getPassword(),
-				this.formData.getPosition());
-
-			logger.debug("User (" + user.getId() + ") updated by the user "
-					+ loggedUser.getUserId());
-
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage(
-					"admin.users.updated", 
-					loggedUser.getLocale()));
-
-			// this will display the growl message and refresh the data
-			Ajax.update("usersForm");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		} catch (KeyNotFoundInBundleException e) {
+			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
+					searchTerm, page - 1, limit, true, filter.getId());
+			usersNumber = (int) res.getHitsNumber();
+			users = res.getFoundNodes();
+			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
+			filters = roleFilters != null ? roleFilters : new ArrayList<>();
+			RoleFilter roleFilter = (RoleFilter) res.getAdditionalInfo().get("selectedFilter");
+			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
+		} catch(Exception e) {
 			logger.error(e);
 		}
-		resetFormData();
-		loadUsers();
-	}
-
-	public void resetFormData() {
-		this.setFormData(new UserData());
+		generatePagination();
 	}
 
 	/*
 	 * GETTERS / SETTERS
 	 */
-	public UserData getFormData() {
-		return this.formData;
-	}
-
-	public void setFormData(UserData formData) {
-		this.formData = formData;
-	}
 
 	public List<UserData> getUsers() {
 		return this.users;
@@ -255,20 +173,44 @@ public class UsersBean implements Serializable {
 		this.userToDelete = userToDelete;
 	}
 
-	public List<UserData> getFilteredUsers() {
-		return filteredUsers;
+	public List<PaginationLink> getPaginationLinks() {
+		return paginationLinks;
 	}
 
-	public void setFilteredUsers(List<UserData> filteredUsers) {
-		this.filteredUsers = filteredUsers;
+	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
+		this.paginationLinks = paginationLinks;
 	}
 
-	public String getKeyword() {
-		return keyword;
+	public String getSearchTerm() {
+		return searchTerm;
 	}
 
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
+	public void setSearchTerm(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
+
+	public String getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(String roleId) {
+		this.roleId = roleId;
+	}
+
+	public RoleFilter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(RoleFilter filter) {
+		this.filter = filter;
+	}
+
+	public List<RoleFilter> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<RoleFilter> filters) {
+		this.filters = filters;
 	}
 	
 }

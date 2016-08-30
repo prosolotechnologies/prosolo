@@ -17,7 +17,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +54,7 @@ public class CompetenceViewBeanManager implements Serializable {
 			try {
 				if("preview".equals(mode)) {
 					competenceData = competenceManager
-							.getCurrentVersionOfCompetenceForManager(decodedCompId, true, true);
+							.getCurrentVersionOfCompetenceForManager(decodedCredId, decodedCompId, true, true);
 				} else {
 					competenceData = competenceManager
 							.getCompetenceDataForManager(decodedCredId, decodedCompId, true, true, 

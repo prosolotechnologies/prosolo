@@ -125,13 +125,14 @@ public class RichContentDataFactory {
 	 * @return
 	 */
 	public AttachmentPreview1 getAttachmentPreviewForComment(long id,
-			ObjectType type, String title, String comment, long compId, long actId) {
+			ObjectType type, String title, String comment, long compId, long actId, ActivityType actType) {
 		AttachmentPreview1 ap = new AttachmentPreview1();
 		MediaType1 mediaType = null;
 		if(type == ObjectType.Competence) {
 			mediaType = MediaType1.CompetenceComment;
 		} else {
 			mediaType = MediaType1.ActivityComment;
+			ap.setActivityType(actType);
 		}
 		ap.setMediaType(mediaType);
 		ap.setId(id);
@@ -147,6 +148,18 @@ public class RichContentDataFactory {
 			url.append("&actId=" + idEncoder.encodeId(actId));
 		}
 		ap.setLink(url.toString());
+		ap.setInitialized(true);
+		return ap;
+	}
+	
+	public AttachmentPreview1 getAttachmentPreviewForTwitterPost(String nick, String profileUrl,
+			String text, String postUrl) {
+		AttachmentPreview1 ap = new AttachmentPreview1();
+		ap.setMediaType(MediaType1.Tweet);
+		ap.setNickname(nick);
+		ap.setProfileUrl(profileUrl);
+		ap.setDescription(text);
+		ap.setLink(postUrl);
 		ap.setInitialized(true);
 		return ap;
 	}

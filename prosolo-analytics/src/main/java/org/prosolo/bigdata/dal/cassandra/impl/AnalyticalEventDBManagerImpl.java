@@ -50,7 +50,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE dash_eventdailycount SET count=count+1 WHERE event=? AND date=?;");
 		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE dash_usereventdailycount SET count=count+1 WHERE user=? AND event=? AND date=?;");
 		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;");
-		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE sna_socialinteractionscount SET count = count + 1 WHERE course=? AND source=? AND target=?;");
+		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 
 
 

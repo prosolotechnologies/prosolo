@@ -70,7 +70,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.Post,
 				EventType.AssessmentRequested,
 				EventType.AssessmentApproved,
-				EventType.AssessmentComment
+				EventType.AssessmentComment,
+				EventType.AnnouncementPublished
 		};
 	}
 
@@ -130,22 +131,26 @@ public class NotificationObserver extends EventObserver {
 								//session.update(notification.getActor());
 								//session.update(receiver);						 
 								String domain = Settings.getInstance().config.application.domain;
+								
 								if (domain.endsWith("/")) {
 									domain = domain.substring(0, domain.length() - 1);
 								}
+								
 								final String urlPrefix = domain;
 								taskExecutor.execute(new Runnable() {
 									@Override
 									public void run() {
-										
 										notificationManager.sendNotificationByEmail(
 												notificationData.getReceiver().getEmail(), 
 												notificationData.getReceiver().getFullName(), 
 												notificationData.getActor().getFullName(), 
 												notificationData.getPredicate(),
+												notificationData.getObjectId(),
+												notificationData.getObjectType(),
 												notificationData.getObjectTitle(),
 												urlPrefix + notificationData.getLink(),
-												DateUtil.getTimeAgoFromNow(notificationData.getDate()));
+												DateUtil.getTimeAgoFromNow(notificationData.getDate()),
+												notificationData.getNotificationType());
 									}
 								});
 							} catch (Exception e) {

@@ -74,8 +74,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				user.getPassword()+", enabled: "+ enabled+", accountNonExpired: "+
 				accountNonExpired+", credentialsNonExpired: "+credentialsNonExpired+", accountNonLocked: "+ 
 				accountNonLocked+", userAuthorities: "+userAuthorities);
-
-		return new User(email, user.getPassword(), enabled,
+		String password=user.getPassword();
+				if(password==null){
+					password="";
+				}
+		return new User(email, password, enabled,
 				accountNonExpired, credentialsNonExpired, accountNonLocked,
 				userAuthorities);
 	}

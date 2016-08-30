@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.web.ApplicationPage;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 
