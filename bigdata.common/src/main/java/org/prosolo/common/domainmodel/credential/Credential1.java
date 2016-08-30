@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -18,6 +19,7 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -97,6 +99,8 @@ public class Credential1 extends BaseEntity {
 		this.hashtags = hashTags;
 	}
 
+	@Column(nullable=true)
+	@Type(type="true_false")
 	public boolean isPublished() {
 		return published;
 	}
@@ -182,6 +186,8 @@ public class Credential1 extends BaseEntity {
 		this.originalVersion = originalVersion;
 	}
 
+	@Column(nullable=true)
+	@Type(type="true_false")
 	public boolean isDraft() {
 		return draft;
 	}
@@ -190,6 +196,8 @@ public class Credential1 extends BaseEntity {
 		this.draft = draft;
 	}
 
+	@Column(nullable=true)
+	@Type(type="true_false")
 	public boolean isHasDraft() {
 		return hasDraft;
 	}

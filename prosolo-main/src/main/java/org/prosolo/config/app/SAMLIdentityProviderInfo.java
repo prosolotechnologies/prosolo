@@ -12,6 +12,9 @@ public class SAMLIdentityProviderInfo {
 	
 	@Element(name = "enabled")
 	public boolean enabled;
+	
+	@Element(name = "style-class")
+	public String styleClass;
 
 	public String getDisplayName() {
 		return displayName;
@@ -35,6 +38,14 @@ public class SAMLIdentityProviderInfo {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public String getStyleClass() {
+		return styleClass;
+	}
+
+	public void setStyleClass(String styleClass) {
+		this.styleClass = styleClass;
 	}
 	
 }
