@@ -37,7 +37,7 @@
 		<development-mode>true</development-mode>
 		<developer-email>zoran.jeremic@gmail.com</developer-email>
 		<maintenance>false</maintenance>
-		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, e.g. http://example.com/ -->
+		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, and a leading slash (/), e.g. http://example.com/prosolo/ -->
 		<default-refresh-rate>60</default-refresh-rate>
 		<suggested-learning-refresh-rate>6000</suggested-learning-refresh-rate>
 		<messages-inbox-refresh-rate>30</messages-inbox-refresh-rate>
@@ -78,18 +78,20 @@
 				display name will be shown on login link text and entity id can be found in saml 
 				identity provider metadata
 			 -->
-			 <saml>
+			<saml>
 				<provider>
-					<display-name>UTA</display-name>
-					<entity-id>/</entity-id>
-					<enabled>false</enabled>
+					<display-name>Sign in with UTA</display-name>
+					<entity-id>https://idp-test.uta.edu/idp/shibboleth</entity-id>
+					<enabled>true</enabled>
+					<style-class>btnUTA</style-class>
 				</provider>
 				<provider>
-					<display-name>SSO Circle</display-name>
+					<display-name>Sign in with SSO Circle</display-name>
 					<entity-id>https://idp.ssocircle.com</entity-id>
 					<enabled>false</enabled>
+					<style-class>btnDefault</style-class>
 				</provider>
-			 </saml>
+			</saml>
 		</registration>
 	</app-config>
 	

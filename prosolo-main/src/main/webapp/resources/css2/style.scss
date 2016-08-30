@@ -562,7 +562,9 @@ input{
 	&.rssList,
 	&.newWallPost,
 	&.wallPost,
-    &.observationsList{
+    &.observationsList,
+    &.activityResultText,
+    &.activityResultFile{
 		padding: 0;
 		.innerWrapper{
 			padding: 30px 30px 0 30px;
@@ -580,6 +582,9 @@ input{
 	}
     &.assessmentInitialMessage{
         margin-bottom: 30px!important;
+    }
+    &.highlighted{
+        border: 5px solid rgba(255, 236, 0, 0.1);
     }
 }
 
@@ -1577,6 +1582,10 @@ header{
 				&.btnedX span{
 					width: 43px;
 					background: url("../images2/loginedX.svg") no-repeat;
+				}
+                &.btnUTA span{
+					width: 19px;
+					background: url("../images2/loginUTA.png") no-repeat center center;
 				}
 			}
 			.loginSeparator{
@@ -2642,6 +2651,12 @@ header{
 		justify-content: space-between;
 		align-items: center;
 	}
+    .datePickerRow{
+        input[type="text"]{
+            width: 100%;
+            margin-bottom: 30px;
+        }
+    }
 	.estimatedTime{
 		> p{
 			margin-bottom: 10px;
@@ -2717,7 +2732,6 @@ header{
 	background: url("../images2/iconResult20.svg") no-repeat 30px center;
     &.highlighted{
         background-color: rgba(255, 236, 0, 0.1);
-
     }
 }
 
@@ -2746,13 +2760,82 @@ header{
     }
 }
 
-.activityStudentResult{
+.activityResultText{
     padding-bottom: 1px;
-    .activityStudentResultHead{
+    .activityResultTextContent{
+        margin: 30px;
+        .editComment{
+    		flex-grow: 1;
+    		.contentEditableComment{
+    			float: left;
+                position: relative;
+        		width: 100%;
+        		min-height: 22px;
+                line-height: 22px;
+        		margin: 0;
+                padding: 10px;
+                word-wrap: break-word;
+                color: $normalText;
+                background: #fff;
+            	border: 1px solid #E6E7EC;
+            	@include rounded-corners(5px);
+            	-webkit-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+            	-moz-box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+            	box-shadow: inset 0px 1px 2px 0px rgba(0,0,0,0.1);
+                &:empty:before,
+                &:empty:focus:before{
+                    content: attr(placeholder);
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    cursor: text;
+                    color: $placeholderText;
+                }
+    		}
+    		.btn{
+    			margin: 15px 10px 0 0;
+    		}
+    	}
+    }
+}
+
+.activityResultFile{
+    .resultWrapper{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 100px;
+		padding: 0 30px 0 70px;
+        background: url("../images2/iconResult20.svg") no-repeat 30px center;
+        .actBoxLeft{
+            margin-right: 20px;
+            h3{
+    			margin-bottom: 10px;
+    		}
+            &.noUrl h3{
+                margin-bottom: 0;
+            }
+        }
+		.actBoxLeft > span,
+		.deleteLink,
+        .newFileLink{
+			font-size: 12px;
+            word-break: break-word;
+		}
+		> a{
+			width: 100px;
+		}
+	}
+}
+
+.activityResultText,
+.activityResultFile{
+    .activityResultHead{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin: 0 30px;
+        padding-top: 30px;
         .user32{
             margin-bottom: 0;
         }
@@ -2762,11 +2845,15 @@ header{
     }
     .resultOptions{
         display: flex;
-        padding-bottom: 30px;
+        margin: 0 30px 30px 30px;
+        padding: 10px;
+        border: 1px solid #EEEFF3;
+        @include rounded-corners(5px);
         .commentsIcon{
             flex-shrink: 0;
             position: relative;
             width: 50px;
+            margin-left: 30px;
             padding-left: 30px;
             color: $normalText;
             font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -2836,6 +2923,65 @@ header{
             }
         }
     }
+    .activityResultFooter{
+		display: flex;
+		padding: 0 30px 30px 30px;
+		a{
+			display: flex;
+			align-items: center;
+			color: $normalText;
+			font-family: 'prosolo_regular', "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-weight: 400;
+			font-size: 13px;
+			margin-right: 20px;
+			.icon{
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				margin-right: 5px;
+				margin-bottom: 2px;
+				#triangle{
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+			}
+			&.commentsNumber{
+				.icon{
+					background: url("../images2/iconComments12.svg") no-repeat;
+					opacity: .5;
+					transition: all 0.2s ease;
+					-webkit-transition: all 0.2s ease;
+				}
+				&:hover .icon{
+					opacity: 1;
+				}
+			}
+            &.edit{
+                .icon{
+                    background: url("../images2/iconEdit12.svg") no-repeat;
+                    opacity: .5;
+                    transition: all 0.2s ease;
+                    -webkit-transition: all 0.2s ease;
+                }
+                &:hover .icon{
+                    opacity: 1;
+                }
+            }
+			&:hover{
+				color: $darkText;
+				#triangle{
+					fill: $orange;
+				}
+			}
+		}
+	}
+    .discussion{
+		padding: 30px 30px 0 30px;
+		border-top: 1px solid #EEEFF3;
+		.comments{
+			margin: 0;
+		}
+	}
 }
 
 .btnAllResults{
