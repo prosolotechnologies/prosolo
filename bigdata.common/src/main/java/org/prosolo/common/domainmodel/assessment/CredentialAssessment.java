@@ -25,6 +25,7 @@ public class CredentialAssessment extends BaseEntity {
 	private TargetCredential1 targetCredential;
 	private boolean approved;
 	private List<CompetenceAssessment> competenceAssessments;
+	private boolean defaultAssessment;
 
 	@Column(length = 90000)
 	public String getMessage() {
@@ -78,6 +79,14 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setCompetenceAssessments(List<CompetenceAssessment> competenceAssessments) {
 		this.competenceAssessments = competenceAssessments;
+	}
+
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
 	}
 
 }

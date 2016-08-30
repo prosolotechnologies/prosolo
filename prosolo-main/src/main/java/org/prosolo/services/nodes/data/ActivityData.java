@@ -63,6 +63,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private String competenceName;
 	
 	private List<ActivityResultData> studentResults;
+	private GradeData gradeOptions;
 	
 	public ActivityData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
@@ -70,6 +71,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData();
+		gradeOptions = new GradeData();
 	}
 	
 	@Override
@@ -533,6 +535,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setStudentResults(List<ActivityResultData> studentResults) {
 		this.studentResults = studentResults;
+	}
+
+	public GradeData getGradeOptions() {
+		return gradeOptions;
+	}
+
+	public void setGradeOptions(GradeData gradeOptions) {
+		this.gradeOptions = gradeOptions;
 	}
 	
 }

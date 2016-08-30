@@ -40,7 +40,7 @@ public class ActivityResultBean implements Serializable {
 		try {
 			CommentsData cd = result.getResultComments();
 			if(!cd.isInitialized()) {
-				cd.setInstructor(false);
+				//cd.setInstructor(false);
 				commentBean.loadComments(cd);
 			}
 		} catch(Exception e) {

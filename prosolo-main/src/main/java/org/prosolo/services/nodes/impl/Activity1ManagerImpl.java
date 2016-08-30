@@ -32,31 +32,35 @@ import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.GradeData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +79,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private EventFactory eventFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -2368,7 +2373,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					return null;
 				}
 				
-				activityWithDetails.setStudentResults(getOtherStudentsResults(credId, compId, actId, userId, false));
+				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, userId, 
+						false, false, false, 0, 0, null));
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
@@ -2385,64 +2391,222 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error while loading activity results");
 		}
 	}
-
-	private List<ActivityResultData> getOtherStudentsResults(long credId, long compId, long actId, 
-			long userId, boolean isInstructor) {
-		//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
-		String query = "SELECT targetAct.id as tActId, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
-					   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
-				   	   "COUNT(com.id) " +
-					   "FROM target_activity1 targetAct " +
-				   	   "INNER JOIN target_competence1 targetComp " +
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+			   "SELECT COUNT(targetAct.id) ");
+			query.append("FROM target_activity1 targetAct " +
+				   	     "INNER JOIN target_competence1 targetComp " +
 				   	   		"ON (targetAct.target_competence = targetComp.id " +
 				   			"AND targetComp.competence = :compId) " +
-				   	   "INNER JOIN target_credential1 targetCred " +
+				   	     "INNER JOIN target_credential1 targetCred " +
 				   		   "ON (targetComp.target_credential = targetCred.id " +
-					   	   "AND targetCred.credential = :credId " +
-					   	   "AND targetCred.user != :userId) " +
-					   "INNER JOIN user u " +
-					   	   "ON (targetCred.user = u.id) " +
-					   "LEFT JOIN comment1 com " +
-					   	   "ON (targetAct.id = com.commented_resource_id " +
-					   	   "AND com.resource_type = :resType " +
-					   	   "and com.parent_comment is NULL) " +
-				   	   "WHERE targetAct.activity = :actId " +
-					   "GROUP BY targetAct.id";
-		
-		@SuppressWarnings("unchecked")
-		List<Object[]> res = persistence.currentManager()
-				.createSQLQuery(query.toString())
-				.setLong("userId", userId)
-				.setLong("credId", credId)
-				.setLong("compId", compId)
-				.setLong("actId", actId)
-				.setString("resType", CommentedResourceType.ActivityResult.name())
-				.list();
-		
-		List<ActivityResultData> results = new ArrayList<>();
-		if (res != null) {
-			for(Object[] row : res) {
-				long tActId = ((BigInteger) row[0]).longValue();
-				org.prosolo.common.domainmodel.credential.ActivityResultType type = 
-						org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
-				String result = (String) row[2];
-				Date date = (Date) row[3];
-				long usrId = ((BigInteger) row[4]).longValue();
-				String fName = (String) row[5];
-				String lName = (String) row[6];
-				String avatar = (String) row[7];
-				User user = new User();
-				user.setId(usrId);
-				user.setName(fName);
-				user.setLastname(lName);
-				user.setAvatarUrl(avatar);
-				int commentsNo = ((BigInteger) row[8]).intValue();
-				
-				results.add(activityFactory.getActivityResultData(tActId, type, result, 
-						date, user, commentsNo, isInstructor)); 
+					   	   "AND targetCred.credential = :credId) ");
+			
+			if(filter != null) {
+				query.append("LEFT JOIN activity_discussion ad " +
+							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
+							 "LEFT JOIN activity_grade grade " +
+							 "ON ad.grade = grade.id ");
 			}
+
+			query.append("WHERE targetAct.activity = :actId " +
+				   		 "AND targetAct.result is not NULL "); 
+			
+			if(filter != null) {
+				if(filter == StudentAssessedFilter.Assessed) {
+					query.append("AND grade.value IS NOT NULL ");
+				} else {
+					query.append("AND grade.value IS NULL ");
+				}
+			}
+				
+			Query q = persistence.currentManager()
+						.createSQLQuery(query.toString())
+						.setLong("credId", credId)
+						.setLong("compId", compId)
+						.setLong("actId", actId);
+			
+			if(filter != null) {
+				q.setBoolean("boolTrue", true);
+			}
+						
+			BigInteger res = (BigInteger) q.uniqueResult();
+			
+			if(res == null) {
+				return 0L;
+			}
+			return res.longValue();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of students results");
 		}
-		return results;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
+			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
+			int page, int limit, StudentAssessedFilter filter)  throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+			   "SELECT targetAct.id as tActId, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
+			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
+		   	   "COUNT(distinct com.id) ");
+			if(returnAssessmentData) {
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, grade.value ");
+			}
+			query.append("FROM target_activity1 targetAct " +
+				   	     "INNER JOIN target_competence1 targetComp " +
+				   	   		"ON (targetAct.target_competence = targetComp.id " +
+				   			"AND targetComp.competence = :compId) " +
+				   	     "INNER JOIN target_credential1 targetCred " +
+				   		   "ON (targetComp.target_credential = targetCred.id " +
+					   	   "AND targetCred.credential = :credId ");
+			
+			if(userToExclude > 0) {
+				query.append("AND targetCred.user != :userId) ");
+			} else {
+				query.append(") ");
+			}
+			
+			if(returnAssessmentData || filter != null) {
+				query.append("LEFT JOIN activity_discussion ad " +
+							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
+							 "LEFT JOIN activity_grade grade " +
+							 "ON ad.grade = grade.id ");
+			}
+			
+			if(returnAssessmentData) {
+				query.append("LEFT JOIN activity_discussion_participant p " +
+						 		"ON ad.id = p.activity_discussion AND p.participant = targetCred.user " +
+						 	 "LEFT JOIN activity_discussion_message msg " +
+						 		"ON ad.id = msg.discussion ");
+			}
+		   	   
+			query.append("INNER JOIN user u " +
+				   			"ON (targetCred.user = u.id) " +
+				   		 "LEFT JOIN comment1 com " +
+				   			"ON (targetAct.id = com.commented_resource_id " +
+				   			"AND com.resource_type = :resType " +
+				   			"AND com.parent_comment is NULL) " +
+				   		 "WHERE targetAct.activity = :actId " +
+				   		 "AND targetAct.result is not NULL ");
+			
+			if(filter != null) {
+				if(filter == StudentAssessedFilter.Assessed) {
+					query.append("AND grade.value IS NOT NULL ");
+				} else {
+					query.append("AND grade.value IS NULL ");
+				}
+			}
+				   		
+			query.append("GROUP BY targetAct.id "); 
+			
+			if(returnAssessmentData) {
+				query.append(", ad.id ");
+			}
+			query.append("ORDER BY targetAct.result_post_date ");
+			
+			if(paginate) {
+				query.append("LIMIT " + limit + " ");
+				query.append("OFFSET " + page * limit);
+			}
+				
+			Query q = persistence.currentManager()
+						.createSQLQuery(query.toString())
+						.setLong("credId", credId)
+						.setLong("compId", compId)
+						.setLong("actId", actId)
+						.setString("resType", CommentedResourceType.ActivityResult.name());
+			if(userToExclude > 0) {
+				q.setLong("userId", userToExclude);
+			}
+			if(returnAssessmentData || filter != null) {
+				q.setBoolean("boolTrue", true);
+			}
+	
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+			
+			List<ActivityResultData> results = new ArrayList<>();
+			if (res != null) {
+				for(Object[] row : res) {
+					long tActId = ((BigInteger) row[0]).longValue();
+					org.prosolo.common.domainmodel.credential.ActivityResultType type = 
+							org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
+					String result = (String) row[2];
+					Date date = (Date) row[3];
+					long usrId = ((BigInteger) row[4]).longValue();
+					String fName = (String) row[5];
+					String lName = (String) row[6];
+					String avatar = (String) row[7];
+					User user = new User();
+					user.setId(usrId);
+					user.setName(fName);
+					user.setLastname(lName);
+					user.setAvatarUrl(avatar);
+					int commentsNo = ((BigInteger) row[8]).intValue();
+					
+					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
+							date, user, commentsNo, isInstructor);
+					results.add(ard); 
+					
+					if(returnAssessmentData) {
+						BigInteger assessmentId = (BigInteger) row[9];
+						if(assessmentId != null) {
+							ActivityAssessmentData ad = new ActivityAssessmentData();
+							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
+							ad.setAllRead(((Character) row[11]).charValue() == 'T');
+							GradeData gd = new GradeData();
+							gd.setValue((Integer) row[12]);
+							ad.setGrade(gd);
+							ard.setAssessment(ad);							
+						}
+					}
+				}
+			}
+			return results;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving results for students");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
+			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+					throws DbConnectionException {
+		try {			
+			Activity1 act = (Activity1) persistence.currentManager().get(Activity1.class, actId);
+			if(act == null) {
+				return null;	
+			}
+			ActivityData activity = new ActivityData(false);
+			activity.setTitle(act.getTitle());
+			activity.setType(act.getType());
+			activity.setActivityId(actId);
+			activity.getGradeOptions().setMinGrade(act.getGradingOptions().getMinGrade());
+			activity.getGradeOptions().setMaxGrade(act.getGradingOptions().getMaxGrade());
+			activity.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
+					paginate, page, limit, filter));
+			
+			return activity;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity results");
+		}
 	}
 	
 //	@Override

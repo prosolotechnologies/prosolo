@@ -22,7 +22,8 @@ public class ActivityDiscussion extends BaseEntity {
 	private CompetenceAssessment assessment;
 	private List<ActivityDiscussionParticipant> participants;
 	private List<ActivityDiscussionMessage> messages;
-
+	private boolean defaultAssessment;
+	private ActivityGrade grade;
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	public TargetActivity1 getTargetActivity() {
@@ -70,6 +71,23 @@ public class ActivityDiscussion extends BaseEntity {
 			}
 		}
 		return null;
+	}
+	
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
+	}
+
+	@OneToOne
+	public ActivityGrade getGrade() {
+		return grade;
+	}
+
+	public void setGrade(ActivityGrade grade) {
+		this.grade = grade;
 	}
 	
 }

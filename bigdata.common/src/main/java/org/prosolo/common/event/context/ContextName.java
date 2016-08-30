@@ -55,7 +55,8 @@ public enum ContextName {
 	MESSAGES(""),
 	UPLOAD_RESULT_DIALOG(""),
 	RESULT("TargetActivity1"),
-	RESULTS("");
+	RESULTS(""),
+	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1");
 	
     private String objectType; 
     

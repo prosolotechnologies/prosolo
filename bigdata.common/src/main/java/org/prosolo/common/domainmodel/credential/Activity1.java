@@ -48,6 +48,8 @@ public class Activity1 extends BaseEntity {
 	
 	private User createdBy;
 	
+	private GradingOptions gradingOptions;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
@@ -146,4 +148,14 @@ public class Activity1 extends BaseEntity {
 	public void setResultType(ActivityResultType resultType) {
 		this.resultType = resultType;
 	}
+
+	@OneToOne
+	public GradingOptions getGradingOptions() {
+		return gradingOptions;
+	}
+
+	public void setGradingOptions(GradingOptions gradingOptions) {
+		this.gradingOptions = gradingOptions;
+	}
+	
 }

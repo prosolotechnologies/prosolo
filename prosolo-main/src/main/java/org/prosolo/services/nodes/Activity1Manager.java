@@ -11,10 +11,12 @@ import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.StudentAssessedFilter;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager {
@@ -163,5 +165,16 @@ public interface Activity1Manager {
 	CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 			long credId, long compId, long actId, long userId) 
 					throws DbConnectionException;
+	
+	ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
+			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+					throws DbConnectionException;
+	
+	Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
+			throws DbConnectionException ;
+	
+	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
+			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
+			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException;
 
 }

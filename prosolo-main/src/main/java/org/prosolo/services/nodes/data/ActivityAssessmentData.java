@@ -29,9 +29,18 @@ public class ActivityAssessmentData {
 	private Long competenceId;
 	private Long credentialId;
 	private boolean allRead;
+	private boolean messagesInitialized;
 	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
+	private long assessorId;
+	private long compAssessmentId;
+	private long credAssessmentId;
+	private GradeData grade;
 
+	public ActivityAssessmentData() {
+		grade = new GradeData();
+	}
+	
 	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
 			UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
@@ -202,4 +211,45 @@ public class ActivityAssessmentData {
 	public void setCredentialId(Long credentialId) {
 		this.credentialId = credentialId;
 	}
+	
+	public boolean isMessagesInitialized() {
+		return messagesInitialized;
+	}
+	
+	public void setMessagesInitialized(boolean messagesInitialized) {
+		this.messagesInitialized = messagesInitialized;
+	}
+
+	public long getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(long assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public long getCompAssessmentId() {
+		return compAssessmentId;
+	}
+
+	public void setCompAssessmentId(long compAssessmentId) {
+		this.compAssessmentId = compAssessmentId;
+	}
+
+	public long getCredAssessmentId() {
+		return credAssessmentId;
+	}
+
+	public void setCredAssessmentId(long credAssessmentId) {
+		this.credAssessmentId = credAssessmentId;
+	}
+
+	public GradeData getGrade() {
+		return grade;
+	}
+
+	public void setGrade(GradeData grade) {
+		this.grade = grade;
+	}
+	
 }

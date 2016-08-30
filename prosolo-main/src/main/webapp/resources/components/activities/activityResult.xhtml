@@ -15,12 +15,19 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
+		<composite:attribute name="bean"/>
 		<composite:attribute name="resultData" required="true" />
 		<composite:attribute name="resultType" required="true"/>
 		<composite:attribute name="learningContext" required="true" />
 		<composite:attribute name="assignmentUploadModalId" default="" />
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="regionToUpdate" default="" />
+		<composite:attribute name="privateConvModalId" default="" />
+		<composite:attribute name="toUpdateConvModal" default="" />
+		<composite:attribute name="privateConvNumberOfMsgsLink" default=""/>
+		<composite:attribute name="assessmentGradeModalId" default="" />
+		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
+		<composite:attribute name="gradeLink" default=""/>
 		<composite:attribute name="role" default="USER" />
 	</composite:interface>
 	
@@ -52,6 +59,40 @@
                  </div>
                  <a href="#{cc.attrs.resultData.result}" target="_blank" class="btn btn-green btn-sm">Download</a>
              </div>
+             <c:if test="#{cc.attrs.role eq 'MANAGER'}">
+	             <div class="resultOptions">
+	                 <span>Private conversation:</span>
+	                 <p:commandLink 
+	                 	styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}" 
+	                 	pt:data-toggle="modal" data-target="##{cc.attrs.privateConvModalId}"
+	                 	onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
+	                 	action="#{cc.attrs.bean.loadActivityDiscussion(cc.attrs.resultData)}"
+	                 	update="#{cc.attrs.toUpdateConvModal}"
+	                 	oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
+	                 	#{cc.attrs.resultData.assessment.numberOfMessages}
+	                 </p:commandLink>
+	                 
+	                 <ui:fragment rendered="#{activityResultsBeanManager.isCurrentUserAssessor(cc.attrs.resultData)}">
+		                 <p:commandLink 
+		                 	styleClass="grade #{cc.attrs.gradeLink}" 
+		                 	pt:data-toggle="modal" data-target="##{cc.attrs.assessmentGradeModalId}"
+		                 	action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+		                 	update="#{cc.attrs.toUpdateAssessmentGradeModal}"
+		                 	oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
+		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+		                 </p:commandLink>
+		             </ui:fragment>
+		             <ui:fragment rendered="#{not activityResultsBeanManager.isCurrentUserAssessor(cc.attrs.resultData)}">
+		             	<a 
+		                 	class="grade" 
+		                 	disabled="disabled" 
+		                 	data-toggle="tooltip" 
+		                 	title="You can not grade this student because you are not his instructor">
+		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+		                 </a>
+		             </ui:fragment>
+	             </div>
+             </c:if>
              <div class="activityResultFooter">
              	<h:panelGroup id="panelToggleComments">
 		           <p:commandLink rendered="#{!cc.attrs.resultData.resultComments.initialized}"
@@ -142,6 +183,13 @@
 	                 </div>
                  </ui:fragment>
              </div>
+             <c:if test="#{cc.attrs.role eq 'MANAGER'}">
+	             <div class="resultOptions">
+	                 <span>Private conversation:</span>
+	                 <a href="#" class="commentsIcon" data-toggle="modal" data-target="##{cc.attrs.privateConvModalId}">5</a>
+	                 <a href="#" class="grade" data-toggle="modal" data-target="##{cc.attrs.assessmentGradeModalId}">10</a>
+	             </div>
+             </c:if>
              <div class="activityResultFooter">
                  <h:panelGroup id="panelToggleComments">
 		           <p:commandLink rendered="#{!cc.attrs.resultData.resultComments.initialized}"

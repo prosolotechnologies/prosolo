@@ -17,9 +17,12 @@ public class ActivityResultData implements Serializable {
 	private CommentsData resultComments;
 	private UserData user;
 	private long targetActivityId;
+	//for instructor to post messages and grades;
+	private ActivityAssessmentData assessment;
 	
 	public ActivityResultData() {
 		resultType = ActivityResultType.NONE;
+		assessment = new ActivityAssessmentData();
 	}
 	
 	public String getAssignmentTitle() {
@@ -69,6 +72,14 @@ public class ActivityResultData implements Serializable {
 	}
 	public void setTargetActivityId(long targetActivityId) {
 		this.targetActivityId = targetActivityId;
+	}
+
+	public ActivityAssessmentData getAssessment() {
+		return assessment;
+	}
+
+	public void setAssessment(ActivityAssessmentData assessment) {
+		this.assessment = assessment;
 	}
 	
 }

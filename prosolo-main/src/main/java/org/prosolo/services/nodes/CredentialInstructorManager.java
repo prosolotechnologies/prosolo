@@ -31,6 +31,9 @@ public interface CredentialInstructorManager {
 	StudentAssignData assignStudentsToInstructorAutomatically(long credId, 
 			List<Long> targetCredIds, long instructorToExcludeId) throws DbConnectionException;
 	
+	StudentAssignData assignStudentsToInstructorAutomatically(long credId, List<Long> targetCredIds,
+    		long instructorToExcludeId, boolean updateAssessor) throws DbConnectionException;
+	
 	List<InstructorData> getCredentialInstructorsWithLowestNumberOfStudents(long credentialId, 
 			int numberOfInstructorsToReturn, long instructorToExcludeId) throws DbConnectionException;
 	

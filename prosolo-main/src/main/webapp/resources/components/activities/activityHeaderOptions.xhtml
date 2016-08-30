@@ -14,6 +14,7 @@
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="activity" required="true"/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="canEdit" default="" />
@@ -27,8 +28,8 @@
 			<div class="whiteBarContent">
 				<h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
 					<p:commandLink
-						rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-							and !cc.attrs.isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed
+						rendered="#{cc.attrs.activity.enrolled 
+							and !cc.attrs.isPreview and !cc.attrs.activity.completed
 							and cc.attrs.bean.nextToLearn}"
 						styleClass="btn btn-green btn-sm item"
 						value="Mark as Complete"
@@ -39,8 +40,8 @@
 						<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
 					</p:commandLink>
 					
-					<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-							and !cc.attrs.isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
+					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
+							and !cc.attrs.isPreview and !cc.attrs.activity.completed 
 							and !cc.attrs.bean.nextToLearn}">
 						<a href="javascript:void(0);" 
 							class="btn btn-green btn-sm item" 
@@ -51,8 +52,8 @@
 						</a>
 					</ui:fragment>
 					
-					<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-						and !cc.attrs.isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
+					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
+						and !cc.attrs.isPreview and cc.attrs.activity.completed}">
 						<div class="tagCompleted item">Completed</div>
 						
 						<h:link
@@ -72,7 +73,7 @@
 				</h:panelGroup>
 				
 				<div class="whiteBarRight">
-					<div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
+					<div class="duration item">#{cc.attrs.activity.durationString}</div>
 					
 					<h:link 
 						rendered="#{cc.attrs.canEdit and !cc.attrs.isPreview}"

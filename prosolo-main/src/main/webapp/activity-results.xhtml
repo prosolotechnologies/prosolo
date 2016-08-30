@@ -32,11 +32,13 @@
     
 	<ui:define name="content">
 	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanUser.decodedCredId}|context:/name:competence|id:#{activityResultsBeanUser.decodedCompId}|context:/name:activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.targetActivityId}|context:/name:RESULTS////"/>
+	<ui:param name="canEdit" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and activityResultsBeanUser.isCurrentUserCreator()}"></ui:param>
 	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
     <div class="whiteBar">
         <div class="container">
             <activities:activityHeaderOptions
 				bean="#{activityResultsBeanUser}"
+				activity="#{activityResultsBeanUser.competenceData.activityToShowWithDetails}"
 				learningContext="#{learningContext}"
 				canEdit="#{canEdit}"
 				isPreview="false"

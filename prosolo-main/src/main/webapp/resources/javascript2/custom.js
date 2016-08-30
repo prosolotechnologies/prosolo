@@ -75,6 +75,20 @@ function hideEditComment(cancelBtn) {
     return false;
 }
 
+function hideEditPrivateConversationComment(cancelBtn) {
+	    var editCommentContainer = $(cancelBtn).parent();
+	    var commentContainer = $(cancelBtn).parent().prev('.commentText');
+
+	    editCommentContainer.addClass('hidden');
+	    commentContainer.removeClass('hidden');
+
+	    var textarea1 = editCommentContainer.find('.contentEditableComment').first();
+	    textarea1.val(commentContainer.text());
+
+	    $(cancelBtn).parent().next('.commentOptions').find('a.edit').removeClass('hidden');
+	    return false;
+	}
+
 function showCommentReplies(elem) {
 	$(elem).hide();
 	$(elem).nextAll('.media').show();
