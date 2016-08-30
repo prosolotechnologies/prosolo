@@ -14,13 +14,16 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="callbackAction"
+			method-signature="void init()"
+		/>
 	</composite:interface>
 	
 	<composite:implementation>
-		<h:panelGroup id="panelUsersToFollow">
-			<ui:fragment rendered="#{not empty usersToFollowBean.usersToFollow}">
-				<h2>Who to Follow</h2>
+		<ui:fragment rendered="#{not empty usersToFollowBean.usersToFollow}">
+			<h2>Who to Follow</h2>
 									
+			<h:panelGroup id="panelUsersToFollow">
 				<ul class="listWhoToFollow">
 					<ui:repeat var="user" value="#{usersToFollowBean.usersToFollow}">
 						<li>
@@ -39,7 +42,8 @@
 							
 							<p:commandLink id="followButton"
 								rendered="#{!user.followed}"
-								action="#{peopleActionBean.followCollegue(user)}"
+								actionListener="#{peopleActionBean.followCollegue(user)}"
+								action="#{cc.attrs.callbackAction}"
 								update="#{cc.attrs.toUpdate} :#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green btn-xs">
 								<f:param name="page" value="/people.xhtml" />
@@ -48,7 +52,8 @@
 							</p:commandLink>
 							<p:commandLink id="unfollowButton"
 								rendered="#{user.followed}"
-								action="#{peopleActionBean.unfollowCollegue(user)}"
+								actionListener="#{peopleActionBean.unfollowCollegue(user)}"
+								action="#{cc.attrs.callbackAction}"
 								update="#{cc.attrs.toUpdate} :#{cc.clientId}:panelUsersToFollow" process="@this"
 								styleClass="btn btn-green-stroke btn-xs">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
@@ -58,7 +63,7 @@
 						</li>
 					</ui:repeat>
 				</ul>
-			</ui:fragment>
-		</h:panelGroup>
+			</h:panelGroup>
+		</ui:fragment>
 	</composite:implementation>
 </ui:component>
