@@ -4,7 +4,7 @@ public enum ActivityResultType {
 
 	NONE("None"),
 	FILE_UPLOAD("File upload"),
-	TEXT("Typed response");
+	TEXT("Textual response");
 	
 	private String label;
 	

@@ -123,7 +123,7 @@
 		
 		<div class="container">
 			<div class="row">
-				<div class="col-md-8 mandatoryFlow">
+				<div class="col-md-9 mandatoryFlow">
 					<p>
 						#{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the creddential, you will be asked for a public review that will be shown on student's profile.
 					</p>
@@ -178,10 +178,10 @@
 												</h:link>
 												<div class="activityOptions">											
 													<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-														<h:link outcome="activity-results"
+														<h:link outcome="activity-responses"
 															styleClass="viewResult"
-															pt:data-toggle="tooltip" pt:title="View Result">
-															View Result
+															pt:data-toggle="tooltip" pt:title="View Response">
+															View Response
 															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 															<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
 															<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" />
@@ -357,7 +357,7 @@
 																									
 												<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
 													<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
-														<a data-original-title="Download Result" 
+														<a data-original-title="Download Response" 
 															href="#{url}" target="_blank" 
 															class="download" data-toggle="tooltip" title="">Download</a>
 													</ui:repeat>
@@ -371,7 +371,7 @@
 					</ui:repeat>
 				</div>
 
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<div class="sidebarBlock">
 						<h2>Student</h2>
 						<div class="user32">

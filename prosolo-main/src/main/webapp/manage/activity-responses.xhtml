@@ -38,7 +38,7 @@
 	        			<f:param name="actId" value="#{param['actId']}"></f:param>
 	        		</h:link>
 	        </li>
-	        <li role="presentation" class="active"><a href="javascript:void(0);">Results</a></li>
+	        <li role="presentation" class="active"><a href="javascript:void(0);">Responses</a></li>
 	    </ul>
     </ui:define>
     
@@ -122,7 +122,7 @@
             	
             </li>
             <li class="active">
-            	Results
+            	Responses
             </li>
         </ol>
     </div>
@@ -130,7 +130,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-9">
-                <h2>Student Results</h2>
+                <h2>Student Responses</h2>
                 <h:panelGroup id="panelResults">
 	                <ui:repeat var="result" value="#{activityResultsBeanManager.activity.studentResults}">
 	                	 <activities:activityResult
