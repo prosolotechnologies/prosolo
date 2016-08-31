@@ -39,8 +39,14 @@ public class TargetActivity1 extends BaseEntity {
 	private boolean added;
 	
 	//uploaded file
+	/**
+	 * @deprecated since v0.5
+	 */
 	@Deprecated
 	private String assignmentLink;
+	/**
+	 * @deprecated since v0.5
+	 */
 	@Deprecated
 	private String assignmentTitle;
 	

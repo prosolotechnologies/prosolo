@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Optional;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
@@ -72,5 +73,7 @@ public interface AssessmentManager {
 	
 	void updateGradeForActivityAssessment(long activityDiscussionId, Integer value) 
 			throws DbConnectionException;
+	
+	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
 }

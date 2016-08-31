@@ -27,6 +27,9 @@ public class Activity1 extends BaseEntity {
 	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	/**
+	 * @deprecated since v0.5
+	 */
 	@Deprecated
 	private boolean uploadAssignment;
 	private ActivityResultType resultType;

@@ -73,6 +73,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	private int page = 1;
 	private static final int LIMIT = 10;
+	private static final boolean paginate = false;
 	private int numberOfPages;
 	private int resultsNumber;
 	
@@ -103,16 +104,20 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					filters.add(f);
 					appliedFilters.add(filterEnum);
 				}
-				countStudentResults(null);
+				if(paginate) {
+					countStudentResults(null);
+				}
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
 								decodedCredId, decodedCompId, decodedActId, hasInstructorCapability,
-								true, page - 1, LIMIT, null);
+								paginate, page - 1, LIMIT, null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
 					loadAdditionalData(ard);
 				}
 				
-				generatePagination();
+				if(paginate) {
+					generatePagination();
+				}
 				if(activity == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -143,10 +148,12 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				activity.setStudentResults(new ArrayList<>());
 			} else {
 				StudentAssessedFilter saFilter = getFilter();
-				countStudentResults(saFilter);
+				if(paginate) {
+					countStudentResults(saFilter);
+				}
 				List<ActivityResultData> results = activityManager
 						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 
-								hasInstructorCapability, true, true, page - 1, LIMIT, saFilter);
+								hasInstructorCapability, true, paginate, page - 1, LIMIT, saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
 				}

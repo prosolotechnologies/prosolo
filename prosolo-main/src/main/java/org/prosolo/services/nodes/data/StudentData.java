@@ -9,6 +9,7 @@ public class StudentData {
 	private InstructorData instructor;
 	private int credProgress;
 	private boolean assigned;
+	private long assessmentId;
 	
 	public StudentData() {
 
@@ -59,6 +60,14 @@ public class StudentData {
 
 	public void setAssigned(boolean assigned) {
 		this.assigned = assigned;
+	}
+
+	public long getAssessmentId() {
+		return assessmentId;
+	}
+
+	public void setAssessmentId(long assessmentId) {
+		this.assessmentId = assessmentId;
 	}
 	
 }

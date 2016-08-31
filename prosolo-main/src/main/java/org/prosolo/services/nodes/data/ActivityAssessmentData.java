@@ -36,6 +36,8 @@ public class ActivityAssessmentData {
 	private long compAssessmentId;
 	private long credAssessmentId;
 	private GradeData grade;
+	private String result;
+	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
 
 	public ActivityAssessmentData() {
 		grade = new GradeData();
@@ -46,9 +48,14 @@ public class ActivityAssessmentData {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
 		populateIds(data,targetActivity,compAssessment);
-		populateDownloadResourceLink(targetActivity,data);
+		//populateDownloadResourceLink(targetActivity,data);
+		data.setResultType(targetActivity.getResultType());
+		data.setResult(targetActivity.getResult());
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
+		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
+		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+		data.setCompAssessmentId(compAssessment.getId());
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		
 		if (activityDiscussion != null) {
@@ -65,6 +72,7 @@ public class ActivityAssessmentData {
 					data.getActivityDiscussionMessageData().add(messageData);
 				}
 			}
+			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
 		}
 		//there are no discussions/messages for this activity, set it as 'all read'
 		else {
@@ -250,6 +258,22 @@ public class ActivityAssessmentData {
 
 	public void setGrade(GradeData grade) {
 		this.grade = grade;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	public org.prosolo.common.domainmodel.credential.ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
+		this.resultType = resultType;
 	}
 	
 }

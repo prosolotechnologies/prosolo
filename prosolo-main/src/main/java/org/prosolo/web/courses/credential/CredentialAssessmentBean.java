@@ -86,6 +86,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	// adding new comment
 	private String newCommentValue;
+	
+	private ActivityAssessmentData currentAssessment;
 
 	public void init() {
 
@@ -263,6 +265,29 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		cleanupCommentData();
 	}
 
+	public void updateGrade() {
+		try {
+			if (StringUtils.isBlank(currentAssessment.getEncodedDiscussionId())) {
+				long actualDiscussionId = createDiscussion(currentAssessment.getEncodedTargetActivityId(), 
+						idEncoder.encodeId(currentAssessment.getCompAssessmentId()));
+				
+				// set discussionId in the appropriate ActivityAssessmentData
+				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
+				
+				currentAssessment.setEncodedDiscussionId(encodedDiscussionId);
+			} else {
+				assessmentManager.updateGradeForActivityAssessment(
+						idEncoder.decodeId(currentAssessment.getEncodedDiscussionId()),
+						currentAssessment.getGrade().getValue());
+			}
+			PageUtil.fireSuccessfulInfoMessage("Grade updated");
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while updating grade");
+		}
+	}
+	
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
@@ -351,9 +376,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
 
 		try {
+			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
-					loggedUserBean.getUserId(), false, null);
+					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
 		}
@@ -559,6 +585,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
 		this.paginationLinks = paginationLinks;
+	}
+
+	public ActivityAssessmentData getCurrentAssessment() {
+		return currentAssessment;
+	}
+
+	public void setCurrentAssessment(ActivityAssessmentData currentAssessment) {
+		this.currentAssessment = currentAssessment;
 	}
 	
 	

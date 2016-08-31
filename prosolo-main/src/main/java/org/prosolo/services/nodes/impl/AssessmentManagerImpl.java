@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -667,6 +668,36 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating grade");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ca.id " +
+						   "FROM CredentialAssessment ca " +
+						   "INNER JOIN ca.targetCredential tc " +
+						   "WHERE tc.credential.id = :credId " +
+						   "AND tc.user.id = :userId " +
+						   "AND ca.defaultAssessment = :boolTrue";
+			
+			Long id = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setBoolean("boolTrue", true)
+					.setLong("userId", userId)
+					.uniqueResult();
+			
+			if(id == null) {
+				return Optional.empty();
+			}
+			return Optional.of(id);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential assessment id");
 		}
 	}
 

@@ -33,7 +33,7 @@
 	
 	<composite:implementation>
 		<c:if test="#{cc.attrs.resultType eq 'FILE_UPLOAD'}">
-   			<div class="whiteBox activityResultFile">
+   			<div id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultFile">
              <div class="activityResultHead">
                  <div class="user32">
                  	<utilcomp:userAvatar
@@ -137,7 +137,7 @@
          </div>
    		</c:if>
    		<c:if test="#{cc.attrs.resultType eq 'TEXT'}"> 
-   			<article class="whiteBox activityResultText">
+   			<article id="activityResultBox_#{cc.attrs.resultData.user.id}" class="whiteBox activityResultText">
              <div class="activityResultHead">
                  <div class="user32">
                      <utilcomp:userAvatar

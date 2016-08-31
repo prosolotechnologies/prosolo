@@ -22,6 +22,7 @@
 			<f:viewParam name="actId" value="#{activityResultsBeanManager.actId}" default="null" />
 			<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
 			<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
+			<f:viewParam name="user" default="null"/>
 			<f:viewAction action="#{activityResultsBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -146,19 +147,19 @@
 		           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{result.targetActivityId}"
 		           			assessmentGradeModalId="assessmentGradeModal1"
 		           			gradeLink="gradeLink_#{result.targetActivityId}"
-		           			toUpdateAssessmentGradeModal=":formGradeModal:panelGradeModal"
+		           			toUpdateAssessmentGradeModal=":activityGradeModal:formGradeModal:panelGradeModal"
 		           		/>
 	                </ui:repeat>
                 </h:panelGroup>
                 
-                <h:form id="formPagination">
+               <ui:remove> <h:form id="formPagination">
 	                <utilcomp:pagination
 			        	id="pagination" 
 			        	bean="#{activityResultsBeanManager}"
 			        	links="#{activityResultsBeanManager.paginationLinks}"
 			        	toUpdate=":panelResults"
 			        />
-			    </h:form>
+			    </h:form></ui:remove>
             </div>
             <div class="col-md-3">
                 <div class="whiteBox">
@@ -169,7 +170,7 @@
 		                    	<div class="checkbox checkLine">
 			                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
 										<p:ajax event="click" process="@this"
-											listener="#{activityResultsBeanManager.filterChanged(filter)}" update=":panelResults :formPagination" />
+											listener="#{activityResultsBeanManager.filterChanged(filter)}" update=":panelResults" />
 									</h:selectBooleanCheckbox>
 									<h:outputLabel for=":formFilters:checkboxFilter#{filter.filter}">#{filter.filter.label}</h:outputLabel>
 								</div>
@@ -179,13 +180,13 @@
 	                    	<p:commandLink
 	                    		value="Check all"
 	                    		action="#{activityResultsBeanManager.checkAllFilters()}"
-	                    		update=":panelResults :formPagination :formFilters:panelFilters">
+	                    		update=":panelResults :formFilters:panelFilters">
 	                    	</p:commandLink>
 	                        <span>|</span>
 	                        <p:commandLink
 	                    		value="Clear all"
 	                    		action="#{activityResultsBeanManager.uncheckAllFilters()}"
-	                    		update=":panelResults :formPagination :formFilters:panelFilters">
+	                    		update=":panelResults :formFilters:panelFilters">
 	                    	</p:commandLink>
 	                    </div>      
 	                </h:form>
@@ -335,43 +336,19 @@
       </div>
     </h:form>
     
-    <h:form id="formGradeModal">
-    	<div class="modal fade newFeedModal" id="assessmentGradeModal1" tabindex="-1" role="dialog" aria-labelledby="assessGradeModal">
-           <div class="modal-dialog">
-               <h:panelGroup id="panelGradeModal" layout="block" styleClass="modal-content">
-               	<ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult}">
-                   <div class="modal-header alignLeft">
-                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                       <h2 class="modal-title">Grade</h2>
-                   </div>
-                   <div class="modal-body alignLeft">
-                       
-                       <h:selectOneMenu styleClass="selectpicker"
-                       		value="#{activityResultsBeanManager.currentResult.assessment.grade.value}">
-                       		<f:selectItem itemValue="#{null}" itemLabel="-"></f:selectItem>
-                       		<c:forEach var="it" 
-                       			begin="#{activityResultsBeanManager.activity.gradeOptions.minGrade}" 
-                       			end="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}" 
-                       			step="1">
-                       			<f:selectItem itemValue="#{it}" itemLabel="#{it}"></f:selectItem>
-                       		</c:forEach>
-                       </h:selectOneMenu>
-                       <script>$('.selectpicker').selectpicker('refresh');</script>
-                   </div>
-                   <div class="modal-footer alignLeft">
-                       <p:commandLink 
-                       		styleClass="btn btn-green"
-                       		action="#{activityResultsBeanManager.updateGrade()}"
-                       		update=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
-                       		oncomplete="$('#assessmentGradeModal1').modal('hide');">
-                       		Done
-                       	</p:commandLink>
-                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                   </div>
-                 </ui:fragment>
-               </h:panelGroup>
-           </div>
-       </div>
-    </h:form>
+    <activities:activityGradeModal
+    	id="activityGradeModal"
+   	 	bean="#{activityResultsBeanManager}"
+		assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
+		toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
+		minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
+		maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
+	/>
+	
+	<ui:fragment rendered="#{not empty param['user']}">
+		<script>
+			scrollTo('activityResultBox_' + #{util:decodeId(param['user'])});
+		</script>
+	</ui:fragment>
 </ui:define>
 </ui:composition>
