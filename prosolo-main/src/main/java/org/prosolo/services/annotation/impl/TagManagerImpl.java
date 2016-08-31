@@ -20,9 +20,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.TagEntityESService;
 import org.prosolo.services.twitter.impl.StreamListData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -218,7 +216,7 @@ public class TagManagerImpl extends AbstractManagerImpl implements TagManager {
 		Query q = persistence.currentManager().createQuery(query);
 		
 		if (userId > 0) {
-			q.setEntity("userId", userId);
+			q.setLong("userId", userId);
 		}
 		
 		@SuppressWarnings("unchecked")
