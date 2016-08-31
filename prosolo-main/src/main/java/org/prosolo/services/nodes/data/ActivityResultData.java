@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.interaction.data.CommentsData;
 
-public class ActivityResultData implements Serializable {
+public class ActivityResultData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = 635098582303412076L;
 	
@@ -20,9 +21,10 @@ public class ActivityResultData implements Serializable {
 	//for instructor to post messages and grades;
 	private ActivityAssessmentData assessment;
 	
-	public ActivityResultData() {
+	public ActivityResultData(boolean listenChanges) {
 		resultType = ActivityResultType.NONE;
 		assessment = new ActivityAssessmentData();
+		this.listenChanges = listenChanges;
 	}
 	
 	public String getAssignmentTitle() {
@@ -47,6 +49,7 @@ public class ActivityResultData implements Serializable {
 		return resultType;
 	}
 	public void setResultType(ActivityResultType resultType) {
+		observeAttributeChange("resultType", this.resultType, resultType);
 		this.resultType = resultType;
 	}
 	public CommentsData getResultComments() {
@@ -80,6 +83,10 @@ public class ActivityResultData implements Serializable {
 
 	public void setAssessment(ActivityAssessmentData assessment) {
 		this.assessment = assessment;
+	}
+	
+	public boolean isResultTypeChanged() {
+		return changedAttributes.containsKey("resultType");
 	}
 	
 }

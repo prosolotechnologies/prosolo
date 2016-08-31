@@ -90,7 +90,7 @@
             	
             </li>
             <li class="active">
-            	Results
+            	Responses
             </li>
         </ol>
     </div>
@@ -99,7 +99,7 @@
         <div class="row">
             <div class="col-md-8">
             	<h:panelGroup id="panelUploadAssignment">
-	                <h2>Your Result</h2>
+	                <h2>Your Submission</h2>
 	                <activities:activityResult
 	           			resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
 	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
@@ -111,7 +111,7 @@
 	           		/>
 	           	</h:panelGroup>
 
-                <h2>Other Student Results</h2>
+                <h2>Other Student Submissions</h2>
                 <ui:repeat var="result" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
                 	 <activities:activityResult
 	           			resultData="#{result}"
@@ -143,11 +143,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title" id="newResult">Upload New Result?</h2>
+                            <h2 class="modal-title" id="newResult">Upload New Submission?</h2>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to upload a new result?<br/><br/>
-                            <small>Note: Current result will be over-written!</small></p>
+                            <p>Are you sure you want to upload a new submission?<br/><br/>
+                            <small>Note: Current submission will be over-written!</small></p>
                         </div>
                         <div class="modal-footer">
                         	<utilcomp:simpleFileUpload
@@ -156,7 +156,7 @@
 			            		fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
 			            		toUpdate=":panelUploadAssignment"
 			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Result"
+			            		chooseFileLabel="Upload New Submission"
 			            		learningContext="#{learningContext}"
 			            		service="name:upload_result_dialog"
 			            		oncomplete="$('#newRes').modal('hide');"

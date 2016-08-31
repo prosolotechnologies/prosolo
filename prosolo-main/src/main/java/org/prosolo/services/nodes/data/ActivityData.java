@@ -70,8 +70,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
-		resultData = new ActivityResultData();
+		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
+	}
+	
+	@Override
+	public void startObservingChanges() {
+		super.startObservingChanges();
+		getResultData().startObservingChanges();
 	}
 	
 	@Override
@@ -88,6 +94,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
+			}
+			
+			if(getResultData().hasObjectChanged()) {
+				return true;
 			}
 		}
 		return changed;

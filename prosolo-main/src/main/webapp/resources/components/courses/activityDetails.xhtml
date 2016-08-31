@@ -179,7 +179,7 @@
 	        
             <h:panelGroup id="panelUploadAssignment" rendered="#{cc.attrs.activity.enrolled and cc.attrs.activity.resultData.resultType ne 'NONE'}">
             	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
-            		<h2>Your Result</h2>
+            		<h2>Your Response</h2>
             		<activities:activityResult
             			resultData="#{cc.attrs.activity.resultData}"
             			resultType="#{cc.attrs.activity.resultData.resultType}"
@@ -192,18 +192,18 @@
             		<h:link 
             			outcome="/activity-results" 
             			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
-            			View Results from other Students
+            			View Responses from other Students
             			<f:param name="credId" value="#{param['credId']}"/>
             			<f:param name="compId" value="#{param['compId']}"/>
             			<f:param name="actId" value="#{param['actId']}"/>
             		</h:link>
             	</ui:fragment>
             	<ui:fragment rendered="#{empty cc.attrs.activity.resultData.result}">
-            		<h2>Submit Result</h2>
+            		<h2>Submit Response</h2>
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
             			<h:form id="formUpload" enctype="multipart/form-data">
 			            	<utilcomp:fileUpload
-			            		uploadFileInfo="Upload Result"
+			            		uploadFileInfo="Upload Submission"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
 			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
@@ -215,7 +215,7 @@
             			<h:form id="formTypedResult">
 	            			 <div class="whiteBox writeResult">
 			                    <h:inputTextarea 
-			                    	placeholder="Type your result here..."
+			                    	placeholder="Type your response here..."
 			                    	value="#{cc.attrs.activity.resultData.result}">
 			                    </h:inputTextarea>
 			                    <p:commandLink 
@@ -242,11 +242,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title" id="newResult">Upload New Result?</h2>
+                            <h2 class="modal-title" id="newResult">Upload New Submission?</h2>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to upload a new result?<br/><br/>
-                            <small>Note: Current result will be over-written!</small></p>
+                            <p>Are you sure you want to upload a new submission?<br/><br/>
+                            <small>Note: Current submission will be over-written!</small></p>
                         </div>
                         <div class="modal-footer">
                         	<utilcomp:simpleFileUpload
@@ -255,7 +255,7 @@
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
 			            		toUpdate=":#{cc.clientId}:panelUploadAssignment"
 			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Result"
+			            		chooseFileLabel="Upload New Submission"
 			            		learningContext="#{cc.attrs.learningContext}"
 			            		service="name:upload_result_dialog"
 			            		oncomplete="$('#newRes').modal('hide');"

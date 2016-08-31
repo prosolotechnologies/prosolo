@@ -314,7 +314,7 @@ public class ActivityDataFactory {
 	}
 	
 	private ActivityResultData getActivityResultData(TargetActivity1 activity) {
-		ActivityResultData ard = new ActivityResultData();
+		ActivityResultData ard = new ActivityResultData(false);
 		ard.setTargetActivityId(activity.getId());
 		ard.setResultType(getResultType(activity.getResultType()));
 		ard.setResult(activity.getResult());
@@ -330,7 +330,7 @@ public class ActivityDataFactory {
 	public ActivityResultData getActivityResultData(long targetActivityId, 
 			org.prosolo.common.domainmodel.credential.ActivityResultType resType, String result, 
 			Date postDate, User user, int commentsNumber, boolean isInstructor) {
-		ActivityResultData ard = new ActivityResultData();
+		ActivityResultData ard = new ActivityResultData(false);
 		ard.setResultType(getResultType(resType));
 		ard.setResult(result);
 		if(ard.getResult() != null && !ard.getResult().isEmpty() 
