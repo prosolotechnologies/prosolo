@@ -18,7 +18,7 @@ import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.PageUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
