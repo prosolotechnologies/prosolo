@@ -828,8 +828,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCredentialDataForEdit(cred.getId(), 
-				creator.getId(), true);
+		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), 
+				false, true);
 		
 		credentialData.setPublished(true);
 		

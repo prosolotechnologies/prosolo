@@ -15,12 +15,13 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
@@ -305,6 +306,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				case SocialActivity:
 					target = new SocialActivity1();
 					break;
+				case ActivityResult:
+					target = new TargetActivity1();
+					break;
 			}
 			target.setId(data.getCommentedResourceId());
 			
@@ -405,8 +409,38 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				return "createdBy";
 			case SocialActivity:
 				return "actor";
+			case ActivityResult:
+				return "createdBy";
 			default:
 				return null;
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getCommentsNumber(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(comment.id) FROM Comment1 comment " +
+					   	   "WHERE comment.resourceType = :resType " +
+					   	   "AND comment.commentedResourceId = :resourceId " +
+					   	   "AND comment.parentComment is NULL ";
+			
+			Long res = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setParameter("resType", resourceType)
+					.setLong("resourceId", resourceId)
+					.uniqueResult();
+			
+			if(res == null) {
+				return 0;
+			}
+	
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of comments");
 		}
 	}
 	

@@ -31,6 +31,17 @@
     <ui:define name="resourceTitle">
     	<h1>#{activityViewBeanManager.competenceData.activityToShowWithDetails.title} 
     		<span>#{activityViewBeanManager.getLabelForActivity()}</span></h1>
+    	<ul class="nav nav-tabs headerSubmenu">
+           <li role="presentation" class="active"><a href="javascript:void(0);">Activity Details</a></li>
+           <li role="presentation">
+           		<h:link outcome="/manage/activity-results">
+           			Results
+           			<f:param name="credId" value="#{param['credId']}"></f:param>
+           			<f:param name="compId" value="#{param['compId']}"></f:param>
+           			<f:param name="actId" value="#{param['actId']}"></f:param>
+           		</h:link>
+           </li>
+       	</ul>
     </ui:define>
     
 	<ui:define name="content">

@@ -29,17 +29,33 @@ public class ActivityAssessmentData {
 	private Long competenceId;
 	private Long credentialId;
 	private boolean allRead;
+	private boolean messagesInitialized;
 	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
+	private long assessorId;
+	private long compAssessmentId;
+	private long credAssessmentId;
+	private GradeData grade;
+	private String result;
+	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
 
+	public ActivityAssessmentData() {
+		grade = new GradeData();
+	}
+	
 	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
 			UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
 		populateIds(data,targetActivity,compAssessment);
-		populateDownloadResourceLink(targetActivity,data);
+		//populateDownloadResourceLink(targetActivity,data);
+		data.setResultType(targetActivity.getResultType());
+		data.setResult(targetActivity.getResult());
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
+		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
+		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+		data.setCompAssessmentId(compAssessment.getId());
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		
 		if (activityDiscussion != null) {
@@ -56,6 +72,7 @@ public class ActivityAssessmentData {
 					data.getActivityDiscussionMessageData().add(messageData);
 				}
 			}
+			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
 		}
 		//there are no discussions/messages for this activity, set it as 'all read'
 		else {
@@ -202,4 +219,61 @@ public class ActivityAssessmentData {
 	public void setCredentialId(Long credentialId) {
 		this.credentialId = credentialId;
 	}
+	
+	public boolean isMessagesInitialized() {
+		return messagesInitialized;
+	}
+	
+	public void setMessagesInitialized(boolean messagesInitialized) {
+		this.messagesInitialized = messagesInitialized;
+	}
+
+	public long getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(long assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public long getCompAssessmentId() {
+		return compAssessmentId;
+	}
+
+	public void setCompAssessmentId(long compAssessmentId) {
+		this.compAssessmentId = compAssessmentId;
+	}
+
+	public long getCredAssessmentId() {
+		return credAssessmentId;
+	}
+
+	public void setCredAssessmentId(long credAssessmentId) {
+		this.credAssessmentId = credAssessmentId;
+	}
+
+	public GradeData getGrade() {
+		return grade;
+	}
+
+	public void setGrade(GradeData grade) {
+		this.grade = grade;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	public org.prosolo.common.domainmodel.credential.ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
+	
 }

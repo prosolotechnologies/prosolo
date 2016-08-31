@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -67,6 +68,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -102,6 +104,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private RoleManager roleManager;
 	@Inject private FollowResourceManager followResourceManager;
+	@Inject private AssessmentManager assessmentManager;
 
 	@Override
 	@Transactional
@@ -1032,6 +1035,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 									student.setInstructor(instructor);
 									student.setCredProgress(Integer.parseInt(
 											credential.get("progress").toString()));
+									Optional<Long> credAssessmentId = assessmentManager
+											.getDefaultCredentialAssessmentId(credId, user.getId());
+									if(credAssessmentId.isPresent()) {
+										student.setAssessmentId(credAssessmentId.get());
+									}
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {

@@ -59,5 +59,8 @@ public interface CommentManager {
 	
 	Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException;
+	
+	long getCommentsNumber(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException;
 
 }

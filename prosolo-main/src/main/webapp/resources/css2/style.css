@@ -1994,8 +1994,6 @@ header {
         .loginBox .whiteBox .loginTop .buttonBox a.btnUTA span {
           width: 19px;
           background: url("../images2/loginUTA.png") no-repeat center center; }
-        .loginBox .whiteBox .loginTop .buttonBox a.btnDefault span {
-          width: 19px; }
       /* line 1591, style.scss */
       .loginBox .whiteBox .loginTop .loginSeparator {
         width: 100%;

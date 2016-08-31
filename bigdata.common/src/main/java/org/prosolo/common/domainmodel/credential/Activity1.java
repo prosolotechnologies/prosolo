@@ -27,7 +27,12 @@ public class Activity1 extends BaseEntity {
 	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	/**
+	 * @deprecated since v0.5
+	 */
+	@Deprecated
 	private boolean uploadAssignment;
+	private ActivityResultType resultType;
 	private LearningResourceType type;
 	
 	private Activity1 draftVersion;
@@ -45,6 +50,8 @@ public class Activity1 extends BaseEntity {
 	private boolean hasDraft;
 	
 	private User createdBy;
+	
+	private GradingOptions gradingOptions;
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -134,6 +141,24 @@ public class Activity1 extends BaseEntity {
 
 	public void setType(LearningResourceType type) {
 		this.type = type;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
+
+	@OneToOne
+	public GradingOptions getGradingOptions() {
+		return gradingOptions;
+	}
+
+	public void setGradingOptions(GradingOptions gradingOptions) {
+		this.gradingOptions = gradingOptions;
 	}
 	
 }

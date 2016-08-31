@@ -48,6 +48,7 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.GradingOptions;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -1029,6 +1030,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
    
     		User creator = (User) persistence.currentManager().load(User.class, userId);
     		act.setCreatedBy(creator);
+    		
+    		//TODO change when design is implemented
+    		GradingOptions go = new GradingOptions();
+    		go.setMinGrade(1);
+    		go.setMaxGrade(10);
+    		saveEntity(go);
+    		act.setGradingOptions(go);
+    		
     		saveEntity(act);
     		
     		if(activityData.getCompetenceId() > 0) {

@@ -10,7 +10,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -45,71 +46,15 @@
 		<div id="#{cc.clientId}">
 	    	<div class="whiteBar">
 				<div class="container">
-					<h:form id="formMain">
-						<div class="whiteBarContent">
-							<h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
-								<p:commandLink
-									rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-										and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed
-										and cc.attrs.bean.nextToLearn}"
-									styleClass="btn btn-green btn-sm item"
-									value="Mark as Complete"
-									process="@this"
-									action="#{cc.attrs.bean.completeActivity()}"
-									update=":#{cc.clientId}:formMain:panelComplete :#{cc.clientId}:panelCompProgress panelResumeLearning">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-									<f:param name="learningContext" value="#{learningContext}"></f:param>
-								</p:commandLink>
-								
-								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-										and !isPreview and !cc.attrs.bean.competenceData.activityToShowWithDetails.completed 
-										and !cc.attrs.bean.nextToLearn}">
-									<a href="javascript:void(0);" 
-										class="btn btn-green btn-sm item" 
-										disabled="disabled" 
-										data-toggle="tooltip" 
-										title="In order to complete this activity, previous tasks need to be completed.">
-										Mark as Complete
-									</a>
-								</ui:fragment>
-								
-								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled 
-									and !isPreview and cc.attrs.bean.competenceData.activityToShowWithDetails.completed}">
-									<div class="tagCompleted item">Completed</div>
-									
-									<h:panelGroup id="panelResumeLearning">
-										<h:link
-											rendered="#{cc.attrs.bean.nextCompToLearn ne 0}"
-				                			value="Continue"
-				                			styleClass="btn btn-green btn-sm item"
-				                			outcome="activity"
-				                			onclick="sendLogPageNavigation('/activity.xhtml', 
-												'#{facesContext.viewRoot.viewId}', 
-												'#{util:addSubContext(cc.attrs.learningContext, &#34;context:/name:resume_learning/&#34;)}', 
-												'#{cc.attrs.service}');">
-				                			<f:param name="actId" value="#{util:encodeId(cc.attrs.bean.nextActivityToLearn)}" />
-							            	<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.nextCompToLearn)}" />
-							            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}" />
-				                		</h:link>				             
-			                		</h:panelGroup>
-								</ui:fragment>
-							</h:panelGroup>
-							
-							<div class="whiteBarRight">
-								<div class="duration item">#{cc.attrs.bean.competenceData.activityToShowWithDetails.durationString}</div>
-								
-								<h:link 
-									rendered="#{canEdit and !isPreview}"
-									value="Edit Activity"
-									styleClass="btn btn-green-stroke btn-sm item"
-									outcome="create-activity">
-									<f:param name="id" value="#{param['actId']}"></f:param>
-									<f:param name="compId" value="#{param['compId']}"></f:param>
-									<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-								</h:link>
-							</div>
-						</div>
-					</h:form>
+					<activities:activityHeaderOptions
+						bean="#{cc.attrs.bean}"
+						activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
+						learningContext="#{learningContext}"
+						service="#{cc.attrs.service}"
+						canEdit="#{canEdit}"
+						isPreview="#{isPreview}"
+						toUpdateOnActivityComplete=":#{cc.clientId}:panelCompProgress"
+					/>
 				</div>
 			</div>
 	
@@ -184,44 +129,11 @@
 		            
 		            <h:panelGroup layout="block" id="panelCompProgress" styleClass="col-md-4">
 						<div class="sidebarBlock">
-			                <h2>Competence Progress</h2>
-		            	
-			                <ul class="competenceProgressList">
-			                	<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
-			                		<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
-			                			#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
-			                        	<h:panelGroup 
-						          			rendered="#{!isPreview and act.completed}"
-						          			styleClass="check">    
-						          		</h:panelGroup>
-					            		<h:panelGroup
-					            			rendered="#{!act.completed || isPreview}"
-					            			styleClass="iconType">
-					            		</h:panelGroup>
-			                       		<h3>
-			                       			<ui:fragment rendered="#{!isPreview and !cc.attrs.bean.isActivityActive(act)}">
-					                   			<h:link
-								            		value="#{act.title}"
-								            		outcome="activity"
-								            		onclick="sendLogPageNavigation('/activity.xhtml', 
-														'#{facesContext.viewRoot.viewId}', 
-														'#{util:addSubContext(learningContext, &#34;name:competence_progress/&#34;)}', 
-														'#{cc.attrs.service}');">
-								            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
-								            		<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
-					            					<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-					            				</h:link>   
-						                   	</ui:fragment>
-						                   	<ui:fragment rendered="#{cc.attrs.bean.isActivityActive(act)}">
-						                   		#{act.title}
-						                   	</ui:fragment>
-						                   	<ui:fragment rendered="#{isPreview and !cc.attrs.bean.isActivityActive(act)}">
-						                   		<a href="javascript:void(0);">#{act.title}</a>
-						                   	</ui:fragment>
-			                       		</h3>
-			                    	</li>
-			                	</ui:repeat>
-			                </ul>
+							<activities:activityCompProgress
+								bean="#{cc.attrs.bean}"
+								learningContext="#{learningContext}"
+								service="#{cc.attrs.service}"
+							/>
 						</div>
 					</h:panelGroup>
 				</div>

@@ -2,9 +2,6 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -20,30 +17,25 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.CommentBean;
-import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "activityViewBean")
-@Component("activityViewBean")
+@ManagedBean(name = "activityResultsBeanUser")
+@Component("activityResultsBeanUser")
 @Scope("view")
-public class ActivityViewBeanUser implements Serializable {
+public class ActivityResultsBeanUser implements Serializable {
 
-	private static final long serialVersionUID = -8910052333513137853L;
+	private static final long serialVersionUID = -449306144620746707L;
 
-	private static Logger logger = Logger.getLogger(ActivityViewBeanUser.class);
+	private static Logger logger = Logger.getLogger(ActivityResultsBeanUser.class);
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Activity1Manager activityManager;
@@ -51,7 +43,6 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private CommentBean commentBean;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
-	@Inject private RoleManager roleManager;
 	@Inject private CommentManager commentManager;
 	@Inject private ActivityResultBean activityResultBean;
 
@@ -61,51 +52,21 @@ public class ActivityViewBeanUser implements Serializable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
-	private String mode;
 	
 	private CompetenceData1 competenceData;
-	private CommentsData commentsData;
 
 	private long nextCompToLearn;
-	
-	private String roles="Learner";
-	
-	public String getRoles() {
-		return roles;
-	}
-
 	private long nextActivityToLearn;
 
 	public void init() {
-		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
-		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
-		if (hasManagerOrInstructorRole) {
-			this.roles="Instructor";
-		}else{
-			this.roles="Learner";
-		}
-		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedActId > 0 && decodedCompId > 0) {
+		decodedCredId = idEncoder.decodeId(credId);
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 			try {
-				decodedCredId = idEncoder.decodeId(credId);
-				boolean shouldReturnDraft = false;
-				if("preview".equals(mode)) {
-					shouldReturnDraft = true;
-				}
-				if(decodedCredId > 0) {
-					competenceData = activityManager
-							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
-				} else { 
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
-									shouldReturnDraft);
-				}
+				competenceData = activityManager
+						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId());
 				if(competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -113,9 +74,6 @@ public class ActivityViewBeanUser implements Serializable {
 						logger.error(e);
 					}
 				} else {
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), false);
-					commentBean.loadComments(commentsData);
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
 					if(ad.isEnrolled()) {
@@ -136,7 +94,7 @@ public class ActivityViewBeanUser implements Serializable {
 				}
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity");
+				PageUtil.fireErrorMessage("Error while loading activity results");
 			}
 		} else {
 			try {
@@ -149,40 +107,26 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 	
 	private void loadCompetenceAndCredentialTitle() {
-		String compTitle = null;
-		String credTitle = null;
 		decodedCredId = idEncoder.decodeId(credId);
-		if(competenceData.getActivityToShowWithDetails().isEnrolled()) {
-			compTitle = compManager.getTargetCompetenceTitle(competenceData
-					.getActivityToShowWithDetails().getCompetenceId());
-			if(decodedCredId > 0) {
-//				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
-//						.getUser().getId());
-				CredentialData cd = credManager
-						.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
-								loggedUser.getUserId());
-				credTitle = cd.getTitle();
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
-			}
-		} else {
-			compTitle = compManager.getCompetenceTitle(decodedCompId);
-			if(decodedCredId > 0) {
-				credTitle = credManager.getCredentialTitle(decodedCredId);
-			}
+		competenceData.setTitle(compManager.getTargetCompetenceTitle(competenceData
+				.getActivityToShowWithDetails().getCompetenceId()));
+		if(decodedCredId > 0) {
+			CredentialData cd = credManager
+					.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
+							loggedUser.getUserId());
+			competenceData.setCredentialTitle(cd.getTitle());
+			nextCompToLearn = cd.getNextCompetenceToLearnId();
+			nextActivityToLearn = cd.getNextActivityToLearnId();
 		}
-		competenceData.setTitle(compTitle);
 		competenceData.setCredentialId(decodedCredId);
-		competenceData.setCredentialTitle(credTitle);
-		
 	}
 	
-	public void initializeResultCommentsIfNotInitialized(ActivityResultData resultData) {
+	public void initializeResultCommentsIfNotInitialized(ActivityData activity) {
 		try {
-			CommentsData cd = resultData.getResultComments();
+			CommentsData cd = activity.getResultData().getResultComments();
 			if(!cd.isInitialized()) {
 				cd.setInstructor(false);
-				commentBean.loadComments(resultData.getResultComments());
+				commentBean.loadComments(cd);
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -199,21 +143,6 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
-	}
-	
-	public String getLabelForActivity() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
- 				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
- 			return "(Draft)";
- 		} else {
- 			return "";
- 		}
- 	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
 	}
 
 	/*
@@ -254,47 +183,9 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
-	public void saveTextResponse() {
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			Date postDate = new Date();
-			// strip all tags except <br>
-			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
-			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
-			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), 
-					ard.getResult(), 
-					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
-					new LearningContextData(page, lContext, service));
-			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
-		} catch(Exception e) {
-			logger.error(e);
-			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
-			PageUtil.fireErrorMessage("Error while saving response");
-		}
-	}
-	
 	public void handleFileUpload(FileUploadEvent event) {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
-	}
-	
-	public void deleteAssignment() {
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), loggedUser.getUserId(), 
-					new LearningContextData(page, lContext, service));
-			competenceData.getActivityToShowWithDetails().getResultData().setAssignmentTitle(null);
-			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
-		} catch(DbConnectionException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
 	}
 	
 	/*
@@ -356,23 +247,7 @@ public class ActivityViewBeanUser implements Serializable {
 	public void setCompetenceData(CompetenceData1 competenceData) {
 		this.competenceData = competenceData;
 	}
-
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
-	public CommentsData getCommentsData() {
-		return commentsData;
-	}
-
-	public void setCommentsData(CommentsData commentsData) {
-		this.commentsData = commentsData;
-	}
-
+	
 	public long getNextCompToLearn() {
 		return nextCompToLearn;
 	}
