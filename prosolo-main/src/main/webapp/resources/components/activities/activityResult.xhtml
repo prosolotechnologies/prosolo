@@ -105,7 +105,7 @@
 		           		action="#{activityResultBean.initializeResultCommentsIfNotInitialized(cc.attrs.resultData)}"
 		           		update="comments panelToggleComments"
 		           		oncomplete="$('#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}').collapse();">
-		           		<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} comments
+		           		<span class="icon"></span>#{cc.attrs.resultData.resultComments.numberOfComments} #{cc.attrs.resultData.resultComments.numberOfComments eq 1 ? 'comment' : 'comments'}
 		           	</p:commandLink>
 		           	<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
 		           		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
@@ -116,7 +116,7 @@
 		            				aria-expanded="false" 
 		            				aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
 						<span class="icon"></span>
-						#{cc.attrs.resultData.resultComments.numberOfComments} comments
+						#{cc.attrs.resultData.resultComments.numberOfComments} #{cc.attrs.resultData.resultComments.numberOfComments eq 1 ? 'comment' : 'comments'}
 					</a>
 		           		</h:panelGroup>  
 		       		</ui:fragment>
