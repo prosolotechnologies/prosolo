@@ -54,7 +54,7 @@
                  <div class="actBoxLeft #{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId ? '' : 'noUrl'}">
                      <h3>#{cc.attrs.resultData.assignmentTitle}</h3>                    
                  	 <ui:fragment rendered="#{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
-                 	 	<a href="#" class="newFileLink" data-toggle="modal" data-target="##{cc.attrs.assignmentUploadModalId}">Upload New Submission</a>
+                 	 	<a href="#" class="newFileLink" data-toggle="modal" data-target="##{cc.attrs.assignmentUploadModalId}">Upload New Response</a>
                  	 </ui:fragment>
                  </div>
                  <a href="#{cc.attrs.resultData.result}" target="_blank" class="btn btn-green btn-sm">Download</a>

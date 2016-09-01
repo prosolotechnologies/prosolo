@@ -150,7 +150,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 					fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have approved credential for " + fullAssessmentData.getStudentFullName());
+					"You have approved the credential for " + fullAssessmentData.getStudentFullName());
 		} catch (Exception e) {
 			logger.error("Error aproving assessment data", e);
 			PageUtil.fireErrorMessage("Error while approving assessment data");

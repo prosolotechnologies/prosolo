@@ -192,7 +192,7 @@
             		<h:link 
             			outcome="/activity-responses" 
             			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
-            			View Responses From Other Students
+            			View responses from other students
             			<f:param name="credId" value="#{param['credId']}"/>
             			<f:param name="compId" value="#{param['compId']}"/>
             			<f:param name="actId" value="#{param['actId']}"/>
@@ -203,7 +203,7 @@
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
             			<h:form id="formUpload" enctype="multipart/form-data">
 			            	<utilcomp:fileUpload
-			            		uploadFileInfo="Upload Submission"
+			            		uploadFileInfo="Upload Response"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
 			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
@@ -242,11 +242,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title" id="newResult">Upload New Submission?</h2>
+                            <h2 class="modal-title" id="newResult">Upload New Response?</h2>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to upload a new submission?<br/><br/>
-                            <small>Note: Current submission will be over-written!</small></p>
+                            <p>Are you sure you want to upload a new response?<br/><br/>
+                            <small>Note: Current response will be over-written!</small></p>
                         </div>
                         <div class="modal-footer">
                         	<utilcomp:simpleFileUpload
@@ -255,7 +255,7 @@
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
 			            		toUpdate=":#{cc.clientId}:panelUploadAssignment"
 			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Submission"
+			            		chooseFileLabel="Upload New Response"
 			            		learningContext="#{cc.attrs.learningContext}"
 			            		service="name:upload_result_dialog"
 			            		oncomplete="$('#newRes').modal('hide');"

@@ -57,13 +57,21 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft">
 						<h:form id="assessCredentialForm" prependId="false">
-							<p:growl id="assessCredentialFormGrowl" showDetail="true"></p:growl>
+							<p:growl id="assessCredentialFormGrowl" showDetail="true" />
 							
 							<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
 								<div class="tagApproved left item">Approved</div>
 							</ui:fragment>
 							
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+								<p:commandLink
+									styleClass="btn btn-green btn-sm"
+									value="Approve"
+									update="@form"
+									action="#{cc.attrs.bean.approveCredential()}" 
+								/>
+								
+								<ui:remove>
 								<a href="#" class="btn btn-green btn-sm" data-toggle="modal" data-target="#approveAssessment">Approve</a>
 								<div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
 									<div class="modal-dialog" role="document">
@@ -109,6 +117,7 @@
 										</div>
 									</div>
 								</div>
+								</ui:remove>
 							</ui:fragment>
 						</h:form>
 					</div>
