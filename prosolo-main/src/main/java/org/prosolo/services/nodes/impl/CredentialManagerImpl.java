@@ -40,6 +40,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -86,6 +87,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private CredentialInstructorManager credInstructorManager;
 	@Inject
 	private FeedSourceManager feedSourceManager;
+	@Inject
+	private AssessmentManager assessmentManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -1061,7 +1064,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				List<Long> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred.getId());
 				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
-						credentialId, targetCredIds, 0);
+						credentialId, targetCredIds, 0, false);
 				List<StudentInstructorPair> assigned = res.getAssigned();
 				if(assigned.size() == 1) {
 					StudentInstructorPair pair = assigned.get(0);
@@ -1078,6 +1081,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
 				}
 	    	}
+			
+			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+				//create default assessment for user
+				assessmentManager.createDefaultAssessment(targetCred, instructorId);
+			}
+			
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
 					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
 			

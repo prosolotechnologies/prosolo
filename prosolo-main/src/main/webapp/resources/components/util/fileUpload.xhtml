@@ -68,9 +68,9 @@
 						}
 					}
 				});
-			 	$('#linkTriggerFileUpload').on('click', function(e){
+			 	$('#' + escapeColons('#{cc.clientId}') + ' #linkTriggerFileUpload').on('click', function(e){
 			 		e.stopPropagation();
-					$('.fileUploadFile :input').trigger('click');
+					$('#' + escapeColons('#{cc.clientId}') + ' .fileUploadFile :input').trigger('click');
 				});
 			 	
 			</script>                 

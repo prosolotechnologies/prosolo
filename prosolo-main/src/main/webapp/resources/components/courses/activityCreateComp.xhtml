@@ -187,18 +187,17 @@
 	             </div>	          
 	         </div>
 	         <div class="formLine">
-	             <label>Upload result</label>
-	             <div class="formLineRight">
-	                 <div class="checkbox checkLine">
-	                 	 <h:selectBooleanCheckbox 
-	                 	 	id="checkUploadResult"
-                    		value="#{cc.attrs.activity.uploadAssignment}"
-                    		onchange="updateStatusToDraft();">
-                    	 </h:selectBooleanCheckbox>
-	                     <label for="#{cc.clientId}:checkUploadResult">Show "Upload Result" option</label>
-	                 </div>
-	             </div>
-	         </div>
+                 <label>Response</label>
+                 <div class="formLineRight">
+                 	 <h:selectOneMenu 
+                 	 	styleClass="selectpicker"
+                 	 	value="#{cc.attrs.activity.resultData.resultType}"
+                 	 	onchange="updateStatusToDraft();">
+                 	 	<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
+							itemValue="#{resType}" itemLabel="#{resType.label}" />
+                 	 </h:selectOneMenu>
+                 </div>
+             </div>
          </h:panelGroup>
          
          <!-- external tool activity -->

@@ -3,6 +3,7 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -11,22 +12,25 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.upload.UploadManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -45,10 +49,11 @@ public class ActivityViewBeanUser implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
-	@Inject private UploadManager uploadManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private RoleManager roleManager;
+	@Inject private CommentManager commentManager;
+	@Inject private ActivityResultBean activityResultBean;
 
 	private String actId;
 	private long decodedActId;
@@ -111,6 +116,19 @@ public class ActivityViewBeanUser implements Serializable {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					commentBean.loadComments(commentsData);
+					//load result comments number
+					ActivityData ad = competenceData.getActivityToShowWithDetails();
+					if(ad.isEnrolled()) {
+						int numberOfComments = (int) commentManager.getCommentsNumber(
+								CommentedResourceType.ActivityResult, 
+								ad.getTargetActivityId());
+						CommentsData commData = ad.getResultData().getResultComments();
+						commData.setNumberOfComments(numberOfComments);
+						
+						UserData ud = new UserData(loggedUser.getUserId(), loggedUser.getFullName(), 
+								loggedUser.getAvatar(), null, null, true);
+						ad.getResultData().setUser(ud);
+					}
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
@@ -157,6 +175,18 @@ public class ActivityViewBeanUser implements Serializable {
 		competenceData.setCredentialId(decodedCredId);
 		competenceData.setCredentialTitle(credTitle);
 		
+	}
+	
+	public void initializeResultCommentsIfNotInitialized(ActivityResultData resultData) {
+		try {
+			CommentsData cd = resultData.getResultComments();
+			if(!cd.isInitialized()) {
+				cd.setInstructor(false);
+				commentBean.loadComments(resultData.getResultComments());
+			}
+		} catch(Exception e) {
+			logger.error(e);
+		}
 	}
 	
 	public boolean isNextToLearn() {
@@ -224,23 +254,31 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
-	public void handleFileUpload(FileUploadEvent event) {
-		UploadedFile uploadedFile = event.getFile();
-		String page = (String) event.getComponent().getAttributes().get("page");
-		String lContext = (String) event.getComponent().getAttributes().get("learningContext");
-		String service = (String) event.getComponent().getAttributes().get("service");
+	public void saveTextResponse() {
 		try {
-			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			Date postDate = new Date();
+			// strip all tags except <br>
+			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
+			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
 			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), fileName, fullPath, loggedUser.getUserId(),
+					.getTargetActivityId(), 
+					ard.getResult(), 
+					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
 					new LearningContextData(page, lContext, service));
-			competenceData.getActivityToShowWithDetails().setAssignmentTitle(fileName);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(fullPath);
-		} catch (Exception e) {
+			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
+		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while uploading assignment");
+			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
+			PageUtil.fireErrorMessage("Error while saving response");
 		}
+	}
+	
+	public void handleFileUpload(FileUploadEvent event) {
+		activityResultBean.uploadAssignment(event, 
+				competenceData.getActivityToShowWithDetails().getResultData());
 	}
 	
 	public void deleteAssignment() {
@@ -251,8 +289,8 @@ public class ActivityViewBeanUser implements Serializable {
 			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
 					.getTargetActivityId(), loggedUser.getUserId(), 
 					new LearningContextData(page, lContext, service));
-			competenceData.getActivityToShowWithDetails().setAssignmentTitle(null);
-			competenceData.getActivityToShowWithDetails().setAssignmentLink(null);
+			competenceData.getActivityToShowWithDetails().getResultData().setAssignmentTitle(null);
+			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());

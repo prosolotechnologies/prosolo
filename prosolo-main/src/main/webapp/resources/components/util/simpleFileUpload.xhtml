@@ -16,10 +16,12 @@
 			org.primefaces.event.FileUploadEvent)"/>
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="uploadButtonStyle" default="btn btn-green" />
+		<composite:attribute name="chooseFileLabel" default="Choose File" />
+		<composite:attribute name="oncomplete" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
-		<div id="#{cc.clientId}">
+		<span id="#{cc.clientId}">
 			<p:fileUpload id="fileUploadFile" 
           		process="@this"
    				style="display: none;"
@@ -31,16 +33,19 @@
 	            label="Choose a file"
 	            update="#{cc.attrs.toUpdate}"
 	            onstart="$('#loaderSimpleFileUpload').show();"
-	            oncomplete="$('#loaderSimpleFileUpload').hide();"
-            />
-	        <a href="javascript:void(0);" id="linkTriggerFileUpload" class="#{cc.attrs.uploadButtonStyle}">Choose File</a>
+	            oncomplete="$('#loaderSimpleFileUpload').hide(); #{cc.attrs.oncomplete}">
+	            <f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
+	        	<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />
+	        	<f:attribute name="service" value="#{cc.attrs.service}" />
+            </p:fileUpload>
+            <a href="javascript:void(0);" id="linkTriggerSimpleFileUpload" class="#{cc.attrs.uploadButtonStyle}">#{cc.attrs.chooseFileLabel}</a>
 	        <img class="loaderSvg" id="loaderSimpleFileUpload" src="#{request.contextPath}/resources/images2/loader.svg" width="20" height="20" style="display:none;"/>
             <script>
-            	$('#linkTriggerFileUpload').on('click', function(e){
+            	$('#' + escapeColons('#{cc.clientId}') + ' #linkTriggerSimpleFileUpload').on('click', function(e){
 			 		e.stopPropagation();
-					$('.fileUploadFile :input').trigger('click');
+					$('#' + escapeColons('#{cc.clientId}') + ' .fileUploadFile :input').trigger('click');
 				});
             </script>
-        </div>
+        </span>
 	</composite:implementation>
 </ui:component>

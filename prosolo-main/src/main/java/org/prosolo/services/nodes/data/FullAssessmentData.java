@@ -28,6 +28,7 @@ public class FullAssessmentData {
 	private long duration;
 	private long targetCredentialId;
 	private long credentialId;
+	private boolean defaultAssessment;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -36,6 +37,7 @@ public class FullAssessmentData {
 		
 		FullAssessmentData data = new FullAssessmentData();
 		data.setMessage(assessment.getMessage());
+		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size34x34));
 		data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
@@ -48,8 +50,8 @@ public class FullAssessmentData {
 		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
 		data.setDuration(assessment.getTargetCredential().getDuration());
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setAssessorId(assessment.getAssessor().getId());
+		data.setDefaultAssessment(assessment.isDefaultAssessment());
 		
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for(CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
@@ -210,6 +212,14 @@ public class FullAssessmentData {
 
 	public void setCredentialId(long credentialId) {
 		this.credentialId = credentialId;
+	}
+
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
 	}
 	
 }
