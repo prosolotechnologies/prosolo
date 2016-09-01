@@ -153,13 +153,13 @@
 	               		action="#{activityWallBean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
 	               		update="comments panelToggleComments"
 	               		oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
-	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} comments
+	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
 	               	</p:commandLink>
 	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}">
 	               		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}">
 		               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
 		               				<span class="icon"></span>
-		               					#{cc.attrs.socialActivity.comments.numberOfComments} comments
+		               					#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
 		               		    </a>
 	               		</h:panelGroup>  
 	           		</ui:fragment>
