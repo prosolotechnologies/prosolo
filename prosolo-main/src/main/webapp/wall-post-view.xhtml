@@ -21,6 +21,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{saViewBean.id}" default="null" />
+			<f:viewParam name="comment" value="#{saViewBean.commentId}" default="null"/>
 			<f:viewAction action="#{saViewBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -51,12 +52,19 @@
 						learningContext="name:social_activity|id:#{saViewBean.socialActivity.id}"
 						prepareShare="false"
 						enableHidePost="false"
+						areCommentsCollapsible="false"
 					/>
 				</h:panelGroup>
             </div>
         </div>
     </div>
     
+    <ui:fragment rendered="#{not empty param['comment']}">
+		<script>
+			scrollTo('comment_' + #{util:decodeId(param['comment'])});
+		</script>
+	</ui:fragment>
+			
     <post:sharePostModal id="sharePostModal"
 		bean="#{saViewBean}"
 		toUpdate=":growlMain"

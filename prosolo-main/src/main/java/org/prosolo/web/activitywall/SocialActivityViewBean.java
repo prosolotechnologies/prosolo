@@ -40,6 +40,7 @@ public class SocialActivityViewBean implements Serializable {
 	
 	private String id;
 	private long decodedId;
+	private String commentId;
 	
 	private SocialActivityData1 socialActivity;
 	
@@ -56,6 +57,8 @@ public class SocialActivityViewBean implements Serializable {
 					ioe.printStackTrace();
 					logger.error(ioe);
 				}
+			} else {
+				initializeCommentsIfNotInitialized(socialActivity);
 			}
 		} else {
 			try {
@@ -84,10 +87,9 @@ public class SocialActivityViewBean implements Serializable {
 	public void initializeCommentsIfNotInitialized(SocialActivityData1 socialActivity) {
 		try {
 			CommentsData cd = socialActivity.getComments();
-			if(!cd.isInitialized()) {
-				cd.setInstructor(false);
-				commentBean.loadComments(socialActivity.getComments());
-			}
+			cd.setCommentId(idEncoder.decodeId(commentId));
+			cd.setInstructor(false);
+			commentBean.loadComments(socialActivity.getComments());
 		} catch(Exception e) {
 			logger.error(e);
 		}
@@ -176,6 +178,14 @@ public class SocialActivityViewBean implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 	
 }

@@ -46,6 +46,7 @@ public class ActivityViewBeanManager implements Serializable {
 	private String credId;
 	private long decodedCredId;
 	private String mode;
+	private String commentId;
 	
 	private CompetenceData1 competenceData;
 	private CommentsData commentsData;
@@ -81,6 +82,7 @@ public class ActivityViewBeanManager implements Serializable {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 
 							hasInstructorCapability);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), 
@@ -212,6 +214,14 @@ public class ActivityViewBeanManager implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 
 }

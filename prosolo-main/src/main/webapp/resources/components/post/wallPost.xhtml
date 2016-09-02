@@ -23,6 +23,7 @@
 		<composite:attribute name="jsFunctionToPrepareShareModal" default=""/>
 		<composite:attribute name="prepareShare" default="true" type="java.lang.Boolean"/>
 		<composite:attribute name="enableHidePost" default="true" type="java.lang.Boolean"/>
+		<composite:attribute name="areCommentsCollapsible" default="true" type="java.lang.Boolean"/>
 	</composite:interface> 
 	
 	<composite:implementation>
@@ -149,6 +150,7 @@
 			   </p:commandLink>
            
                <h:panelGroup id="panelToggleComments">
+               	<ui:fragment rendered="#{cc.attrs.areCommentsCollapsible}">
 	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}"
 	               		styleClass="commentsNumber" 
 	               		pt:role="button" 
@@ -166,9 +168,16 @@
 		               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
 		               				<span class="icon"></span>
 		               					#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
-		               		    </a>
+		               		    </a>		               		
 	               		</h:panelGroup>  
 	           		</ui:fragment>
+	           	 </ui:fragment>
+	           	 <ui:fragment rendered="#{not cc.attrs.areCommentsCollapsible}">
+	           	 	<a class="commentsNumber">
+           		    	<span class="icon"></span>
+           		    	#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+           		    </a>
+	           	 </ui:fragment>
 	            </h:panelGroup>
 	            <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post'}">
 					<ui:fragment rendered="#{cc.attrs.prepareShare}">           
@@ -200,7 +209,7 @@
            		uniqueId="#{cc.attrs.socialActivity.id}"
            		commentsContainerDivId="commentsContainerDiv#{cc.attrs.socialActivity.id}"
            		showSortOptions="false"
-           		isCollapsible="true"
+           		isCollapsible="#{cc.attrs.areCommentsCollapsible}"
            		growlToUpdate="#{cc.attrs.growlToUpdate}"
            		learningContext="#{learningContext}"
            		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.socialActivity.id})"

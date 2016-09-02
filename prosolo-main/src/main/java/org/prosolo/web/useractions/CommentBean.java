@@ -66,16 +66,24 @@ public class CommentBean implements Serializable, ICommentBean {
 	private List<CommentData> retrieveComments(CommentsData commentsData) {
 		try {
 			CommentSortData csd = getCommentSortData(commentsData);
-			List<CommentData> comments = commentManager.getComments(commentsData.getResourceType(), 
-					commentsData.getResourceId(), true, limit, csd, 
-					CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId());
-			
-			int commentsNumber = comments.size();
-			if(commentsNumber == limit + 1) {
-				commentsData.setMoreToLoad(true);
-				comments.remove(commentsNumber - 1);
+			List<CommentData> comments = null;
+			if(commentsData.getCommentId() > 0) {
+				comments = commentManager.getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
+						commentsData.getResourceType(), commentsData.getResourceId(), csd, 
+						commentsData.getCommentId(), loggedUser.getUserId());
+				commentsData.setNumberOfComments(comments.size());
 			} else {
-				commentsData.setMoreToLoad(false);
+				comments = commentManager.getComments(commentsData.getResourceType(), 
+						commentsData.getResourceId(), true, limit, csd, 
+						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId());
+				
+				int commentsNumber = comments.size();
+				if(commentsNumber == limit + 1) {
+					commentsData.setMoreToLoad(true);
+					comments.remove(commentsNumber - 1);
+				} else {
+					commentsData.setMoreToLoad(false);
+				}
 			}
 			Collections.reverse(comments);
 			return comments;

@@ -42,6 +42,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	private String compId;
 	private long decodedCompId;
 	private String mode;
+	private String commentId;
 	
 	private CompetenceData1 competenceData;
 	private CommentsData commentsData;
@@ -79,6 +80,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Competence, 
 							competenceData.getCompetenceId(), false);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 					
 					if(decodedCredId > 0) {
@@ -204,6 +206,14 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 
 }
