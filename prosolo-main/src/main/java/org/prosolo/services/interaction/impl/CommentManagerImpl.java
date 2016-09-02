@@ -55,8 +55,14 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Transactional(readOnly = true)
 	public List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
 			CommentSortData commentSortData, long userId) throws DbConnectionException {
-		return getComments(resourceType, resourceId, false, 0, commentSortData, 
+		return getAllComments(resourceType, resourceId, commentSortData, 
 				CommentReplyFetchMode.FetchReplies, userId);
+	}
+	
+	private List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
+			CommentSortData commentSortData, CommentReplyFetchMode replyFetchMode, long userId) {
+		return getComments(resourceType, resourceId, false, 0, commentSortData, 
+				replyFetchMode, userId);
 	}
 	
 	@Override
@@ -442,6 +448,56 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving number of comments");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
+			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
+			long commentId, long userId) throws DbConnectionException {
+		try {
+			List<CommentData> comments = getAllComments(resourceType, resourceId, commentSortData, 
+					CommentReplyFetchMode.FetchNumberOfReplies, userId);
+			long parentCommentId = getParentCommentId(commentId, resourceType, resourceId);
+	
+			for(CommentData comment : comments) {
+				if(comment.getCommentId() == parentCommentId) {
+					comment.setChildComments(getAllCommentReplies(comment, commentSortData, userId));
+					break;
+				}
+			}
+			return comments;
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading comments");
+		}
+	}
+	
+	/**
+	 * returns id of a parent comment and 0 if it is first level comment
+	 * @param commentId
+	 */
+	private long getParentCommentId(long commentId, CommentedResourceType resourceType, long resourceId) {
+		String query = "SELECT parent.id " +
+					   "FROM Comment1 com " +
+					   "LEFT JOIN com.parentComment parent " +
+					   "WHERE com.id = :id " +
+					   "AND com.resourceType = :resType " +
+					   "AND com.commentedResourceId = :resourceId ";
+		
+		Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("id", commentId)
+				.setParameter("resType", resourceType)
+				.setLong("resourceId", resourceId)
+				.uniqueResult();
+		
+		if(res == null) {
+			return 0;
+		}
+		return res.longValue();
 	}
 	
 }

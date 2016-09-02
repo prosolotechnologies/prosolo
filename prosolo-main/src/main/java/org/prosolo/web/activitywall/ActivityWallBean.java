@@ -21,6 +21,7 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.user.notifications.ObjectType;
 import org.prosolo.common.util.string.StringUtil;
@@ -276,6 +277,16 @@ public class ActivityWallBean implements Serializable {
 					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
 			newSocialActivity.setDateCreated(post.getDateCreated());
 			newSocialActivity.setLastAction(post.getLastAction());
+			CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, 
+					newSocialActivity.getId());
+			newSocialActivity.setComments(cd);
+			newSocialActivity.setType(SocialActivityType.Post);
+//			if(post.getRichContent() != null) {
+//				newSocialActivity.setAttachmentPreview(richContentFactory.getAttachmentPreview(
+//						post.getRichContent()));
+//			}
+			newSocialActivity.setPredicate(ResourceBundleUtil.getActionName(newSocialActivity.getType().name(),
+					loggedUser.getLocale()));
 			socialActivities.add(0, newSocialActivity);
 			
 			newSocialActivity = new SocialActivityData1();
