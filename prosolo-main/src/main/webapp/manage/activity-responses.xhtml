@@ -131,6 +131,13 @@
         <div class="row">
             <div class="col-md-9">
                 <h2>Student Responses</h2>
+                <ui:fragment rendered="#{empty activityResultsBeanManager.activity.studentResults}">
+                	 <div class="noContentMessage">
+	                    <p>
+	                        No responses to show.
+	                    </p>
+	                </div>
+                </ui:fragment>
                 <h:panelGroup id="panelResults">
 	                <ui:repeat var="result" value="#{activityResultsBeanManager.activity.studentResults}">
 	                	 <activities:activityResult
