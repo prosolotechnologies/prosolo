@@ -1,8 +1,6 @@
 $(function () {
 	//tooltips
-	$('[data-toggle="tooltip"]').tooltip({
-	    'placement': 'top'
-	});
+	$('[data-toggle="tooltip"]').tooltip();
 	$('[data-toggle="popover"]').popover({
 	    trigger: 'hover',
 	        'placement': 'top'

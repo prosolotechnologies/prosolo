@@ -10,19 +10,27 @@ import org.simpleframework.xml.Element;
 public class AppConfig {
 	@Element(name = "app-name", required = true)
 	public String appName;
-	
+
 	@Element(name = "development-mode")
-	public boolean developmentMode=false;
+	public boolean developmentMode = false;
 	
 	@Element(name = "developer-email")
-	public String developmentEmail;
+	public String developerEmail;
 	
-	@Element(name = "maintenance")
-	public String maintenance;
+	@Element(name = "support-email")
+	public String supportEmail;
 	
 	@Element(name = "domain")
 	public String domain;
 	
+	@Element(name = "maintenance")
+	public String maintenance;
+	
 	@Element(name="url-encoding")
 	public UrlEncoding urlEncoding;
+
+	public String getSupportEmail() {
+		return supportEmail;
+	}
+	
 }

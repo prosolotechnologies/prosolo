@@ -43,8 +43,11 @@ public abstract class EmailContentGenerator {
 		return CommonSettings.getInstance().config.appConfig.domain;
 	}
 	
+	public String getSupportEmail() {
+		return CommonSettings.getInstance().config.appConfig.supportEmail;
+	}
+	
 	public String getHeaderImageURL() {
-//		return CommonSettings.getInstance().config.appConfig.domain + "/resources/";
 		return "https://s3.amazonaws.com/prosolo.nikola/db8b27c2eb8d208ee013d99c3c673609/email-header.jpg";
 	}
 	

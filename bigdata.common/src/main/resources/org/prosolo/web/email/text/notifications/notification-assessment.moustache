@@ -6,3 +6,4 @@ View assessment{{#request}} request{{/request}} at {{link}}.
 
 
 ProSolo Team
+{{supportEmail}}

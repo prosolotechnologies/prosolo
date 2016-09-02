@@ -18,7 +18,7 @@ public class PasswordResetEmailContentGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getSubject() {
-		return "Reset your password on ProSolo";
+		return "Reset your password";
 	}
 	
 	private String name;

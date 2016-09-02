@@ -17,7 +17,7 @@ import javax.mail.internet.AddressException;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.user.User;
@@ -279,7 +279,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		try {
 			String link = null; 
 			if(notifyByUI) {
-				link = Settings.getInstance().config.application.domain + "communications/notifications";
+				link = CommonSettings.getInstance().config.appConfig.domain + "communications/notifications";
 			}
 			
 			NotificationEmailContentGenerator1 generator = new NotificationEmailContentGenerator1(receiverName, actor, 

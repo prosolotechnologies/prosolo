@@ -7,15 +7,6 @@ public class AppConfig {
 	@Element(name = "development-mode")
 	public boolean developmentMode = false;
 
-	@Element(name = "developer-email")
-	public String developmentEmail;
-
-	@Element(name = "maintenance")
-	public String maintenance;
-
-	@Element(name = "domain")
-	public String domain;
-
 	@Element(name = "default-refresh-rate")
 	public int defaultRefreshRate;
 
@@ -66,10 +57,6 @@ public class AppConfig {
 
 	public boolean getDevelopmentMode() {
 		return developmentMode;
-	}
-
-	public String getMaintenance() {
-		return maintenance;
 	}
 
 	public RegistrationConfig getRegistration() {

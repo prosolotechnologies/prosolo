@@ -9,7 +9,7 @@ public class FollowUserNotificationEmailGenerator extends NotificationEmailGener
 	
 	@Override
 	public String getSubject() {
-		return "You have a new follower on ProSolo";
+		return "You have a new follower";
 	}
 
 	public FollowUserNotificationEmailGenerator(String name, String actor, String predicate, String objectTitle,

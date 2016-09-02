@@ -14,16 +14,15 @@
 			<email>prosolo.admin@gmail.com</email>
 			<pass>pass</pass>
 		</default-user>
-		
+
 	</init>
 
-	<!-- Whether or not to re-create the databases true -> populate db with 
-		test data false -> keep data from last run -->
+	<!-- Whether or not to re-create the databases true -> populate db with test data false -> keep data from last run -->
 
 	<!-- log4j config file -->
 	<logging-config>config/log4j.properties</logging-config>
 
- 
+
 	<mongo-db-config>
 		<db-name>prosolo</db-name>
 		<db-servers>
@@ -35,16 +34,12 @@
 	</mongo-db-config>
 	<app-config>
 		<development-mode>true</development-mode>
-		<developer-email>zoran.jeremic@gmail.com</developer-email>
-		<maintenance>false</maintenance>
-		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, and a leading slash (/), e.g. http://example.com/prosolo/ -->
 		<default-refresh-rate>60</default-refresh-rate>
 		<suggested-learning-refresh-rate>6000</suggested-learning-refresh-rate>
 		<messages-inbox-refresh-rate>30</messages-inbox-refresh-rate>
 		<notifications-refresh-rate>30</notifications-refresh-rate>
 		<featured-news-refresh-rate>600</featured-news-refresh-rate>
-		<!-- How much time in minutes have to pass after last indexing of Documents 
-			before it can be indexed again (e.g. 1440 for one day, 10080 for one week -->
+		<!-- How much time in minutes have to pass after last indexing of Documents before it can be indexed again (e.g. 1440 for one day, 10080 for one week -->
 		<default-reindex-time>1000</default-reindex-time>
 		<!-- How many items should be shown in search box by default -->
 		<default-search-items-number>3</default-search-items-number>
@@ -74,10 +69,7 @@
 			<google>true</google>
 			<edx>false</edx>
 			<self-registration>true</self-registration>
-			<!--
-				display name will be shown on login link text and entity id can be found in saml 
-				identity provider metadata
-			 -->
+			<!-- display name will be shown on login link text and entity id can be found in saml identity provider metadata -->
 			<saml>
 				<provider>
 					<display-name>Sign in with UTA</display-name>
@@ -94,28 +86,24 @@
 			</saml>
 		</registration>
 	</app-config>
-	
+
 	<services>
 		<activity-report>
-	 		<report-directory>reports</report-directory>
-	 	</activity-report>
+			<report-directory>reports</report-directory>
+		</activity-report>
 	</services>
 
 	<file-management>
-		<!-- File to which the files will be uploaded. Application need to have 
-			privileges to write to this file. Must end with slash (/), or backslash (\) 
-			depending on the OS. -->
+		<!-- File to which the files will be uploaded. Application need to have privileges to write to this file. Must end with slash (/), or backslash (\) depending on the OS. -->
 		<uplaod-path>${user.home}/upload/</uplaod-path>
 
-		<!-- Folder from which the resource will be available online, e.g. http://example.com/files/. 
-			Must end with slash (/) -->
+		<!-- Folder from which the resource will be available online, e.g. http://example.com/files/. Must end with slash (/) -->
 		<url-prefix-folder>files/</url-prefix-folder>
 
 		<buffer-size>8192</buffer-size> <!-- 8KB in butes -->
 
 		<images>
-			<!-- Path inside web context relative to the location of the file type 
-				icons -->
+			<!-- Path inside web context relative to the location of the file type icons -->
 			<file-type-icons-path>/resources/images/teambox-free-file-icons/</file-type-icons-path>
 		</images>
 	</file-management>
@@ -134,10 +122,10 @@
 		<selected-users-can-do-evaluation>false</selected-users-can-do-evaluation>
 		<individual-competences-can-not-be-evaluated>false</individual-competences-can-not-be-evaluated>
 	</admin>
-   <analytical-server>
-     <enabled>true</enabled>
-     <api-host>localhost</api-host>
-     <api-port>8082</api-port>
-     <api-services-path>api</api-services-path>
-   </analytical-server>
+	<analytical-server>
+		<enabled>true</enabled>
+		<api-host>localhost</api-host>
+		<api-port>8082</api-port>
+		<api-services-path>api</api-services-path>
+	</analytical-server>
 </config>

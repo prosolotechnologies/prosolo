@@ -19,7 +19,7 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.openid.EdxOpenIdAuthenticatorService;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
 import org.prosolo.web.openid.provider.OpenIdProvider;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.services.openid.EdxOpenIdAuthenticatorImpl")
 public class EdxOpenIdAuthenticatorServiceImpl implements EdxOpenIdAuthenticatorService {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(EdxOpenIdAuthenticatorServiceImpl.class);
 
 	private final static String EDX_ENDPOINT = "https://courses.edx.org/openid/provider/login/";
@@ -44,7 +43,7 @@ public class EdxOpenIdAuthenticatorServiceImpl implements EdxOpenIdAuthenticator
 	@Override
 	public Map<String, Object> startSignIn(HttpServletRequest request) {
 		try {
-			String returnToUrl = Settings.getInstance().config.application.domain + 
+			String returnToUrl = CommonSettings.getInstance().config.appConfig.domain + 
 					"openid.xhtml?provider="+ OpenIdProvider.Edx.name();
 			ConsumerManager manager = new ConsumerManager();
 			List discoveries = manager.discover(EDX_ENDPOINT);
