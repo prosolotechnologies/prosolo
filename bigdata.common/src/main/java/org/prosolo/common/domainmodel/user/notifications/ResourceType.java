@@ -1,6 +1,6 @@
 package org.prosolo.common.domainmodel.user.notifications;
 
-public enum ObjectType {
+public enum ResourceType {
 	
 	Competence("Competence1"),
 	Activity("Activity1"),
@@ -13,7 +13,7 @@ public enum ObjectType {
 
 	private String dbTableName;
 	
-	private ObjectType(String dbTableName) {
+	private ResourceType(String dbTableName) {
 		this.dbTableName = dbTableName;
 	}
 	

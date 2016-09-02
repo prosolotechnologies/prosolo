@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.credential.announcements;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,6 +74,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 
 	public void init() {
 		resetNewAnnouncementValues();
+		
 		if (StringUtils.isNotBlank(credentialId)) {
 			try {
 				credentialAnnouncements = announcementManager
@@ -103,12 +104,18 @@ public class AnnouncementBean implements Serializable, Paginable {
 	public void publishAnnouncement() {
 		AnnouncementData created = announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle, 
 				newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode);
+		
+		created.setCreatorAvatarUrl(loggedUser.getAvatar());
+		created.setCreatorFullName(loggedUser.getFullName());
+		
 		//TODO need to get theese parameters
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");
 		String service = PageUtil.getPostParameter("service");
 		notifyForAnnouncementAsync(idEncoder.decodeId(created.getEncodedId()), page, 
 				lContext, service, idEncoder.decodeId(credentialId));
+		
+		PageUtil.fireSuccessfulInfoMessage("Announcement published");
 		init();
 	}
 	

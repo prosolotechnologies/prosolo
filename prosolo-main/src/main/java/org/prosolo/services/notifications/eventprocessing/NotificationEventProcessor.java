@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -50,6 +50,8 @@ public abstract class NotificationEventProcessor {
 						event.getDateCreated(),
 						getObjectId(),
 						getObjectType(),
+						getTargetId(),
+						getTargetType(),
 						section + getNotificationLink(),
 						shouldUserBeNotifiedByEmail(receiver),
 						session);
@@ -110,9 +112,17 @@ public abstract class NotificationEventProcessor {
 	
 	abstract NotificationType getNotificationType();
 	
-	abstract ObjectType getObjectType();
+	abstract ResourceType getObjectType();
 	
 	abstract long getObjectId();
+	
+	public ResourceType getTargetType() {
+		return null;
+	}
+	
+	public long getTargetId() {
+		return 0;
+	}
 	
 	abstract String getNotificationLink();
 	

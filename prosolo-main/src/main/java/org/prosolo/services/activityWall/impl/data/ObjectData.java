@@ -2,7 +2,7 @@ package org.prosolo.services.activityWall.impl.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.nodes.data.UserData;
 
 public class ObjectData implements Serializable {
@@ -13,7 +13,7 @@ public class ObjectData implements Serializable {
 	private UserData creator;
 	private String title;
 	private String shortType;
-	private ObjectType type;
+	private ResourceType type;
 	
 	public long getId() {
 		return id;
@@ -33,10 +33,10 @@ public class ObjectData implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public ObjectType getType() {
+	public ResourceType getType() {
 		return type;
 	}
-	public void setType(ObjectType type) {
+	public void setType(ResourceType type) {
 		this.type = type;
 	}
 	public String getShortType() {

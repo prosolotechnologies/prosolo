@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -54,7 +54,7 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 	}
 
 	@Override
-	ObjectType getObjectType() {
+	ResourceType getObjectType() {
 		return null;
 	}
 

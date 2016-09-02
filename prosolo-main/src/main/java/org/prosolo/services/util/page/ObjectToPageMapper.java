@@ -1,10 +1,10 @@
 package org.prosolo.services.util.page;
 
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 
 public class ObjectToPageMapper {
 
-	public static String getViewPageForObjectType(ObjectType type) {
+	public static String getViewPageForObjectType(ResourceType type) {
 		switch(type) {
 			case Activity:
 				return "activity";

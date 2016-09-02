@@ -31,8 +31,10 @@ public class Notification1 extends BaseEntity {
 	 * ObjectId should not be set if object title is not needed
 	 * for notification while objectType should always be set.
 	 */
-	private ObjectType objectType;
+	private ResourceType objectType;
 	private long objectId;
+	private ResourceType targetType;
+	private long targetId;
 	private boolean notifyByEmail;
 	
 	public Notification1() {
@@ -95,11 +97,11 @@ public class Notification1 extends BaseEntity {
 	}
 
 	@Enumerated(EnumType.STRING)
-	public ObjectType getObjectType() {
+	public ResourceType getObjectType() {
 		return objectType;
 	}
 
-	public void setObjectType(ObjectType objectType) {
+	public void setObjectType(ResourceType objectType) {
 		this.objectType = objectType;
 	}
 
@@ -111,4 +113,21 @@ public class Notification1 extends BaseEntity {
 		this.objectId = objectId;
 	}
 
+	@Enumerated(EnumType.STRING)
+	public ResourceType getTargetType() {
+		return targetType;
+	}
+
+	public void setTargetType(ResourceType targetType) {
+		this.targetType = targetType;
+	}
+
+	public long getTargetId() {
+		return targetId;
+	}
+
+	public void setTargetId(long targetId) {
+		this.targetId = targetId;
+	}
+	
 }

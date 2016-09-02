@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
 
@@ -21,9 +21,13 @@ public class NotificationData implements Serializable {
 	private UserData receiver;
 	private String link;
 	private long objectId;
-	private ObjectType objectType;
+	private ResourceType objectType;
 	private String objectTitle;
 	private String predicate;
+	private long targetId;
+	private ResourceType targetType;
+	private String targetTitle = "";
+	private String relationToTarget = "";
 
 	public NotificationData() { }
 
@@ -95,11 +99,11 @@ public class NotificationData implements Serializable {
 		this.objectId = objectId;
 	}
 
-	public ObjectType getObjectType() {
+	public ResourceType getObjectType() {
 		return objectType;
 	}
 
-	public void setObjectType(ObjectType objectType) {
+	public void setObjectType(ResourceType objectType) {
 		this.objectType = objectType;
 	}
 
@@ -119,4 +123,36 @@ public class NotificationData implements Serializable {
 		this.predicate = predicate;
 	}
 
+	public long getTargetId() {
+		return targetId;
+	}
+
+	public void setTargetId(long targetId) {
+		this.targetId = targetId;
+	}
+
+	public ResourceType getTargetType() {
+		return targetType;
+	}
+
+	public void setTargetType(ResourceType targetType) {
+		this.targetType = targetType;
+	}
+
+	public String getTargetTitle() {
+		return targetTitle;
+	}
+
+	public void setTargetTitle(String targetTitle) {
+		this.targetTitle = targetTitle;
+	}
+
+	public String getRelationToTarget() {
+		return relationToTarget;
+	}
+
+	public void setRelationToTarget(String relationToTarget) {
+		this.relationToTarget = relationToTarget;
+	}
+	
 }

@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -60,7 +60,7 @@ public class RichContentDataFactory {
 			String creatorName, String creatorLastname) {
 		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Credential);
-		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Credential);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Credential);
 		ap.setLink(page + "?id=" + idEncoder.encodeId(id));
 		return ap;
 	}
@@ -70,7 +70,7 @@ public class RichContentDataFactory {
 			String creatorName, String creatorLastname, long credId) {
 		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Competence);
-		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Competence);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Competence);
 		StringBuilder url = new StringBuilder(page);
 		url.append("?compId=" + idEncoder.encodeId(id));
 		if(credId > 0) {
@@ -86,7 +86,7 @@ public class RichContentDataFactory {
 		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Activity);
 		ap.setActivityType(activityType);
-		String page = ObjectToPageMapper.getViewPageForObjectType(ObjectType.Activity);
+		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Activity);
 		StringBuilder url = new StringBuilder(page);
 		url.append("?actId=" + idEncoder.encodeId(id));
 		if(compId > 0) {
@@ -125,10 +125,10 @@ public class RichContentDataFactory {
 	 * @return
 	 */
 	public AttachmentPreview1 getAttachmentPreviewForComment(long id,
-			ObjectType type, String title, String comment, long compId, long actId, ActivityType actType) {
+			ResourceType type, String title, String comment, long compId, long actId, ActivityType actType) {
 		AttachmentPreview1 ap = new AttachmentPreview1();
 		MediaType1 mediaType = null;
-		if(type == ObjectType.Competence) {
+		if(type == ResourceType.Competence) {
 			mediaType = MediaType1.CompetenceComment;
 		} else {
 			mediaType = MediaType1.ActivityComment;

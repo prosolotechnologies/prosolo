@@ -139,21 +139,31 @@ public class NotificationObserver extends EventObserver {
 								taskExecutor.execute(new Runnable() {
 									@Override
 									public void run() {
-										logger.info("Sending notification via email to " + notificationData.getReceiver().getEmail());
-										
-										notificationManager.sendNotificationByEmail(
-												notificationData.getReceiver().getEmail(), 
-												notificationData.getReceiver().getFullName(), 
-												notificationData.getActor().getFullName(), 
-												notificationData.getPredicate(),
-												notificationData.getObjectId(),
-												notificationData.getObjectType(),
-												notificationData.getObjectTitle(),
-												urlPrefix + notificationData.getLink(),
-												DateUtil.getTimeAgoFromNow(notificationData.getDate()),
-												notificationData.getNotificationType());
-										
-										logger.info("Email notification to " + notificationData.getReceiver().getEmail() + " is sent.");
+										Session session = (Session) defaultManager.getPersistence().openSession();
+										try {
+											logger.info("Sending notification via email to " + notificationData.getReceiver().getEmail());
+											
+											boolean sent = notificationManager.sendNotificationByEmail(
+													notificationData.getReceiver().getEmail(), 
+													notificationData.getReceiver().getFullName(), 
+													notificationData.getActor().getFullName(), 
+													notificationData.getPredicate(),
+													notificationData.getObjectId(),
+													notificationData.getObjectType(),
+													notificationData.getObjectTitle(),
+													urlPrefix + notificationData.getLink(),
+													DateUtil.getTimeAgoFromNow(notificationData.getDate()),
+													notificationData.getNotificationType(),
+													session);
+											
+											if (sent) {
+												logger.info("Email notification to " + notificationData.getReceiver().getEmail() + " is sent.");
+											} else {
+												logger.error("Error sending email notification to " + notificationData.getReceiver().getEmail());
+											}
+										} finally {
+											HibernateUtil.close(session);
+										}
 									}
 								});
 							} catch (Exception e) {

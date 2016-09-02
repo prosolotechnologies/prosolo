@@ -18,7 +18,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.courses.credential.AnnouncementPublishMode;
+import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +32,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	private static final long serialVersionUID = 1L;
 	private static final String GET_ANNOUNCEMENTS_FOR_CREDENTIAL = 
 			"FROM Announcement AS announcement " 
+		  + "LEFT JOIN FETCH announcement.createdBy " // load user and his data
 		  + "WHERE announcement.credential.id = :credentialId "
 		  + "AND announcement.deleted = :deleted "			
 		  + "ORDER BY announcement.dateCreated DESC";
@@ -155,6 +156,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 
 	private AnnouncementData mapToData(Announcement original) {
 		AnnouncementData data = new AnnouncementData();
+		data.setId(original.getId());
 		data.setTitle(original.getTitle());
 		data.setText(original.getText());
 		data.setCreatorFullName(original.getCreatedBy().getFullName());
@@ -170,9 +172,12 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		announcement.setText(text);
 		announcement.setDateCreated(new Date());
 		//create and add creator
-		User user = new User();
-		user.setId(creatorId);
-		announcement.setCreatedBy(user);
+		try {
+			User user = loadResource(User.class, creatorId);
+			announcement.setCreatedBy(user);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+		}
 		//create and add credential
 		Credential1 credential = new Credential1();
 		credential.setId(credentialId);

@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -22,7 +22,7 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 	private Activity1Manager activityManager;
 	
 	private Comment1 comment;
-	private ObjectType commentedResourceType;
+	private ResourceType commentedResourceType;
 	
 	public LikeEventProcessing(Event event, Session session,
 			NotificationManager notificationManager,
@@ -43,10 +43,10 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 	private void setCommentedResourceType() {
 		switch(comment.getResourceType()) {
 			case Activity:
-				commentedResourceType = ObjectType.Activity;
+				commentedResourceType = ResourceType.Activity;
 				break;
 			case Competence:
-				commentedResourceType = ObjectType.Competence;	
+				commentedResourceType = ResourceType.Competence;	
 				break;
 		}
 	}
@@ -87,8 +87,8 @@ public class LikeEventProcessing extends NotificationEventProcessor {
 	}
 
 	@Override
-	ObjectType getObjectType() {
-		return ObjectType.Comment;
+	ResourceType getObjectType() {
+		return ResourceType.Comment;
 	}
 
 	@Override

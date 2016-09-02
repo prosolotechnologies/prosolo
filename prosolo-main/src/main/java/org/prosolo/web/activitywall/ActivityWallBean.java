@@ -22,7 +22,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.ObjectDataFactory;
@@ -299,7 +299,7 @@ public class ActivityWallBean implements Serializable {
 			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
 			postShareSocialActivity.setId(postShare.getId());
 			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null, 
-					ObjectType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
+					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
 					socialActivityForShare.getActor().getFullName(), 
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);

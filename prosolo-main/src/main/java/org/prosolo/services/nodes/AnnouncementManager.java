@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.web.courses.credential.AnnouncementPublishMode;
+import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 
 public interface AnnouncementManager {
 	

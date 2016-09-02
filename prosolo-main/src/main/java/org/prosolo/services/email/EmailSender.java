@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Service("org.prosolo.services.email.EmailSender")
 public class EmailSender {
 	
-	public void sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
+	public boolean sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		
 		String host = smtpConfig.host;
@@ -75,6 +75,8 @@ public class EmailSender {
 		transport.connect(host, user, pass);
 		transport.sendMessage(message, message.getAllRecipients());
 		transport.close();
+		
+		return true;
 	}
  
 	public static void main(String[] args) throws FileNotFoundException, IOException {

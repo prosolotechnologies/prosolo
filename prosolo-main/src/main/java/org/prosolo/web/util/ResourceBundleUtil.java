@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 
@@ -258,7 +258,7 @@ public class ResourceBundleUtil {
 	}
     
     public static String getRelationBetweenResources(Locale locale, SocialActivityType type, 
-    		ObjectType objectType, ObjectType targetType) {
+    		ResourceType objectType, ResourceType targetType) {
 		String relationToTarget = "";
 		try {
 			relationToTarget = ResourceBundleUtil.getMessage( 

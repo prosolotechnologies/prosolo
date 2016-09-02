@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.credential.announcements;
 
 public enum AnnouncementPublishMode {
 	
