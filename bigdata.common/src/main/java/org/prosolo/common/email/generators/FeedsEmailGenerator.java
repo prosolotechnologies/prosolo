@@ -15,7 +15,7 @@ public class FeedsEmailGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getSubject() {
-		return "ProSolo Feed Digest";
+		return "Feed Digest";
 	}
 	
 	private String name;

@@ -4,18 +4,15 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
-import org.prosolo.services.lti.impl.LtiToolManagerImpl;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.openid.GoogleOpenIdAuthenticatorService;
 import org.prosolo.services.openid.exception.OpenIdException;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
 import org.prosolo.web.openid.provider.OpenIdProvider;
-import org.prosolo.web.util.page.PageUtil;
 import org.springframework.stereotype.Service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
@@ -33,7 +30,6 @@ import com.google.api.services.oauth2.model.Userinfoplus;
 @Service("org.prosolo.services.openid.GoogleOpenIdAuthentication")
 public class GoogleOpenIdAuthenticatorServiceImpl implements GoogleOpenIdAuthenticatorService {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(GoogleOpenIdAuthenticatorServiceImpl.class);
 
 	private static String GOOGLE_CLIENT_ID = "62487549282-62skkvsr4n44of36su931161cps9pj5j.apps.googleusercontent.com";
@@ -48,7 +44,7 @@ public class GoogleOpenIdAuthenticatorServiceImpl implements GoogleOpenIdAuthent
 	@Override
 	public String startSignIn(HttpServletRequest request) {
 		try {
-			String redirectUrl = Settings.getInstance().config.application.domain + GOOGLE_REDIRECT_URL
+			String redirectUrl = CommonSettings.getInstance().config.appConfig.domain + GOOGLE_REDIRECT_URL
 					+ "?provider=" + OpenIdProvider.Google.name();
 			String state = new BigInteger(130, new SecureRandom()).toString(32);
 			
@@ -75,7 +71,7 @@ public class GoogleOpenIdAuthenticatorServiceImpl implements GoogleOpenIdAuthent
 	@Override
 	public OpenIdUserInfo completeSignIn(HttpServletRequest request) {
 		try {
-			String redirectUrl = Settings.getInstance().config.application.domain + GOOGLE_REDIRECT_URL + 
+			String redirectUrl = CommonSettings.getInstance().config.appConfig.domain + GOOGLE_REDIRECT_URL + 
 					"?provider="+OpenIdProvider.Google.name();
 			JsonFactory jsonFactory = new JacksonFactory();
 			HttpTransport httpTransport = new NetHttpTransport();

@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.lti.LtiToolManager;
@@ -48,9 +48,11 @@ public class ToolProxyBuilder {
 	}
 
 	private ToolProxy createToolProxyPredefined(String tcProfileId) throws Exception {
+		String domain = CommonSettings.getInstance().config.appConfig.domain;
+
 		ToolProxy tp = LTIConfigLoader.getInstance().getToolProxy();
 		tp.setContext(LTIConstants.TOOL_PROXY_CONTEXT);
-		tp.setId(Settings.getInstance().config.application.domain + "ToolProxy/" + UUID.randomUUID().toString());
+		tp.setId(domain + "ToolProxy/" + UUID.randomUUID().toString());
 		tp.setType(LTIConstants.TOOL_PROXY_TYPE);
 		tp.setLtiVersion(LTIConstants.LTI_VERSION_TWO);
 		tp.setToolConsumerProfile(tcProfileId);
@@ -67,7 +69,7 @@ public class ToolProxyBuilder {
 		technicalDescription.setKey("tool.technical");
 		ProductFamily productFamily = productInfo.getProductFamily();
 		productFamily.setCode(UUID.randomUUID().toString());
-		productFamily.setId(Settings.getInstance().config.application.domain + productFamily.getCode());
+		productFamily.setId(domain + productFamily.getCode());
 		Vendor vendor = productFamily.getVendor();
 		vendor.setTimestamp(getCurrentTimestamp("yyyy-MM-dd'T'HH:mm:ss"));
 		Description vendorName = vendor.getVendorName();
@@ -77,8 +79,8 @@ public class ToolProxyBuilder {
 		List<BaseURL> baseURLs = new ArrayList();
 		BaseURL baseURL = new BaseURL();
 		baseURL.setSelector("DefaultSelector");
-		baseURL.setDefaultBaseURL(Settings.getInstance().config.application.domain);
-		baseURL.setSecureBaseURL(Settings.getInstance().config.application.domain);
+		baseURL.setDefaultBaseURL(domain);
+		baseURL.setSecureBaseURL(domain);
 		baseURLs.add(baseURL);
 		toolProfile.setBaseURLChoice(baseURLs);
 
@@ -132,7 +134,7 @@ public class ToolProxyBuilder {
 
 			List<ExtendedMessageHandler> mHandlers = new ArrayList<>();
 			ExtendedMessageHandler mh = new ExtendedMessageHandler();
-			String path = tool.getFullLaunchURL().substring(Settings.getInstance().config.application.domain.length());
+			String path = tool.getFullLaunchURL().substring(CommonSettings.getInstance().config.appConfig.domain.length());
 			mh.setPath(path);
 
 			mh.setMessageType(LTIConstants.MESSAGE_TYPE_LTILAUNCH);

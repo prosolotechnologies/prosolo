@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.Query;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
@@ -25,7 +25,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 	@Transactional
 	public LtiToolSet saveToolSet(LtiTool tool) throws DbConnectionException{
 		try{
-		    String domain = Settings.getInstance().config.application.domain;
+		    String domain = CommonSettings.getInstance().config.appConfig.domain;
 			LtiToolSet ts = new LtiToolSet();
 			Set<LtiTool> tools = new HashSet<>();
 			tool.setToolSet(ts);

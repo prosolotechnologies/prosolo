@@ -8,7 +8,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -130,7 +129,7 @@ public class NotificationObserver extends EventObserver {
 												session, locale);
 								//session.update(notification.getActor());
 								//session.update(receiver);						 
-								String domain = Settings.getInstance().config.application.domain;
+								String domain = CommonSettings.getInstance().config.appConfig.domain;
 								
 								if (domain.endsWith("/")) {
 									domain = domain.substring(0, domain.length() - 1);
@@ -140,6 +139,8 @@ public class NotificationObserver extends EventObserver {
 								taskExecutor.execute(new Runnable() {
 									@Override
 									public void run() {
+										logger.info("Sending notification via email to " + notificationData.getReceiver().getEmail());
+										
 										notificationManager.sendNotificationByEmail(
 												notificationData.getReceiver().getEmail(), 
 												notificationData.getReceiver().getFullName(), 
@@ -151,6 +152,8 @@ public class NotificationObserver extends EventObserver {
 												urlPrefix + notificationData.getLink(),
 												DateUtil.getTimeAgoFromNow(notificationData.getDate()),
 												notificationData.getNotificationType());
+										
+										logger.info("Email notification to " + notificationData.getReceiver().getEmail() + " is sent.");
 									}
 								});
 							} catch (Exception e) {

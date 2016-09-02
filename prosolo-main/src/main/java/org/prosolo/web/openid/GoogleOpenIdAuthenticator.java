@@ -6,7 +6,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.openid.GoogleOpenIdAuthenticatorService;
 import org.prosolo.services.openid.exception.OpenIdException;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
@@ -43,7 +43,7 @@ public class GoogleOpenIdAuthenticator implements OpenIdAuthenticator {
 		} catch(OpenIdException e) {
 			try {
 				logger.error(e);
-				FacesContext.getCurrentInstance().getExternalContext().redirect(Settings.getInstance().config.application.domain + "login?openiderr=Error while trying to login through your Google account");
+				FacesContext.getCurrentInstance().getExternalContext().redirect(CommonSettings.getInstance().config.appConfig.domain + "login?openiderr=Error while trying to login through your Google account");
 			} catch (IOException e1) {	
 				logger.error(e1);
 			}

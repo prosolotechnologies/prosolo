@@ -9,7 +9,7 @@ public class MentionNotificationEmailGenerator extends NotificationEmailGenerato
 	
 	@Override
 	public String getSubject() {
-		return "Someone mentioned you on ProSolo";
+		return "Someone mentioned you";
 	}
 
 	public MentionNotificationEmailGenerator(String name, String actor, String predicate, String objectTitle,

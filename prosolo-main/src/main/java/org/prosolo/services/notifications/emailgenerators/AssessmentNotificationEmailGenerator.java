@@ -24,14 +24,14 @@ public class AssessmentNotificationEmailGenerator extends NotificationEmailGener
 		
 		switch (type) {
 		case Assessment_Requested:
-			this.subject = "New assessment request on ProSolo";
+			this.subject = "New assessment request";
 			this.request = true;
 			break;
 		case Assessment_Approved:
-			this.subject = "Your assessment has been approved on ProSolo";
+			this.subject = "Your assessment has been approved";
 			break;
 		case Assessment_Comment:
-			this.subject = "New comment on assessment on ProSolo";
+			this.subject = "New comment on assessment";
 			break;
 		default:
 			break;

@@ -50,7 +50,7 @@ public class EmailSender {
     	Session session = Session.getDefaultInstance(props);
 		
 		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(from));
+		message.setFrom(new InternetAddress(from, "ProSolo"));
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
 		
 		message.setSubject(contentGenerator.getSubject());

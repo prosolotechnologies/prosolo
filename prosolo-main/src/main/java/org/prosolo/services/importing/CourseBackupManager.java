@@ -22,6 +22,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ResourceActivity;
 import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
@@ -164,7 +165,7 @@ public class CourseBackupManager implements Serializable {
 								"");
 				link = Settings.getInstance().config.fileManagement.urlPrefixFolder
 						+ link;
-				link = Settings.getInstance().config.application.domain + link;
+				link = CommonSettings.getInstance().config.appConfig.domain + link;
 				backupData.setLink(link);
 				backups.add(backupData);
 			}

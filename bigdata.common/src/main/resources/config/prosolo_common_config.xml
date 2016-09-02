@@ -1,8 +1,17 @@
 <config>
-	<!-- This setting could be local if local settings are used. In case shared resources are used, e.g. ES, cassandra, 
-	each developer should use different namespace e.g. Nikola N, Zoran Z, Sanja S.... It will affect collection names, 
-	database names, rabbitmq queue name, exchange...	 -->
-	<namespace>local</namespace>	 
+	<!-- This setting could be local if local settings are used. In case shared resources are used, e.g. ES, cassandra, each developer should use different namespace e.g. Nikola N, Zoran Z, Sanja S.... It will affect collection names, database names, rabbitmq queue name, exchange... -->
+	<namespace>local</namespace>
+	<app-config>
+		<app-name>prosolo</app-name>
+		<development-mode>true</development-mode>
+		<developer-email>name.lastname@gmail.com</developer-email>
+		<support-email>administrator@prosolo.ca</support-email>
+		<maintenance>false</maintenance>
+		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, and a trailing slash (/), e.g. http://example.com/prosolo/ -->
+		<url-encoding>
+			<salt>prosoloidencodingsalt</salt>
+		</url-encoding>
+	</app-config>
 	<rabbitmq-config>
 		<listen>true</listen>
 		<distributed>true</distributed>
@@ -54,61 +63,50 @@
 		<password>root</password>
 		<jdbc_driver>com.mysql.jdbc.Driver</jdbc_driver>
 	</mysql-config>
-	 <hibernate>
-      <dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
-      <show-sql>false</show-sql>
-      <hbm2ddl-auto>update</hbm2ddl-auto>
-      <max-fetch-depth>0</max-fetch-depth>
-      <jdbc-batch-size>50</jdbc-batch-size>
-      <connection>
-         <pool-size>200</pool-size>
-         <charSet>UTF-8</charSet>
-         <character-encoding>UTF-8</character-encoding>
-         <use-unicode>true</use-unicode>
-         <autocommit>false</autocommit>
-      </connection>
-      <cache>
-         <use-second-level-cache>true</use-second-level-cache>
-         <use-query-cache>true</use-query-cache>
-         <use-structured-entries>true</use-structured-entries>
-         <region-factory-class>org.hibernate.cache.EhCacheRegionFactory</region-factory-class>
-      </cache>
-      <c3p0>
-         <acquireIncrement>10</acquireIncrement>
-         <initialPoolSize>5</initialPoolSize>
-         <minPoolSize>5</minPoolSize>
-         <maxPoolSize>50</maxPoolSize>
-         <maxStatements>50</maxStatements>
-         <maxIdleTime>3000</maxIdleTime>
-         <automaticTestTable>testTable</automaticTestTable>
-      </c3p0>
-   </hibernate>
-    <email-notifier>
-      <!--debug>true</debug-->
-      <activated>false</activated>
-      <daily>false</daily>
-      <weekly>false</weekly>
-      <monthly>false</monthly>
-      <smtp-config>
-         <host>email-smtp.us-east-1.amazonaws.com</host>
-         <user>AKIAIZ7V7VE3IKI7MWNA</user>
-         <full-email>prosolo.webmaster@gmail.com</full-email>
-         <pass>AsHCvu0BkXI0/qUMSs9PyRrbbMW3OFiH2KFZiigX87ek</pass>
-         <port>587</port>
-         <starttls-enable>true</starttls-enable>
-         <auth>true</auth>
-      </smtp-config>
-   </email-notifier>
-	<app-config>
-		<app-name>prosolo</app-name>
-		<development-mode>true</development-mode>
-      	<developer-email>name.lastname@gmail.com</developer-email>
-       	<maintenance>false</maintenance>
-      	<domain>http://localhost:8080/prosolo/</domain>
-      	<url-encoding>
-			<salt>prosoloidencodingsalt</salt>
-		</url-encoding>
-	</app-config>
+	<hibernate>
+		<dialect>org.hibernate.dialect.MySQL5InnoDBDialect</dialect>
+		<show-sql>false</show-sql>
+		<hbm2ddl-auto>update</hbm2ddl-auto>
+		<max-fetch-depth>0</max-fetch-depth>
+		<jdbc-batch-size>50</jdbc-batch-size>
+		<connection>
+			<pool-size>200</pool-size>
+			<charSet>UTF-8</charSet>
+			<character-encoding>UTF-8</character-encoding>
+			<use-unicode>true</use-unicode>
+			<autocommit>false</autocommit>
+		</connection>
+		<cache>
+			<use-second-level-cache>true</use-second-level-cache>
+			<use-query-cache>true</use-query-cache>
+			<use-structured-entries>true</use-structured-entries>
+			<region-factory-class>org.hibernate.cache.EhCacheRegionFactory</region-factory-class>
+		</cache>
+		<c3p0>
+			<acquireIncrement>10</acquireIncrement>
+			<initialPoolSize>5</initialPoolSize>
+			<minPoolSize>5</minPoolSize>
+			<maxPoolSize>50</maxPoolSize>
+			<maxStatements>50</maxStatements>
+			<maxIdleTime>3000</maxIdleTime>
+			<automaticTestTable>testTable</automaticTestTable>
+		</c3p0>
+	</hibernate>
+	<email-notifier>
+		<activated>false</activated>
+		<daily>false</daily>
+		<weekly>false</weekly>
+		<monthly>false</monthly>
+		<smtp-config>
+			<host>email-smtp.us-east-1.amazonaws.com</host>
+			<user>AKIAIZ7V7VE3IKI7MWNA</user>
+			<full-email>prosolo.webmaster@gmail.com</full-email>
+			<pass>AsHCvu0BkXI0/qUMSs9PyRrbbMW3OFiH2KFZiigX87ek</pass>
+			<port>587</port>
+			<starttls-enable>true</starttls-enable>
+			<auth>true</auth>
+		</smtp-config>
+	</email-notifier>
 	<services>
 		<user>
 			<default-avatar-path>resources/images/users/default/</default-avatar-path>
@@ -116,8 +114,8 @@
 			<default-avatar-name>default</default-avatar-name>
 		</user>
 	</services>
-   	<file-store>
-    	<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-    	<file-store-bucket-name>prosolo.nikola</file-store-bucket-name>
-   	</file-store>
+	<file-store>
+		<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
+		<file-store-bucket-name>prosolo.nikola</file-store-bucket-name>
+	</file-store>
 </config>
