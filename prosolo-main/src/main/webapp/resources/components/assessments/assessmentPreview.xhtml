@@ -183,7 +183,7 @@
 													<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 													<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
 													<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}"
-														disable="#{empty activityAssessmentcredentialId}" />
+														disable="#{empty activityAssessment.credentialId}" />
 												</h:link>
 												<div class="activityOptions">											
 													<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
@@ -200,7 +200,7 @@
 													</ui:fragment>
 																							
 													<a class="commentsIcon" data-toggle="modal"
-														onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement)"
+														onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
 														href="#"  data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}">
 														#{activityAssessment.numberOfMessages}
 													</a>

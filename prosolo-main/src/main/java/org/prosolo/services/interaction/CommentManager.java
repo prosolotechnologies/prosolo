@@ -62,5 +62,9 @@ public interface CommentManager {
 	
 	long getCommentsNumber(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException;
+	
+	List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
+			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
+			long commentId, long userId) throws DbConnectionException;
 
 }

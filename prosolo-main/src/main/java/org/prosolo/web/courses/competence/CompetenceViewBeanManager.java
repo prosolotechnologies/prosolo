@@ -41,6 +41,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	private String compId;
 	private long decodedCompId;
 	private String mode;
+	private String commentId;
 	
 	private CompetenceData1 competenceData;
 	private CommentsData commentsData;
@@ -75,6 +76,7 @@ public class CompetenceViewBeanManager implements Serializable {
 					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 					commentsData = new CommentsData(CommentedResourceType.Competence, 
 							competenceData.getCompetenceId(), hasInstructorCapability);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 //							hasInstructorCapability);
@@ -185,6 +187,14 @@ public class CompetenceViewBeanManager implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 
 }

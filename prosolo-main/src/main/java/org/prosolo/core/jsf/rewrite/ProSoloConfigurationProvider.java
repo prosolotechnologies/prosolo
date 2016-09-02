@@ -75,8 +75,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/settings/twitterOAuth").to("/settings/twitterOAuth.xhtml"))
 				.addRule(Join.path("/settings").to("/settings.xhtml"))
 				.addRule(Join.path("/evaluation/{id}").to("/evaluation.xhtml"))
-				.addRule(Join.path("/posts/{id}/{comment}").to("/post.xhtml"))
-				.addRule(Join.path("/posts/{id}").to("/post.xhtml"))
 				.addRule(Join.path("/messages/{id}").to("/messages.xhtml"))
 				.addRule(Join.path("/messages").to("/messages.xhtml"))
 				.addRule(Join.path("/library").to("/credentialLibrary.xhtml"))
@@ -91,6 +89,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/people").to("/people.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
+				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				
 				.addRule(Join.path("/manage").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))

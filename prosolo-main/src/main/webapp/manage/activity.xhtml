@@ -23,7 +23,7 @@
 			<f:viewParam name="compId" value="#{activityViewBeanManager.compId}" default="null"/>
 			<f:viewParam name="credId" value="#{activityViewBeanManager.credId}" default="null"/>
 			<f:viewParam name="mode" value="#{activityViewBeanManager.mode}" default="null"/>
-			<f:viewParam name="comment" default="null"/>
+			<f:viewParam name="comment" value="#{activityViewBeanManager.commentId}" default="null"/>
 			<f:viewAction action="#{activityViewBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
