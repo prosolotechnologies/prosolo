@@ -47,5 +47,8 @@ public interface SocialActivityManager {
 	
 	PostReshareSocialActivity sharePost(long userId, String text, long originalPostId,
 			LearningContextData context) throws DbConnectionException;
+	
+	SocialActivityData1 getSocialActivityById(long socialActivityId, long userId, Locale locale) 
+			throws DbConnectionException;
 
 }

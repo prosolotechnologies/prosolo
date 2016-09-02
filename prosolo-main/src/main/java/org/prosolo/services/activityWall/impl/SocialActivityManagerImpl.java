@@ -37,6 +37,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
@@ -48,7 +49,6 @@ import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
@@ -113,7 +113,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.actor = :userId \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
-				previousDate, locale);
+				previousDate, false, false, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -130,7 +130,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"					WHERE fe.user = :userId \n" +
 				"				) \n";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId, 
-				previousDate, locale);
+				previousDate, false, false, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -143,7 +143,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.dtype = :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
-				previousDate, locale);
+				previousDate, false, false, locale);
 		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
@@ -157,7 +157,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			long previousId, Date previousDate, Locale locale) {
 		String specificCondition = "AND sa.dtype != :twitterPostDType \n ";
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, specificCondition, previousId,
-				previousDate, locale);
+				previousDate, false, false, locale);
 		q.setParameter("twitterPostDType", TwitterPostSocialActivity1.class.getSimpleName());
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
@@ -170,7 +170,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	private List<SocialActivityData1> getAllSocialActivities(long user, int offset, int limit,
 			long previousId, Date previousDate, Locale locale) {
 		Query q = createQueryWithCommonParametersSet(user, limit, offset, "", previousId, 
-				previousDate, locale);
+				previousDate, false, false, locale);
 		@SuppressWarnings("unchecked")
 		List<SocialActivityData1> res = q.list();
 		if(res == null) {
@@ -272,7 +272,8 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"COUNT(comment.id) AS commentsNumber ";
 	}
 	
-	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate) {
+	private String getTablesString(String specificPartOfTheCondition, long previousId, Date previousDate,
+			boolean queryById, boolean shouldReturnHidden) {
 		String q =
 				"FROM social_activity1 sa \n" +
 				"	LEFT JOIN social_activity_config AS config \n" +
@@ -344,28 +345,34 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       AND comment.resource_type = :commentResourceType " +
 				"       AND comment.parent_comment IS NULL " +
 						
-				"WHERE sa.deleted = :saDeleted \n" +
-				"	AND config.id IS NULL \n";
+				"WHERE sa.deleted = :saDeleted \n";
+			
+		if(!shouldReturnHidden) {
+			q += "	AND config.id IS NULL \n";
+		}
+		if(!queryById) {
+			if(previousDate != null && previousId > 0) {
+				q += "AND sa.last_action <= :date \n " +
+					 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
+			}
+		}
 		
-				if(previousDate != null && previousId > 0) {
-					q += "AND sa.last_action <= :date \n " +
-						 "AND NOT (sa.last_action = :date AND sa.id >= :previousId) ";
-				}
-				return q + specificPartOfTheCondition +	
-					"GROUP BY sa.id, compActivity.competence " +
-					"ORDER BY sa.last_action DESC, sa.id DESC \n" +
-					"LIMIT :limit \n" +
-					"OFFSET :offset";
+		return q + specificPartOfTheCondition +	
+			"GROUP BY sa.id, compActivity.competence " +
+			(queryById ? "" 
+					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
+						 "LIMIT :limit \n" +
+						 "OFFSET :offset");
 	}
 	
 	private Query createQueryWithCommonParametersSet(long userId, int limit, int offset, 
-			String specificCondition, long previousId, Date previousDate, Locale locale) {
-		String query = getSelectPart() + getTablesString(specificCondition, previousId, previousDate);
+			String specificCondition, long previousId, Date previousDate, boolean queryById, 
+			boolean shouldReturnHidden, Locale locale) {
+		String query = getSelectPart() + getTablesString(specificCondition, previousId, previousDate,
+				queryById, shouldReturnHidden);
 		
 		Query q = persistence.currentManager().createSQLQuery(query)
 			.setLong("userId", userId)
-			.setInteger("limit", limit + 1) // +1 because it always loads one extra in order to inform whether there are more to load
-			.setInteger("offset", offset)
 			.setString("postReshareDType", PostReshareSocialActivity.class.getSimpleName())
 			.setString("credEnrollDType", CredentialEnrollSocialActivity.class.getSimpleName())
 			.setString("credCompleteDType", CredentialCompleteSocialActivity.class.getSimpleName())
@@ -470,9 +477,13 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				public List transformList(List collection) {return collection;}
 			});
 		
-		if(previousDate != null && previousId > 0) {
+		if(!queryById && previousDate != null && previousId > 0) {
 			q.setTimestamp("date", previousDate);
 			q.setLong("previousId", previousId);
+		}
+		if(!queryById) {
+			q.setInteger("limit", limit + 1) // +1 because it always loads one extra in order to inform whether there are more to load
+			 .setInteger("offset", offset);
 		}
 		
 		return q;
@@ -978,6 +989,28 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving social activity like");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public SocialActivityData1 getSocialActivityById(long socialActivityId, long userId, Locale locale) 
+			throws DbConnectionException {
+		try {
+			String specificCondition = "AND sa.id = :saId \n ";
+			Query q = createQueryWithCommonParametersSet(userId, 0, 0, specificCondition, 0L,
+					null, true, true, locale);
+			q.setParameter("saId", socialActivityId);
+			@SuppressWarnings("unchecked")
+			List<SocialActivityData1> res = q.list();
+			if(res == null) {
+				return null;
+			}
+			return res.get(0);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving social actiity");
 		}
 	}
 	

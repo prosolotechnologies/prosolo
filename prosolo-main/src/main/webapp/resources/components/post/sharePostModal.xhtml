@@ -1,0 +1,126 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="toUpdate" default=""/>
+	</composite:interface> 
+	
+	<composite:implementation>
+		<h:form id="formSharePost">
+		   <!-- MODAL share post -->
+	       <div class="modal fade sharePostModal" id="sharePostModal" tabindex="-1" role="dialog" aria-labelledby="sharePostMod">
+	           <div class="modal-dialog" role="document">
+	               <h:panelGroup layout="block" id="panelSharePostModal" styleClass="modal-content">
+	               	 <ui:fragment rendered="#{not empty cc.attrs.bean.socialActivityForShare}">
+	                   <div class="modal-header alignLeft">
+	                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                       <h2 class="modal-title" id="sharePostMod">Share Post</h2>
+	                   </div>
+	                   <div class="modal-body alignLeft">
+	                       <div class="textAreaWrapper">
+	                           <div class="contentEditable postShareEditableDivSelector" contenteditable="true" placeholder="Write something..." strip-br="true"></div>
+	                           <h:inputTextarea id="textAreaPostShareText" styleClass="postTextHidden" value="#{cc.attrs.bean.postShareText}" style="display: none;"></h:inputTextarea>
+	                           <h:panelGroup id="panelUserSuggestion">
+								   <h:panelGroup rendered="#{not empty userSearchBean.query and not empty userSearchBean.users}">
+									 <ul class="dropdown-menu searchResultsDrop postShareUserSuggestRegionSelector" style="display:block;">
+									 	<ui:repeat var="user" value="#{userSearchBean.users}">
+									 		<li>
+									 			 <a href="javascript:void(0);"
+									 			 	data-id="#{util:encodeId(user.id)}"
+									 			 	data-name="#{user.fullName}"
+									 			 	onclick="newPostShare.selectSuggestedUser(this);">
+							                   		<utilcomp:userAvatar
+														avatar="#{user.avatarUrl}"
+														fullName="#{user.fullName}"	
+														width="32"
+														height="32"
+												    />  
+												    <h3>#{user.fullName}</h3> 
+				                  			 	 </a>
+						                    </li>
+									 	</ui:repeat>
+					                 </ul>
+					               </h:panelGroup>
+			             	    </h:panelGroup>
+			             	    <p:remoteCommand 
+									name="searchUsersMentionedInPostShare" 
+									update="panelUserSuggestion"
+									process="userSuggestInput inputHiddenContext inputHiddenPage"
+									action="#{userSearchBean.searchUsers()}"/>
+						
+								 <h:inputText id="userSuggestInput" style="display:none;"
+										styleClass="postShareUserSuggestInputSelector"
+										value="#{userSearchBean.query}" />
+								 <h:inputText style="display:none;"
+								 	id="inputHiddenContext"
+								 	styleClass="inputHiddenContextSelector"
+								 	value="#{userSearchBean.context}">
+								 </h:inputText>
+								 <h:inputText style="display:none;"
+								 	id="inputHiddenPage"
+								 	styleClass="inputHiddenPageSelector"
+								 	value="#{userSearchBean.page}">
+								 </h:inputText>
+		                       </div>
+	                       <post:sharedPostPreview
+	                       		socialActivity="#{cc.attrs.bean.socialActivityForShare}"
+	                       		sharedSocialActivityId="0"
+	                       />
+	                   </div>
+	                   <div class="modal-footer alignLeft">
+	                   	   <p:commandLink 
+	                   	   	 	styleClass="btn btn-green"
+	                   	   	 	process="textAreaPostShareText"
+	                   	   	 	action="#{cc.attrs.bean.sharePost()}"
+	                   	   	 	update="#{cc.attrs.toUpdate}"
+	                   	   	 	oncomplete="$('#sharePostModal').modal('hide');">
+	                   	   	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+	                 			<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+	                 			<f:param name="service" value="name:post_share_dialog"/>
+	                   	   	 	Share
+	                   	   </p:commandLink>
+	                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+	                   </div>
+	                  </ui:fragment>
+	               </h:panelGroup>
+	           </div>
+	       </div>
+	       <!-- MODAL share post end -->
+		</h:form>
+		<script>
+			var newPostShare;
+			function initializeNewPostPluginForShare() {
+				console.log('newpost plugin initialization');
+				$('#sharePostModal').newpost({
+					editableDivSelector: '.textAreaWrapper .postShareEditableDivSelector',
+					textAreaSelector: '.textAreaWrapper .postTextHidden',
+					postOptionsSelector: '',
+					postButtonEnabledSelector: '',
+					postButtonDisabledSelector: '',
+					newPostContainerSelector: '',
+					uploadFileModalSelector: '',
+					urlFieldSelector: '',
+					addUrlButtonSelector: '',
+					linkLoaderContainerSelector: '',
+					userSuggestionRegionSelector: '.postShareUserSuggestRegionSelector',
+					userSearchInputSelector: '.postShareUserSuggestInputSelector',
+					userSearchAction: searchUsersMentionedInPostShare,
+					allowUrlPreview : false,
+					showHidePostOptions : false
+				});
+				newPostShare = $('#sharePostModal').data('newpost');
+			}
+		</script>
+	</composite:implementation>
+</ui:component>
