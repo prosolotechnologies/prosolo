@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
@@ -61,7 +62,7 @@ public interface Competence1Manager {
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
 
-	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred, User user) 
 			throws DbConnectionException;
 	
 	/**

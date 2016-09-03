@@ -82,7 +82,7 @@ public class NotificationDataFactory {
 				relationToTarget += " " + targetTypeString;
 			}
 		} catch (Exception e) {
-			logger.error(e);
+//			logger.error(e);
 		}
 		return relationToTarget;
 	}

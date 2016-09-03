@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -30,7 +31,7 @@ public interface Activity1Manager {
 	List<ActivityData> getCompetenceActivitiesData(long competenceId)
 			throws DbConnectionException;
 	
-	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
+	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp, User user) 
 			throws DbConnectionException;
 	
 	List<ActivityData> getTargetActivitiesData(long targetCompId) 

@@ -3,6 +3,7 @@ package org.prosolo.services.notifications.eventprocessing;
 import javax.inject.Inject;
 
 import org.hibernate.Session;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
@@ -34,6 +35,8 @@ public class NotificationEventProcessorFactory {
 	private RoleManager roleManager;
 	@Inject
 	private CredentialManager credentialManager;
+	@Inject
+	private ContextJsonParserService contextJsonParserService;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -45,7 +48,7 @@ public class NotificationEventProcessorFactory {
 		case Comment:
 		case Comment_Reply:
 			return new CommentEventProcessing(event, session, notificationManager,
-					notificationsSettingsManager, idEncoder, activityManager, commentManager, roleManager);
+					notificationsSettingsManager, idEncoder, activityManager, commentManager, roleManager, contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
 		 * was generated on the Status Wall (liked/disliked a SocialActivity

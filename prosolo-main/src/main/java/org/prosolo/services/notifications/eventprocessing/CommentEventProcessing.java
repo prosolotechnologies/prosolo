@@ -8,6 +8,10 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -26,15 +30,17 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	private Activity1Manager activityManager;
 	private CommentManager commentManager;
 	private RoleManager roleManager;
-
+	private ContextJsonParserService contextJsonParserService;
+	
 	public CommentEventProcessing(Event event, Session session,
 			NotificationManager notificationManager, 
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			Activity1Manager activityManager, CommentManager commentManager, RoleManager roleManager) {
+			Activity1Manager activityManager, CommentManager commentManager, RoleManager roleManager, ContextJsonParserService contextJsonParserService) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.activityManager = activityManager;
 		this.commentManager = commentManager;
 		this.roleManager = roleManager;
+		this.contextJsonParserService = contextJsonParserService;
 		setResource();
 		setObjectType();
 	}
@@ -50,13 +56,16 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 			case SocialActivity:
 				objectType = ResourceType.SocialActivity;	
 				break;
+			case ActivityResult:
+				objectType = ResourceType.ActivityResult;	
+				break;
 		}
 	}
 
 	protected void setResource() {
 		this.resource = (Comment1) session.merge(event.getObject());
 	}
-
+	
 	@Override
 	List<Long> getReceiverIds() {
 		List<Long> users = null;
@@ -128,9 +137,43 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 					idEncoder.encodeId(getObjectId()) +
 					"?comment=" +  idEncoder.encodeId(resource.getId());
 			case SocialActivity:
-				return "/post/" +
+				return "/posts/" +
 					idEncoder.encodeId(getObjectId()) +
 					"?comment=" +  idEncoder.encodeId(resource.getId());
+			case ActivityResult:
+				
+				LearningContext learningContext = contextJsonParserService.
+					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
+			
+				long idsRead = 0;	// counting if we have read all the ids
+				Context credentialContext = learningContext.getSubContextWithName(ContextName.CREDENTIAL);
+				Context competenceContext = learningContext.getSubContextWithName(ContextName.COMPETENCE);
+				Context activityContext = learningContext.getSubContextWithName(ContextName.ACTIVITY);
+				
+				long credentialId = 0;
+				long competenceId = 0;
+				long activityId = 0;
+				
+				if (credentialContext != null) {
+					credentialId = credentialContext.getId();
+					idsRead++;
+				}
+				if (competenceContext != null) {
+					competenceId = competenceContext.getId();
+					idsRead++;
+				}
+				if (activityContext != null) {
+					activityId = activityContext.getId();
+					idsRead++;
+				}
+				if (idsRead != 3) {
+					logger.error("Can not find ids of a credential, competence or activity");
+				}
+				return "/credentials/" +
+					idEncoder.encodeId(credentialId) + "/" +
+					idEncoder.encodeId(competenceId) + "/" +
+					idEncoder.encodeId(activityId) + "/" +
+					"responses?comment=" +  idEncoder.encodeId(resource.getId());
 			default:
 				break;
 		}

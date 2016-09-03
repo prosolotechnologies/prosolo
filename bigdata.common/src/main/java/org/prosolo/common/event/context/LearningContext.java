@@ -31,5 +31,20 @@ public class LearningContext {
 	public void setService(Service service) {
 		this.service = service;
 	}
+	
+	public Context getSubContextWithName(ContextName name) {
+		return findContextWithName(name, context);
+	}
+
+	private Context findContextWithName(ContextName name, Context context) {
+		if (context != null) {
+			if (context.getName().equals(name)) {
+				return context;
+			} else {
+				return findContextWithName(name, context.getContext());
+			}
+		}
+		return null;
+	}
 
 }

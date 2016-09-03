@@ -170,7 +170,7 @@ public interface CredentialManager extends AbstractManager {
 	List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException;
 	
-	 List<Tag> getCredentialHashtags(long credentialId, Session session) 
+	List<Tag> getCredentialHashtags(long credentialId, Session session) 
 				throws DbConnectionException;
 
 	List<CredentialBookmark> getBookmarkedByIds(long id) throws DbConnectionException;

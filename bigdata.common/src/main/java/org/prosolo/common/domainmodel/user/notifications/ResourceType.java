@@ -9,7 +9,8 @@ public enum ResourceType {
 	Credential("Credential1"),
 	PostSocialActivity("PostSocialActivity1"), 
 	Announcement("Announcement"),
-	SocialActivity("SocialActivity1");
+	SocialActivity("SocialActivity1"),
+	ActivityResult("TargetActivity1");
 
 	private String dbTableName;
 	

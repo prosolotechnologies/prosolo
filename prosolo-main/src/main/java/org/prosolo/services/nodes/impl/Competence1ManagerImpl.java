@@ -271,14 +271,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred, User user) 
 			throws DbConnectionException {
 		try {
 			List<CredentialCompetence1> credComps = getCredentialCompetences(credId, 
 					false, true, false);
 			List<TargetCompetence1> targetComps =  new ArrayList<>();
 			for(CredentialCompetence1 cc : credComps) {
-				TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc);
+				TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc, user);
 				targetComps.add(targetComp);
 			}
 			return targetComps;
@@ -291,7 +291,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Transactional(readOnly = false)
 	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
-			CredentialCompetence1 cc) {
+			CredentialCompetence1 cc, User user) {
 		TargetCompetence1 targetComp = new TargetCompetence1();
 		Competence1 comp = cc.getCompetence();
 		targetComp.setTitle(comp.getTitle());
@@ -301,7 +301,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		targetComp.setDuration(comp.getDuration());
 		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
 		targetComp.setOrder(cc.getOrder());
-		targetComp.setCreatedBy(comp.getCreatedBy());
+		targetComp.setCreatedBy(user);
 		targetComp.setType(comp.getType());
 		
 		if(comp.getTags() != null) {
@@ -314,7 +314,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		saveEntity(targetComp);
 		
 		List<TargetActivity1> targetActivities = activityManager.createTargetActivities(
-				comp.getId(), targetComp);
+				comp.getId(), targetComp, user);
 		targetComp.setTargetActivities(targetActivities);
 		
 		/*
