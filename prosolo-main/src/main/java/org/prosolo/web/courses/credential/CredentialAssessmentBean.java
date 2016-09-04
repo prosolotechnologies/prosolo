@@ -122,8 +122,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void initAssessment() {
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
+		
 		if (decodedAssessmentId > 0) {
-
 			try {
 				fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
 						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
@@ -134,7 +134,6 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				PageUtil.fireErrorMessage("Error while loading assessment data");
 			}
 		}
-
 	}
 
 	public void approveCredential() {

@@ -52,6 +52,7 @@ public class ActivityDataFactory {
 		act.setPublished(activity.isPublished());
 		act.setDraft(activity.isDraft());
 		act.setHasDraft(activity.isHasDraft());
+		act.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		act.setActivityStatus();
 		act.getResultData().setResultType(getResultType(activity.getResultType()));
 		act.setDateCreated(activity.getDateCreated());

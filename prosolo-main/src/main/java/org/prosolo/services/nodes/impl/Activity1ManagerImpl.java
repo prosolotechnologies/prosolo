@@ -1145,6 +1145,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
 			actToUpdate.setPublished(data.isPublished());
+			actToUpdate.setMaxPoints(Integer.parseInt(data.getMaxPointsString()));
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
@@ -2596,8 +2597,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setTitle(act.getTitle());
 			activity.setType(act.getType());
 			activity.setActivityId(actId);
-			activity.getGradeOptions().setMinGrade(act.getGradingOptions().getMinGrade());
-			activity.getGradeOptions().setMaxGrade(act.getGradingOptions().getMaxGrade());
+//			activity.getGradeOptions().setMinGrade(act.getGradingOptions().getMinGrade());
+//			activity.getGradeOptions().setMaxGrade(act.getGradingOptions().getMaxGrade());
+			activity.setMaxPointsString(act.getMaxPoints() == 0 ? "" : String.valueOf(act.getMaxPoints()));
 			activity.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
 					paginate, page, limit, filter));
 			

@@ -23,6 +23,9 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputStylesheet library="css2" name="bootstrap-slider.css"  />
+		<script	src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
+		
 		<div id="#{cc.clientId}">
 			<h:form id="formGradeModal">
 		    	<div class="modal fade newFeedModal" id="assessmentGradeModal1" tabindex="-1" role="dialog" aria-labelledby="assessGradeModal">
@@ -35,6 +38,7 @@
 		                   </div>
 		                   <div class="modal-body alignLeft">
 		                       
+		                       <ui:remove>
 		                       <h:selectOneMenu styleClass="selectpicker"
 		                       		value="#{cc.attrs.assessment.grade.value}">
 		                       		<f:selectItem itemValue="#{null}" itemLabel="-"></f:selectItem>
@@ -46,8 +50,32 @@
 		                       		</c:forEach>
 		                       </h:selectOneMenu>
 		                       <script>$('.selectpicker').selectpicker('refresh');</script>
-		                   </div>
-		                   <div class="modal-footer alignLeft">
+		                       </ui:remove>
+		                       
+								<div class="sliderBox">
+									<div class="sliderWrapper">
+										<input type="text" id="gradeSlider" class="gradeSlider" />
+									</div>
+									<h:inputText value="#{cc.attrs.assessment.grade.value}" id="gradeValue" class="sliderValueInput" />
+									<script>
+									var gradeSlider = $("#gradeSlider").bootstrapSlider({
+										id: 'gradeSlider',
+										min: #{cc.attrs.assessment.grade.minGrade},
+										max: #{cc.attrs.assessment.grade.maxGrade},
+										value: #{cc.attrs.assessment.grade.value},
+										tooltip: 'hide'
+									});
+									gradeSlider.bootstrapSlider('on', 'slide', function(){
+										$('.sliderValueInput').val(gradeSlider.bootstrapSlider('getValue'));
+									});
+									$('.sliderValueInput').bind('propertychange change click keyup input paste', function() {
+										gradeSlider.bootstrapSlider('setValue', parseInt($(this).val()));
+									});
+									</script>
+								</div>
+							</div>
+		                       
+							<div class="modal-footer alignLeft">
 		                       <p:commandLink 
 		                       		styleClass="btn btn-green"
 		                       		action="#{cc.attrs.bean.updateGrade()}"

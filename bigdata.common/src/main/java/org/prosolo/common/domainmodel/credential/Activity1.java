@@ -34,6 +34,7 @@ public class Activity1 extends BaseEntity {
 	private boolean uploadAssignment;
 	private ActivityResultType resultType;
 	private LearningResourceType type;
+	private int maxPoints;
 	
 	private Activity1 draftVersion;
 	/** 
@@ -51,6 +52,10 @@ public class Activity1 extends BaseEntity {
 	
 	private User createdBy;
 	
+	/**
+	 * Deprecated since 0.5. Should be removed as 'maxPoints' is introduced and that field is sufficient.
+	 */
+	@Deprecated
 	private GradingOptions gradingOptions;
 	
 	public Activity1() {
@@ -72,6 +77,14 @@ public class Activity1 extends BaseEntity {
 
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+	
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
 	}
 
 	@OneToOne(fetch = FetchType.LAZY)

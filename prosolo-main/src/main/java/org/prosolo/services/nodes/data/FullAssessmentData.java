@@ -54,14 +54,13 @@ public class FullAssessmentData {
 		data.setDefaultAssessment(assessment.isDefaultAssessment());
 		
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
-		for(CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
+		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
 			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
 			compDatas.add(compData);
 		}
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		return data;
-		
 	}
 
 	private static String getInitialsFromName(String fullname) {

@@ -24,6 +24,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean enrolled;
 	private boolean completed;
 	private ActivityResultData resultData;
+	private String maxPointsString; // needed because field can also be empty on the html page
 	
 	private int order;
 	private int durationHours;
@@ -181,6 +182,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+	
+	public String getMaxPointsString() {
+		return maxPointsString;
+	}
+
+	public void setMaxPointsString(String maxPointsString) {
+		observeAttributeChange("maxPointsString", this.maxPointsString, maxPointsString);
+		this.maxPointsString = maxPointsString;
 	}
 
 	public int getOrder() {

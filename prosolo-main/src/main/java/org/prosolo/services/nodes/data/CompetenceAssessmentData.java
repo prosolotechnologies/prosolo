@@ -26,14 +26,13 @@ public class CompetenceAssessmentData {
 		data.setApproved(compAssessment.isApproved());
 		List<TargetActivity1> targetActivities = compAssessment.getTargetCompetence().getTargetActivities();
 		List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
-		for(TargetActivity1 targetActivity : targetActivities) {
+		for (TargetActivity1 targetActivity : targetActivities) {
 			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(targetActivity, compAssessment, encoder, userId);
 			activityAssessmentData.add(assessmentData);
 		}
 		data.setActivityAssessmentData(activityAssessmentData);
 			
 		return data;
-		
 	}
 
 	public String getTitle() {

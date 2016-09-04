@@ -21,33 +21,32 @@
 	
 	<composite:implementation>
 		<script>
-	function hideConfirmDialog(dialogId) {
-		$('#'+dialogId).modal('hide');
-		$("body").removeAttr("class").removeAttr("style")
-		$("div.modal-backdrop.fade.in").remove()
-	}
-	
-	function markDiscussionAsSeen(discussionId, parentElement) {
-		markActivityDiscussionRead([{name:'encodedActivityDiscussionId', value:discussionId}])
-		$(parentElement).removeClass( "hasNewComments" );
-	}
-	
-	function updateNumberOfMessages(elementId) {
-		var numberOfComments = $('#'+elementId).find('div.comments li').length;
-		$('#'+elementId).parent().find('a.commentsIcon').text(numberOfComments);
-	}
-	
-	
-	//comment form hide/show
-	function displaySubmitButton(inputElem) {
-	    if ($(inputElem).val().length==0) {
-	        $(inputElem).next('a.btn-green').addClass('hidden');
-	    } else {
-	        $(inputElem).next('a.btn-green').removeClass('hidden');
-	    }
-	}
-
-	</script>
+		function hideConfirmDialog(dialogId) {
+			$('#'+dialogId).modal('hide');
+			$("body").removeAttr("class").removeAttr("style")
+			$("div.modal-backdrop.fade.in").remove()
+		}
+		
+		function markDiscussionAsSeen(discussionId, parentElement) {
+			markActivityDiscussionRead([{name:'encodedActivityDiscussionId', value:discussionId}])
+			$(parentElement).removeClass( "hasNewComments" );
+		}
+		
+		function updateNumberOfMessages(elementId) {
+			var numberOfComments = $('#'+elementId).find('div.comments li').length;
+			$('#'+elementId).parent().find('a.commentsIcon').text(numberOfComments);
+		}
+		
+		
+		//comment form hide/show
+		function displaySubmitButton(inputElem) {
+		    if ($(inputElem).val().length==0) {
+		        $(inputElem).next('a.btn-green').addClass('hidden');
+		    } else {
+		        $(inputElem).next('a.btn-green').removeClass('hidden');
+		    }
+		}
+		</script>
 		<h:form prependId="false" id="remoteCommandForm">
 			<p:remoteCommand action="#{cc.attrs.bean.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
 		</h:form>
@@ -65,7 +64,7 @@
 							
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor()}">
 								<p:commandLink
-									styleClass="btn btn-green btn-sm"
+									styleClass="btn btn-green btn-sm item"
 									value="Approve"
 									update="@form"
 									action="#{cc.attrs.bean.approveCredential()}" 
@@ -119,6 +118,8 @@
 								</div>
 								</ui:remove>
 							</ui:fragment>
+							
+							<div class="totalScore">Total score: 214 / 800</div>
 						</h:form>
 					</div>
 					
@@ -350,7 +351,8 @@
 										                 	action="#{cc.attrs.bean.setCurrentAssessment(activityAssessment)}"
 										                 	update=":#{cc.clientId}:activityGradeModal:formGradeModal:panelGradeModal"
 										                 	oncomplete="$('#assessmentGradeModal1').modal('show');">
-										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}
+										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.maxGrade}
 										                </p:commandLink>
 									                </ui:fragment>
 									                <ui:fragment rendered="#{cc.attrs.role eq 'USER' or not cc.attrs.bean.isCurrentUserAssessor()}">
@@ -359,11 +361,13 @@
 										                 	disabled="disabled" 
 										                 	data-toggle="tooltip" 
 										                 	title="You are not allowed to update grades">
-										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}
+										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
 										            </ui:fragment>
 												</div>
-																									
+												
+												<ui:remove>
 												<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
 													<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
 														<a data-original-title="Download Response" 
@@ -371,6 +375,11 @@
 															class="download" data-toggle="tooltip" title="">Download</a>
 													</ui:repeat>
 												</ui:fragment>
+												</ui:remove>
+											</li>
+											<li class="competenceScore">
+												<div>Competence score:</div>
+												<div>107 / 400</div>
 											</li>
 										</ul>
 									</ui:repeat>

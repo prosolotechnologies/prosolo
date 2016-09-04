@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
@@ -53,8 +52,10 @@ public class ActivityAssessmentData {
 		data.setResult(targetActivity.getResult());
 		data.setTitle(targetActivity.getTitle());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
-		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
-		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+//		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
+//		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+		data.getGrade().setMinGrade(0);
+		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
 		data.setCompAssessmentId(compAssessment.getId());
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		
@@ -81,27 +82,20 @@ public class ActivityAssessmentData {
 		return data;
 	}
 
-
-
 	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
 		data.setActivityId(targetActivity.getActivity().getId());
 		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
 		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
 	}
 
-
-
-	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
-		if(CollectionUtils.isNotEmpty(targetActivity.getFiles()) && targetActivity.isUploadAssignment()) {
-			data.setDownloadResourceUrls(new ArrayList<>());
-			for(ResourceLink link : targetActivity.getFiles()) {
-				data.getDownloadResourceUrls().add(link.getUrl());
-			}
-		}
-		
-	}
-
-
+//	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
+//		if(CollectionUtils.isNotEmpty(targetActivity.getFiles()) && targetActivity.isUploadAssignment()) {
+//			data.setDownloadResourceUrls(new ArrayList<>());
+//			for(ResourceLink link : targetActivity.getFiles()) {
+//				data.getDownloadResourceUrls().add(link.getUrl());
+//			}
+//		}
+//	}
 
 	private static boolean hasUserReadAllMessages(ActivityDiscussion activityDiscussion, long userId,
 			UrlIdEncoder encoder) {

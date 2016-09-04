@@ -1031,10 +1031,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		User creator = (User) persistence.currentManager().load(User.class, userId);
     		act.setCreatedBy(creator);
     		
-    		//TODO change when design is implemented
     		GradingOptions go = new GradingOptions();
-    		go.setMinGrade(1);
-    		go.setMaxGrade(10);
+    		go.setMinGrade(0);
+    		go.setMaxGrade(activityData.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(activityData.getMaxPointsString()));
     		saveEntity(go);
     		act.setGradingOptions(go);
     		

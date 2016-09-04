@@ -126,7 +126,6 @@
                                     <div class="clear">
                                     </div>
 			                        <a href="#{file.url}" target="_blank">#{file.fetchedTitle}</a>
-			                         
 	                     		</li>
 	                 		</ui:fragment>
 	                 	</ui:repeat>
@@ -146,58 +145,70 @@
 	             </div>
 	         </div>
 	         <div class="formLine">
-	             <label>Add URL</label>
-	             <div class="formLineRight">
-	             	<h:panelGroup id="panelLinks">
-	             	<h:panelGroup id="panelAddedLinks" rendered="#{!cc.attrs.bean.isLinkListEmpty()}">	
-	                 <ul class="addedItems">
-	                 	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
-	                 		<ui:fragment rendered="#{link.status != 'REMOVED'}">
-		                 		<li>
-		                 			<h3>#{link.linkName}</h3>
-                                    <p:commandLink 
-			                         	styleClass="removeX" 
-			                         	pt:data-toggle="tooltip" 
-			                         	pt:title="Remove"
-			                         	process="@this"
-			                         	action="#{cc.attrs.bean.removeLink(link)}"
-			                         	update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
-			                         	remove
-			                         </p:commandLink>
-                                    <div class="clear">
-                                    </div>
-			                        <a href="#{link.url}" target="_blank">#{link.url}</a>
-			                         
-		                     	</li>
-		                     </ui:fragment>
-	                 	</ui:repeat>
-	                 </ul>
-	                 </h:panelGroup>
-	                 </h:panelGroup>
+				<label>Add URL</label>
+				<div class="formLineRight">
+					<h:panelGroup id="panelLinks">
+						<h:panelGroup id="panelAddedLinks" rendered="#{!cc.attrs.bean.isLinkListEmpty()}">	
+							<ul class="addedItems">
+								<ui:repeat var="link" value="#{cc.attrs.activity.links}">
+									<ui:fragment rendered="#{link.status != 'REMOVED'}">
+										<li>
+											<h3>#{link.linkName}</h3>
+											<p:commandLink 
+												styleClass="removeX" 
+												pt:data-toggle="tooltip" 
+												pt:title="Remove"
+												process="@this"
+												action="#{cc.attrs.bean.removeLink(link)}"
+												update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
+												remove
+											</p:commandLink>
+											<div class="clear"></div>
+											<a href="#{link.url}" target="_blank">#{link.url}</a>
+										</li>
+									</ui:fragment>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
+					</h:panelGroup>
 	                 
-	                 <p:commandLink 
-	                 	process="@this"
-	                 	styleClass="btn btn-green btn-sm" 
-	                 	pt:data-toggle="modal"
-	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
-	                 	update="#{cc.attrs.toUpdateModalAddLink}"
-	                 	oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
-	                 </p:commandLink>
-
+					<p:commandLink 
+						process="@this"
+						styleClass="btn btn-green btn-sm" 
+						pt:data-toggle="modal"
+						action="#{cc.attrs.prepareAddingResLinkMethod}"
+						update="#{cc.attrs.toUpdateModalAddLink}"
+						oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
+					</p:commandLink>
 	             </div>	          
 	         </div>
-	         <div class="formLine">
-                 <label>Response</label>
-                 <div class="formLineRight">
-                 	 <h:selectOneMenu 
-                 	 	styleClass="selectpicker"
-                 	 	value="#{cc.attrs.activity.resultData.resultType}"
-                 	 	onchange="updateStatusToDraft();">
-                 	 	<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
+	         
+			<div class="formLine">
+				<label>Response</label>
+				<div class="formLineRight">
+					<h:selectOneMenu 
+						styleClass="selectpicker"
+						value="#{cc.attrs.activity.resultData.resultType}"
+						onchange="updateStatusToDraft();">
+						<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
 							itemValue="#{resType}" itemLabel="#{resType.label}" />
-                 	 </h:selectOneMenu>
-                 </div>
-             </div>
+					</h:selectOneMenu>
+				</div>
+			</div>
+            
+			<div class="formLine">
+				<label>Max points</label>
+				<div class="formLineRight">
+					<h:inputText
+						id="maxPoints"
+						value="#{cc.attrs.activity.maxPointsString}"
+                     	placeholder="e.g. 10"
+                     	converterMessage="Only numbers are allowed">
+                     	<f:convertNumber integerOnly="true"/>
+                   	</h:inputText>
+                   	<h:message for="maxPoints" style="color:red" />
+				</div>
+			</div>
          </h:panelGroup>
          
          <!-- external tool activity -->
