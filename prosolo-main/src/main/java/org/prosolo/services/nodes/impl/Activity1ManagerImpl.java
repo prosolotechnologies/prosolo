@@ -2580,6 +2580,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							gd.setValue((Integer) row[13]);
 							ad.setGrade(gd);
 							ard.setAssessment(ad);							
+						} else {
+							// there is no activity assessment created yet
+							ActivityAssessmentData ad = new ActivityAssessmentData();
+							GradeData gd = new GradeData();
+							gd.setMinGrade(0);
+							gd.setMaxGrade((Integer) row[12]);
+							gd.setValue(0);
+							ad.setGrade(gd);
+							ard.setAssessment(ad);
 						}
 					}
 				}
