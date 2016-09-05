@@ -137,15 +137,23 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-9 mandatoryFlow">
+					<ui:remove>
 					<p>
-						#{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the creddential, you will be asked for a public review that will be shown on student's profile.
+						#{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. 
+						All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the credential, you will be asked for a public review that will be shown on student's profile.
+					</p>
+					</ui:remove>
+					<p>
+						Here you can assess this credential for #{cc.attrs.bean.fullAssessmentData.studentFullName}. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.
 					</p>
 
+					<ui:fragment rendered="#{not empty cc.attrs.bean.fullAssessmentData.message}">
 					<div class="whiteBox assessmentInitialMessage">
 						<h2>Message</h2>
 						<p><h:outputText value="#{cc.attrs.bean.fullAssessmentData.message}" escape="false"/></p>
 						<div class="clear"></div>
 					</div>
+					</ui:fragment>
 
 					<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 						<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
