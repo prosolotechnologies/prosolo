@@ -23,9 +23,6 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<h:outputStylesheet library="css2" name="bootstrap-slider.css"  />
-		<script	src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
-		
 		<div id="#{cc.clientId}">
 			<h:form id="formGradeModal">
 		    	<div class="modal fade newFeedModal" id="assessmentGradeModal1" tabindex="-1" role="dialog" aria-labelledby="assessGradeModal">
@@ -62,10 +59,10 @@
 										id: 'gradeSlider',
 										min: #{cc.attrs.assessment.grade.minGrade},
 										max: #{cc.attrs.assessment.grade.maxGrade},
-										value: #{cc.attrs.assessment.grade.value},
+										value: #{cc.attrs.assessment.grade.value > 0 ? cc.attrs.assessment.grade.value : 0},
 										tooltip: 'hide'
 									});
-									gradeSlider.bootstrapSlider('on', 'slide', function(){
+									gradeSlider.bootstrapSlider('on', 'change', function(){
 										$('.sliderValueInput').val(gradeSlider.bootstrapSlider('getValue'));
 									});
 									$('.sliderValueInput').bind('propertychange change click keyup input paste', function() {

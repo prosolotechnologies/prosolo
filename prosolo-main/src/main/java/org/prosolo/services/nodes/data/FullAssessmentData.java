@@ -29,6 +29,8 @@ public class FullAssessmentData {
 	private long targetCredentialId;
 	private long credentialId;
 	private boolean defaultAssessment;
+	private int points;
+	private int maxPoints;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -52,12 +54,16 @@ public class FullAssessmentData {
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setAssessorId(assessment.getAssessor().getId());
 		data.setDefaultAssessment(assessment.isDefaultAssessment());
+		data.setPoints(assessment.getPoints());
 		
+		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
 			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
+			maxPoints += compData.getMaxPoints();
 			compDatas.add(compData);
 		}
+		data.setMaxPoints(maxPoints);
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		return data;
@@ -219,6 +225,31 @@ public class FullAssessmentData {
 
 	public void setDefaultAssessment(boolean defaultAssessment) {
 		this.defaultAssessment = defaultAssessment;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
+
+	public CompetenceAssessmentData findCompetenceAssessmentData(long compAssessmentId) {
+		for (CompetenceAssessmentData compAssessment : competenceAssessmentData) {
+			if (compAssessment.getCompetenceAssessmentId() == compAssessmentId) {
+				return compAssessment;
+			}
+		}
+		return null;
 	}
 	
 }

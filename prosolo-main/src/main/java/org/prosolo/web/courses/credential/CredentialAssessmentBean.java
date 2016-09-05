@@ -266,9 +266,12 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void updateGrade() {
 		try {
+			long compAssessmentId = currentAssessment.getCompAssessmentId();
+			long credAssessmentId = currentAssessment.getCredAssessmentId();
+			
 			if (StringUtils.isBlank(currentAssessment.getEncodedDiscussionId())) {
 				long actualDiscussionId = createDiscussion(currentAssessment.getEncodedTargetActivityId(), 
-						idEncoder.encodeId(currentAssessment.getCompAssessmentId()));
+						idEncoder.encodeId(compAssessmentId));
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -279,6 +282,20 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						idEncoder.decodeId(currentAssessment.getEncodedDiscussionId()),
 						currentAssessment.getGrade().getValue());
 			}
+			
+			// recalculate points of parent competence and credential assessments
+			int compPoints = assessmentManager.recalculateScoreForCompetenceAssessment(compAssessmentId);
+			
+			CompetenceAssessmentData compAssessmentData = fullAssessmentData.findCompetenceAssessmentData(compAssessmentId);
+			if (compAssessmentData != null) {
+				compAssessmentData.setPoints(compPoints);
+			} else {
+				logger.error("Could not fin competence assessment data for id: " + compAssessmentId);
+			}
+			
+			int credPoints = assessmentManager.recalculateScoreForCredentialAssessment(credAssessmentId);
+			fullAssessmentData.setPoints(credPoints);
+			
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
 		} catch(Exception e) {
 			e.printStackTrace();

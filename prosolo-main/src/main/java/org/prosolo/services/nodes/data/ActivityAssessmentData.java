@@ -57,6 +57,7 @@ public class ActivityAssessmentData {
 		data.getGrade().setMinGrade(0);
 		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
 		data.setCompAssessmentId(compAssessment.getId());
+		data.setCredAssessmentId(compAssessment.getCredentialAssessment().getId());
 		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		
 		if (activityDiscussion != null) {
@@ -64,6 +65,7 @@ public class ActivityAssessmentData {
 			boolean isAllRead = hasUserReadAllMessages(activityDiscussion, userId, encoder);
 			data.setAllRead(isAllRead);
 			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+			
 			if (CollectionUtils.isNotEmpty(messages)) {
 				data.setActivityDiscussionMessageData(new ArrayList<>());
 				data.setNumberOfMessages(activityDiscussion.getMessages().size());
@@ -73,7 +75,8 @@ public class ActivityAssessmentData {
 					data.getActivityDiscussionMessageData().add(messageData);
 				}
 			}
-			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
+//			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
+			data.getGrade().setValue(activityDiscussion.getPoints());
 		}
 		//there are no discussions/messages for this activity, set it as 'all read'
 		else {

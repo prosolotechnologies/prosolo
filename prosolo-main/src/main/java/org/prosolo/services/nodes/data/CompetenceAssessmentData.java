@@ -15,6 +15,8 @@ public class CompetenceAssessmentData {
 	private long competenceAssessmentId;
 	private String competenceAssessmentEncodedId;
 	private List<ActivityAssessmentData> activityAssessmentData;
+	private int points;
+	private int maxPoints;
 
 	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 			long userId, DateFormat dateFormat) {
@@ -24,12 +26,18 @@ public class CompetenceAssessmentData {
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
+		data.setPoints(compAssessment.getPoints());
+		
 		List<TargetActivity1> targetActivities = compAssessment.getTargetCompetence().getTargetActivities();
+		
+		int maxPoints = 0;
 		List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
 		for (TargetActivity1 targetActivity : targetActivities) {
 			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(targetActivity, compAssessment, encoder, userId);
+			maxPoints += assessmentData.getGrade().getMaxGrade();
 			activityAssessmentData.add(assessmentData);
 		}
+		data.setMaxPoints(maxPoints);
 		data.setActivityAssessmentData(activityAssessmentData);
 			
 		return data;
@@ -74,7 +82,21 @@ public class CompetenceAssessmentData {
 	public void setActivityAssessmentData(List<ActivityAssessmentData> activityAssessmentData) {
 		this.activityAssessmentData = activityAssessmentData;
 	}
-	
-	
 
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
+	
 }

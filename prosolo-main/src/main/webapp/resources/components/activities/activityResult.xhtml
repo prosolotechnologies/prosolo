@@ -62,7 +62,7 @@
              <c:if test="#{cc.attrs.role eq 'MANAGER'}">
 	             <div class="resultOptions">
 	                 <span>Private conversation:</span>
-	                 <p:commandLink 
+	                 <p:commandLink
 	                 	styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}" 
 	                 	pt:data-toggle="modal" data-target="##{cc.attrs.privateConvModalId}"
 	                 	onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
@@ -79,7 +79,9 @@
 		                 	action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
 		                 	update="#{cc.attrs.toUpdateAssessmentGradeModal}"
 		                 	oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
-		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+							#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+							/
+							#{cc.attrs.resultData.assessment.grade.maxGrade}
 		                 </p:commandLink>
 		             </ui:fragment>
 		             <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
@@ -89,6 +91,8 @@
 		                 	data-toggle="tooltip" 
 		                 	title="You can not grade this student because you are not his instructor">
 		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+							/
+							#{cc.attrs.resultData.assessment.grade.maxGrade}
 		                 </a>
 		             </ui:fragment>
 	             </div>
@@ -204,6 +208,8 @@
 		                 	update="#{cc.attrs.toUpdateAssessmentGradeModal}"
 		                 	oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
 		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+							/
+							#{cc.attrs.resultData.assessment.grade.maxGrade}
 		                 </p:commandLink>
 		             </ui:fragment>
 		             <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
@@ -213,6 +219,8 @@
 		                 	data-toggle="tooltip" 
 		                 	title="You can not grade this student because you are not his instructor">
 		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+							/
+							#{cc.attrs.resultData.assessment.grade.maxGrade}
 		                 </a>
 		             </ui:fragment>
 	             </div>
@@ -233,15 +241,15 @@
 		           	</p:commandLink>
 		           	<ui:fragment rendered="#{cc.attrs.resultData.resultComments.initialized}">
 		           		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.resultData.targetActivityId}">
-		            			<a class="commentsNumber" 
-		            				role="button" 
-		            				data-toggle="collapse" 
-		            				href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}" 
-		            				aria-expanded="false" 
-		            				aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
-									<span class="icon"></span>
-									#{cc.attrs.resultData.resultComments.numberOfComments} comments
-								</a>
+	            			<a class="commentsNumber" 
+	            				role="button" 
+	            				data-toggle="collapse" 
+	            				href="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}" 
+	            				aria-expanded="false" 
+	            				aria-controls="#commentsContainerDiv#{cc.attrs.resultData.targetActivityId}">
+								<span class="icon"></span>
+								#{cc.attrs.resultData.resultComments.numberOfComments} comments
+							</a>
            				</h:panelGroup>  
        				</ui:fragment>
         		</h:panelGroup>
@@ -249,19 +257,19 @@
              		<a href="javascript:void(0)" class="edit" onclick="showEditResponse(this)"><span class="icon"></span>Edit</a>
              	</ui:fragment>
              </div>
-             <post:comments
-		      		id="comments"
-		      		comments="#{cc.attrs.resultData.resultComments}"
-		      		uniqueId="#{cc.attrs.resultData.targetActivityId}"
-		      		commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
-		      		showSortOptions="false"
-		      		isCollapsible="true"
-		      		growlToUpdate="#{cc.attrs.growlToUpdate}"
-		      		learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
-		      		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
-		      		toUpdateOnCommentSave=""
-		    />
-         </article>
-   		</c:if>
-	</composite:implementation>
+			<post:comments
+				id="comments"
+				comments="#{cc.attrs.resultData.resultComments}"
+				uniqueId="#{cc.attrs.resultData.targetActivityId}"
+				commentsContainerDivId="commentsContainerDiv#{cc.attrs.resultData.targetActivityId}"
+				showSortOptions="false"
+				isCollapsible="true"
+				growlToUpdate="#{cc.attrs.growlToUpdate}"
+				learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:result|id:'.concat(cc.attrs.resultData.targetActivityId))}"
+				toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.resultData.targetActivityId})"
+				toUpdateOnCommentSave=""
+			/>
+		</article>
+	</c:if>
+</composite:implementation>
 </ui:component>

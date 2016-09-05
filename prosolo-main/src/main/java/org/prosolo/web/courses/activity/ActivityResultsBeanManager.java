@@ -207,9 +207,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	public void checkAllFilters() {
-		if(appliedFilters.size() != filters.size()) {
-			for(StudentAssessedFilterState filter : filters) {
-				if(!filter.isApplied()) {
+		if (appliedFilters.size() != filters.size()) {
+			for (StudentAssessedFilterState filter : filters) {
+				if (!filter.isApplied()) {
 					filter.setApplied(true);
 					appliedFilters.add(filter.getFilter());
 				}
@@ -220,9 +220,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	public void uncheckAllFilters() {
-		if(!appliedFilters.isEmpty()) {
+		if (!appliedFilters.isEmpty()) {
 			appliedFilters.clear();
-			for(StudentAssessedFilterState filter : filters) {
+			for (StudentAssessedFilterState filter : filters) {
 				filter.setApplied(false);
 			}
 			page = 1;
@@ -231,14 +231,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	//assessment begin
-	
 	public void loadActivityDiscussion(ActivityResultData result) {
 		try {
 			ActivityAssessmentData assessment = result.getAssessment();
-			if(!assessment.isMessagesInitialized()) {
-				if(assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
+			if (!assessment.isMessagesInitialized()) {
+				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
 					assessment.setActivityDiscussionMessageData(assessmentManager
-							.getActivityDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()), 
+							.getActivityDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
 									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
@@ -299,9 +298,11 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	public void updateGrade() {
 		try {
+			long compAssessmentId = currentResult.getAssessment().getCompAssessmentId();
+			
 			if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
 				long actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
-						currentResult.getAssessment().getCompAssessmentId());
+						compAssessmentId);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -312,6 +313,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
 						currentResult.getAssessment().getGrade().getValue());
 			}
+			
+			long credAssessmentId = currentResult.getAssessment().getCredAssessmentId();
+			
+			// recalculate points of parent competence and credential assessments
+			assessmentManager.recalculateScoreForCompetenceAssessment(compAssessmentId);
+			assessmentManager.recalculateScoreForCredentialAssessment(credAssessmentId);
+						
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
 		} catch(Exception e) {
 			e.printStackTrace();

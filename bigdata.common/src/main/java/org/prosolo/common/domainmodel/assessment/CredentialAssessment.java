@@ -26,6 +26,7 @@ public class CredentialAssessment extends BaseEntity {
 	private boolean approved;
 	private List<CompetenceAssessment> competenceAssessments;
 	private boolean defaultAssessment;
+	private int points;
 
 	@Column(length = 90000)
 	public String getMessage() {
@@ -89,4 +90,12 @@ public class CredentialAssessment extends BaseEntity {
 		this.defaultAssessment = defaultAssessment;
 	}
 
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+	
 }

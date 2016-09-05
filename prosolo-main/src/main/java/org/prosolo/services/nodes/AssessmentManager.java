@@ -17,45 +17,45 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public interface AssessmentManager {
 
-	public long requestAssessment(AssessmentRequestData assessmentRequestData);
+	long requestAssessment(AssessmentRequestData assessmentRequestData);
 
 	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId) 
 			throws DbConnectionException;
 	
-	public List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
+	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
 
-	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
+	FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
-	public Long countAssessmentsForUserAndCredential(long userId, long credentialId);
+	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
-	public void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
+	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException;
 
-	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
+	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
 
-	public void editCommentContent(long activityMessageId, long userId, String newContent)
+	void editCommentContent(long activityMessageId, long userId, String newContent)
 			throws ResourceCouldNotBeLoadedException;
 
-	public void approveCompetence(long decodedCompetenceAssessmentId);
+	void approveCompetence(long decodedCompetenceAssessmentId);
 
-	public void markDiscussionAsSeen(long userId, long discussionId);
+	void markDiscussionAsSeen(long userId, long discussionId);
 
-	public Long getAssessmentIdForUser(long userId, long targetCredentialId);
+	Long getAssessmentIdForUser(long userId, long targetCredentialId);
 
-	public List<AssessmentData> getAllAssessmentsForStudent(long id, boolean searchForPending,
+	List<AssessmentData> getAllAssessmentsForStudent(long id, boolean searchForPending,
 			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat, int page,
 			int numberPerPage);
 
-	public int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved);
+	int countAssessmentsForUser(long id, boolean searchForPending, boolean searchForApproved);
 
-	public int countAssessmentsForAssessorAndCredential(long decodedCredentialId, long assessorId, boolean searchForPending,
+	int countAssessmentsForAssessorAndCredential(long decodedCredentialId, long assessorId, boolean searchForPending,
 			boolean searchForApproved);
 	
-	 List<ActivityDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
+	List<ActivityDiscussionMessageData> getActivityDiscussionMessages(long activityDiscussionId,
 				long assessorId) throws DbConnectionException;
 	
 	Long getAssessorIdForActivityDiscussion(long activityDiscussionId) 
@@ -75,5 +75,9 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 	
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
+
+	int recalculateScoreForCompetenceAssessment(long compAssessmentId);
+
+	int recalculateScoreForCredentialAssessment(long credAssessmentId);
 
 }

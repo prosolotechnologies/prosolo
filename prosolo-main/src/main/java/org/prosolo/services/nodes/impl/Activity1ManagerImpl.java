@@ -2461,31 +2461,37 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			   "SELECT targetAct.id as tActId, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
 		   	   "COUNT(distinct com.id) ");
-			if(returnAssessmentData) {
-				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, grade.value ");
+			
+			if (returnAssessmentData) {
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points ");
 			}
+			
+			if (returnAssessmentData || filter != null) {
+				query.append(", ad.points ");
+			}
+			
 			query.append("FROM target_activity1 targetAct " +
 				   	     "INNER JOIN target_competence1 targetComp " +
 				   	   		"ON (targetAct.target_competence = targetComp.id " +
 				   			"AND targetComp.competence = :compId) " +
+			   			"INNER JOIN activity1 act " +
+				   			"ON (targetAct.activity = act.id) " +
 				   	     "INNER JOIN target_credential1 targetCred " +
 				   		   "ON (targetComp.target_credential = targetCred.id " +
 					   	   "AND targetCred.credential = :credId ");
 			
-			if(userToExclude > 0) {
+			if (userToExclude > 0) {
 				query.append("AND targetCred.user != :userId) ");
 			} else {
 				query.append(") ");
 			}
 			
-			if(returnAssessmentData || filter != null) {
+			if (returnAssessmentData || filter != null) {
 				query.append("LEFT JOIN activity_discussion ad " +
-							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
-							 "LEFT JOIN activity_grade grade " +
-							 "ON ad.grade = grade.id ");
+							"ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
 			}
 			
-			if(returnAssessmentData) {
+			if (returnAssessmentData) {
 				query.append("LEFT JOIN activity_discussion_participant p " +
 						 		"ON ad.id = p.activity_discussion AND p.participant = targetCred.user " +
 						 	 "LEFT JOIN activity_discussion_message msg " +
@@ -2501,22 +2507,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				   		 "WHERE targetAct.activity = :actId " +
 				   		 "AND targetAct.result is not NULL ");
 			
-			if(filter != null) {
-				if(filter == StudentAssessedFilter.Assessed) {
-					query.append("AND grade.value IS NOT NULL ");
+			if (filter != null) {
+				if (filter == StudentAssessedFilter.Assessed) {
+					query.append("AND targetAct.points IS NOT NULL ");
 				} else {
-					query.append("AND grade.value IS NULL ");
+					query.append("AND targetAct.points IS NULL ");
 				}
 			}
 				   		
 			query.append("GROUP BY targetAct.id "); 
 			
-			if(returnAssessmentData) {
+			if (returnAssessmentData) {
 				query.append(", ad.id ");
 			}
 			query.append("ORDER BY targetAct.result_post_date ");
 			
-			if(paginate) {
+			if (paginate) {
 				query.append("LIMIT " + limit + " ");
 				query.append("OFFSET " + page * limit);
 			}
@@ -2527,10 +2533,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						.setLong("compId", compId)
 						.setLong("actId", actId)
 						.setString("resType", CommentedResourceType.ActivityResult.name());
-			if(userToExclude > 0) {
+			
+			if (userToExclude > 0) {
 				q.setLong("userId", userToExclude);
 			}
-			if(returnAssessmentData || filter != null) {
+			if (returnAssessmentData || filter != null) {
 				q.setBoolean("boolTrue", true);
 			}
 	
@@ -2539,7 +2546,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			List<ActivityResultData> results = new ArrayList<>();
 			if (res != null) {
-				for(Object[] row : res) {
+				for (Object[] row : res) {
 					long tActId = ((BigInteger) row[0]).longValue();
 					org.prosolo.common.domainmodel.credential.ActivityResultType type = 
 							org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
@@ -2560,7 +2567,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							date, user, commentsNo, isInstructor);
 					results.add(ard); 
 					
-					if(returnAssessmentData) {
+					if (returnAssessmentData) {
 						BigInteger assessmentId = (BigInteger) row[9];
 						if(assessmentId != null) {
 							ActivityAssessmentData ad = new ActivityAssessmentData();
@@ -2568,7 +2575,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 							ad.setAllRead(((Character) row[11]).charValue() == 'T');
 							GradeData gd = new GradeData();
-							gd.setValue((Integer) row[12]);
+							gd.setMinGrade(0);
+							gd.setMaxGrade((Integer) row[12]);
+							gd.setValue((Integer) row[13]);
 							ad.setGrade(gd);
 							ard.setAssessment(ad);							
 						}

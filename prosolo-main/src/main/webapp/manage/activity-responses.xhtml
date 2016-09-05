@@ -13,36 +13,38 @@
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post">
 
-	<ui:define name="windowTitle">
-		Activity Responses - #{activityResultsBeanManager.activity.title}
-	</ui:define>
+<ui:define name="windowTitle">
+	Activity Responses - #{activityResultsBeanManager.activity.title}
+</ui:define>
 
-	<ui:define name="metadata">
-		<f:metadata>
-			<f:viewParam name="actId" value="#{activityResultsBeanManager.actId}" default="null" />
-			<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
-			<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
-			<f:viewParam name="user" default="null"/>
-			<f:viewAction action="#{activityResultsBeanManager.init()}" />
-		</f:metadata>
-	</ui:define>
+<ui:define name="metadata">
+	<f:metadata>
+		<f:viewParam name="actId" value="#{activityResultsBeanManager.actId}" default="null" />
+		<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
+		<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
+		<f:viewParam name="user" default="null"/>
+		<f:viewAction action="#{activityResultsBeanManager.init()}" />
+	</f:metadata>
+</ui:define>
 
-    <ui:define name="resourceTitle">
-    	<h1>#{activityResultsBeanManager.activity.title}</h1>
-    	<ul class="nav nav-tabs headerSubmenu">
-	    	<li role="presentation">
-	        		<h:link outcome="/manage/activity">
-	        			Activity Details
-	        			<f:param name="credId" value="#{param['credId']}"></f:param>
-	        			<f:param name="compId" value="#{param['compId']}"></f:param>
-	        			<f:param name="actId" value="#{param['actId']}"></f:param>
-	        		</h:link>
-	        </li>
-	        <li role="presentation" class="active"><a href="javascript:void(0);">Responses</a></li>
-	    </ul>
-    </ui:define>
-    
-	<ui:define name="content">
+<ui:define name="resourceTitle">
+	<h1>#{activityResultsBeanManager.activity.title}</h1>
+	<ul class="nav nav-tabs headerSubmenu">
+		<li role="presentation">
+			<h:link outcome="/manage/activity">
+			Activity Details
+			<f:param name="credId" value="#{param['credId']}"></f:param>
+			<f:param name="compId" value="#{param['compId']}"></f:param>
+			<f:param name="actId" value="#{param['actId']}"></f:param>
+			</h:link>
+		</li>
+		<li role="presentation" class="active"><a href="javascript:void(0);">Responses</a></li>
+	</ul>
+</ui:define>
+   
+<ui:define name="content">
+	<h:outputStylesheet library="css2" name="bootstrap-slider.css"  />
+	<script	src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
 	
 	<script>
 		function markDiscussionAsSeen(discussionId, parentElement) {
@@ -61,11 +63,13 @@
 
 	</script>
 	<h:form prependId="false" id="remoteCommandForm">
-			<p:remoteCommand action="#{activityResultsBeanManager.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
+		<p:remoteCommand action="#{activityResultsBeanManager.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
 	</h:form>
-	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanManager.decodedCredId}|context:/name:competence|id:#{activityResultsBeanManager.decodedCompId}|context:/name:activity|id:#{activityResultsBeanManager.decodedActId}|context:/name:RESULTS///"/>
+	
+	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanManager.decodedCredId}|context:/name:competence|id:#{activityResultsBeanManager.decodedCompId}|context:/name:activity|id:#{activityResultsBeanManager.decodedActId}|context:/name:RESULTS///" />
 	<ui:param name="canEdit" value="#{activityResultsBeanManager.activity.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT')}"></ui:param>
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT')}" />
+     		
 	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
     <div class="whiteBar">
         <div class="container">

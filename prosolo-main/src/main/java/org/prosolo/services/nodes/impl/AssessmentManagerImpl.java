@@ -14,7 +14,6 @@ import org.hibernate.Query;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.ActivityGrade;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -112,26 +111,57 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			+ "credentialAssessment.targetCredential.credential.id = :credentialId AND "
 			+ "credentialAssessment.approved = true";
 	
-	private static final String APPROVE_CREDENTIAL_QUERY = "UPDATE CredentialAssessment set approved = true "
-			+ " where id = :credentialAssessmentId";
+	private static final String APPROVE_CREDENTIAL_QUERY = 
+			"UPDATE CredentialAssessment set approved = true " +
+			"WHERE id = :credentialAssessmentId";
 	
-	private static final String APPROVE_COMPETENCES_QUERY = "UPDATE CompetenceAssessment set approved = true"
-			+ " where credentialAssessment.id = :credentialAssessmentId";
+	private static final String APPROVE_COMPETENCES_QUERY = 
+			"UPDATE CompetenceAssessment SET approved = true"
+			+ " WHERE credentialAssessment.id = :credentialAssessmentId";
 	
-	private static final String APPROVE_COMPETENCE_QUERY = "UPDATE CompetenceAssessment set approved = true"
-			+ " where id = :competenceAssessmentId";
+	private static final String APPROVE_COMPETENCE_QUERY = 
+			"UPDATE CompetenceAssessment " +
+			"SET approved = true " +  
+			"WHERE id = :competenceAssessmentId";
 	
-	private static final String UPDATE_TARGET_CREDENTIAL_REVIEW = "UPDATE TargetCredential1 set finalReview = :finalReview"
-			+ " where id = :targetCredentialId";
+	private static final String UPDATE_TARGET_CREDENTIAL_REVIEW = 
+			"UPDATE TargetCredential1 " + 
+			"SET finalReview = :finalReview " +
+			"WHERE id = :targetCredentialId";
 	
-	private static final String MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER = "UPDATE ActivityDiscussionParticipant set read = true"
-			+ " where participant.id = :userId and activityDiscussion.id = :activityDiscussionId";
+	private static final String MARK_ACTIVITY_DISCUSSION_SEEN_FOR_USER = 
+			"UPDATE ActivityDiscussionParticipant " +
+			"SET read = true " +
+			"WHERE participant.id = :userId " + 
+				"AND activityDiscussion.id = :activityDiscussionId";
 	
 	private static final String ASSESSMENT_ID_FOR_USER_AND_TARGET_CRED = 
 			"SELECT id " + 
 			"FROM CredentialAssessment " +
 			"WHERE targetCredential.id = :tagretCredentialId " + 
 				"AND assessedStudent.id = :assessedStudentId";
+	
+	private static final String GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE = 
+			"SELECT SUM(ad.points) " +
+			"FROM ActivityDiscussion ad " +
+			"LEFT JOIN ad.assessment compAssessment " +
+			"WHERE compAssessment.id = :compAssessmentId";
+	
+	private static final String UPDATE_COMPETENCE_ASSESSMENT_POINTS = 
+			"UPDATE CompetenceAssessment " + 
+			"SET points = :points " +
+			"WHERE id = :compAssessmentId";
+	
+	private static final String GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL = 
+			"SELECT SUM(compAssessment.points) " +
+			"FROM CompetenceAssessment compAssessment " +
+			"LEFT JOIN compAssessment.credentialAssessment credAssessment " +
+			"WHERE credAssessment.id = :credAssessmentId";
+	
+	private static final String UPDATE_CREDENTIAL_ASSESSMENT_POINTS = 
+			"UPDATE CredentialAssessment " + 
+			"SET points = :points " +
+			"WHERE id = :credAssessmentId";
 
 	@Override
 	@Transactional
@@ -328,11 +358,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		activityDiscussion.setParticipants(participants);
 		activityDiscussion.setDefaultAssessment(isDefault);
 		
-		//TODO change when design is implemented
-		ActivityGrade ag = new ActivityGrade();
-		ag.setValue(grade);
-		saveEntity(ag);
-		activityDiscussion.setGrade(ag);
+//		//TODO change when design is implemented
+//		ActivityGrade ag = new ActivityGrade();
+//		ag.setValue(grade);
+//		saveEntity(ag);
+//		activityDiscussion.setGrade(ag);
+		activityDiscussion.setPoints(grade);
 		
 		saveEntity(activityDiscussion);
 		return activityDiscussion.getId();
@@ -658,12 +689,14 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateGradeForActivityAssessment(long activityDiscussionId, Integer value) 
+	public void updateGradeForActivityAssessment(long activityDiscussionId, Integer points) 
 			throws DbConnectionException {
 		try {
 			ActivityDiscussion ad = (ActivityDiscussion) persistence.currentManager().load(
 					ActivityDiscussion.class, activityDiscussionId);
-			ad.getGrade().setValue(value);
+//			ad.getGrade().setValue(value);
+			ad.setPoints(points);
+			saveEntity(ad);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -699,6 +732,36 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential assessment id");
 		}
+	}
+
+	@Override
+	@Transactional (readOnly = false)
+	public int recalculateScoreForCompetenceAssessment(long compAssessmentId) {
+		Long points = (Long) ((Long) persistence.currentManager().createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
+				.setLong("compAssessmentId", compAssessmentId)
+				.uniqueResult());
+		
+		persistence.currentManager().createQuery(UPDATE_COMPETENCE_ASSESSMENT_POINTS)
+				.setLong("compAssessmentId", compAssessmentId)
+				.setInteger("points", points.intValue())
+				.executeUpdate();
+		
+		return points.intValue();
+	}
+
+	@Override
+	
+	public int recalculateScoreForCredentialAssessment(long credAssessmentId) {
+		Long points = (Long) ((Long) persistence.currentManager().createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
+				.setLong("credAssessmentId", credAssessmentId)
+				.uniqueResult());
+		
+		persistence.currentManager().createQuery(UPDATE_CREDENTIAL_ASSESSMENT_POINTS)
+				.setLong("credAssessmentId", credAssessmentId)
+				.setInteger("points", points.intValue())
+				.executeUpdate();
+		
+		return points.intValue();
 	}
 
 }

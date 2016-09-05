@@ -25,6 +25,7 @@ public class CompetenceAssessment extends BaseEntity {
 	private CredentialAssessment credentialAssessment;
 	private TargetCompetence1 targetCompetence;
 	private boolean defaultAssessment;
+	private int points;
 	
 	@ManyToOne
 	@JoinColumn(nullable = false,name="credential_assessment")
@@ -81,6 +82,14 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setDefaultAssessment(boolean defaultAssessment) {
 		this.defaultAssessment = defaultAssessment;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
 	}
 	
 }
