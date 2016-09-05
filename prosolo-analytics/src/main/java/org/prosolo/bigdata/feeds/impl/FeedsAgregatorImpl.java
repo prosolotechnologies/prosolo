@@ -434,7 +434,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			// If development mode, send only to developer email
 			if(!feedsDigests.isEmpty()){
 				if(CommonSettings.getInstance().config.appConfig.developmentMode){
-					email=CommonSettings.getInstance().config.appConfig.developmentEmail;
+					email=CommonSettings.getInstance().config.appConfig.developerEmail;
 				}
 				System.out.println("SENDING EMAIL TO:"+email+" FOR USER:"+user.getName());
 				 try {
