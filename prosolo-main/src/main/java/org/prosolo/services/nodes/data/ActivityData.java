@@ -24,7 +24,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean enrolled;
 	private boolean completed;
 	private ActivityResultData resultData;
-	private String maxPointsString; // needed because field can also be empty on the html page
+	private String maxPointsString = ""; // needed because field can also be empty on the html page
 	
 	private int order;
 	private int durationHours;
