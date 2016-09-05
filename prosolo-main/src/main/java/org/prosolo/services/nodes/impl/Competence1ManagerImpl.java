@@ -26,6 +26,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.common.exception.CompetenceEmptyException;
 import org.prosolo.services.common.exception.DbConnectionException;
@@ -33,7 +34,6 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -271,14 +271,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false)
-	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred, User user) 
+	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
 			throws DbConnectionException {
 		try {
 			List<CredentialCompetence1> credComps = getCredentialCompetences(credId, 
 					false, true, false);
 			List<TargetCompetence1> targetComps =  new ArrayList<>();
 			for(CredentialCompetence1 cc : credComps) {
-				TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc, user);
+				TargetCompetence1 targetComp = createTargetCompetence(targetCred, cc);
 				targetComps.add(targetComp);
 			}
 			return targetComps;
@@ -291,7 +291,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Transactional(readOnly = false)
 	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
-			CredentialCompetence1 cc, User user) {
+			CredentialCompetence1 cc) {
 		TargetCompetence1 targetComp = new TargetCompetence1();
 		Competence1 comp = cc.getCompetence();
 		targetComp.setTitle(comp.getTitle());
@@ -301,7 +301,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		targetComp.setDuration(comp.getDuration());
 		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
 		targetComp.setOrder(cc.getOrder());
-		targetComp.setCreatedBy(user);
+		targetComp.setCreatedBy(comp.getCreatedBy());
 		targetComp.setType(comp.getType());
 		
 		if(comp.getTags() != null) {
@@ -314,7 +314,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		saveEntity(targetComp);
 		
 		List<TargetActivity1> targetActivities = activityManager.createTargetActivities(
-				comp.getId(), targetComp, user);
+				comp.getId(), targetComp);
 		targetComp.setTargetActivities(targetActivities);
 		
 		/*

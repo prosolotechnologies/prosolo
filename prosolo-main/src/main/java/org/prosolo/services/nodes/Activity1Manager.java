@@ -31,7 +31,7 @@ public interface Activity1Manager {
 	List<ActivityData> getCompetenceActivitiesData(long competenceId)
 			throws DbConnectionException;
 	
-	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp, User user) 
+	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
 			throws DbConnectionException;
 	
 	List<ActivityData> getTargetActivitiesData(long targetCompId) 

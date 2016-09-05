@@ -389,18 +389,36 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	public Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException {
 		try {
-			//TODO when comments are implemented for socialactivity this method should be changed
-			//because socialactivity maybe won't have createdBy relationship
-			String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
-			String query = "SELECT res." + creatorFieldName + ".id FROM " + resourceType.getDbTableName() + " res " +
-						   "WHERE res.id = :resId";
-			
-			Long id = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("resId", resourceId)
-					.uniqueResult();
-
-			return id;
+			switch (resourceType) {
+			case ActivityResult:
+				String query = 
+				"SELECT user.id " + 
+				"FROM TargetActivity1 targetActivity " +
+				"LEFT JOIN targetActivity.targetCompetence targetCompetence " +
+				"LEFT JOIN targetCompetence.targetCredential targetCredential " +
+				"LEFT JOIN targetCredential.user user " +
+				"WHERE targetActivity.id = :targetActivityId";
+		
+				Long id = (Long) persistence.currentManager()
+						.createQuery(query)
+						.setLong("targetActivityId", resourceId)
+						.uniqueResult();
+				return id;
+			default:
+				//TODO when comments are implemented for socialactivity this method should be changed
+				//because socialactivity maybe won't have createdBy relationship
+				String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
+				String query1 = 
+						"SELECT res." + creatorFieldName + ".id " + 
+						"FROM " + resourceType.getDbTableName() + " res " +
+						"WHERE res.id = :resId";
+				
+				Long id1 = (Long) persistence.currentManager()
+						.createQuery(query1)
+						.setLong("resId", resourceId)
+						.uniqueResult();
+				return id1;
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

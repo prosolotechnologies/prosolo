@@ -112,6 +112,14 @@
 	           	</h:panelGroup>
 
                 <h2>Other Student Responses</h2>
+                
+				<ui:fragment rendered="#{empty activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
+                	 <div class="noContentMessage">
+	                    <p>
+	                        No responses to show.
+	                    </p>
+	                </div>
+                </ui:fragment>
                 <ui:repeat var="result" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
                 	 <activities:activityResult
 	           			resultData="#{result}"

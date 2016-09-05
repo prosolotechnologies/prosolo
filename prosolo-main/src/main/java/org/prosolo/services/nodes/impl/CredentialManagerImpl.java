@@ -1161,7 +1161,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		saveEntity(targetCred);
 		
 		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
-				targetCred, user);
+				targetCred);
 		targetCred.setTargetCompetences(targetComps);
 		
 		/*

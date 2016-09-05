@@ -290,14 +290,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false) 
-	public List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp, User user) 
+	public List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
 			throws DbConnectionException {
 		try {
 			List<CompetenceActivity1> compActivities = getCompetenceActivities(compId, true);
 			List<TargetActivity1> targetActivities = new ArrayList<>();
 			if(compActivities != null) {
 				for(CompetenceActivity1 act : compActivities) {
-					TargetActivity1 ta = createTargetActivity(targetComp, act, user);
+					TargetActivity1 ta = createTargetActivity(targetComp, act);
 					targetActivities.add(ta);
 				}
 			}
@@ -311,7 +311,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Transactional(readOnly = false)
 	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
-			CompetenceActivity1 compActivity, User user) throws DbConnectionException {
+			CompetenceActivity1 compActivity) throws DbConnectionException {
 		try {
 			Activity1 act = compActivity.getActivity();
 			TargetActivity1 targetAct = null;
@@ -352,7 +352,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			targetAct.setDuration(act.getDuration());
 			targetAct.setResultType(act.getResultType());
 			//targetAct.setUploadAssignment(act.isUploadAssignment());
-			targetAct.setCreatedBy(user);
+			targetAct.setCreatedBy(act.getCreatedBy());
 			targetAct.setLearningResourceType(act.getType());
 			
 			if(act.getLinks() != null) {
