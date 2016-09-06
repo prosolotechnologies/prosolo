@@ -35,6 +35,7 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.Edit,
 			EventType.Edit_Draft,
 			EventType.Delete,
+			EventType.Delete_Draft,
 			EventType.ChangeVisibility,
 			EventType.Registered,
 			EventType.Attach,
