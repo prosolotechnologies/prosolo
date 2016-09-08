@@ -90,7 +90,7 @@
 		                 	class="grade" 
 		                 	disabled="disabled" 
 		                 	data-toggle="tooltip" 
-		                 	title="You can not grade this student because you are not his instructor">
+		                 	title="You cannot grade this student because you are not his instructor">
 		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
 							/
 							#{cc.attrs.resultData.assessment.grade.maxGrade}
@@ -218,7 +218,7 @@
 		                 	class="grade" 
 		                 	disabled="disabled" 
 		                 	data-toggle="tooltip" 
-		                 	title="You can not grade this student because you are not his instructor">
+		                 	title="Only student's instructor can give grades">
 		                 	#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
 							/
 							#{cc.attrs.resultData.assessment.grade.maxGrade}
