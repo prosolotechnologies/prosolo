@@ -1145,7 +1145,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
 			actToUpdate.setPublished(data.isPublished());
-			actToUpdate.setMaxPoints(Integer.parseInt(data.getMaxPointsString()));
+			actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
+			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
@@ -1534,7 +1536,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void saveAssignment(long targetActId, String path, Date postDate, long userId, 
+	public void saveResponse(long targetActId, String path, Date postDate, long userId, 
 			ActivityResultType resType, LearningContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -2607,21 +2609,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
 					throws DbConnectionException {
 		try {			
-			Activity1 act = (Activity1) persistence.currentManager().get(Activity1.class, actId);
-			if(act == null) {
-				return null;	
+			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
+			if (activity == null) {
+				return null;
 			}
-			ActivityData activity = new ActivityData(false);
-			activity.setTitle(act.getTitle());
-			activity.setType(act.getType());
-			activity.setActivityId(actId);
-//			activity.getGradeOptions().setMinGrade(act.getGradingOptions().getMinGrade());
-//			activity.getGradeOptions().setMaxGrade(act.getGradingOptions().getMaxGrade());
-			activity.setMaxPointsString(act.getMaxPoints() == 0 ? "" : String.valueOf(act.getMaxPoints()));
-			activity.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
+			ActivityData data = new ActivityData(false);
+			data.setTitle(activity.getTitle());
+			data.setType(activity.getType());
+			data.setActivityId(actId);
+//			data.getGradeOptions().setMinGrade(activity.getGradingOptions().getMinGrade());
+//			data.getGradeOptions().setMaxGrade(activity.getGradingOptions().getMaxGrade());
+			data.setMaxPointsString(activity.getMaxPoints() == 0 ? "" : String.valueOf(activity.getMaxPoints()));
+			data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
+			data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
+			data.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
 					paginate, page, limit, filter));
 			
-			return activity;
+			return data;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

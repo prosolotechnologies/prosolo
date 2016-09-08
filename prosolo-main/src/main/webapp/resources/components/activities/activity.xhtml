@@ -47,13 +47,14 @@
 	    	<div class="whiteBar">
 				<div class="container">
 					<activities:activityHeaderOptions
+						id="header"
 						bean="#{cc.attrs.bean}"
 						activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
 						learningContext="#{learningContext}"
 						service="#{cc.attrs.service}"
 						canEdit="#{canEdit}"
 						isPreview="#{isPreview}"
-						toUpdateOnActivityComplete=":#{cc.clientId}:panelCompProgress"
+						toUpdateOnActivityComplete=":#{cc.clientId}:panelCompProgress :#{cc.clientId}:growlMain"
 					/>
 				</div>
 			</div>

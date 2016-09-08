@@ -116,7 +116,7 @@ public interface Activity1Manager {
 	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long credId, 
 				long compId, long activityId, boolean shouldReturnDraft) throws DbConnectionException;
 
-	 void saveAssignment(long targetActId, String path, Date postDate, long userId, 
+	 void saveResponse(long targetActId, String path, Date postDate, long userId, 
 				ActivityResultType resType, LearningContextData context) throws DbConnectionException;
 	 
 	 void updateTextResponse(long targetActId, String path, long userId, 

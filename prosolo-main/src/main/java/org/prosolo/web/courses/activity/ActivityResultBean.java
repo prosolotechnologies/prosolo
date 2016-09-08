@@ -57,6 +57,8 @@ public class ActivityResultBean implements Serializable {
 			result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
 			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(), 
 					loggedUser.getUserId(), new LearningContextData(page, lContext, service));
+			
+			PageUtil.fireSuccessfulInfoMessage("Response updated");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while saving response");
@@ -72,7 +74,7 @@ public class ActivityResultBean implements Serializable {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			Date postDate = new Date();
-			activityManager.saveAssignment(result.getTargetActivityId(), fullPath, postDate, loggedUser.getUserId(),
+			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate, loggedUser.getUserId(),
 					ActivityResultType.FILE_UPLOAD, new LearningContextData(page, lContext, service));
 			result.setAssignmentTitle(fileName);
 			result.setResult(fullPath);

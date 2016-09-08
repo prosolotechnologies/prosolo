@@ -33,7 +33,8 @@
 	<ui:define name="content">
 	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanUser.decodedCredId}|context:/name:competence|id:#{activityResultsBeanUser.decodedCompId}|context:/name:activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.targetActivityId}|context:/name:RESULTS////"/>
 	<ui:param name="canEdit" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and activityResultsBeanUser.isCurrentUserCreator()}"></ui:param>
-	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+	<p:growl id="growlMain" showDetail="true" globalOnly="true" />
+	
     <div class="whiteBar">
         <div class="container">
             <activities:activityHeaderOptions
@@ -108,6 +109,7 @@
 	           			assignmentUploadModalId="newRes"
 	           			growlToUpdate=":growlMain"
 	           			regionToUpdate=":panelUploadAssignment"
+	           			studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
 	           		/>
 	           	</h:panelGroup>
 
@@ -144,36 +146,37 @@
 
     </div>
     
-    
-    <h:form id="formModalUpload">
-        	<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title" id="newResult">Upload New Response?</h2>
-                        </div>
-                        <div class="modal-body">
-                            <p>Are you sure you want to upload a new response?<br/><br/>
-                            <small>Note: Current response will be over-written!</small></p>
-                        </div>
-                        <div class="modal-footer">
-                        	<utilcomp:simpleFileUpload
-                        		id="simpleFileUpload"
-			            		fileUploadListenerMethodName="handleFileUpload"
-			            		fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
-			            		toUpdate=":panelUploadAssignment"
-			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Response"
-			            		learningContext="#{learningContext}"
-			            		service="name:upload_result_dialog"
-			            		oncomplete="$('#newRes').modal('hide');"
-                        	/>
-                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </h:form>
-  </ui:define>
+	<h:form id="formModalUpload">
+		<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title" id="newResult">Upload New Response?</h2>
+					</div>
+					
+					<div class="modal-body">
+						<p>Are you sure you want to upload a new response?<br/><br/>
+						<small>Note: Current response will be over-written!</small></p>
+					</div>
+					
+					<div class="modal-footer">
+						<utilcomp:simpleFileUpload
+							id="simpleFileUpload"
+							fileUploadListenerMethodName="handleFileUpload"
+							fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
+							toUpdate=":panelUploadAssignment :growlMain"
+							uploadButtonStyle="btn btn-green"
+							chooseFileLabel="Upload New Response"
+							learningContext="#{learningContext}"
+							service="name:upload_result_dialog"
+							oncomplete="$('#newRes').modal('hide');"
+						/>
+						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</h:form>
+</ui:define>
 </ui:composition>

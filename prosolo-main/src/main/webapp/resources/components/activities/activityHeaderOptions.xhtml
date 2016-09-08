@@ -36,8 +36,8 @@
 						process="@this"
 						action="#{cc.attrs.bean.completeActivity()}"
 						update=":#{cc.clientId}:formMain:panelComplete #{cc.attrs.toUpdateOnActivityComplete}">
-						<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-						<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+						<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+						<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
 					</p:commandLink>
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 

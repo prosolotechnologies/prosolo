@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -49,6 +51,17 @@ public class Activity1 extends BaseEntity {
 	 * version
 	 */
 	private boolean hasDraft;
+	
+	/**
+	 * Flag that determines whether upon submission, a student can see responses
+	 * from other students
+	 */
+	private boolean studentCanSeeOtherResponses;
+	
+	/**
+	 * Whether student has the ability to edit their response
+	 */
+	private boolean studentCanEditResponse;
 	
 	private User createdBy;
 	
@@ -172,6 +185,26 @@ public class Activity1 extends BaseEntity {
 
 	public void setGradingOptions(GradingOptions gradingOptions) {
 		this.gradingOptions = gradingOptions;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isStudentCanSeeOtherResponses() {
+		return studentCanSeeOtherResponses;
+	}
+
+	public void setStudentCanSeeOtherResponses(boolean studentCanSeeOtherResponses) {
+		this.studentCanSeeOtherResponses = studentCanSeeOtherResponses;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isStudentCanEditResponse() {
+		return studentCanEditResponse;
+	}
+
+	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
+		this.studentCanEditResponse = studentCanEditResponse;
 	}
 	
 }

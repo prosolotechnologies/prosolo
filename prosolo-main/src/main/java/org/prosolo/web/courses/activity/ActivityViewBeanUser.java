@@ -250,6 +250,8 @@ public class ActivityViewBeanUser implements Serializable {
 			} catch(DbConnectionException e) {
 				logger.error(e);
 			}
+			
+			PageUtil.fireSuccessfulInfoMessage("Activity Completed");
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while marking activity as completed");
@@ -262,15 +264,18 @@ public class ActivityViewBeanUser implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			Date postDate = new Date();
-			// strip all tags except <br>
+			
+			// strip all tags except <br> and <a>
 			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
 			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
-			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), 
+			
+			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					ard.getResult(), 
 					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
 					new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
+			
+			completeActivity();
 		} catch(Exception e) {
 			logger.error(e);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
@@ -281,6 +286,8 @@ public class ActivityViewBeanUser implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
+		
+		completeActivity();
 	}
 	
 	public void deleteAssignment() {

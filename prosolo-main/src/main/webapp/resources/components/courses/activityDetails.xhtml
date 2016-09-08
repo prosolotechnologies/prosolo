@@ -188,16 +188,18 @@
             			assignmentUploadModalId="newRes"
             			growlToUpdate=":#{cc.clientId}:growlDetails"
             			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
+            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
             		/>
-            		<h:link 
+            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
             			outcome="/activity-responses" 
             			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
             			View responses from other students
-            			<f:param name="credId" value="#{param['credId']}"/>
-            			<f:param name="compId" value="#{param['compId']}"/>
-            			<f:param name="actId" value="#{param['actId']}"/>
+            			<f:param name="credId" value="#{param['credId']}" />
+            			<f:param name="compId" value="#{param['compId']}" />
+            			<f:param name="actId" value="#{param['actId']}" />
             		</h:link>
             	</ui:fragment>
+            	
             	<ui:fragment rendered="#{empty cc.attrs.activity.resultData.result}">
             		<h2>Submit Response</h2>
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
@@ -206,7 +208,7 @@
 			            		uploadFileInfo="Upload Response"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
+			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
 			            		learningContext="#{cc.attrs.learningContext}"
 			            	/> 
 		            	</h:form>
@@ -221,7 +223,7 @@
 			                    <p:commandLink 
 			                    	styleClass="btn btn-sm btn-green"
 			                    	action="#{cc.attrs.bean.saveTextResponse()}"
-			                    	update=":#{cc.clientId}:panelUploadAssignment"
+			                    	update=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
 			                    	value="Submit">
 			                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
@@ -229,14 +231,11 @@
 			                </div>
 			            </h:form>
             		</c:if>
-            		 
             	</ui:fragment>
-
             </h:panelGroup>
-          
         </div>
-        
-        <h:form id="formModalUpload">
+
+        <h:form id="formModalUpload" rendered="#{cc.attrs.activity.studentCanEditResponse}">
         	<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -253,7 +252,7 @@
                         		id="simpleFileUpload"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment"
+			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
 			            		uploadButtonStyle="btn btn-green"
 			            		chooseFileLabel="Upload New Response"
 			            		learningContext="#{cc.attrs.learningContext}"

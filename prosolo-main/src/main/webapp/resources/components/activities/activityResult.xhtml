@@ -27,6 +27,7 @@
 		<composite:attribute name="privateConvNumberOfMsgsLink" default=""/>
 		<composite:attribute name="assessmentGradeModalId" default="" />
 		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
+		<composite:attribute name="studentCanEditResponse" default="false" />
 		<composite:attribute name="gradeLink" default=""/>
 		<composite:attribute name="role" default="USER" />
 	</composite:interface>
@@ -53,7 +54,7 @@
              <div class="resultWrapper">
                  <div class="actBoxLeft #{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId ? '' : 'noUrl'}">
                      <h3>#{cc.attrs.resultData.assignmentTitle}</h3>                    
-                 	 <ui:fragment rendered="#{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+                 	 <ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
                  	 	<a href="#" class="newFileLink" data-toggle="modal" data-target="##{cc.attrs.assignmentUploadModalId}">Upload New Response</a>
                  	 </ui:fragment>
                  </div>
@@ -162,7 +163,7 @@
                  <p class="commentText">
                  	<h:outputText escape="false" value="#{cc.attrs.resultData.result}" />
                  </p>
-                 <ui:fragment rendered="#{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+                 <ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
                  	<div class="editComment hidden">
 	                 	<h:form>
 		                  	<h:inputTextarea class="hidden"
@@ -171,7 +172,7 @@
 		                    <p:commandLink 
 		                      	styleClass="btn btn-sm btn-green"
 		                      	action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
-		                      	update="#{cc.attrs.regionToUpdate}">
+		                      	update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
 		                      	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 		                      	Submit
@@ -253,7 +254,7 @@
            				</h:panelGroup>  
        				</ui:fragment>
         		</h:panelGroup>
-        		<ui:fragment rendered="#{cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+        		<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
              		<a href="javascript:void(0)" class="edit" onclick="showEditResponse(this)"><span class="icon"></span>Edit</a>
              	</ui:fragment>
              </div>
