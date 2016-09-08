@@ -17,7 +17,7 @@
 		<jsf.version>2.2.6</jsf.version>
 		<myfaces.version>2.2.4</myfaces.version>
 		<el.version>2.2</el.version>
-		<primefaces.version>5.0</primefaces.version>
+		<primefaces.version>5.3</primefaces.version>
 		<org.richfaces.bom.version>4.0.0.Final</org.richfaces.bom.version>
 		<jetty.version>9.3.7.v20160115</jetty.version>
 
@@ -653,11 +653,12 @@
 			<id>boilerpipe-m2-repo</id>
 			<url>https://boilerpipe.googlecode.com/svn/repo/</url>
 		</repository>
-		<repository>
-			<id>prime-repo</id>
-			<name>Prime Technology Maven Repository</name>
-			<url>http://repository.primefaces.org/</url>
-		</repository>
+		<repository>  
+			<id>prime-repo</id>  
+			<name>PrimeFaces Maven Repository</name>  
+			<url>http://repository.primefaces.org</url>  
+			<layout>default</layout>  
+		</repository> 
 		<repository>
 			<id>maven-central</id>
 			<name>maven Central Repository</name>
