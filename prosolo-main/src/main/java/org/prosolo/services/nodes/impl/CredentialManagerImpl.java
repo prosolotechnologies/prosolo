@@ -794,7 +794,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role) {
-		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+		Credential1 cred = (Credential1) persistence.currentManager().get(Credential1.class, 
 				data.getId());
 		/*
 		 * draft should be created if something changed, draft option is chosen 
