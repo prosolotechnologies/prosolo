@@ -1255,6 +1255,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		draftCred.setPublished(false);
 		draftCred.setCreatedBy(originalCred.getCreatedBy());
 		draftCred.setTitle(originalCred.getTitle());
+		draftCred.setType(originalCred.getType());
 		draftCred.setDescription(originalCred.getDescription());
 		draftCred.setCompetenceOrderMandatory(originalCred.isCompetenceOrderMandatory());
 		draftCred.setStudentsCanAddCompetences(originalCred.isStudentsCanAddCompetences());
