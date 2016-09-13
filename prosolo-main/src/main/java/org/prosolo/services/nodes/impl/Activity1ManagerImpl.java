@@ -361,6 +361,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     				ResourceLink link = new ResourceLink();
     				link.setLinkName(rl.getLinkName());
     				link.setUrl(rl.getUrl());
+    				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+    					link.setIdParameterName(rl.getIdParameterName());
+    				}
     				saveEntity(link);
     				activityLinks.add(link);
     			}
@@ -1215,22 +1218,29 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks,
 			Activity1 actToUpdate, BiConsumer<Activity1, Set<ResourceLink>> linkSetter, 
 			EntityPublishTransition publishTransition) {
-		if(resLinksData != null) {
-			if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
-				for(ResourceLinkData rl : resLinksData) {
-					switch(rl.getStatus()) {
+		
+		if (resLinksData != null) {
+			if (publishTransition == EntityPublishTransition.NO_TRANSITION) {
+				for (ResourceLinkData rl : resLinksData) {
+					switch (rl.getStatus()) {
 						case CREATED:
 							ResourceLink link = new ResourceLink();
 							link.setLinkName(rl.getLinkName());
 							link.setUrl(rl.getUrl());
+							if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+		    					link.setIdParameterName(rl.getIdParamName());
+		    				}
 							saveEntity(link);
 							resLinks.add(link);
 							break;
 						case CHANGED:
 							ResourceLink updatedLink = (ResourceLink) persistence.currentManager()
 								.load(ResourceLink.class, rl.getId());
-							updatedLink.setUrl(rl.getUrl());
 							updatedLink.setLinkName(rl.getLinkName());
+							updatedLink.setUrl(rl.getUrl());
+							if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+								updatedLink.setIdParameterName(rl.getIdParamName());
+		    				}
 							break;
 						case REMOVED:
 							ResourceLink removedLink = (ResourceLink) persistence.currentManager()
@@ -1244,11 +1254,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			} else {
 				//Set<ResourceLink> activityLinks = new HashSet<>();
 				resLinks.clear();
-				for(ResourceLinkData rl : resLinksData) {
-					if(rl.getStatus() != ObjectStatus.REMOVED) {
+				for (ResourceLinkData rl : resLinksData) {
+					if (rl.getStatus() != ObjectStatus.REMOVED) {
 						ResourceLink link = new ResourceLink();
 						link.setLinkName(rl.getLinkName());
 						link.setUrl(rl.getUrl());
+						if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+							link.setIdParameterName(rl.getIdParamName());
+	    				}
 						saveEntity(link);
 						resLinks.add(link);
 						//activityLinks.add(link);
@@ -1914,6 +1927,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ResourceLink rl1 = new ResourceLink();
 					rl1.setUrl(rl.getUrl());
 					rl1.setLinkName(rl.getLinkName());
+					if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+						rl1.setIdParameterName(rl.getIdParameterName());
+    				}
 					saveEntity(rl1);
 					ta.getLinks().add(rl1);
 				}
@@ -2286,6 +2302,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     			ResourceLink link = new ResourceLink();
 				link.setLinkName(rl.getLinkName());
 				link.setUrl(rl.getUrl());
+				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+					link.setIdParameterName(rl.getIdParameterName());
+				}
 				saveEntity(link);
 				originalActivity.getLinks().add(link);
     		}

@@ -254,9 +254,9 @@ public class ActivityEditBean implements Serializable {
 					.getExternalContext().getRequestParameterMap();
 			String link =  params.get("link");
 			String linkTitle = params.get("title");
-			if(linkTitle == null || linkTitle.isEmpty()) {
+			
+			if (linkTitle == null || linkTitle.isEmpty()) {
 				String encodedLink = StringUtil.encodeUrl(link);
-				System.out.println("ENCODED LINK " + encodedLink);
 				String pageTitle = htmlParser.getPageTitle(encodedLink);
 				resLinkToAdd.setLinkName(pageTitle);
 			} else {
@@ -292,7 +292,8 @@ public class ActivityEditBean implements Serializable {
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;
 		boolean saved = saveActivityData(false, !isNew);
-		if(saved && isNew) {
+		
+		if (saved && isNew) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				/*
@@ -318,20 +319,22 @@ public class ActivityEditBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			String learningContext = context;
-			if(lContext != null && !lContext.isEmpty()) {
+			
+			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
+			
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			if(activityData.getActivityId() > 0) {
-				if(activityData.hasObjectChanged()) {
-					if(saveAsDraft) {
+			if (activityData.getActivityId() > 0) {
+				if (activityData.hasObjectChanged()) {
+					if (saveAsDraft) {
 						activityData.setStatus(PublishedStatus.DRAFT);
 					}
 					activityManager.updateActivity(decodedId, activityData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
-				if(saveAsDraft) {
+				if (saveAsDraft) {
 					activityData.setStatus(PublishedStatus.DRAFT);
 				}
 				Activity1 act = activityManager.saveNewActivity(activityData, 

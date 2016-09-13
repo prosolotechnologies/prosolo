@@ -83,21 +83,22 @@ public class ActivityViewBeanUser implements Serializable {
 		roles.add(RoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
-			this.roles="Instructor";
-		}else{
-			this.roles="Learner";
+			this.roles = "Instructor";
+		} else {
+			this.roles = "Learner";
 		}
 		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
+		
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
 				boolean shouldReturnDraft = false;
-				if("preview".equals(mode)) {
+				if ("preview".equals(mode)) {
 					shouldReturnDraft = true;
 				}
-				if(decodedCredId > 0) {
+				if (decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
 									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
@@ -107,7 +108,7 @@ public class ActivityViewBeanUser implements Serializable {
 									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
 									shouldReturnDraft);
 				}
-				if(competenceData == null) {
+				if (competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
@@ -120,7 +121,8 @@ public class ActivityViewBeanUser implements Serializable {
 					commentBean.loadComments(commentsData);
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
-					if(ad.isEnrolled()) {
+					
+					if (ad.isEnrolled()) {
 						int numberOfComments = (int) commentManager.getCommentsNumber(
 								CommentedResourceType.ActivityResult, 
 								ad.getTargetActivityId());

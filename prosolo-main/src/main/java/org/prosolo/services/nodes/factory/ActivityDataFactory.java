@@ -68,6 +68,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setIdParamName(rl.getIdParameterName());
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityLinks.add(rlData);
 			}
@@ -285,6 +286,7 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setIdParamName(rl.getIdParameterName());
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityLinks.add(rlData);
 			}

@@ -36,6 +36,7 @@ import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
@@ -70,6 +71,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Inject
 	private LoggingService loggingService;
+	@Inject
+	private UrlIdEncoder idEncoder;
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
 
@@ -110,6 +113,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
+			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
@@ -130,6 +134,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (user != null) {
 //			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));

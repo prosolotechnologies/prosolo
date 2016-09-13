@@ -20,6 +20,7 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" required="true" />
+		<composite:attribute name="role" type="java.lang.String" default="USER"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -140,14 +141,15 @@
 	            <ul class="whiteBox activityLinksBox">
 	            	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
 	            		<li>
+	            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? loggeduser.sessionData.encodedUserId : '[USER ID]')}" />
 		                    <div class="actBoxLeft">
 		                        <h3>#{link.linkName}</h3>
-		                        <span>#{link.url}</span>
+		                        <span>#{link.url}#{urlSufix}</span>
 		                    </div>
-		                    <a href="#{link.url}" 
+		                    <a href="#{link.url}#{urlSufix}" 
 	                    		target="_blank" 
 	                    		class="btn btn-green btn-sm"
-	                    		onclick="sendLogPageNavigation('#{link.url}', 
+	                    		onclick="sendLogPageNavigation('#{link.url}#{urlSufix}', 
 	                    				'#{facesContext.viewRoot.viewId}', 
 	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
 	                    				null);">

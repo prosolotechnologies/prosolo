@@ -1012,6 +1012,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     				ResourceLink link = new ResourceLink();
     				link.setLinkName(rl.getLinkName());
     				link.setUrl(rl.getUrl());
+    				if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+    					link.setIdParameterName(rl.getIdParamName());
+    				}
     				saveEntity(link);
     				activityLinks.add(link);
     			}
