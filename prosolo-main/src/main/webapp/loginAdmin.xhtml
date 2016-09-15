@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<f:view transient="true" contentType="text/html">
+<h:head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+    <title>Sign in</title>
+    <link href="#{request.contextPath}/resources/css2/bootstrap.min.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="#{request.contextPath}/resources/css2/style.css" rel="stylesheet" />
+</h:head>
+
+<f:metadata>
+   	<f:event type="preRenderView" listener="#{loginbean.checkIfLoggedIn}" />
+</f:metadata>
+	
+<h:body>
+    <div class="loginBox">
+        <div class="logo"></div>
+        <div class="whiteBox">
+            <div class="loginTop">
+                <h1>Sign in</h1>
+                
+                <c:if test="#{applicationbean.config.application.registration.google or 
+					applicationbean.config.application.registration.edx or
+					not empty samlLoginBean.identityProviders}">
+					
+					<h:form prependId="false" id="openFormId">
+		                <div class="buttonBox">
+		                	<c:if test="#{applicationbean.config.application.registration.google}">
+		                		<h:commandLink
+					            	id="openidGmail" 
+					            	class="btnGoogle"
+					            	action="#{loginbean.signinOpenidGoogle}">
+		                			<span></span>Sign in with Google
+	                			</h:commandLink>
+		                    </c:if>
+		                    
+		                    <c:if test="#{applicationbean.config.application.registration.edx}">
+		                    	<h:commandLink
+					            	id="openidEdx" 
+					            	class="btnedX"
+					            	action="#{loginbean.signinOpenidEDX}">
+					            	<span></span>Sign in with edX
+				            	</h:commandLink>
+		                    </c:if>
+		                
+							<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+								<a href="#{applicationbean.domain}saml/login?idp=#{ip.entityId}" 
+									class="#{ip.styleClass}">
+									<span></span>#{ip.displayName}
+								</a>
+							</ui:repeat>
+		                </div>
+	                </h:form>
+                </c:if>
+				
+		                
+                <c:if test="#{(applicationbean.config.application.registration.google or 
+								applicationbean.config.application.registration.edx or
+								not empty samlLoginBean.identityProviders)}">
+	                <div class="loginSeparator">
+	                    <span>or sign in with your email</span>
+	                </div>
+				</c:if>
+            </div>
+
+			<form method="POST" action='loginspring'>
+				<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
+					<div class="alert alert-danger" role="alert">
+						Wrong email or password! Please try again.
+					</div>
+				</c:if>
+				<c:if test="${not empty param.error}">
+					<div class="alert alert-danger" role="alert">
+						#{param.error}}
+					</div>
+				</c:if>
+				<c:if test="${not empty param.success}">
+					<div class="alert alert-info" role="alert">
+						#{param.success}
+					</div>
+				</c:if>
+				<p:messages id="loginMessage" showDetail="false" autoUpdate="true" closable="true" />
+				
+				<h:inputText type="email" id="username" name="username" pt:placeholder="Email address" 
+					required="true" requiredMessage="Email is required." />
+				
+                <h:inputSecret id="password" name="password" pt:placeholder="Password" 
+                	required="true" requiredMessage="Password is required." />
+                
+				<div class="loginOpt">
+					<div class="checkbox checkLine">
+						<input type="checkbox" id="checkRemember" name="remember-me" checked="checked" />
+						<label for="checkRemember">Remember me</label>
+					</div>
+					<a href="reset">Forgot Password?</a>
+				</div>
+                
+				<input id="loginButton" type="submit" class="btn btn-green" value="Sign in"/>
+			</form>
+        </div>
+        
+        <div class="loginFooter">
+            <ul>
+                <li><a href="about">About</a></li>
+                <li><a href="terms">Terms</a></li>
+                <li><a href="mailto:#{applicationbean.commonConfig.appConfig.supportEmail}">Support</a></li>
+            </ul>
+            <p>ProSolo Technologies Inc &#169; #{applicationbean.year}</p>
+        </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+</h:body>
+</f:view>
+</html>
