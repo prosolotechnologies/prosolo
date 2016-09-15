@@ -28,13 +28,10 @@
     </servlet-mapping>
     <filter>
         <filter-name>AbsoluteSendRedirectFilter</filter-name>
-        <display-name>AbsoluteSendRedirectFilter</display-name>
-        <description>translate relative to absolute urls</description>
         <filter-class>org.prosolo.core.ssl.AbsoluteSendRedirectFilter</filter-class>
         <init-param>
             <param-name>parm1</param-name>
             <param-value>parm1value</param-value>
-            <description>description</description>
         </init-param>
     </filter>
 
@@ -45,7 +42,7 @@
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-        <init-param>im
+        <init-param>
             <param-name>encoding</param-name>
             <param-value>UTF-8</param-value>
         </init-param>
