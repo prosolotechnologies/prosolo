@@ -52,4 +52,10 @@ public class Config {
 		return application;
 	}
 
+	public AnalyticalServerConfig getAnalyticalServerConfig() {
+		return analyticalServerConfig;
+	}
+	
+	
+
 }

@@ -93,7 +93,7 @@
         })();
         
         var activityGraphService = service.create({
-            url : "http://" + host() + "/users/activity/statistics",
+            url : host() + "/users/activity/statistics",
             parameters : function() {
                 return {
                     dateFrom : activityGraph.dateFrom() + " UTC",
@@ -136,7 +136,7 @@
         });
         
         var twitterHashtagsService = service.create({
-            url : "http://" + host() + "/twitter/hashtag/statistics",
+            url : host() + "/twitter/hashtag/statistics",
             parameters : function() {
                 return {
                     dateFrom : twitterHashtags.dateFrom() + " UTC",
@@ -203,7 +203,7 @@
             
             function load() {
                 $.ajax({
-                    url : "http://" + host() + "/twitter/hashtag/average",
+                    url : host() + "/twitter/hashtag/average",
                     type : "GET",
                     data : {page: navigation.dataset.current, paging: paging.value, term: term.dataset.term, includeWithoutFollowers: followers.checked},
                     crossDomain: true,
@@ -385,7 +385,7 @@
         var disabledHashtagsPages = paging.create([], 5);
         
         $.ajax({
-            url : "http://" + host() + "/twitter/hashtag/disabled",
+            url : host() + "/twitter/hashtag/disabled",
             type : "GET",
             crossDomain : true,
             dataType : 'json'

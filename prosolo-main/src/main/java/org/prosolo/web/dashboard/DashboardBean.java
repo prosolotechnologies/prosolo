@@ -9,9 +9,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.config.AnalyticalServerConfig;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
@@ -56,11 +54,6 @@ public class DashboardBean implements Serializable {
 
 	public long getCurrentlyLoggedIn() {
 		return 0;
-	}
-
-	public String getApiHost() {
-		AnalyticalServerConfig config = Settings.getInstance().config.analyticalServerConfig;
-		return config.apiHost + ":" + config.apiPort;
 	}
 
 	public String getNoResultsFoundMessage() {
