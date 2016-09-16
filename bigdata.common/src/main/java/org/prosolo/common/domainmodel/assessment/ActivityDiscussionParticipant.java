@@ -22,7 +22,7 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 	
 	
 	@Type(type = "true_false")
-	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'F'")
+	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'T'")
 	public boolean isRead() {
 		return read;
 	}

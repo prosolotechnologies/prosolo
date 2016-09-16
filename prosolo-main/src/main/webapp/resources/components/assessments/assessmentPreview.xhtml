@@ -188,7 +188,7 @@
 									id="activityAssessmentWrapper#{compAssIndex.index}">
 									<ul>
 										<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
-											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{!activityAssessment.allRead ? 'hasNewComments' : ''}">
+											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead) ? '' : 'hasNewComments'}">
 												<span class="iconType"></span>
 												<h:link outcome="activity">
 													#{activityAssessment.title}
