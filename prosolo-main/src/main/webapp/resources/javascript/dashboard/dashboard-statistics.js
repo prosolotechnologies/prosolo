@@ -29,7 +29,7 @@ var statistics = (function () {
     
     function totalUsers(configuration) {
         $.ajax({
-            url : "http://" + configuration.host + "/users/activity/statistics/sum",
+            url : configuration.host + "/users/activity/statistics/sum",
             type : "GET",
             data : {event: "registered"},
             crossDomain: true,
@@ -53,7 +53,7 @@ var statistics = (function () {
     
     function activeUsers(configuration) {       
         $.ajax({
-            url : "http://" + configuration.host + "/users/activity/statistics/active",
+            url : configuration.host + "/users/activity/statistics/active",
             type : "GET",
             data : {event: "login"},
             crossDomain: true,
@@ -77,7 +77,7 @@ var statistics = (function () {
     
     function session(configuration) {
         $.ajax({
-            url : "http://" + configuration.host + "/users/activity/statistics/session",
+            url : configuration.host + "/users/activity/statistics/session",
             type : "GET",
             crossDomain: true,
             dataType: 'json'

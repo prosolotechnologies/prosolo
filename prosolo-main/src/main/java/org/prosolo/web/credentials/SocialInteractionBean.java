@@ -9,7 +9,6 @@ import org.prosolo.config.AnalyticalServerConfig;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-
 @ManagedBean(name = "socialInteractionBean")
 @Component("socialInteractionBean")
 @Scope("view")
@@ -17,10 +16,9 @@ public class SocialInteractionBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	public String getApiHost() {
+	public String getServicesDomain() {
 		AnalyticalServerConfig config = Settings.getInstance().config.analyticalServerConfig;
-		return config.apiHost + ":" + config.apiPort+"/"+config.apiServicesPath;
+		return config.apiHost + config.apiServicesPath;
 	}
-
 
 }

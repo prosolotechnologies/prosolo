@@ -26,13 +26,7 @@ public class RecommendationServicesRestImpl implements RecommendationServicesRes
 	@Override
 	public String sendPostRequest(String serviceLocalPath, RequestObject paramObject) throws ConnectException {
 		AnalyticalServerConfig analyticalConfig = Settings.getInstance().config.analyticalServerConfig;
-		String serviceUrl = "http://" + analyticalConfig.apiHost;
-		
-		if (analyticalConfig.apiPort > 0) {
-			serviceUrl = serviceUrl + ":" + analyticalConfig.apiPort;
-		}
-		
-		serviceUrl = serviceUrl + "/" + analyticalConfig.apiServicesPath + serviceLocalPath;
+		String serviceUrl = analyticalConfig.apiHost + analyticalConfig.apiServicesPath + serviceLocalPath;
 		String response = restClient.sendPostRequest(serviceUrl, gson.toJson(paramObject));
 		
 		return response;
@@ -40,13 +34,7 @@ public class RecommendationServicesRestImpl implements RecommendationServicesRes
 	@Override
 	public String sendGetRequest(String serviceLocalPath) throws ConnectException {
 		AnalyticalServerConfig analyticalConfig = Settings.getInstance().config.analyticalServerConfig;
-		String serviceUrl = "http://" + analyticalConfig.apiHost;
-
-		if (analyticalConfig.apiPort > 0) {
-			serviceUrl = serviceUrl + ":" + analyticalConfig.apiPort;
-		}
-
-		serviceUrl = serviceUrl + "/" + analyticalConfig.apiServicesPath + serviceLocalPath;
+		String serviceUrl = analyticalConfig.apiHost + analyticalConfig.apiServicesPath + serviceLocalPath;
 		String response = restClient.sendGetRequest(serviceUrl);
 
 		return response;
