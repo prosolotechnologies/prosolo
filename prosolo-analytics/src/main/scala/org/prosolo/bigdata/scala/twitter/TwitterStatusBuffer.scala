@@ -78,7 +78,7 @@ object TwitterStatusBuffer {
 
   def processStatus(status:Status){//}status:Status, twitterStreamingDao:TwitterStreamingDAO,session:Session ){
     
-   
+
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
      status.getHashtagEntities.map { htent => twitterHashtags.add(htent.getText.toLowerCase) }

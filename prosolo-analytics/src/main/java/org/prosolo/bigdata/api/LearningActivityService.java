@@ -28,6 +28,7 @@ public class LearningActivityService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStudentLearningActivities(@PathParam("id") Long id, @QueryParam("dateFrom") String dateFrom,
 			@QueryParam("dateTo") String dateTo) throws ParseException {
+
 		if(dateFrom==null || dateTo==null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
