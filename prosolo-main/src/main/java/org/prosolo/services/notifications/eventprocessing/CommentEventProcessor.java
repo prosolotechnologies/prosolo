@@ -21,9 +21,9 @@ import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 
-public class CommentEventProcessing extends NotificationEventProcessor {
+public class CommentEventProcessor extends NotificationEventProcessor {
 
-	private static Logger logger = Logger.getLogger(CommentEventProcessing.class);
+	private static Logger logger = Logger.getLogger(CommentEventProcessor.class);
 	
 	private Comment1 resource;
 	private ResourceType objectType;
@@ -32,7 +32,7 @@ public class CommentEventProcessing extends NotificationEventProcessor {
 	private RoleManager roleManager;
 	private ContextJsonParserService contextJsonParserService;
 	
-	public CommentEventProcessing(Event event, Session session,
+	public CommentEventProcessor(Event event, Session session,
 			NotificationManager notificationManager, 
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
 			Activity1Manager activityManager, CommentManager commentManager, RoleManager roleManager, ContextJsonParserService contextJsonParserService) {

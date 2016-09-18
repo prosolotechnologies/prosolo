@@ -3,6 +3,8 @@ package org.prosolo.services.notifications.eventprocessing;
 import javax.inject.Inject;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
@@ -47,7 +49,7 @@ public class NotificationEventProcessorFactory {
 		 */
 		case Comment:
 		case Comment_Reply:
-			return new CommentEventProcessing(event, session, notificationManager,
+			return new CommentEventProcessor(event, session, notificationManager,
 					notificationsSettingsManager, idEncoder, activityManager, commentManager, roleManager, contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
@@ -57,8 +59,13 @@ public class NotificationEventProcessorFactory {
 		 */
 		case Like:
 		case Dislike:
-			return new LikeEventProcessing(event, session, notificationManager, notificationsSettingsManager,
-					activityManager, idEncoder);
+			if (event.getObject() instanceof Comment1) {
+				return new CommentLikeEventProcessor(event, session, notificationManager, notificationsSettingsManager,
+						activityManager, idEncoder);
+			} else if (event.getObject() instanceof SocialActivity1) {
+				return new SocialActivityLikeEventProcessor(event, session, notificationManager, notificationsSettingsManager,
+						activityManager, idEncoder);
+			}
 		case Follow:
 			return new FollowUserEventProcessor(event, session, notificationManager, notificationsSettingsManager,
 					idEncoder, followResourceManager);
