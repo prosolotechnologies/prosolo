@@ -82,9 +82,11 @@ public abstract class TimeSpentOnActivityProcessor {
 	 * @return
 	 */
 	private boolean checkIfTargetActivityContext(JsonObject ctx) {
-		if(ctx == null) {
+
+		if(ctx == null || ctx.isJsonNull() || ctx.entrySet().size()==0) {
 			return false;
 		}
+
 		if("TARGET_ACTIVITY".equals(ctx.get("name").getAsString().toUpperCase())) {
 			this.activityId = ctx.get("id").getAsLong();
 			return true;
