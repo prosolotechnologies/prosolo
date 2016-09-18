@@ -1,0 +1,9 @@
+Hi {{name}},
+
+{{actor}} {{predicate}} liked your post
+
+View post at {{link}}.
+
+
+ProSolo Team
+{{supportEmail}}

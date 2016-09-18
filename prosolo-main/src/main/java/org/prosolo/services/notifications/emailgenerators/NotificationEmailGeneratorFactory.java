@@ -60,6 +60,8 @@ public class NotificationEmailGeneratorFactory {
 				}
 				
 				return new CommentLikeNotificationEmailGenerator(name, actor, predicate, targetTypeStr, targetTitleStr, date, link);
+			case Social_Activity_Like:
+				return new SocialActivityLikeNotificationEmailGenerator(name, actor, predicate, date, link);
 			case Mention:
 				return new MentionNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
 			case Assessment_Requested:

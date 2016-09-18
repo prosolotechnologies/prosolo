@@ -15,16 +15,16 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
-public class LikeEventProcessing extends NotificationEventProcessor {
+public class CommentLikeEventProcessor extends NotificationEventProcessor {
 
-	private static Logger logger = Logger.getLogger(LikeEventProcessing.class);
+	private static Logger logger = Logger.getLogger(CommentLikeEventProcessor.class);
 
 	private Activity1Manager activityManager;
 	
 	private Comment1 comment;
 	private ResourceType commentedResourceType;
 	
-	public LikeEventProcessing(Event event, Session session,
+	public CommentLikeEventProcessor(Event event, Session session,
 			NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager,
 			Activity1Manager activityManager,

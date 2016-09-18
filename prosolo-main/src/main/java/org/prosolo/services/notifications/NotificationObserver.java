@@ -85,7 +85,7 @@ public class NotificationObserver extends EventObserver {
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
 					.getNotificationEventProcessor(event, session);
-			if(processor != null) {
+			if (processor != null) {
 				List<Notification1> notifications = processor.getNotificationList();
 				// make sure all data is persisted to the database
 				session.flush();
@@ -174,6 +174,8 @@ public class NotificationObserver extends EventObserver {
 						
 					}
 				}
+			} else {
+				logger.error("This notification is not supported by any notification processor." + event);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
