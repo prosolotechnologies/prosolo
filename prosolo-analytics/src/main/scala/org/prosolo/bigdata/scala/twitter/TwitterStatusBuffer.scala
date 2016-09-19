@@ -77,7 +77,7 @@ object TwitterStatusBuffer {
   }
 
   def processStatus(status:Status){//}status:Status, twitterStreamingDao:TwitterStreamingDAO,session:Session ){
-    
+    println("process status")
 
      val twitterUser=status.getUser
      val twitterHashtags:java.util.List[String]=new java.util.ArrayList[String]()
@@ -85,6 +85,8 @@ object TwitterStatusBuffer {
      val(twitterId,cName,screenName,profileImage)=(twitterUser.getId,twitterUser.getName,twitterUser.getScreenName,twitterUser.getProfileImageURL)
     val creatorName=cName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     val profileUrl="https://twitter.com/"+screenName
+
+
    
    val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
    val session:Session= HibernateUtil.getSessionFactory().openSession()
@@ -93,12 +95,27 @@ object TwitterStatusBuffer {
                   session.beginTransaction()
     }
     var poster:User = twitterStreamingDao.getUserByTwitterUserId(twitterId, session);
-    // if({poster=twitterStreamingDao.getUserByTwitterUserId(twitterId, session); poster==null}){
-    //   poster=initAnonUser(creatorName,profileUrl,screenName,profileImage)
-    // }
+
      
      val(text,created,postLink)=(status.getText,status.getCreatedAt,"https://twitter.com/" + twitterUser.getScreenName + "/status/" + status.getId)
       val statusText=text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
+    printTweet("current",creatorName,profileUrl,screenName,profileImage,statusText)
+println("is retweet:"+status.isRetweet+" is retweeted:"+status.isRetweeted)
+    if(status.isRetweet) {
+      println("this is retweet")
+
+      val reStatus=status.getRetweetedStatus
+      if(reStatus.isRetweet){
+        println("retweet in retweet")
+      }
+      val reTwitterUser=reStatus.getUser
+      val(reText,reCreated,rePostLink)=(reStatus.getText,reStatus.getCreatedAt,"https://twitter.com/" + reTwitterUser.getScreenName + "/status/" + reStatus.getId)
+      val reStatusText=reText.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
+      val(reTwitterId,reCName,reScreenName,reProfileImage)=(reTwitterUser.getId,reTwitterUser.getName,reTwitterUser.getScreenName,reTwitterUser.getProfileImageURL)
+      val reCreatorName=reCName.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
+      val reProfileUrl="https://twitter.com/"+reScreenName
+      printTweet("RE-TWEET:",reCreatorName,reProfileUrl,reScreenName,reProfileImage,reStatusText)
+    }
      //val post:TwitterPost = twitterStreamingDao.createNewTwitterPost(poster, created, postLink, twitterId, creatorName, screenName, profileUrl, profileImage, statusText,VisibilityType.PUBLIC, twitterHashtags,true, session);
 
        val twitterPostSocialActivity = twitterStreamingDao.createTwitterPostSocialActivity(
@@ -118,6 +135,9 @@ object TwitterStatusBuffer {
      }
     
      
+  }
+  def printTweet(statusType:String, creatorName:String,profileUrl:String,screenName:String, profileImage:String, text:String): Unit ={
+    println("statusType:"+statusType+" creatorName:"+creatorName+" profileUrl:"+profileUrl+" screenName:"+screenName+" profileImage:"+profileImage+" text:"+text);
   }
   def initAnonUser(creatorName:String,profileUrl:String,screenName:String, profileImage:String):AnonUser={
    val anonUser:AnonUser=new AnonUser

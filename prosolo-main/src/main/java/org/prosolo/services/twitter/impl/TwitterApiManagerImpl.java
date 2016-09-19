@@ -80,9 +80,9 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 			
 			if (oauthAccessToken!=null) {
 				logger.debug("created access token:" +oauthAccessToken.getProfileLink());
-				System.out.println("ADD NEW TWITTER USER :"+userId);
+				System.out.println("ADD NEW TWITTER USER :"+userId+" TwitterUserId:"+accessToken.getUserId());
 				//twitterStreamsManager.addNewTwitterUserAndRestartStream(userId);
-				 analyticalServiceCollector.updateTwitterUser(userId,true);
+				 analyticalServiceCollector.updateTwitterUser(userId,accessToken.getUserId(),true);
 			}
 			this.getTwitter().setOAuthAccessToken(null);
 		} catch (java.lang.IllegalStateException e) {

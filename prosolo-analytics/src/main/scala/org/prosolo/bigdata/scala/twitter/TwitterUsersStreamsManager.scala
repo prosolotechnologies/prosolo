@@ -68,14 +68,17 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
    */
   def updateTwitterUserFromAnalyticsEvent(event: AnalyticsEvent){
     val data:JsonObject=event.getData()
+    println("")
     val userid:Long=data.get("twitterId").getAsLong
     val shouldAdd:Boolean=data.get("add").getAsBoolean
     if(shouldAdd)addNewTwitterUser(userid) else removeTwitterUser(userid)
   }
   private def addNewTwitterUser(userid:Long){
+    println("Adding new twitter user:"+userid)
     if(!usersAndStreamsIds.contains(userid)){
         val currentFilterList:ListBuffer[Long]= getLatestStreamAndList._2
         currentFilterList+=userid
+      println("new users list:"+currentFilterList.mkString(","))
        if(currentFilterList.size>STREAMLIMIT){
         restartStream(getLatestStreamAndList._1,getLatestStreamAndList._2)
          initializeNewCurrentListAndStream(currentFilterList)
@@ -85,12 +88,14 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
     }
   }
   private def removeTwitterUser(userid:Long){
+    println("Removing twitter user:"+userid)
       if(usersAndStreamsIds.contains(userid)){
           val streamId=usersAndStreamsIds.get(userid);
           val streamUsersTuple:(TwitterStream,ListBuffer[Long])= twitterStreamsAndUsers.get(streamId.get).get
           val newusers:ListBuffer[Long]= streamUsersTuple._2.filterNot(p => p==userid)
           twitterStreamsAndUsers.put(streamId.get,(streamUsersTuple._1,newusers))
           usersAndStreamsIds.remove(userid)
+        println("new users list:"+newusers.mkString(","))
           restartStream(streamUsersTuple._1, newusers)
       }
   }

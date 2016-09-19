@@ -18,12 +18,14 @@ trait TwitterStreamsManager {
     val config = TwitterPropertiesHolder.getTwitterConfigurationBuilder.build()
     val twitterStream = new TwitterStreamFactory(config).getInstance
     twitterStream.addListener(StatusListener.listener)
+   println("Adding stream")
     twitterStream.filter(filterQuery)
     streamsCounter+=1
      (twitterStream,streamsCounter-1)
    }
 def restartStream(twitterStream:TwitterStream, filterQuery:FilterQuery){//twitterStream:TwitterStream, streamId:Int){
   twitterStream.cleanUp()
+  println("RESTART STREAM...");
   // val filterQuery:FilterQuery=new FilterQuery().follow(filters:_*)
     twitterStream.filter(filterQuery)
   }
