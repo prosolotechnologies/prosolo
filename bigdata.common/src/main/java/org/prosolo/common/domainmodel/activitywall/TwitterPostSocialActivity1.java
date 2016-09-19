@@ -2,11 +2,7 @@ package org.prosolo.common.domainmodel.activitywall;
 
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -82,6 +78,7 @@ public class TwitterPostSocialActivity1 extends SocialActivity1 {
 	}
 	
 	@Column (name ="twitter_user_type")
+	//@Enumerated(EnumType.STRING)
 	public UserType getUserType() {
 		return userType;
 	}

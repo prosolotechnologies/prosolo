@@ -33,7 +33,7 @@ public interface TwitterStreamingDAO extends GenericDAO {
 //	User getUserByTwitterUserId(long userId);
 //
 	SocialActivity1 createTwitterPostSocialActivity(User actor, Date dateCreated, String postLink, 
-			long tweetId, String creatorName, String screenName, String userUrl, String profileImage,
+			long tweetId, boolean isRetweet, String retweetComment,String creatorName, String screenName, String userUrl, String profileImage,
 			String text, Collection<String> hashtags, Session session);
 
 	List<Long> getAllTwitterUsersTokensUserIds(Session session);
