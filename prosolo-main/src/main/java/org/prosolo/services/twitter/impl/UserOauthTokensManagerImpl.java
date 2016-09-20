@@ -105,7 +105,6 @@ public class UserOauthTokensManagerImpl extends AbstractManagerImpl implements U
 		if (token != null) {
 			token = this.merge(token);
 			deletedUserId=token.getUserId();
-			System.out.println("Deleting user:"+token.getUserId());
 			Session session = persistence.currentManager();
 			session.delete(token);
 			session.flush();

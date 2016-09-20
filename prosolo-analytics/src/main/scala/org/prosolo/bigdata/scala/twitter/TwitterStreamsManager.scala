@@ -18,6 +18,7 @@ trait TwitterStreamsManager {
     val config = TwitterPropertiesHolder.getTwitterConfigurationBuilder.build()
     val twitterStream = new TwitterStreamFactory(config).getInstance
     twitterStream.addListener(StatusListener.listener)
+
     twitterStream.filter(filterQuery)
     streamsCounter+=1
      (twitterStream,streamsCounter-1)

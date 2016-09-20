@@ -407,7 +407,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(String) tuple[13], 
 							(String) tuple[14], 
 							(String) tuple[15], 
-							(Integer) tuple[16], 
+							(Integer) tuple[16],
 							(String) tuple[17], 
 							(String) tuple[18], 
 							(String) tuple[19], 

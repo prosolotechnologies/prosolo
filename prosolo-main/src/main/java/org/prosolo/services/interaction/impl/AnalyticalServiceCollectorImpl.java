@@ -92,10 +92,11 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		messageDistributer.distributeMessage(message);
 	}
 
-        @Override
-	public void updateTwitterUser(long userId, boolean addUser){
+    @Override
+	public void updateTwitterUser(long userId, long twitterUserId, boolean addUser){
 		JsonObject data=new JsonObject();
-		data.add("twitterId",new JsonPrimitive(userId));
+		data.add("userId",new JsonPrimitive(userId));
+		data.add("twitterId",new JsonPrimitive(twitterUserId));
 		data.add("add",new JsonPrimitive(addUser));
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.UPDATETWITTERUSER, DataType.PROCESS,data);
         messageDistributer.distributeMessage(message);

@@ -78,12 +78,12 @@ public class TwitterApiManagerImpl implements TwitterApiManager {
 //					userId, ServiceType.TWITTER, token,
 //					tokenSecret, screenName, "https://twitter.com/"+screenName);
 			
-			if (oauthAccessToken!=null) {
-				logger.debug("created access token:" +oauthAccessToken.getProfileLink());
-				System.out.println("ADD NEW TWITTER USER :"+userId);
+			//if (oauthAccessToken!=null) {
+			//	logger.debug("created access token:" +oauthAccessToken.getProfileLink());
+			//	System.out.println("ADD NEW TWITTER USER :"+userId+" TwitterUserId:"+accessToken.getUserId());
 				//twitterStreamsManager.addNewTwitterUserAndRestartStream(userId);
-				 analyticalServiceCollector.updateTwitterUser(userId,true);
-			}
+				// analyticalServiceCollector.updateTwitterUser(userId,accessToken.getUserId(),true);
+			//}
 			this.getTwitter().setOAuthAccessToken(null);
 		} catch (java.lang.IllegalStateException e) {
 			//logger.error("IllegalStateException in checking twitter status for user"+e.getLocalizedMessage());

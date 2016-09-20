@@ -93,8 +93,8 @@ public class TwitterBean implements Serializable {
 								SocialNetworkName.TWITTER,
 								accessToken.getProfileLink());
 					}
-					
-					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(), true);
+					logger.debug("created access token:" +accessToken.getProfileLink());
+					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),accessToken.getUserId(), true);
 					
 					try {
 						String domain = CommonSettings.getInstance().config.appConfig.domain;
@@ -164,7 +164,7 @@ public class TwitterBean implements Serializable {
 		logger.debug("Disconnecct from twitter for user " + loggedUser.getUserId());
 
 		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
-		analyticalServiceCollector.updateTwitterUser(deletedUserId, false);
+		analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),deletedUserId, false);
 		
 		profileSettingsBean.setConnectedToTwitter(false);
 		
