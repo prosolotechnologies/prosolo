@@ -68,6 +68,7 @@ public class UserSessionDataLoader implements Serializable{
 			String avatar = initializeAvatar(user.getAvatarUrl());
 			
 			registerNewUserSession(user, session);
+
 			
 			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
 	
@@ -91,6 +92,7 @@ public class UserSessionDataLoader implements Serializable{
 			sessionData.put("email", email);
 			sessionData.put("notificationsSettings", notificationsSettings);
 			sessionData.put("password", user.getPassword());
+			sessionData.put("sessionId",session.getId());
 			
 			logger.info("init finished");
 			return sessionData;

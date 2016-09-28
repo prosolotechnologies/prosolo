@@ -76,8 +76,7 @@ object SparkContextLoader {
 
       sparkConf.set("es.nodes", StringUtils.join(hosts, ","))
         sparkConf.set("es.nodes.wan.only","true")
-     // sparkConf.set("es.nodes", "dev.prosolo.ca")
-       //  sparkConf.set("es.port","9200")
+
 
     }else if(esConfig.`type`.equals("cloud-aws")){
 

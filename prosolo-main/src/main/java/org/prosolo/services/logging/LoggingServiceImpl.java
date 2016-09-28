@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.joda.time.Days;
@@ -56,6 +57,9 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
+import org.prosolo.web.ApplicationBean;
+import org.prosolo.web.LoggedUserBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -97,6 +101,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	private ApplicationBean applicationBean;
 
 	private static String pageNavigationCollection = "log_page_navigation";
 	private static String serviceUseCollection = "log_service_use";
@@ -630,6 +637,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String link = parameters.get("link");
 	
 			logObject.put("actorId", actorId);
+		    logObject.put("sessionId",getSessionId(actorId));
 			logObject.put("objectType", objectType);
 			logObject.put("objectId", objectId);
 			logObject.put("objectTitle", objectTitle);
@@ -681,6 +689,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
+
 			logger.debug("LOG:"+logObject.toJSONString());
 			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
@@ -710,6 +719,26 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}*/
 
 	//	}
+	}
+
+	private String getSessionId(long userId){
+		System.out.println("getSessionIdForUser:"+userId);
+		String sessionId="";
+		if(userId>0){
+			HttpSession httpSession = applicationBean.getUserSession(userId);
+			if (httpSession != null) {
+				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
+						.getAttribute("loggeduser");
+				if (loggedUserBean != null) {
+					if (!loggedUserBean.isInitialized()) {
+						loggedUserBean.initializeSessionData(httpSession);
+					}
+					sessionId=loggedUserBean.getSessionData().getSessionId();
+					System.out.println("SESSION ID:"+sessionId);
+				}
+			}
+		}
+		return sessionId;
 	}
 	
 	@Override
