@@ -55,6 +55,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.indexing.LoggingESService;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.web.ApplicationBean;
@@ -101,6 +102,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Inject
+	private LoggingESService loggingESService;
 
 	@Autowired
 	private ApplicationBean applicationBean;
@@ -708,7 +712,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			
 			// timestamp,eventType,objectType,targetType,link,context,action
 			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
-			
+			loggingESService.storeEventObservedLog(logObject);
 			logsMessageDistributer.distributeMessage(logObject);
 			/*
 			try {

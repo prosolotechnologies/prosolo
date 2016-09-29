@@ -46,6 +46,9 @@ public class ElasticSearchConfig {
 
 	@Element(name = "recommendationdata-index")
 	public   String recommendationdataIndex;
+
+	@Element(name = "logs-index")
+	public   String logsIndex;
 	
 	
 }

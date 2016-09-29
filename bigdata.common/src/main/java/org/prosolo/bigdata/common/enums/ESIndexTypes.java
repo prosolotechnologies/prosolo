@@ -7,6 +7,7 @@ public class ESIndexTypes {
 	public static final String TAGS = "tags";
 	public static final String COURSE = "courses";
 	public static final String ACTIVITY = "activities";
+	public static final String LOG ="log" ;
 	public static String DOCUMENT="document";
 	public static final String CREDENTIAL = "credential";
 	public static final String COMPETENCE1 = "competence1";
