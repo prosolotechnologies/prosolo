@@ -322,6 +322,7 @@ public class ActivityDataFactory {
 	}
 	
 	private ActivityResultData getActivityResultData(TargetActivity1 activity) {
+		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
 		ActivityResultData ard = new ActivityResultData(false);
 		ard.setTargetActivityId(activity.getId());
 		ard.setResultType(getResultType(activity.getResultType()));

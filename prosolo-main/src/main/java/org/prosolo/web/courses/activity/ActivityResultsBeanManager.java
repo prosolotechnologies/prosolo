@@ -250,6 +250,15 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
+	//assessment begin
+	public void loadActivityDiscussionById(long targetActivityId, boolean loadDiscussion, boolean loadComments) {
+		ActivityResultData result = activityManager.getActivityResultData(targetActivityId, loadComments, loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), loggedUserBean.getUserId());
+		
+//		if (result != null && loadDiscussion) {
+			loadActivityDiscussion(result);
+//		}
+	}
+	
 	private void loadAdditionalData(ActivityResultData result) {
 		ActivityAssessmentData assessment = result.getAssessment();
 		CompetenceAssessment ca = assessmentManager.getDefaultCompetenceAssessment(
