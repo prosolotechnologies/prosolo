@@ -2,9 +2,11 @@ package org.prosolo.services.nodes.impl;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +42,11 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentReplyFetchMode;
+import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -61,6 +68,7 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.useractions.CommentBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +84,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Inject private ActivityDataFactory activityFactory;
 	@Inject private Competence1Manager compManager;
+	@Inject private CommentManager commentManager;
 	@Inject private EventFactory eventFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CredentialManager credManager;
@@ -2573,19 +2582,21 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
 					String result = (String) row[2];
 					Date date = (Date) row[3];
-					long usrId = ((BigInteger) row[4]).longValue();
-					String fName = (String) row[5];
-					String lName = (String) row[6];
+					long userId = ((BigInteger) row[4]).longValue();
+					String firstName = (String) row[5];
+					String lastName = (String) row[6];
 					String avatar = (String) row[7];
 					User user = new User();
-					user.setId(usrId);
-					user.setName(fName);
-					user.setLastname(lName);
+					user.setId(userId);
+					user.setName(firstName);
+					user.setLastname(lastName);
 					user.setAvatarUrl(avatar);
 					int commentsNo = ((BigInteger) row[8]).intValue();
 					
 					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
 							date, user, commentsNo, isInstructor);
+					
+					ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId));
 					results.add(ard); 
 					
 					if (returnAssessmentData) {
@@ -2622,6 +2633,47 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	private List<ResultCommentInfo> getCommentsOnOtherResults(long userId, long targetActivityId) {
+		String query = 
+				"SELECT targetAct.id, user.name, user.lastname, COUNT(DISTINCT com.id) AS noOfComments, MIN(com.post_date) AS firstCommentDate " +
+				"FROM target_activity1 targetAct " +
+				"INNER JOIN activity1 act ON (targetAct.activity = act.id) " +
+				"INNER JOIN target_competence1 targetComp ON (targetAct.target_competence = targetComp.id) " +
+				"INNER JOIN target_credential1 targetCred ON (targetComp.target_credential = targetCred.id) " +
+				"INNER JOIN user user ON (targetCred.user = user.id) " +
+				"LEFT JOIN comment1 com ON (targetAct.id = com.commented_resource_id AND com.resource_type = 'ActivityResult') " +
+				"WHERE act.id IN ( " +
+						"SELECT act1.id " +
+						"FROM target_activity1 targetAct1 " +
+						"INNER JOIN activity1 act1 ON (targetAct1.activity = act1.id) " +
+						"WHERE targetAct1.id = :targetActivityId " +
+					") " +
+					"AND targetAct.id != :targetActivityId " +
+					"AND targetAct.result IS NOT NULL " +
+					"AND com.user = :userId " +
+					"AND user.id != :userId " +
+				"GROUP BY targetAct.id ";
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = persistence.currentManager().createSQLQuery(query)
+				.setLong("targetActivityId", targetActivityId)
+				.setLong("userId", userId)
+				.list();
+		
+		List<ResultCommentInfo> result = new LinkedList<>();
+		
+		for (Object[] row : rows) {
+			long tActId = ((BigInteger) row[0]).longValue();
+			String resultCreator = ((String) row[1]) + " " + ((String) row[2]);
+			int noOfComments = ((BigInteger) row[3]).intValue();
+			Date firstCommentDate = (Date) row[4];
+			
+			result.add(new ResultCommentInfo(noOfComments, resultCreator, firstCommentDate, tActId));
+		}
+		
+		return result;
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
@@ -2650,6 +2702,52 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading activity results");
 		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId) {
+		String query = 
+			"SELECT targetAct, targetCred.user " +
+			"FROM TargetActivity1 targetAct " +
+			"INNER JOIN targetAct.targetCompetence targetComp " + 
+			"INNER JOIN targetComp.targetCredential targetCred " + 
+			"WHERE targetAct.id = :targetActivityId";
+		
+		Object[] result = (Object[]) persistence.currentManager()
+			.createQuery(query.toString())
+			.setLong("targetActivityId", targetActivityId)
+			.uniqueResult();
+		
+		if (result != null) {
+			TargetActivity1 targetActivity = (TargetActivity1) result[0];
+			User user = (User) result[1];
+			
+			ActivityResultData activityResult = activityFactory.getActivityResultData(targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
+					targetActivity.getResultPostDate(), user, 0, false);
+			
+			if (loadComments) {
+				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
+						targetActivityId, 
+						instructor);
+				
+				List<CommentData> comments = commentManager.getComments(
+						commentsData.getResourceType(), 
+						commentsData.getResourceId(), false, 0, 
+						CommentBean.getCommentSortData(commentsData), 
+						CommentReplyFetchMode.FetchReplies, 
+						loggedUserId);
+				
+				Collections.reverse(comments);
+				
+				commentsData.setComments(comments);
+				
+				activityResult.setResultComments(commentsData);
+			}
+			
+			return activityResult;
+		} 
+		return null;
 	}
 	
 //	@Override

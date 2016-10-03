@@ -93,12 +93,12 @@ public class CommentBean implements Serializable, ICommentBean {
 		}
 	}
 	
-	private CommentSortData getCommentSortData(CommentsData commentsData) {
+	public static CommentSortData getCommentSortData(CommentsData commentsData) {
 		List<CommentData> comms = commentsData.getComments();
 		Date previousDate = null;
 		int previousLikeCount = 0;
 		long previousId = 0;
-		if(comms != null && !comms.isEmpty()) {
+		if (comms != null && !comms.isEmpty()) {
 			CommentData comment = comms.get(0);
 			previousDate = comment.getDateCreated();
 			previousLikeCount = comment.getLikeCount();

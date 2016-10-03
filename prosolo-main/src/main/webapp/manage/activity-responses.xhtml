@@ -155,6 +155,8 @@
 		           			regionToUpdate=""
 		           			privateConvModalId="assessmentCommentsModal1"
 		           			toUpdateConvModal=":formPrivateConversation:panelModalPrivateConversation"
+		           			otherResultCommentModalId="assessmentCommentsModal1b"
+		           			toUpdateOtherResultCommentModal=":formCommentOnOtherResult:panelModalAssessmentComments"
 		           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{result.targetActivityId}"
 		           			assessmentGradeModalId="assessmentGradeModal1"
 		           			gradeLink="gradeLink_#{result.targetActivityId}"
@@ -213,7 +215,9 @@
               <h:panelGroup id="panelModalPrivateConversation" layout="block" styleClass="modal-content">
               	<ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult}">
                   <div class="modal-header alignLeft">
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      	<span aria-hidden="true">&#215;</span>
+                      </button>
                       <h2 class="modal-title">Comments</h2>
                   </div>
                   <div class="discussion">
@@ -345,6 +349,172 @@
               </h:panelGroup>
           </div>
       </div>
+    </h:form>
+    
+    <h:form id="formCommentOnOtherResult">
+	    <div class="modal fade assessmentCommentsModal"
+			id="assessmentCommentsModal1b" tabindex="-1" role="dialog"
+			aria-labelledby="assessmentCommentsModal">
+			
+			<div class="modal-dialog modal-lg">
+				<h:panelGroup id="panelModalAssessmentComments" layout="block" class="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h2 class="modal-title">Response by #{activityResultsBeanManager.currentResult.user.fullName}</h2>
+					</div>
+					
+					<ui:fragment rendered="#{activityResultsBeanManager.activityResultType eq 'FILE_UPLOAD'}">
+						<div class="activityResultFile">
+							<div class="activityResultHead">
+								<div class="user32">
+									<utilcomp:userAvatar
+										avatar="#{activityResultsBeanManager.currentResult.user.avatarUrl}"
+										fullName="#{activityResultsBeanManager.currentResult.user.fullName}" />
+									<h3>
+										<h:link outcome="/profile">
+				                     		#{activityResultsBeanManager.currentResult.user.fullName}
+				                     		<f:param name="id" value="#{util:encodeId(activityResultsBeanManager.currentResult.user.id)}" />
+										</h:link>
+									</h3>
+								</div>
+								<div class="timestamp">#{activityResultsBeanManager.currentResult.prettyResultPostDate}</div>
+							</div>
+							<div class="resultWrapper">
+								<div class="actBoxLeft noUrl">
+									<h3>#{activityResultsBeanManager.currentResult.assignmentTitle}</h3>
+								</div>
+								<a href="#{activityResultsBeanManager.currentResult.result}" class="btn btn-green btn-sm">Download</a>
+							</div>
+							<div class="discussion">
+								<div class="comments">
+									<ul class="media-list">
+										<ui:repeat var="comment" value="#{activityResultsBeanManager.currentResult.resultComments.comments}">
+											<li class="media">
+												<post:comment1 id="comment"
+													comments="#{activityResultsBeanManager.currentResult.resultComments}"
+													comment="#{comment}" isTopLevel="true"
+													newestCommentId="newestCommentId#{activityResultsBeanManager.currentResult.targetActivityId}"
+													toUpdate="@(.panelNewestComment_#{activityResultsBeanManager.currentResult.targetActivityId}) growlMain"
+													learningContext="#{learningContext}" />
+											</li>
+										</ui:repeat>
+									</ul>
+								</div>
+								
+								<div class="addComment">
+									<utilcomp:userAvatar
+										avatar="#{loggeduser.avatar}"
+										fullName="#{loggeduser.fullName}" />
+			
+									<div class="commentForm">
+										<h:inputTextarea class="hidden"
+											value="#{activityResultsBeanManager.currentResult.resultComments.topLevelComment}" />
+										
+										<div class="contentEditableComment" placeholder="Add Comment..." 
+											strip-br="true" contenteditable="true"
+											onkeyup="displaySubmitButton(this);"></div>
+			
+										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+											value="Submit"
+											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
+											update="panelModalAssessmentComments :growlMain">
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="learningContext"
+												value="#{util:addSubContext(learningContext, 'name:comment')}" />
+										</p:commandButton>
+									</div>
+									
+									<script>
+										$('#' + escapeColons('formCommentOnOtherResult:panelModalAssessmentComments') + ' .addComment .contentEditableComment').on('keyup', function(e) {
+											$(this).prev('textarea').val($(this).html());
+										});
+									</script>
+								</div>
+								<div class="clear"></div>
+							</div>
+						</div>
+					</ui:fragment>
+					
+					<ui:fragment rendered="#{activityResultsBeanManager.activityResultType eq 'TEXT'}">
+						<div class="activityResultText">
+							<div class="activityResultHead">
+								<div class="user32">
+									<utilcomp:userAvatar
+										avatar="#{activityResultsBeanManager.currentResult.user.avatarUrl}"
+										fullName="#{activityResultsBeanManager.currentResult.user.fullName}" />
+									<h3>
+										<h:link outcome="/profile">
+				                     		#{activityResultsBeanManager.currentResult.user.fullName}
+				                     		<f:param name="id" value="#{util:encodeId(activityResultsBeanManager.currentResult.user.id)}" />
+										</h:link>
+									</h3>
+								</div>
+								<div class="timestamp">
+									#{activityResultsBeanManager.currentResult.prettyResultPostDate}
+								</div>
+							</div>
+							
+							<div class="activityResultTextContent">
+								<p class="commentText">
+									<h:outputText escape="false" value="#{activityResultsBeanManager.currentResult.result}" />
+								</p>
+							</div>
+							
+							<div class="discussion">
+								<div class="comments">
+									<ul class="media-list">
+										<ui:repeat var="comment" value="#{activityResultsBeanManager.currentResult.resultComments.comments}">
+											<li class="media">
+												<post:comment1 id="comment"
+													comments="#{activityResultsBeanManager.currentResult.resultComments}"
+													comment="#{comment}" isTopLevel="true"
+													newestCommentId="newestCommentId#{activityResultsBeanManager.currentResult.targetActivityId}"
+													toUpdate="@(.panelNewestComment_#{activityResultsBeanManager.currentResult.targetActivityId}) growlMain"
+													learningContext="#{learningContext}" />
+											</li>
+										</ui:repeat>
+									</ul>
+								</div>
+								
+								<div class="addComment">
+									<utilcomp:userAvatar
+										avatar="#{loggeduser.avatar}"
+										fullName="#{loggeduser.fullName}" />
+			
+									<div class="commentForm">
+										<h:inputTextarea class="hidden"
+											value="#{activityResultsBeanManager.currentResult.resultComments.topLevelComment}" />
+										
+										<div class="contentEditableComment" placeholder="Add Comment..." 
+											strip-br="true" contenteditable="true"
+											onkeyup="displaySubmitButton(this);"></div>
+			
+										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+											value="Submit"
+											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
+											update="panelModalAssessmentComments :growlMain">
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="learningContext"
+												value="#{util:addSubContext(learningContext, 'name:comment')}" />
+										</p:commandButton>
+									</div>
+									
+									<script>
+										$('#' + escapeColons('formCommentOnOtherResult:panelModalAssessmentComments') + ' .addComment .contentEditableComment').on('keyup', function(e) {
+											$(this).prev('textarea').val($(this).html());
+										});
+									</script>
+								</div>
+								<div class="clear"></div>
+							</div>
+						</div>
+					</ui:fragment>
+					
+				</h:panelGroup>
+			</div>
+		</div>
     </h:form>
     
     <activities:activityGradeModal
