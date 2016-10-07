@@ -2539,9 +2539,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			if (filter != null) {
 				if (filter == StudentAssessedFilter.Assessed) {
-					query.append("AND targetAct.points IS NOT NULL ");
+					query.append("AND ad.points IS NOT NULL ");
 				} else {
-					query.append("AND targetAct.points IS NULL ");
+					query.append("AND ad.points IS NULL ");
 				}
 			}
 				   		
