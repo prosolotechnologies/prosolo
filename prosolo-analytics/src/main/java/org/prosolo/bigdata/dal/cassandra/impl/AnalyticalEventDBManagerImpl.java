@@ -179,7 +179,6 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 					if (el.isJsonPrimitive()) {
 						list.add(el.getAsLong());
 					}
-
 				}
 				try {
 					boundStatement.setList(i, list);

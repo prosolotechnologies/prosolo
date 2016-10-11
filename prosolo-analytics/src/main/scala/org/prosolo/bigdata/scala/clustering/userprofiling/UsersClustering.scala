@@ -19,10 +19,10 @@ import org.apache.mahout.math.{DenseVector, NamedVector, VectorWritable}
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
 import org.prosolo.bigdata.jobs.GenerateUserProfileClusters
+import org.prosolo.common.util.date.DateEpochUtil
 
 //import org.prosolo.bigdata.scala.clustering.
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
-import org.prosolo.bigdata.utils.DateUtil
 
 import scala.IndexedSeq
 
@@ -77,8 +77,8 @@ class UsersClustering  {
     val datapath = new Path(vectorsDir + "/part-00000")
     //val courseClusterConfiguration:Tuple6[Long, String, String, String, Path, Path]=new Tuple6(courseId, clustersDir,vectorsDir, outputDir, output, datapath)
     val courseClusterConfiguration:CourseClusterConfiguration=new CourseClusterConfiguration(courseId, clustersDir,vectorsDir, outputDir, output, datapath)
-    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
-    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
+    val startDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(startDate)
+    val endDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(endDate)
     outputResults("PERIOD start:"+startDate+"("+startDateSinceEpoch+")"+" endDate:"+endDate+"("+endDateSinceEpoch+")")
     val usersFeatures: Predef.Map[Long, Array[Double]] = startDateSinceEpoch.to(endDateSinceEpoch)
       .flatMap{date=>mapUserObservationsForDateToRows(date,courseId)}

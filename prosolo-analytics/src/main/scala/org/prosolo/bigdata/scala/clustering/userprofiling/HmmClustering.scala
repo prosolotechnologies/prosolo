@@ -9,8 +9,8 @@ import com.datastax.driver.core.Row
 import org.prosolo.bigdata.clustering.QuartileName
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
+import org.prosolo.common.util.date.DateEpochUtil
 import play.api.libs.json.Json
-
 
 import scala.collection.mutable.{HashMap, Map}
 
@@ -18,7 +18,6 @@ import scala.collection.mutable.{HashMap, Map}
 import java.util.List
 
 import be.ac.ulg.montefiore.run.jahmm._
-import org.prosolo.bigdata.utils.DateUtil
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -69,8 +68,8 @@ class HmmClustering {
     sequences
   }
   def processCourseTestSequencesForPeriod(startDate: Date, endDate: Date, courseId: Long)={
-    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
-    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
+    val startDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(startDate)
+    val endDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(endDate)
     val clusteringDBManager=new ClusteringDAOImpl
 
     println("PROCESSING COURSE:"+courseId)

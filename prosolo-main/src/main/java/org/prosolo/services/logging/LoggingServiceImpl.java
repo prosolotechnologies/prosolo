@@ -52,6 +52,8 @@ import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.date.DateEpochUtil;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -632,6 +634,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			//DBObject logObject = new BasicDBObject();
 			JSONObject logObject=new JSONObject();
 			logObject.put("timestamp", System.currentTimeMillis());
+			logObject.put("date", DateEpochUtil.getDaysSinceEpoch(System.currentTimeMillis()));
 			logObject.put("eventType", eventType.name());
 	
 			if (actorId > 0) {

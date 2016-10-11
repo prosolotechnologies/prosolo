@@ -56,19 +56,19 @@
 				</tr>
 				<tr class="description">
 					<td class="label col1">
-						<label for="startDate">Start date:</label>
+						<label for="afterDate">Start date:</label>
 					</td>
 					<td class="deadline">
-						<h:inputText id="startDate" class="startDateField"
+						<h:inputText id="afterDate" class="startDateField"
 							value="#{newExternalCreditBean.newCredit.start}" onfocus="blur();">
 						    <f:convertDateTime pattern="dd.MM.yyyy" />
 						</h:inputText>
 					</td>
 					<td class="label col3">
-						<label for="endDate">End date:</label>
+						<label for="beforeDate">End date:</label>
 					</td>
 					<td class="deadline">
-						<h:inputText id="endDate" class="endDateField"
+						<h:inputText id="beforeDate" class="endDateField"
 							value="#{newExternalCreditBean.newCredit.end}" 
 							onfocus="blur();">
 						    <f:convertDateTime pattern="dd.MM.yyyy" />

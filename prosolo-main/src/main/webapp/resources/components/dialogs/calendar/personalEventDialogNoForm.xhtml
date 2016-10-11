@@ -50,7 +50,7 @@
 				<h:panelGroup layout="block" id="calendarDatePicker">
 					From
 					<h:inputText id="startEventDate" class="datePicker"
-						value="#{calendar.event.startDate}" required="false"
+						value="#{calendar.event.afterDate}" required="false"
 						onfocus="blur();">
 						<f:convertDateTime pattern="dd.MM.yyyy." />
 					</h:inputText>
@@ -62,7 +62,7 @@
 					</h:inputText>
 					to
 					<h:inputText id="endEventDate" class="datePicker"
-						value="#{calendar.event.endDate}" required="false"
+						value="#{calendar.event.beforeDate}" required="false"
 						onfocus="blur();">
 						<f:convertDateTime pattern="dd.MM.yyyy." />
 					</h:inputText>

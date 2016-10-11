@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 public class LearningEventSummary {
 
@@ -33,7 +33,7 @@ public class LearningEventSummary {
 	
 	public long getSummaryEpochDay(String format) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return DateUtil.getDaysSinceEpoch(sdf.parse(getDate()));
+		return DateEpochUtil.getDaysSinceEpoch(sdf.parse(getDate()));
 	}
 	
 	public static class Milestone {

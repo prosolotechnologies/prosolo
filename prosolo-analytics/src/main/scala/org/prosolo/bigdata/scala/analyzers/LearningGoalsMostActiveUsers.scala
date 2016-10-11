@@ -11,7 +11,7 @@ import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl
 import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
-import org.prosolo.bigdata.utils.DateUtil
+import org.prosolo.common.util.date.DateEpochUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -74,7 +74,7 @@ class LearningGoalsMostActiveUsers {
     println("NOT IMPLEMENTED YET")
 
     val indexer = new RecommendationDataIndexerImpl
-    val daysSinceEpoch=DateUtil.getDaysSinceEpoch()
+    val daysSinceEpoch=DateEpochUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
     val sc=SparkContextLoader.getSC
     val daysToAnalyzeRDD=sc.parallelize(daysToAnalyze)

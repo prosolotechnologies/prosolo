@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.utils;
+package org.prosolo.common.util.date;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -13,7 +13,7 @@ import org.joda.time.MutableDateTime;
  * @author Zoran Jeremic May 23, 2015
  *
  */
-public class DateUtil {
+public class DateEpochUtil {
 
 	private static MutableDateTime epoch() {
 		return new MutableDateTime(0, DateTimeZone.UTC);

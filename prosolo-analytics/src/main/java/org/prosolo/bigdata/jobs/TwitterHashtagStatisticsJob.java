@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
-import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -19,7 +18,7 @@ public class TwitterHashtagStatisticsJob implements Job {
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		long to = DateUtil.getDaysSinceEpoch();
+		long to = DateEpochUtil.getDaysSinceEpoch();
 		long from = to - 7;
 		System.out.println("Twitter Hashtag Statistics Job running...");
 		List<TwitterHashtagDailyCount> counts =TwitterHashtagStatisticsDBManagerImpl.getInstance().getTwitterHashtagDailyCounts(from, to);

@@ -1,12 +1,13 @@
 package org.prosolo.bigdata.scala.twitter
 
-import java.util.{TimerTask, Timer}
+import java.util.{Timer, TimerTask}
+
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
 import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
-import org.prosolo.common.domainmodel.user.{User, AnonUser, UserType}
+import org.prosolo.common.domainmodel.user.{AnonUser, User, UserType}
 import org.prosolo.common.domainmodel.organization.VisibilityType
 import twitter4j.Status
 import org.prosolo.common.domainmodel.content.TwitterPost
@@ -15,12 +16,13 @@ import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
 import org.prosolo.common.domainmodel.annotation.Tag
+
 import scala.collection.JavaConversions._
 import org.prosolo.bigdata.twitter.TestJava8Paralelizm
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
-import org.prosolo.bigdata.utils.DateUtil
+import org.prosolo.common.util.date.DateEpochUtil
 
 /**
   * @author zoran Jul 28, 2015
@@ -136,7 +138,7 @@ object TwitterStatusBuffer {
     //  statusText, twitterHashtags, session);
     session.getTransaction().commit()
     session.close();
-    val day = DateUtil.getDaysSinceEpoch;
+    val day = DateEpochUtil.getDaysSinceEpoch;
     //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
     twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
     if (twitterPostSocialActivity != null) {

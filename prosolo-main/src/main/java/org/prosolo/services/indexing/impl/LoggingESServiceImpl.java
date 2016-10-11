@@ -30,7 +30,7 @@ public class LoggingESServiceImpl implements LoggingESService {
             logIndexRequest.source(logObject);
             client.index(logIndexRequest);
           }catch(Exception ex){
-            ex.printStackTrace();
+            logger.error(ex);
         }
 
         logger.debug("stored event observed log");
