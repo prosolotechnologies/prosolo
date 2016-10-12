@@ -46,6 +46,12 @@
 			<artifactId>bigdata.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>9.0.0.M10</version>
+			<scope>provided</scope>
+		</dependency>
 		<!--local prosolo repository dependencies-->
 		<dependency>
 			<groupId>ca.prosolo.local</groupId>
