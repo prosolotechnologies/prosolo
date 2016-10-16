@@ -33,8 +33,9 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 	
 	@Override
 	public boolean updateTimeSpentOnActivities(Map<Long, Long> activitiesWithTimeSpent) {
-		Transaction t = null;
+	//	Transaction t = null;
 		try{
+			System.out.println("REMOVED TRANSACTION HERE");
 			//t = session.beginTransaction();
 			for(Entry<Long, Long> entry : activitiesWithTimeSpent.entrySet()) {
 				updateTimeSpentOnActivity(entry.getKey(), entry.getValue());
