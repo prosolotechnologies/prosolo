@@ -230,6 +230,9 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 		return assessmentsNumber == 0;
 	}
 	
-	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 }

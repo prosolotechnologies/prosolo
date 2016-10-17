@@ -230,6 +230,11 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 		return credentialMembersNumber == 0;
 	}
 	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
+	
 //	public void setSortByStudentName() {
 //		setSortField(CredentialMembersSortField.STUDENT_NAME);
 //	}

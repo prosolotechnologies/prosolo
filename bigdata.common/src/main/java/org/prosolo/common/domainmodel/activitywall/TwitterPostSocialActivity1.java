@@ -2,12 +2,9 @@ package org.prosolo.common.domainmodel.activitywall;
 
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.user.UserType;
 
@@ -15,7 +12,9 @@ import org.prosolo.common.domainmodel.user.UserType;
 public class TwitterPostSocialActivity1 extends SocialActivity1 {
 	
 	private static final long serialVersionUID = 97877941855185685L;
-	
+
+	private boolean retweet;
+	private String comment;
 	private String nickname;
 	private String name;
 	private String postUrl;
@@ -23,6 +22,15 @@ public class TwitterPostSocialActivity1 extends SocialActivity1 {
 	private String avatarUrl;
 	private UserType userType;
 	private Set<Tag> hashtags;
+
+	@Column (name ="twitter_comment")
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 	
 	@Column (name ="twitter_poster_nickname")
 	public String getNickname() {
@@ -70,6 +78,7 @@ public class TwitterPostSocialActivity1 extends SocialActivity1 {
 	}
 	
 	@Column (name ="twitter_user_type")
+	//@Enumerated(EnumType.STRING)
 	public UserType getUserType() {
 		return userType;
 	}
@@ -86,6 +95,16 @@ public class TwitterPostSocialActivity1 extends SocialActivity1 {
 
 	public void setHashtags(Set<Tag> hashtags) {
 		this.hashtags = hashtags;
+	}
+
+	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isRetweet() {
+		return retweet;
+	}
+
+	public void setRetweet(boolean retweet) {
+		this.retweet = retweet;
 	}
 
 }

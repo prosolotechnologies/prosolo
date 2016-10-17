@@ -183,7 +183,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
+			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
 						   "FROM Credential1 cred " + 
 						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.targetCredentials targetCred " + 
@@ -417,10 +417,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
 			boolean loadCreator, boolean loadTags) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
-		Credential1 cred = (Credential1) persistence.currentManager().load(
-				Credential1.class, credentialId);
+//		Credential1 cred = (Credential1) persistence.currentManager().load(
+//				Credential1.class, credentialId);
 		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT targetCred " +
+				"SELECT DISTINCT targetCred " +
 				"FROM TargetCredential1 targetCred ");
 		if(loadCreator) {
 			queryBuilder.append("INNER JOIN fetch targetCred.createdBy user ");
@@ -429,7 +429,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			queryBuilder.append("LEFT JOIN fetch targetCred.tags tags " +
 					   		    "LEFT JOIN fetch targetCred.hashtags hashtags ");
 		}
-		queryBuilder.append("WHERE targetCred.credential = :cred " +
+		queryBuilder.append("WHERE targetCred.credential.id = :credId " +
 				   			"AND targetCred.user = :student");
 //			String query = "SELECT targetCred " +
 //						   "FROM TargetCredential1 targetCred " + 
@@ -441,7 +441,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		TargetCredential1 res = (TargetCredential1) persistence.currentManager()
 				.createQuery(queryBuilder.toString())
-				.setEntity("cred", cred)
+				.setLong("credId", credentialId)
 				.setEntity("student", user)
 				.uniqueResult();
 

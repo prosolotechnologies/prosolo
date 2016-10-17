@@ -594,6 +594,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return assessmentsNumber == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	public List<PaginationLink> getPaginationLinks() {
 		return paginationLinks;

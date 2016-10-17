@@ -17,60 +17,62 @@
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-		<nav class="paginationWrapper">
-            <ul class="pagination">
-            	<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageFirst()}">
-					<li class="disabled">
-						<a href="javascript:void(0);" aria-label="Previous">
-							<span aria-hidden="true">Prev</span>
-						</a>
-					</li>
-				</ui:fragment>
-				<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageFirst()}">
-					<li>
-						<p:commandLink 
-							process="@this"
-						    action="#{cc.attrs.bean.goToPreviousPage()}"
-						    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
-							pt:aria-label="Previous">
-							<span aria-hidden="true">Prev</span>
-						</p:commandLink>
-					</li>
-				</ui:fragment>
-				<ui:repeat var="link" value="#{cc.attrs.links}">
-					<ui:fragment rendered="#{link.isLink()}">
-						<li class="#{link.selected ? 'active' : ''}">
-							<p:commandLink
-						     	process="@this"
-						    	action="#{cc.attrs.bean.changePage(link.page)}"
-						    	update="#{cc.attrs.toUpdate} :#{cc.clientId}">
-						    	#{link.linkOutput}
-						    </p:commandLink>
-					    </li>   
-					</ui:fragment>	
-					
-					<ui:fragment rendered="#{!link.isLink()}">
-						<li>#{link.linkOutput}</li>
-					</ui:fragment>		
-				</ui:repeat>
-				<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageLast()}">
-					<li class="disabled">
-						<a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">Next</span></a>
-					</li>
-				</ui:fragment>
-				<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageLast()}">
-					<li>
-						<p:commandLink 
-							process="@this"
-						    action="#{cc.attrs.bean.goToNextPage()}"
-						    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
-							pt:aria-label="Next">
-							<span aria-hidden="true">Next</span>
-						</p:commandLink>
-					</li>
-				</ui:fragment>
-            </ul>
-        </nav>
+			<ui:fragment rendered="#{cc.attrs.bean.shouldBeDisplayed()}">
+				<nav class="paginationWrapper">
+		            <ul class="pagination">
+		            	<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageFirst()}">
+							<li class="disabled">
+								<a href="javascript:void(0);" aria-label="Previous">
+									<span aria-hidden="true">Prev</span>
+								</a>
+							</li>
+						</ui:fragment>
+						<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageFirst()}">
+							<li>
+								<p:commandLink 
+									process="@this"
+								    action="#{cc.attrs.bean.goToPreviousPage()}"
+								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
+									pt:aria-label="Previous">
+									<span aria-hidden="true">Prev</span>
+								</p:commandLink>
+							</li>
+						</ui:fragment>
+						<ui:repeat var="link" value="#{cc.attrs.links}">
+							<ui:fragment rendered="#{link.isLink()}">
+								<li class="#{link.selected ? 'active' : ''}">
+									<p:commandLink
+								     	process="@this"
+								    	action="#{cc.attrs.bean.changePage(link.page)}"
+								    	update="#{cc.attrs.toUpdate} :#{cc.clientId}">
+								    	#{link.linkOutput}
+								    </p:commandLink>
+							    </li>   
+							</ui:fragment>	
+							
+							<ui:fragment rendered="#{!link.isLink()}">
+								<li>#{link.linkOutput}</li>
+							</ui:fragment>		
+						</ui:repeat>
+						<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageLast()}">
+							<li class="disabled">
+								<a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">Next</span></a>
+							</li>
+						</ui:fragment>
+						<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageLast()}">
+							<li>
+								<p:commandLink 
+									process="@this"
+								    action="#{cc.attrs.bean.goToNextPage()}"
+								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
+									pt:aria-label="Next">
+									<span aria-hidden="true">Next</span>
+								</p:commandLink>
+							</li>
+						</ui:fragment>
+		            </ul>
+		        </nav>
+			</ui:fragment>
         </div>
 	</composite:implementation>
 </ui:component>

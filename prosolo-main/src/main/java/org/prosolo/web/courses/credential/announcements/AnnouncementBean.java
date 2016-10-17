@@ -249,6 +249,11 @@ public class AnnouncementBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return totalNumberOfAnnouncements == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	public List<PaginationLink> getPaginationLinks() {
 		return paginationLinks;

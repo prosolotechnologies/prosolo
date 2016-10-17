@@ -28,7 +28,7 @@ public interface AnalyticalServiceCollector {
 	void sendUpdateHashtagsMessage(Map<String, String> parameters, long goalId,
 			long userId);
 	
-	void updateTwitterUser(long userId, boolean addUser);
+	void updateTwitterUser(long userId, long twitterUserId, boolean addUser);
 
 	void increaseUserEventCount(EventType event, Map<String, String> params,
 			long daysSinceEpoch);

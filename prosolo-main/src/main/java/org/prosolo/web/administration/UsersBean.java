@@ -120,6 +120,11 @@ public class UsersBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return usersNumber == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	public void delete() {
 		if (userToDelete != null) {
