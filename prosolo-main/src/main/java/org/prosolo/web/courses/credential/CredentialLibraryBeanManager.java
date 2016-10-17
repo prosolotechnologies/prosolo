@@ -172,6 +172,11 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		return credentialsNumber == 0;
 	}
 	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
+	
 	/*
 	 * ACTIONS
 	 */

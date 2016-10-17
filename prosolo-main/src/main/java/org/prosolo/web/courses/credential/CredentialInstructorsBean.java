@@ -394,6 +394,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return credentialInstructorsNumber == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	/*
 	 * PARAMETERS

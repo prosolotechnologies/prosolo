@@ -147,6 +147,11 @@ public class PeopleBean implements Paginable, Serializable {
 	public boolean isResultSetEmpty() {
 		return numberOfPages == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	public List<UserData> getFollowingUsers() {
 		return followingUsers;
