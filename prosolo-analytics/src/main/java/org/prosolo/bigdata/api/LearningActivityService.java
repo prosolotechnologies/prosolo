@@ -35,7 +35,7 @@ public class LearningActivityService {
 		long daysFrom = DateUtil.parseDaysSinceEpoch(dateFrom, "dd.MM.yyyy. Z");
 		long daysTo = DateUtil.parseDaysSinceEpoch(dateTo, "dd.MM.yyyy. Z");
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
-		List<LearningEventSummary> learningEventsData = LearningEventsDBManagerImpl.getInstance().getLearningEventsData(id, daysFrom, daysTo);
+		List<LearningEventSummary> learningEventsData = LearningEventsDBManagerImpl.getInstance().getLearningEventsData(id, daysFrom, daysTo+1);
 		return ResponseUtils.corsOk(learningEventsData);
 	}
 

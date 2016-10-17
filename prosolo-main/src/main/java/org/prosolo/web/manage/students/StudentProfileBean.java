@@ -173,6 +173,7 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public void selectCredential(CredentialProgressData credProgressData) {
+		System.out.println("SELECT CREDENTIAL:"+credProgressData.getName()+" id:"+credProgressData.getCredentialId());
 		try {
 			if (selectedCredential != null) {
 				selectedCredential.setCompetences(null);
@@ -340,6 +341,7 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public List<CredentialProgressData> getCredentials() {
+		System.out.println("GET CREDENTIALS:"+credentials.size());
 		return credentials;
 	}
 

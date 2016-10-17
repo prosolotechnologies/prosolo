@@ -22,7 +22,7 @@ object SparkContextLoader {
  *
    * @return SparkContext .
    */
-
+println("Initializing SparkContextLoader")
 
   val numOfCores=Runtime.getRuntime.availableProcessors()
   //val numOfCores=1
