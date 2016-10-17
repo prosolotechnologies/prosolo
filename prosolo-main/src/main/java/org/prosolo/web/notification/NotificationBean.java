@@ -161,6 +161,11 @@ public class NotificationBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return notificationNumber == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	/*
 	 * GETTERS/SETTERS
