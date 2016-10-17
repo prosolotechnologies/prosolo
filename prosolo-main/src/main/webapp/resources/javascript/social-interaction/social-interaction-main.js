@@ -87,12 +87,17 @@ $(function () {
 							var interaction=peersinteractions[peerId];
 							var student=studentsData[peerId];
 							innerHtml=innerHtml+"<tr><td>"+student.name+"</td>"
-							if(typeof(interaction.OUT)!=='undefined')
+							if(typeof(interaction.OUT)!=='undefined'){
 								innerHtml=innerHtml+"<td>"+interaction.OUT.count+"("+interaction.OUT.percentage+" %)</td>";
-							if(typeof(interaction.IN)!=='undefined')
+							}else{
+								innerHtml=innerHtml+"<td/>";
+							}
+
+							if(typeof(interaction.IN)!=='undefined'){
 								innerHtml=innerHtml+"<td>"+interaction.IN.count+"("+interaction.IN.percentage+" %)"+"</td>";
-
-
+							}else{
+								innerHtml=innerHtml+"<td/>";
+							}
 						};
 
 						innerHtml=innerHtml+"</table>";
