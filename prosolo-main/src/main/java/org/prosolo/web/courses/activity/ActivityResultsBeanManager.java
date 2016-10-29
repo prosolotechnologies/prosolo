@@ -488,6 +488,11 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		return resultsNumber == 0;
 	}
 	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
