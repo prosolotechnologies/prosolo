@@ -15,7 +15,7 @@ import org.prosolo.services.rest.api.LTIServiceOutcome;
 @author Zoran Jeremic Dec 20, 2014
 *
 */
-@ApplicationPath("/api")
+//@ApplicationPath("/api")
 public class WebApplication extends Application{
 	
 	Set<Object> singletons = new HashSet<Object>();

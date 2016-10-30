@@ -71,8 +71,24 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	private String roles="Learner";
 	
-	public String getRoles() {
+	/*public String getRoles() {
 		return roles;
+	}*/
+	public String getRoles(){
+		System.out.println("GET ROLES IN ACTIVITY VIEW BEAN USER...");
+		String selectedRole=loggedUser.getSessionData().getSelectedRole();
+		System.out.println("Selected role for LTI:"+selectedRole);
+		String role="Learner";
+		if(selectedRole!=null){
+			if( selectedRole.equalsIgnoreCase("manager")){
+				role= "Instructor";
+			}else if(selectedRole.equalsIgnoreCase("admin")){
+				role= "Administrator";
+			}
+		}
+
+		return role;
+		//return this.roles;
 	}
 
 	private long nextActivityToLearn;

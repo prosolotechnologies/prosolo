@@ -64,10 +64,13 @@ public class LtiBean {
 	}
 
 	public long getTargetActivityId() {
+		System.out.println("GET TARGET ACTIVITY ID:"+targetActivityId);
+
 		return targetActivityId;
 	}
 
 	public void setTargetActivityId(long targetActivityId) {
+		System.out.println("SET TARGET ACTIVITY ID:"+targetActivityId);
 		this.targetActivityId = targetActivityId;
 	}
 
@@ -103,7 +106,17 @@ public class LtiBean {
 		this.launchUrl = launchUrl;
 	}
 	public String getRoles(){
-		return this.roles;
+        System.out.println("GET ROLES...");
+		String selectedRole=loggedUser.getSessionData().getSelectedRole();
+        System.out.println("Selected role for LTI:"+selectedRole);
+        String role="Learner";
+		 if(selectedRole!=null && selectedRole.equalsIgnoreCase("manager")){
+             role= "Instructor";
+		}else if(selectedRole.equalsIgnoreCase("admin")){
+             role= "Administrator";
+		}
+		return role;
+		//return this.roles;
 	}
 	public void setRoles(String roles){
 		this.roles=roles;

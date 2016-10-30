@@ -214,6 +214,17 @@
 			<artifactId>simple-xml</artifactId>
 			<version>2.3.6</version>
 		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jcabi</groupId>
+			<artifactId>jcabi-xml</artifactId>
+			<version>0.14</version>
+		</dependency>
+
 		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId>
 			<version>1.6.1</version> </dependency -->
 
@@ -475,6 +486,27 @@
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>${jaxrs.version}</version>
+		</dependency>
+	<!-- Jersey 2.19 -->
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.ext</groupId>
+			<artifactId>jersey-bean-validation</artifactId>
+			<version>${jersey2.version}</version>
 		</dependency>
 		<!--dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>

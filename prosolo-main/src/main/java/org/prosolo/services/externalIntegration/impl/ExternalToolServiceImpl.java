@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.jcabi.xml.XMLDocument;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom2.Document;
@@ -18,6 +19,8 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -28,6 +31,7 @@ import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.messaging.SessionMessageDistributer;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.XMLUtils;
@@ -51,7 +55,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	
 	private static Logger logger = Logger.getLogger(ExternalToolServiceImpl.class.getName());
 
-	@Autowired private ActivityManager activityManager;
+	@Autowired private Activity1Manager activityManager;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private SessionMessageDistributer messageDistributer;
@@ -92,9 +96,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						.getText();
 			 String[] parts = sourceId.split("\\::");
 			 long activityId = Long.valueOf(parts[1]);
-			 ExternalToolActivity activity;
+			 ExternalToolActivity1 activity;
 			try {
-				activity = activityManager.loadResource(ExternalToolActivity.class, activityId);
+				activity = (ExternalToolActivity1) activityManager.loadResource(ExternalToolActivity1.class, activityId);
 				secret=activity.getSharedSecret();
 			} catch (ResourceCouldNotBeLoadedException e) {
 				// TODO Auto-generated catch block
@@ -115,10 +119,13 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		//Transformer tf = TransformerFactory.newInstance().newTransformer();
 		//tf.transform(new DOMSource(w3cDoc), new StreamResult(System.out));
 		Document doc = XMLUtils.convertW3CDocument(w3cDoc);
+		String xml=new XMLDocument(w3cDoc).toString();
+		System.out.println("INPUT:"+xml);
 		BasicLTIResponse response=null;
 		String messageIdentifier="";
 		String sourceId="";
 		try {
+			System.out.println("SCORE DOC:"+doc.toString());
 			 messageIdentifier=XMLUtils.getXMLElementByPath(
 					doc.getRootElement(), "//*[local-name()='imsx_messageIdentifier']").getText();
 			 sourceId = XMLUtils.getXMLElementByPath(
