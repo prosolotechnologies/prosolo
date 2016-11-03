@@ -30,7 +30,7 @@
 					<p:commandLink
 						rendered="#{cc.attrs.activity.enrolled 
 							and !cc.attrs.isPreview and !cc.attrs.activity.completed
-							and cc.attrs.bean.nextToLearn}"
+							and cc.attrs.bean.nextToLearn and (cc.attrs.activity.resultData.resultType eq 'NONE' or  ! empty cc.attrs.activity.resultData.result)}"
 						styleClass="btn btn-green btn-sm item"
 						value="Mark as Complete"
 						process="@this"
@@ -48,6 +48,18 @@
 							disabled="disabled" 
 							data-toggle="tooltip" 
 							title="In order to complete this activity, previous tasks need to be completed.">
+							Mark as Complete
+						</a>
+					</ui:fragment>
+					
+					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
+							and !cc.attrs.isPreview and !cc.attrs.activity.completed
+							and cc.attrs.bean.nextToLearn and cc.attrs.activity.resultData.resultType ne 'NONE' and empty cc.attrs.activity.resultData.result}">
+						<a href="javascript:void(0);" 
+							class="btn btn-green btn-sm item" 
+							disabled="disabled" 
+							data-toggle="tooltip" 
+							title="In order to complete this activity, you need to submit a response.">
 							Mark as Complete
 						</a>
 					</ui:fragment>
