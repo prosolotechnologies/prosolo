@@ -267,6 +267,12 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 //		}
 //	}
 	
+	public void applySortOption(InstructorSortOption sortOption) {
+		this.sortOption = sortOption;
+		this.page = 1;
+		searchCredentialInstructors();
+	}
+	
 	public void removeInstructorFromCredential() {
 		try {
 			StudentAssignData res = credInstructorManager.removeInstructorFromCredential(

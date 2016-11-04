@@ -38,6 +38,8 @@ import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
@@ -989,11 +991,24 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
+				SortOrder sortOrder = sortOption.getSortOrder() == 
+						org.prosolo.services.util.SortingOption.ASC ? 
+						SortOrder.ASC : SortOrder.DESC;
 				for(String field : sortOption.getSortFields()) {
-					SortOrder sortOrder = sortOption.getSortOrder() == 
-							org.prosolo.services.util.SortingOption.ASC ? 
-							SortOrder.ASC : SortOrder.DESC;
-					searchRequestBuilder.addSort(field, sortOrder);
+					String nestedDoc = null;
+					int dotIndex = field.indexOf(".");
+					if(dotIndex != -1) {
+						nestedDoc = field.substring(0, dotIndex);
+					}
+					if(nestedDoc != null) {
+						BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+						credFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", credId));
+						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
+						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(nestedDoc).setNestedFilter(credFilter);
+						searchRequestBuilder.addSort(sortB);
+					} else {
+						searchRequestBuilder.addSort(field, sortOrder);
+					}
 				}
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
