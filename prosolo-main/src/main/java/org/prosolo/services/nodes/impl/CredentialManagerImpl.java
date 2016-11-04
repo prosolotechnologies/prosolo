@@ -2628,7 +2628,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional
-	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
+	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException {
 		List<CredentialData> result = new ArrayList<>();
 		try {
@@ -2643,14 +2643,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"WHERE tCred.user.id = :userId " +
 					"AND tCred.progress < :progress " +
 					"ORDER BY tCred.lastAction DESC";
-			  	
+			  
+			int limitFinal = loadOneMore ? limit + 1 : limit;
+			
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userid)
 					.setInteger("progress", 100)
 					.setString("credType", LearningResourceType.USER_CREATED.name())
-					.setMaxResults(limit)
+					.setMaxResults(limitFinal)
 				  	.list();
 			
 			if(res == null) {
