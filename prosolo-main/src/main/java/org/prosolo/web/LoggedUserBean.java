@@ -138,7 +138,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(user.getAvatarUrl());
+			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
@@ -159,7 +159,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void initializeAvatar() {
-		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size120x120));
+		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size60x60));
 	}
 
 	public boolean isLoggedIn() {
