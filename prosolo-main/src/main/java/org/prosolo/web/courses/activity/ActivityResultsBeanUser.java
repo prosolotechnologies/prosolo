@@ -123,7 +123,7 @@ public class ActivityResultsBeanUser implements Serializable {
 				.getActivityToShowWithDetails().getCompetenceId()));
 		if(decodedCredId > 0) {
 			CredentialData cd = credManager
-					.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
+					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
 							loggedUser.getUserId());
 			competenceData.setCredentialTitle(cd.getTitle());
 			nextCompToLearn = cd.getNextCompetenceToLearnId();

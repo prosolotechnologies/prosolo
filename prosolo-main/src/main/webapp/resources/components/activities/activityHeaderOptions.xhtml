@@ -30,7 +30,7 @@
 					<p:commandLink
 						rendered="#{cc.attrs.activity.enrolled 
 							and !cc.attrs.isPreview and !cc.attrs.activity.completed
-							and cc.attrs.bean.nextToLearn and (cc.attrs.activity.resultData.resultType eq 'NONE' or  ! empty cc.attrs.activity.resultData.result)}"
+							and (cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder) and (cc.attrs.activity.resultData.resultType eq 'NONE' or  ! empty cc.attrs.activity.resultData.result)}"
 						styleClass="btn btn-green btn-sm item"
 						value="Mark as Complete"
 						process="@this"
@@ -42,7 +42,7 @@
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
 							and !cc.attrs.isPreview and !cc.attrs.activity.completed 
-							and !cc.attrs.bean.nextToLearn}">
+							and !(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 						<a href="javascript:void(0);" 
 							class="btn btn-green btn-sm item" 
 							disabled="disabled" 
@@ -54,7 +54,7 @@
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
 							and !cc.attrs.isPreview and !cc.attrs.activity.completed
-							and cc.attrs.bean.nextToLearn and cc.attrs.activity.resultData.resultType ne 'NONE' and empty cc.attrs.activity.resultData.result}">
+							and (cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder) and cc.attrs.activity.resultData.resultType ne 'NONE' and empty cc.attrs.activity.resultData.result}">
 						<a href="javascript:void(0);" 
 							class="btn btn-green btn-sm item" 
 							disabled="disabled" 
