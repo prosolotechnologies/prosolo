@@ -76,6 +76,7 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 
 	private long nextActivityToLearn;
+	private boolean mandatoryOrder;
 
 	public void init() {
 		List<String> roles = new ArrayList<>();
@@ -163,11 +164,12 @@ public class ActivityViewBeanUser implements Serializable {
 //				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
 //						.getUser().getId());
 				CredentialData cd = credManager
-						.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
+						.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
 								loggedUser.getUserId());
 				credTitle = cd.getTitle();
 				nextCompToLearn = cd.getNextCompetenceToLearnId();
 				nextActivityToLearn = cd.getNextActivityToLearnId();
+				mandatoryOrder = cd.isMandatoryFlow();
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -406,6 +408,14 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public boolean isMandatoryOrder() {
+		return mandatoryOrder;
+	}
+
+	public void setMandatoryOrder(boolean mandatoryOrder) {
+		this.mandatoryOrder = mandatoryOrder;
 	}
 	
 }
