@@ -34,11 +34,11 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		String query = 
 				"SELECT r.id " +
 				"FROM Role r " +
-				"WHERE r.title = :name";
+				"WHERE lower(r.title) = :name";
 		
 		@SuppressWarnings("unchecked")
 		List<Long> result = persistence.currentManager().createQuery(query)
-			.setParameter("name", name.toUpperCase())
+			.setParameter("name", name.toLowerCase())
 			.list();
 		
 		if (result != null && !result.isEmpty()) {
