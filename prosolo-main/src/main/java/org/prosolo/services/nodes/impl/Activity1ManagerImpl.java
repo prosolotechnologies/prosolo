@@ -2927,7 +2927,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session){
 		TargetActivity1 targetActivity = (TargetActivity1) session.load(TargetActivity1.class, targetActivityId);
 		System.out.println("REPLACE OUTCOME SHOULD BE PROCESSED HERE...");
-		List<Outcome> oldOutcomes = targetActivity.getOutcomes();
+		/*List<Outcome> oldOutcomes = targetActivity.getOutcomes();
 		List<Outcome> newOutcomes = new ArrayList<Outcome>();
 		newOutcomes.add(outcome);
 		targetActivity.setOutcomes(newOutcomes);
@@ -2940,7 +2940,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			} catch (ResourceCouldNotBeLoadedException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 		return targetActivity;
 	}
 	
