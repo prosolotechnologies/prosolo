@@ -2591,10 +2591,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getTargetCredentialTitleAndNextCompAndActivityToLearn(long credId, long userId) 
+	public CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred.title, cred.nextCompetenceToLearnId, cred.nextActivityToLearnId " +
+			String query = "SELECT cred.title, cred.nextCompetenceToLearnId, cred.nextActivityToLearnId, cred.competenceOrderMandatory " +
 						   "FROM TargetCredential1 cred " +
 						   "WHERE cred.user.id = :userId " +
 						   "AND cred.credential.id = :credId";
@@ -2609,11 +2609,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				String title = (String) res[0];
 				long nextComp = (long) res[1];
 				long nextAct = (long) res[2];
+				boolean mandatoryOrder = (boolean) res[3];
 				
 				CredentialData cd = new CredentialData(false);
 				cd.setTitle(title);
 				cd.setNextCompetenceToLearnId(nextComp);
 				cd.setNextActivityToLearnId(nextAct);
+				cd.setMandatoryFlow(mandatoryOrder);
 				return cd;
 			}
 			return null;
@@ -2626,7 +2628,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional
-	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
+	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException {
 		List<CredentialData> result = new ArrayList<>();
 		try {
@@ -2641,14 +2643,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"WHERE tCred.user.id = :userId " +
 					"AND tCred.progress < :progress " +
 					"ORDER BY tCred.lastAction DESC";
-			  	
+			  
+			int limitFinal = loadOneMore ? limit + 1 : limit;
+			
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userid)
 					.setInteger("progress", 100)
 					.setString("credType", LearningResourceType.USER_CREATED.name())
-					.setMaxResults(limit)
+					.setMaxResults(limitFinal)
 				  	.list();
 			
 			if(res == null) {

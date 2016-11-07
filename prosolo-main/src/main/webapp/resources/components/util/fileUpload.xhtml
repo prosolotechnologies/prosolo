@@ -17,11 +17,13 @@
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="service" default="" />
+		<composite:attribute name="disabled" type="java.lang.Boolean" default="true"/>
+		<composite:attribute name="disabledReason" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-			<p:fileUpload id="fileUploadActivity" 
+			<p:fileUpload id="fileUploadActivity" disabled="#{cc.attrs.disabled}"
    				style="display: none;"
    				styleClass="fileUploadFile"
 				fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"  
@@ -39,7 +41,12 @@
           	<div class="dropFileDiv uploadResultBox">
           		<h3>#{cc.attrs.uploadFileInfo}</h3>
                 <p>Drop file to upload or</p>
-                <a id="linkTriggerFileUpload" href="javascript:void(0);" class="btn btn-green-stroke btn-sm">Choose from Computer</a>
+                <ui:fragment rendered="#{!cc.attrs.disabled}">
+                	<a id="linkTriggerFileUpload" href="javascript:void(0);" class="btn btn-green-stroke btn-sm">Choose from Computer</a>
+            	</ui:fragment>
+            	<ui:fragment rendered="#{cc.attrs.disabled}">
+                	<a id="linkTriggerFileUpload" href="javascript:void(0);" class="btn btn-green-stroke btn-sm" disabled="disabled" data-toggle="tooltip" title="#{cc.attrs.disabledReason}">Choose from Computer</a>
+            	</ui:fragment>
             </div>
             <div id="loaderContainerFileUpload"/>
             

@@ -47,7 +47,7 @@
 		                <div class="whiteBarLeft">
 		                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.enrolled and 
 		                		cc.attrs.bean.competenceData.progress lt 100 and !isPreview}">
-		                		<h:link rendered="#{cc.attrs.bean.competenceNextToLearn}"
+		                		<h:link rendered="#{cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder}"
 		                			value="#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
 		                			styleClass="btn btn-green btn-sm"
 		                			outcome="activity"
@@ -59,7 +59,7 @@
 					            	<f:param name="compId" value="#{param['compId']}"></f:param>
 					            	<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
 		                		</h:link>
-		                		<ui:fragment rendered="#{!cc.attrs.bean.competenceNextToLearn}">
+		                		<ui:fragment rendered="#{!(cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 			                		<a href="javascript:void(0);" 
 			                			class="btn btn-green btn-sm" 
 			                			disabled="disabled" 
