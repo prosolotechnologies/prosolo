@@ -33,17 +33,14 @@
 								<h:panelGroup rendered="#{!comp.published}"><span>(Draft)</span></h:panelGroup>
 							</ui:fragment>
 							
-							<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+							<ui:fragment rendered="#{!cc.attrs.isEdit}">
 								<h:link
 									value="#{comp.title}"
 									outcome="competence">
 									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+									<f:param name="mode" value="preview" disable="#{!cc.attrs.isPreview}"></f:param>
 								</h:link>
-							</ui:fragment>
-							
-							<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
-								#{comp.title}     
 							</ui:fragment>
 						</h2>
 

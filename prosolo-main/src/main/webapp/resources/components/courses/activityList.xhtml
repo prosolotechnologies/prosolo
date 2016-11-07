@@ -40,18 +40,17 @@
 	                   		#{act.title}
 	                   		<h:panelGroup rendered="#{!act.published}"><span>(Draft)</span></h:panelGroup>
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+	                   	<ui:fragment rendered="#{!cc.attrs.isEdit}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="activity">
 			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
+            					<f:param name="mode" value="preview" disable="#{!cc.attrs.isPreview}"></f:param>
             				</h:link>
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
-	                   		#{act.title}
-	                   	</ui:fragment>
+	         
 	                </h3>
                <h:panelGroup 
 	               	layout="block" 
