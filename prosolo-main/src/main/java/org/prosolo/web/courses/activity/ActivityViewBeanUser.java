@@ -163,13 +163,22 @@ public class ActivityViewBeanUser implements Serializable {
 			if(decodedCredId > 0) {
 //				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
 //						.getUser().getId());
-				CredentialData cd = credManager
-						.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-								loggedUser.getUserId());
-				credTitle = cd.getTitle();
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
-				mandatoryOrder = cd.isMandatoryFlow();
+					CredentialData cd = credManager
+							.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
+									loggedUser.getUserId());
+					credTitle = cd.getTitle();
+					nextCompToLearn = cd.getNextCompetenceToLearnId();
+					nextActivityToLearn = cd.getNextActivityToLearnId();
+					mandatoryOrder = cd.isMandatoryFlow();
+			}
+			if(!mandatoryOrder) {
+				for (ActivityData ad : competenceData.getActivities()) {
+					if(!ad.isCompleted()) {
+						nextCompToLearn = decodedCompId;
+						nextActivityToLearn = ad.getActivityId();
+						break;
+					}
+				}
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -240,17 +249,25 @@ public class ActivityViewBeanUser implements Serializable {
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
+			boolean localNextToLearn = false;
 			for (ActivityData ad : competenceData.getActivities()) {
 				if (ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
 					ad.setCompleted(true);
 				}
+				if(!ad.isCompleted() && !mandatoryOrder && !localNextToLearn) {
+					nextCompToLearn = decodedCompId;
+					nextActivityToLearn = ad.getActivityId();
+					localNextToLearn = true;
+				}
 			}
 			
 			try {
-				CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
-						decodedCredId, loggedUser.getUserId());
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
+				if(!localNextToLearn) {
+					CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
+							decodedCredId, loggedUser.getUserId());
+					nextCompToLearn = cd.getNextCompetenceToLearnId();
+					nextActivityToLearn = cd.getNextActivityToLearnId();
+				}
 			} catch(DbConnectionException e) {
 				logger.error(e);
 			}
