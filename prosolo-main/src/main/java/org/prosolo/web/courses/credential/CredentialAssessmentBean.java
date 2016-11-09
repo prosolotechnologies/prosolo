@@ -395,7 +395,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
-					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade);
+					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
 		}

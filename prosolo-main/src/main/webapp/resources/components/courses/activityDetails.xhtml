@@ -62,6 +62,7 @@
 						<f:param name="title" value="#{cc.attrs.activity.title}"/>
 						<f:param name="description" value="#{cc.attrs.activity.description}"/>
 						<f:param name="contextName" value="#{cc.attrs.activity.competenceName}"/>
+						<f:param name="role" value="#{ltiBean.roles}" />
 					</h:link>
 				
 					<iframe name="extActivityFrame"
@@ -110,7 +111,7 @@
 							<input type="hidden" name="launch_presentation_locale" value="en-US" />
 							<input type="hidden" name="oauth_nonce" value="0" />
 							<input type="hidden" name="oauth_timestamp" value="0" />
-							<input type="hidden" name="roles" value="#{activityViewBean.roles}" />
+							<input type="hidden" name="roles" value="#{ltiBean.roles}" />
 							<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1" />            
 							<input type="hidden" name="ltiLaunchForm" value="" />
 							<input type="button" hidden="true" onclick="doOnLoad('#{cc.attrs.activity.sharedSecret}','#{cc.attrs.activity.launchUrl}',this.form)" 

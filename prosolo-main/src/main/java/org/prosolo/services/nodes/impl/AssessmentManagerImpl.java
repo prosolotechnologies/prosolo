@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
@@ -325,8 +326,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	public ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException {
+		return createActivityDiscussion(targetActivityId, competenceAssessmentId, participantIds, senderId, isDefault, grade, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional
+	public ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException {
 		Date now = new Date();
 		ActivityDiscussion activityDiscussion = new ActivityDiscussion();
 		activityDiscussion.setDateCreated(now);
@@ -367,7 +375,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			activityDiscussion.setPoints(grade);
 		
 		saveEntity(activityDiscussion);
-		return activityDiscussion.getId();
+		return activityDiscussion;
 	}
 
 	@Override
@@ -585,6 +593,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional(readOnly = true)
 	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
 			throws DbConnectionException {
+		return getDefaultCompetenceAssessment(credId, compId, userId, persistence.currentManager());
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
+			throws DbConnectionException {
 		try {
 			String query = "SELECT ca FROM CompetenceAssessment ca " +
 						   "INNER JOIN ca.targetCompetence tc " +
@@ -594,7 +609,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						   "AND tCred.credential = :credId " +
 						   "AND tCred.user = :userId";
 			
-			CompetenceAssessment res = (CompetenceAssessment) persistence.currentManager()
+			CompetenceAssessment res = (CompetenceAssessment) session
 					.createQuery(query)
 					.setLong("credId", credId)
 					.setLong("compId", compId)
@@ -763,6 +778,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.executeUpdate();
 		
 		return points.intValue();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ActivityDiscussion getDefaultActivityDiscussion(long targetActId, Session session) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT ad FROM ActivityDiscussion ad " +	
+						   "WHERE ad.defaultAssessment = :boolTrue " +
+						   "AND ad.targetActivity.id = :tActId";
+			
+			ActivityDiscussion ad = (ActivityDiscussion) session
+					.createQuery(query)
+					.setLong("tActId", targetActId)
+					.setBoolean("boolTrue", true)
+					.uniqueResult();
+			
+			return ad;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity discussion");
+		}
 	}
 
 }

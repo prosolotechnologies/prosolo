@@ -343,7 +343,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					Arrays.asList(currentResult.getAssessment().getAssessorId(), 
 							currentResult.getUser().getId()),
 					loggedUserBean.getUserId(), true,  
-					currentResult.getAssessment().getGrade().getValue());
+					currentResult.getAssessment().getGrade().getValue()).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
 		}

@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Session;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -31,8 +33,11 @@ public interface AssessmentManager {
 
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException;
+	
+	ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
@@ -64,6 +69,9 @@ public interface AssessmentManager {
 	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
 			throws DbConnectionException;
 	
+	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
+			throws DbConnectionException;
+	
 	long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException;
 	
 	void updateDefaultAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;
@@ -79,5 +87,7 @@ public interface AssessmentManager {
 	int recalculateScoreForCompetenceAssessment(long compAssessmentId);
 
 	int recalculateScoreForCredentialAssessment(long credAssessmentId);
+	
+	ActivityDiscussion getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
 
 }

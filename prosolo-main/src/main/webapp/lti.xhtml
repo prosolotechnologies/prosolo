@@ -30,13 +30,13 @@
 	<f:viewParam name="title" value="#{ltiBean.title}" />
 	<f:viewParam name="description" value="#{ltiBean.description}" />
 	<f:viewParam name="contextName" value="#{ltiBean.contextName}" />
+	<f:viewParam name="role" />
 </f:metadata>
 	
 <h:body>
 	<h:outputScript library="javascript" name="oauth.js" target="head" />
 	<h:outputScript library="javascript" name="sha1.js" target="head" />
 	<h:outputScript library="javascript" name="prosolo.lti.js" target="head" />
-
 	<form action="#{ltiBean.launchUrl}" name="ltiLaunchForm" target="basicLtiLaunchFrame" 
 		onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 		enctype="application/x-www-form-urlencoded">
@@ -62,7 +62,7 @@
 			<input type="hidden" name="oauth_signature" value="blahs" />
 			<input type="hidden" name="oauth_nonce" value="0" />
 			<input type="hidden" name="oauth_timestamp" value="0" />
-			<input type="hidden" name="roles" value="#{ltiBean.roles}" />
+			<input type="hidden" name="roles" value="#{param['role']}" />
 			<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1" />            
 			<input type="hidden" name="ltiLaunchForm" value="" />
 			<input type="button" hidden="true" onclick="doOnLoad('#{ltiBean.sharedSecret}','#{ltiBean.launchUrl}',this.form)" 
