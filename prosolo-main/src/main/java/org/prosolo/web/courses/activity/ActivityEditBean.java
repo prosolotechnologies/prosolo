@@ -33,6 +33,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.youtube.Captions;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -322,6 +323,12 @@ public class ActivityEditBean implements Serializable {
 			
 			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
+			}
+			
+			//youtube captions
+			if(activityData.getActivityType() == ActivityType.VIDEO) {
+				Captions c = new Captions();
+				c.downloadVideoCaption(activityData.getEmbedId());
 			}
 			
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);

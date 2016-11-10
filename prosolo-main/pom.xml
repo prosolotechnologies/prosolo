@@ -645,6 +645,27 @@
 			<version>1.6.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- Youtube data api -->
+		<dependency>
+      		<groupId>com.google.apis</groupId>
+      		<artifactId>google-api-services-youtube</artifactId>
+      		<version>v3-rev179-1.22.0</version>
+   		</dependency>
+   		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client</artifactId>
+		    <version>1.22.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client-java6</artifactId>
+		    <version>1.22.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client-jetty</artifactId>
+		    <version>1.22.0</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
