@@ -752,32 +752,42 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional (readOnly = false)
-	public int recalculateScoreForCompetenceAssessment(long compAssessmentId) {
-		Long points = (Long) ((Long) persistence.currentManager().createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
+	public int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session) {
+		Long points = (Long) ((Long) session.createQuery(GET_ACTIVITY_ASSESSMENT_POINTS_SUM_FOR_COMPETENCE)
 				.setLong("compAssessmentId", compAssessmentId)
 				.uniqueResult());
 		
-		persistence.currentManager().createQuery(UPDATE_COMPETENCE_ASSESSMENT_POINTS)
+		session.createQuery(UPDATE_COMPETENCE_ASSESSMENT_POINTS)
 				.setLong("compAssessmentId", compAssessmentId)
 				.setInteger("points", points.intValue())
 				.executeUpdate();
 		
 		return points.intValue();
 	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public int recalculateScoreForCompetenceAssessment(long compAssessmentId) {
+		return recalculateScoreForCompetenceAssessment(compAssessmentId, persistence.currentManager());
+	}
 
 	@Override
 	
-	public int recalculateScoreForCredentialAssessment(long credAssessmentId) {
-		Long points = (Long) ((Long) persistence.currentManager().createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
+	public int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session) {
+		Long points = (Long) ((Long) session.createQuery(GET_COMPETENCE_ASSESSMENT_POINTS_SUM_FOR_CREDENTIAL)
 				.setLong("credAssessmentId", credAssessmentId)
 				.uniqueResult());
 		
-		persistence.currentManager().createQuery(UPDATE_CREDENTIAL_ASSESSMENT_POINTS)
+		session.createQuery(UPDATE_CREDENTIAL_ASSESSMENT_POINTS)
 				.setLong("credAssessmentId", credAssessmentId)
 				.setInteger("points", points.intValue())
 				.executeUpdate();
 		
 		return points.intValue();
+	}
+	
+	public int recalculateScoreForCredentialAssessment(long credAssessmentId) {
+		return recalculateScoreForCredentialAssessment(credAssessmentId, persistence.currentManager());
 	}
 	
 	@Override

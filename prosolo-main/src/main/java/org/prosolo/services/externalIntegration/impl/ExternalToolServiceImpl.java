@@ -174,8 +174,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				} else {
 					ad.setPoints(scaledGrade);
 				}
-				assessmentManager.recalculateScoreForCompetenceAssessment(ca.getId());
-				assessmentManager.recalculateScoreForCredentialAssessment(ca.getCredentialAssessment().getId());
+				session.flush();
+				assessmentManager.recalculateScoreForCompetenceAssessment(ca.getId(), session);
+				assessmentManager.recalculateScoreForCredentialAssessment(ca.getCredentialAssessment().getId(), session);
 				//	this.updateTargetActivityOutcomeInformation(targetActivityId, activityId, outcome.getId(), userId, session);
 				session.flush();
 				session.close();

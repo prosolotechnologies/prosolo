@@ -206,7 +206,8 @@
 						id="maxPoints"
 						value="#{cc.attrs.activity.maxPointsString}"
                      	placeholder="e.g. 10"
-                     	converterMessage="Only numbers are allowed">
+                     	converterMessage="Only numbers are allowed"
+                     	onkeyup="updateStatusToDraft();">
                      	<f:convertNumber integerOnly="true"/>
                    	</h:inputText>
                    	<h:message for="maxPoints" style="color:red" />
@@ -295,6 +296,22 @@
                      	onkeyup="updateStatusToDraft();"/>
                 </div>
             </div>
+            
+            <div class="formLine">
+				<label>Max points</label>
+				<div class="formLineRight">
+					<h:inputText
+						id="maxPointsExt"
+						value="#{cc.attrs.activity.maxPointsString}"
+                     	placeholder="e.g. 10"
+                     	converterMessage="Only numbers are allowed"
+                     	onkeyup="updateStatusToDraft();">
+                     	<f:convertNumber integerOnly="true"/>
+                   	</h:inputText>
+                   	<h:message for="maxPoints" style="color:red" />
+				</div>
+			</div>
+            
             <div class="formLine">
                 <label>Other</label>
                 <div class="formLineRight">

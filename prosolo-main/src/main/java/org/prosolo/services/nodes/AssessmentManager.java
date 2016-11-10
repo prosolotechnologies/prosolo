@@ -85,8 +85,12 @@ public interface AssessmentManager {
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
 	int recalculateScoreForCompetenceAssessment(long compAssessmentId);
+	
+	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session);
 
 	int recalculateScoreForCredentialAssessment(long credAssessmentId);
+	
+	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session);
 	
 	ActivityDiscussion getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
 
