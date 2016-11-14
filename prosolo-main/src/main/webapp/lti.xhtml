@@ -25,6 +25,8 @@
 	<f:viewParam name="launchUrl" value="#{ltiBean.launchUrl}" />
 	<f:viewParam name="sharedSecret" value="#{ltiBean.sharedSecret}" />
 	<f:viewParam name="consumerKey" value="#{ltiBean.consumerKey}" />
+	<f:viewParam name="competenceId"></f:viewParam>
+	<f:viewParam name="credentialId"></f:viewParam>
 	<f:viewParam name="activityId" value="#{ltiBean.activityId}" />
 	<f:viewParam name="targetActivityId" value="#{ltiBean.targetActivityId}" />
 	<f:viewParam name="title" value="#{ltiBean.title}" />
@@ -40,7 +42,7 @@
 	<form action="#{ltiBean.launchUrl}" name="ltiLaunchForm" target="basicLtiLaunchFrame" 
 		onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 		enctype="application/x-www-form-urlencoded">
-			<input type="hidden" name="context_id" value="#{ltiBean.targetActivityId}" />
+			<input type="hidden" name="context_id" value="#{param['credentialId']}::#{param['competenceId']}::#{param['activityId']}::#{loggeduser.userId}" />
 		<input type="hidden" name="context_label" value="#{ltiBean.contextName}" />
 		<input type="hidden" name="context_title" value="#{ltiBean.contextName}" />
 			<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />

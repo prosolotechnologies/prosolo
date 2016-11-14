@@ -13,8 +13,8 @@ import javax.persistence.OneToOne;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
-@Entity
-public class ActivityDiscussion extends BaseEntity {
+@Entity 
+public class ActivityAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -2026612306127154692L;
 

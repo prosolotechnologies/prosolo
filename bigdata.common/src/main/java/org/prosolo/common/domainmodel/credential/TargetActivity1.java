@@ -38,6 +38,9 @@ public class TargetActivity1 extends BaseEntity {
 	//is activity added by student
 	private boolean added;
 	
+	//common score for all activity assessments
+	private int commonScore;
+	
 	//uploaded file
 	/**
 	 * @deprecated since v0.5
@@ -217,6 +220,14 @@ public class TargetActivity1 extends BaseEntity {
 
 	public void setLearningResourceType(LearningResourceType learningResourceType) {
 		this.learningResourceType = learningResourceType;
+	}
+
+	public int getCommonScore() {
+		return commonScore;
+	}
+
+	public void setCommonScore(int commonScore) {
+		this.commonScore = commonScore;
 	}
 	
 }

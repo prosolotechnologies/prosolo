@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -33,10 +33,10 @@ public interface AssessmentManager {
 
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException;
 	
-	ActivityDiscussion createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
@@ -92,6 +92,9 @@ public interface AssessmentManager {
 	
 	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session);
 	
-	ActivityDiscussion getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
+	ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
+	
+	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
+			long targetCompId, long targetActId, int score, Session session) throws DbConnectionException;
 
 }

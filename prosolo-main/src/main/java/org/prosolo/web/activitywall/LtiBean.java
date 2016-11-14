@@ -119,7 +119,7 @@ public class LtiBean {
         		role = "Administrator";
         		break;
         	case MANAGE:
-        		role = "Instructor";
+        		role = "Administrator";
         		break;
         	case STUDENT:
         		role = "Learner";

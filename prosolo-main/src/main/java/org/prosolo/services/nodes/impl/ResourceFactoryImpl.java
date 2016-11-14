@@ -48,7 +48,6 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.GradingOptions;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -1037,11 +1036,12 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		User creator = (User) persistence.currentManager().load(User.class, userId);
     		activity.setCreatedBy(creator);
     		
-    		GradingOptions go = new GradingOptions();
-    		go.setMinGrade(0);
-    		go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-    		saveEntity(go);
-    		activity.setGradingOptions(go);
+    		//GradingOptions go = new GradingOptions();
+    		//go.setMinGrade(0);
+    		//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+    		//saveEntity(go);
+    		//activity.setGradingOptions(go);
+    		activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
     		
     		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
     		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());

@@ -21,7 +21,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -158,27 +158,11 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				Activity1 act = ta.getActivity();
 				int maxPoints = act.getMaxPoints();
 				int scaledGrade = (int) Math.round(score * maxPoints);
-				Competence1 comp = ta.getTargetCompetence().getCompetence();
-				Credential1 cred = ta.getTargetCompetence().getTargetCredential().getCredential();
-				CompetenceAssessment ca = assessmentManager.getDefaultCompetenceAssessment(cred.getId(), comp.getId(), userId, session);
-				
-				ActivityDiscussion ad = assessmentManager.getDefaultActivityDiscussion(targetActivityId, session);
-				if(ad == null) {
-					User asessor = ca.getCredentialAssessment().getAssessor();
-					List<Long> participants = new ArrayList<>();
-					participants.add(userId);
-					if(asessor != null) {
-						participants.add(asessor.getId());
-					}
-					ad = assessmentManager.createActivityDiscussion(targetActivityId, ca.getId(), participants, 0, true, scaledGrade, session);
-				} else {
-					ad.setPoints(scaledGrade);
-				}
-				session.flush();
-				assessmentManager.recalculateScoreForCompetenceAssessment(ca.getId(), session);
-				assessmentManager.recalculateScoreForCredentialAssessment(ca.getCredentialAssessment().getId(), session);
+				ta.setCommonScore(scaledGrade);
+				assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
+						ta.getTargetCompetence().getId(), ta.getId(), scaledGrade, session);
 				//	this.updateTargetActivityOutcomeInformation(targetActivityId, activityId, outcome.getId(), userId, session);
-				session.flush();
+				//session.flush();
 				session.close();
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"
