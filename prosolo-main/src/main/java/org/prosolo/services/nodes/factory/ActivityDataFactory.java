@@ -28,7 +28,7 @@ import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.web.competences.validator.YoutubeLinkValidator;
+import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -153,8 +153,7 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
@@ -369,8 +368,7 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
