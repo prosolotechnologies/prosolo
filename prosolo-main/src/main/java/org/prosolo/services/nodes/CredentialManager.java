@@ -304,7 +304,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException;
 
-	List<Long> getTargetCredentialIdsForInstructor(long instructorId) throws DbConnectionException;
+	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
 	

@@ -1,7 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -138,21 +137,24 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	@Transactional(readOnly = true)
 	public List<InstructorData> getCredentialInstructorsWithLowestNumberOfStudents(long credentialId, 
-			int numberOfInstructorsToReturn, long instructorToExcludeId) throws DbConnectionException {
+			long instructorToExcludeId) throws DbConnectionException {
 		try {
 			List<InstructorData> instructors = new ArrayList<>();
 			StringBuilder queryBuilder = new StringBuilder(
 					"SELECT instructor.id, count(student), instructor.maxNumberOfStudents, instructor.user.id " +
 					"FROM CredentialInstructor instructor " +
 					"LEFT JOIN instructor.assignedStudents student " +
-					"WHERE instructor.credential.id = :credId " +
-					"GROUP BY instructor.id " +
-					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
-					"OR count(student) < instructor.maxNumberOfStudents ");
+					"WHERE instructor.credential.id = :credId ");
 			
 			if(instructorToExcludeId > 0) {
 				queryBuilder.append("AND instructor.id != :excludeId ");
 			}
+			
+			queryBuilder.append(
+					"GROUP BY instructor.id " +
+					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
+					"OR count(student) < instructor.maxNumberOfStudents ");
+			
 			queryBuilder.append("ORDER BY count(student)");
 			
 			Query q = persistence
@@ -164,7 +166,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			if(instructorToExcludeId > 0) {
 				q.setLong("excludeId", instructorToExcludeId);
 			}
-			q.setFetchSize(numberOfInstructorsToReturn);
+			//q.setFetchSize(numberOfInstructorsToReturn);
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = q.list();
@@ -196,69 +198,67 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
     @Transactional(readOnly = false)
     public StudentAssignData assignStudentsToInstructorAutomatically(long credId, 
-		List<Long> targetCredIds, long instructorToExcludeId) throws DbConnectionException {
-        return assignStudentsToInstructorAutomatically(credId, targetCredIds, instructorToExcludeId, true);
+		List<TargetCredential1> targetCreds, long instructorToExcludeId) throws DbConnectionException {
+        return assignStudentsToInstructorAutomatically(credId, targetCreds, instructorToExcludeId, true);
     }
 	
 	@Override
     @Transactional(readOnly = false)
-    public StudentAssignData assignStudentsToInstructorAutomatically(long credId, List<Long> targetCredIds,
+    public StudentAssignData assignStudentsToInstructorAutomatically(long credId, List<TargetCredential1> targetCreds,
     		long instructorToExcludeId, boolean updateAssessor) throws DbConnectionException {
         List<InstructorData> instructors = getCredentialInstructorsWithLowestNumberOfStudents(credId, 
-        		targetCredIds.size(), instructorToExcludeId);
+        		instructorToExcludeId);
         StudentAssignData data = new StudentAssignData();
-        if(instructors != null && targetCredIds != null) {
-            List<Long> targetCredIdsCopy = new ArrayList<>(targetCredIds);
-            Iterator<Long> iterator = targetCredIdsCopy.iterator();
+        if(instructors != null && targetCreds != null) {
+            List<TargetCredential1> targetCredsCopy = new ArrayList<>(targetCreds);
+            Iterator<TargetCredential1> iterator = targetCredsCopy.iterator();
             while(iterator.hasNext()) {
-                long tCredId = iterator.next();
-                InstructorData instructorToAssign = getInstructorWithLowestNumberOfStudents(instructors);
-                if(instructorToAssign == null) {
-                	break;
+                TargetCredential1 tCred = iterator.next();
+                InstructorData instructorToAssign = getInstructorWithLowestNumberOfStudents(instructors, tCred.getUser().getId());
+                if(instructorToAssign != null) {
+	                assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(), updateAssessor);
+	                instructorToAssign.setNumberOfAssignedStudents(instructorToAssign
+	                		.getNumberOfAssignedStudents() + 1);
+	                if(instructorToAssign.isFull()) {
+	                	instructors.remove(instructorToAssign);
+	                	if(instructors.isEmpty()) {
+		                	break;
+		                }
+	                }
+	                
+	                StudentInstructorPair pair = new StudentInstructorPair(tCred.getId(), instructorToAssign);
+	                data.addAssignedPair(pair);
+	                iterator.remove();
                 }
-                assignStudentToInstructor(instructorToAssign.getInstructorId(), tCredId, updateAssessor);
-                instructorToAssign.setNumberOfAssignedStudents(instructorToAssign
-                		.getNumberOfAssignedStudents() + 1);
-                if(instructorToAssign.isFull()) {
-                	instructors.remove(instructorToAssign);
-                }
-                swapInstructorsIfNeeded(instructors);
-                StudentInstructorPair pair = new StudentInstructorPair(tCredId, instructorToAssign);
-                data.addAssignedPair(pair);
-                iterator.remove();
             }
-            if(!targetCredIdsCopy.isEmpty()) {
-            	data.setUnassigned(targetCredIdsCopy);
+            if(!targetCredsCopy.isEmpty()) {
+            	List<Long> unassignedCreds = new ArrayList<>();
+            	for(TargetCredential1 tc : targetCredsCopy) {
+            		unassignedCreds.add(tc.getId());
+            	}
+            	data.setUnassigned(unassignedCreds);
             }
         }
         return data;
     }
-
-	private void swapInstructorsIfNeeded(List<InstructorData> instructors) {
-		int size = instructors.size();
-		if(size > 1) {
-			InstructorData i1 = instructors.get(0);
-			InstructorData i2 = instructors.get(1);
-			if(i2.getNumberOfAssignedStudents() < i1.getNumberOfAssignedStudents()) {
-				Collections.swap(instructors, 0, 1);
-			}
-		}
-	}
 	
 	/**
 	 * Returns instructor with lowest number of students who has available spots from list of instructors
 	 * @param instructors
 	 * @return
 	 */
-    private InstructorData getInstructorWithLowestNumberOfStudents(List<InstructorData> instructors) {
+    private InstructorData getInstructorWithLowestNumberOfStudents(List<InstructorData> instructors, long userToExclude) {
         InstructorData instructorWithLowestNumberOfStudents = null;
-        if(!instructors.isEmpty()) {
-        	InstructorData id = instructors.get(0);
-        	if(id.getMaxNumberOfStudents() == 0 || 
-        			id.getNumberOfAssignedStudents() < id.getMaxNumberOfStudents()) {
+        int minNumberOfAssignedStudents = Integer.MAX_VALUE;
+        for(InstructorData id : instructors) {
+        	if(id.getUser().getId() != userToExclude && (id.getMaxNumberOfStudents() == 0 || 
+        			id.getNumberOfAssignedStudents() < id.getMaxNumberOfStudents()) 
+        			&& id.getNumberOfAssignedStudents() < minNumberOfAssignedStudents) {
         		instructorWithLowestNumberOfStudents = id;
+        		minNumberOfAssignedStudents = id.getNumberOfAssignedStudents();
         	}
         }
+     
         return instructorWithLowestNumberOfStudents;
     }
     
@@ -309,10 +309,11 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
     }
     
-    private StudentAssignData assignStudentsAutomatically(long credId, List<Long> targetCredIds, 
+    @Transactional(readOnly = false)
+    private StudentAssignData assignStudentsAutomatically(long credId, List<TargetCredential1> targetCreds, 
     		long instructorId) {
 		StudentAssignData result = assignStudentsToInstructorAutomatically(credId, 
-				targetCredIds, instructorId);
+				targetCreds, instructorId);
 		List<Long> unassigned = result.getUnassigned();
 		if(!unassigned.isEmpty()) {
 //			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager().
@@ -327,8 +328,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public StudentAssignData reassignStudentsAutomatically(long instructorId, long credId) 
 			throws DbConnectionException {
 		try {
-			List<Long> targetCredIds = credManager.getTargetCredentialIdsForInstructor(instructorId);
-			return assignStudentsAutomatically(credId, targetCredIds, instructorId);
+			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
+			return assignStudentsAutomatically(credId, targetCreds, instructorId);
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while reassigning students");
 		}
@@ -351,14 +352,18 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		try {
 			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager().
 					load(CredentialInstructor.class, instructorId);
-			List<Long> targetCredIds = credManager.getTargetCredentialIdsForInstructor(instructorId);
+			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
 			StudentAssignData result = null;
 			if(reassignAutomatically) {
-				result = assignStudentsAutomatically(credId, targetCredIds, 
+				result = assignStudentsAutomatically(credId, targetCreds, 
 						instructorId);
 			} else {
-				updateStudentsAssigned(null, null, targetCredIds);
-				result = new StudentAssignData(null, targetCredIds);
+				List<Long> unassignedCreds = new ArrayList<>();
+            	for(TargetCredential1 tc : targetCreds) {
+            		unassignedCreds.add(tc.getId());
+            	}
+				updateStudentsAssigned(null, null, unassignedCreds);
+				result = new StudentAssignData(null, unassignedCreds);
 			}
 			persistence.currentManager().delete(instructor);
 			return result;

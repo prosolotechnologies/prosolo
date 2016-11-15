@@ -1765,6 +1765,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 				bQueryBuilder.must(qb);
 			}
+			
+			//we don't want to return user that is actually instructor because we can't assing student to himself
+			bQueryBuilder.mustNot(termQuery("id", instructorId));
 				
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
