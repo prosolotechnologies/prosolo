@@ -66,7 +66,8 @@
 		                              	  </ui:fragment>
 		                              	  <ui:fragment rendered="#{!cc.attrs.bean.isInstructorCurrentlyAssignedToStudent(instructor) and !instructor.full and cc.attrs.bean.areInstructorAndStudentSameUser(instructor)}">
 		                              	  	<a href="javascript:void(0);" 
-		                              	  		class="btn btn-green btn-sm disabled"
+		                              	  		class="btn btn-green btn-sm"
+		                              	  		disabled="disabled"
 		                              	  		data-toggle="tooltip"
 		                              	  		title="You cannot be instructor for yourself">Assign</a>
 		                              	  </ui:fragment>

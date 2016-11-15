@@ -144,14 +144,17 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					"SELECT instructor.id, count(student), instructor.maxNumberOfStudents, instructor.user.id " +
 					"FROM CredentialInstructor instructor " +
 					"LEFT JOIN instructor.assignedStudents student " +
-					"WHERE instructor.credential.id = :credId " +
-					"GROUP BY instructor.id " +
-					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
-					"OR count(student) < instructor.maxNumberOfStudents ");
+					"WHERE instructor.credential.id = :credId ");
 			
 			if(instructorToExcludeId > 0) {
 				queryBuilder.append("AND instructor.id != :excludeId ");
 			}
+			
+			queryBuilder.append(
+					"GROUP BY instructor.id " +
+					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
+					"OR count(student) < instructor.maxNumberOfStudents ");
+			
 			queryBuilder.append("ORDER BY count(student)");
 			
 			Query q = persistence
@@ -306,6 +309,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
     }
     
+    @Transactional(readOnly = false)
     private StudentAssignData assignStudentsAutomatically(long credId, List<TargetCredential1> targetCreds, 
     		long instructorId) {
 		StudentAssignData result = assignStudentsToInstructorAutomatically(credId, 
