@@ -1061,8 +1061,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
 					!cred.isManuallyAssignStudents()) {
-				List<Long> targetCredIds = new ArrayList<>();
-				targetCredIds.add(targetCred.getId());
+				List<TargetCredential1> targetCredIds = new ArrayList<>();
+				targetCredIds.add(targetCred);
 				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
 						credentialId, targetCredIds, 0, false);
 				List<StudentInstructorPair> assigned = res.getAssigned();
@@ -2349,26 +2349,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getTargetCredentialIdsForInstructor(long instructorId) 
+	public List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) 
 			throws DbConnectionException {
 		try {
 			String query = 
-					"SELECT cred.id " +
+					"SELECT cred " +
 					"FROM TargetCredential1 cred " +
 					"WHERE cred.instructor.id = :instructorId";
 			
 				@SuppressWarnings("unchecked")
-				List<Long> credIds = persistence.currentManager().createQuery(query).
+				List<TargetCredential1> creds = persistence.currentManager().createQuery(query).
 						setLong("instructorId", instructorId).
 						list();
-				if(credIds == null) {
+				if(creds == null) {
 					return new ArrayList<>();
 				}
-				return credIds;
+				return creds;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credential ids");
+			throw new DbConnectionException("Error while loading target credentials");
 		}
 	}
 	

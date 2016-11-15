@@ -259,6 +259,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		return false;
 	}
 	
+	public boolean areInstructorAndStudentSameUser(InstructorData id) {
+		return id.getUser().getId() == studentToAssignInstructor.getUser().getId();
+	}
+	
 	public boolean doesStudentHaveInstructorAssigned() {
 		return studentToAssignInstructor.getInstructor() != null;
 	}
