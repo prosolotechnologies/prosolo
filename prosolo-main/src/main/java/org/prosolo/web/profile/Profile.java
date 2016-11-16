@@ -80,7 +80,7 @@ public class Profile {
 	private String message;
 	
 	private String avatarUrl;
-	private String smallAvatarUrl;
+	//private String smallAvatarUrl;
 	private String studentInitials;
 	private String studentFullName;
 	private String studentAffiliation;
@@ -202,7 +202,7 @@ public class Profile {
 	private void initializeStudentData(User student) {
 		studentId = String.valueOf(student.getId());
 		avatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
-		smallAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size34x34);
+		//smallAvatarUrl = AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120);
 		studentInitials = getInitials(student);
 		studentFullName = student.getName()+" "+student.getLastname();
 		studentLocation = student.getLocationName();
@@ -346,9 +346,9 @@ public class Profile {
 		return competenceAchievementsData;
 	}
 
-	public String getSmallAvatarUrl() {
-		return smallAvatarUrl;
-	}
+//	public String getSmallAvatarUrl() {
+//		return smallAvatarUrl;
+//	}
 
 	public String getMessage() {
 		return message;

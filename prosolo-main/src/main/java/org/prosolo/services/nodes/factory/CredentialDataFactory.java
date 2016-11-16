@@ -44,7 +44,7 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
@@ -81,7 +81,7 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
@@ -95,7 +95,7 @@ public class CredentialDataFactory {
 			cred.setInstructorId(credential.getInstructor().getUser().getId());
 			cred.setInstructorAvatarUrl(
 					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
-					ImageFormat.size60x60));
+					ImageFormat.size120x120));
 			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());

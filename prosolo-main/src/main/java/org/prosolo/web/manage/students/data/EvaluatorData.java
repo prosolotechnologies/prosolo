@@ -13,7 +13,7 @@ public class EvaluatorData {
 	public EvaluatorData(User user){
 		this.id = user.getId();
 		this.name = user.getName() + (user.getLastname() != null ? " " + user.getLastname() : "");
-		this.avatar = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatar = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 	}
 
 	public long getId() {
