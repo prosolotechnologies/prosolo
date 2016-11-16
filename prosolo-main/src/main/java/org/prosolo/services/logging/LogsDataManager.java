@@ -14,6 +14,9 @@ public interface LogsDataManager {
     @Transactional(readOnly = true)
     Long getActivityMakerForTargetActivity(long actorId, long targetId);
 
+    @Transactional(readOnly = true)
+    Long getUserOfTargetActivity(long targetId);
+
     Long getSocialActivityMaker(long actorId, long targetId);
 
     Long getEvaluationSubmissionRequestMaker(long actorId, long objectId);
