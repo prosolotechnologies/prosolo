@@ -133,14 +133,14 @@
 		<param-value>com.sun.el.ExpressionFactoryImpl</param-value>
 	</context-param>
 
-		<!-- context-param>
+		<context-param>
       <param-name>javax.ws.rs.core.Application</param-name>
       <param-value>org.prosolo.app.WebApplication</param-value>
    </context-param>
     <context-param>
       <param-name>resteasy.servlet.mapping.prefix</param-name>
       <param-value>/api</param-value>
-   </context-param-->
+   </context-param>
 
 
 	<!-- LISTENERS -->

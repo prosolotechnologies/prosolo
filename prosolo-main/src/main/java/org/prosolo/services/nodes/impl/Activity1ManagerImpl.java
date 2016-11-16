@@ -17,6 +17,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -33,8 +35,11 @@ import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
@@ -80,7 +85,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	private static final long serialVersionUID = -2783669846949034832L;
 
-	private static Logger logger = Logger.getLogger(Activity1ManagerImpl.class);
+//	private static Logger logger = Logger.getLogger(Activity1ManagerImpl.class);
 	
 	@Inject private ActivityDataFactory activityFactory;
 	@Inject private Competence1Manager compManager;
@@ -2917,5 +2922,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //			throw new DbConnectionException("Error while loading competence data");
 //		}
 //	}
+
+	@Override
+	public TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session){
+		TargetActivity1 targetActivity = (TargetActivity1) session.load(TargetActivity1.class, targetActivityId);
+		System.out.println("REPLACE OUTCOME SHOULD BE PROCESSED HERE...");
+		/*List<Outcome> oldOutcomes = targetActivity.getOutcomes();
+		List<Outcome> newOutcomes = new ArrayList<Outcome>();
+		newOutcomes.add(outcome);
+		targetActivity.setOutcomes(newOutcomes);
+		targetActivity.setCompleted(true);
+		targetActivity.setDateCompleted(new Date());
+		session.save(targetActivity);
+		for (Outcome oldOutcome : oldOutcomes) {
+			try {
+				this.deleteById(SimpleOutcome.class, oldOutcome.getId(), session);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				e.printStackTrace();
+			}
+		}*/
+		return targetActivity;
+	}
 	
 }

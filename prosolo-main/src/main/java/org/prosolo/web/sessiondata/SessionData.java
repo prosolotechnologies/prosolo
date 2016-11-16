@@ -27,6 +27,18 @@ public class SessionData {
 
 	private UserSettings userSettings;
 	private UserNotificationsSettings notificationsSettings;
+
+	public String getSelectedRole() {
+		System.out.println("GET SELECTED ROLE:"+selectedRole);
+		return selectedRole;
+	}
+
+	public void setSelectedRole(String selectedRole) {
+		System.out.println("Set selected role to:"+selectedRole);
+		this.selectedRole = selectedRole;
+	}
+
+	private String selectedRole;
 	
 	
 	/*

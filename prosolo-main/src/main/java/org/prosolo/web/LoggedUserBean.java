@@ -418,6 +418,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
+	public String switchRole(String rolename){
+		getSessionData().setSelectedRole(rolename);
+		String navigateTo="/index";
+		if(rolename.equalsIgnoreCase("manager")){
+			navigateTo= "/manage/credentialLibrary";
+		}else if (rolename.equalsIgnoreCase("admin")){
+			navigateTo= "/admin/users";
+		}
+		return navigateTo;
+ 	}
 
 //	public LearningGoalFilter getSelectedLearningGoalFilter() {
 //		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();

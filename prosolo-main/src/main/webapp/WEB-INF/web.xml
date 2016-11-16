@@ -26,6 +26,19 @@
         <servlet-name>fileServlet</servlet-name>
         <url-pattern>/files/*</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>jersey-serlvet</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>org.prosolo.services.rest.api</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jersey-serlvet</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
     <filter>
         <filter-name>AbsoluteSendRedirectFilter</filter-name>
         <filter-class>org.prosolo.core.ssl.AbsoluteSendRedirectFilter</filter-class>
@@ -123,6 +136,7 @@
         <param-name>primefaces.UPLOADER</param-name>
         <param-value>native</param-value>
     </context-param>
+
     <listener>
         <listener-class>org.prosolo.app.BeforeContextLoader</listener-class>
     </listener>
