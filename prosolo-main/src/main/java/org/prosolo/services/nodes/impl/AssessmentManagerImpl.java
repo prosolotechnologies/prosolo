@@ -848,8 +848,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						participants.add(userId);
 						as = createActivityDiscussion(targetActId, id, participants, senderId, ca.isDefaultAssessment(), 
 								score, session);
-						session.flush();
 					}
+					session.flush();
 					recalculateScoreForCompetenceAssessment(as.getAssessment().getId(), session);
 					recalculateScoreForCredentialAssessment(as.getAssessment().getCredentialAssessment().getId(), session);
 				}
