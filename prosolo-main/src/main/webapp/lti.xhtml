@@ -42,7 +42,7 @@
 	<form action="#{ltiBean.launchUrl}" name="ltiLaunchForm" target="basicLtiLaunchFrame" 
 		onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 		enctype="application/x-www-form-urlencoded">
-			<input type="hidden" name="context_id" value="#{param['credentialId']}::#{param['competenceId']}::#{param['activityId']}::#{loggeduser.userId}" />
+			<input type="hidden" name="context_id" value="#{applicationbean.domain}::#{param['credentialId']}::#{param['competenceId']}::#{param['activityId']}::#{loggeduser.userId}" />
 		<input type="hidden" name="context_label" value="#{ltiBean.contextName}" />
 		<input type="hidden" name="context_title" value="#{ltiBean.contextName}" />
 			<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />

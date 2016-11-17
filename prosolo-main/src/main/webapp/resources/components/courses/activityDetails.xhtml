@@ -89,7 +89,7 @@
 					<form action="#{cc.attrs.activity.launchUrl}" name="ltiLaunchForm" target="_blank" 
 						onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
 						enctype="application/x-www-form-urlencoded">
-							<input type="hidden" name="context_id" value="#{cc.attrs.credentialId}::#{cc.attrs.competenceId}::#{cc.attrs.activity.activityId}::#{loggeduser.userId}" />
+							<input type="hidden" name="context_id" value="#{applicationbean.domain}::#{cc.attrs.credentialId}::#{cc.attrs.competenceId}::#{cc.attrs.activity.activityId}::#{loggeduser.userId}" />
 							<input type="hidden" name="context_label" value="#{cc.attrs.activity.competenceName}" />
 							<input type="hidden" name="context_title" value="#{cc.attrs.activity.competenceName}" />
 							<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
