@@ -21,7 +21,7 @@ public interface NotificationsSettingsManager extends AbstractManager {
 
 	NotificationSettings getEmailNotificationsSettings(long userId, NotificationType type);
 
-	NotificationSettings getOrCreateEmailNotificationsSettings(long userId, NotificationType type, Session session)
+	NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session)
 			throws DbConnectionException;
 
 	UserNotificationsSettings getOrCreateNotificationsSettings(long userId);

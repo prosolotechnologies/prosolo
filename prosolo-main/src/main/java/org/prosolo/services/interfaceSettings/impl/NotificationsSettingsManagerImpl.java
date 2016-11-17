@@ -93,7 +93,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional (readOnly = false)
-	public NotificationSettings getOrCreateEmailNotificationsSettings(long userId, NotificationType type, Session session) 
+	public NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session) 
 		throws DbConnectionException {
 		try {
 			NotificationSettings settings = getEmailNotificationsSettings(userId, type);
@@ -101,26 +101,17 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 			if (settings != null) {
 				return settings;
 			} else {
-				settings = new NotificationSettings();
-				settings.setType(type);
-				settings.setSubscribedEmail(true);
-				
-				session.saveOrUpdate(settings);
-
 				UserNotificationsSettings userNotificationsSettings = getOrCreateNotificationsSettings(userId, session);
-				userNotificationsSettings.addNotification(settings);
-				session.update(userNotificationsSettings);
-				session.flush();
+				List<NotificationSettings> notifications = userNotificationsSettings.getNotifications();
+				if(notifications != null) {
+					for(NotificationSettings ns : userNotificationsSettings.getNotifications()) {
+						if(ns.getType() == type) {
+							return ns;
+						}
+					}
+				}
 				
-				return settings;
-			}
-		} catch (ConstraintViolationException e) {
-			session.clear();
-			try {
-				return getEmailNotificationsSettings(userId, type);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				throw new DbConnectionException("Error while retrieving notification settings");
+				return null;
 			}
 		} catch (Exception e) {
 			logger.error(e);
