@@ -17,7 +17,7 @@ public interface SocialNetworksManager extends AbstractManager {
 
 	void updateSocialNetworkAccount(long id, String newLink) throws DbConnectionException, ResourceCouldNotBeLoadedException;
 
-	void updateSocialNetworkAccount(SocialNetworkAccount account) throws DbConnectionException, ResourceCouldNotBeLoadedException;
+	void updateSocialNetworkAccount(SocialNetworkAccount account, String newLink) throws DbConnectionException, ResourceCouldNotBeLoadedException;
 
 	SocialNetworkAccount getSocialNetworkAccount(long userId, SocialNetworkName socialNetworkName);
 	
