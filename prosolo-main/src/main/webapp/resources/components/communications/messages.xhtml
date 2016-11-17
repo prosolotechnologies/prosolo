@@ -40,14 +40,14 @@
 				$("div.modal-backdrop.fade.in").remove()
 			}
 			
-			function expandTextarea(id) {
-			    var $element = $('#messages\\:'+id).get(0);  
-			    $element.addEventListener('keyup', function() {
-			        this.style.overflow = 'hidden';
-			        this.style.height = 0;
-			        this.style.height = this.scrollHeight + 'px';
-			    }, false);
-			}
+			//function expandTextarea(id) {
+			  //  var $element = $('#messages\\:'+id).get(0);  
+			  //  $element.addEventListener('keyup', function() {
+			  //     this.style.overflow = 'hidden';
+			  //     this.style.height = 0;
+			  //     this.style.height = this.scrollHeight + 'px';
+			  //  }, false);
+			//}
 			
 			function returnFocusMessageText() {
 				$("#messages\\:messageContentTextarea").focus();
@@ -289,7 +289,7 @@
 			                            <div class="media-body">
 			                                <div class="">
 			                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea" />
-			                                    <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
+			                                    
 			                                    <p:commandLink value="Send"
 			                                    	styleClass="btn btn-green btn-sm" 
 			                                    	action="#{messagesBean.sendMessage()}" 
@@ -352,7 +352,7 @@
 			                            <div class="media-body">
 			                                <div class="">
 			                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea2" />
-			                                    <script>try{expandTextarea("messageContentTextarea2")}catch(e){}</script>
+			                                   
 			                                    <p:commandLink value="Send"
 			                                    	styleClass="btn btn-green btn-sm" 
 			                                    	action="#{messagesBean.sendMessage()}" 
