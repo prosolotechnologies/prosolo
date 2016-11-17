@@ -57,9 +57,10 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 
 	@Override
 	@Transactional(readOnly = false)
-	public void updateSocialNetworkAccount(SocialNetworkAccount account)
+	public void updateSocialNetworkAccount(SocialNetworkAccount account, String newLink)
 			throws DbConnectionException {
 		try {
+			account.setLink(newLink);
 			saveEntity(account);
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -72,7 +73,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	public void updateSocialNetworkAccount(long id, String newLink)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 		SocialNetworkAccount account = loadResource(SocialNetworkAccount.class, id);
-		
+		account.setLink(newLink);
 		try {
 			saveEntity(account);
 		} catch (DbConnectionException e) {
