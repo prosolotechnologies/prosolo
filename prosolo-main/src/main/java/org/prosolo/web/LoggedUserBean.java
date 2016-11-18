@@ -47,6 +47,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "loggeduser")
@@ -325,6 +326,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return false;
 	}
 	
+	private Authentication getAuthenticationObject() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null) {
+			return null;
+		}
+
+		return context.getAuthentication();
+	}
+	
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
@@ -332,7 +342,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+			Authentication auth = getAuthenticationObject();
+			if(auth != null) {
+				if(auth.getCredentials() instanceof SAMLCredential) {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+				} else {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+				}
+			}
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
