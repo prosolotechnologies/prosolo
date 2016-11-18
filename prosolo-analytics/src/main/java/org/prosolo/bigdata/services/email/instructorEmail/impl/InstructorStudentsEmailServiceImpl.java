@@ -43,7 +43,7 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 			EmailSender emailSender = new EmailSender();
 			
 			if (CommonSettings.getInstance().config.appConfig.developmentMode) {
-				email = CommonSettings.getInstance().config.appConfig.developmentEmail;
+				email = CommonSettings.getInstance().config.appConfig.developerEmail;
 			}
 			
 			try {

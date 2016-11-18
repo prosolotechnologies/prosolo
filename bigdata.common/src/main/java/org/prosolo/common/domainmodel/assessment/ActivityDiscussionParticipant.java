@@ -18,11 +18,11 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 	private boolean read;
 	private User participant;
 	//private ActivityDiscussionMessage lastReadMessage;
-	private ActivityDiscussion activityDiscussion;
+	private ActivityAssessment activityDiscussion;
 	
 	
 	@Type(type = "true_false")
-	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'F'")
+	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'T'")
 	public boolean isRead() {
 		return read;
 	}
@@ -51,11 +51,11 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(referencedColumnName="id")
-	public ActivityDiscussion getActivityDiscussion() {
+	public ActivityAssessment getActivityDiscussion() {
 		return activityDiscussion;
 	}
 
-	public void setActivityDiscussion(ActivityDiscussion activityDiscussion) {
+	public void setActivityDiscussion(ActivityAssessment activityDiscussion) {
 		this.activityDiscussion = activityDiscussion;
 	}
 	

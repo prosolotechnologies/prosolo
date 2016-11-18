@@ -49,18 +49,21 @@ import org.prosolo.common.domainmodel.activitywall.old.comments.SocialActivityCo
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,6 +76,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
+
 */
 /**
  * @author Zoran Jeremic 2013-10-07
@@ -317,7 +321,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		}else if(objectType.equals(Comment1.class.getSimpleName())){
 			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
-			}else targetUserId=logsDataManager.getParentCommentMaker(objectId);
+			}else if(eventType.equals(EventType.Comment)){
+				targetUserId=logsDataManager.getUserOfTargetActivity(targetId);
+			} else targetUserId=logsDataManager.getParentCommentMaker(objectId);
 		}
 
 
@@ -355,7 +361,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return targetUserId != null ? targetUserId : 0;
 	}
 
-	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
+ 	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
 		Long courseId=extractCourseIdFromContext(learningContext.getContext());
 		/*if(learningContext != null && learningContext.getContext() != null) {
 			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
@@ -647,7 +653,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 			}
 
-			logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
+			  logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
 			Long targetUserId=(long) 0;
 
 			if (parameters != null && !parameters.isEmpty()) {
@@ -668,7 +674,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
 
 			}else{
-				System.out.println("We are not interested in this interaction:"+eventType.name());
+				System.out.println("We are not interested in this interaction for target user id:"+eventType.name());
 			}
 			logObject.put("targetUserId", targetUserId);
 

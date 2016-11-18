@@ -28,8 +28,8 @@ public class Config {
 	@Element(name = "email-notifier")
 	public EmailNotifierConfig emailNotifier;
 	
-	 @Element(name = "app-config", required = true)
-		 public AppConfig appConfig;
+	@Element(name = "app-config", required = true)
+	public AppConfig appConfig;
 	 
 	@Element(name = "services")
 	public ServicesConfig services;
@@ -37,14 +37,22 @@ public class Config {
 	@Element(name = "file-store")
 	public FileStoreConfig fileStore;
 	
-	public String getNamespacePrefix(){
-		if(this.namespace.equals("local")){
+	public String getNamespacePrefix() {
+		if (this.namespace.equals("local")) {
 			return "";
-		}else return this.namespace+"_";
+		} else
+			return this.namespace + "_";
 	}
-	public String getNamespaceSufix(){
-		if(this.namespace.equals("local")){
+
+	public String getNamespaceSufix() {
+		if (this.namespace.equals("local")) {
 			return "";
-		}else return "_"+this.namespace;
+		} else
+			return "_" + this.namespace;
 	}
+
+	public AppConfig getAppConfig() {
+		return appConfig;
+	}
+	
 }

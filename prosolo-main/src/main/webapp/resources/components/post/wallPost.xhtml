@@ -11,6 +11,7 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
 	    <composite:attribute name="socialActivity" required="true" 
 	    	type="org.prosolo.services.activityWall.impl.data.SocialActivityData1"/>
 	    <composite:attribute name="growlToUpdate" default=""/>
@@ -20,6 +21,9 @@
 		<composite:attribute name="toUpdateShareModal" default="" />
 		<composite:attribute name="shareModalId" required="true" />
 		<composite:attribute name="jsFunctionToPrepareShareModal" default=""/>
+		<composite:attribute name="prepareShare" default="true" type="java.lang.Boolean"/>
+		<composite:attribute name="enableHidePost" default="true" type="java.lang.Boolean"/>
+		<composite:attribute name="areCommentsCollapsible" default="true" type="java.lang.Boolean"/>
 	</composite:interface> 
 	
 	<composite:implementation>
@@ -64,22 +68,25 @@
                    </h3>
                </div>
                <div class="wallPostHeadRight">
-                   <a href="wall-post-view.html" class="timestamp">      	
+                   <h:link outcome="wall-post-view" styleClass="timestamp">
+                   		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>      	
                    		#{cc.attrs.socialActivity.datePretty}
-                   </a>
+                   </h:link>
                    <h:panelGroup id="panelSocialActivityOptions" styleClass="dropdown optDrop">
                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                            <span class="arrowDown">arrowDown</span>
                        </a>
                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                           <li>
-                           		<p:commandLink
-                           			value="Hide post"
-                           			action="#{wallactions.hideActivity(cc.attrs.socialActivity)}"
-                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
-                           		</p:commandLink>
-                           </li>
-                           <ui:fragment rendered="#{activityWallBean.isCurrentUserCreator(cc.attrs.socialActivity)}">
+                           <ui:fragment rendered="#{cc.attrs.enableHidePost}">
+	                           <li>
+	                           		<p:commandLink
+	                           			value="Hide post"
+	                           			action="#{wallactions.hideActivity(cc.attrs.socialActivity)}"
+	                           			update="#{cc.attrs.growlToUpdate} #{cc.attrs.toUpdate}">
+	                           		</p:commandLink>
+	                           </li>
+	                       </ui:fragment>
+                           <ui:fragment rendered="#{cc.attrs.bean.isCurrentUserCreator(cc.attrs.socialActivity)}">
 	                           <li>
 	                           	    <p:commandLink
 	                           			value="Delete post"
@@ -130,7 +137,7 @@
            <div class="wallPostFooter">
            	   <p:commandLink
 					styleClass="like #{cc.attrs.socialActivity.liked ? 'liked' : ''}"
-					action="#{activityWallBean.likeAction(cc.attrs.socialActivity)}"
+					action="#{cc.attrs.bean.likeAction(cc.attrs.socialActivity)}"
 					update="@this">
 					<svg class="icon" width="12px" height="12px" viewBox="0 0 12 12" version="1.1">
 						<g id="triangle" stroke="none" stroke-width="1" fill="#D5D8DA" fill-rule="evenodd">
@@ -143,6 +150,7 @@
 			   </p:commandLink>
            
                <h:panelGroup id="panelToggleComments">
+               	<ui:fragment rendered="#{cc.attrs.areCommentsCollapsible}">
 	               <p:commandLink rendered="#{!cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}"
 	               		styleClass="commentsNumber" 
 	               		pt:role="button" 
@@ -150,30 +158,48 @@
 	               		href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" 
 	               		pt:aria-expanded="false" 
 	               		pt:aria-controls="#commentsContainerDiv#{cc.attrs.socialActivity.id}"
-	               		action="#{activityWallBean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
+	               		action="#{cc.attrs.bean.initializeCommentsIfNotInitialized(cc.attrs.socialActivity)}"
 	               		update="comments panelToggleComments"
 	               		oncomplete="$('#commentsContainerDiv#{cc.attrs.socialActivity.id}').collapse();">
-	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} comments
+	               		<span class="icon"></span>#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
 	               	</p:commandLink>
 	               	<ui:fragment rendered="#{cc.attrs.socialActivity.comments.initialized and !cc.attrs.socialActivity.commentsDisabled}">
 	               		<h:panelGroup id="panelCommentsNumber" styleClass="panelCommentsNumber#{cc.attrs.socialActivity.id}">
 		               			<a class="commentsNumber" role="button" data-toggle="collapse" href="#commentsContainerDiv#{cc.attrs.socialActivity.id}" aria-expanded="false" aria-controls="collapseComments1">
 		               				<span class="icon"></span>
-		               					#{cc.attrs.socialActivity.comments.numberOfComments} comments
-		               		    </a>
+		               					#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+		               		    </a>		               		
 	               		</h:panelGroup>  
 	           		</ui:fragment>
+	           	 </ui:fragment>
+	           	 <ui:fragment rendered="#{not cc.attrs.areCommentsCollapsible}">
+	           	 	<a class="commentsNumber">
+           		    	<span class="icon"></span>
+           		    	#{cc.attrs.socialActivity.comments.numberOfComments} #{cc.attrs.socialActivity.comments.numberOfComments eq 1 ? 'comment' : 'comments'}
+           		    </a>
+	           	 </ui:fragment>
 	            </h:panelGroup>
 	            <ui:fragment rendered="#{cc.attrs.socialActivity.type eq 'Post'}">
-		            <p:commandLink 
-		            	styleClass="sharePost" 
-		            	pt:data-toggle="modal" 
-		            	data-target="#sharePostModal"
-		            	action="#{activityWallBean.setSocialActivityForShare(cc.attrs.socialActivity)}"
-		            	update="#{cc.attrs.toUpdateShareModal}"
-		            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show'); #{cc.attrs.jsFunctionToPrepareShareModal}();">
-		            	<span class="icon"></span>Share
-		            </p:commandLink>
+					<ui:fragment rendered="#{cc.attrs.prepareShare}">           
+			            <p:commandLink 
+			            	styleClass="sharePost" 
+			            	pt:data-toggle="modal" 
+			            	data-target="#sharePostModal"
+			            	action="#{cc.attrs.bean.setSocialActivityForShare(cc.attrs.socialActivity)}"
+			            	update="#{cc.attrs.toUpdateShareModal}"
+			            	oncomplete="$('##{cc.attrs.shareModalId}').modal('show'); #{cc.attrs.jsFunctionToPrepareShareModal}();">
+			            	<span class="icon"></span>Share
+			            </p:commandLink>
+		            </ui:fragment>
+		            <ui:fragment rendered="#{not cc.attrs.prepareShare}">
+		            	<a href="#" 
+		            		class="sharePost" 
+		            		data-toggle="modal" 
+		            		data-target="##{cc.attrs.shareModalId}"
+		            		onclick="#{cc.attrs.jsFunctionToPrepareShareModal}();">
+		            		<span class="icon"></span>Share
+		            	</a>
+		            </ui:fragment>
 		        </ui:fragment>
            </div>
            
@@ -183,7 +209,7 @@
            		uniqueId="#{cc.attrs.socialActivity.id}"
            		commentsContainerDivId="commentsContainerDiv#{cc.attrs.socialActivity.id}"
            		showSortOptions="false"
-           		isCollapsible="true"
+           		isCollapsible="#{cc.attrs.areCommentsCollapsible}"
            		growlToUpdate="#{cc.attrs.growlToUpdate}"
            		learningContext="#{learningContext}"
            		toUpdateOnSaveTopLevelComment="@(.panelCommentsNumber#{cc.attrs.socialActivity.id})"

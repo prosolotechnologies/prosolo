@@ -17,7 +17,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
@@ -54,7 +54,7 @@ public class LTIServiceOutcome {
 		String failureMessage = null;
 		try {
 			String consumerSecret = ServiceLocator.getInstance().getService(ExternalToolService.class).retrieveConsumerSecret(w3cDoc);
-			String url = Settings.getInstance().config.application.domain + "api/lti/replaceresult";
+			String url = CommonSettings.getInstance().config.appConfig.domain + "api/lti/replaceresult";
 			authorised = ServiceLocator.getInstance().getService(ExternalToolService.class).checkAuthorization(authorization, url, "POST",
 					consumerSecret);
 		} catch (IOException e) {

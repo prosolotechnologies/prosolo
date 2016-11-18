@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
@@ -20,6 +21,7 @@ import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.twitter.TwitterApiManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -76,14 +78,11 @@ public class TwitterBean implements Serializable {
 				accessToken = twitterApiManager.verifyAndGetTwitterAccessToken(loggedUser.getUserId(), oauthVerifier);
 				
 				if (accessToken != null) {
-					PageUtil.fireSuccessfulInfoMessage("You have connected your Twitter account with ProSolo");
-					context.getExternalContext().getFlash().setKeepMessages(true);
-					
 					SocialNetworkAccount twitterAccount = socialNetworksManager.getSocialNetworkAccount(loggedUser.getUserId(), SocialNetworkName.TWITTER);
 					
 					if (twitterAccount != null) {
-						if (twitterAccount.getLink().isEmpty() || !twitterAccount.getLink().equals(accessToken.getProfileLink())) {
-							socialNetworksManager.updateSocialNetworkAccount(twitterAccount);
+						if (!accessToken.getProfileLink().equals(twitterAccount.getLink())) {
+							socialNetworksManager.updateSocialNetworkAccount(twitterAccount, accessToken.getProfileLink());
 						}
 					} else {
 						socialNetworksManager.addSocialNetworkAccount(
@@ -91,11 +90,14 @@ public class TwitterBean implements Serializable {
 								SocialNetworkName.TWITTER,
 								accessToken.getProfileLink());
 					}
-					
-					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(), true);
+					logger.debug("created access token:" +accessToken.getProfileLink());
+					analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),accessToken.getUserId(), true);
 					
 					try {
-						String settingsUrl = PageUtil.getSectionForView().getPrefix() + "/settings";
+						String domain = CommonSettings.getInstance().config.appConfig.domain;
+						String pageSection = parameterMap.get("section");
+						
+						String settingsUrl = domain.substring(0,  domain.length()-1) + PageSection.valueOf(pageSection).getPrefix() + "/settings?twitterConnected=true";
 						externalContext.redirect(settingsUrl);
 						redirected = true;
 					} catch (IOException e) {
@@ -144,27 +146,29 @@ public class TwitterBean implements Serializable {
 		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 		externalContext.redirect(url);
 	}
-
+	
 	public String getCallbackUrl(HttpServletRequest request) {
 		String host = request.getServerName();
 		int portNumber = request.getServerPort();
 		String port = null;
 		port = (portNumber != 80) ? (":" + portNumber) : "";
 		String app = request.getContextPath();
-		String publicLink = "http://" + host + port + app + "/settings/twitterOAuth?section=" + PageUtil.getSectionForView();
+		String publicLink = CommonSettings.getInstance().config.appConfig.domain + "settings/twitterOAuth?section=" + PageUtil.getSectionForView();
 		return publicLink;
 	}
 
-	public void disconnectUserAccount() {
+	public void disconnectUserAccount(boolean showSuccessMsg) {
 		logger.debug("Disconnecct from twitter for user " + loggedUser.getUserId());
 
 		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
-		analyticalServiceCollector.updateTwitterUser(deletedUserId, false);
+		analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),deletedUserId, false);
 		
 		profileSettingsBean.setConnectedToTwitter(false);
 		
-		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
-				"Your Twitter account is disconnected from ProSolo.");
+		if(showSuccessMsg) {
+			PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
+					"Your Twitter account is disconnected from ProSolo.");
+		}
 	}
 
 //	public void updateHashTagsAction() {

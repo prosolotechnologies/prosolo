@@ -21,7 +21,7 @@ public class URLUtil {
 	}
 	
 	public static boolean checkIfYoutubeLink(String link) {
-		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
+		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
 				Pattern.CASE_INSENSITIVE);
 		String trimmedLink = link.replaceAll("\u00A0", "").trim();
 		Matcher matcher = pattern.matcher(trimmedLink);
@@ -38,7 +38,7 @@ public class URLUtil {
 		String id = null;
 		//
 		//^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$
-		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
+		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
 				Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(link);
 		if (matcher.matches()) {
@@ -51,7 +51,7 @@ public class URLUtil {
 	public static String getYoutubeEmbedId(String link) {
 		String id = null;
 		//^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$
-		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
+		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
 				Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(link);
 		if (matcher.matches()) {

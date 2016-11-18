@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDAccount;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDProvider;
@@ -124,7 +124,7 @@ public class OpenIDBean implements Serializable {
 		} else {
 			try {
 				FacesContext.getCurrentInstance().getExternalContext()
-						.redirect(Settings.getInstance().config.application.domain
+						.redirect(CommonSettings.getInstance().config.appConfig.domain
 								+ "login?openiderr=Error while trying to login through your " + provider + " account");
 			} catch (IOException e) {
 				e.printStackTrace();

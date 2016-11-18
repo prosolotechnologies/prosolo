@@ -26,6 +26,7 @@ public class CommentsData implements Serializable {
 	private long newestCommentId;
 	
 	private int numberOfComments;
+	private long commentId;
 	
 	public CommentsData(CommentedResourceType resourceType, long resourceId) {
 		this.resourceType = resourceType;
@@ -140,6 +141,14 @@ public class CommentsData implements Serializable {
 
 	public void setNumberOfComments(int numberOfComments) {
 		this.numberOfComments = numberOfComments;
+	}
+
+	public long getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(long commentId) {
+		this.commentId = commentId;
 	}
 	
 }

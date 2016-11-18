@@ -23,8 +23,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	//target activity specific
 	private boolean enrolled;
 	private boolean completed;
-	private String assignmentLink;
-	private String assignmentTitle; 
+	private ActivityResultData resultData;
+	private String maxPointsString = ""; // needed because field can also be empty on the html page
 	
 	private int order;
 	private int durationHours;
@@ -38,7 +38,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
-	private boolean uploadAssignment;
 	private String typeString;
 	private LearningResourceType type;
 	
@@ -64,11 +63,25 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private long competenceId;
 	private String competenceName;
 	
+	private List<ActivityResultData> studentResults;
+	private GradeData gradeOptions;
+	
+	private boolean studentCanSeeOtherResponses;
+	private boolean studentCanEditResponse;
+	
 	public ActivityData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
 		activityType = ActivityType.TEXT;
+		resultData = new ActivityResultData(listenChanges);
+		gradeOptions = new GradeData();
+	}
+	
+	@Override
+	public void startObservingChanges() {
+		super.startObservingChanges();
+		getResultData().startObservingChanges();
 	}
 	
 	@Override
@@ -85,6 +98,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
+			}
+			
+			if(getResultData().hasObjectChanged()) {
+				return true;
 			}
 		}
 		return changed;
@@ -168,6 +185,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+	
+	public String getMaxPointsString() {
+		return maxPointsString;
+	}
+
+	public void setMaxPointsString(String maxPointsString) {
+		observeAttributeChange("maxPointsString", this.maxPointsString, maxPointsString);
+		this.maxPointsString = maxPointsString;
 	}
 
 	public int getOrder() {
@@ -307,15 +333,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.files = files;
 	}
 
-	public boolean isUploadAssignment() {
-		return uploadAssignment;
-	}
-
-	public void setUploadAssignment(boolean uploadAssignment) {
-		observeAttributeChange("uploadAssignment", this.uploadAssignment, uploadAssignment);
-		this.uploadAssignment = uploadAssignment;
-	}
-
 	public ActivityType getActivityType() {
 		return activityType;
 	}
@@ -395,22 +412,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setText(String text) {
 		observeAttributeChange("text", this.text, text);
 		this.text = text;
-	}
-	
-	public String getAssignmentLink() {
-		return assignmentLink;
-	}
-
-	public void setAssignmentLink(String assignmentLink) {
-		this.assignmentLink = assignmentLink;
-	}
-
-	public String getAssignmentTitle() {
-		return assignmentTitle;
-	}
-
-	public void setAssignmentTitle(String assignmentTitle) {
-		this.assignmentTitle = assignmentTitle;
 	}
 	
 	public String getEmbedId() {
@@ -541,6 +542,48 @@ public class ActivityData extends StandardObservable implements Serializable {
 		} else {
 			return Optional.of(dur);
 		}
+	}
+
+	public ActivityResultData getResultData() {
+		return resultData;
+	}
+
+	public void setResultData(ActivityResultData resultData) {
+		this.resultData = resultData;
+	}
+
+	public List<ActivityResultData> getStudentResults() {
+		return studentResults;
+	}
+
+	public void setStudentResults(List<ActivityResultData> studentResults) {
+		this.studentResults = studentResults;
+	}
+
+	public GradeData getGradeOptions() {
+		return gradeOptions;
+	}
+
+	public void setGradeOptions(GradeData gradeOptions) {
+		this.gradeOptions = gradeOptions;
+	}
+
+	public boolean isStudentCanSeeOtherResponses() {
+		return studentCanSeeOtherResponses;
+	}
+
+	public void setStudentCanSeeOtherResponses(boolean studentCanSeeOtherResponses) {
+		observeAttributeChange("studentCanSeeOtherResponses", this.studentCanSeeOtherResponses, studentCanSeeOtherResponses);
+		this.studentCanSeeOtherResponses = studentCanSeeOtherResponses;
+	}
+
+	public boolean isStudentCanEditResponse() {
+		return studentCanEditResponse;
+	}
+
+	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
+		observeAttributeChange("studentCanEditResponse", this.studentCanEditResponse, studentCanEditResponse);
+		this.studentCanEditResponse = studentCanEditResponse;
 	}
 	
 }

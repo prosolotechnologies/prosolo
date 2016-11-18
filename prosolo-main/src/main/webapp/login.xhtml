@@ -32,7 +32,8 @@
                 <h1>Sign in</h1>
                 
                 <c:if test="#{applicationbean.config.application.registration.google or 
-					applicationbean.config.application.registration.edx}">
+					applicationbean.config.application.registration.edx or
+					not empty samlLoginBean.identityProviders}">
 					
 					<h:form prependId="false" id="openFormId">
 		                <div class="buttonBox">
@@ -53,12 +54,21 @@
 					            	<span></span>Sign in with edX
 				            	</h:commandLink>
 		                    </c:if>
+		                
+							<ui:repeat var="ip" value="#{samlLoginBean.identityProviders}">
+								<a href="#{applicationbean.domain}saml/login?idp=#{ip.entityId}" 
+									class="#{ip.styleClass}">
+									<span></span>#{ip.displayName}
+								</a>
+							</ui:repeat>
 		                </div>
 	                </h:form>
                 </c:if>
+				
 		                
                 <c:if test="#{(applicationbean.config.application.registration.google or 
-								applicationbean.config.application.registration.edx) and 
+								applicationbean.config.application.registration.edx or
+								not empty samlLoginBean.identityProviders) and 
 							applicationbean.config.application.registration.selfRegistration}">
 	                <div class="loginSeparator">
 	                    <span>or sign in with your email</span>
@@ -72,9 +82,13 @@
 						</a>
 					</div>
 				</ui:repeat>
+
             </div>
-	            
-	           
+
+			<c:if test="#{!applicationbean.config.application.registration.selfRegistration}">
+				<div style="display: inline-block;"></div>
+			</c:if>
+			   
 	        <c:if test="#{applicationbean.config.application.registration.selfRegistration}">
 				<form method="POST" action='loginspring'>
 					<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
@@ -117,9 +131,9 @@
             <ul>
                 <li><a href="about">About</a></li>
                 <li><a href="terms">Terms</a></li>
-                <li><a href="https://bitbucket.org/prosolo/prosolo/issues">Support</a></li>
+                <li><a href="mailto:#{applicationbean.commonConfig.appConfig.supportEmail}">Support</a></li>
             </ul>
-            <p>ProSolo Technologies Inc &#169; 2016</p>
+            <p>ProSolo Technologies Inc &#169; #{applicationbean.year}</p>
         </div>
     </div>
 

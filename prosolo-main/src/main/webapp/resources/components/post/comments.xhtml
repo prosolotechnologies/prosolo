@@ -16,7 +16,7 @@
 		<composite:attribute name="uniqueId" default=""/>
 		<composite:attribute name="commentsContainerDivId" required="true"/>
 		<composite:attribute name="showSortOptions" default="true" type="java.lang.Boolean"/>
-		 <composite:attribute name="growlToUpdate" default=""/>
+		<composite:attribute name="growlToUpdate" default=""/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default=""/>
 		<composite:attribute name="toUpdateOnSaveTopLevelComment" default=""/>
@@ -60,14 +60,15 @@
 					</c:if>
 					
 
-					<div class="comments">
+					<h:panelGroup layout="block" class="comments"
+						rendered="#{not empty cc.attrs.comments.comments}">
 						<ul class="media-list">
-								<li class="loadMoreComments">
-									<p:commandLink rendered="#{cc.attrs.comments.moreToLoad}"
-										value="View previous comments"
-										action="#{commentBean.loadMoreComments(cc.attrs.comments)}"
-										update="formComments" />
-								</li>
+							<li class="loadMoreComments">
+								<p:commandLink rendered="#{cc.attrs.comments.moreToLoad}"
+									value="View previous comments"
+									action="#{commentBean.loadMoreComments(cc.attrs.comments)}"
+									update="formComments" />
+							</li>
 							
 							<ui:repeat var="comment" value="#{cc.attrs.comments.comments}">
 								<li class="media">
@@ -80,7 +81,7 @@
 								</li>
 							</ui:repeat>
 						</ul>
-					</div>
+					</h:panelGroup>
 					
 					<div class="addComment">
 						<utilcomp:userAvatar

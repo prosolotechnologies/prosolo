@@ -6,10 +6,9 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
-import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -43,15 +42,18 @@ public abstract class NotificationEventProcessor {
 			long sender = getSenderId();
 			if(isConditionMet(sender, receiver)) {
 				String section = getUrlSection(receiver);
+				NotificationType notificationType = getNotificationType();
 				Notification1 notification = notificationManager.createNotification(
 						sender, 
 						receiver,
-						getNotificationType(), 
+						notificationType, 
 						event.getDateCreated(),
 						getObjectId(),
 						getObjectType(),
+						getTargetId(),
+						getTargetType(),
 						section + getNotificationLink(),
-						shouldUserBeNotifiedByEmail(receiver),
+						shouldUserBeNotifiedByEmail(receiver, notificationType),
 						session);
 				
 				notifications.add(notification);
@@ -61,33 +63,20 @@ public abstract class NotificationEventProcessor {
 		return notifications;
 	}
 	
-	private boolean shouldUserBeNotifiedByEmail(long receiverId) {
+	private boolean shouldUserBeNotifiedByEmail(long receiverId, NotificationType type) {
 		Transaction transaction = null;
-		UserNotificationsSettings userNotificationSettings = null;
+		NotificationSettings emailNotificationSettings = null;
 		try {
 			transaction = session.beginTransaction();
-			userNotificationSettings = notificationsSettingsManager
-					.getOrCreateNotificationsSettings(receiverId, session);
+			emailNotificationSettings = notificationsSettingsManager
+					.getOrCreateNotificationSettings(receiverId, type, session);
 			transaction.commit();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			transaction.rollback();
 		}
 
-		if (userNotificationSettings != null) {
-			List<NotificationSettings> settings = userNotificationSettings
-					.getNotifications();
-			return determineIfUserShouldBeNotifiedByEmail(settings);
-		}
-		return false;
-	}
-
-	private boolean determineIfUserShouldBeNotifiedByEmail(List<NotificationSettings> settings) {
-		if(settings != null) {
-			for(NotificationSettings ns : settings) {
-				if(getNotificationType() == ns.getType()) {
-					return ns.isSubscribedEmail();
-				}
-			}
+		if (emailNotificationSettings != null) {
+			return emailNotificationSettings.isSubscribedEmail();
 		}
 		return false;
 	}
@@ -110,9 +99,17 @@ public abstract class NotificationEventProcessor {
 	
 	abstract NotificationType getNotificationType();
 	
-	abstract ObjectType getObjectType();
+	abstract ResourceType getObjectType();
 	
 	abstract long getObjectId();
+	
+	public ResourceType getTargetType() {
+		return null;
+	}
+	
+	public long getTargetId() {
+		return 0;
+	}
 	
 	abstract String getNotificationLink();
 	

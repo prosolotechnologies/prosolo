@@ -77,6 +77,7 @@ public class NodeChangeProcessorFactory {
 				}
 				
 			case Delete:
+			case Delete_Draft:
 				if(node instanceof Credential1) {
 					return new CredentialNodeChangeProcessor(event, credentialESService, 
 							NodeOperation.Delete, session);

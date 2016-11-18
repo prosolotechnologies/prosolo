@@ -17,7 +17,7 @@ import javax.mail.internet.AddressException;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.requests.Request;
 import org.prosolo.common.domainmodel.activities.requests.RequestStatus;
 import org.prosolo.common.domainmodel.user.User;
@@ -25,7 +25,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.email.EmailSender;
@@ -279,7 +279,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		try {
 			String link = null; 
 			if(notifyByUI) {
-				link = Settings.getInstance().config.application.domain + "communications/notifications";
+				link = CommonSettings.getInstance().config.appConfig.domain + "communications/notifications";
 			}
 			
 			NotificationEmailContentGenerator1 generator = new NotificationEmailContentGenerator1(receiverName, actor, 
@@ -307,7 +307,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	@Transactional(readOnly = false)
 	public Notification1 createNotification(long actorId, 
 			long receiverId, NotificationType type, Date date, 
-			long objectId, ObjectType objectType, String link,
+			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
 			boolean notifyByEmail, Session session) throws DbConnectionException {
 		try {
 			User actor = (User) session.load(User.class, actorId);
@@ -321,6 +321,8 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			notification.setType(type);
 			notification.setObjectId(objectId);
 			notification.setObjectType(objectType);
+			notification.setTargetId(targetId);
+			notification.setTargetType(targetType);
 			notification.setLink(link);
 			session.save(notification);
 			
@@ -370,10 +372,17 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 						objectTitle = getObjectTitle(notification.getObjectId(),
 								notification.getObjectType(), persistence.currentManager());
 					}
-					NotificationData nd = notificationDataFactory.getNotificationData(
+					
+					String targetTitle = null;
+					if (notification.getTargetId() > 0) {
+						targetTitle = getObjectTitle(notification.getTargetId(),
+								notification.getTargetType(), persistence.currentManager());
+					}
+ 					NotificationData nd = notificationDataFactory.getNotificationData(
 							notification, 
 							null,
 							objectTitle, 
+							targetTitle, 
 							locale);
 					notificationData.add(nd);
 				}
@@ -425,12 +434,18 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		try {
 		  	if (notification != null) {
 		  		String objectTitle = null;
-	  			if(notification.getObjectId() > 0) {
-	  				objectTitle = getObjectTitle(notification.getObjectId(), 
-	  					notification.getObjectType(), session);
-	  			}
+				if (notification.getObjectId() > 0) {
+					objectTitle = getObjectTitle(notification.getObjectId(),
+							notification.getObjectType(), session);
+				}
+				
+				String targetTitle = null;
+				if (notification.getTargetId() > 0) {
+					targetTitle = getObjectTitle(notification.getTargetId(),
+							notification.getTargetType(), persistence.currentManager());
+				}
 	  			return notificationDataFactory.getNotificationData(notification, receiver,
-	  					objectTitle, locale);
+	  					objectTitle, targetTitle, locale);
 		  	}
 		  	return null;
 		} catch(Exception e) {
@@ -440,7 +455,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		}
 	}
 
-	private String getObjectTitle(long objectId, ObjectType objectType, Session session) {
+	private String getObjectTitle(long objectId, ResourceType objectType, Session session) {
 		String query = "SELECT obj.title " +
 					   "FROM " + objectType.getDbTableName() + " obj " +
 					   "WHERE obj.id = :id";
@@ -455,15 +470,14 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	
 	@Override
 	public boolean sendNotificationByEmail(String email, String receiverName, String actor, 
-			String predicate, long objectId, ObjectType objectType, String objectTitle, String link, String date, NotificationType type) {
+			String predicate, long objectId, ResourceType objectType, String objectTitle, String link, String date, NotificationType type, Session session) {
 		email = email.toLowerCase();
 		
 		try {
 			NotificationEmailGenerator generator = notificationEmailGeneratorFactory.getNotificationEmailContentGenerator(
-					receiverName, actor, predicate, objectId, objectType, objectTitle, date, link, type);
+					receiverName, actor, predicate, objectId, objectType, objectTitle, date, link, type, session);
 			
-			emailSender.sendEmail(generator,  email);
-			return true;
+			return emailSender.sendEmail(generator,  email);
 		} catch (AddressException e) {
 			logger.error(e);
 		} catch (MessagingException e) {

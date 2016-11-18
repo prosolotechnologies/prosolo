@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 
+@Deprecated
 public class ActivityData implements Serializable{
 
 	private static final long serialVersionUID = -1506416320540794846L;

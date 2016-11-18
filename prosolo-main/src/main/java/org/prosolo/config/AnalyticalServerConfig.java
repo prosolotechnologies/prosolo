@@ -15,10 +15,20 @@ public class AnalyticalServerConfig {
 	@Element (name="api-host")
 	public String apiHost;
 	
-	@Element (name="api-port")
-	public int apiPort;
-	
 	@Element (name="api-services-path")
 	public String apiServicesPath;
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public String getApiHost() {
+		return apiHost;
+	}
+
+	public String getApiServicesPath() {
+		return apiServicesPath;
+	}
+	
 }
 

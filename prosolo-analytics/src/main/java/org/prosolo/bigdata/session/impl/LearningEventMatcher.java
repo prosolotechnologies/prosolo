@@ -129,6 +129,7 @@ public class LearningEventMatcher implements EventMatcher<LogEvent> {
 		this.isMilestoneEvent = isMilestoneEvent;
 	}
 
+
 	@Override
 	public String toString() {
 		return "LearningEventRule [id=" + id + ", description=" + description + ", process=" + process

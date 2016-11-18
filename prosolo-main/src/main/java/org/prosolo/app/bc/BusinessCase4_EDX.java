@@ -40,6 +40,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -171,7 +172,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					5,
-					false,
+					ActivityResultType.FILE_UPLOAD,
 					"Slides",
 					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 			
@@ -184,7 +185,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					false,
+					ActivityResultType.FILE_UPLOAD,
 					"Example datasets used in the videos",
 					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 			
@@ -197,7 +198,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					false,
+					ActivityResultType.FILE_UPLOAD,
 					"CCK11 dataset for social network analysis",
 					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 			
@@ -210,7 +211,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					8,
-					false,
+					ActivityResultType.FILE_UPLOAD,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
 			
@@ -223,7 +224,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					6,
-					false,
+					ActivityResultType.FILE_UPLOAD,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
 			
@@ -256,7 +257,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					1,
 					0,
-					true);
+					ActivityResultType.FILE_UPLOAD);
 			
 			
 			publishCredential(cred1, cred1.getCreatedBy());
@@ -282,7 +283,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					4,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -307,7 +308,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					15,
-					false);
+					ActivityResultType.FILE_UPLOAD);
 			
 			createActivity(
 					userNickPowell, 
@@ -318,7 +319,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					17,
-					false);
+					ActivityResultType.FILE_UPLOAD);
 			
 			createActivity(
 					userNickPowell, 
@@ -329,7 +330,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					11,
-					false);
+					ActivityResultType.FILE_UPLOAD);
 			
 			createActivity(
 					userNickPowell, 
@@ -340,7 +341,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					9,
-					false);
+					ActivityResultType.FILE_UPLOAD);
 			
 			createActivity(
 					userNickPowell, 
@@ -351,7 +352,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					10,
-					false);
+					ActivityResultType.FILE_UPLOAD);
 			
 			createActivity(
 					userNickPowell, 
@@ -362,7 +363,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					15,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -384,7 +385,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					1,
 					0,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -406,7 +407,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					1,
 					0,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
@@ -440,7 +441,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					4,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -451,7 +452,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					6,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -462,7 +463,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					5,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -473,7 +474,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					4,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -484,7 +485,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					6,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -495,7 +496,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					6,
-					false);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -506,7 +507,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred2.getId(),
 					0,
 					40,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
@@ -531,7 +532,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred2.getId(),
 					0,
 					20,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
@@ -563,7 +564,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred3.getId(),
 					0,
 					30,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred3, cred2.getCreatedBy());
 		} catch (EventException e1) {
@@ -595,7 +596,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred4.getId(),
 					0,
 					45,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e1) {
@@ -626,7 +627,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred5.getId(),
 					0,
 					37,
-					false);
+					ActivityResultType.TEXT);
 			
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e1) {
@@ -844,7 +845,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 	}
 
 	private Activity1 createActivity(User userNickPowell, String title, String description, String url, ActivityType type, 
-			long compId, int durationHours, int durationMinutes, boolean uploadAssignment, String... nameLink) {
+			long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink) {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setDescription(description);
@@ -864,7 +865,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setCompetenceId(compId);
 		actData.setDurationMinutes(durationMinutes);
 		actData.setDurationHours(durationHours);
-		actData.setUploadAssignment(uploadAssignment);
+		actData.getResultData().setResultType(resultType);
 		
 		if (nameLink != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();

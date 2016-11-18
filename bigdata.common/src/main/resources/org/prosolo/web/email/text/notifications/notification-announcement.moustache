@@ -1,8 +1,9 @@
 Hi {{name}},
 
-There's a new announcement for a credential {{objectTitle}}.
+There's a new announcement for a credential {{targetTitle}}.
 
 View announcement at {{link}}.
 
 
 ProSolo Team
+{{supportEmail}}

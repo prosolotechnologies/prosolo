@@ -46,14 +46,11 @@ public class SendEmail {
 
 		Collection<InternetAddress> toAddress = new ArrayList<InternetAddress>();
 
-		//for (String to : emails) {
-		//email="zoran.jeremic@gmail.com";
-		if(Settings.getInstance().config.application.developmentMode){
-			email=Settings.getInstance().config.application.developmentEmail;
+		if (Settings.getInstance().config.application.developmentMode) {
+			email = CommonSettings.getInstance().config.appConfig.developerEmail;
 		}
-			toAddress.add(new InternetAddress(email));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
-		//}
+		toAddress.add(new InternetAddress(email));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
 
 		message.setSubject(subject);
 		message.setText("Test message");

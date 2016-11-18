@@ -66,6 +66,9 @@ public class AfterContextLoader implements ServletContextListener {
 		
 		if (settings.config.init.formatDB) {
 			logger.debug("Initializing static data!");
+			boolean oldEmailNotifierVal = CommonSettings.getInstance().config.emailNotifier.activated;
+			CommonSettings.getInstance().config.emailNotifier.activated = false;
+			
 			initStaticData();
 			logger.debug("Static data initialised!");
 		
@@ -81,6 +84,8 @@ public class AfterContextLoader implements ServletContextListener {
 					Settings.getInstance().config.admin.userCanCreateCompetence,
 					Settings.getInstance().config.admin.individualCompetencesCanNotBeEvaluated);
 			settings.config.init.formatDB = false;
+			
+			CommonSettings.getInstance().config.emailNotifier.activated = oldEmailNotifierVal;
 		}
 	
 		if (Settings.getInstance().config.init.importData) {

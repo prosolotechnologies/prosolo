@@ -6,11 +6,13 @@ package org.prosolo.services.notifications.emailgenerators;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.interfaceSettings.eventProcessors.InterfaceEventProcessorFactory;
 import org.prosolo.services.nodes.DefaultManager;
@@ -24,8 +26,8 @@ public class NotificationEmailGeneratorFactory {
 	
 	private static Logger logger = Logger.getLogger(InterfaceEventProcessorFactory.class);
 	
-	public NotificationEmailGenerator getNotificationEmailContentGenerator(String name, String actor, String predicate, long objectId, ObjectType objectType, String objectTitle,
-			String date, String link, NotificationType type) {
+	public NotificationEmailGenerator getNotificationEmailContentGenerator(String name, String actor, String predicate, long objectId, ResourceType objectType, String objectTitle,
+			String date, String link, NotificationType type, Session session) {
 		
 		switch (type) {
 			case Follow_User:
@@ -33,8 +35,8 @@ public class NotificationEmailGeneratorFactory {
 			case Comment:
 				return new CommentNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
 			case Comment_Like:
-				String targetType = null;
-				String targetTitle = null;
+				String targetTypeStr = null;
+				String targetTitleStr = null;
 				
 				try {
 					Comment1 comment = defaultManager.loadResource(Comment1.class, objectId, true);
@@ -42,13 +44,13 @@ public class NotificationEmailGeneratorFactory {
 					switch (comment.getResourceType()) {
 					case Competence:
 						Competence1 comp = defaultManager.loadResource(Competence1.class, comment.getCommentedResourceId(), true);
-						targetType = "competence";
-						targetTitle = comp.getTitle();
+						targetTypeStr = "competence";
+						targetTitleStr = comp.getTitle();
 						break;
 					case Activity:
-						targetType = "activity";
+						targetTypeStr = "activity";
 						Activity1 activity = defaultManager.loadResource(Activity1.class, comment.getCommentedResourceId(), true);
-						targetTitle = activity.getTitle();
+						targetTitleStr = activity.getTitle();
 						break;
 					default:
 						break;
@@ -57,7 +59,9 @@ public class NotificationEmailGeneratorFactory {
 					logger.error(e);
 				}
 				
-				return new CommentLikeNotificationEmailGenerator(name, actor, predicate, targetType, targetTitle, date, link);
+				return new CommentLikeNotificationEmailGenerator(name, actor, predicate, targetTypeStr, targetTitleStr, date, link);
+			case Social_Activity_Like:
+				return new SocialActivityLikeNotificationEmailGenerator(name, actor, predicate, date, link);
 			case Mention:
 				return new MentionNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link);
 			case Assessment_Requested:
@@ -65,7 +69,12 @@ public class NotificationEmailGeneratorFactory {
 			case Assessment_Approved:
 				return new AssessmentNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link, type);
 			case AnnouncementPublished:
-				return new AnnouncementPublishedNotificationEmailGenerator(name, actor, predicate, objectTitle, date, link, type);
+				try {
+					Announcement ann = defaultManager.loadResource(Announcement.class, objectId, session);
+					return new AnnouncementPublishedNotificationEmailGenerator(name, actor, objectTitle, ann.getCredential().getTitle(), predicate, date, link, type, ann.getText());
+				} catch (ResourceCouldNotBeLoadedException e) {
+					logger.error(e);
+				}
 			default:
 				break;
 			}

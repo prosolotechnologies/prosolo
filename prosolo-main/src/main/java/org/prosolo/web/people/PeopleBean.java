@@ -11,11 +11,8 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.recommendation.CollaboratorsRecommendation;
 import org.prosolo.services.activityWall.UserDataFactory;
-import org.prosolo.services.es.RecommendedResourcesSearch;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
@@ -41,16 +38,8 @@ public class PeopleBean implements Paginable, Serializable {
 	@Inject
 	private LoggedUserBean loggedUser;
 	@Inject
-	private CollaboratorsRecommendation cRecommendation;
-	@Inject
 	private PeopleActionBean peopleActionBean;
-	@Inject
-	private UserManager userManager;
 
-	@Inject
-	private RecommendedResourcesSearch resourcesSearch;
-
-	private List<UserData> usersToFollow;
 	private List<UserData> followingUsers;
 
 	private int usersNumber;
@@ -61,7 +50,6 @@ public class PeopleBean implements Paginable, Serializable {
 
 	public void init() {
 		initFollowingUsers();
-		initUsersToFollow();
 	}
 
 	private void initFollowingUsers() {
@@ -86,25 +74,6 @@ public class PeopleBean implements Paginable, Serializable {
 		}
 	}
 
-	public void initUsersToFollow() {
-		try {
-			usersToFollow = new ArrayList<UserData>();
-			List<User> usersToFollowList = cRecommendation
-					.getRecommendedCollaboratorsBasedOnLocation(loggedUser.getUserId(), 3);
-			System.out.println("INIT USERS TO FOLLOW");
-			List<User> similarUsers=resourcesSearch.findSimilarUsers(loggedUser.getUserId(),new ArrayList<Long>(),0,10);
-			System.out.println("SIMILAR USERS RETURNED:"+similarUsers.size());
-			if (usersToFollowList != null && !usersToFollowList.isEmpty()) {
-				for (User user : usersToFollowList) {
-					UserData userData = UserDataFactory.createUserData(user);
-					usersToFollow.add(userData);
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e);
-		}
-	}
-	
 	public void followCollegueById(String userToFollowName, long userToFollowId) {
 		peopleActionBean.followCollegueById(userToFollowName, userToFollowId);
 		
@@ -161,7 +130,6 @@ public class PeopleBean implements Paginable, Serializable {
 		if (this.page != page) {
 			this.page = page;
 			initFollowingUsers();
-			initUsersToFollow();
 		}
 	}
 
@@ -179,13 +147,10 @@ public class PeopleBean implements Paginable, Serializable {
 	public boolean isResultSetEmpty() {
 		return numberOfPages == 0;
 	}
-
-	public List<UserData> getUsersToFollow() {
-		return usersToFollow;
-	}
-
-	public void setUsersToFollow(List<UserData> usersToFollow) {
-		this.usersToFollow = usersToFollow;
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
 	}
 
 	public List<UserData> getFollowingUsers() {

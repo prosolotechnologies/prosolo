@@ -91,7 +91,8 @@ public class AvatarUtils {
 	}
 	
 	public static String getPathFromUrl(String url) {
-		String path = url.replaceFirst(Settings.getInstance().config.fileManagement.urlPrefixFolder, Settings.getInstance().config.fileManagement.uploadPath);
+		String urlPrefix = CommonSettings.getInstance().config.appConfig.domain + Settings.getInstance().config.fileManagement.urlPrefixFolder;
+		String path = url.replaceFirst(urlPrefix, Settings.getInstance().config.fileManagement.uploadPath);
 		return path;
 	}
 	

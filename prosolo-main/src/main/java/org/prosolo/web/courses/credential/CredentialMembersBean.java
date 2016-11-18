@@ -259,6 +259,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		return false;
 	}
 	
+	public boolean areInstructorAndStudentSameUser(InstructorData id) {
+		return id.getUser().getId() == studentToAssignInstructor.getUser().getId();
+	}
+	
 	public boolean doesStudentHaveInstructorAssigned() {
 		return studentToAssignInstructor.getInstructor() != null;
 	}
@@ -306,6 +310,11 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	@Override
 	public boolean isResultSetEmpty() {
 		return credentialMembersNumber == 0;
+	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
 	}
 	
 //	public void setSortByStudentName() {

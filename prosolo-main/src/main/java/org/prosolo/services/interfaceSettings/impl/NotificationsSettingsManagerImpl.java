@@ -46,33 +46,30 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	public UserNotificationsSettings getOrCreateNotificationsSettings(long userId, Session session) 
 		throws DbConnectionException {
 		try {
-			UserNotificationsSettings result = getNotificationsSettings(userId);
+			UserNotificationsSettings result = getNotificationsSettings(userId, session);
 			
 			if (result != null) {
 				return result;
 			} else {
-			//	Transaction t = session.beginTransaction();
 				User user = (User) session.load(User.class, userId);
 				UserNotificationsSettings notificationsSettings = new UserNotificationsSettings();
 				notificationsSettings.setUser(user);
 				notificationsSettings.setNotifications(getDefaultSubscribedEventTypes());
-				session.saveOrUpdate(notificationsSettings);
-			//	t.commit();
 				
+				session.saveOrUpdate(notificationsSettings);
 				session.flush();
 				
 				return notificationsSettings;
 			}
-		} catch(ConstraintViolationException e) {
-			//e.printStackTrace();
+		} catch (ConstraintViolationException e) {
 			session.clear();
 			try {
-				return getNotificationsSettings(userId);
-			} catch(Exception ex) {
+				return getNotificationsSettings(userId, session);
+			} catch (Exception ex) {
 				ex.printStackTrace();
 				throw new DbConnectionException("Error while retrieving notification settings");
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving notification settings");
@@ -81,15 +78,62 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 	
 	@Override
 	@Transactional
-	public UserNotificationsSettings getNotificationsSettings(long userId) {
+	public UserNotificationsSettings getNotificationsSettings(long userId, Session session) {
 		String query =
 			"SELECT settings " + 
 			"FROM UserNotificationsSettings settings " + 
 				"LEFT JOIN settings.user user " + 
 			"WHERE user.id = :userId";
 		
-		UserNotificationsSettings result = (UserNotificationsSettings) persistence.currentManager().createQuery(query)
+		UserNotificationsSettings result = (UserNotificationsSettings) session.createQuery(query)
 				.setLong("userId", userId)
+				.uniqueResult();
+		return result;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public NotificationSettings getOrCreateNotificationSettings(long userId, NotificationType type, Session session) 
+		throws DbConnectionException {
+		try {
+			NotificationSettings settings = getEmailNotificationsSettings(userId, type);
+			
+			if (settings != null) {
+				return settings;
+			} else {
+				UserNotificationsSettings userNotificationsSettings = getOrCreateNotificationsSettings(userId, session);
+				List<NotificationSettings> notifications = userNotificationsSettings.getNotifications();
+				if(notifications != null) {
+					for(NotificationSettings ns : userNotificationsSettings.getNotifications()) {
+						if(ns.getType() == type) {
+							return ns;
+						}
+					}
+				}
+				
+				return null;
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving notification settings");
+		}
+	}
+	
+	@Override
+	@Transactional
+	public NotificationSettings getEmailNotificationsSettings(long userId, NotificationType type) {
+		String query =
+				"SELECT notifications " + 
+				"FROM UserNotificationsSettings settings " + 
+				"LEFT JOIN settings.notifications notifications " + 
+				"LEFT JOIN settings.user user " + 
+				"WHERE user.id = :userId " +
+					"AND notifications.type = :type";
+		
+		NotificationSettings result = (NotificationSettings) persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.setString("type", type.name())
 				.uniqueResult();
 		return result;
 	}
@@ -121,6 +165,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 		notificationTypes.add(new NotificationSettings(NotificationType.Assessment_Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Comment_Like, true));
+		notificationTypes.add(new NotificationSettings(NotificationType.Social_Activity_Like, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.Mention, true));
 		notificationTypes.add(new NotificationSettings(NotificationType.AnnouncementPublished, true));
 		

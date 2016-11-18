@@ -9,7 +9,7 @@ public class CommentNotificationEmailGenerator extends NotificationEmailGenerato
 	
 	@Override
 	public String getSubject() {
-		return "There is a new comment on ProSolo";
+		return "There is a new comment for you";
 	}
 
 	public CommentNotificationEmailGenerator(String name, String actor, String predicate, String objectTitle,

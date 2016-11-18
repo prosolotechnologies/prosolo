@@ -24,6 +24,9 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSString;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -50,8 +53,36 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 	@Override
 	public Object loadUserBySAML(SAMLCredential credential)
 			throws UsernameNotFoundException {
+
 		try {
-			String email = credential.getNameID().getValue();
+			//Gson g=new Gson();
+			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
+			List<Attribute> attributes=credential.getAttributes();
+			System.out.println("ATTRIBUTES FOUND:"+attributes.size());
+			//System.out.println("ADDITIONAL DATA FOUND:"+credential.getAdditionalData().toString());
+			//System.out.println("ADD:"+g.toJson(credential.getAdditionalData()));
+			for(Attribute attribute: attributes){
+				logger.info("SAML attribute:"+attribute.getName()+" friendly name:"+attribute.getFriendlyName());
+				//logger.info("ATTR:"+g.toJson(attribute));
+				for(XMLObject value: attribute.getAttributeValues()){
+					logger.info("has value:"+((XSString)value).getValue());
+					//logger.info("ATTR:"+g.toJson(value));
+
+				}
+			}
+			//String email = credential.getNameID().getValue();
+			//String email = credential.getAttributeAsString("email");
+			//String eduPersonPrincipalName=credential.getAttributeAsString("eduPersonPrincipalName");
+			String email=credential.getAttributeAsString("urn:oid:0.9.2342.19200300.100.1.3");//should be email attribute
+			if(email==null || email.length()<5){
+				//dirty hack as temporary solution since UTA is not providing emails for test accounts as email attribute, but as eduPersonPrincipalName
+				email=credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
+				logger.info("Email is returned as eduPersonPrincipalName:"+email);
+			}
+
+			String firstname = credential.getAttributeAsString("urn:oid:2.5.4.42");
+			String lastname = credential.getAttributeAsString("urn:oid:2.5.4.4");
+			logger.info("SAML RETURNED:email:"+email+" firstname:"+firstname+" lastname:"+lastname+" nameID:"+credential.getNameID().getValue());
 			try {
 				//try to log in as regular user
 				return userDetailsService.loadUserByUsername(email);
@@ -60,12 +91,13 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				Role role = roleManager.getRoleByName("User");
 				List<Long> roles = new ArrayList<>();
 				roles.add(role.getId());
-				String firstname = credential.getAttributeAsString("firstName");
-				String lastname = credential.getAttributeAsString("lastName");
+				//String firstname = credential.getAttributeAsString("givenName");
+				//String lastname = credential.getAttributeAsString("sn");
 				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
 				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
-				
-				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(fName, 
+
+
+				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(fName,
 						lName, email, true, UUID.randomUUID().toString(), null, null, null, roles);
 				
 				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");

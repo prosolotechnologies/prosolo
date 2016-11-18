@@ -42,11 +42,13 @@ public class CompetenceViewBeanUser implements Serializable {
 	private String compId;
 	private long decodedCompId;
 	private String mode;
+	private String commentId;
 	
 	private CompetenceData1 competenceData;
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
+	private boolean mandatoryOrder;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -79,17 +81,19 @@ public class CompetenceViewBeanUser implements Serializable {
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Competence, 
 							competenceData.getCompetenceId(), false);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 					
 					if(decodedCredId > 0) {
 						String credTitle = null;
 						if(competenceData.isEnrolled()) {
 							CredentialData cd = credManager
-									.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
+									.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
 											loggedUser.getUserId());
 							if(cd != null) {
 								credTitle = cd.getTitle();
 								nextCompToLearn = cd.getNextCompetenceToLearnId();
+								mandatoryOrder = cd.isMandatoryFlow();
 							}
 //							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
 //									loggedUser.getUser().getId());
@@ -204,6 +208,22 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void setCommentsData(CommentsData commentsData) {
 		this.commentsData = commentsData;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
+	}
+
+	public boolean isMandatoryOrder() {
+		return mandatoryOrder;
+	}
+
+	public void setMandatoryOrder(boolean mandatoryOrder) {
+		this.mandatoryOrder = mandatoryOrder;
 	}
 
 }

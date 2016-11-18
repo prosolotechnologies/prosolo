@@ -999,48 +999,65 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
+    public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data, 
     		long userId) throws DbConnectionException {
     	try {
-    		Result<Activity1> res = new Result<>();
-    		Activity1 act = activityFactory.getActivityFromActivityData(activityData);
-    		if(activityData.getLinks() != null) {
+    		Result<Activity1> result = new Result<>();
+    		Activity1 activity = activityFactory.getActivityFromActivityData(data);
+			
+    		if (data.getLinks() != null) {
     			Set<ResourceLink> activityLinks = new HashSet<>();
-    			for(ResourceLinkData rl : activityData.getLinks()) {
+    			
+				for (ResourceLinkData rl : data.getLinks()) {
     				ResourceLink link = new ResourceLink();
     				link.setLinkName(rl.getLinkName());
     				link.setUrl(rl.getUrl());
+    				if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+    					link.setIdParameterName(rl.getIdParamName());
+    				}
     				saveEntity(link);
     				activityLinks.add(link);
     			}
-    			act.setLinks(activityLinks);
+    			activity.setLinks(activityLinks);
     		}
     		
     		Set<ResourceLink> activityFiles = new HashSet<>();
-    		if(activityData.getFiles() != null) {		
-    			for(ResourceLinkData rl : activityData.getFiles()) {
+    		
+			if (data.getFiles() != null) {
+				for (ResourceLinkData rl : data.getFiles()) {
     				ResourceLink link = new ResourceLink();
     				link.setLinkName(rl.getLinkName());
     				link.setUrl(rl.getUrl());
     				saveEntity(link);
     				activityFiles.add(link);
     			}
-    			act.setFiles(activityFiles);
+    			activity.setFiles(activityFiles);
     		}
    
     		User creator = (User) persistence.currentManager().load(User.class, userId);
-    		act.setCreatedBy(creator);
-    		saveEntity(act);
+    		activity.setCreatedBy(creator);
     		
-    		if(activityData.getCompetenceId() > 0) {
-				EventData ev = competenceManager.addActivityToCompetence(activityData.getCompetenceId(), 
-						act, userId);
+    		//GradingOptions go = new GradingOptions();
+    		//go.setMinGrade(0);
+    		//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+    		//saveEntity(go);
+    		//activity.setGradingOptions(go);
+    		activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+    		
+    		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
+    		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
+    		
+    		saveEntity(activity);
+    		
+    		if(data.getCompetenceId() > 0) {
+				EventData ev = competenceManager.addActivityToCompetence(data.getCompetenceId(), 
+						activity, userId);
 				if(ev != null) {
-		    		 res.addEvent(ev);
+		    		 result.addEvent(ev);
 		    	}
 			}
-    		res.setResult(act);
-    		return res;
+    		result.setResult(activity);
+    		return result;
     	} catch(Exception e) {
     		logger.error(e);
     		e.printStackTrace();

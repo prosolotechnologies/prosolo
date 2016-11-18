@@ -36,6 +36,7 @@ import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
@@ -46,6 +47,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "loggeduser")
@@ -70,6 +72,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Inject
 	private LoggingService loggingService;
+	@Inject
+	private UrlIdEncoder idEncoder;
 	@Inject
 	private UserSessionDataLoader sessionDataLoader;
 
@@ -110,6 +114,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
+			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
@@ -130,10 +135,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (user != null) {
 //			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(user.getAvatarUrl());
+			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
@@ -320,6 +326,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return false;
 	}
 	
+	private Authentication getAuthenticationObject() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null) {
+			return null;
+		}
+
+		return context.getAuthentication();
+	}
+	
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
@@ -327,7 +342,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+			Authentication auth = getAuthenticationObject();
+			if(auth != null) {
+				if(auth.getCredentials() instanceof SAMLCredential) {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+				} else {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+				}
+			}
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -413,6 +435,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
+	public String switchRole(String rolename){
+		getSessionData().setSelectedRole(rolename);
+		String navigateTo="/index";
+		if(rolename.equalsIgnoreCase("manager")){
+			navigateTo= "/manage/credentialLibrary";
+		}else if (rolename.equalsIgnoreCase("admin")){
+			navigateTo= "/admin/users";
+		}
+		return navigateTo;
+ 	}
 
 //	public LearningGoalFilter getSelectedLearningGoalFilter() {
 //		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();

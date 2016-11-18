@@ -2,6 +2,7 @@ package org.prosolo.web;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.servlet.http.HttpSession;
 
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.Config;
@@ -155,14 +157,24 @@ public class ApplicationBean implements Serializable {
 	public Config getConfig() {
 		return Settings.getInstance().config;
 	}
-	public String getServerIp(){
-		if(serverIP==null){
-			this.serverIP=accessResolver.findServerIPAddress();
+	
+	public org.prosolo.common.config.Config getCommonConfig() {
+		return CommonSettings.getInstance().config;
+	}
+	
+	public String getServerIp() {
+		if (serverIP == null) {
+			this.serverIP = accessResolver.findServerIPAddress();
 		}
 		return serverIP;
 	}
+	
 	public String getDomain(){
-		return Settings.getInstance().config.application.domain;
+		return CommonSettings.getInstance().config.appConfig.domain;
+	}
+	
+	public String getYear() {
+		return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 	}
 
 	public long getLoginTime() {

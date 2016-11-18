@@ -28,14 +28,14 @@ object SNAclusterManager{
 
 val edgesToRemove=2
   //val moocCourses:Array[Long]=Array(1,32768,32769,32770,65536,98304,98305,98306,131072,131073,131074)
-   val allCourses:Array[Long]=Array(1)
+  // val allCourses:Array[Long]=Array(1)
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
 
   println("INITIALIZED SNA CLUSTER MANAGER")
 
 
 
-  def identifyFakeClusters(): Unit ={
+ /* def identifyFakeClusters(): Unit ={
     val timestamp=System.currentTimeMillis()
    // val allCourses=clusteringDAOManager.getAllCoursesIds
     allCourses.foreach(courseid=> {
@@ -43,7 +43,7 @@ val edgesToRemove=2
       identifyClustersInCredential(timestamp,courseid)
       updateTimestamp(timestamp)
     })
-  }
+  }*/
 //  identifyFakeClusters()
 def identifyClusters(): Unit ={
   val timestamp=System.currentTimeMillis()

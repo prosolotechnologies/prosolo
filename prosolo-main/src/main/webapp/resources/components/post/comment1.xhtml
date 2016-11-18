@@ -127,7 +127,7 @@
 
 				<c:if test="#{cc.attrs.isTopLevel}">
 				
-				    <h:panelGroup id="panelChildComments" styleClass="#{cc.attrs.isTopLevel ? 'topLevelCommentChildren_'.concat(comment.commentId) : ''}">
+				    <h:panelGroup layout="block" id="panelChildComments" styleClass="#{cc.attrs.isTopLevel ? 'topLevelCommentChildren_'.concat(comment.commentId) : ''} repliesWrapper">
 					    <ui:fragment rendered="#{cc.attrs.isTopLevel}">
 						    <ui:fragment rendered="#{comment.numberOfReplies > 0 and empty comment.childComments}">
 						    	<p:commandLink 
@@ -137,20 +137,18 @@
 						    		View #{comment.numberOfReplies} replies
 						    	</p:commandLink>
 							</ui:fragment>
-							<div class="repliesWrapper">
-						    	<ui:repeat var="child" value="#{comment.childComments}">
-									<div class="media" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
-										<post:comment1
-											id="childComment"
-											comments="#{cc.attrs.comments}"
-											comment="#{child}"
-											newestCommentId="#{cc.attrs.newestCommentId}"
-											isTopLevel="false"
-											toUpdate="#{cc.attrs.toUpdate}"
-											learningContext="#{cc.attrs.learningContext}"/>
-									</div>
-								</ui:repeat>
-							</div>
+					    	<ui:repeat var="child" value="#{comment.childComments}">
+								<div class="media" data-newest-comment="#{cc.attrs.comments.newestCommentId == child.commentId ? 'true': 'false'}">
+									<post:comment1
+										id="childComment"
+										comments="#{cc.attrs.comments}"
+										comment="#{child}"
+										newestCommentId="#{cc.attrs.newestCommentId}"
+										isTopLevel="false"
+										toUpdate="#{cc.attrs.toUpdate}"
+										learningContext="#{cc.attrs.learningContext}"/>
+								</div>
+							</ui:repeat>
 						</ui:fragment>
 				    </h:panelGroup>
 					

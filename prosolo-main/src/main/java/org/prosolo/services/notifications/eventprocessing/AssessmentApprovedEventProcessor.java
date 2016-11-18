@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -49,8 +49,8 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 	}
 
 	@Override
-	ObjectType getObjectType() {
-		return ObjectType.CredentialAssessment;
+	ResourceType getObjectType() {
+		return ResourceType.CredentialAssessment;
 	}
 
 	@Override

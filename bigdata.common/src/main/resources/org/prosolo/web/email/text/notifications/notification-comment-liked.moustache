@@ -1,8 +1,9 @@
 Hi {{name}},
 
-{{actor}} {{predicate}}</strong> on a {{targetType}} {{targetTitle}}.
+{{actor}} {{predicate}} on a {{targetType}} {{targetTitle}}.
 
 View conversation at {{link}}.
 
 
 ProSolo Team
+{{supportEmail}}

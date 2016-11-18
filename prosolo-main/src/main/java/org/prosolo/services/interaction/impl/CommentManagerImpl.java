@@ -15,12 +15,13 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
@@ -54,8 +55,14 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	@Transactional(readOnly = true)
 	public List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
 			CommentSortData commentSortData, long userId) throws DbConnectionException {
-		return getComments(resourceType, resourceId, false, 0, commentSortData, 
+		return getAllComments(resourceType, resourceId, commentSortData, 
 				CommentReplyFetchMode.FetchReplies, userId);
+	}
+	
+	private List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
+			CommentSortData commentSortData, CommentReplyFetchMode replyFetchMode, long userId) {
+		return getComments(resourceType, resourceId, false, 0, commentSortData, 
+				replyFetchMode, userId);
 	}
 	
 	@Override
@@ -305,6 +312,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				case SocialActivity:
 					target = new SocialActivity1();
 					break;
+				case ActivityResult:
+					target = new TargetActivity1();
+					break;
 			}
 			target.setId(data.getCommentedResourceId());
 			
@@ -379,18 +389,36 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	public Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException {
 		try {
-			//TODO when comments are implemented for socialactivity this method should be changed
-			//because socialactivity maybe won't have createdBy relationship
-			String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
-			String query = "SELECT res." + creatorFieldName + ".id FROM " + resourceType.getDbTableName() + " res " +
-						   "WHERE res.id = :resId";
-			
-			Long id = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("resId", resourceId)
-					.uniqueResult();
-
-			return id;
+			switch (resourceType) {
+			case ActivityResult:
+				String query = 
+				"SELECT user.id " + 
+				"FROM TargetActivity1 targetActivity " +
+				"LEFT JOIN targetActivity.targetCompetence targetCompetence " +
+				"LEFT JOIN targetCompetence.targetCredential targetCredential " +
+				"LEFT JOIN targetCredential.user user " +
+				"WHERE targetActivity.id = :targetActivityId";
+		
+				Long id = (Long) persistence.currentManager()
+						.createQuery(query)
+						.setLong("targetActivityId", resourceId)
+						.uniqueResult();
+				return id;
+			default:
+				//TODO when comments are implemented for socialactivity this method should be changed
+				//because socialactivity maybe won't have createdBy relationship
+				String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
+				String query1 = 
+						"SELECT res." + creatorFieldName + ".id " + 
+						"FROM " + resourceType.getDbTableName() + " res " +
+						"WHERE res.id = :resId";
+				
+				Long id1 = (Long) persistence.currentManager()
+						.createQuery(query1)
+						.setLong("resId", resourceId)
+						.uniqueResult();
+				return id1;
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -405,9 +433,89 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				return "createdBy";
 			case SocialActivity:
 				return "actor";
+			case ActivityResult:
+				return "createdBy";
 			default:
 				return null;
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getCommentsNumber(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(comment.id) FROM Comment1 comment " +
+					   	   "WHERE comment.resourceType = :resType " +
+					   	   "AND comment.commentedResourceId = :resourceId " +
+					   	   "AND comment.parentComment is NULL ";
+			
+			Long res = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setParameter("resType", resourceType)
+					.setLong("resourceId", resourceId)
+					.uniqueResult();
+			
+			if(res == null) {
+				return 0;
+			}
+	
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of comments");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
+			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
+			long commentId, long userId) throws DbConnectionException {
+		try {
+			List<CommentData> comments = getAllComments(resourceType, resourceId, commentSortData, 
+					CommentReplyFetchMode.FetchNumberOfReplies, userId);
+			long parentCommentId = getParentCommentId(commentId, resourceType, resourceId);
+	
+			for(CommentData comment : comments) {
+				if(comment.getCommentId() == parentCommentId) {
+					comment.setChildComments(getAllCommentReplies(comment, commentSortData, userId));
+					break;
+				}
+			}
+			return comments;
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading comments");
+		}
+	}
+	
+	/**
+	 * returns id of a parent comment and 0 if it is first level comment
+	 * @param commentId
+	 */
+	private long getParentCommentId(long commentId, CommentedResourceType resourceType, long resourceId) {
+		String query = "SELECT parent.id " +
+					   "FROM Comment1 com " +
+					   "LEFT JOIN com.parentComment parent " +
+					   "WHERE com.id = :id " +
+					   "AND com.resourceType = :resType " +
+					   "AND com.commentedResourceId = :resourceId ";
+		
+		Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("id", commentId)
+				.setParameter("resType", resourceType)
+				.setLong("resourceId", resourceId)
+				.uniqueResult();
+		
+		if(res == null) {
+			return 0;
+		}
+		return res.longValue();
 	}
 	
 }

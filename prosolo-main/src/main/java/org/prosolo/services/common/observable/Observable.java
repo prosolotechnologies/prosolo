@@ -39,7 +39,7 @@ public abstract class Observable {
 			Comparable<T> compareFunction);
 	
 	/**
-	 * Returns true if attibute changes are being tracked
+	 * Returns true if attribute changes are being tracked
 	 */
 	abstract boolean shouldObserveChanges();
 	

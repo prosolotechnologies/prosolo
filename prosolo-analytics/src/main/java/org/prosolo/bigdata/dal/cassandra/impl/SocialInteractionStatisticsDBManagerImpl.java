@@ -53,7 +53,7 @@ public class SocialInteractionStatisticsDBManagerImpl extends SimpleCassandraCli
 
 		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPE,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT+" WHERE course=? ALLOW FILTERING;");
 		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYTYPEOVERVIEW,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW+" WHERE course=? AND student=? ALLOW FILTERING;");
-		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+"WHERE course=? AND student=? ALLOW FILTERING;");
+		statements.put(SocialInteractionsStatements.SELECT_INTERACTIONSBYPEERSOVERVIEW,"SELECT * FROM "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+" WHERE course=? AND student=? ALLOW FILTERING;");
 
 		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_PEER, "INSERT INTO "+TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW+"(course, student, interactions) VALUES(?,?,?); ");
 		statements.put(SocialInteractionsStatements.INSERT_STUDENT_INTERACTIONS_BY_TYPE, "INSERT INTO "+TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_OVERVIEW+"(course, student, interactions) VALUES(?,?,?); ");

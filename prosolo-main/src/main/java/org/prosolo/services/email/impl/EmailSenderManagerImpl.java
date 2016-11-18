@@ -13,7 +13,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.app.ResetKey;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
@@ -47,7 +47,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 		resetKey.setUid(UUID.randomUUID().toString().replace("-", ""));
 		saveEntity(resetKey);
 		
-		String serverAddress = Settings.getInstance().config.application.domain + "recovery";
+		String serverAddress = CommonSettings.getInstance().config.appConfig.domain + "recovery";
 		String resetAddress = serverAddress+"?key="+resetKey.getUid();
 		
 		AccountCreatedEmailGenerator contentGenerator = new AccountCreatedEmailGenerator(user.getName(), resetAddress);
@@ -68,7 +68,7 @@ public class EmailSenderManagerImpl extends AbstractManagerImpl implements Email
 	
 	@Override
 	public boolean sendEmailVerificationEmailForNewUser(User user) throws FileNotFoundException, IOException{
-		String serverAddress = Settings.getInstance().config.application.domain + "verify";
+		String serverAddress = CommonSettings.getInstance().config.appConfig.domain + "verify";
 		String verificationAddress = serverAddress + "?key=" + user.getVerificationKey();
 		///String fakeEmail="prosolo.2013@gmail.com"; 
 		EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator(user.getName(), verificationAddress);

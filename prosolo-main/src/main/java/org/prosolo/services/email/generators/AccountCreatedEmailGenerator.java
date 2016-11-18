@@ -11,7 +11,7 @@ public class AccountCreatedEmailGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getSubject() {
-		return "An account has been created for you on ProSolo";
+		return "An account has been created for you";
 	}
 	
 	private String name;

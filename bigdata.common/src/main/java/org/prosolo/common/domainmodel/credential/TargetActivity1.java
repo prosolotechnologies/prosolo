@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,18 +31,36 @@ public class TargetActivity1 extends BaseEntity {
 	private long duration;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	private ActivityResultType resultType;
+	@Deprecated
 	private boolean uploadAssignment;
 	private Date dateCompleted;
 	//is activity added by student
 	private boolean added;
 	
+	//common score for all activity assessments
+	private int commonScore;
+	
 	//uploaded file
+	/**
+	 * @deprecated since v0.5
+	 */
+	@Deprecated
 	private String assignmentLink;
+	/**
+	 * @deprecated since v0.5
+	 */
+	@Deprecated
 	private String assignmentTitle;
+	
+	//activity result - uploaded file link or textual response
+	private String result;
+	private Date resultPostDate;
 	
 	private long timeSpent;
 	
 	private User createdBy;
+	private LearningResourceType learningResourceType;
 	
 	public TargetActivity1() {
 		
@@ -165,6 +185,49 @@ public class TargetActivity1 extends BaseEntity {
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
+	}
+	
+	@Column(length = 90000)
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
+
+	public Date getResultPostDate() {
+		return resultPostDate;
+	}
+
+	public void setResultPostDate(Date resultPostDate) {
+		this.resultPostDate = resultPostDate;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public LearningResourceType getLearningResourceType() {
+		return learningResourceType;
+	}
+
+	public void setLearningResourceType(LearningResourceType learningResourceType) {
+		this.learningResourceType = learningResourceType;
+	}
+
+	public int getCommonScore() {
+		return commonScore;
+	}
+
+	public void setCommonScore(int commonScore) {
+		this.commonScore = commonScore;
 	}
 	
 }

@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.user.notifications.Notification;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationAction;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.AbstractManager;
@@ -45,7 +45,7 @@ public interface NotificationManager extends AbstractManager {
 	
 	Notification1 createNotification(long actorId, 
 			long receiverId, NotificationType type, Date date, 
-			long objectId, ObjectType objectType, String link,
+			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
 			boolean notifyByEmail, Session session) throws DbConnectionException;
 	
 	/**
@@ -72,7 +72,7 @@ public interface NotificationManager extends AbstractManager {
 			Session session, Locale locale) throws DbConnectionException;
 	
 	boolean sendNotificationByEmail(String email, String receiverName, String actor, 
-			String predicate, long objectId, ObjectType objectType, String objectTitle, String link, String date, NotificationType notificationType);
+			String predicate, long objectId, ResourceType objectType, String objectTitle, String link, String date, NotificationType notificationType, Session session);
 	
 	int getNumberOfNotificationsForUser(long userId, List<NotificationType> types) 
 			throws DbConnectionException;

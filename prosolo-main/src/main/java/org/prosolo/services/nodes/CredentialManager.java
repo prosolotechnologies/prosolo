@@ -170,7 +170,7 @@ public interface CredentialManager extends AbstractManager {
 	List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException;
 	
-	 List<Tag> getCredentialHashtags(long credentialId, Session session) 
+	List<Tag> getCredentialHashtags(long credentialId, Session session) 
 				throws DbConnectionException;
 
 	List<CredentialBookmark> getBookmarkedByIds(long id) throws DbConnectionException;
@@ -304,7 +304,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException;
 
-	List<Long> getTargetCredentialIdsForInstructor(long instructorId) throws DbConnectionException;
+	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
 	
@@ -321,10 +321,10 @@ public interface CredentialManager extends AbstractManager {
 	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
 			throws DbConnectionException;
 	
-	CredentialData getTargetCredentialTitleAndNextCompAndActivityToLearn(long credId, long userId) 
+	CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
 			throws DbConnectionException;
 
-	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit) 
+	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
 	
 	void updateTargetCredentialLastAction(long userId, long credentialId) 

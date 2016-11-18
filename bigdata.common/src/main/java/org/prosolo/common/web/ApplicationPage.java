@@ -61,7 +61,9 @@ public enum ApplicationPage {
 	USER_EDIT_CREDENTIAL("/create-credential.xhtml"),
 	USER__EDIT_COMPETENCE("/create-competence.xhtml"),
 	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
-	PEOPLE("/people.xhtml");
+	PEOPLE("/people.xhtml"),
+	RESULTS("/activity-results.xhtml"),
+	MANAGER_RESULTS("/manage/activity-results.xhtml");
 	
     private String uri; 
     

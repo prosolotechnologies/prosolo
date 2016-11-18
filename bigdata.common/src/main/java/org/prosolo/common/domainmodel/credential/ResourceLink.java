@@ -12,6 +12,11 @@ public class ResourceLink extends BaseEntity {
 	private String linkName;
 	private String url;
 	
+	/*
+	 * Name of a parameter that user id should be attached to. If it is null or empty, it should not be used.
+	 */
+	private String idParameterName;
+	
 	public ResourceLink() {
 		
 	}
@@ -30,6 +35,14 @@ public class ResourceLink extends BaseEntity {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getIdParameterName() {
+		return idParameterName;
+	}
+
+	public void setIdParameterName(String idParameterName) {
+		this.idParameterName = idParameterName;
 	}
 
 }

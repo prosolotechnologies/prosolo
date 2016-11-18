@@ -28,7 +28,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
@@ -181,7 +181,7 @@ public class SocialActivityDataFactory {
 			//post reshare
 			sad.setType(SocialActivityType.Post_Reshare);
 			obj = objectFactory.getObjectData(postObjectId.longValue(), null, 
-					ObjectType.PostSocialActivity, postObjectActorId.longValue(), postObjectActorName, 
+					ResourceType.PostSocialActivity, postObjectActorId.longValue(), postObjectActorName, 
 					postObjectActorLastName, locale);
 			SocialActivityData1 originalPost = new SocialActivityData1();
 			originalPost.setId(postObjectId.longValue());
@@ -209,7 +209,7 @@ public class SocialActivityDataFactory {
 			//credential enroll
 			sad.setType(SocialActivityType.Enroll_Credential);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Credential, 0, null, null, locale);
+					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(credObjectId.longValue(), 
 					credObjectDuration.longValue(), credObjectTitle, credObjectDescription, 
 					LearningResourceType.valueOf(credObjectType), credObjectActorName, 
@@ -218,7 +218,7 @@ public class SocialActivityDataFactory {
 			//credential complete
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Credential, 0, null, null, locale);
+					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(credObjectId.longValue(), 
 					credObjectDuration.longValue(), credObjectTitle, credObjectDescription, 
 					LearningResourceType.valueOf(credObjectType), credObjectActorName, 
@@ -228,7 +228,7 @@ public class SocialActivityDataFactory {
 			//competence complete
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Competence, 0, null, null, locale);
+					ResourceType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCompetence(compObjectId.longValue(), 
 					compObjectDuration.longValue(), compObjectTitle, compObjectDescription, 
 					LearningResourceType.valueOf(compObjectType), compObjectActorName, 
@@ -237,18 +237,18 @@ public class SocialActivityDataFactory {
 			//competence comment
 			sad.setType(SocialActivityType.Comment);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Comment, 0, null, null, locale);
+					ResourceType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
-					ObjectType.Competence, 0, null, null, locale);
+					ResourceType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
 					target.getType(), compTargetTitle, commentObjectComment, compTargetId.longValue(), 0, null);
 		} else if(dType.equals(ActivityCommentSocialActivity.class.getSimpleName())) {
 			//activity comment
 			sad.setType(SocialActivityType.Comment);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Comment, 0, null, null, locale);
+					ResourceType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
-					ObjectType.Activity, 0, null, null, locale);
+					ResourceType.Activity, 0, null, null, locale);
 			ActivityType actType = activityFactory.getActivityType(actTargetDType, actTargetUrlType);
 			ap = richContentFactory.getAttachmentPreviewForComment(commentObjectId.longValue(), 
 					target.getType(), actTargetTitle, commentObjectComment, actTargetCompId.longValue(), 
@@ -257,7 +257,7 @@ public class SocialActivityDataFactory {
 			//activity complete
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Activity, 0, null, null, locale);
+					ResourceType.Activity, 0, null, null, locale);
 			
 			ActivityType actType = activityFactory.getActivityType(actObjectDType, actObjectUrlType);
 			ap = richContentFactory.getAttachmentPreviewForActivity(actObjectId.longValue(), 
@@ -328,7 +328,7 @@ public class SocialActivityDataFactory {
 			sad.setType(SocialActivityType.Post_Reshare);
 
 			obj = objectFactory.getObjectData(psa.getId(), null, 
-					ObjectType.PostSocialActivity, psa.getActor().getId(), psa.getActor().getName(), 
+					ResourceType.PostSocialActivity, psa.getActor().getId(), psa.getActor().getName(), 
 					psa.getActor().getLastname(), locale);
 			
 			SocialActivityData1 originalPost = new SocialActivityData1();
@@ -347,7 +347,7 @@ public class SocialActivityDataFactory {
 			Credential1 cred = ceAct.getCredentialObject();
 			sad.setType(SocialActivityType.Enroll_Credential);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Credential, 0, null, null, locale);
+					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(cred.getId(), 
 					cred.getDuration(), cred.getTitle(), cred.getDescription(), 
 					cred.getType(), cred.getCreatedBy().getName(), 
@@ -358,7 +358,7 @@ public class SocialActivityDataFactory {
 			Credential1 cred = ccAct.getCredentialObject();
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Credential, 0, null, null, locale);
+					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(cred.getId(), 
 					cred.getDuration(), cred.getTitle(), cred.getDescription(), 
 					cred.getType(), cred.getCreatedBy().getName(), 
@@ -370,7 +370,7 @@ public class SocialActivityDataFactory {
 			Competence1 comp = tComp.getCompetence();
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Competence, 0, null, null, locale);
+					ResourceType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCompetence(comp.getId(), 
 					comp.getDuration(), comp.getTitle(), comp.getDescription(), 
 					comp.getType(), comp.getCreatedBy().getName(), 
@@ -382,9 +382,9 @@ public class SocialActivityDataFactory {
 			Competence1 comp = ccAct.getCompetenceTarget();
 			sad.setType(SocialActivityType.Comment);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Comment, 0, null, null, locale);
+					ResourceType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
-					ObjectType.Competence, 0, null, null, locale);
+					ResourceType.Competence, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
 					target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0, null);
 		} else if(act instanceof ActivityCommentSocialActivity) {
@@ -394,9 +394,9 @@ public class SocialActivityDataFactory {
 			Activity1 activity = acAct.getActivityTarget();
 			sad.setType(SocialActivityType.Comment);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Comment, 0, null, null, locale);
+					ResourceType.Comment, 0, null, null, locale);
 			target = objectFactory.getObjectData(0, null, 
-					ObjectType.Activity, 0, null, null, locale);
+					ResourceType.Activity, 0, null, null, locale);
 			ActivityType actType = activityFactory.getActivityType(activity);
 			//TODO pass competenceId when you find the way to retrieve it
 			ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(), 
@@ -409,7 +409,7 @@ public class SocialActivityDataFactory {
 			Activity1 activity = tAct.getActivity();
 			sad.setType(SocialActivityType.Learning_Completion);
 			obj = objectFactory.getObjectData(0, null, 
-					ObjectType.Activity, 0, null, null, locale);
+					ResourceType.Activity, 0, null, null, locale);
 			
 			ActivityType actType = activityFactory.getActivityType(activity);
 			ap = richContentFactory.getAttachmentPreviewForActivity(activity.getId(), 

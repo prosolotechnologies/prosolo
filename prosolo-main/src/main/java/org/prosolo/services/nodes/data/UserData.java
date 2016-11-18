@@ -22,7 +22,7 @@ public class UserData implements Serializable {
 	public UserData(User user) {
 		this.id = user.getId();
 		setFullName(user.getName(), user.getLastname());
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 		this.position = user.getPosition();
 		this.email = user.getEmail();
 	}
@@ -38,7 +38,7 @@ public class UserData implements Serializable {
 		this.fullName = fullName;
 		String readyAvatar = avatar;
 		if(avatar != null && !isAvatarReady) {
-			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size120x120);
 		}
 		this.avatarUrl = readyAvatar;
 		this.position = position;

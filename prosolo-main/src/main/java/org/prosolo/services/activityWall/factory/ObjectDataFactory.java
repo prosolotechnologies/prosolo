@@ -2,7 +2,7 @@ package org.prosolo.services.activityWall.factory;
 
 import java.util.Locale;
 
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectDataFactory {
 
-	public ObjectData getObjectData(long id, String title, ObjectType type, long userId, String firstName, 
+	public ObjectData getObjectData(long id, String title, ResourceType type, long userId, String firstName, 
 			String lastName, Locale locale) {
 		ObjectData obj = new ObjectData();
 		obj.setId(id);
@@ -25,7 +25,7 @@ public class ObjectDataFactory {
 		return obj;
 	}
 	
-	public ObjectData getObjectData(long id, String title, ObjectType type, long userId, String fullName, 
+	public ObjectData getObjectData(long id, String title, ResourceType type, long userId, String fullName, 
 			Locale locale) {
 		ObjectData obj = new ObjectData();
 		obj.setId(id);

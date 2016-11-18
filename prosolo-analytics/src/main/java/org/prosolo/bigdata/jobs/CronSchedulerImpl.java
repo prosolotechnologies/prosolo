@@ -60,6 +60,8 @@ public class CronSchedulerImpl implements CronScheduler {
 	//Set<JobWrapper> jobsList;
 	//List<String> executedJobs;
 
+	int startupJobsCounter=0;
+
 	private CronSchedulerImpl() {
 
 		try {
@@ -306,6 +308,7 @@ if(Settings.getInstance().config.initConfig.formatDB){
 			sched.scheduleJob(trigger);
 		}
 		if (jobConfig.onStartup) {
+			this.startupJobsCounter++;
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
 			JobKey jobKey = jobKey(jobClassName+"_startup", "job");
 			jobBuilder.withIdentity(jobKey);
@@ -316,7 +319,7 @@ if(Settings.getInstance().config.initConfig.formatDB){
 			TriggerBuilder tb = TriggerBuilder.newTrigger();
 			tb.forJob(jobKey);
 			tb.withIdentity(jobClassName+"_startup","job");
-			tb.startAt(DateBuilder.futureDate(120, DateBuilder.IntervalUnit.SECOND));
+			tb.startAt(DateBuilder.futureDate(this.startupJobsCounter*120, DateBuilder.IntervalUnit.SECOND));
 			Trigger trigger=tb.build();
 
 			sched.addJob(jobDetails, true);

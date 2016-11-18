@@ -123,7 +123,7 @@
 			                                            To:
 			                                        </div>
 			                                        <div class="messageModalMetaRight">
-			                                            <img src="#{profile.smallAvatarUrl}" class="img-circle" width="32" height="32" alt="#{profile.studentFullName}" />
+			                                            <img src="#{profile.avatarUrl}" class="img-circle" width="32" height="32" alt="#{profile.studentFullName}" />
 			                                            <h3>#{profile.studentFullName}</h3>
 			                                        </div>
 			                                    </div>
@@ -161,7 +161,10 @@
 	            <h:panelGroup rendered="#{profile.personalProfile}" styleClass="col-md-12" layout="block">
 	                <div class="alert alert-info alert-dismissible" role="alert">
 	                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-	                    You can choose which achievements you want to display on your public profile page <a href="achievements.html">here</a>.
+	                    You can choose which achievements you want to display on your public profile page 
+							<h:link value="here" 
+								onclick="sendLogPageNavigation('achievements','profile.xhtml');"
+								outcome="/achievements/credentials" />.
 	                </div>
 	            </h:panelGroup>
 	            <div class="col-md-12">

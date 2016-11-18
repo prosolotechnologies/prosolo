@@ -1,0 +1,182 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<ui:define name="windowTitle">
+		ProSolo - Activity
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="actId" value="#{activityResultsBeanUser.actId}" default="null" />
+			<f:viewParam name="compId" value="#{activityResultsBeanUser.compId}" default="null"/>
+			<f:viewParam name="credId" value="#{activityResultsBeanUser.credId}" default="null"/>
+			<f:viewAction action="#{activityResultsBeanUser.init()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}</h1>
+    </ui:define>
+    
+	<ui:define name="content">
+	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanUser.decodedCredId}|context:/name:competence|id:#{activityResultsBeanUser.decodedCompId}|context:/name:activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.targetActivityId}|context:/name:RESULTS////"/>
+	<ui:param name="canEdit" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and activityResultsBeanUser.isCurrentUserCreator()}"></ui:param>
+	<p:growl id="growlMain" showDetail="true" globalOnly="true" />
+	
+    <div class="whiteBar">
+        <div class="container">
+            <activities:activityHeaderOptions
+				bean="#{activityResultsBeanUser}"
+				activity="#{activityResultsBeanUser.competenceData.activityToShowWithDetails}"
+				learningContext="#{learningContext}"
+				canEdit="#{canEdit}"
+				isPreview="false"
+				toUpdateOnActivityComplete=":panelCompProgress"
+			/>
+        </div>
+    </div>
+
+    <div class="container">
+    	<ol class="breadcrumb">
+            <li>
+            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanUser.competenceData.credentialTitle}"
+            		outcome="/credential"
+            		onclick="sendLogPageNavigation('/credential.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanUser.decodedCredId).concat(&#34;/&#34;))}', 
+							'');">
+            		<f:param name="id" value="#{param['credId']}"></f:param>
+            	</h:link>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanUser.competenceData.title}"
+            		outcome="/competence"
+            		onclick="sendLogPageNavigation('/competence.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanUser.decodedCompId).concat(&#34;/&#34;))}', 
+							'');">
+            		<f:param name="compId" value="#{param['compId']}"></f:param>
+            		<f:param name="credId" value="#{param['credId']}"></f:param>
+            	</h:link>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
+            		outcome="/activity"
+            		onclick="sendLogPageNavigation('/activity.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
+							'');">
+					<f:param name="actId" value="#{param['actId']}"></f:param>
+            		<f:param name="compId" value="#{param['compId']}"></f:param>
+            		<f:param name="credId" value="#{param['credId']}"></f:param>
+            	</h:link>
+            	
+            </li>
+            <li class="active">
+            	Responses
+            </li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+            	<h:panelGroup id="panelUploadAssignment">
+	                <h2>Your Response</h2>
+	                <activities:activityResult
+	           			resultData="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData}"
+	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
+	           			learningContext="#{learningContext}"
+	           			role="USER"
+	           			assignmentUploadModalId="newRes"
+	           			growlToUpdate=":growlMain"
+	           			regionToUpdate=":panelUploadAssignment"
+	           			studentCanEditResponse="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentCanEditResponse}"
+	           		/>
+	           	</h:panelGroup>
+
+                <h2>Other Student Responses</h2>
+                
+				<ui:fragment rendered="#{empty activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
+                	 <div class="noContentMessage">
+	                    <p>
+	                        No responses to show.
+	                    </p>
+	                </div>
+                </ui:fragment>
+                <ui:repeat var="result" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.studentResults}">
+                	 <activities:activityResult
+	           			resultData="#{result}"
+	           			resultType="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultType}"
+	           			learningContext="#{learningContext}"
+	           			role="USER"
+	           			assignmentUploadModalId=""
+	           			growlToUpdate=":growlMain"
+	           			regionToUpdate=":panelUploadAssignment"
+	           		/>
+                </ui:repeat>
+            </div>
+            <h:panelGroup layout="block" id="panelCompProgress" styleClass="col-md-4">
+				<div class="sidebarBlock">
+					<activities:activityCompProgress
+						bean="#{activityResultsBeanUser}"
+						learningContext="#{learningContext}"
+					/>
+				</div>
+		    </h:panelGroup>
+        </div>
+
+    </div>
+    
+	<h:form id="formModalUpload">
+		<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title" id="newResult">Upload New Response?</h2>
+					</div>
+					
+					<div class="modal-body">
+						<p>Are you sure you want to upload a new response?<br/><br/>
+						<small>Note: Current response will be over-written!</small></p>
+					</div>
+					
+					<div class="modal-footer">
+						<utilcomp:simpleFileUpload
+							id="simpleFileUpload"
+							fileUploadListenerMethodName="handleFileUpload"
+							fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
+							toUpdate=":panelUploadAssignment :growlMain"
+							uploadButtonStyle="btn btn-green"
+							chooseFileLabel="Upload New Response"
+							learningContext="#{learningContext}"
+							service="name:upload_result_dialog"
+							oncomplete="$('#newRes').modal('hide');"
+						/>
+						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</h:form>
+</ui:define>
+</ui:composition>

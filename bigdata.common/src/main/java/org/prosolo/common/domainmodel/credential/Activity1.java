@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -27,8 +29,14 @@ public class Activity1 extends BaseEntity {
 	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
+	/**
+	 * @deprecated since v0.5
+	 */
+	@Deprecated
 	private boolean uploadAssignment;
+	private ActivityResultType resultType;
 	private LearningResourceType type;
+	private int maxPoints;
 	
 	private Activity1 draftVersion;
 	/** 
@@ -44,7 +52,24 @@ public class Activity1 extends BaseEntity {
 	 */
 	private boolean hasDraft;
 	
+	/**
+	 * Flag that determines whether upon submission, a student can see responses
+	 * from other students
+	 */
+	private boolean studentCanSeeOtherResponses;
+	
+	/**
+	 * Whether student has the ability to edit their response
+	 */
+	private boolean studentCanEditResponse;
+	
 	private User createdBy;
+	
+	/**
+	 * Deprecated since 0.5. Should be removed as 'maxPoints' is introduced and that field is sufficient.
+	 */
+	@Deprecated
+	private GradingOptions gradingOptions;
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -65,6 +90,14 @@ public class Activity1 extends BaseEntity {
 
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+	
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
 	}
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -134,6 +167,44 @@ public class Activity1 extends BaseEntity {
 
 	public void setType(LearningResourceType type) {
 		this.type = type;
+	}
+	
+	@Enumerated(EnumType.STRING)
+	public ActivityResultType getResultType() {
+		return resultType;
+	}
+
+	public void setResultType(ActivityResultType resultType) {
+		this.resultType = resultType;
+	}
+
+	@OneToOne
+	public GradingOptions getGradingOptions() {
+		return gradingOptions;
+	}
+
+	public void setGradingOptions(GradingOptions gradingOptions) {
+		this.gradingOptions = gradingOptions;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isStudentCanSeeOtherResponses() {
+		return studentCanSeeOtherResponses;
+	}
+
+	public void setStudentCanSeeOtherResponses(boolean studentCanSeeOtherResponses) {
+		this.studentCanSeeOtherResponses = studentCanSeeOtherResponses;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isStudentCanEditResponse() {
+		return studentCanEditResponse;
+	}
+
+	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
+		this.studentCanEditResponse = studentCanEditResponse;
 	}
 	
 }

@@ -154,13 +154,21 @@
 								</a>
 								
 								<div class="dropdown hidden">
+									<h:form>
 									<ul>
 										<li>
-											<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+											<h:commandLink rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+														   id="switchtomanagerid"
+												onclick="sendLogPageNavigation( '/manage/courses', 'mainmenu');"
+														   action="#{loggeduser.switchRole('manager')}"
+														   outcome="/manage/courses">
+											<span class="secManage"></span>
+											</h:commandLink>
+											<!--h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
 												onclick="sendLogPageNavigation( '/manage/courses', 'mainmenu');" 
 												outcome="/manage/courses">
 												<span class="secManage"></span>
-											</h:link>
+											</h:link-->
 										</li>
 										<li>
 											<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
@@ -170,6 +178,7 @@
 											</h:link>
 										</li>
 									</ul>
+									</h:form>
 								</div>
 							</h:panelGroup>
 						</div>
@@ -310,7 +319,7 @@
 				onclick="sendLogPageNavigationWithParameters('https://bitbucket.org/prosolo/prosolo/issues', {context: 'floatingSupportIcon'});"
 				title="Support" 
 				position="left" 
-				href="https://bitbucket.org/prosolo/prosolo/issues"></a>
+				href="mailto:administrator@prosolo.ca"></a>
 		</div>
 	</div>
 

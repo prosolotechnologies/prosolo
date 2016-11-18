@@ -26,11 +26,18 @@ public class CredentialsInProgressBean implements Serializable {
 	private List<CredentialData> credentials;
 	
 	private static final int LIMIT = 2;
+	private boolean moreToView;
 
 	@PostConstruct
 	public void init() {
-		credentials = credManager.getNRecentlyLearnedInProgressCredentials(
-				loggedUserBean.getUserId(), LIMIT);
+		List<CredentialData> creds = credManager.getNRecentlyLearnedInProgressCredentials(
+				loggedUserBean.getUserId(), LIMIT, true);
+		if(creds.size() > LIMIT) {
+			credentials = creds.subList(0, creds.size()-1);
+			moreToView = true;
+		} else {
+			credentials = creds;
+		}
 	}
 	
 	public List<CredentialData> getCredentials() {
@@ -39,6 +46,14 @@ public class CredentialsInProgressBean implements Serializable {
 
 	public void setCredentials(List<CredentialData> credentials) {
 		this.credentials = credentials;
+	}
+
+	public boolean isMoreToView() {
+		return moreToView;
+	}
+
+	public void setMoreToView(boolean moreToView) {
+		this.moreToView = moreToView;
 	}
 
 	

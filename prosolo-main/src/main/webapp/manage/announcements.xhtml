@@ -43,17 +43,17 @@
 		</script>
 		
 		<div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-
-                </div>
-				<div class="whiteBarRight">
-					 <h:panelGroup rendered="#{announcementBean.credentialMandatoryFlow}" styleClass="mandatoryTag item">
-					 	Mandatory flow
-					 </h:panelGroup>
-					 <div class="duration item">#{announcementBean.credentialDurationString}</div>
-				 </div>
+        	<div class="container">
+            	<div class="whiteBarContent">
+	                <div class="whiteBarLeft">
+	
+	                </div>
+					<div class="whiteBarRight">
+						 <h:panelGroup rendered="#{announcementBean.credentialMandatoryFlow}" styleClass="mandatoryTag item">
+						 	Mandatory flow
+						 </h:panelGroup>
+						 <div class="duration item">#{announcementBean.credentialDurationString}</div>
+					 </div>
 				</div>
 			</div>
 		</div>
@@ -66,6 +66,20 @@
     	</div>
 		
 		<h:panelGroup id="containerDiv" layout="block" styleClass="container">
+			<p:growl showDetail="true"/>
+			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+			<script>
+			tinymce.init({
+				theme: "modern",
+			    skin: 'light',
+				selector:'#newAnnouncementForm\\:newAnnouncementText',
+				menubar: false,
+			    statusbar: false,
+			    toolbar: 'undo redo | bold italic | link image | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent',
+			    font_formats: 'Helvetica=Helvetica Neue,helvetica,sans-serif'
+			});
+			</script>
+		
 			<h:panelGroup styleClass="row" layout="block" rendered="#{request.isUserInRole('COURSE.ANNOUNCEMENTS.CREATE')}">
 				<div class="col-md-12">
 					<div class="whiteBox">
@@ -77,10 +91,12 @@
 								data-target="#newAnnouncementModal">New Announcement</a>
 						</p>
 						<div class="clear"></div>
+						
 						<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
 							role="dialog" aria-labelledby="newAnnouncement">
 							<h:form id="newAnnouncementForm">
-								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBean.setPublishMode}"></p:remoteCommand>
+								<p:remoteCommand name="setPublishMode" actionListener="#{announcementBean.setPublishMode}" />
+								
 								<div class="modal-dialog" role="document">
 									<div class="modal-content">
 										<div class="modal-header alignLeft">
@@ -100,8 +116,9 @@
 											</div>
 										</div>
 										<div class="modal-body alignLeft">
-											<p:inputText type="text" value="#{announcementBean.newAnnouncementTitle}" placeholder="Title"> </p:inputText>
+											<p:inputText type="text" id="title" value="#{announcementBean.newAnnouncementTitle}" placeholder="Title" />
 											<p:inputTextarea placeholder="Write message..." value="#{announcementBean.newAnnouncementText}" id="newAnnouncementText" />
+											
 											<div class="radioGroup">
 												Send to:
 												<div class="radio">
@@ -118,26 +135,33 @@
 										</div>
 										<div class="modal-footer alignLeft">
 											<p:commandLink value="Publish"
-			                                    	styleClass="btn btn-green" 
-			                                    	action="#{announcementBean.publishAnnouncement()}" 
-			                                    	update=":containerDiv"
-			                                    	oncomplete="hideConfirmDialog('newAnnouncementModal')" 
-		                                    	/>
+		                                    	styleClass="btn btn-green"
+		                                    	onclick="$('#newAnnouncementForm\\:newAnnouncementText').val(tinyMCE.activeEditor.getContent());hideConfirmDialog('newAnnouncementModal');" 
+		                                    	action="#{announcementBean.publishAnnouncement()}" 
+		                                    	update=":containerDiv"
+	                                    	/>
 										</div>
 									</div>
 								</div>
 							</h:form>
 						</div>
+						
+						<script>
+						$('#newAnnouncementModal').on('shown.bs.modal', function () {
+						    $('#newAnnouncementForm\\:title').focus();
+						}) 
+						</script>
 					</div>
 				</div>
 			</h:panelGroup>
+			
 			<h2>Previous Annoncements</h2>
 				<ui:repeat var="announcementData" value="#{announcementBean.credentialAnnouncements}">
 					<div class="row">
 						<div class="col-md-8">
 							<article class="whiteBox announcementBox">
 								<h2>#{empty announcementData.title ? "Announcement" : announcementData.title}</h2>
-								<p>#{announcementData.text}</p>
+								<p><h:outputText escape="false" value="#{announcementData.text}" /></p>
 							</article>
 						</div>
 						<div class="col-md-4">
@@ -159,10 +183,10 @@
 				</ui:repeat>
 				
 			<utilcomp:pagination
-							id="pagination" 
-							bean="#{announcementBean}"
-							links="#{announcementBean.paginationLinks}"
-							toUpdate=":containerDiv" />
+				id="pagination" 
+				bean="#{announcementBean}"
+				links="#{announcementBean.paginationLinks}"
+				toUpdate=":containerDiv" />
 		</h:panelGroup>
 	</ui:define>
 </ui:composition>

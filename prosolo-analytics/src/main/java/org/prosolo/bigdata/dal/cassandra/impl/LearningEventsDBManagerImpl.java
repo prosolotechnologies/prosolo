@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.log4j.Logger;
+import org.prosolo.bigdata.api.RecommendationServices;
 import org.prosolo.bigdata.common.dal.pojo.SessionRecord;
 import org.prosolo.bigdata.dal.cassandra.LearningEventsDBManager;
 import org.prosolo.bigdata.session.impl.LearningEventSummary;
@@ -28,6 +30,9 @@ import com.datastax.driver.core.Statement;
 import com.google.gson.Gson;
 
 public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl implements LearningEventsDBManager {
+
+	private final static Logger logger = Logger
+			.getLogger(LearningEventsDBManager.class);
 
 	HashMap<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
 	private static final String UPDATE_LEARNING_EVENTS_COUNTER = "updateLearningEventsCounter";
@@ -129,6 +134,7 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 
 	@Override
 	public List<LearningEventSummary> getLearningEventsData(long actorId, long epochDayFrom, long epochDayTo) {
+		logger.debug("getLearningEventsData for student:"+actorId+" epochDayFrom:"+epochDayFrom+" epochDayTo:"+epochDayTo);
 		// get learning event counters
 		BoundStatement eventCounterStatement = StatementUtil.statement(preparedStatements.get(GET_LEARNING_STATISTICS),
 				actorId, epochDayFrom, epochDayTo);
@@ -137,6 +143,7 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 		BoundStatement milestoneStatement = StatementUtil.statement(preparedStatements.get(GET_LEARNING_MILESTONES),
 				actorId, epochDayFrom, epochDayTo);
 		List<Row> milestoneRows = getSession().execute(milestoneStatement).all();
+		logger.debug("getLearningEventsData found results:"+milestoneRows.size());
 		List<LearningEventSummary> summaries = addMissingValues(combineRows(eventCountersRows, milestoneRows),
 				epochDayFrom, epochDayTo);
 		return summaries;

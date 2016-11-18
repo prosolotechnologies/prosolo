@@ -21,8 +21,9 @@ import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
-import org.prosolo.common.domainmodel.user.notifications.ObjectType;
+import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.ObjectDataFactory;
@@ -245,12 +246,14 @@ public class ActivityWallBean implements Serializable {
 	//						parameters.put("courseId", String.valueOf(courseId1));
 	//					}
 						
-						actionLogger.logEvent(EventType.FILTER_CHANGE, parameters);
+						actionLogger.logEventWithIp(EventType.FILTER_CHANGE, loggedUser.getIpAddress(), 
+								parameters);
 					}
 				});
 			}
 		} catch(Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 		}
 	}
@@ -274,6 +277,16 @@ public class ActivityWallBean implements Serializable {
 					loggedUser.getName(), loggedUser.getLastName(), loggedUser.getAvatar(), null, null, true));
 			newSocialActivity.setDateCreated(post.getDateCreated());
 			newSocialActivity.setLastAction(post.getLastAction());
+			CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, 
+					newSocialActivity.getId());
+			newSocialActivity.setComments(cd);
+			newSocialActivity.setType(SocialActivityType.Post);
+//			if(post.getRichContent() != null) {
+//				newSocialActivity.setAttachmentPreview(richContentFactory.getAttachmentPreview(
+//						post.getRichContent()));
+//			}
+			newSocialActivity.setPredicate(ResourceBundleUtil.getActionName(newSocialActivity.getType().name(),
+					loggedUser.getLocale()));
 			socialActivities.add(0, newSocialActivity);
 			
 			newSocialActivity = new SocialActivityData1();
@@ -297,7 +310,7 @@ public class ActivityWallBean implements Serializable {
 			postShareSocialActivity.setType(SocialActivityType.Post_Reshare);
 			postShareSocialActivity.setId(postShare.getId());
 			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null, 
-					ObjectType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
+					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
 					socialActivityForShare.getActor().getFullName(), 
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
@@ -420,7 +433,7 @@ public class ActivityWallBean implements Serializable {
 	}
 	
 	public boolean isCurrentUserCreator(SocialActivityData1 sa) {
-		return loggedUser.getUserId() == sa.getActor().getId();
+		return sa.getActor() != null && loggedUser.getUserId() == sa.getActor().getId();
 	}
 	
 	/*

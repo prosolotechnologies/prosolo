@@ -105,6 +105,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 		studentSearchTerm = "";
 		studentsToAssign = new ArrayList<>();
 		studentsToUnassign = new ArrayList<>();
+		page = 1;
 		searchStudents();
 	}
 	
@@ -114,6 +115,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
 						page - 1, limit);
 		students = result.getFoundNodes();
+		setCurrentlyAssignedAndUnassignedStudents();
 		studentsNumber = (int) result.getHitsNumber();
 		Map<String, Object> additional = result.getAdditionalInfo();
 		if(additional != null) {
@@ -128,6 +130,34 @@ public class StudentAssignBean implements Serializable, Paginable {
 //				.getMaxNumberOfStudents());
 //	}
 	
+	/**
+	 * set assigned to true for students that are currently assigned in memory
+	 * and to false for students that are currently unassigned in memory
+	 */
+	private void setCurrentlyAssignedAndUnassignedStudents() {
+		if(students != null) {
+			for(StudentData sd : students) {
+				if(sd.isAssigned()) {
+					sd.setAssigned(!checkIfExists(sd.getUser().getId(), studentsToUnassign));
+				} else {
+					sd.setAssigned(checkIfExists(sd.getUser().getId(), studentsToAssign));
+				}
+			}
+		}
+	}
+
+	private boolean checkIfExists(long id, List<Long> list) {
+		if(list == null) {
+			return false;
+		}
+		for(Long l : list) {
+			if(id == l) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void studentAssignChecked(int index) {
 		StudentData sd = students.get(index);
 		if(sd.isAssigned()) {
@@ -312,6 +342,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 	@Override
 	public boolean isResultSetEmpty() {
 		return studentsNumber == 0;
+	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
 	}
 
 	public long getCredId() {

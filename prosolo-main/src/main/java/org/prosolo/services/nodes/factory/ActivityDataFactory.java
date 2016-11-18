@@ -1,10 +1,12 @@
 package org.prosolo.services.nodes.factory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
@@ -16,12 +18,17 @@ import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
-import org.prosolo.web.competences.validator.YoutubeLinkValidator;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,24 +39,27 @@ public class ActivityDataFactory {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
 			return null;
 		}
-		ActivityData act = new ActivityData(false);
+		ActivityData data = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
-		act.setCompetenceActivityId(competenceActivity.getId());
-		act.setActivityId(activity.getId());
-		act.setOrder(competenceActivity.getOrder());
-		act.setTitle(activity.getTitle());
-		act.setDescription(activity.getDescription());
-		act.setDurationHours((int) (activity.getDuration() / 60));
-		act.setDurationMinutes((int) (activity.getDuration() % 60));
-		act.calculateDurationString();
-		act.setPublished(activity.isPublished());
-		act.setDraft(activity.isDraft());
-		act.setHasDraft(activity.isHasDraft());
-		act.setActivityStatus();
-		act.setUploadAssignment(activity.isUploadAssignment());
-		act.setDateCreated(activity.getDateCreated());
-		act.setType(activity.getType());
-		act.setCreatorId(activity.getCreatedBy().getId());
+		data.setCompetenceActivityId(competenceActivity.getId());
+		data.setActivityId(activity.getId());
+		data.setOrder(competenceActivity.getOrder());
+		data.setTitle(activity.getTitle());
+		data.setDescription(activity.getDescription());
+		data.setDurationHours((int) (activity.getDuration() / 60));
+		data.setDurationMinutes((int) (activity.getDuration() % 60));
+		data.calculateDurationString();
+		data.setPublished(activity.isPublished());
+		data.setDraft(activity.isDraft());
+		data.setHasDraft(activity.isHasDraft());
+		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
+		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
+		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
+		data.setActivityStatus();
+		data.getResultData().setResultType(getResultType(activity.getResultType()));
+		data.setDateCreated(activity.getDateCreated());
+		data.setType(activity.getType());
+		data.setCreatorId(activity.getCreatedBy().getId());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -58,10 +68,11 @@ public class ActivityDataFactory {
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setIdParamName(rl.getIdParameterName());
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityLinks.add(rlData);
 			}
-			act.setLinks(activityLinks);
+			data.setLinks(activityLinks);
 		}
 		
 		if(files != null) {
@@ -75,22 +86,51 @@ public class ActivityDataFactory {
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
-			act.setFiles(activityFiles);
+			data.setFiles(activityFiles);
 		}
 		
-		act.setCompetenceId(competenceActivity.getCompetence().getId());
+		data.setCompetenceId(competenceActivity.getCompetence().getId());
 		
-		populateTypeSpecificData(act, activity);
+		populateTypeSpecificData(data, activity);
 
-		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
-			act.startObservingChanges();
+			data.startObservingChanges();
 		}
 		
-		return act;
+		return data;
 	}
 	
+	public ActivityResultType getResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
+		if(resultType == null) {
+			return ActivityResultType.NONE;
+		}
+		switch(resultType) {
+			case FILE_UPLOAD:
+				return ActivityResultType.FILE_UPLOAD;
+			case TEXT:
+				return ActivityResultType.TEXT;
+			default:
+				return ActivityResultType.NONE;
+		}
+	}
+	
+	public org.prosolo.common.domainmodel.credential.ActivityResultType getResultType(
+			ActivityResultType resultType) {
+		if(resultType == null) {
+			return org.prosolo.common.domainmodel.credential.ActivityResultType.NONE;
+		}
+		switch(resultType) {
+			case FILE_UPLOAD:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.FILE_UPLOAD;
+			case TEXT:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.TEXT;
+			default:
+				return org.prosolo.common.domainmodel.credential.ActivityResultType.NONE;
+		}
+	}
+
 	public ActivityData getActivityData(Activity1 act, long compId, int order, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges) {
 		CompetenceActivity1 ca = new CompetenceActivity1();
@@ -113,8 +153,7 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
@@ -210,49 +249,52 @@ public class ActivityDataFactory {
 	}
 
 
-	public ActivityData getActivityData(TargetActivity1 activity, Set<ResourceLink> links,
+	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges) {
-		if(activity == null) {
+		if (targetActivity == null) {
 			return null;
 		}
-		ActivityData act = new ActivityData(false);
-		act.setActivityId(activity.getActivity().getId());
-		act.setTargetActivityId(activity.getId());
-		act.setOrder(activity.getOrder());
-		act.setTitle(activity.getTitle());
-		act.setDescription(activity.getDescription());
-		act.setDurationHours((int) (activity.getDuration() / 60));
-		act.setDurationMinutes((int) (activity.getDuration() % 60));
-		act.calculateDurationString();
-		act.setUploadAssignment(activity.isUploadAssignment());
-		act.setCompleted(activity.isCompleted());
-		act.setEnrolled(true);
-		act.setAssignmentLink(activity.getAssignmentLink());
-		act.setAssignmentTitle(activity.getAssignmentTitle());
-		act.setCreatorId(activity.getCreatedBy().getId());
+		ActivityData data = new ActivityData(false);
+		data.setActivityId(targetActivity.getActivity().getId());
+		data.setTargetActivityId(targetActivity.getId());
+		data.setOrder(targetActivity.getOrder());
+		data.setTitle(targetActivity.getTitle());
+		data.setDescription(targetActivity.getDescription());
+		data.setDurationHours((int) (targetActivity.getDuration() / 60));
+		data.setDurationMinutes((int) (targetActivity.getDuration() % 60));
+		data.calculateDurationString();
+		data.setCompleted(targetActivity.isCompleted());
+		data.setEnrolled(true);
+		data.setType(targetActivity.getLearningResourceType());
+		data.setResultData(getActivityResultData(targetActivity));
+		data.setCreatorId(targetActivity.getCreatedBy().getId());
+		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
+		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
+		data.setStudentCanSeeOtherResponses(targetActivity.getActivity().isStudentCanSeeOtherResponses());
 		
-		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
-		if(shouldTrackChanges) {
-			act.startObservingChanges();
+		if (shouldTrackChanges) {
+			data.startObservingChanges();
 		}
 		
-		if(links != null) {
+		if (links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
-			for(ResourceLink rl : links) {
+			for (ResourceLink rl : links) {
 				ResourceLinkData rlData = new ResourceLinkData();
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
 				rlData.setUrl(rl.getUrl());
+				rlData.setIdParamName(rl.getIdParameterName());
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityLinks.add(rlData);
 			}
-			act.setLinks(activityLinks);
+			data.setLinks(activityLinks);
 		}
 		
-		if(files != null) {
+		if (files != null) {
 			List<ResourceLinkData> activityFiles = new ArrayList<>();
-			for(ResourceLink rl : files) {
+			for (ResourceLink rl : files) {
 				ResourceLinkData rlData = new ResourceLinkData();
 				rlData.setId(rl.getId());
 				rlData.setLinkName(rl.getLinkName());
@@ -261,23 +303,60 @@ public class ActivityDataFactory {
 				rlData.setStatus(ObjectStatus.UP_TO_DATE);
 				activityFiles.add(rlData);
 			}
-			act.setFiles(activityFiles);
+			data.setFiles(activityFiles);
 		}
 		
 		//or add targetCompetenceId to activitydata
-		act.setCompetenceId(activity.getTargetCompetence().getId());
-		act.setCompetenceName(activity.getTargetCompetence().getTitle());
-		populateTypeSpecificData(act, activity);
+		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
+		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
+		populateTypeSpecificData(data, targetActivity);
 
-		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
-		if(shouldTrackChanges) {
-			act.startObservingChanges();
+		if (shouldTrackChanges) {
+			data.startObservingChanges();
 		}
 		
-		return act;
+		return data;
 	}
 	
+	private ActivityResultData getActivityResultData(TargetActivity1 activity) {
+		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
+		ActivityResultData ard = new ActivityResultData(false);
+		ard.setTargetActivityId(activity.getId());
+		ard.setResultType(getResultType(activity.getResultType()));
+		ard.setResult(activity.getResult());
+		if(ard.getResult() != null && !ard.getResult().isEmpty() 
+				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
+			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
+		}
+		ard.setResultPostDate(activity.getResultPostDate());
+		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
+				activity.getResultPostDate(), null, 0, false);
+	}
+	
+	public ActivityResultData getActivityResultData(long targetActivityId, 
+			org.prosolo.common.domainmodel.credential.ActivityResultType resType, String result, 
+			Date postDate, User user, int commentsNumber, boolean isInstructor) {
+		ActivityResultData ard = new ActivityResultData(false);
+		ard.setResultType(getResultType(resType));
+		ard.setResult(result);
+		if(ard.getResult() != null && !ard.getResult().isEmpty() 
+				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
+			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
+		}
+		ard.setResultPostDate(postDate);
+		if(user != null) {
+			ard.setUser(new UserData(user));
+		}
+		ard.setTargetActivityId(targetActivityId);
+		CommentsData commData = new CommentsData(CommentedResourceType.ActivityResult, 
+				targetActivityId, isInstructor);
+		commData.setNumberOfComments(commentsNumber);
+		ard.setResultComments(commData);
+		return ard;
+	}
+
 	private void populateTypeSpecificData(ActivityData act, TargetActivity1 activity) {
 		if(activity instanceof TextTargetActivity1) {
 			TextTargetActivity1 ta = (TextTargetActivity1) activity;
@@ -289,8 +368,7 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
@@ -362,51 +440,53 @@ public class ActivityDataFactory {
 		return null;
 	}
 
-	private void populateCommonData(Activity1 act, ActivityData activity) {
-		act.setId(activity.getActivityId());
-		act.setTitle(activity.getTitle());
-		act.setDescription(activity.getDescription());
-		act.setDuration(activity.getDurationHours() * 60 + activity.getDurationMinutes());
-		act.setPublished(activity.isPublished());
-		act.setUploadAssignment(activity.isUploadAssignment());
-		act.setDateCreated(activity.getDateCreated());
-		act.setType(activity.getType());
+	private void populateCommonData(Activity1 activity, ActivityData data) {
+		activity.setId(data.getActivityId());
+		activity.setTitle(data.getTitle());
+		activity.setDescription(data.getDescription());
+		activity.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
+		activity.setPublished(data.isPublished());
+		activity.setResultType(getResultType(data.getResultData().getResultType()));
+		activity.setDateCreated(data.getDateCreated());
+		activity.setType(data.getType());
+		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
+		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 	}
 	
-	public Activity1 getActivityFromActivityData(ActivityData activity) {
-		if(activity == null) {
+	public Activity1 getActivityFromActivityData(ActivityData activityData) {
+		if (activityData == null) {
 			return null;
 		}
-		return createActivityBasedOnType(activity);
+		return createActivityBasedOnType(activityData);
 	}
 
-	private Activity1 createActivityBasedOnType(ActivityData activity) {
-		switch(activity.getActivityType()) {
+	private Activity1 createActivityBasedOnType(ActivityData activityData) {
+		switch(activityData.getActivityType()) {
 			case TEXT:
 				TextActivity1 ta = new TextActivity1();
-				populateCommonData(ta, activity);
-				ta.setText(activity.getText());
+				populateCommonData(ta, activityData);
+				ta.setText(activityData.getText());
 				return ta;
 			case VIDEO:
 			case SLIDESHARE:
 				UrlActivity1 urlAct = new UrlActivity1();
-				if(activity.getActivityType() == ActivityType.VIDEO) {
+				if(activityData.getActivityType() == ActivityType.VIDEO) {
 					urlAct.setUrlType(UrlActivityType.Video);
 				} else {
 					urlAct.setUrlType(UrlActivityType.Slides);
 				}
-				populateCommonData(urlAct, activity);
-				urlAct.setUrl(activity.getLink());
-				urlAct.setLinkName(activity.getLinkName());
+				populateCommonData(urlAct, activityData);
+				urlAct.setUrl(activityData.getLink());
+				urlAct.setLinkName(activityData.getLinkName());
 				return urlAct;
 			case EXTERNAL_TOOL:
 				ExternalToolActivity1 extAct = new ExternalToolActivity1();
-				populateCommonData(extAct, activity);
-				extAct.setLaunchUrl(activity.getLaunchUrl());
-				extAct.setSharedSecret(activity.getSharedSecret());
-				extAct.setConsumerKey(activity.getConsumerKey());
-				extAct.setAcceptGrades(activity.isAcceptGrades());
-				extAct.setOpenInNewWindow(activity.isOpenInNewWindow());
+				populateCommonData(extAct, activityData);
+				extAct.setLaunchUrl(activityData.getLaunchUrl());
+				extAct.setSharedSecret(activityData.getSharedSecret());
+				extAct.setConsumerKey(activityData.getConsumerKey());
+				extAct.setAcceptGrades(activityData.isAcceptGrades());
+				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
 				return extAct;
 			default: 
 				return null;

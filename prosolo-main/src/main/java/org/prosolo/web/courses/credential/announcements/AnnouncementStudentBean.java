@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.credential.announcements;
 
 import java.io.Serializable;
 import java.util.Map;

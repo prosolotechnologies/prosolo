@@ -12,6 +12,7 @@ public class ResourceLinkData {
 	 */
 	private String fetchedTitle;
 	private ObjectStatus status;
+	private String idParamName;
 	
 	public ResourceLinkData() {
 		
@@ -75,6 +76,14 @@ public class ResourceLinkData {
 
 	public void setLinkNameInvalid(boolean linkNameInvalid) {
 		this.linkNameInvalid = linkNameInvalid;
+	}
+
+	public String getIdParamName() {
+		return idParamName;
+	}
+
+	public void setIdParamName(String idParamName) {
+		this.idParamName = idParamName;
 	}
 	
 }

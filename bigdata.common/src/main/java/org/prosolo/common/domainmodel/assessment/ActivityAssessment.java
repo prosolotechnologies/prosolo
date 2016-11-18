@@ -13,17 +13,24 @@ import javax.persistence.OneToOne;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
-@Entity
-public class ActivityDiscussion extends BaseEntity {
+@Entity 
+public class ActivityAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -2026612306127154692L;
-	
+
 	private TargetActivity1 targetActivity;
 	private CompetenceAssessment assessment;
 	private List<ActivityDiscussionParticipant> participants;
 	private List<ActivityDiscussionMessage> messages;
+	private boolean defaultAssessment;
 
-	
+	/**
+	 * Since v0.5. We use points to store assessment points value.
+	 */
+	@Deprecated
+	private ActivityGrade grade;
+	private int points;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	public TargetActivity1 getTargetActivity() {
 		return targetActivity;
@@ -34,7 +41,7 @@ public class ActivityDiscussion extends BaseEntity {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false,name="competence_assessment")
+	@JoinColumn(nullable = false, name = "competence_assessment")
 	public CompetenceAssessment getAssessment() {
 		return assessment;
 	}
@@ -43,7 +50,7 @@ public class ActivityDiscussion extends BaseEntity {
 		this.assessment = assessment;
 	}
 
-	@OneToMany(cascade=CascadeType.ALL, mappedBy="activityDiscussion",fetch= FetchType.LAZY)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "activityDiscussion", fetch = FetchType.LAZY)
 	public List<ActivityDiscussionParticipant> getParticipants() {
 		return participants;
 	}
@@ -52,7 +59,7 @@ public class ActivityDiscussion extends BaseEntity {
 		this.participants = participants;
 	}
 
-	@OneToMany(mappedBy="discussion")
+	@OneToMany(mappedBy = "discussion")
 	public List<ActivityDiscussionMessage> getMessages() {
 		return messages;
 	}
@@ -71,5 +78,30 @@ public class ActivityDiscussion extends BaseEntity {
 		}
 		return null;
 	}
-	
+
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
+	}
+
+	@OneToOne
+	public ActivityGrade getGrade() {
+		return grade;
+	}
+
+	public void setGrade(ActivityGrade grade) {
+		this.grade = grade;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
 }

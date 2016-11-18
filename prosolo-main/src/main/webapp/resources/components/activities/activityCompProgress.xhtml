@@ -1,0 +1,61 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default="" />
+		<composite:attribute name="isPreview" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h2>Competence Progress</h2>
+	            	
+		<ul class="competenceProgressList">
+			<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
+				<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
+							#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
+					<h:panelGroup 
+						rendered="#{!cc.attrs.isPreview and act.completed}"
+						styleClass="check">    
+					</h:panelGroup>
+					<h:panelGroup
+						rendered="#{!act.completed || cc.attrs.isPreview}"
+						styleClass="iconType">
+					</h:panelGroup>
+               		<h3>
+						<ui:fragment rendered="#{!cc.attrs.isPreview and !cc.attrs.bean.isActivityActive(act)}">
+							<h:link	value="#{act.title}"
+								outcome="activity"
+								onclick="sendLogPageNavigation('/activity.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(cc.attrs.learningContext, &#34;name:competence_progress/&#34;)}', 
+								'#{cc.attrs.service}');">
+								<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
+								<f:param name="compId" value="#{param['compId']}" disable="#{empty param['compId']}"></f:param>
+								<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
+							</h:link>   
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.isActivityActive(act)}">
+							#{act.title}
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.isPreview and !cc.attrs.bean.isActivityActive(act)}">
+							<a href="javascript:void(0);">#{act.title}</a>
+						</ui:fragment>
+					</h3>
+				</li>
+			</ui:repeat>
+		</ul>
+	</composite:implementation>
+</ui:component>

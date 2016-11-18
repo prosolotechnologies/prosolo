@@ -28,13 +28,14 @@ public class LearningActivityService {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getStudentLearningActivities(@PathParam("id") Long id, @QueryParam("dateFrom") String dateFrom,
 			@QueryParam("dateTo") String dateTo) throws ParseException {
+
 		if(dateFrom==null || dateTo==null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 		long daysFrom = DateUtil.parseDaysSinceEpoch(dateFrom, "dd.MM.yyyy. Z");
 		long daysTo = DateUtil.parseDaysSinceEpoch(dateTo, "dd.MM.yyyy. Z");
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
-		List<LearningEventSummary> learningEventsData = LearningEventsDBManagerImpl.getInstance().getLearningEventsData(id, daysFrom, daysTo);
+		List<LearningEventSummary> learningEventsData = LearningEventsDBManagerImpl.getInstance().getLearningEventsData(id, daysFrom, daysTo+1);
 		return ResponseUtils.corsOk(learningEventsData);
 	}
 

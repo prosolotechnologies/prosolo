@@ -10,7 +10,7 @@ import org.prosolo.web.util.AvatarUtils;
 public class CourseInstructorData {
 
 	private long instructorId;
-	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size120x120.png";
 	private String name;
 	private String position;
 	private Integer maxNumberOfStudents;
@@ -26,7 +26,7 @@ public class CourseInstructorData {
 		String avatarUrl = (String) instructorMap.get("avatarUrl");
 		User user = new User();
 		user.setAvatarUrl(avatarUrl);
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 		String firstName = (String) instructorMap.get("firstName");
 		String lastName = (String) instructorMap.get("lastName");
 		this.name = firstName + (lastName != null ? " " + lastName : "");

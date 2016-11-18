@@ -1,9 +1,12 @@
 package org.prosolo.services.nodes.impl;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,8 +17,11 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
@@ -29,30 +35,45 @@ import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
+import org.prosolo.common.domainmodel.outcomes.Outcome;
+import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentReplyFetchMode;
+import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.GradeData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.useractions.CommentBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,13 +85,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	private static final long serialVersionUID = -2783669846949034832L;
 
-	private static Logger logger = Logger.getLogger(Activity1ManagerImpl.class);
+//	private static Logger logger = Logger.getLogger(Activity1ManagerImpl.class);
 	
 	@Inject private ActivityDataFactory activityFactory;
 	@Inject private Competence1Manager compManager;
+	@Inject private CommentManager commentManager;
 	@Inject private EventFactory eventFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private UrlIdEncoder idEncoder;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -341,8 +364,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			targetAct.setActivity(act);
 			targetAct.setOrder(compActivity.getOrder());
 			targetAct.setDuration(act.getDuration());
-			targetAct.setUploadAssignment(act.isUploadAssignment());
+			targetAct.setResultType(act.getResultType());
+			//targetAct.setUploadAssignment(act.isUploadAssignment());
 			targetAct.setCreatedBy(act.getCreatedBy());
+			targetAct.setLearningResourceType(act.getType());
 			
 			if(act.getLinks() != null) {
     			Set<ResourceLink> activityLinks = new HashSet<>();
@@ -350,6 +375,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     				ResourceLink link = new ResourceLink();
     				link.setLinkName(rl.getLinkName());
     				link.setUrl(rl.getUrl());
+    				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+    					link.setIdParameterName(rl.getIdParameterName());
+    				}
     				saveEntity(link);
     				activityLinks.add(link);
     			}
@@ -1134,7 +1162,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
 			actToUpdate.setPublished(data.isPublished());
-			actToUpdate.setUploadAssignment(data.isUploadAssignment());
+			actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
+			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
+			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
+			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks(), actToUpdate, 
 					(activityForUpdate, links) -> activityForUpdate.setLinks(links) , publishTransition);
@@ -1200,22 +1232,29 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks,
 			Activity1 actToUpdate, BiConsumer<Activity1, Set<ResourceLink>> linkSetter, 
 			EntityPublishTransition publishTransition) {
-		if(resLinksData != null) {
-			if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
-				for(ResourceLinkData rl : resLinksData) {
-					switch(rl.getStatus()) {
+		
+		if (resLinksData != null) {
+			if (publishTransition == EntityPublishTransition.NO_TRANSITION) {
+				for (ResourceLinkData rl : resLinksData) {
+					switch (rl.getStatus()) {
 						case CREATED:
 							ResourceLink link = new ResourceLink();
 							link.setLinkName(rl.getLinkName());
 							link.setUrl(rl.getUrl());
+							if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+		    					link.setIdParameterName(rl.getIdParamName());
+		    				}
 							saveEntity(link);
 							resLinks.add(link);
 							break;
 						case CHANGED:
 							ResourceLink updatedLink = (ResourceLink) persistence.currentManager()
 								.load(ResourceLink.class, rl.getId());
-							updatedLink.setUrl(rl.getUrl());
 							updatedLink.setLinkName(rl.getLinkName());
+							updatedLink.setUrl(rl.getUrl());
+							if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+								updatedLink.setIdParameterName(rl.getIdParamName());
+		    				}
 							break;
 						case REMOVED:
 							ResourceLink removedLink = (ResourceLink) persistence.currentManager()
@@ -1229,11 +1268,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			} else {
 				//Set<ResourceLink> activityLinks = new HashSet<>();
 				resLinks.clear();
-				for(ResourceLinkData rl : resLinksData) {
-					if(rl.getStatus() != ObjectStatus.REMOVED) {
+				for (ResourceLinkData rl : resLinksData) {
+					if (rl.getStatus() != ObjectStatus.REMOVED) {
 						ResourceLink link = new ResourceLink();
 						link.setLinkName(rl.getLinkName());
 						link.setUrl(rl.getUrl());
+						if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+							link.setIdParameterName(rl.getIdParamName());
+	    				}
 						saveEntity(link);
 						resLinks.add(link);
 						//activityLinks.add(link);
@@ -1521,18 +1563,51 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void saveAssignment(long targetActId, String fileName, String path, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void saveResponse(long targetActId, String path, Date postDate, long userId, 
+			ActivityResultType resType, LearningContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
-						   "act.assignmentLink = :path, " +
-						   "act.assignmentTitle = :fileName " +
+						   "act.result = :path, " +
+						   "act.resultPostDate = :date " +
 						   "WHERE act.id = :actId";
 			
 			persistence.currentManager()
 				.createQuery(query)
 				.setLong("actId", targetActId)
-				.setString("fileName", fileName)
+				.setString("path", path)
+				.setTimestamp("date", postDate)
+				.executeUpdate();
+			
+			User user = new User();
+			user.setId(userId);
+			TargetActivity1 tAct = new TargetActivity1();
+			tAct.setId(targetActId);
+			String lcPage = context != null ? context.getPage() : null; 
+			String lcContext = context != null ? context.getLearningContext() : null; 
+			String lcService = context != null ? context.getService() : null;
+			EventType evType = resType == ActivityResultType.FILE_UPLOAD
+					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
+			eventFactory.generateEvent(evType, user.getId(), tAct, null,
+					lcPage, lcContext, lcService, null);
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving assignment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTextResponse(long targetActId, String path, long userId, 
+			LearningContextData context) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetActivity1 act SET " +
+						   "act.result = :path " +
+						   "WHERE act.id = :actId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("actId", targetActId)
 				.setString("path", path)
 				.executeUpdate();
 			
@@ -1543,12 +1618,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			String lcPage = context != null ? context.getPage() : null; 
 			String lcContext = context != null ? context.getLearningContext() : null; 
 			String lcService = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.AssignmentUploaded, user.getId(), tAct, null,
+			eventFactory.generateEvent(EventType.Typed_Response_Edit, user.getId(), tAct, null,
 					lcPage, lcContext, lcService, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving assignment");
+			throw new DbConnectionException("Error while editing response");
 		}
 	}
 	
@@ -1615,7 +1690,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		//TODO test if EDIT activity button is enabled, if creator id is set in data object
 		CompetenceData1 compData = null;
 		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId);
+			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, true);
 
 			if (activityWithDetails != null) {
 //				String query1 = "SELECT targetComp.title, targetCred.title, targetComp.createdBy.id " +
@@ -1666,22 +1741,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
-	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId) 
+	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
+			boolean loadResourceLinks) 
 			throws DbConnectionException {
 		try {		
-			String query = "SELECT targetAct " +
+			StringBuilder query = new StringBuilder("SELECT targetAct " +
 					   "FROM TargetActivity1 targetAct " +
 					   "INNER JOIN targetAct.targetCompetence targetComp " +
 					   		"WITH targetComp.competence.id = :compId " +
 					   "INNER JOIN targetComp.targetCredential targetCred " +
 					   		"WITH targetCred.credential.id = :credId " +
-					   		"AND targetCred.user.id = :userId " +
-			   		   "LEFT JOIN fetch targetAct.links link " + 
-				       "LEFT JOIN fetch targetAct.files files " +
-			   		   "WHERE targetAct.activity.id = :actId";
+					   		"AND targetCred.user.id = :userId ");
+			if(loadResourceLinks) {
+				query.append("LEFT JOIN fetch targetAct.links link " + 
+							 "LEFT JOIN fetch targetAct.files files ");
+			}
+			query.append("WHERE targetAct.activity.id = :actId");
 
 			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
-					.createQuery(query)
+					.createQuery(query.toString())
 					.setLong("userId", userId)
 					.setLong("credId", credId)
 					.setLong("compId", compId)
@@ -1689,8 +1767,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.uniqueResult();
 
 			if (res != null) {
-				ActivityData activity = activityFactory.getActivityData(res, res.getLinks(), 
-						res.getFiles(), true);
+				Set<ResourceLink> links = loadResourceLinks ? res.getLinks() : null;
+				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
+				ActivityData activity = activityFactory.getActivityData(res, links, 
+						files, true);
 				return activity;
 			}
 			return null;
@@ -1707,8 +1787,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
-						   "act.assignmentLink = :nullString, " +
-						   "act.assignmentTitle = :nullString " +
+						   "act.assignmentLink = :nullString " +
 						   "WHERE act.id = :id";
 			persistence.currentManager()
 				.createQuery(query)
@@ -1862,6 +1941,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ResourceLink rl1 = new ResourceLink();
 					rl1.setUrl(rl.getUrl());
 					rl1.setLinkName(rl.getLinkName());
+					if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+						rl1.setIdParameterName(rl.getIdParameterName());
+    				}
 					saveEntity(rl1);
 					ta.getLinks().add(rl1);
 				}
@@ -2234,6 +2316,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
     			ResourceLink link = new ResourceLink();
 				link.setLinkName(rl.getLinkName());
 				link.setUrl(rl.getUrl());
+				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+					link.setIdParameterName(rl.getIdParameterName());
+				}
 				saveEntity(link);
 				originalActivity.getLinks().add(link);
     		}
@@ -2304,6 +2389,370 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading activity");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
+			long credId, long compId, long actId, long userId) 
+					throws DbConnectionException {
+		CompetenceData1 compData = null;
+		try {			
+			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, false);
+			
+			if (activityWithDetails != null) {
+				/*
+				 * if user hasn't submitted result, null should be returned
+				 */
+				String result = activityWithDetails.getResultData().getResult();
+				if(result == null || result.isEmpty()) {
+					return null;
+				}
+				
+				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, userId, 
+						false, false, false, 0, 0, null));
+				
+				compData = new CompetenceData1(false);
+				compData.setActivityToShowWithDetails(activityWithDetails);
+				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
+				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
+				compData.setActivities(activities);
+				return compData;
+				//}
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity results");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
+			throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+			   "SELECT COUNT(targetAct.id) ");
+			query.append("FROM target_activity1 targetAct " +
+				   	     "INNER JOIN target_competence1 targetComp " +
+				   	   		"ON (targetAct.target_competence = targetComp.id " +
+				   			"AND targetComp.competence = :compId) " +
+				   	     "INNER JOIN target_credential1 targetCred " +
+				   		   "ON (targetComp.target_credential = targetCred.id " +
+					   	   "AND targetCred.credential = :credId) ");
+			
+			if(filter != null) {
+				query.append("LEFT JOIN activity_discussion ad " +
+							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
+							 "LEFT JOIN activity_grade grade " +
+							 "ON ad.grade = grade.id ");
+			}
+
+			query.append("WHERE targetAct.activity = :actId " +
+				   		 "AND targetAct.result is not NULL "); 
+			
+			if(filter != null) {
+				if(filter == StudentAssessedFilter.Assessed) {
+					query.append("AND grade.value IS NOT NULL ");
+				} else {
+					query.append("AND grade.value IS NULL ");
+				}
+			}
+				
+			Query q = persistence.currentManager()
+						.createSQLQuery(query.toString())
+						.setLong("credId", credId)
+						.setLong("compId", compId)
+						.setLong("actId", actId);
+			
+			if(filter != null) {
+				q.setBoolean("boolTrue", true);
+			}
+						
+			BigInteger res = (BigInteger) q.uniqueResult();
+			
+			if(res == null) {
+				return 0L;
+			}
+			return res.longValue();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving number of students results");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
+			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
+			int page, int limit, StudentAssessedFilter filter)  throws DbConnectionException {
+		try {
+			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
+			StringBuilder query = new StringBuilder(
+			   "SELECT targetAct.id as tActId, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
+			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
+		   	   "COUNT(distinct com.id) ");
+			
+			if (returnAssessmentData) {
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points ");
+			}
+			
+			if (returnAssessmentData || filter != null) {
+				query.append(", ad.points ");
+			}
+			
+			query.append("FROM target_activity1 targetAct " +
+				   	     "INNER JOIN target_competence1 targetComp " +
+				   	   		"ON (targetAct.target_competence = targetComp.id " +
+				   			"AND targetComp.competence = :compId) " +
+			   			"INNER JOIN activity1 act " +
+				   			"ON (targetAct.activity = act.id) " +
+				   	     "INNER JOIN target_credential1 targetCred " +
+				   		   "ON (targetComp.target_credential = targetCred.id " +
+					   	   "AND targetCred.credential = :credId ");
+			
+			if (userToExclude > 0) {
+				query.append("AND targetCred.user != :userId) ");
+			} else {
+				query.append(") ");
+			}
+			
+			if (returnAssessmentData || filter != null) {
+				query.append("LEFT JOIN activity_discussion ad " +
+							"ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
+			}
+			
+			if (returnAssessmentData) {
+				query.append("LEFT JOIN activity_discussion_participant p " +
+						 		"ON ad.id = p.activity_discussion AND p.participant = targetCred.user " +
+						 	 "LEFT JOIN activity_discussion_message msg " +
+						 		"ON ad.id = msg.discussion ");
+			}
+		   	   
+			query.append("INNER JOIN user u " +
+				   			"ON (targetCred.user = u.id) " +
+				   		 "LEFT JOIN comment1 com " +
+				   			"ON (targetAct.id = com.commented_resource_id " +
+				   			"AND com.resource_type = :resType " +
+				   			"AND com.parent_comment is NULL) " +
+				   		 "WHERE targetAct.activity = :actId " +
+				   		 "AND targetAct.result is not NULL ");
+			
+			if (filter != null) {
+				if (filter == StudentAssessedFilter.Assessed) {
+					query.append("AND ad.points IS NOT NULL ");
+				} else {
+					query.append("AND ad.points IS NULL ");
+				}
+			}
+				   		
+			query.append("GROUP BY targetAct.id "); 
+			
+			if (returnAssessmentData) {
+				query.append(", ad.id ");
+			}
+			query.append("ORDER BY targetAct.result_post_date ");
+			
+			if (paginate) {
+				query.append("LIMIT " + limit + " ");
+				query.append("OFFSET " + page * limit);
+			}
+				
+			Query q = persistence.currentManager()
+						.createSQLQuery(query.toString())
+						.setLong("credId", credId)
+						.setLong("compId", compId)
+						.setLong("actId", actId)
+						.setString("resType", CommentedResourceType.ActivityResult.name());
+			
+			if (userToExclude > 0) {
+				q.setLong("userId", userToExclude);
+			}
+			if (returnAssessmentData || filter != null) {
+				q.setBoolean("boolTrue", true);
+			}
+	
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+			
+			List<ActivityResultData> results = new ArrayList<>();
+			if (res != null) {
+				for (Object[] row : res) {
+					long tActId = ((BigInteger) row[0]).longValue();
+					org.prosolo.common.domainmodel.credential.ActivityResultType type = 
+							org.prosolo.common.domainmodel.credential.ActivityResultType.valueOf((String) row[1]);
+					String result = (String) row[2];
+					Date date = (Date) row[3];
+					long userId = ((BigInteger) row[4]).longValue();
+					String firstName = (String) row[5];
+					String lastName = (String) row[6];
+					String avatar = (String) row[7];
+					User user = new User();
+					user.setId(userId);
+					user.setName(firstName);
+					user.setLastname(lastName);
+					user.setAvatarUrl(avatar);
+					int commentsNo = ((BigInteger) row[8]).intValue();
+					
+					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
+							date, user, commentsNo, isInstructor);
+					
+					ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId));
+					results.add(ard); 
+					
+					if (returnAssessmentData) {
+						BigInteger assessmentId = (BigInteger) row[9];
+						if(assessmentId != null) {
+							ActivityAssessmentData ad = new ActivityAssessmentData();
+							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
+							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
+							ad.setAllRead(((Character) row[11]).charValue() == 'T');
+							GradeData gd = new GradeData();
+							gd.setMinGrade(0);
+							gd.setMaxGrade((Integer) row[12]);
+							gd.setValue((Integer) row[13]);
+							ad.setGrade(gd);
+							ard.setAssessment(ad);							
+						} else {
+							// there is no activity assessment created yet
+							ActivityAssessmentData ad = new ActivityAssessmentData();
+							GradeData gd = new GradeData();
+							gd.setMinGrade(0);
+							gd.setMaxGrade((Integer) row[12]);
+							gd.setValue(0);
+							ad.setGrade(gd);
+							ard.setAssessment(ad);
+						}
+					}
+				}
+			}
+			return results;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving results for students");
+		}
+	}
+	
+	private List<ResultCommentInfo> getCommentsOnOtherResults(long userId, long targetActivityId) {
+		String query = 
+				"SELECT targetAct.id, user.name, user.lastname, COUNT(DISTINCT com.id) AS noOfComments, MIN(com.post_date) AS firstCommentDate " +
+				"FROM target_activity1 targetAct " +
+				"INNER JOIN activity1 act ON (targetAct.activity = act.id) " +
+				"INNER JOIN target_competence1 targetComp ON (targetAct.target_competence = targetComp.id) " +
+				"INNER JOIN target_credential1 targetCred ON (targetComp.target_credential = targetCred.id) " +
+				"INNER JOIN user user ON (targetCred.user = user.id) " +
+				"LEFT JOIN comment1 com ON (targetAct.id = com.commented_resource_id AND com.resource_type = 'ActivityResult') " +
+				"WHERE act.id IN ( " +
+						"SELECT act1.id " +
+						"FROM target_activity1 targetAct1 " +
+						"INNER JOIN activity1 act1 ON (targetAct1.activity = act1.id) " +
+						"WHERE targetAct1.id = :targetActivityId " +
+					") " +
+					"AND targetAct.id != :targetActivityId " +
+					"AND targetAct.result IS NOT NULL " +
+					"AND com.user = :userId " +
+					"AND user.id != :userId " +
+				"GROUP BY targetAct.id ";
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = persistence.currentManager().createSQLQuery(query)
+				.setLong("targetActivityId", targetActivityId)
+				.setLong("userId", userId)
+				.list();
+		
+		List<ResultCommentInfo> result = new LinkedList<>();
+		
+		for (Object[] row : rows) {
+			long tActId = ((BigInteger) row[0]).longValue();
+			String resultCreator = ((String) row[1]) + " " + ((String) row[2]);
+			int noOfComments = ((BigInteger) row[3]).intValue();
+			Date firstCommentDate = (Date) row[4];
+			
+			result.add(new ResultCommentInfo(noOfComments, resultCreator, firstCommentDate, tActId));
+		}
+		
+		return result;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
+			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+					throws DbConnectionException {
+		try {			
+			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
+			if (activity == null) {
+				return null;
+			}
+			ActivityData data = new ActivityData(false);
+			data.setTitle(activity.getTitle());
+			data.setType(activity.getType());
+			data.setActivityId(actId);
+//			data.getGradeOptions().setMinGrade(activity.getGradingOptions().getMinGrade());
+//			data.getGradeOptions().setMaxGrade(activity.getGradingOptions().getMaxGrade());
+			data.setMaxPointsString(activity.getMaxPoints() == 0 ? "" : String.valueOf(activity.getMaxPoints()));
+			data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
+			data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
+			data.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
+					paginate, page, limit, filter));
+			
+			return data;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading activity results");
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId) {
+		String query = 
+			"SELECT targetAct, targetCred.user " +
+			"FROM TargetActivity1 targetAct " +
+			"INNER JOIN targetAct.targetCompetence targetComp " + 
+			"INNER JOIN targetComp.targetCredential targetCred " + 
+			"WHERE targetAct.id = :targetActivityId";
+		
+		Object[] result = (Object[]) persistence.currentManager()
+			.createQuery(query.toString())
+			.setLong("targetActivityId", targetActivityId)
+			.uniqueResult();
+		
+		if (result != null) {
+			TargetActivity1 targetActivity = (TargetActivity1) result[0];
+			User user = (User) result[1];
+			
+			ActivityResultData activityResult = activityFactory.getActivityResultData(targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
+					targetActivity.getResultPostDate(), user, 0, false);
+			
+			if (loadComments) {
+				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
+						targetActivityId, 
+						instructor);
+				
+				List<CommentData> comments = commentManager.getComments(
+						commentsData.getResourceType(), 
+						commentsData.getResourceId(), false, 0, 
+						CommentBean.getCommentSortData(commentsData), 
+						CommentReplyFetchMode.FetchReplies, 
+						loggedUserId);
+				
+				Collections.reverse(comments);
+				
+				commentsData.setComments(comments);
+				
+				activityResult.setResultComments(commentsData);
+			}
+			
+			return activityResult;
+		} 
+		return null;
 	}
 	
 //	@Override
@@ -2473,5 +2922,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //			throw new DbConnectionException("Error while loading competence data");
 //		}
 //	}
+
+	@Override
+	public TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session){
+		TargetActivity1 targetActivity = (TargetActivity1) session.load(TargetActivity1.class, targetActivityId);
+		System.out.println("REPLACE OUTCOME SHOULD BE PROCESSED HERE...");
+		/*List<Outcome> oldOutcomes = targetActivity.getOutcomes();
+		List<Outcome> newOutcomes = new ArrayList<Outcome>();
+		newOutcomes.add(outcome);
+		targetActivity.setOutcomes(newOutcomes);
+		targetActivity.setCompleted(true);
+		targetActivity.setDateCompleted(new Date());
+		session.save(targetActivity);
+		for (Outcome oldOutcome : oldOutcomes) {
+			try {
+				this.deleteById(SimpleOutcome.class, oldOutcome.getId(), session);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				e.printStackTrace();
+			}
+		}*/
+		return targetActivity;
+	}
 	
 }

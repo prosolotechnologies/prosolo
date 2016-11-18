@@ -12,6 +12,7 @@ import javax.mail.MessagingException;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
@@ -637,7 +638,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 				// If development mode, send only to developer email
 				if (!feedsDigests.isEmpty() && 
 						(!Settings.getInstance().config.application.developmentMode || 
-						email.equals(Settings.getInstance().config.application.developmentEmail))) {
+						email.equals(CommonSettings.getInstance().config.appConfig.developerEmail))) {
 					emailSender.sendEmail(new FeedsEmailGenerator(user.getName(), feedsDigests, dashedDate, interval), email);
 				}
 			} catch (MessagingException | IOException e) {

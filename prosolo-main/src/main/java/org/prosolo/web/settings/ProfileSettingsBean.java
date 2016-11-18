@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
@@ -86,6 +87,9 @@ public class ProfileSettingsBean implements Serializable {
 	@Inject
 	private UserOauthTokensManager oauthAccessTokenManager;
 
+	//URL PARAMS
+	private boolean twitterConnected;
+	
 	private AccountData accountData;
 	private SocialNetworksData socialNetworksData;
 	private boolean connectedToTwitter;
@@ -95,6 +99,10 @@ public class ProfileSettingsBean implements Serializable {
 	public void init() {
 		initAccountData();
 		initSocialNetworksData();
+		
+		if(twitterConnected) {
+			PageUtil.fireSuccessfulInfoMessage("You have connected your Twitter account with ProSolo");
+		}
 	}
 
 	public void initSocialNetworksData() {
@@ -172,7 +180,7 @@ public class ProfileSettingsBean implements Serializable {
 				}
 	
 				init();
-				asyncUpdateUserDataInSocialActivities(accountData);
+				//asyncUpdateUserDataInSocialActivities(accountData);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 		} catch (ResourceCouldNotBeLoadedException e1) {
@@ -186,7 +194,7 @@ public class ProfileSettingsBean implements Serializable {
 			UploadedFile uploadedFile = event.getFile();
 			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUserId(), uploadedFile.getInputstream(),
 					uploadedFile.getFileName(), 300, 300);
-			newAvatar = Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
+			newAvatar = CommonSettings.getInstance().config.appConfig.domain + Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage());
 
@@ -194,6 +202,7 @@ public class ProfileSettingsBean implements Serializable {
 		}
 	}
 
+	@Deprecated
 	private void asyncUpdateUserDataInSocialActivities(final AccountData accountData) {
 		taskExecutor.execute(new Runnable() {
 			@Override
@@ -370,7 +379,9 @@ public class ProfileSettingsBean implements Serializable {
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
-							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLink());
+							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLinkEdit());
+							socialNetowrkAccountData.setLink(socialNetowrkAccountData.getLinkEdit());
+							socialNetowrkAccountData.setChanged(false);
 						} catch (ResourceCouldNotBeLoadedException e) {
 							logger.error(e);
 						}
@@ -430,6 +441,14 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void setConnectedToTwitter(boolean connectedToTwitter) {
 		this.connectedToTwitter = connectedToTwitter;
+	}
+
+	public boolean isTwitterConnected() {
+		return twitterConnected;
+	}
+
+	public void setTwitterConnected(boolean twitterConnected) {
+		this.twitterConnected = twitterConnected;
 	}
 	
 }

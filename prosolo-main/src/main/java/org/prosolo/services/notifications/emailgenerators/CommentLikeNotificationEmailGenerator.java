@@ -12,7 +12,7 @@ public class CommentLikeNotificationEmailGenerator extends NotificationEmailGene
 	
 	@Override
 	public String getSubject() {
-		return "Someone liked your comment on ProSolo";
+		return "Someone liked your comment";
 	}
 
 	public CommentLikeNotificationEmailGenerator(String name, String actor, String predicate, String targetType, String targetTitle,

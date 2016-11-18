@@ -8,7 +8,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -86,7 +85,7 @@ public class NotificationObserver extends EventObserver {
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
 					.getNotificationEventProcessor(event, session);
-			if(processor != null) {
+			if (processor != null) {
 				List<Notification1> notifications = processor.getNotificationList();
 				// make sure all data is persisted to the database
 				session.flush();
@@ -130,7 +129,7 @@ public class NotificationObserver extends EventObserver {
 												session, locale);
 								//session.update(notification.getActor());
 								//session.update(receiver);						 
-								String domain = Settings.getInstance().config.application.domain;
+								String domain = CommonSettings.getInstance().config.appConfig.domain;
 								
 								if (domain.endsWith("/")) {
 									domain = domain.substring(0, domain.length() - 1);
@@ -140,17 +139,31 @@ public class NotificationObserver extends EventObserver {
 								taskExecutor.execute(new Runnable() {
 									@Override
 									public void run() {
-										notificationManager.sendNotificationByEmail(
-												notificationData.getReceiver().getEmail(), 
-												notificationData.getReceiver().getFullName(), 
-												notificationData.getActor().getFullName(), 
-												notificationData.getPredicate(),
-												notificationData.getObjectId(),
-												notificationData.getObjectType(),
-												notificationData.getObjectTitle(),
-												urlPrefix + notificationData.getLink(),
-												DateUtil.getTimeAgoFromNow(notificationData.getDate()),
-												notificationData.getNotificationType());
+										Session session = (Session) defaultManager.getPersistence().openSession();
+										try {
+											logger.info("Sending notification via email to " + notificationData.getReceiver().getEmail());
+											
+											boolean sent = notificationManager.sendNotificationByEmail(
+													notificationData.getReceiver().getEmail(), 
+													notificationData.getReceiver().getFullName(), 
+													notificationData.getActor().getFullName(), 
+													notificationData.getPredicate(),
+													notificationData.getObjectId(),
+													notificationData.getObjectType(),
+													notificationData.getObjectTitle(),
+													urlPrefix + notificationData.getLink(),
+													DateUtil.getTimeAgoFromNow(notificationData.getDate()),
+													notificationData.getNotificationType(),
+													session);
+											
+											if (sent) {
+												logger.info("Email notification to " + notificationData.getReceiver().getEmail() + " is sent.");
+											} else {
+												logger.error("Error sending email notification to " + notificationData.getReceiver().getEmail());
+											}
+										} finally {
+											HibernateUtil.close(session);
+										}
 									}
 								});
 							} catch (Exception e) {
@@ -161,6 +174,8 @@ public class NotificationObserver extends EventObserver {
 						
 					}
 				}
+			} else {
+				logger.error("This notification is not supported by any notification processor." + event);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

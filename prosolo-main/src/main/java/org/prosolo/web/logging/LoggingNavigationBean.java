@@ -14,9 +14,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -174,8 +174,12 @@ public class LoggingNavigationBean implements Serializable {
 		}  
 	}
 	
+	public void logEventWithIp(EventType eventType, String ipAdress, Map<String, String> parameters) {
+		loggingService.logEventObserved(eventType, loggedUser.getUserId(), null, 0, parameters, ipAdress);
+	}
+	
 	public void logEvent(EventType eventType, Map<String, String> parameters) {
-		loggingService.logEventObserved(eventType, loggedUser.getUserId(), null, 0, parameters, getIpAddress());
+		logEventWithIp(eventType, getIpAddress(), parameters);
 	}
 	
 	public void logEvent(EventType eventType, String objectType, Map<String, String> parameters) {

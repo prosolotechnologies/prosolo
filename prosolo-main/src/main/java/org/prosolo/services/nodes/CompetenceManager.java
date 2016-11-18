@@ -80,9 +80,9 @@ public interface CompetenceManager extends AbstractManager {
 
 	boolean disableActivityRecommendations(long targetCompId);
 	
-	public List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException;
+	List<TargetCompetence> getTargetCompetencesForTargetLearningGoal(long goalId) throws DbConnectionException;
 	
-	public void updateCompetenceProgress(long compId, int progress) throws DbConnectionException;
+	void updateCompetenceProgress(long compId, int progress) throws DbConnectionException;
 
 	Competence updateCompetence(long id, String title, String description, int duration, int validity, boolean published,
 			HashSet<Tag> tags) throws DbConnectionException;

@@ -33,17 +33,14 @@
 								<h:panelGroup rendered="#{!comp.published}"><span>(Draft)</span></h:panelGroup>
 							</ui:fragment>
 							
-							<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+							<ui:fragment rendered="#{!cc.attrs.isEdit}">
 								<h:link
 									value="#{comp.title}"
 									outcome="competence">
 									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+									<f:param name="mode" value="preview" disable="#{!cc.attrs.isPreview}"></f:param>
 								</h:link>
-							</ui:fragment>
-							
-							<ui:fragment rendered="#{!cc.attrs.isEdit and cc.attrs.isPreview}">
-								#{comp.title}     
 							</ui:fragment>
 						</h2>
 
@@ -80,14 +77,25 @@
                         
 						<div class="metaBox">
 							<div class="metaLeft">
-								<ui:fragment rendered="#{cc.attrs.isEdit and (cc.attrs.role == 'MANAGER' and comp.type == 'UNIVERSITY_CREATED' || comp.type == 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp))}">
-									<h:link 
-										styleClass="btn btn-green-stroke btn-sm"
-										value="Edit" 
-										outcome="create-competence">
-										<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
-										<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-									</h:link> 
+								<ui:fragment rendered="#{cc.attrs.isEdit}">
+									<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and comp.type eq 'UNIVERSITY_CREATED' || cc.attrs.role eq 'USER' and comp.type eq 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp)}">
+										<h:link 
+											styleClass="btn btn-green-stroke btn-sm"
+											value="Edit" 
+											outcome="create-competence">
+											<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
+											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
+										</h:link> 
+									</ui:fragment>
+									<ui:fragment rendered="#{not (cc.attrs.role eq 'MANAGER' and comp.type eq 'UNIVERSITY_CREATED' || cc.attrs.role eq 'USER' and comp.type eq 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp))}">
+										<a
+											class="btn btn-green-stroke btn-sm"
+											disabled="disabled"
+											data-toggle="tooltip" 
+		                 					title="You are not allowed to edit this competence">
+											Edit
+										</a> 
+									</ui:fragment>
 								</ui:fragment>
                         		
 								<ui:fragment rendered="#{cc.attrs.isEdit}">

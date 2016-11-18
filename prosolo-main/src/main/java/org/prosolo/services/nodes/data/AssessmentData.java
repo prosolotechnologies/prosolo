@@ -23,7 +23,7 @@ public class AssessmentData {
 	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
 		AssessmentData data = new AssessmentData();
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size34x34));
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());

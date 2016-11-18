@@ -11,6 +11,7 @@ import org.prosolo.services.activityWall.filters.Filter;
 public class SessionData {
 
 	private long userId;
+	private String encodedUserId;
 	private String name;
 	private String lastName;
 	private String fullName;
@@ -26,6 +27,18 @@ public class SessionData {
 
 	private UserSettings userSettings;
 	private UserNotificationsSettings notificationsSettings;
+
+	public String getSelectedRole() {
+		System.out.println("GET SELECTED ROLE:"+selectedRole);
+		return selectedRole;
+	}
+
+	public void setSelectedRole(String selectedRole) {
+		System.out.println("Set selected role to:"+selectedRole);
+		this.selectedRole = selectedRole;
+	}
+
+	private String selectedRole;
 	
 	
 	/*
@@ -37,6 +50,14 @@ public class SessionData {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+	
+	public String getEncodedUserId() {
+		return encodedUserId;
+	}
+
+	public void setEncodedUserId(String encodedUserId) {
+		this.encodedUserId = encodedUserId;
 	}
 
 	public String getEmail() {

@@ -11,7 +11,7 @@ public class BasicUserData {
 
 	private long id;
 	private String fullName;
-	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size120x120.png";
 	private String position;
 	private boolean selected;
 	
@@ -22,7 +22,7 @@ public class BasicUserData {
 	public BasicUserData(User user) {
 		this.id = user.getId();
 		setFullName(user.getName(), user.getLastname());
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 	}
 	
 	public BasicUserData(Map<String, Object> userMap) {
@@ -30,7 +30,7 @@ public class BasicUserData {
 		String avatarUrl = (String) userMap.get("avatarUrl");
 		User user = new User();
 		user.setAvatarUrl(avatarUrl);
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 		String firstName = (String) userMap.get("firstName");
 		String lastName = (String) userMap.get("lastName");
 		setFullName(firstName, lastName);

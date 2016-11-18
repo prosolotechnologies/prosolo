@@ -28,6 +28,9 @@ public class FullAssessmentData {
 	private long duration;
 	private long targetCredentialId;
 	private long credentialId;
+	private boolean defaultAssessment;
+	private int points;
+	private int maxPoints;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
@@ -36,10 +39,11 @@ public class FullAssessmentData {
 		
 		FullAssessmentData data = new FullAssessmentData();
 		data.setMessage(assessment.getMessage());
+		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size34x34));
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
 		data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
-		data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size34x34));
+		data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -48,18 +52,21 @@ public class FullAssessmentData {
 		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
 		data.setDuration(assessment.getTargetCredential().getDuration());
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setAssessorId(assessment.getAssessor().getId());
+		data.setDefaultAssessment(assessment.isDefaultAssessment());
+		data.setPoints(assessment.getPoints());
 		
+		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
-		for(CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
+		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
 			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
+			maxPoints += compData.getMaxPoints();
 			compDatas.add(compData);
 		}
+		data.setMaxPoints(maxPoints);
 		data.setCompetenceAssessmentData(compDatas);
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		return data;
-		
 	}
 
 	private static String getInitialsFromName(String fullname) {
@@ -210,6 +217,39 @@ public class FullAssessmentData {
 
 	public void setCredentialId(long credentialId) {
 		this.credentialId = credentialId;
+	}
+
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
+
+	public CompetenceAssessmentData findCompetenceAssessmentData(long compAssessmentId) {
+		for (CompetenceAssessmentData compAssessment : competenceAssessmentData) {
+			if (compAssessment.getCompetenceAssessmentId() == compAssessmentId) {
+				return compAssessment;
+			}
+		}
+		return null;
 	}
 	
 }

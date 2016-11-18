@@ -21,9 +21,11 @@ public class CompetenceAssessment extends BaseEntity {
 	private static final long serialVersionUID = 4528017184503484059L;
 	
 	private boolean approved;
-	private List<ActivityDiscussion> activityDiscussions;
+	private List<ActivityAssessment> activityDiscussions;
 	private CredentialAssessment credentialAssessment;
 	private TargetCompetence1 targetCompetence;
+	private boolean defaultAssessment;
+	private int points;
 	
 	@ManyToOne
 	@JoinColumn(nullable = false,name="credential_assessment")
@@ -46,11 +48,11 @@ public class CompetenceAssessment extends BaseEntity {
 
 	@OneToMany(mappedBy = "assessment")
 	@LazyCollection(LazyCollectionOption.EXTRA)
-	public List<ActivityDiscussion> getActivityDiscussions() {
+	public List<ActivityAssessment> getActivityDiscussions() {
 		return activityDiscussions;
 	}
 
-	public void setActivityDiscussions(List<ActivityDiscussion> activityDiscussions) {
+	public void setActivityDiscussions(List<ActivityAssessment> activityDiscussions) {
 		this.activityDiscussions = activityDiscussions;
 	}
 
@@ -63,9 +65,9 @@ public class CompetenceAssessment extends BaseEntity {
 		this.targetCompetence = targetCompetence;
 	}
 	
-	public ActivityDiscussion getDiscussionByActivityId(long activityId) {
+	public ActivityAssessment getDiscussionByActivityId(long activityId) {
 		if(activityDiscussions != null && !activityDiscussions.isEmpty()) {
-			for(ActivityDiscussion discussion : activityDiscussions) {
+			for(ActivityAssessment discussion : activityDiscussions) {
 				if(discussion.getTargetActivity().getActivity().getId() == activityId){
 					return discussion;
 				}
@@ -74,4 +76,20 @@ public class CompetenceAssessment extends BaseEntity {
 		return null;
 	}
 
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
+	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+	
 }
