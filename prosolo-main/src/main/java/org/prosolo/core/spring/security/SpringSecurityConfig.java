@@ -635,7 +635,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Bean 
     public ClasspathResource classPathResource() throws ResourceException {
-    	return new ClasspathResource("/saml/prosolosamlspmetadata.xml");
+    	return new ClasspathResource("/saml/prosolosamlspmetadataLocal.xml");
     }
     
     @Bean
@@ -717,7 +717,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
         SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
-        successLogoutHandler.setDefaultTargetUrl("/");
+        successLogoutHandler.setDefaultTargetUrl("/login");
         return successLogoutHandler;
     }
      
