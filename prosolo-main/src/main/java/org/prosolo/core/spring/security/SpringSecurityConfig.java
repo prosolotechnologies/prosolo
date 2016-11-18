@@ -635,7 +635,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Bean 
     public ClasspathResource classPathResource() throws ResourceException {
-    	return new ClasspathResource("/saml/prosolosamlspmetadataLocal.xml");
+    	return new ClasspathResource("/saml/prosolosamlspmetadata.xml");
     }
     
     @Bean
