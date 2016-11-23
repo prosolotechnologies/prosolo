@@ -3,6 +3,7 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
 import org.prosolo.bigdata.dal.cassandra.CassandraDDLManager;
@@ -24,13 +25,19 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 
 	private List<String> ddls = new ArrayList<String>();
 	DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
-	String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
-			+ CommonSettings.getInstance().config.getNamespaceSufix();
+	//String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
+		//	+ CommonSettings.getInstance().config.getNamespaceSufix();
 
 	private CassandraDDLManagerImpl() {
+		logger.info("CassandraDDLManagerImpl init");
+
 		this.createDDLs();
 		this.connectCluster();
-		this.checkIfTablesExistsAndCreate(this.dbName);
+
+
+		//if (!Settings.getInstance().config.initConfig.formatDB) {
+			this.checkIfTablesExistsAndCreate(this.dbName);
+		//}
 	}
 
 	public static class CassandraDDLManagerImplHolder {
@@ -181,17 +188,21 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
-		ResultSet rs = session.execute("SELECT * FROM system_schema.keyspaces " +
+		session.execute("USE system_schema;");
+		ResultSet rs = session.execute("SELECT * FROM keyspaces " +
 				"WHERE keyspace_name = '"+ schemaName+"';");
 		Row row = rs.one();
 		if (row == null) {
-			session.execute("CREATE KEYSPACE  IF NOT EXISTS  " + schemaName
+			String createQuery="CREATE KEYSPACE  IF NOT EXISTS  " + schemaName
 					+ " WITH  replication "
 					+ "= {'class':'SimpleStrategy', 'replication_factor':"
-					+ replicationFactor + "};");
+					+ replicationFactor + "};";
+			logger.info("EXECUTE:"+createQuery);
+			session.execute(createQuery);
 
 			try {
 				Thread.sleep(3000);
+				System.out.println("FINISHED SLEEP");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -203,10 +214,35 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 
 	public void dropSchemaIfExists(String schemaName) {
 
-		this.getSession().execute("DROP KEYSPACE  IF EXISTS  " + schemaName);
+			System.out.println("BEFORE DROP:"+schemaName);
+		String selectQuery = "SELECT keyspace_name FROM system_schema.keyspaces where keyspace_name='" + schemaName + "'";
+		ResultSet keyspaceQueryResult = getSession().execute(selectQuery);
+		System.out.println("SELECT FINISHED");
+		if (keyspaceQueryResult.iterator().hasNext()) {
+			String dropQuery = "DROP KEYSPACE " + schemaName+";";
+			int retries=0;
+			while(retries<3){
+			try{
+				logger.info("executing : " + dropQuery);
+				getSession().execute(dropQuery);
+				retries=3;
+			}catch(NoHostAvailableException ex){
+				logger.error(ex);
+				try {
+					Thread.sleep(10000);
+					this.reconnect();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			++retries;
+			}
 
+		}
+		//this.getSession().execute("DROP KEYSPACE " + schemaName);
+		logger.debug("KEYSPACE DROPPED");
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -229,6 +265,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 				this.dbConfig.replicationFactor);
 		Metadata metadata = this.getCluster().getMetadata();
 		metadata.getKeyspace(keyspacename).getTables();
+		this.getSession().execute("USE "+keyspacename);
 		for (String ddl : this.ddls) {
 			try {
 				this.getSession().execute(ddl);

@@ -152,3 +152,17 @@ MATCHING LIST:ListBuffer((C,22.0), (D,18.0), (B,5.0), (A,2.0))
 CLUSTERS ASSOCIATIONS
 cluster:0 matches: C cluster matching:ListBuffer((C,22.0), (D,18.0), (B,5.0), (A,2.0))
 ******************************************************************************************
+ALGORITHM:KMeans
+ALGORITHM:KMeans
+ALGORITHM:KMeans
+ALGORITHM:KMeans
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+ALGORITHM:KMeans
+ALGORITHM:KMeans
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)
+ALGORITHM:KMeans
+PERIOD start:Sun Oct 23 12:55:15 PDT 2016(17097) endDate:Tue Nov 22 12:55:15 PST 2016(17127)

@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
 import org.prosolo.bigdata.es.ESAdministration;
 import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
@@ -31,13 +32,17 @@ public class ContextLoader implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		System.out.println("CONTEXT INITIALIZATION");
-		CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
+
 		if (Settings.getInstance().config.initConfig.formatDB) {
 			String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 					+ CommonSettings.getInstance().config.getNamespaceSufix();
-			dbManager.dropSchemaIfExists(dbName);
-			dbManager.checkIfTablesExistsAndCreate(dbName);
+			CassandraAdminImpl admin=new CassandraAdminImpl();
+			admin.dropSchema();
 			System.out.println("CASSANDRA DB FORMATED:" + dbName);
+			//dbManager.dropSchemaIfExists(dbName);
+			CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
+			// dbManager.checkIfTablesExistsAndCreate(dbName);
+			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
 
 		}
 		ESAdministration esAdmin = new ESAdministrationImpl();
