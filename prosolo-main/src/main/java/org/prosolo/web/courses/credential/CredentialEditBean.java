@@ -15,13 +15,13 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.CredentialEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -32,6 +32,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -70,6 +71,8 @@ public class CredentialEditBean implements Serializable {
 	private int competenceForRemovalIndex;
 	
 	private PublishedStatus[] courseStatusArray;
+	private ResourceVisibility[] visibilityTypes;
+	
 	private Role role;
 
 	private boolean manageSection;
@@ -139,6 +142,7 @@ public class CredentialEditBean implements Serializable {
 		compsToRemove = new ArrayList<>();
 		compsToExcludeFromSearch = new ArrayList<>();
 		courseStatusArray = PublishedStatus.values();
+		visibilityTypes = ResourceVisibility.values();
 	}
 
 	public boolean hasMoreCompetences(int index) {
@@ -190,6 +194,7 @@ public class CredentialEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
+			
 			if(credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
@@ -203,6 +208,7 @@ public class CredentialEditBean implements Serializable {
 				if(saveAsDraft) {
 					credentialData.setStatus(PublishedStatus.DRAFT);
 				}
+				
 				Credential1 cred = credentialManager.saveNewCredential(credentialData,
 						loggedUser.getUserId(), lcd);
 				credentialData.setId(cred.getId());
@@ -219,7 +225,6 @@ public class CredentialEditBean implements Serializable {
 			return true;
 		} catch(DbConnectionException | CredentialEmptyException | CompetenceEmptyException e) {
 			logger.error(e);
-			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
 		}
@@ -450,4 +455,13 @@ public class CredentialEditBean implements Serializable {
 	public void setCompetenceForRemovalIndex(int competenceForRemovalIndex) {
 		this.competenceForRemovalIndex = competenceForRemovalIndex;
 	}
+
+	public ResourceVisibility[] getVisibilityTypes() {
+		return visibilityTypes;
+	}
+
+	public void setVisibilityTypes(ResourceVisibility[] visibilityTypes) {
+		this.visibilityTypes = visibilityTypes;
+	}
+	
 }

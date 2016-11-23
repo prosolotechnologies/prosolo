@@ -51,7 +51,8 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			builder.field("type", comp.getType());
 			builder.field("creatorId", comp.getCreatedBy().getId());
-		
+			builder.field("visible", comp.isVisible());
+			
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(comp);
@@ -68,7 +69,8 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			CompetenceChangeTracker changeTracker, Session session) {
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
-						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged())) {
+						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
+						|| changeTracker.isVisibilityChanged())) {
 			saveCompetenceNode(comp, originalVersionId, session);
 		}
 	}

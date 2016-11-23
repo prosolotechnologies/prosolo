@@ -17,6 +17,9 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -28,15 +31,12 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.CredentialEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
@@ -50,6 +50,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
@@ -105,7 +106,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					data.getTagsString(), data.getHashtagsString(), creatorId,
 					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
-					!data.isAutomaticallyAssingStudents(), data.getCompetences());
+					!data.isAutomaticallyAssingStudents(), data.getCompetences(), data.isCredVisible(), data.getScheduledPublicDate());
 			
 			//generate create event only if credential is published
 			String page = context != null ? context.getPage() : null; 
@@ -116,6 +117,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						service, null);
 			} else {
 				eventFactory.generateEvent(EventType.Create_Draft, creatorId, cred, null, page, lContext,
+						service, null);
+			}
+			
+			if(data.getVisibility() == ResourceVisibility.SCHEDULED && data.getScheduledPublicDate() != null) {
+				eventFactory.generateEvent(EventType.SCHEDULED_PUBLIC, creatorId, cred, null, page, lContext, 
 						service, null);
 			}
 
@@ -730,6 +736,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					eventFactory.generateEvent(ev);
 				}
 			}
+ 			
+ 			if(data.getVisibility() == ResourceVisibility.SCHEDULED && data.getScheduledPublicDate() != null && data.isScheduledPublicDateChanged()) {
+				Credential1 origCred = new Credential1();
+				origCred.setId(originalCredId);
+ 				eventFactory.generateEvent(EventType.SCHEDULED_PUBLIC, userId, origCred, null, page, lContext, 
+						service, null);
+			}
 
 		    return cred;
 		} catch(CredentialEmptyException cee) {
@@ -754,7 +767,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
 	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
 	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
-	    		data.isMandatoryFlowChanged());
+	    		data.isMandatoryFlowChanged(), data.isVisible() != data.isCredVisible());
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -770,7 +783,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					throws EventException {
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(true,
-	    		true, true, true, true, true, true, true);
+	    		true, true, true, true, true, true, true, true);
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -872,6 +885,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
 		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
+		credToUpdate.setVisible(data.isCredVisible());
+		credToUpdate.setScheduledPublicDate(data.getScheduledPublicDate());
 		
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
@@ -2759,4 +2774,81 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving number of users learning credential");
 		}
 	}
+	
+//	public void publishCredential(Credential1 cred, long creatorId, Role role) {
+//		try {
+//			if(cred.isHasDraft()) {
+//				Credential1 draftC = cred.getDraftVersion();
+//				/*
+//				 * check if credential has at least one competence
+//				 */
+//				int compNo = draftC.getCompetences().size();
+//				if(compNo == 0) {
+//					throw new CredentialEmptyException();
+//				}
+//				long draftCompId = draftC.getId();
+//				List<EventData> events = publishDraftVersion(cred, draftC, creatorId, role);
+//				fireCredPublishedAgainEditEvent(creatorId, cred, draftCompId, null, null, null);
+//			} else {
+//				/*
+//				 * check if credential has at least one competence
+//				 */
+//				int compNo = cred.getCompetences().size();
+//				if(compNo == 0) {
+//					throw new CredentialEmptyException();
+//				}
+//				cred.setPublished(true);
+//				eventFactory.generateEvent(fireFirstTimePublishCredEvent(creatorId, cred));
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	private List<EventData> publishDraftVersion(Credential1 originalCred, Credential1 draftCred, long creatorId, Role role) {
+//		originalCred.setTitle(draftCred.getTitle());
+//		originalCred.setDescription(draftCred.getDescription());
+//		originalCred.setCompetenceOrderMandatory(draftCred.isCompetenceOrderMandatory());
+//		originalCred.setStudentsCanAddCompetences(draftCred.isStudentsCanAddCompetences());
+//		originalCred.setDuration(draftCred.getDuration());
+//		originalCred.setManuallyAssignStudents(draftCred.isManuallyAssignStudents());
+//		originalCred.setDefaultNumberOfStudentsPerInstructor(draftCred.getDefaultNumberOfStudentsPerInstructor());
+//	    
+//		
+//		originalCred.setTags(draftCred.getTags());
+//    	originalCred.setHashtags(draftCred.getHashtags());
+//
+//		List<CredentialCompetence1> comps = compManager
+//				.getCredentialCompetences(draftCred.getId(), false, false, true);
+//		deleteCredentialCompetences(originalCred.getId());
+//		List<Long> compIds = new ArrayList<>();
+//	    if(comps != null) {
+//    		for(CredentialCompetence1 cc : comps) {
+//    			CredentialCompetence1 cc1 = new CredentialCompetence1();
+//				cc1.setOrder(cc.getOrder());
+//				cc1.setCredential(originalCred);
+//				cc1.setCompetence(cc.getCompetence());
+//				saveEntity(cc1);
+//				originalCred.getCompetences().add(cc1);
+//				compIds.add(cc1.getCompetence().getId());
+//    		}	
+//	    }
+//	    List<EventData> events = compManager.publishCompetences(compIds, creatorId, role);
+//	    
+//	    originalCred.setHasDraft(false);
+//	    originalCred.setDraftVersion(null);
+//	    originalCred.setPublished(true);
+//    	delete(draftCred);
+//    	
+//    	return events;
+//	}
+//	
+//	private EventData fireFirstTimePublishCredEvent(long userId, Credential1 updatedCred) {
+//		EventData ev = new EventData();
+//		ev.setEventType(EventType.Create);
+//		ev.setActorId(userId);
+//		ev.setObject(updatedCred);
+//		return ev;
+//	}
 }

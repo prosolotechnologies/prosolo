@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Observation;
-import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface ObservationManager {
 

@@ -1,25 +1,41 @@
 package org.prosolo.bigdata.jobs;
 
-import java.util.ArrayList;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 //import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.config.DBConfig;
-import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.QuartzJobConfig;
 import org.prosolo.bigdata.config.SchedulerConfig;
 import org.prosolo.bigdata.config.Settings;
-import org.quartz.*;
+import org.prosolo.bigdata.utils.ScriptRunner;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.MySQLConfig;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.DateBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
 
 /**
  * @author Zoran Jeremic May 18, 2015
@@ -41,14 +57,13 @@ public class CronSchedulerImpl implements CronScheduler {
 
 	Scheduler sched;
 
-	Set<JobWrapper> jobsList;
-	List<String> executedJobs;
+	//Set<JobWrapper> jobsList;
+	//List<String> executedJobs;
 
 	int startupJobsCounter=0;
 
 	private CronSchedulerImpl() {
-		jobsList = new HashSet<JobWrapper>();
-		executedJobs = new ArrayList<String>();
+
 		try {
 			System.out.println("SHOULD AUTOSTART:"
 					+ Settings.getInstance().config.schedulerConfig.autoStart);
@@ -64,11 +79,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		}
 	}
 
-	public void addExecutedJob(String id) {
-		if (!this.executedJobs.contains(id)) {
-			this.executedJobs.add(id);
-		}
-	}
+
 
 	/*
 	 * @Override public InternalResponse addWrappedJob(JobWrapper jobWrapper) {
@@ -83,132 +94,114 @@ public class CronSchedulerImpl implements CronScheduler {
 	 * (SchedulerException e) { // TODO Auto-generated catch block
 	 * e.printStackTrace(); } response.setSuccess(true); return response; }
 	 */
-	public void removeJobTriggerAndWrapper(String jobId) {
-		JobWrapper jobWrapper = findJobWrapper(jobId);
-		if (jobWrapper != null) {
-			Trigger oldTrigger = jobWrapper.getTrigger();
-			try {
-				sched.deleteJob(oldTrigger.getJobKey());
-			} catch (SchedulerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	public void removeJobTrigger(String jobId, String groupId) {
+		try {
+			logger.info("Delete scheduled job:"+jobId);
+			sched.deleteJob(jobKey(jobId, groupId));
+		}catch(SchedulerException e){
+			e.printStackTrace();
 		}
-		jobsList.remove(jobWrapper);
+
+
 	}
 
-	private void removeJobWrapper(String jobId) {
-		Iterator<JobWrapper> iter = jobsList.iterator();
-		while (iter.hasNext()) {
-			JobWrapper job = iter.next();
-			if (job.jobId.equals(jobId)) {
-				iter.remove();
+	public void rescheduleJobTrigger(String jobId, String groupId, Date newDate) {
+		try {
+			logger.info("Reschedule job trigger:" + jobId
+					+ " with trigger:" + newDate.toString());
+			 Trigger oldTrigger = sched.getTrigger(triggerKey(jobId,groupId));
+			//Trigger oldTrigger = sched.getTrigger(jobId,groupId);
+			if(triggerKey(jobId,groupId)==null){
+				System.out.println("TRIGGER KEY IS NULL");
 			}
+			if(oldTrigger!=null){
+				TriggerBuilder tb = oldTrigger.getTriggerBuilder();
+				Trigger newTrigger = tb.startAt(newDate)
+						.build();
+				sched.rescheduleJob(triggerKey(jobId,groupId),newTrigger);
+			}else{
+				logger.error("Trigger was not found for job:"+jobId+" group:"+groupId);
+			}
+
+
+		} catch (SchedulerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
-	public void replaceJobTrigger(String jobId, Date newTime) {
-		JobWrapper jobWrapper = findJobWrapper(jobId);
-		if (jobWrapper != null) {
-			Trigger oldTrigger = jobWrapper.getTrigger();
-			TriggerBuilder tb = oldTrigger.getTriggerBuilder();
-			Trigger newTrigger = tb.startAt(newTime).build();
+	public void updateJobTrigger(String jobId, String groupId, Trigger newTrigger) {
 			try {
-				logger.info("Replace job trigger:" + oldTrigger.getKey()
+				logger.info("Replace job trigger:" + jobId
 						+ " with " + newTrigger.getKey());
-				sched.deleteJob(oldTrigger.getJobKey());
-				sched.scheduleJob(jobWrapper.jobDetail, newTrigger);
-				jobWrapper.setTrigger(newTrigger);
-				this.replaceJobWrapper(jobId, jobWrapper);
+				 sched.rescheduleJob(triggerKey(jobId,groupId),newTrigger);
+
 
 			} catch (SchedulerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
 		}
-	}
 
-	public void rescheduleJobTrigger(String jobId, Date newTime) {
-		JobWrapper jobWrapper = findJobWrapper(jobId);
-		if (jobWrapper != null) {
-			Trigger oldTrigger = jobWrapper.getTrigger();
-			TriggerBuilder tb = oldTrigger.getTriggerBuilder();
-			Trigger newTrigger = tb.startAt(newTime).build();
-			try {
-				sched.rescheduleJob(oldTrigger.getKey(), newTrigger);
-			} catch (SchedulerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-	}
-
-	public boolean isJobExecuted(String id) {
-		if (executedJobs.contains(id)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public JobWrapper findJobWrapper(String jobId) {
-		for (JobWrapper job : jobsList) {
-			if (job.jobId.equals(jobId)) {
-				return job;
-			}
-		}
-		return null;
-	}
-
-	public void replaceJobWrapper(String jobId, JobWrapper newWrapper) {
-		Iterator<JobWrapper> iter = jobsList.iterator();
-		while (iter.hasNext()) {
-			JobWrapper job = iter.next();
-			if (job.jobId.equals(jobId)) {
-				iter.remove();
-			}
-		}
-		jobsList.add(newWrapper);
-	}
-
-	public boolean isJobExistsInJobListById(String id) {
-		for (JobWrapper job : jobsList) {
-			if (job.jobId.equals(id)) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-
-	public void removeExecutedJob(String id) {
-		if (this.executedJobs.contains(id)) {
-			this.executedJobs.remove(id);
-		}
-	}
 
 	public void startScheduler() throws SchedulerException  {
 		// System.getProperties()
 		// .put("org.quartz.properties", "quartz.properties");
-		// DBConfig dbConfig=Settings.getInstance().config.dbConfig;
+		MySQLConfig mySQLConfig=CommonSettings.getInstance().config.mysqlConfig;
+		String username = mySQLConfig.user;
+		String password = mySQLConfig.password;
+		String host = mySQLConfig.host;
+		int port = mySQLConfig.port;
+		 String database = mySQLConfig.database;
+		//String database="prosolo2";
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 
 		// String
 		// mongoUri="mongodb://"+serverConfig.dbHost+":"+serverConfig.dbPort;
 		SchedulerConfig schedConfig = Settings.getInstance().config.schedulerConfig;
+		// Main Quartz configuration
 		logger.info("STARTING CRON SCHEDULER:");
 		System.setProperty("org.quartz.scheduler.instanceName",
 				schedConfig.instanceName);
-		System.setProperty("org.quartz.threadPool.threadCount",
-				String.valueOf(schedConfig.threadCount));
-		System.setProperty("org.quartz.jobStore.class",
-				schedConfig.jobStoreClass);
-		// System.setProperty("org.quartz.jobStore.mongoUri",mongoUri);
-		// System.setProperty("org.quartz.jobStore.dbName",dbConfig.dbQuartzName);
-		// System.setProperty("org.quartz.jobStore.collectionPrefix",schedConfig.collectionPrefix);
-		// # comma separated list of mongodb hosts/replica set seeds (optional
-		// if 'org.quartz.jobStore.mongoUri' is set)
-		// org.quartz.jobStore.addresses=host1,host2
+		//System.setProperty("org.quartz.threadPool.threadCount",
+		//		String.valueOf(schedConfig.threadCount));
+		//System.setProperty("org.quartz.jobStore.class",
+			//	schedConfig.jobStoreClass);
+		 System.setProperty("org.quartz.scheduler.skipUpdateCheck","true");
+		System.setProperty("org.quartz.scheduler.instanceName","DatabaseScheduler");
+		System.setProperty("org.quartz.scheduler.instanceId","NON_CLUSTERED");
+		System.setProperty("org.quartz.scheduler.jobFactory.class","org.quartz.simpl.SimpleJobFactory");
+		System.setProperty("org.quartz.jobStore.class","org.quartz.impl.jdbcjobstore.JobStoreTX");
+		System.setProperty("org.quartz.jobStore.driverDelegateClass","org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+		System.setProperty("org.quartz.jobStore.dataSource","quartzDataSource");
+		System.setProperty("org.quartz.jobStore.tablePrefix","QRTZ_");
+		System.setProperty("org.quartz.threadPool.class","org.quartz.simpl.SimpleThreadPool");
+		System.setProperty("org.quartz.threadPool.threadCount","5");
+
+// JobStore: JDBC jobStoreTX
+		System.setProperty("org.quartz.dataSource.quartzDataSource.driver","com.mysql.jdbc.Driver");
+		System.setProperty("org.quartz.dataSource.quartzDataSource.URL", url);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
+		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
+if(Settings.getInstance().config.initConfig.formatDB){
+	try{
+		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
+		ScriptRunner runner = new ScriptRunner(con, true, true);
+		InputStream inpStream = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
+		runner.runScript(new InputStreamReader(inpStream));
+	}catch(SQLException ex){
+		logger.error(ex);
+	}catch(FileNotFoundException fex){
+		logger.error(fex);
+	}catch(IOException ioex){
+		logger.error(ioex);
+	}
+}
+
 		SchedulerFactory sf = new StdSchedulerFactory();
 
 		sched = sf.getScheduler();
@@ -269,21 +262,20 @@ public class CronSchedulerImpl implements CronScheduler {
 		CronSchedulerImpl.getInstance().addWrappedJob(jobWrapper);
 	}
 
-	private void addWrappedJob(org.prosolo.bigdata.jobs.JobWrapper jobWrapper) {
-		jobsList.add(jobWrapper);
-		try {
+	public void addWrappedJob(org.prosolo.bigdata.jobs.JobWrapper jobWrapper) {
+ 		try {
 			if (sched == null || sched.isShutdown()) {
 				logger.error("Scheduler is not running");
 			}
-			if (jobWrapper.getDependencies().size() == 0) {
+
 				sched.scheduleJob(jobWrapper.jobDetail, jobWrapper.trigger);
-			} else {
-				sched.addJob(jobWrapper.jobDetail, true);
-			}
+
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
 	}
+
+
 
 	@Override
 	public void checkAndActivateJob(String jobClassName, QuartzJobConfig jobConfig)
@@ -295,7 +287,7 @@ public class CronSchedulerImpl implements CronScheduler {
 				.forName(jobClassName);
 
 		if (jobConfig.activated) {
-			JobKey jobKey = JobKey.jobKey(jobClassName, "job");
+			JobKey jobKey = jobKey(jobClassName, "job");
 
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
 			jobBuilder.withIdentity(jobKey);
@@ -315,7 +307,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		if (jobConfig.onStartup) {
 			this.startupJobsCounter++;
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
-			JobKey jobKey = JobKey.jobKey(jobClassName+"_startup", "job");
+			JobKey jobKey = jobKey(jobClassName+"_startup", "job");
 			jobBuilder.withIdentity(jobKey);
 			System.out.println("RUNNING ON startup JOB:"+jobClassName);
 			jobBuilder.storeDurably();
@@ -332,5 +324,12 @@ public class CronSchedulerImpl implements CronScheduler {
 
 		}
 
+	}
+
+
+
+	@Override
+	public boolean isJobAlreadyRunning(String jobId, String groupId) throws SchedulerException {
+		return sched.checkExists(jobKey(jobId, groupId));
 	}
 }

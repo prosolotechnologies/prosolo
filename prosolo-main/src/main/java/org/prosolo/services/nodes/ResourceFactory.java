@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -35,7 +36,6 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
@@ -119,7 +119,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
 			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps);
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps, boolean visible, Date scheduledDate);
 
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
@@ -139,7 +139,7 @@ public interface ResourceFactory extends AbstractManager {
 	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId);
+			long credentialId, boolean visible, Date scheduledPublicDate);
 
 	Result<Credential1> updateCredential(CredentialData data, long creatorId, 
     		org.prosolo.services.nodes.data.Role role);

@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +63,9 @@ public class Credential1 extends BaseEntity {
 	
 	private List<FeedSource> blogs;
 	private List<FeedSource> excludedFeedSources;
+	
+	private boolean visible;
+	private Date scheduledPublicDate;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -251,6 +255,22 @@ public class Credential1 extends BaseEntity {
 	public void setAnnouncements(List<Announcement> announcements) {
 		this.announcements = announcements;
 	}
-	
-	
+
+	@Column(name="scheduled_public_date")
+	public Date getScheduledPublicDate() {
+		return scheduledPublicDate;
+	}
+
+	public void setScheduledPublicDate(Date scheduledPublicDate) {
+		this.scheduledPublicDate = scheduledPublicDate;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
 }

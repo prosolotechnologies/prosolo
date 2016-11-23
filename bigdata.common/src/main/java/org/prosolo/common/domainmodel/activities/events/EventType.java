@@ -118,7 +118,9 @@ public enum EventType {
 	AnnouncementPublished,
 	
 	Typed_Response_Posted,
-	Typed_Response_Edit;
+	Typed_Response_Edit,
+	
+	SCHEDULED_PUBLIC;
 	
 	private String customText;
 	

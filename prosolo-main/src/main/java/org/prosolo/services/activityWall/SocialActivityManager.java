@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
@@ -12,7 +13,6 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentData;
 
