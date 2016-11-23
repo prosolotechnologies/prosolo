@@ -51,7 +51,7 @@ public class CompetenceDataFactory {
 		
 		comp.setScheduledPublicDate(competence.getScheduledPublicDate());
 		if(competence.getScheduledPublicDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 			String formattedDate = sdf.format(competence.getScheduledPublicDate());
 			comp.setScheduledPublicDateValue(formattedDate);
 		}

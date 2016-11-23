@@ -54,7 +54,7 @@ public class CredentialDataFactory {
 
 		cred.setScheduledPublicDate(credential.getScheduledPublicDate());
 		if(credential.getScheduledPublicDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 			String formattedDate = sdf.format(credential.getScheduledPublicDate());
 			cred.setScheduledPublicDateValue(formattedDate);
 		}

@@ -304,7 +304,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public void setScheduledPublicDateValue(String scheduledPublicDateValue) {
 		this.scheduledPublicDateValue = scheduledPublicDateValue;
 		if(StringUtils.isNotBlank(scheduledPublicDateValue)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 			Date d = null;
 			try {
 				d = sdf.parse(scheduledPublicDateValue);
