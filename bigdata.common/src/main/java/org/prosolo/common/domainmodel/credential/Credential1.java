@@ -46,7 +46,6 @@ public class Credential1 extends BaseEntity {
 	private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
 	private List<Announcement> announcements;
-	private Date scheduledPublishDate;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
@@ -64,6 +63,9 @@ public class Credential1 extends BaseEntity {
 	
 	private List<FeedSource> blogs;
 	private List<FeedSource> excludedFeedSources;
+	
+	private boolean visible;
+	private Date scheduledPublicDate;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -254,14 +256,21 @@ public class Credential1 extends BaseEntity {
 		this.announcements = announcements;
 	}
 
-	@Column(name="scheduled_publish_date")
-	public Date getScheduledPublishDate() {
-		return scheduledPublishDate;
+	@Column(name="scheduled_public_date")
+	public Date getScheduledPublicDate() {
+		return scheduledPublicDate;
 	}
 
-	public void setScheduledPublishDate(Date scheduledPublishDate) {
-		this.scheduledPublishDate = scheduledPublishDate;
+	public void setScheduledPublicDate(Date scheduledPublicDate) {
+		this.scheduledPublicDate = scheduledPublicDate;
 	}
-	
-	
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
 }

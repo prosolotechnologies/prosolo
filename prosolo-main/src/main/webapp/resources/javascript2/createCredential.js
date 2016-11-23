@@ -53,11 +53,14 @@ function onStatusChange() {
 		$('#noteDraft').hide();
 		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview');
 	}
+}
+
+function onVisibilityChange() {
+	var vis = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectVisibility').val();
 	//handle publish status
-	if(status === "SCHEDULED") {
+	if(vis === "SCHEDULED") {
 		$("[id$=datetimepicker4]").show()
-	}
-	else {
+	} else {
 		$("[id$=datetimepicker4]").val("")
 		$("[id$=datetimepicker4]").hide()
 	}

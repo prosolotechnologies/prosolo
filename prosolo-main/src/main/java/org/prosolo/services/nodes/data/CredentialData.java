@@ -1,11 +1,14 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -15,6 +18,8 @@ import org.prosolo.services.nodes.util.TimeUtil;
 public class CredentialData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = -8784334832131740545L;
+	
+	private static Logger logger = Logger.getLogger(CredentialData.class);
 	
 	private long id;
 	private String title;
@@ -53,12 +58,25 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private Date date;
 	private boolean instructorPresent;
 	
-	private Date sheduledPublishDate;
+	private boolean visible;
+	private ResourceVisibility visibility;
+	private Date scheduledPublicDate;
+	private String scheduledPublicDateValue;
 	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
+		this.visibility = ResourceVisibility.PRIVATE;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
+	}
+	
+	public void setVisibility(boolean visible, Date scheduledPublicDate) {
+		this.visibility =  visible ? ResourceVisibility.PUBLIC : 
+			(scheduledPublicDate != null ? ResourceVisibility.SCHEDULED : ResourceVisibility.PRIVATE);
+	}
+	
+	public boolean isCredVisible() {
+		return this.visibility == ResourceVisibility.PUBLIC ? true : false;
 	}
 	
 	/**
@@ -256,40 +274,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setDurationString(String durationString) {
 		this.durationString = durationString;
 	}
-
-	//change tracking get methods
-	
-	public boolean isTitleChanged() {
-		return changedAttributes.containsKey("title");
-	}
-
-	public boolean isDescriptionChanged() {
-		return changedAttributes.containsKey("description");
-	}
-
-	public boolean isTagsStringChanged() {
-		return changedAttributes.containsKey("tagsString");
-	}
-
-	public boolean isHashtagsStringChanged() {
-		return changedAttributes.containsKey("hashtagsString");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
-
-	public boolean isStatusChanged() {
-		return changedAttributes.containsKey("status");
-	}
-
-	public boolean isMandatoryFlowChanged() {
-		return changedAttributes.containsKey("mandatoryFlow");
-	}
-	
-	public boolean isDurationChanged() {
-		return changedAttributes.containsKey("duration");
-	}
 	
 	public Set<Tag> getTags() {
 		return tags;
@@ -423,14 +407,89 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.instructorPresent = instructorPresent;
 	}
 
-	public Date getSheduledPublishDate() {
-		return sheduledPublishDate;
+	public Date getScheduledPublicDate() {
+		return scheduledPublicDate;
 	}
 
-	public void setSheduledPublishDate(Date sheduledPublishDate) {
-		this.sheduledPublishDate = sheduledPublishDate;
+	public void setScheduledPublicDate(Date scheduledPublicDate) {
+		observeAttributeChange("scheduledPublicDate", this.scheduledPublicDate, scheduledPublicDate, 
+				(Date d1, Date d2) -> d1 == null ? d2 == null : d1.compareTo(d2) == 0);
+		this.scheduledPublicDate = scheduledPublicDate;
+	}
+
+	public ResourceVisibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(ResourceVisibility visibility) {
+		observeAttributeChange("visibility", this.visibility, visibility);
+		this.visibility = visibility;
+	}
+
+	public String getScheduledPublicDateValue() {
+		return scheduledPublicDateValue;
+	}
+
+	public void setScheduledPublicDateValue(String scheduledPublicDateValue) {
+		this.scheduledPublicDateValue = scheduledPublicDateValue;
+		if(StringUtils.isNotBlank(scheduledPublicDateValue)) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			Date d = null;
+			try {
+				d = sdf.parse(scheduledPublicDateValue);
+			} catch(Exception e) {
+				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublicDateValue), e);
+			}
+			setScheduledPublicDate(d);
+		}
+	}
+
+	//change tracking get methods
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
+	}
+
+	public boolean isHashtagsStringChanged() {
+		return changedAttributes.containsKey("hashtagsString");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+
+	public boolean isStatusChanged() {
+		return changedAttributes.containsKey("status");
+	}
+
+	public boolean isMandatoryFlowChanged() {
+		return changedAttributes.containsKey("mandatoryFlow");
 	}
 	
+	public boolean isDurationChanged() {
+		return changedAttributes.containsKey("duration");
+	}
+	
+	public boolean isScheduledPublicDateChanged() {
+		return changedAttributes.containsKey("scheduledPublicDate");
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
 	
 
 }

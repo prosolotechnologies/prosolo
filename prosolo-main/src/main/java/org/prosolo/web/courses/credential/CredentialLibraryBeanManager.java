@@ -18,7 +18,7 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;

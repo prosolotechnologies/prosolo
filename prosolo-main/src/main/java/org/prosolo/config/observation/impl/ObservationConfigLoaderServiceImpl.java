@@ -5,10 +5,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.config.observation.ObservationConfig;
 import org.prosolo.config.observation.ObservationConfigLoader;
 import org.prosolo.config.observation.ObservationConfigLoaderService;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;

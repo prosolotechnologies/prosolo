@@ -20,10 +20,13 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-datetimepicker.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
-	   
-	    
+		
 	    <div class="whiteBar">
 	
 	    </div>
@@ -191,6 +194,9 @@
 			            		id="compSideBar"
 			            		publishValues="#{competenceEditBean.compStatusArray}" 
 			            		publishValue="#{competenceEditBean.competenceData.status}"
+			            		visibilityValues="#{competenceEditBean.visibilityTypes}"
+								visibilityValue="#{competenceEditBean.competenceData.visibility}"
+								scheduledDateValue="#{competenceEditBean.competenceData.scheduledPublicDateValue}"
 			            		saveAction="#{competenceEditBean.save}"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 			            		previewAction="#{competenceEditBean.preview}"

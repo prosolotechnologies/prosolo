@@ -6,9 +6,9 @@ package org.prosolo.services.interaction;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.event.context.data.LearningContextData;

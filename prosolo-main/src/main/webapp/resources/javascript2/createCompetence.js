@@ -28,3 +28,14 @@ function onStatusChange() {
 		$('#' + containerId + '\\:formMain\\:compSideBar\\:linkPreview').text('Preview');
 	}
 }
+
+function onVisibilityChange() {
+	var vis = $('#' + containerId + '\\:formMain\\:compSideBar\\:selectVisibility').val();
+	//handle publish status
+	if(vis === "SCHEDULED") {
+		$("[id$=datetimepicker4]").show()
+	} else {
+		$("[id$=datetimepicker4]").val("")
+		$("[id$=datetimepicker4]").hide()
+	}
+}

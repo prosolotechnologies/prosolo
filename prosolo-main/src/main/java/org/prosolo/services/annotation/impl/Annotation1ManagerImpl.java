@@ -1,13 +1,13 @@
 package org.prosolo.services.annotation.impl;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.Annotation1;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.annotation.AnnotationManager;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

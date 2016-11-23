@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
@@ -11,7 +12,6 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;

@@ -9,8 +9,8 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;

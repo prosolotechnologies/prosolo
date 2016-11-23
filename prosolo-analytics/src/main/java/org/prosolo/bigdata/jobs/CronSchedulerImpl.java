@@ -146,9 +146,6 @@ public class CronSchedulerImpl implements CronScheduler {
 		}
 
 
-
-
-
 	public void startScheduler() throws SchedulerException  {
 		// System.getProperties()
 		// .put("org.quartz.properties", "quartz.properties");

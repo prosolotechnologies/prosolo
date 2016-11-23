@@ -49,7 +49,7 @@ public class StreamingManagerImpl {
 		
 		//register observer that schedules credential publishing
 		StreamConsumerManager.getInstance().getEventDispatcher()
-		.registerObserver(new ScheduledCredentialObserver());
+		.registerObserver(new ScheduledResourceVisibilityUpdateObserver());
 
 		// Start streaming from Moodle/Kafka
 		StreamConsumerManager.getInstance().startTopicStreaming(Topic.LOGS, 1);

@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.AssessmentData;
 import org.prosolo.services.nodes.data.AssessmentRequestData;

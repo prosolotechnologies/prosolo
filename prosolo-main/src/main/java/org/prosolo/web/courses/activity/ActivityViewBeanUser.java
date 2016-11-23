@@ -12,9 +12,9 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;

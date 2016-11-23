@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.factory;
 
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -47,6 +48,15 @@ public class CompetenceDataFactory {
 			comp.setTags(tags);
 			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
+		
+		comp.setScheduledPublicDate(competence.getScheduledPublicDate());
+		if(competence.getScheduledPublicDate() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			String formattedDate = sdf.format(competence.getScheduledPublicDate());
+			comp.setScheduledPublicDateValue(formattedDate);
+		}
+		comp.setVisible(competence.isVisible());
+		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		

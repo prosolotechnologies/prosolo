@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.factory;
 
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -51,6 +52,15 @@ public class CredentialDataFactory {
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
+		cred.setScheduledPublicDate(credential.getScheduledPublicDate());
+		if(credential.getScheduledPublicDate() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm a");
+			String formattedDate = sdf.format(credential.getScheduledPublicDate());
+			cred.setScheduledPublicDateValue(formattedDate);
+		}
+		cred.setVisible(credential.isVisible());
+		cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
+		
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();
 		}

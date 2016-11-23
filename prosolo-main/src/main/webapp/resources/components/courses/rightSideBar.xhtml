@@ -14,6 +14,9 @@
 	<composite:interface>
 		<composite:attribute name="publishValues" required="true" />
 		<composite:attribute name="publishValue" required="true" />
+		<composite:attribute name="visibilityValues" />
+		<composite:attribute name="visibilityValue" />
+		<composite:attribute name="scheduledDateValue" />
 		<composite:attribute name="saveAction" required="true" method-signature="void save()"/>
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
@@ -44,21 +47,30 @@
 					itemValue="#{status}" itemLabel="#{status.label}" />
 			</h:selectOneMenu>
 			
+			<h:selectOneMenu 
+				id="selectVisibility" styleClass="selectpicker" 
+				value="#{cc.attrs.visibilityValue}"
+				onchange="onVisibilityChange();">
+				<f:selectItems value="#{cc.attrs.visibilityValues}" var="vis"
+					itemValue="#{vis}" itemLabel="#{vis.label}" />
+			</h:selectOneMenu>
+			
 			<script>
 				$('.selectpicker').selectpicker('refresh');
 				$(function () {
-				    $("[id$=datetimepicker4]").datetimepicker();
+				    $("[id$=datetimepicker4]").datetimepicker({
+				    	minDate : new Date()
+				    });
 				    $("[id$=datetimepicker4]").keypress(function(event) {event.preventDefault();});
-				    var status = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
+				    var status = $(document.getElementById("#{cc.clientId}:selectVisibility")).val();
 					if(status != "SCHEDULED") {
 						$("[id$=datetimepicker4]").hide();
 					}
-				});
-				
+				});	
 			</script>
 			
 			<div class="datePickerRow">
-                 <h:inputText value="#{credentialEditBean.scheduledPublishDateValue}" style="width:100%;" 
+                 <h:inputText value="#{cc.attrs.scheduledDateValue}" style="width:100%;" 
                  type="text" id="datetimepicker4" placeholder="Date and Time" />
             </div>
 			<br />

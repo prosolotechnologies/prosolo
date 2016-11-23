@@ -5,11 +5,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.Query;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;

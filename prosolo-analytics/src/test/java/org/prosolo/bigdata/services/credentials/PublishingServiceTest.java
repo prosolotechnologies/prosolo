@@ -3,7 +3,8 @@ package org.prosolo.bigdata.services.credentials;/**
  */
 
 import org.junit.Test;
-import org.prosolo.bigdata.services.credentials.impl.PublishingServiceImpl;
+import org.prosolo.bigdata.jobs.data.Resource;
+import org.prosolo.bigdata.services.credentials.impl.ResourceVisibilityServiceImpl;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -16,7 +17,7 @@ public class PublishingServiceTest {
     @Test
     public void testCredentialPublishing(){
 
-        PublishingService service=new PublishingServiceImpl();
+        VisibilityService service=new ResourceVisibilityServiceImpl();
        long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
         Calendar date = Calendar.getInstance();
@@ -24,13 +25,13 @@ public class PublishingServiceTest {
 
         //publish time in a few minutes
         Date publishingDate=new Date(t + (1 * ONE_MINUTE_IN_MILLIS));
-        service.publishCredentialAtSpecificTime(credentialId,publishingDate);
+        service.updateVisibilityAtSpecificTime(credentialId, Resource.CREDENTIAL, publishingDate);
 
     }
     @Test
     public void testCredentialPublishingUpdateOnly(){
 
-        PublishingService service=new PublishingServiceImpl();
+        VisibilityService service=new ResourceVisibilityServiceImpl();
         long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
         Calendar date = Calendar.getInstance();
@@ -38,12 +39,12 @@ public class PublishingServiceTest {
 
 
         Date newPublishingDate=new Date(t + (2 * ONE_MINUTE_IN_MILLIS));
-        service.updatePublishingCredentialAtSpecificTime(credentialId,newPublishingDate);
+        service.changeVisibilityUpdateTime(credentialId, Resource.CREDENTIAL, newPublishingDate);
     }
     @Test
     public void testCredentialPublishingUpdate(){
 
-        PublishingService service=new PublishingServiceImpl();
+        VisibilityService service=new ResourceVisibilityServiceImpl();
         long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
         Calendar date = Calendar.getInstance();
@@ -52,7 +53,7 @@ public class PublishingServiceTest {
         //publish time in a few minutes
         Date publishingDate=new Date(t + (1 * ONE_MINUTE_IN_MILLIS));
         System.out.println("PUBLISH DATE:"+publishingDate.toString()+" ms:"+publishingDate.getTime());
-        service.publishCredentialAtSpecificTime(credentialId,publishingDate);
+        service.updateVisibilityAtSpecificTime(credentialId, Resource.CREDENTIAL, publishingDate);
 
         try {
             Thread.sleep(10000);
@@ -61,18 +62,18 @@ public class PublishingServiceTest {
         }
         Date newPublishingDate=new Date(t + (2 * ONE_MINUTE_IN_MILLIS));
         System.out.println("UPDATE DATE:"+newPublishingDate.toString()+" ms:"+newPublishingDate.getTime());
-        service.updatePublishingCredentialAtSpecificTime(credentialId,newPublishingDate);
+        service.changeVisibilityUpdateTime(credentialId, Resource.CREDENTIAL, newPublishingDate);
     }
     @Test
     public void testCredentialPublishingDelete(){
 
-        PublishingService service=new PublishingServiceImpl();
+        VisibilityService service=new ResourceVisibilityServiceImpl();
         long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
         Calendar date = Calendar.getInstance();
         long t= date.getTimeInMillis();
         //publish time in a few minutes
-         service.deletePublishingCredential(credentialId);
+         service.cancelVisibilityUpdate(credentialId, Resource.CREDENTIAL);
 
 
 

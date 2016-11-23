@@ -12,7 +12,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.nodes.CredentialManager;

@@ -44,6 +44,10 @@
 			"creatorId":{
 				"store": false,
 				"type":"long"
+			},
+			"visible":{
+				"store": false,
+				"type": "boolean"
 			}
 		}
 			

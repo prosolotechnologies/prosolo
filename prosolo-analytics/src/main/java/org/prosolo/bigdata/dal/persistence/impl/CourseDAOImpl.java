@@ -1,11 +1,14 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
@@ -73,5 +76,44 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 		session.createQuery(query)
 		 	.setParameter("credId", credentialId)
 		 .executeUpdate();
+	}
+	
+	@Override
+	public void setPublicVisibilityForCredential(long credentialId) throws DbConnectionException {
+		try {
+			String query = "UPDATE Credential1 cred " +
+						   "SET visible = :visibility, " +
+						   "scheduledPublicDate = :date " +
+						   "WHERE cred.id = :credId";
+			session
+				.createQuery(query)
+				.setLong("credId", credentialId)
+				.setBoolean("visibility", true)
+				.setDate("date", null)
+				.executeUpdate();
+			
+			CredentialIndexerImpl.getInstance().updateVisibilityToPublic(credentialId);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential visibility");
+		}
+	}
+	
+	@Override
+	public Date getScheduledVisibilityUpdateDate(long credId) {
+		String query = 
+			"SELECT cred.scheduledPublicDate " +
+			"FROM Credential1 cred " +
+			"WHERE cred.id = :credId";
+		try {
+			 return (Date) session.createQuery(query)
+					 .setParameter("credId", credId)
+					 .uniqueResult();
+		} catch(Exception ex) {
+			logger.error(ex);
+			ex.printStackTrace();
+		}
+		return null;
 	}
 }
