@@ -101,7 +101,7 @@ public class UserSessionDataLoader implements Serializable{
 	}
 	
 	private String initializeAvatar(String avatarUrl) {
-		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size60x60);
+		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size120x120);
 	}
 
 	private void registerNewUserSession(User user, HttpSession session) {

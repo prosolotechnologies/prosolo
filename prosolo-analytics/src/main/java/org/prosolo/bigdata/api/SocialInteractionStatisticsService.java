@@ -117,7 +117,7 @@ public class SocialInteractionStatisticsService {
 			@Override
 			public void accept(Long key) {
 				String avatar = studentsData.get(key).get("avatar");
-				studentsData.get(key).put("avatar", getAvatarUrlInFormat(key, avatar, ImageFormat.size60x60));
+				studentsData.get(key).put("avatar", getAvatarUrlInFormat(key, avatar, ImageFormat.size120x120));
 			}
 
 		});

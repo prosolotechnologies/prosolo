@@ -358,7 +358,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 		
 		return q + specificPartOfTheCondition +	
-			"GROUP BY sa.id, compActivity.competence " +
+			"GROUP BY sa.id, compActivity.competence, annotation.id " +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +

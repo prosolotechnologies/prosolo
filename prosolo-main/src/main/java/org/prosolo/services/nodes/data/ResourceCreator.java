@@ -24,7 +24,7 @@ public class ResourceCreator {
 	}
 	
 	public void setAvatarUrl(String avatarUrl) {
-		this.avatar = AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size60x60);
+		this.avatar = AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size120x120);
 	}
 
 	public String getName() {

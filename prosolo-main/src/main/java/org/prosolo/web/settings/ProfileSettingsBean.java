@@ -87,6 +87,9 @@ public class ProfileSettingsBean implements Serializable {
 	@Inject
 	private UserOauthTokensManager oauthAccessTokenManager;
 
+	//URL PARAMS
+	private boolean twitterConnected;
+	
 	private AccountData accountData;
 	private SocialNetworksData socialNetworksData;
 	private boolean connectedToTwitter;
@@ -96,6 +99,10 @@ public class ProfileSettingsBean implements Serializable {
 	public void init() {
 		initAccountData();
 		initSocialNetworksData();
+		
+		if(twitterConnected) {
+			PageUtil.fireSuccessfulInfoMessage("You have connected your Twitter account with ProSolo");
+		}
 	}
 
 	public void initSocialNetworksData() {
@@ -173,7 +180,7 @@ public class ProfileSettingsBean implements Serializable {
 				}
 	
 				init();
-				asyncUpdateUserDataInSocialActivities(accountData);
+				//asyncUpdateUserDataInSocialActivities(accountData);
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 		} catch (ResourceCouldNotBeLoadedException e1) {
@@ -195,6 +202,7 @@ public class ProfileSettingsBean implements Serializable {
 		}
 	}
 
+	@Deprecated
 	private void asyncUpdateUserDataInSocialActivities(final AccountData accountData) {
 		taskExecutor.execute(new Runnable() {
 			@Override
@@ -371,7 +379,9 @@ public class ProfileSettingsBean implements Serializable {
 						newSocialNetworkAccountIsAdded = true;
 					} else {
 						try {
-							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLink());
+							socialNetworksManager.updateSocialNetworkAccount(socialNetowrkAccountData.getId(), socialNetowrkAccountData.getLinkEdit());
+							socialNetowrkAccountData.setLink(socialNetowrkAccountData.getLinkEdit());
+							socialNetowrkAccountData.setChanged(false);
 						} catch (ResourceCouldNotBeLoadedException e) {
 							logger.error(e);
 						}
@@ -431,6 +441,14 @@ public class ProfileSettingsBean implements Serializable {
 
 	public void setConnectedToTwitter(boolean connectedToTwitter) {
 		this.connectedToTwitter = connectedToTwitter;
+	}
+
+	public boolean isTwitterConnected() {
+		return twitterConnected;
+	}
+
+	public void setTwitterConnected(boolean twitterConnected) {
+		this.twitterConnected = twitterConnected;
 	}
 	
 }

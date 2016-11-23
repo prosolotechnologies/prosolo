@@ -16,6 +16,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import com.jcabi.xml.XMLDocument;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -33,6 +34,7 @@ import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.OAuthValidator;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
@@ -154,16 +156,24 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				Session session = (Session) activityManager.getPersistence().openSession();
 				//SimpleOutcome outcome=resourceFactory.createSimpleOutcome(score);
 				//activityManager.replaceTargetActivityOutcome(targetActivityId, outcome, session);
-				TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, targetActivityId);
-				Activity1 act = ta.getActivity();
-				int maxPoints = act.getMaxPoints();
-				int scaledGrade = (int) Math.round(score * maxPoints);
-				ta.setCommonScore(scaledGrade);
-				assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
-						ta.getTargetCompetence().getId(), ta.getId(), scaledGrade, session);
-				//	this.updateTargetActivityOutcomeInformation(targetActivityId, activityId, outcome.getId(), userId, session);
-				//session.flush();
-				session.close();
+				Transaction transaction = null;
+				try {
+					transaction = session.beginTransaction();
+					TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, targetActivityId);
+					Activity1 act = ta.getActivity();
+					int maxPoints = act.getMaxPoints();
+					int scaledGrade = (int) Math.round(score * maxPoints);
+					ta.setCommonScore(scaledGrade);
+					assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
+							ta.getTargetCompetence().getId(), ta.getId(), scaledGrade, session);
+				 	transaction.commit();
+				} catch(Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+					transaction.rollback();
+				} finally {
+					HibernateUtil.close(session);
+				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"
 						+ parts[1] + " target activity id:" + parts[2]+" SCORE:"+score);

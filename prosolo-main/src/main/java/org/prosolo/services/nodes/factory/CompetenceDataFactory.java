@@ -40,7 +40,7 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			comp.setCreator(creator);
 		}
 		if(tags != null) {
@@ -80,7 +80,7 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			comp.setCreator(creator);
 		}
 		if(tags != null) {
