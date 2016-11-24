@@ -12,9 +12,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.rest.data.ActivityJsonData;
 

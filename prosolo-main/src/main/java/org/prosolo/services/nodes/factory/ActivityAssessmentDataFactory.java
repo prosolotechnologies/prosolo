@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.inject.Inject;
 
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
@@ -21,7 +21,7 @@ public class ActivityAssessmentDataFactory implements Serializable {
 	
 	@Inject private UrlIdEncoder idEncoder;
 
-	public ActivityAssessmentData getActivityAssessmentData(ActivityDiscussion assessment, 
+	public ActivityAssessmentData getActivityAssessmentData(ActivityAssessment assessment, 
 			boolean isReadByCurrentUser, int numberOfMessages) {
 		ActivityAssessmentData ad = new ActivityAssessmentData();
 		ad.setEncodedDiscussionId(idEncoder.encodeId(assessment.getId()));
@@ -37,7 +37,7 @@ public class ActivityAssessmentDataFactory implements Serializable {
 		data.setEncodedMessageId(idEncoder.encodeId(msg.getId()));
 		data.setEncodedSenderId(idEncoder.encodeId(msg.getSender().getParticipant().getId()));
 		data.setSenderFullName(msg.getSender().getParticipant().getName()+" "+msg.getSender().getParticipant().getLastname());
-		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(msg.getSender().getParticipant(), ImageFormat.size34x34));
+		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(msg.getSender().getParticipant(), ImageFormat.size120x120));
 		data.setSenderInsructor(msg.getSender().getParticipant().getId() == assessorId);
 		data.setDateCreated(msg.getDateCreated());
 		data.setDateCreatedFormat(DateUtil.createUpdateTime(msg.getDateCreated()));

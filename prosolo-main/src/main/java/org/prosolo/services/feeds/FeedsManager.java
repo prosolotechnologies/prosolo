@@ -3,6 +3,7 @@ package org.prosolo.services.feeds;
 import java.util.Date;
 import java.util.List;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
@@ -10,7 +11,6 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.AbstractManager;

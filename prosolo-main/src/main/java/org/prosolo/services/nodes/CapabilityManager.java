@@ -3,8 +3,8 @@ package org.prosolo.services.nodes;
 import java.util.List;
 import java.util.Map;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Capability;
-import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface CapabilityManager {
 

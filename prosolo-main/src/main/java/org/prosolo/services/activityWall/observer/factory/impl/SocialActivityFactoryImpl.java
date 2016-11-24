@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -18,7 +19,6 @@ import org.prosolo.services.activityWall.observer.processor.CompetenceObjectSoci
 import org.prosolo.services.activityWall.observer.processor.CredentialObjectSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.PostSocialActivityProcessor;
 import org.prosolo.services.activityWall.observer.processor.SocialActivityProcessor;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;

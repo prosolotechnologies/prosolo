@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.factory;
 
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -44,13 +45,22 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
+		cred.setScheduledPublicDate(credential.getScheduledPublicDate());
+		if(credential.getScheduledPublicDate() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+			String formattedDate = sdf.format(credential.getScheduledPublicDate());
+			cred.setScheduledPublicDateValue(formattedDate);
+		}
+		cred.setVisible(credential.isVisible());
+		cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
+		
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
@@ -81,7 +91,7 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
@@ -95,7 +105,7 @@ public class CredentialDataFactory {
 			cred.setInstructorId(credential.getInstructor().getUser().getId());
 			cred.setInstructorAvatarUrl(
 					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
-					ImageFormat.size60x60));
+					ImageFormat.size120x120));
 			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());

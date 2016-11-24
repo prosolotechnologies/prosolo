@@ -113,6 +113,8 @@
 		            <div class="col-md-8">
 		            	<courses:activityDetails 
 		            		id="activityDetails"
+		            		credentialId="#{cc.attrs.bean.decodedCredId}"
+		            		competenceId="#{cc.attrs.bean.decodedCompId}"
 		            		activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
 		            		bean="#{cc.attrs.bean}"
 		            		isPreview="#{isPreview}"

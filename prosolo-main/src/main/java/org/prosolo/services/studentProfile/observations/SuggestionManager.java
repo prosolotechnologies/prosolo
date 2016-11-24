@@ -2,8 +2,8 @@ package org.prosolo.services.studentProfile.observations;
 
 import java.util.List;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Suggestion;
-import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface SuggestionManager {
 

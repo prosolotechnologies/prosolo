@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
@@ -46,7 +47,6 @@ import org.prosolo.services.activityWall.factory.SocialActivityDataFactory;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.annotation.Annotation1Manager;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -358,7 +358,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 		
 		return q + specificPartOfTheCondition +	
-			"GROUP BY sa.id, compActivity.competence " +
+			"GROUP BY sa.id, compActivity.competence, annotation.id " +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +

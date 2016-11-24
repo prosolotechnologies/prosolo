@@ -21,7 +21,7 @@ public class UserData implements Serializable, Comparable<UserData> {
 	private long id;
 	private String name = "";
 	private String profileUrl = "";
-	private String avatarUrl ="size60x60.png";
+	private String avatarUrl ="size120x120.png";
 	private String position = "";
 	private boolean disabled;
 	private boolean followed;

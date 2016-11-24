@@ -47,6 +47,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "loggeduser")
@@ -138,7 +139,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
@@ -159,7 +160,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void initializeAvatar() {
-		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size60x60));
+		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size120x120));
 	}
 
 	public boolean isLoggedIn() {
@@ -325,6 +326,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return false;
 	}
 	
+	private Authentication getAuthenticationObject() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null) {
+			return null;
+		}
+
+		return context.getAuthentication();
+	}
+	
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
@@ -332,7 +342,14 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+			Authentication auth = getAuthenticationObject();
+			if(auth != null) {
+				if(auth.getCredentials() instanceof SAMLCredential) {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+				} else {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+				}
+			}
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -418,6 +435,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
+	public String switchRole(String rolename){
+		getSessionData().setSelectedRole(rolename);
+		String navigateTo="/index";
+		if(rolename.equalsIgnoreCase("manager")){
+			navigateTo= "/manage/credentialLibrary";
+		}else if (rolename.equalsIgnoreCase("admin")){
+			navigateTo= "/admin/users";
+		}
+		return navigateTo;
+ 	}
 
 //	public LearningGoalFilter getSelectedLearningGoalFilter() {
 //		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();

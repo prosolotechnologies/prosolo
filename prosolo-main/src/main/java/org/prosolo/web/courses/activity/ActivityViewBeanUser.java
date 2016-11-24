@@ -12,9 +12,9 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -71,8 +71,24 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	private String roles="Learner";
 	
-	public String getRoles() {
+	/*public String getRoles() {
 		return roles;
+	}*/
+	public String getRoles(){
+		System.out.println("GET ROLES IN ACTIVITY VIEW BEAN USER...");
+		String selectedRole=loggedUser.getSessionData().getSelectedRole();
+		System.out.println("Selected role for LTI:"+selectedRole);
+		String role="Learner";
+		if(selectedRole!=null){
+			if( selectedRole.equalsIgnoreCase("manager")){
+				role= "Instructor";
+			}else if(selectedRole.equalsIgnoreCase("admin")){
+				role= "Administrator";
+			}
+		}
+
+		return role;
+		//return this.roles;
 	}
 
 	private long nextActivityToLearn;

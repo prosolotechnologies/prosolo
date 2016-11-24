@@ -11,13 +11,13 @@ import javax.faces.event.ValueChangeEvent;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;

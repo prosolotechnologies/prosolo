@@ -1,9 +1,9 @@
 package org.prosolo.services.annotation;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.AnnotatedResource;
 import org.prosolo.common.domainmodel.annotation.Annotation1;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
-import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface Annotation1Manager {
 

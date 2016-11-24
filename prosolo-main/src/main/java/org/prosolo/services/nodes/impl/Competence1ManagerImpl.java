@@ -14,6 +14,8 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
@@ -28,8 +30,6 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -45,6 +45,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
@@ -90,7 +91,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
 					data.getDescription(), data.getTagsString(), creatorId, 
 					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
-					data.getDuration(), data.getActivities(), credentialId);
+					data.getDuration(), data.getActivities(), credentialId, data.isCompVisible(), data.getScheduledPublicDate());
 			
 			comp = res.getResult();
 			
@@ -112,6 +113,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						service, null);
 			} else {
 				eventFactory.generateEvent(EventType.Create_Draft, creatorId, comp, null, page, lContext,
+						service, null);
+			}
+			
+			if(data.getVisibility() == ResourceVisibility.SCHEDULED && data.getScheduledPublicDate() != null) {
+				eventFactory.generateEvent(EventType.SCHEDULED_PUBLIC, creatorId, comp, null, page, lContext, 
 						service, null);
 			}
 
@@ -676,6 +682,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					eventFactory.generateEvent(ev);
 				}
 			}
+			
+			if(data.getVisibility() == ResourceVisibility.SCHEDULED && data.getScheduledPublicDate() != null && data.isScheduledPublicDateChanged()) {
+				Competence1 origComp = new Competence1();
+				origComp.setId(originalCompId);
+ 				eventFactory.generateEvent(EventType.SCHEDULED_PUBLIC, userId, origComp, null, page, lContext, 
+						service, null);
+			}
 
 		    return updatedComp;
 		} catch(CompetenceEmptyException cee) {
@@ -703,7 +716,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
 	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
-	    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
+	    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged(), 
+	    		data.isVisible() != data.isCompVisible());
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -718,7 +732,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 updatedComp, long draftVersionId) throws EventException {
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(true,
-	    		true, true, true, true, true, true);
+	    		true, true, true, true, true, true, true);
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
@@ -823,6 +837,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		compToUpdate.setDescription(data.getDescription());
 		compToUpdate.setPublished(data.isPublished());
 		compToUpdate.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
+		compToUpdate.setVisible(data.isCompVisible());
+		compToUpdate.setScheduledPublicDate(data.getScheduledPublicDate());
 	    if(publishTransition == EntityPublishTransition.NO_TRANSITION) {
 	    	if(data.isTagsStringChanged()) {
 	    		compToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
@@ -1792,19 +1808,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				if(c.isHasDraft()) {
 					Competence1 draftC = getCompetence(0, c.getDraftVersion().getId(), false, true, 
 							0, LearningResourceReturnResultType.ANY, true);
+					/*
+					 * check if competence has at least one activity - if not, it can't be published
+					 */
+					int numberOfActivities = draftC.getActivities().size();
+					if(numberOfActivities == 0) {
+						throw new CompetenceEmptyException();
+					}
 					long draftCompId = draftC.getId();
 					publishDraftVersion(c, draftC);
 					events.add(fireCompPublishedAgainEditEvent(creatorId, c, draftCompId));
 				} else {
+					/*
+					 * check if competence has at least one activity - if not, it can't be published
+					 */
+					int numberOfActivities = c.getActivities().size();
+					if(numberOfActivities == 0) {
+						throw new CompetenceEmptyException();
+					}
 					c.setPublished(true);
 					events.add(fireFirstTimePublishCompEvent(creatorId, c));
-				}
-				/*
-				 * check if competence has at least one activity - if not, it can't be published
-				 */
-				int numberOfActivities = c.getActivities().size();
-				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
 				}
 			}
 			

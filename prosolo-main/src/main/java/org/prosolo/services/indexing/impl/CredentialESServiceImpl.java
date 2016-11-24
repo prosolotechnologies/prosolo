@@ -89,6 +89,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.endObject();
 			}
 			builder.endArray();
+			builder.field("visible", cred.isVisible());
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(cred);
@@ -106,7 +107,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged())) {
+						|| changeTracker.isHashtagsChanged() || changeTracker.isVisibilityChanged())) {
 			saveCredentialNode(cred, originalVersionId, session);
 		}
 	}

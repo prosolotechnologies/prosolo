@@ -31,4 +31,21 @@ public class CassandraDDLManagerTest {
             }
         }
     }
+
+    @Test
+    public void testCassandraConnection(){
+        Cluster cluster=CassandraDDLManagerImpl.getInstance().getCluster();
+        Metadata metadata =cluster.getMetadata();
+        String keyspacename= CassandraDDLManagerImpl.getInstance().getSchemaName();
+        CassandraDDLManagerImpl.getInstance().connect("127.0.0.1",9042,keyspacename,1);
+        System.out.println("FINISHED CONNECT");
+       // CassandraDDLManagerImpl.getInstance().getSession().execute("SELECT * FROM ")
+
+        CassandraDDLManagerImpl.getInstance().dropSchemaIfExists(keyspacename);
+        System.out.println("FINISHED DROP");
+
+        CassandraDDLManagerImpl.getInstance().checkIfTablesExistsAndCreate(keyspacename);
+        System.out.println("FINISHED CREATE");
+
+    }
 }

@@ -5,13 +5,11 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.dal.cassandra.impl.CassandraAdminImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.CassandraDDLManagerImpl;
-import org.prosolo.bigdata.es.ESAdministration;
-import org.prosolo.bigdata.es.impl.ESAdministrationImpl;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager$;
 import org.prosolo.bigdata.scala.twitter.TwitterUsersStreamsManager$;
+import org.prosolo.bigdata.streaming.StreamingManagerImpl;
 //import org.prosolo.bigdata.scala.twitter.TwitterStreamManager$;
 import org.prosolo.common.config.CommonSettings;
 
@@ -31,17 +29,21 @@ public class ContextLoader implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		System.out.println("CONTEXT INITIALIZATION");
-		CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
+
 		if (Settings.getInstance().config.initConfig.formatDB) {
 			String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 					+ CommonSettings.getInstance().config.getNamespaceSufix();
-			dbManager.dropSchemaIfExists(dbName);
-			dbManager.checkIfTablesExistsAndCreate(dbName);
+			CassandraAdminImpl admin=new CassandraAdminImpl();
+			admin.dropSchema();
 			System.out.println("CASSANDRA DB FORMATED:" + dbName);
+			//dbManager.dropSchemaIfExists(dbName);
+			CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
+			// dbManager.checkIfTablesExistsAndCreate(dbName);
+			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
 
 		}
-		ESAdministration esAdmin = new ESAdministrationImpl();
-		if (Settings.getInstance().config.initConfig.formatES) {
+		//ESAdministration esAdmin = new ESAdministrationImpl();
+		/*if (Settings.getInstance().config.initConfig.formatES) {
 
 			try {
 				esAdmin.deleteIndexes();
@@ -51,7 +53,7 @@ public class ContextLoader implements ServletContextListener {
 				e.printStackTrace();
 			}
 
-		}
+		}*/
 
 
 		// TwitterHashtagsStreamsManagerImpl manager=new

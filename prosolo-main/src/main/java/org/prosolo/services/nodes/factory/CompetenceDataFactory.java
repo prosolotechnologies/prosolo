@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.factory;
 
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -40,13 +41,22 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			comp.setCreator(creator);
 		}
 		if(tags != null) {
 			comp.setTags(tags);
 			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
+		
+		comp.setScheduledPublicDate(competence.getScheduledPublicDate());
+		if(competence.getScheduledPublicDate() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+			String formattedDate = sdf.format(competence.getScheduledPublicDate());
+			comp.setScheduledPublicDateValue(formattedDate);
+		}
+		comp.setVisible(competence.isVisible());
+		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -80,7 +90,7 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			comp.setCreator(creator);
 		}
 		if(tags != null) {

@@ -58,14 +58,43 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 	 	
 		// store original
 		FileUtils.copyInputStreamToFile(imageInputStream, originalFile);
-		String fileType=FileUtil.getFileType(originalFile);
-		amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(originalFile), 
-		 CommonSettings.getInstance().config.services.userService.userAvatarPath +
+		//String fileType=FileUtil.getFileType(originalFile);
+		//amazonS3UploadManager.storeInputStreamByKey(new FileInputStream(originalFile), 
+		 //CommonSettings.getInstance().config.services.userService.userAvatarPath +
 				// "images/users/"+
-				userFolder + '/' + "original.png",fileType);
+			//	userFolder + '/' + "original.png",fileType);
 		// create resized copies
-		createAllResizedCopies(originalFile, avatarUploadFolder, imageExtension, userFolder);
+		
+		createResizedCopyForSpecificFormat(originalFile, avatarUploadFolder, imageExtension, userFolder, ImageFormat.size120x120);
+		//createAllResizedCopies(originalFile, avatarUploadFolder, imageExtension, userFolder);
 		return userFolder;
+	}
+	
+	private void createResizedCopyForSpecificFormat(File originalFile, String avatarUploadFolder, String imageExtension, 
+			String userFolder, ImageFormat imgFormat) throws IOException {
+		BufferedImage originalBufferedImage = ImageIO.read(originalFile);
+		
+		File userUploadDir = new File(avatarUploadFolder);
+		
+		if (!userUploadDir.exists()) {
+			userUploadDir.mkdirs();
+		}
+		
+		String fileAvatarUrl = avatarUploadFolder + '/' + imgFormat + ".png" /*+ imageExtension*/;
+		
+		try {
+			createResizedCopy(
+					originalBufferedImage, 
+					fileAvatarUrl, 
+					imageExtension, 
+					imgFormat.getWidth(), 
+					imgFormat.getHeight(), 
+					true, userFolder, imgFormat+".png");
+			
+		} catch (IOException e) {
+			logger.error("Error saving resized copy of photo on path "+fileAvatarUrl+
+					" in dimension "+imgFormat.getWidth()+" x "+imgFormat.getHeight()+". "+e);
+		}
 	}
 
 	@Override
@@ -208,7 +237,8 @@ public class AvatarProcessorImpl implements AvatarProcessor, Serializable {
 		ImageIO.write(dest, format, destinationFile);
 		
 		// create resized copies
-		createAllResizedCopies(destinationFile, avatarUploadFolder, format, userFolder);
+		createResizedCopyForSpecificFormat(destinationFile, avatarUploadFolder, format, userFolder, ImageFormat.size120x120);
+		//createAllResizedCopies(destinationFile, avatarUploadFolder, format, userFolder);
 		return userFolder;
 	}
 	

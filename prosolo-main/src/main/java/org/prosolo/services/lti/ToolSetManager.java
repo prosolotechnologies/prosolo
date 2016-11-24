@@ -1,8 +1,8 @@
 package org.prosolo.services.lti;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
-import org.prosolo.services.common.exception.DbConnectionException;
 
 public interface ToolSetManager {
 

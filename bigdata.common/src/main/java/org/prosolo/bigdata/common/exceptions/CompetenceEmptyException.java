@@ -1,4 +1,4 @@
-package org.prosolo.services.common.exception;
+package org.prosolo.bigdata.common.exceptions;
 
 public class CompetenceEmptyException extends RuntimeException {
 

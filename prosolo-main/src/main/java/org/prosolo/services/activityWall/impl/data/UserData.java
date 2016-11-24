@@ -35,7 +35,7 @@ public class UserData implements Serializable {
 		setFullName(firstName, lastName);
 		String fullAvatar = avatar;
 		if(!avatarReady) {
-			fullAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+			fullAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size120x120);
 		}
 		this.avatar = fullAvatar;
 	}
@@ -43,7 +43,7 @@ public class UserData implements Serializable {
 	public UserData(User user) {
 		this.id = user.getId();
 		setFullName(user.getName(), user.getLastname());
-		this.avatar = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60);
+		this.avatar = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 	}
 	
 	/**

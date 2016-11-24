@@ -19,7 +19,7 @@ public class ActivityDiscussionMessage extends BaseEntity {
 	
 	private String content;
 	private ActivityDiscussionParticipant sender;
-	private ActivityDiscussion discussion;
+	private ActivityAssessment discussion;
 	private Date lastUpdated;
 	
 	@Column(name = "content", nullable = true, length=9000)
@@ -42,12 +42,12 @@ public class ActivityDiscussionMessage extends BaseEntity {
 	
 	@ManyToOne
 	@JoinColumn(referencedColumnName="id")
-	public ActivityDiscussion getDiscussion() {
+	public ActivityAssessment getDiscussion() {
 		return discussion;
 	}
 	
 	
-	public void setDiscussion(ActivityDiscussion discussion) {
+	public void setDiscussion(ActivityAssessment discussion) {
 		this.discussion = discussion;
 	}
 

@@ -6,10 +6,10 @@ import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.event.context.data.LearningContextData;

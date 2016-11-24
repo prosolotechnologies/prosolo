@@ -11,13 +11,12 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-//import org.prosolo.services.indexing.AbstractBaseEntityESService;
-//import org.prosolo.services.indexing.ElasticSearchFactory;
 
 /**
  * @author Zoran Jeremic May 9, 2015
@@ -103,6 +102,20 @@ public abstract class AbstractESIndexer {
 		} catch (NoNodeAvailableException e) {
 			throw new IndexingServiceNotAvailable(
 					"ElasticSearch node is not available. " + e);
+		}
+	}
+
+	public void partialUpdate(String indexName, String indexType, String docId, 
+			XContentBuilder partialDoc) {
+		try {
+			UpdateRequest updateRequest = new UpdateRequest(indexName, 
+					indexType, docId)
+			        .doc(partialDoc);
+			updateRequest.retryOnConflict(5);
+			ElasticSearchConnector.getClient().update(updateRequest).get();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
 		}
 	}
 }

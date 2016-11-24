@@ -14,6 +14,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
@@ -23,7 +24,6 @@ import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -257,6 +257,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			return inst.getInstructorId() == id.getInstructorId();
 		}
 		return false;
+	}
+	
+	public boolean areInstructorAndStudentSameUser(InstructorData id) {
+		return id.getUser().getId() == studentToAssignInstructor.getUser().getId();
 	}
 	
 	public boolean doesStudentHaveInstructorAssigned() {

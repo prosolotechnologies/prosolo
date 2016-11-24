@@ -71,6 +71,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	}
 
 	public void reconnect() {
+		this.close();
 		this.session = null;
 		this.cluster = null;
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
@@ -121,6 +122,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 			try {
 				this.session = this.cluster.connect(keyspace);
 			} catch (InvalidQueryException iqu) {
+				logger.error(iqu);
 				this.session = this.cluster.connect();
 				this.createSchemaIfNotExists(this.session, keyspace,
 						replicationFactor);
@@ -128,6 +130,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		} else {
 			this.session = this.cluster.connect();
 		}
+		this.session.execute("USE "+keyspace);
 	}
 	@Override
 	public String getSchemaName(){
@@ -141,6 +144,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				+ " WITH  replication "
 				+ "= {'class':'SimpleStrategy', 'replication_factor':"
 				+ replicationFactor + "};");
+
 	}
 	@Override
 	public void updateCurrentTimestamp(TableNames tablename, Long timestamp){

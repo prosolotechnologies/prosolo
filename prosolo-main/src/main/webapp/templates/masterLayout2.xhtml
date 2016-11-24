@@ -10,7 +10,6 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
-
 <ui:insert name="metadata" />
 
 <h:head>
@@ -51,38 +50,41 @@
 
 <h:body>
 	<utilcomp:messagesBundle var="msg" />
-
 	<header>
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
 					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access')}">
+					<h:form>
 						<div class="dropdown roleChanger">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
+
 							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
 								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/index">
+									<h:commandLink rendered="#{loggeduser.hasCapability('basic.user.access')}"
+										onclick="sendLogPageNavigation( '/student', 'mainmenu');"
+												   action="${loggeduser.switchRole('student')}">
 										<span></span>Student
-									</h:link>
+									</h:commandLink>
 								</li>
 								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/manage/credentialLibrary">
+									<h:commandLink rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+											onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
+												   action="${loggeduser.switchRole('manager')}">
 										<span></span>Manage
-									</h:link>
+									</h:commandLink>
 								</li>
 								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
-										outcome="/admin/users">
+									<h:commandLink rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+										onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
+												   action="${loggeduser.switchRole('admin')}">
 										<span></span>Admin
-									</h:link>
+									</h:commandLink>
 								</li>
 							</ul>
+
 						</div>
+					</h:form>
 					</c:if>
 
 					<h:link id="logo"

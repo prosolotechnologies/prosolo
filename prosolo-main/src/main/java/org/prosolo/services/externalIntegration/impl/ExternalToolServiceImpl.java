@@ -3,32 +3,47 @@ package org.prosolo.services.externalIntegration.impl;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.jcabi.xml.XMLDocument;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.OAuthValidator;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.messaging.SessionMessageDistributer;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.ActivityManager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.XMLUtils;
 import org.prosolo.web.ApplicationBean;
@@ -51,11 +66,12 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	
 	private static Logger logger = Logger.getLogger(ExternalToolServiceImpl.class.getName());
 
-	@Autowired private ActivityManager activityManager;
+	@Autowired private Activity1Manager activityManager;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private ApplicationBean applicationBean;
 	@Autowired private SessionMessageDistributer messageDistributer;
 	@Autowired private OAuthValidator oauthValidator;
+	@Inject private AssessmentManager assessmentManager;
 	
 	@Override
 	public boolean checkAuthorization(String authorization, String url, String method, String consumerSecret) throws IOException, OAuthException, URISyntaxException{
@@ -92,9 +108,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						.getText();
 			 String[] parts = sourceId.split("\\::");
 			 long activityId = Long.valueOf(parts[1]);
-			 ExternalToolActivity activity;
+			 ExternalToolActivity1 activity;
 			try {
-				activity = activityManager.loadResource(ExternalToolActivity.class, activityId);
+				activity = (ExternalToolActivity1) activityManager.loadResource(ExternalToolActivity1.class, activityId);
 				secret=activity.getSharedSecret();
 			} catch (ResourceCouldNotBeLoadedException e) {
 				// TODO Auto-generated catch block
@@ -115,10 +131,13 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		//Transformer tf = TransformerFactory.newInstance().newTransformer();
 		//tf.transform(new DOMSource(w3cDoc), new StreamResult(System.out));
 		Document doc = XMLUtils.convertW3CDocument(w3cDoc);
+		String xml=new XMLDocument(w3cDoc).toString();
+		System.out.println("INPUT:"+xml);
 		BasicLTIResponse response=null;
 		String messageIdentifier="";
 		String sourceId="";
 		try {
+			System.out.println("SCORE DOC:"+doc.toString());
 			 messageIdentifier=XMLUtils.getXMLElementByPath(
 					doc.getRootElement(), "//*[local-name()='imsx_messageIdentifier']").getText();
 			 sourceId = XMLUtils.getXMLElementByPath(
@@ -135,11 +154,26 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				long activityId = Long.valueOf(parts[1]);
 				long targetActivityId = Long.valueOf(parts[2]);
 				Session session = (Session) activityManager.getPersistence().openSession();
-				SimpleOutcome outcome=resourceFactory.createSimpleOutcome(score);
-				activityManager.replaceTargetActivityOutcome(targetActivityId, outcome, session);
-				this.updateTargetActivityOutcomeInformation(targetActivityId, activityId, outcome.getId(), userId, session);
-				session.flush();
-				session.close();
+				//SimpleOutcome outcome=resourceFactory.createSimpleOutcome(score);
+				//activityManager.replaceTargetActivityOutcome(targetActivityId, outcome, session);
+				Transaction transaction = null;
+				try {
+					transaction = session.beginTransaction();
+					TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, targetActivityId);
+					Activity1 act = ta.getActivity();
+					int maxPoints = act.getMaxPoints();
+					int scaledGrade = (int) Math.round(score * maxPoints);
+					ta.setCommonScore(scaledGrade);
+					assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
+							ta.getTargetCompetence().getId(), ta.getId(), scaledGrade, session);
+				 	transaction.commit();
+				} catch(Exception e) {
+					e.printStackTrace();
+					logger.error(e);
+					transaction.rollback();
+				} finally {
+					HibernateUtil.close(session);
+				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"
 						+ parts[1] + " target activity id:" + parts[2]+" SCORE:"+score);
@@ -147,7 +181,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 			} else {
 				System.out.println("DOESNT HAVE RESULT YET");
 			}
-		} catch (JDOMException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			response=this.createLTIResponse(sourceId, messageIdentifier, false, e.getLocalizedMessage());
@@ -172,6 +206,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		return response;
 	}
 	
+	@Deprecated
 	private void updateTargetActivityOutcomeInformation(long targetActivityId, long activityId, long outcomeId, long userId, Session session){
 		HttpSession userSession = applicationBean.getUserSession(userId);
 			

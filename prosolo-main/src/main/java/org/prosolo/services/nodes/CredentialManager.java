@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.CredentialEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -304,7 +304,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException;
 
-	List<Long> getTargetCredentialIdsForInstructor(long instructorId) throws DbConnectionException;
+	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
 	

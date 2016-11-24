@@ -14,9 +14,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -26,6 +26,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
@@ -64,6 +65,7 @@ public class CompetenceEditBean implements Serializable {
 	private int activityForRemovalIndex;
 	
 	private PublishedStatus[] compStatusArray;
+	private ResourceVisibility[] visibilityTypes;
 	
 	private String credTitle;
 	
@@ -140,6 +142,7 @@ public class CompetenceEditBean implements Serializable {
 		activitiesToRemove = new ArrayList<>();
 		activitiesToExcludeFromSearch = new ArrayList<>();
 		compStatusArray = PublishedStatus.values();
+		visibilityTypes = ResourceVisibility.values();
 	}
 
 	public boolean hasMoreActivities(int index) {
@@ -433,6 +436,14 @@ public class CompetenceEditBean implements Serializable {
 
 	public void setCredTitle(String credTitle) {
 		this.credTitle = credTitle;
+	}
+
+	public ResourceVisibility[] getVisibilityTypes() {
+		return visibilityTypes;
+	}
+
+	public void setVisibilityTypes(ResourceVisibility[] visibilityTypes) {
+		this.visibilityTypes = visibilityTypes;
 	}
 
 }

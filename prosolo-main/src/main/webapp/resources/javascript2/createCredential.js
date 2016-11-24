@@ -53,7 +53,17 @@ function onStatusChange() {
 		$('#noteDraft').hide();
 		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview');
 	}
-	
+}
+
+function onVisibilityChange() {
+	var vis = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectVisibility').val();
+	//handle publish status
+	if(vis === "SCHEDULED") {
+		$("[id$=datetimepicker4]").show()
+	} else {
+		$("[id$=datetimepicker4]").val("")
+		$("[id$=datetimepicker4]").hide()
+	}
 }
 
 //function getFieldValue(label) {

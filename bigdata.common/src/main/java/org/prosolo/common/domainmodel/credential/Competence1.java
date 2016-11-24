@@ -1,11 +1,13 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -49,6 +51,9 @@ public class Competence1 extends BaseEntity {
 	private boolean hasDraft;
 	
 	private List<CredentialCompetence1> credentialCompetence;
+	
+	private boolean visible;
+	private Date scheduledPublicDate;
 	
 	public Competence1() {
 		tags = new HashSet<>();
@@ -159,6 +164,23 @@ public class Competence1 extends BaseEntity {
 
 	public void setType(LearningResourceType type) {
 		this.type = type;
+	}
+	
+	@Column(name="scheduled_public_date")
+	public Date getScheduledPublicDate() {
+		return scheduledPublicDate;
+	}
+
+	public void setScheduledPublicDate(Date scheduledPublicDate) {
+		this.scheduledPublicDate = scheduledPublicDate;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 	
 }

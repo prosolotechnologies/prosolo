@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.proxy.HibernateProxy;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussion;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
@@ -59,7 +59,7 @@ public class ActivityAssessmentData {
 		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
 		data.setCompAssessmentId(compAssessment.getId());
 		data.setCredAssessmentId(compAssessment.getCredentialAssessment().getId());
-		ActivityDiscussion activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
+		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
 		
 		if (activityDiscussion != null) {
 			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
