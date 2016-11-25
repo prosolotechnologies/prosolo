@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -87,6 +88,10 @@ public class ActivityViewBeanManager implements Serializable {
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), 
 //							hasInstructorCapability);
+					
+					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+							competenceData.getActivityToShowWithDetails().getCaptions(), 
+							loggedUser.getUserId());
 					
 					loadCompetenceAndCredentialTitle();
 				}

@@ -15,9 +15,9 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -33,7 +33,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
-import org.prosolo.web.util.youtube.Captions;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -177,6 +176,19 @@ public class ActivityEditBean implements Serializable {
 		return true;
 	}
 	
+	public boolean isCaptionListEmpty() {
+		List<ResourceLinkData> captions = activityData.getCaptions();
+		if(captions == null || captions.isEmpty()) {
+			return true;
+		}
+		for(ResourceLinkData rl : captions) {
+			if(rl.getStatus() != ObjectStatus.REMOVED) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean isActivityTypeSelected(ActivityType type) {
 		return type == activityData.getActivityType();
 	}
@@ -210,12 +222,22 @@ public class ActivityEditBean implements Serializable {
 		activityData.setStatus(PublishedStatus.DRAFT);
 	}
 	
+	public void removeCaption(ResourceLinkData caption) {
+		caption.statusRemoveTransition();
+		if(caption.getStatus() != ObjectStatus.REMOVED) {
+			activityData.getCaptions().remove(caption);
+		}
+		
+		activityData.setStatus(PublishedStatus.DRAFT);
+	}
+	
 	public void handleFileUpload(FileUploadEvent event) {
 		UploadedFile uploadedFile = event.getFile();
 		
 		try {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
+			
 			resLinkToAdd.setUrl(fullPath);
 			resLinkToAdd.setFetchedTitle(fileName);
 			//activityData.getFiles().add(rl);
@@ -247,6 +269,23 @@ public class ActivityEditBean implements Serializable {
 		resLinkToAdd = null;
 		
 		activityData.setStatus(PublishedStatus.DRAFT);
+	}
+	
+	public void addUploadedCaption() {
+		if(resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty() 
+				|| resLinkToAdd.getLinkName() == null || resLinkToAdd.getLinkName().isEmpty()
+				|| !resLinkToAdd.getFetchedTitle().endsWith(".srt")) {
+			FacesContext.getCurrentInstance().validationFailed();
+			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null || 
+					resLinkToAdd.getUrl().isEmpty() || !resLinkToAdd.getFetchedTitle().endsWith(".srt"));
+			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null || 
+					resLinkToAdd.getLinkName().isEmpty());
+		} else {
+			activityData.getCaptions().add(resLinkToAdd);
+			resLinkToAdd = null;
+			
+			activityData.setStatus(PublishedStatus.DRAFT);
+		}
 	}
 	
 	public void fetchLinkTitle() {
@@ -326,10 +365,10 @@ public class ActivityEditBean implements Serializable {
 			}
 			
 			//youtube captions
-			if(activityData.getActivityType() == ActivityType.VIDEO) {
-				Captions c = new Captions();
-				c.downloadVideoCaption(activityData.getEmbedId());
-			}
+//			if(activityData.getActivityType() == ActivityType.VIDEO) {
+//				Captions c = new Captions();
+//				c.downloadVideoCaption(activityData.getEmbedId());
+//			}
 			
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {

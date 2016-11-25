@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ActivityDataFactory {
-
+	
 	public ActivityData getActivityData(CompetenceActivity1 competenceActivity, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges) {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
@@ -156,6 +156,19 @@ public class ActivityDataFactory {
 						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
+					}
+					if(urlAct.getCaptions() != null) {
+						List<ResourceLinkData> captions = new ArrayList<>();
+						for(ResourceLink rl : urlAct.getCaptions()) {
+							ResourceLinkData rlData = new ResourceLinkData();
+							rlData.setId(rl.getId());
+							rlData.setLinkName(rl.getLinkName());
+							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+							rlData.setUrl(rl.getUrl());
+							rlData.setStatus(ObjectStatus.UP_TO_DATE);
+							captions.add(rlData);
+						}
+						act.setCaptions(captions);
 					}
 					break;
 				case Slides:
@@ -371,6 +384,19 @@ public class ActivityDataFactory {
 						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
+					}
+					if(urlAct.getCaptions() != null) {
+						List<ResourceLinkData> captions = new ArrayList<>();
+						for(ResourceLink rl : urlAct.getCaptions()) {
+							ResourceLinkData rlData = new ResourceLinkData();
+							rlData.setId(rl.getId());
+							rlData.setLinkName(rl.getLinkName());
+							rlData.setUrl(rl.getUrl());
+							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+							rlData.setStatus(ObjectStatus.UP_TO_DATE);
+							captions.add(rlData);
+						}
+						act.setCaptions(captions);
 					}
 					break;
 				case Slides:

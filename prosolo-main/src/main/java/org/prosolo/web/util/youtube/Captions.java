@@ -129,4 +129,9 @@ public class Captions {
 
       return captionListResponse.getItems();
     }
+    
+    public static void main(String[] args) {
+    	new Captions().downloadVideoCaption("3vDBWuWvUmU");
+    }
+    
 }

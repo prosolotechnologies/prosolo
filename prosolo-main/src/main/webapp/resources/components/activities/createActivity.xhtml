@@ -162,11 +162,13 @@
 			                                	bean="#{activityEditBean}"
 			                                	uploadFileModalId="uploadFile"
 			                                	addLinkModalId="addURL"
+			                                	uploadCaptionModalId="addSubtitles"
 			                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
 			                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
 			                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
 			                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
 			                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
+			                                	toUpdateModalUploadCaption=":#{cc.clientId}:formModalUploadCaption"
 			                                	mainForm=":#{cc.clientId}:formMain"
 			                                />
 			                            </div>
@@ -414,6 +416,64 @@
 		                    		action="#{activityEditBean.addLink()}"
 		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
 		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    	</p:commandLink>
+		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+		                    </div>
+		                </h:panelGroup>
+		            </div>
+		        </div>
+		    </h:form>
+		    
+		    
+		      <h:form id="formModalUploadCaption" enctype="multipart/form-data">
+		        <div class="modal fade" id="addSubtitles" tabindex="-1" role="dialog" aria-labelledby="addNewSubtitles">
+		            <div class="modal-dialog" role="document">
+		                <h:panelGroup layout="block" id="panelUploadFile" styleClass="modal-content">
+		                    <div class="modal-header alignLeft">
+		                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+		                        <h2 class="modal-title" id="addNewSubtitles">Add Subtitles</h2>
+		                    </div>
+		                    
+		                    <div class="modal-body alignLeft">
+		                        <h:inputText id="inputFileTitle"
+		                        	placeholder="Language"
+									value="#{activityEditBean.resLinkToAdd.linkName}">
+		                        </h:inputText>
+		                        
+		                        <div class="chooseFileBox">
+		                        	<utilcomp:simpleFileUpload
+		                        		id="simpleFileUploadCaptions"
+					            		fileUploadListenerMethodName="handleFileUpload"
+					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
+					            		uploadButtonStyle="btn btn-green btn-sm"
+		                        	/>
+		                            <h:panelGroup id="panelFileName">
+		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
+		                            </h:panelGroup>
+		                        </div>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
+									 Language must be entered
+								</h:panelGroup>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
+									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
+									  	Subtitles must be uploaded
+									  </ui:fragment>
+									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
+									  	Invalid file. Only SRT format allowed.
+									  </ui:fragment>
+								</h:panelGroup>
+		                    </div>
+		                    
+		                    <div class="modal-footer alignLeft">
+		                    	<p:commandLink 
+		                    		styleClass="btn btn-green"
+		                    		value="Add"
+		                    		action="#{activityEditBean.addUploadedCaption()}"
+		                    		update=":#{cc.clientId}:formModalUploadCaption:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelCaptions :#{cc.clientId}:formMain:panelStatus"
+		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addSubtitles').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>

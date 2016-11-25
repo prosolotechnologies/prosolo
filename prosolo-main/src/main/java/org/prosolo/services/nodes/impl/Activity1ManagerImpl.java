@@ -11,15 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -37,10 +34,8 @@ import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
-import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -1168,11 +1163,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
-			updateResourceLinks(data.getLinks(), actToUpdate.getLinks(), actToUpdate, 
-					(activityForUpdate, links) -> activityForUpdate.setLinks(links) , publishTransition);
+			updateResourceLinks(data.getLinks(), actToUpdate.getLinks(), 
+					publishTransition);
 			
-			updateResourceLinks(data.getFiles(), actToUpdate.getFiles(), actToUpdate, 
-					(activityForUpdate, links) -> activityForUpdate.setFiles(links), publishTransition);
+			updateResourceLinks(data.getFiles(), actToUpdate.getFiles(), 
+					publishTransition);
+			
+			if(data.getActivityType() == ActivityType.VIDEO) {
+				updateResourceLinks(data.getCaptions(), ((UrlActivity1) actToUpdate).getCaptions(),
+					publishTransition);
+			}
 			
 			if(actToUpdate instanceof TextActivity1) {
 				TextActivity1 ta = (TextActivity1) actToUpdate;
@@ -1229,8 +1229,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @param linkSetter
 	 * @param publishTransition
 	 */
-	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks,
-			Activity1 actToUpdate, BiConsumer<Activity1, Set<ResourceLink>> linkSetter, 
+	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks, 
 			EntityPublishTransition publishTransition) {
 		
 		if (resLinksData != null) {
