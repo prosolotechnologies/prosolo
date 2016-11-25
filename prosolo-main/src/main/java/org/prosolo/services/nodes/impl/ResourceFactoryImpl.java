@@ -51,6 +51,7 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
+import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -1036,6 +1037,21 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     			}
     			activity.setFiles(activityFiles);
     		}
+			
+			if(data.getActivityType() == org.prosolo.services.nodes.data.ActivityType.VIDEO) {
+				Set<ResourceLink> captions = new HashSet<>();
+	    		
+				if (data.getCaptions() != null) {
+					for (ResourceLinkData rl : data.getCaptions()) {
+	    				ResourceLink link = new ResourceLink();
+	    				link.setLinkName(rl.getLinkName());
+	    				link.setUrl(rl.getUrl());
+	    				saveEntity(link);
+	    				captions.add(link);
+	    			}
+	    			((UrlActivity1) activity).setCaptions(captions);
+	    		}
+			}
    
     		User creator = (User) persistence.currentManager().load(User.class, userId);
     		activity.setCreatedBy(creator);

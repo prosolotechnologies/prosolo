@@ -14,11 +14,13 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="uploadFileModalId" required="true" />
 		<composite:attribute name="addLinkModalId" required="true" />
+		<composite:attribute name="uploadCaptionModalId" required="true" />
 		<composite:attribute name="prepareAddingResLinkMethodName" required="true" />
 		<composite:attribute name="prepareAddingResLinkMethod" required="true" method-signature="void #{cc.attrs.prepareAddingResLinkMethodName}()" />
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="toUpdateModalUploadFile" default="" />
 		<composite:attribute name="toUpdateModalAddLink" default="" />
+		<composite:attribute name="toUpdateModalUploadCaption" default="" />
 		<composite:attribute name="mainForm" default="" />
 	</composite:interface>
 	
@@ -56,6 +58,46 @@
                     	pt:role="alert">
                         <h:message for="inputVideoUrl"></h:message>
                     </h:panelGroup>
+               </div>
+           </div>
+           
+            <div class="formLine">
+               <label>Subtitles</label>
+               <div class="formLineRight">
+               	 <h:panelGroup id="panelCaptions">
+	             	<h:panelGroup id="panelAddedCaptions" rendered="#{!cc.attrs.bean.isCaptionListEmpty()}">
+	                   <ul class="addedItems">
+	                       <ui:repeat var="cap" value="#{cc.attrs.activity.captions}">
+		                 		<ui:fragment rendered="#{cap.status != 'REMOVED'}">
+		                 			<li>
+		                 				<h3>#{cap.linkName}</h3>
+	                                    <p:commandLink 
+				                         	styleClass="removeX" 
+				                         	pt:data-toggle="tooltip" 
+				                         	pt:title="Remove"
+				                         	process="@this"
+				                         	action="#{cc.attrs.bean.removeCaption(cap)}"
+				                         	update=":#{cc.clientId}:panelCaptions #{cc.attrs.toUpdate}">
+				                         	remove
+				                         </p:commandLink>
+	                                    <div class="clear">
+	                                    </div>
+				                        <a href="#{cap.url}" target="_blank">#{cap.fetchedTitle}</a>
+		                     		</li>
+		                 		</ui:fragment>
+	                 		</ui:repeat>
+	                   </ul>
+	                   
+	                 </h:panelGroup>
+	               </h:panelGroup>
+	               <p:commandLink 
+	                 	process="@this"
+	                 	styleClass="btn btn-green btn-sm" 
+	                 	pt:data-toggle="modal"
+	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
+	                 	update="#{cc.attrs.toUpdateModalUploadCaption}"
+	                 	oncomplete="$('##{cc.attrs.uploadCaptionModalId}').modal('show');">Add Subtitles
+	               </p:commandLink>
                </div>
            </div>
         </h:panelGroup>

@@ -1,8 +1,13 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
 
 @Entity
 public class UrlTargetActivity1 extends TargetActivity1 {
@@ -12,9 +17,11 @@ public class UrlTargetActivity1 extends TargetActivity1 {
 	private String url;
 	private String linkName;
 	private UrlActivityType type;
-	
-	public UrlTargetActivity1() {
+	//captions for videos
+	private Set<ResourceLink> captions;
 		
+	public UrlTargetActivity1() {
+		captions = new HashSet<>();
 	}
 
 	public String getUrl() {
@@ -42,5 +49,13 @@ public class UrlTargetActivity1 extends TargetActivity1 {
 		this.type = type;
 	}
 	
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	public Set<ResourceLink> getCaptions() {
+		return captions;
+	}
+
+	public void setCaptions(Set<ResourceLink> captions) {
+		this.captions = captions;
+	}
 	
 }

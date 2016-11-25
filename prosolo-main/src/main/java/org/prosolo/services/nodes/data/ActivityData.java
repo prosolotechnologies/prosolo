@@ -38,6 +38,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
+	private List<ResourceLinkData> captions;
 	private String typeString;
 	private LearningResourceType type;
 	
@@ -73,6 +74,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
+		captions = new ArrayList<>();
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
@@ -95,6 +97,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 			}
 			
 			for(ResourceLinkData rl : getFiles()) {
+				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+			
+			for(ResourceLinkData rl : getCaptions()) {
 				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
@@ -453,6 +461,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	public void setCreatorId(long creatorId) {
 		this.creatorId = creatorId;
+	}
+	
+	public List<ResourceLinkData> getCaptions() {
+		return captions;
+	}
+
+	public void setCaptions(List<ResourceLinkData> captions) {
+		this.captions = captions;
 	}
 	
 	//change tracking get methods

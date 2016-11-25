@@ -1,5 +1,6 @@
 package org.prosolo.web;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,8 +17,10 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
@@ -241,7 +244,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if(initialized){
 			final String ipAddress = this.getIpAddress();
 			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
-
+			//delete all temp files for this user
+			try {
+				FileUtils.deleteDirectory(new File(Settings.getInstance().config.fileManagement.uploadPath + 
+						File.separator + getUserId()));
+			} catch (IOException e) {
+				logger.error(e);
+			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
 				try {

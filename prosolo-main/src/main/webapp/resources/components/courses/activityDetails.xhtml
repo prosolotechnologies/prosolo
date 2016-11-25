@@ -31,12 +31,23 @@
 		            	
             <ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
 				<div class="activityMain">
-					<socialWall:youtubevideopreview
+					<ui:remove><socialWall:youtubevideopreview
 						embedId="#{cc.attrs.activity.embedId}"
 						width="731"
 						height="413"
-						context="#{cc.attrs.learningContext}"/>
+						context="#{cc.attrs.learningContext}"/></ui:remove>
+					
+					<video width="731" height="413" id="player1">
+	   					<!-- Pseudo HTML5 -->
+	    				<source type="video/youtube" src="#{cc.attrs.activity.link}" />
+	   					<ui:repeat var="subtitle" value="#{cc.attrs.activity.captions}">
+	   						<ui:fragment rendered="#{not empty subtitle.tempUrl}">
+	   							<track kind="subtitles" src="#{subtitle.tempUrl}" srclang="#{subtitle.linkName}" /> 
+	   						</ui:fragment>
+	   					</ui:repeat>
+					</video>
 				</div>
+				
 			</ui:fragment>
 			
 			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}">
