@@ -188,6 +188,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 	@Override
 	public void createSchemaIfNotExists(Session session, String schemaName,
 			int replicationFactor) {
+		logger.debug("Create schema if not exists:"+schemaName);
 		session.execute("USE system_schema;");
 		ResultSet rs = session.execute("SELECT * FROM keyspaces " +
 				"WHERE keyspace_name = '"+ schemaName+"';");
@@ -259,7 +260,7 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 
 	@Override
 	public void checkIfTablesExistsAndCreate(String keyspacename) {
-
+		logger.debug("Check if Tables exists and Create for keyspace:"+keyspacename);
 		// checkIfTablesExistsAndCreate(dbConfig.dbName);
 		this.createSchemaIfNotExists(this.getSession(), this.dbName,
 				this.dbConfig.replicationFactor);
