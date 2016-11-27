@@ -335,6 +335,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				switch(urlAct.getUrlType()) {
 					case Video:
 						urlTargetActivity.setType(UrlActivityType.Video);
+						Set<ResourceLink> captions = new HashSet<>();
+			    		if(urlAct.getCaptions() != null) {		
+			    			for(ResourceLink rl : urlAct.getCaptions()) {
+			    				ResourceLink link = new ResourceLink();
+			    				link.setLinkName(rl.getLinkName());
+			    				link.setUrl(rl.getUrl());
+			    				saveEntity(link);
+			    				captions.add(link);
+			    			}
+			    			urlTargetActivity.setCaptions(captions);
+			    		}
 						break;
 					case Slides:
 						urlTargetActivity.setType(UrlActivityType.Slides);
