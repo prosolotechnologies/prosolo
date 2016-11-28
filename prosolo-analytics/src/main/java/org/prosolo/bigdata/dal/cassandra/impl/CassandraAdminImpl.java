@@ -7,6 +7,7 @@ import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
+import com.datastax.driver.core.policies.EC2MultiRegionAddressTranslator;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
@@ -33,7 +34,9 @@ public class CassandraAdminImpl {
                 .withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
                 .withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
                 .withPort(dbConfig.dbPort)
-                .addContactPoint(dbConfig.dbHost).build();
+                .addContactPoints(dbConfig.dbHost)
+                //.withAddressTranslator(new EC2MultiRegionAddressTranslator())
+                .build();
         Metadata metadata = cluster.getMetadata();
         System.out.printf("Connected to cluster: %s\n",
                 metadata.getClusterName());

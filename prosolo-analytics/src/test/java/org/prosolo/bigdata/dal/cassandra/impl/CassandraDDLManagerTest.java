@@ -37,7 +37,7 @@ public class CassandraDDLManagerTest {
         Cluster cluster=CassandraDDLManagerImpl.getInstance().getCluster();
         Metadata metadata =cluster.getMetadata();
         String keyspacename= CassandraDDLManagerImpl.getInstance().getSchemaName();
-        CassandraDDLManagerImpl.getInstance().connect("127.0.0.1",9042,keyspacename,1);
+        CassandraDDLManagerImpl.getInstance().connect("54.197.119.54",9042,keyspacename,3);
         System.out.println("FINISHED CONNECT");
        // CassandraDDLManagerImpl.getInstance().getSession().execute("SELECT * FROM ")
 

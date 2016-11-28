@@ -33,12 +33,14 @@ public class ContextLoader implements ServletContextListener {
 		if (Settings.getInstance().config.initConfig.formatDB) {
 			String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
 					+ CommonSettings.getInstance().config.getNamespaceSufix();
-			CassandraAdminImpl admin=new CassandraAdminImpl();
-			admin.dropSchema();
-			System.out.println("CASSANDRA DB FORMATED:" + dbName);
-			//dbManager.dropSchemaIfExists(dbName);
+			//CassandraAdminImpl admin=new CassandraAdminImpl();
+			//admin.dropSchema();
+
+			 //dbManager.dropSchemaIfExists(dbName);
 			CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
-			// dbManager.checkIfTablesExistsAndCreate(dbName);
+			 dbManager.dropSchemaIfExists(dbName);
+			System.out.println("CASSANDRA DB FORMATED:" + dbName);
+			  dbManager.checkIfTablesExistsAndCreate(dbName);
 			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
 
 		}

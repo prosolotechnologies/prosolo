@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.policies.EC2MultiRegionAddressTranslator;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
@@ -110,7 +111,9 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
 				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
 				.withPort(dbPort)
-				.addContactPoint(node).build();
+				.addContactPoints(node)
+				//.withAddressTranslator(new EC2MultiRegionAddressTranslator())
+				.build();
 		Metadata metadata = cluster.getMetadata();
 		System.out.printf("Connected to cluster: %s\n",
 				metadata.getClusterName());
