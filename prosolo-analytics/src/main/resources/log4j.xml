@@ -30,7 +30,7 @@
 		<appender-ref ref="console" />
 	</logger>
 	<logger name="com.datastax.driver">
-		<level value="TRACE" />
+		<level value="ERROR" />
 		<appender-ref ref="console" />
 	</logger>
 	<logger name="org.prosolo.bigdata.scala.twitter">
