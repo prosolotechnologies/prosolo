@@ -46,6 +46,15 @@
 	   						</ui:fragment>
 	   					</ui:repeat>
 					</video>
+					<script>
+						$(function() {					
+							initializeVideo({
+								page: '#{facesContext.viewRoot.viewId}',
+								learningContext: '#{cc.attrs.learningContext}',
+								service: null
+							});
+						});
+					</script>
 				</div>
 				
 			</ui:fragment>
