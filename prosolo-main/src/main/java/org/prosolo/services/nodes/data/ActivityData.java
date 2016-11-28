@@ -57,6 +57,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private String consumerKey;
 	private boolean acceptGrades;
 	private boolean openInNewWindow;
+	private boolean visibleForUnenrolledStudents;
 	
 	//TextActivity specific
 	private String text;
@@ -469,6 +470,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setCaptions(List<ResourceLinkData> captions) {
 		this.captions = captions;
+	}
+	
+	public boolean isVisibleForUnenrolledStudents() {
+		return visibleForUnenrolledStudents;
+	}
+
+	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
+		observeAttributeChange("visibleForUnenrolledStudents", this.visibleForUnenrolledStudents, visibleForUnenrolledStudents);
+		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 	
 	//change tracking get methods

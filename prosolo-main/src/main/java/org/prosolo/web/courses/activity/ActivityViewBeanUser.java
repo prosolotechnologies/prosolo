@@ -109,6 +109,10 @@ public class ActivityViewBeanUser implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		
+		initializeActivityData();
+	}
+	
+	private void initializeActivityData() {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
@@ -173,7 +177,7 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 		}
 	}
-	
+
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = null;
 		String credTitle = null;
@@ -222,6 +226,30 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 		} catch(Exception e) {
 			logger.error(e);
+		}
+	}
+	
+	public void enrollInCredential() {
+		try {
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+			lcd.setLearningContext(PageUtil.getPostParameter("context"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			credManager.enrollInCredential(decodedCredId, 
+					loggedUser.getUserId(), lcd);
+			initializeActivityData();
+			
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().redirect("/credentials/" + 
+					credId + "/" + compId + "/" + actId);
+			} catch (IOException e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
 	

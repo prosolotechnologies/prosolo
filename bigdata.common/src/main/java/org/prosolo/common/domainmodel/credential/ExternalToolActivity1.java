@@ -13,6 +13,7 @@ public class ExternalToolActivity1 extends Activity1 {
 	private String consumerKey;
 	private boolean acceptGrades;
 	private boolean openInNewWindow;
+	private boolean visibleForUnenrolledStudents;
 	
 	public String getLaunchUrl() {
 		return launchUrl;
@@ -54,6 +55,14 @@ public class ExternalToolActivity1 extends Activity1 {
 
 	public void setOpenInNewWindow(boolean openInNewWindow) {
 		this.openInNewWindow = openInNewWindow;
+	}
+
+	public boolean isVisibleForUnenrolledStudents() {
+		return visibleForUnenrolledStudents;
+	}
+
+	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
+		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 	
 }
