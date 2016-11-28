@@ -1204,6 +1204,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extAct.setConsumerKey(data.getConsumerKey());
 				extAct.setAcceptGrades(data.isAcceptGrades());
 				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
+				extAct.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 			}
 		    
 			if(publishTransition == EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION) {

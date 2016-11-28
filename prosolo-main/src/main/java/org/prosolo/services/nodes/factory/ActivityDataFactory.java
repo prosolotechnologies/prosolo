@@ -187,6 +187,7 @@ public class ActivityDataFactory {
 			act.setConsumerKey(extAct.getConsumerKey());
 			act.setAcceptGrades(extAct.isAcceptGrades());
 			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
+			act.setVisibleForUnenrolledStudents(extAct.isVisibleForUnenrolledStudents());
 		}
 	}
 	
@@ -513,6 +514,7 @@ public class ActivityDataFactory {
 				extAct.setConsumerKey(activityData.getConsumerKey());
 				extAct.setAcceptGrades(activityData.isAcceptGrades());
 				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
+				extAct.setVisibleForUnenrolledStudents(activityData.isVisibleForUnenrolledStudents());
 				return extAct;
 			default: 
 				return null;

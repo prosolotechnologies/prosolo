@@ -371,6 +371,13 @@
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
                     </div>
+                    <div class="checkbox checkLine">
+                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students too</label>
+                    </div>
                 </div>
             </div>     
         </h:panelGroup>
