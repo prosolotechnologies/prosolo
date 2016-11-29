@@ -2622,6 +2622,7 @@ if (typeof jQuery != 'undefined') {
 
 										// 5%
 										var newTime = Math.max(media.currentTime - player.options.defaultSeekBackwardInterval(media), 0);
+										media.dispatchEvent({type: 'pause', currentTime: media.currentTime});
 										media.setCurrentTime(newTime);
 								}
 						}
@@ -2640,6 +2641,7 @@ if (typeof jQuery != 'undefined') {
 
 										// 5%
 										var newTime = Math.min(media.currentTime + player.options.defaultSeekForwardInterval(media), media.duration);
+										media.dispatchEvent({type: 'pause', currentTime: media.currentTime});
 										media.setCurrentTime(newTime);
 								}
 						}
@@ -4214,7 +4216,7 @@ if (typeof jQuery != 'undefined') {
 			t.slider = controls.find('.mejs-time-slider');
 
 			var handleMouseMove = function (e) {
-
+		
 					var offset = t.total.offset(),
 						width = t.total.width(),
 						percentage = 0,
@@ -4244,6 +4246,7 @@ if (typeof jQuery != 'undefined') {
 
 						// seek to where the mouse is
 						if (mouseIsDown && newTime !== media.currentTime) {
+							media.dispatchEvent({type: 'pause', currentTime: media.currentTime});
 							media.setCurrentTime(newTime);
 						}
 
@@ -4323,7 +4326,11 @@ if (typeof jQuery != 'undefined') {
 					default:
 						return;
 				}
-
+				//St
+				if(seekTime != media.currentTime) {
+					media.dispatchEvent({type: 'pause', currentTime: media.currentTime});
+				}
+				
 				seekTime = seekTime < 0 ? 0 : (seekTime >= duration ? duration : Math.floor(seekTime));
 				lastKeyPressTime = new Date();
 				if (!startedPaused) {

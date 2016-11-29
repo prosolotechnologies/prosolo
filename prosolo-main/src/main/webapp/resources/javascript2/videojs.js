@@ -7,7 +7,7 @@ var initializeVideo = (function () {
 		}
 		
 		var opts = $.extend({}, defaults, options);
-		
+		var lastEvent = -1;
 		$('video').mediaelementplayer({
 		    youtubeIframeVars: {
 		        controls: 0,
@@ -20,6 +20,7 @@ var initializeVideo = (function () {
 		        $('#' + node.id + '-mode').html('mode: ' + media.pluginType);
 		        
 		        media.addEventListener('play', function(e) {
+		        	lastEvent = 1;
 	                sendServiceUse("VIDEO", {
 						"action" : "PLAYING",
 						"time" : e.currentTime
@@ -27,13 +28,17 @@ var initializeVideo = (function () {
 	            });
 		        
 		        media.addEventListener('pause', function(e) {
-		        	sendServiceUse("VIDEO", {
-						"action" : "PAUSE",
-						"time" : e.currentTime
-					}, opts.page, opts.learningContext, opts.service);
+		        	if(lastEvent != 2) { 
+			        	sendServiceUse("VIDEO", {
+							"action" : "PAUSE",
+							"time" : e.currentTime
+						}, opts.page, opts.learningContext, opts.service);
+		        	}
+		        	lastEvent = 2;
 	            });
 		        
 		        media.addEventListener('ended', function(e) {
+		        	lastEvent = 3;
 	                sendServiceUse("VIDEO", {
 						"action" : "ENDED",
 						"time" : e.currentTime
