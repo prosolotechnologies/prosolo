@@ -178,10 +178,10 @@
 			<artifactId>elasticsearch</artifactId>
 			<version>2.3.0</version>
 			<exclusions>
-				<exclusion>
+				<!--exclusion>
 					<artifactId>netty</artifactId>
 					<groupId>io.netty</groupId>
-				</exclusion>
+				</exclusion-->
 			</exclusions>
  	</dependency>
 		<dependency>
