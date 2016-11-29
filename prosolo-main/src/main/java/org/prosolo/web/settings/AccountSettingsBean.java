@@ -53,24 +53,32 @@ public class AccountSettingsBean implements Serializable {
 	 * ACTIONS
 	 */
 	public void savePassChange() {
-		if (authenticationService.checkPassword(loggedUser.getSessionData().getPassword(), accountData.getPassword())) {
-			if (accountData.getNewPassword().length() < 6) {
-				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
-						"Password is too short. It has to contain more that 6 characters.");
-				return;
-			}
-
-			try {
-				String newPassEncrypted = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
-				loggedUser.getSessionData().setPassword(newPassEncrypted);
-				
-				PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
+		if(loggedUser.getPassword() != null && !loggedUser.getPassword().isEmpty()) {
+			if (authenticationService.checkPassword(loggedUser.getSessionData().getPassword(), accountData.getPassword())) {
+				savePasswordIfConditionsAreMet();
+			} else {
+				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
 			}
 		} else {
-			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
+			savePasswordIfConditionsAreMet();
+		}
+	}
+	
+	private void savePasswordIfConditionsAreMet() {
+		if (accountData.getNewPassword().length() < 6) {
+			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
+					"Password is too short. It has to contain more that 6 characters.");
+			return;
+		}
+
+		try {
+			String newPassEncrypted = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
+			loggedUser.getSessionData().setPassword(newPassEncrypted);
+			
+			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
 		}
 	}
 
