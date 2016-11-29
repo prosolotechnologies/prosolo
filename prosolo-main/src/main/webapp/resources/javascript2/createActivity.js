@@ -32,3 +32,12 @@ function onStatusChange() {
 		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview');
 	}
 }
+
+function acceptGradesChanged(acceptGradeCheckboxId, scoreCalcTypeId) {
+	var checked = $(document.getElementById(acceptGradeCheckboxId)).is(":checked");
+	if(checked) {
+		$(document.getElementById(scoreCalcTypeId)).show();
+	} else {
+		$(document.getElementById(scoreCalcTypeId)).hide();
+	}
+}

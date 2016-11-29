@@ -15,6 +15,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -148,6 +149,10 @@ public class ActivityEditBean implements Serializable {
 		}
 	
 		logger.info("Loaded activity data for activity with id "+ id);
+	}
+	
+	public ScoreCalculation[] getScoreCalculationTypes() {
+		return ScoreCalculation.values();
 	}
 	
 	public boolean isLinkListEmpty() {

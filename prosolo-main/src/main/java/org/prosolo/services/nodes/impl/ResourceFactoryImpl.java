@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.Activity;
@@ -51,6 +52,7 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
@@ -601,11 +603,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 //}
     @Override
     @Transactional (readOnly = false)
-    public SimpleOutcome createSimpleOutcome(double resultValue){
+    public SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session) {
         SimpleOutcome sOutcome=new SimpleOutcome();
         sOutcome.setDateCreated(new Date());
         sOutcome.setResult(resultValue);
-        return saveEntity(sOutcome);
+        TargetActivity1 ta = (TargetActivity1) session.load(
+        		TargetActivity1.class, targetActId);
+        sOutcome.setActivity(ta);
+        return saveEntity(sOutcome, session);
     }
     
     @Override

@@ -3,7 +3,6 @@ package org.prosolo.services.externalIntegration.impl;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.jcabi.xml.XMLDocument;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -21,17 +19,11 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
+import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
+import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
-import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -42,13 +34,14 @@ import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
 import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.XMLUtils;
 import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.jcabi.xml.XMLDocument;
 
 import net.oauth.OAuth.Parameter;
 import net.oauth.OAuthAccessor;
@@ -159,13 +152,24 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				Transaction transaction = null;
 				try {
 					transaction = session.beginTransaction();
-					TargetActivity1 ta = (TargetActivity1) session.get(TargetActivity1.class, targetActivityId);
-					Activity1 act = ta.getActivity();
+					ExternalToolTargetActivity1 ta = (ExternalToolTargetActivity1) session.get(
+							ExternalToolTargetActivity1.class, targetActivityId);
+					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
+							ExternalToolActivity1.class, activityId);
 					int maxPoints = act.getMaxPoints();
 					int scaledGrade = (int) Math.round(score * maxPoints);
-					ta.setCommonScore(scaledGrade);
-					assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
-							ta.getTargetCompetence().getId(), ta.getId(), scaledGrade, session);
+					resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
+					int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
+							act.getScoreCalculation(), scaledGrade);
+					if(calculatedScore >= 0) {
+						int prevScore = ta.getCommonScore();
+						ta.setCommonScore(calculatedScore);
+						ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
+						if(calculatedScore != prevScore) {
+							assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
+									ta.getTargetCompetence().getId(), ta.getId(), calculatedScore, session);
+						}
+					}
 				 	transaction.commit();
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -191,6 +195,24 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		return response;
 	}
 	
+	private int calculateScoreBasedOnCalculationType(TargetActivity1 ta, ScoreCalculation scoreCalculation, int newScore) {
+		int previousScore = ta.getCommonScore();
+		int numberOfAttempts = ta.getNumberOfAttempts();
+		if(numberOfAttempts == 0) {
+			return newScore;
+		}
+		switch(scoreCalculation) {
+			case BEST_SCORE:
+				return newScore > previousScore ? newScore : previousScore;
+			case LATEST_SCORE:
+				return newScore;
+			case AVG:
+				return (int) Math.round((previousScore * numberOfAttempts + newScore) / 
+					(numberOfAttempts * 1.0 + 1));
+		}
+		return -1;
+	}
+
 	private BasicLTIResponse createLTIResponse(String consumerRef, String providerRef, boolean success, String description){
 		BasicLTIResponse response=new BasicLTIResponse();
 		response.setConsumerRef(consumerRef);

@@ -1205,6 +1205,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extAct.setAcceptGrades(data.isAcceptGrades());
 				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
 				extAct.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
+				extAct.setScoreCalculation(data.getScoreCalculation());
 			}
 		    
 			if(publishTransition == EntityPublishTransition.FROM_PUBLISHED_TO_DRAFT_VERSION) {

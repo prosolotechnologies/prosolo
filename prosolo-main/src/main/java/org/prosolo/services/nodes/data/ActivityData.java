@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -58,6 +59,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean acceptGrades;
 	private boolean openInNewWindow;
 	private boolean visibleForUnenrolledStudents;
+	private ScoreCalculation scoreCalculation;
 	
 	//TextActivity specific
 	private String text;
@@ -479,6 +481,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
 		observeAttributeChange("visibleForUnenrolledStudents", this.visibleForUnenrolledStudents, visibleForUnenrolledStudents);
 		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
+	}
+	
+	public ScoreCalculation getScoreCalculation() {
+		return scoreCalculation;
+	}
+
+	public void setScoreCalculation(ScoreCalculation scoreCalculation) {
+		observeAttributeChange("scoreCalculation", this.scoreCalculation, scoreCalculation);
+		this.scoreCalculation = scoreCalculation;
 	}
 	
 	//change tracking get methods

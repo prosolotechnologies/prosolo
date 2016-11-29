@@ -367,16 +367,30 @@
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
-                    		onchange="updateStatusToDraft();">
+                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel');updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
                     </div>
+                   
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
                     		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
                     		onchange="updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students too</label>
+                    </div>
+                    
+                    <div id="scoreCalcPanel" style="#{cc.attrs.activity.acceptGrades ? '' : 'display:none;'}">
+	                    <label>In case of multiple responses:</label>
+	                    <div class="formLineRight">
+	                    	<h:selectOneMenu 
+								id="selectScoreCalcType" styleClass="selectpicker" 
+								value="#{cc.attrs.activity.scoreCalculation}"
+								onchange="updateStatusToDraft();">
+								<f:selectItems value="#{cc.attrs.bean.scoreCalculationTypes}" var="scoreCalc"
+									itemValue="#{scoreCalc}" itemLabel="#{scoreCalc.label}" />
+							</h:selectOneMenu>
+	                    </div>
                     </div>
                 </div>
             </div>     

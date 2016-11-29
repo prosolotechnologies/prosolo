@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
@@ -95,7 +96,7 @@ public interface ResourceFactory extends AbstractManager {
             ActivityFormData activityFormData, VisibilityType vis)
             throws EventException, ResourceCouldNotBeLoadedException;
 
-    SimpleOutcome createSimpleOutcome(double resultValue);
+    SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
     Map<String, Object> enrollUserInCourse(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
     

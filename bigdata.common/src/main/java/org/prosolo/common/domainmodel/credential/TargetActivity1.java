@@ -40,6 +40,7 @@ public class TargetActivity1 extends BaseEntity {
 	
 	//common score for all activity assessments
 	private int commonScore;
+	private int numberOfAttempts;
 	
 	//uploaded file
 	/**
@@ -228,6 +229,14 @@ public class TargetActivity1 extends BaseEntity {
 
 	public void setCommonScore(int commonScore) {
 		this.commonScore = commonScore;
+	}
+
+	public int getNumberOfAttempts() {
+		return numberOfAttempts;
+	}
+
+	public void setNumberOfAttempts(int numberOfAttempts) {
+		this.numberOfAttempts = numberOfAttempts;
 	}
 	
 }
