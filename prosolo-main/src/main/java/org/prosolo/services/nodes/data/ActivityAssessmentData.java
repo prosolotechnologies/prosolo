@@ -37,6 +37,8 @@ public class ActivityAssessmentData {
 	private long credAssessmentId;
 	private GradeData grade;
 	private String result;
+	//is activity completed
+	private boolean completed;
 	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
 
 	public ActivityAssessmentData() {
@@ -52,6 +54,7 @@ public class ActivityAssessmentData {
 		data.setResultType(targetActivity.getResultType());
 		data.setResult(targetActivity.getResult());
 		data.setTitle(targetActivity.getTitle());
+		data.setCompleted(targetActivity.isCompleted());
 		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
 //		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
 //		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
@@ -284,6 +287,14 @@ public class ActivityAssessmentData {
 
 	public void setResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
 		this.resultType = resultType;
+	}
+
+	public boolean isCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
 	}
 	
 }
