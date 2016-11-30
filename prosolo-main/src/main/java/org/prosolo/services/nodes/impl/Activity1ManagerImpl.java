@@ -2456,7 +2456,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					   	   "AND targetCred.credential = :credId) ");
 			
 			if(filter != null) {
-				query.append("LEFT JOIN activity_discussion ad " +
+				query.append("LEFT JOIN activity_assessment ad " +
 							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue " +
 							 "LEFT JOIN activity_grade grade " +
 							 "ON ad.grade = grade.id ");
@@ -2533,7 +2533,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			
 			if (returnAssessmentData || filter != null) {
-				query.append("LEFT JOIN activity_discussion ad " +
+				query.append("LEFT JOIN activity_assessment ad " +
 							"ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
 			}
 			
