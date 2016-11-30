@@ -21,7 +21,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
-	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-and-player.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-fix.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/videojs.js"></script>
 		<link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
 		
@@ -153,43 +154,5 @@
 				</script>
 			</ui:fragment>
 		</div>
-		<script>
-			$(function() {
-				$('video').mediaelementplayer({
-				    youtubeIframeVars: {
-				        controls: 0,
-				        iv_load_policy: 3,
-				        modestbranding: 1,
-				        rel: 0,
-				        showinfo: 0,
-				    },
-				    success: function(media, node, player) {
-				        $('#' + node.id + '-mode').html('mode: ' + media.pluginType);
-				        
-				        media.addEventListener('play', function(e){
-				        	console.log(e);
-			                console.log("played");
-			            });
-				        
-				        media.addEventListener('pause', function(e){
-			                console.log("pause");
-			            });
-				        
-				        media.addEventListener('paused', function(e){
-			                console.log("paused");
-			            });
-				        
-				        media.addEventListener('ended', function(e){
-			                console.log("ended");
-			            });
-				        
-				        media.addEventListener('playing', function(e){
-				        	console.log(e);
-			                console.log("playing");
-			            });
-				    }
-				});
-			})
-		</script>
 	</composite:implementation>
 </ui:component>
