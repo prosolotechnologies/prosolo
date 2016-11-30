@@ -2070,4 +2070,86 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		}
 		return null;
 	}
+	
+	@Override
+	public TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
+			String searchTerm, int page, int limit, long credId, long userRoleId) {
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			//bQueryBuilder.filter(termQuery("roles.id", userRoleId));
+			
+			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
+					nestedFB);
+
+			bQueryBuilder.mustNot(nestedFilter1);
+			
+			//bQueryBuilder.must(termQuery("credentials.id", credId));
+			
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.setFetchSource(includes, null);
+				
+				searchRequestBuilder.setFrom(start).setSize(limit);	
+				
+				//add sorting
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
+				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							StudentData student = new StudentData();
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							student.setUser(userData);
+							
+							response.addFoundNode(student);			
+						}
+						
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
+	}
 }

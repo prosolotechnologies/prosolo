@@ -1140,6 +1140,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = false)
+	public void enrollStudentsInCredential(long credId, List<Long> userIds, LearningContextData context) 
+			throws DbConnectionException {
+		if(userIds != null) {
+			for(long userId : userIds) {
+				enrollInCredential(credId, userId, context);
+			}
+		}
+	}
+	
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
 		TargetCredential1 targetCred = new TargetCredential1();

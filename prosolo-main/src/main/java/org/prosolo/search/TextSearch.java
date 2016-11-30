@@ -132,4 +132,7 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
 			long userId, CredentialMembersSortOption sortOption);
+	
+	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
+			String searchTerm, int page, int limit, long credId, long userRoleId);
 }
