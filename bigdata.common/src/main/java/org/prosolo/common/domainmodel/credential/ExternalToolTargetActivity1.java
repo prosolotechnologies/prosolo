@@ -2,6 +2,8 @@ package org.prosolo.common.domainmodel.credential;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Entity
 public class ExternalToolTargetActivity1 extends TargetActivity1 {
@@ -12,6 +14,7 @@ public class ExternalToolTargetActivity1 extends TargetActivity1 {
 	private String sharedSecret;
 	private String consumerKey;
 	private boolean openInNewWindow;
+	private ScoreCalculation scoreCalculation;
 	
 	public String getLaunchUrl() {
 		return launchUrl;
@@ -46,4 +49,12 @@ public class ExternalToolTargetActivity1 extends TargetActivity1 {
 		this.openInNewWindow = openInNewWindow;
 	}
 	
+	@Enumerated(EnumType.STRING)
+	public ScoreCalculation getScoreCalculation() {
+		return scoreCalculation;
+	}
+
+	public void setScoreCalculation(ScoreCalculation scoreCalculation) {
+		this.scoreCalculation = scoreCalculation;
+	}
 }

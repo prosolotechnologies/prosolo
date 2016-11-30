@@ -3,12 +3,9 @@ package org.prosolo.services.externalIntegration.impl;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
@@ -18,26 +15,18 @@ import org.hibernate.Transaction;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.OAuthValidator;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
-import org.prosolo.services.interfaceSettings.LearnActivityCacheUpdater;
-import org.prosolo.services.messaging.SessionMessageDistributer;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.util.XMLUtils;
-import org.prosolo.web.ApplicationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,8 +50,6 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 
 	@Autowired private Activity1Manager activityManager;
 	@Autowired private ResourceFactory resourceFactory;
-	@Autowired private ApplicationBean applicationBean;
-	@Autowired private SessionMessageDistributer messageDistributer;
 	@Autowired private OAuthValidator oauthValidator;
 	@Inject private AssessmentManager assessmentManager;
 	
@@ -160,7 +147,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					int scaledGrade = (int) Math.round(score * maxPoints);
 					resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
 					int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
-							act.getScoreCalculation(), scaledGrade);
+						scaledGrade);
 					if(calculatedScore >= 0) {
 						int prevScore = ta.getCommonScore();
 						ta.setCommonScore(calculatedScore);
@@ -195,12 +182,13 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		return response;
 	}
 	
-	private int calculateScoreBasedOnCalculationType(TargetActivity1 ta, ScoreCalculation scoreCalculation, int newScore) {
+	private int calculateScoreBasedOnCalculationType(ExternalToolTargetActivity1 ta, int newScore) {
 		int previousScore = ta.getCommonScore();
 		int numberOfAttempts = ta.getNumberOfAttempts();
 		if(numberOfAttempts == 0) {
 			return newScore;
 		}
+		ScoreCalculation scoreCalculation = ta.getScoreCalculation();
 		switch(scoreCalculation) {
 			case BEST_SCORE:
 				return newScore > previousScore ? newScore : previousScore;
@@ -227,38 +215,6 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		}
 		return response;
 	}
-	
-	@Deprecated
-	private void updateTargetActivityOutcomeInformation(long targetActivityId, long activityId, long outcomeId, long userId, Session session){
-		HttpSession userSession = applicationBean.getUserSession(userId);
-			
-		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("targetActivityId", String.valueOf(targetActivityId));
-			parameters.put("activityId", String.valueOf(activityId));
-			parameters.put("outcomeId", String.valueOf(outcomeId));
-			parameters.put("userId", String.valueOf(userId));
-			
-			messageDistributer.distributeMessage(
-					ServiceType.UPDATE_TARGET_ACTIVITY_OUTCOME,
-					userId,
-					outcomeId,
-					null,
-					parameters);
-		} else if (userSession != null) {
-			try {
-				Outcome outcome = activityManager.loadResource(Outcome.class, outcomeId, true, session);
-
-				LearnActivityCacheUpdater learnActivityCacheUpdater = ServiceLocator.getInstance().getService(LearnActivityCacheUpdater.class);
-				
-				learnActivityCacheUpdater.updateActivityOutcome(targetActivityId, outcome, userSession, session);
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			}
-			
-		}
-	}
-	
 
 	@Override
 	public BasicLTIResponse processFailureResponse(org.w3c.dom.Document w3cDoc,

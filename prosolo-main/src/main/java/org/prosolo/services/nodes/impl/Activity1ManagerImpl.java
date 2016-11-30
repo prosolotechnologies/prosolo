@@ -361,6 +361,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extTargetAct.setSharedSecret(extAct.getSharedSecret());
 				extTargetAct.setConsumerKey(extAct.getConsumerKey());
 				extTargetAct.setOpenInNewWindow(extAct.isOpenInNewWindow());
+				extTargetAct.setScoreCalculation(extAct.getScoreCalculation());
 				targetAct = extTargetAct;
 			}
 			
