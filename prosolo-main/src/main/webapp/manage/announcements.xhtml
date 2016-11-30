@@ -156,6 +156,9 @@
 			</h:panelGroup>
 			
 			<h2>Previous Annoncements</h2>
+				<ui:fragment rendered="#{empty announcementBean.credentialAnnouncements}">
+					<p>There are no announcements.</p>
+				</ui:fragment>
 				<ui:repeat var="announcementData" value="#{announcementBean.credentialAnnouncements}">
 					<div class="row">
 						<div class="col-md-8">
