@@ -286,10 +286,11 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 
 		Class<? extends Job> jobClass = (Class<? extends Job>) Class
 				.forName(jobClassName);
-
+		JobKey jobKey = jobKey(jobClassName, "job");
+		if(sched.checkExists(jobKey)) {
+			sched.deleteJob(jobKey);
+		}
 		if (jobConfig.activated) {
-			JobKey jobKey = jobKey(jobClassName, "job");
-
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
 			jobBuilder.withIdentity(jobKey);
 			jobBuilder.storeDurably();
@@ -305,17 +306,21 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 			Trigger trigger=tb.build();
 			sched.scheduleJob(trigger);
 		}
+		JobKey startupJobKey = jobKey(jobClassName+"_startup", "job");
+		if(sched.checkExists(startupJobKey)) {
+			sched.deleteJob(startupJobKey);
+		}
 		if (jobConfig.onStartup) {
 			this.startupJobsCounter++;
 			JobBuilder jobBuilder = JobBuilder.newJob(jobClass);
-			JobKey jobKey = jobKey(jobClassName+"_startup", "job");
-			jobBuilder.withIdentity(jobKey);
+
+			jobBuilder.withIdentity(startupJobKey);
 			System.out.println("RUNNING ON startup JOB:"+jobClassName);
 			jobBuilder.storeDurably();
 			JobDetail jobDetails = jobBuilder.build();
 
 			TriggerBuilder tb = TriggerBuilder.newTrigger();
-			tb.forJob(jobKey);
+			tb.forJob(startupJobKey);
 			tb.withIdentity(jobClassName+"_startup","job");
 			tb.startAt(DateBuilder.futureDate(this.startupJobsCounter*120, DateBuilder.IntervalUnit.SECOND));
 			Trigger trigger=tb.build();
