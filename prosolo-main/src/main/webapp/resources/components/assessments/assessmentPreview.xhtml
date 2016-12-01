@@ -355,7 +355,7 @@
 															</div>
 														</div>
 													</div> 
-													<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0}">
+													<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
 														<p:commandLink 
 										                 	styleClass="grade gradeModalLink_#{activityAssessment.activityId}" 
 										                 	pt:data-toggle="modal" data-target="#assessmentGradeModal1"
@@ -366,6 +366,18 @@
 										                 	#{activityAssessment.grade.maxGrade}
 										                </p:commandLink>
 									                </ui:fragment>
+									                
+									                <ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and activityAssessment.automaticGrade}">
+										                <a 
+										                 	class="grade" 
+										                 	disabled="disabled" 
+										                 	data-toggle="tooltip" 
+										                 	title="Grade for this external activity is automatically set upon completion">
+										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.maxGrade}
+										                </a>
+										            </ui:fragment>
+									                
 									                <ui:fragment rendered="#{cc.attrs.role eq 'USER' or not cc.attrs.bean.isCurrentUserAssessor() or activityAssessment.grade.maxGrade == 0}">
 										                <a 
 										                 	class="grade" 
@@ -376,6 +388,7 @@
 										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
 										            </ui:fragment>
+										           
 												</div>
 												
 												<ui:remove>

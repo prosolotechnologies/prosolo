@@ -16,6 +16,10 @@ public class ExternalToolTargetActivity1 extends TargetActivity1 {
 	private boolean openInNewWindow;
 	private ScoreCalculation scoreCalculation;
 	
+	public ExternalToolTargetActivity1() {
+		
+	}
+	
 	public String getLaunchUrl() {
 		return launchUrl;
 	}

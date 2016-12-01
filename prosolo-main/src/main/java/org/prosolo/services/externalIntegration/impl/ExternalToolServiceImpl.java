@@ -143,18 +143,21 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							ExternalToolTargetActivity1.class, targetActivityId);
 					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
 							ExternalToolActivity1.class, activityId);
-					int maxPoints = act.getMaxPoints();
-					int scaledGrade = (int) Math.round(score * maxPoints);
-					resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
-					int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
-						scaledGrade);
-					if(calculatedScore >= 0) {
-						int prevScore = ta.getCommonScore();
-						ta.setCommonScore(calculatedScore);
-						ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
-						if(calculatedScore != prevScore) {
-							assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
-									ta.getTargetCompetence().getId(), ta.getId(), calculatedScore, session);
+					
+					if(act.isAcceptGrades()) {
+						int maxPoints = act.getMaxPoints();
+						int scaledGrade = (int) Math.round(score * maxPoints);
+						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
+						int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
+							scaledGrade);
+						if(calculatedScore >= 0) {
+							int prevScore = ta.getCommonScore();
+							ta.setCommonScore(calculatedScore);
+							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
+							if(calculatedScore != prevScore) {
+								assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
+										ta.getTargetCompetence().getId(), ta.getId(), calculatedScore, session);
+							}
 						}
 					}
 				 	transaction.commit();
@@ -189,6 +192,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 			return newScore;
 		}
 		ScoreCalculation scoreCalculation = ta.getScoreCalculation();
+		if(scoreCalculation == null) {
+			return -1;
+		}
 		switch(scoreCalculation) {
 			case BEST_SCORE:
 				return newScore > previousScore ? newScore : previousScore;

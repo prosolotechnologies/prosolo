@@ -40,6 +40,8 @@ public class ActivityAssessmentData {
 	//is activity completed
 	private boolean completed;
 	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
+	//for external activities where acceptGrades = true
+	private boolean automaticGrade;
 
 	public ActivityAssessmentData() {
 		grade = new GradeData();
@@ -133,7 +135,9 @@ public class ActivityAssessmentData {
 				break;
 			}
 		} else if (activity instanceof ExternalToolActivity1) {
+			ExternalToolActivity1 extAct = (ExternalToolActivity1) activity;
 			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+			act.setAutomaticGrade(extAct.isAcceptGrades());
 		}
 	}
 
@@ -295,6 +299,14 @@ public class ActivityAssessmentData {
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+	
+	public boolean isAutomaticGrade() {
+		return automaticGrade;
+	}
+
+	public void setAutomaticGrade(boolean automaticGrade) {
+		this.automaticGrade = automaticGrade;
 	}
 	
 }
