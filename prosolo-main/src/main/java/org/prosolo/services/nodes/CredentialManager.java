@@ -140,6 +140,9 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
+	void enrollStudentsInCredential(long credId, List<Long> userIds, LearningContextData context) 
+			throws DbConnectionException;
+	
 	/**
 	 * Adds competence to credential, updates credential duration. If credential is published, draft version 
 	 * for credential is created, competence is added to that draft version and original credential becomes draft. 

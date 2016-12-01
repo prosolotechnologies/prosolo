@@ -113,8 +113,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		session.removeAttribute("user");
 	}
 	
-	private void initializeData(Map<String, Object> userData) {
-		if (userData != null) {
+	private synchronized void initializeData(Map<String, Object> userData) {
+		if (!initialized && userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
 			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
@@ -389,9 +389,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		sData.setEmail(email);
 	}
 
-//	public String getPassword() {
-//		return getSessionData() == null ? null : getSessionData().getPassword();
-//	}
+	public String getPassword() {
+		return getSessionData() == null ? null : getSessionData().getPassword();
+	}
 
 	public void setPassword(String password) {
 		getSessionData().setPassword(password);

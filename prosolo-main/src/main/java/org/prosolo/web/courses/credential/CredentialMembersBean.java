@@ -62,6 +62,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private LoggedUserBean loggedUserBean;
 	@Inject 
 	private EventFactory eventFactory;
+	@Inject
+	private StudentEnrollBean studentEnrollBean;
 
 	// PARAMETERS
 	private String id;
@@ -116,6 +118,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 							searchFilters[i] = filter;
 						}
 					}
+					studentEnrollBean.init(decodedId, context);
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -179,6 +182,16 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			searchFilters = (InstructorAssignFilter[]) additional.get("filters");
 			instructorAssignFilter = (InstructorAssignFilter) additional.get("selectedFilter");
 		}
+	}
+	
+	public void waitAndResetStudentData() {
+		try {
+			Thread.sleep(3000);
+		} catch(Exception e) {
+			logger.error(e);
+		}
+		searchTerm = "";
+		resetAndSearch();
 	}
 	
 	public void loadCredentialInstructors(StudentData student) {
