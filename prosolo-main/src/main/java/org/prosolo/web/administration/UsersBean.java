@@ -54,6 +54,8 @@ public class UsersBean implements Serializable, Paginable {
 	private int numberOfPages;
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
+	
+	private UserData loginAsUser;
 
 	public void init() {
 		logger.debug("initializing");
@@ -86,6 +88,10 @@ public class UsersBean implements Serializable, Paginable {
 		this.filter = filter;
 		this.page = 1;
 		loadUsers();
+	}
+	
+	public void prepareLoginAsUser(UserData user) {
+		loginAsUser = user;
 	}
 
 	@Override
@@ -216,6 +222,10 @@ public class UsersBean implements Serializable, Paginable {
 
 	public void setFilters(List<RoleFilter> filters) {
 		this.filters = filters;
+	}
+
+	public UserData getLoginAsUser() {
+		return loginAsUser;
 	}
 	
 }
