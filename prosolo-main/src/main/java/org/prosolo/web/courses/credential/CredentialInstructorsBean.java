@@ -187,6 +187,10 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			id.startObservingChanges();
 			
 			instructors.add(0, id);
+			//remove last entry if there are more results than allowed
+			if(instructors.size() == limit + 1) {
+				instructors.remove(limit);
+			}
 			//add id of newly added instructor to excluded list
 			excludedInstructorIds.add(id.getUser().getId());
 			

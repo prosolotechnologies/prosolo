@@ -3,6 +3,7 @@ package org.prosolo.services.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventData;
 
 public class Result<T> {
@@ -10,10 +11,12 @@ public class Result<T> {
 	private T result;
 	private List<T> results;
 	private List<EventData> events;
+	private List<Event> firedEvents;
 	
 	public Result() {
 		results = new ArrayList<>();
 		events = new ArrayList<>();
+		firedEvents = new ArrayList<>();
 	}
 
 	public Result(T result, List<T> results, List<EventData> events) {
@@ -32,6 +35,12 @@ public class Result<T> {
 	public void addEvents(List<EventData> events) {
 		if(events != null) {
 			this.events.addAll(events);
+		}
+	}
+	
+	public void addFiredEvent(Event ev) {
+		if(ev != null) {
+			firedEvents.add(ev);
 		}
 	}
 	
@@ -61,6 +70,10 @@ public class Result<T> {
 
 	public void setEvents(List<EventData> events) {
 		this.events = events;
+	}
+
+	public List<Event> getFiredEvents() {
+		return firedEvents;
 	}
 	
 }

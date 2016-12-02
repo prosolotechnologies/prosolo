@@ -16,11 +16,13 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -140,7 +142,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
-	void enrollStudentsInCredential(long credId, List<Long> userIds, LearningContextData context) 
+	void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
 			throws DbConnectionException;
 	
 	/**
@@ -341,5 +343,11 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	long getNumberOfUsersLearningCredential(long credId) 
+			throws DbConnectionException;
+	
+	List<StudentData> getCredentialStudentsData(long credId, int limit) 
+			throws DbConnectionException;
+	
+	InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException;
 }

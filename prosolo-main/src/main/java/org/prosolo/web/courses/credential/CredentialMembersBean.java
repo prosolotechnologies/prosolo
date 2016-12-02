@@ -98,7 +98,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
-			context = "name:CREDENTIAL|id:" + decodedId;
+			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
 				String title = credManager.getCredentialTitleForCredentialWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
@@ -184,14 +184,21 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		}
 	}
 	
-	public void waitAndResetStudentData() {
-		try {
-			Thread.sleep(3000);
-		} catch(Exception e) {
-			logger.error(e);
-		}
+	public void addStudentsAndResetData() {
+		studentEnrollBean.enrollStudents();
+		page = 1;
 		searchTerm = "";
-		resetAndSearch();
+		sortOption = CredentialMembersSortOption.DATE;
+		members = credManager.getCredentialStudentsData(decodedId, limit);
+		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
+		for(InstructorAssignFilter f : searchFilters) {
+			if(f.getFilter() == InstructorAssignFilterValue.All) {
+				instructorAssignFilter = f;
+				credentialMembersNumber = (int) f.getNumberOfResults();
+				break;
+			}
+		}
+		generatePagination();
 	}
 	
 	public void loadCredentialInstructors(StudentData student) {

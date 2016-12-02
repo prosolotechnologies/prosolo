@@ -26,12 +26,15 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.util.credential.InstructorAssignFilter;
+import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -39,7 +42,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -52,10 +54,12 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
+import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
@@ -90,6 +94,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private FeedSourceManager feedSourceManager;
 	@Inject
 	private AssessmentManager assessmentManager;
+	@Inject
+	private CredentialInstructorDataFactory credInstructorFactory;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -1054,12 +1060,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException {
+		return enrollInCredential(credentialId, userId, 0, context, null).getResult();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Transactional(readOnly = false)
+	private Result<CredentialData> enrollInCredential(long credentialId, long userId, 
+			long instructorThatForcedEnrollId, LearningContextData context, Class[] observersToExclude) 
+			throws DbConnectionException {
 		try {
+			Result<CredentialData> result = new Result<>();
+			
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			
 			Credential1 cred = getCredential(credentialId, false, 0, 
@@ -1092,8 +1107,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					object.setId(userId);
 					Map<String, String> params = new HashMap<>();
 					params.put("credId", credentialId + "");
-					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
+					if(instructorThatForcedEnrollId > 0) {
+						params.put("forcedEnroll", "true");
+						params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
+					}
+					result.addFiredEvent(eventFactory.generateEvent(
+							EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+							userId, object, target, 
+							page, lContext, service, 
+							observersToExclude, params));
+//					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+//							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
 				}
 	    	}
 			
@@ -1129,10 +1153,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				dateString = df.format(date);
 			}
 			params.put("dateEnrolled", dateString);
-			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-					page, lContext, service, params);
+			if(instructorThatForcedEnrollId > 0) {
+				params.put("forcedEnroll", "true");
+				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
+			}
+			result.addFiredEvent(eventFactory.generateEvent(
+					EventType.ENROLL_COURSE, 
+					actor.getId(), cred, null, 
+					page, lContext, service, 
+					observersToExclude, params));
+//			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
+//					page, lContext, service, params);
 			
-			return cd;
+			result.setResult(cd);
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1142,11 +1176,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void enrollStudentsInCredential(long credId, List<Long> userIds, LearningContextData context) 
+	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
 			throws DbConnectionException {
 		if(userIds != null) {
-			for(long userId : userIds) {
-				enrollInCredential(credId, userId, context);
+			try {
+				for(long userId : userIds) {
+					enrollInCredential(credId, userId, instructorId, context, null);
+				}
+			} catch(Exception e) {
+				throw new DbConnectionException("Error while enrolling students in a credential");
 			}
 		}
 	}
@@ -1160,7 +1198,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setUser(user);
 		Date now = new Date();
 		targetCred.setDateCreated(now);
-		targetCred.setDateStarted(new Date());
+		targetCred.setDateStarted(now);
 		targetCred.setLastAction(now);
 		targetCred.setCredentialType(cred.getType());
 
@@ -2783,6 +2821,87 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving number of users learning credential");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional(readOnly = true)
+	public List<StudentData> getCredentialStudentsData(long credId, int limit) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT cred " +
+						   "FROM TargetCredential1 cred " +
+						   "INNER JOIN fetch cred.user " +
+						   "LEFT JOIN fetch cred.instructor inst " +
+						   "LEFT JOIN fetch inst.user " +
+						   "WHERE cred.credential.id = :credId " +
+						   "ORDER BY cred.dateStarted DESC";
+			
+			List<TargetCredential1> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setMaxResults(limit)
+				.list();
+			
+			if(res != null) {
+				List<StudentData> data = new ArrayList<>();
+				for(TargetCredential1 tc : res) {
+					StudentData sd = new StudentData(tc.getUser());
+					CredentialInstructor ci = tc.getInstructor();
+					if(ci != null) {
+						sd.setInstructor(credInstructorFactory.getInstructorData(
+								tc.getInstructor(), tc.getInstructor().getUser(), 
+								0, false));
+					}
+					sd.setCredProgress(tc.getProgress());
+					Optional<Long> credAssessmentId = assessmentManager
+							.getDefaultCredentialAssessmentId(credId, sd.getUser().getId());
+					if(credAssessmentId.isPresent()) {
+						sd.setAssessmentId(credAssessmentId.get());
+					}
+					data.add(sd);
+				}
+				return data;
+			}
+			
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential members");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id) " +
+						   "FROM TargetCredential1 cred " +
+						   "WHERE cred.credential.id = :credId";
+			
+			Object[] res = (Object[]) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.uniqueResult();
+			
+			if(res != null) {
+				long all = (long) res[0];
+				InstructorAssignFilter allFilter = new InstructorAssignFilter(
+						InstructorAssignFilterValue.All, all);
+				long assigned = (long) res[1];
+				InstructorAssignFilter unassignedFilter = new InstructorAssignFilter(
+						InstructorAssignFilterValue.Unassigned, all - assigned);
+				return new InstructorAssignFilter[] {allFilter, unassignedFilter};
+			}
+			
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving filters");
 		}
 	}
 	

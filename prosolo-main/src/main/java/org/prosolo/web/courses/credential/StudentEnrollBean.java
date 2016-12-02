@@ -19,6 +19,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
@@ -38,6 +39,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	@Inject private TextSearch textSearch;
 	@Inject private CredentialManager credManager;
 	@Inject private RoleManager roleManager;
+	@Inject private LoggedUserBean loggedUserBean;
 
 	private long credId;
 
@@ -124,7 +126,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
-			credManager.enrollStudentsInCredential(credId, studentsToEnroll, 
+			credManager.enrollStudentsInCredential(credId, loggedUserBean.getUserId(), studentsToEnroll,
 					new LearningContextData(page, context, service));
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 		} catch(DbConnectionException e) {
