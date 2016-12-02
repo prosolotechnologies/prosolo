@@ -179,20 +179,15 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		try {
 			CredentialInstructor inst = credInstructorManager
 					.addInstructorToCredential(decodedId, user.getId(), 0);
-			InstructorData id = new InstructorData(false);
-			id.setUser(user);
-			id.setInstructorId(inst.getId());
-			id.setMaxNumberOfStudents(0);
-			id.setNumberOfAssignedStudents(0);
-			id.startObservingChanges();
-			
-			instructors.add(0, id);
-			//remove last entry if there are more results than allowed
-			if(instructors.size() == limit + 1) {
-				instructors.remove(limit);
+			page = 1;
+			searchTerm = "";
+			sortOption = InstructorSortOption.Date;
+			credentialInstructorsNumber = (int) credInstructorManager.getCredentialInstructorsCount(decodedId); 
+			instructors = credInstructorManager.getCredentialInstructors(decodedId, true, limit, true);
+			for(InstructorData id : instructors) {
+				excludedInstructorIds.add(id.getUser().getId());
 			}
-			//add id of newly added instructor to excluded list
-			excludedInstructorIds.add(id.getUser().getId());
+			generatePagination();
 			
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
@@ -205,7 +200,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					Credential1 cred = new Credential1();
 					cred.setId(decodedId);
 					User instr = new User();
-					instr.setId(id.getUser().getId());
+					instr.setId(user.getId());
 					Map<String, String> params = new HashMap<>();
 					String dateString = null;
 					if(dateAssigned != null) {

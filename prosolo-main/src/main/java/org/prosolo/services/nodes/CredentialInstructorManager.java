@@ -57,4 +57,10 @@ public interface CredentialInstructorManager {
 	
 	void updateStudentsAssignedToInstructor(long instructorId, long credId, 
 			List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
+	
+	List<InstructorData> getCredentialInstructors(long credentialId, 
+			boolean returnNumberOfCurrentlyAssignedStudents, int limit, boolean trackChanges) 
+					throws DbConnectionException;
+	
+	long getCredentialInstructorsCount(long credentialId) throws DbConnectionException;
 }

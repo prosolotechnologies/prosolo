@@ -508,4 +508,70 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 //        return instructorWithLowestNumberOfStudents;
 //    }
 	
+	@Override
+	@Transactional(readOnly = true)
+	public List<InstructorData> getCredentialInstructors(long credentialId, 
+			boolean returnNumberOfCurrentlyAssignedStudents, int limit, boolean trackChanges) 
+					throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT credInstructor " +
+					"FROM CredentialInstructor credInstructor " +
+					"INNER JOIN fetch credInstructor.user instructor " +
+					"WHERE credInstructor.credential.id = :credId " +
+					"ORDER BY credInstructor.dateAssigned DESC";
+			
+			@SuppressWarnings("unchecked")
+			List<CredentialInstructor> result = persistence
+					.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.setMaxResults(limit)
+					.list();
+			
+			List<InstructorData> instructors = new ArrayList<>();
+			if (result != null) {
+				for(CredentialInstructor inst : result) {
+					int numberOfAssigned = 0;
+					if(returnNumberOfCurrentlyAssignedStudents) {
+						numberOfAssigned = inst.getAssignedStudents().size();
+					}
+					InstructorData instructor = credInstructorFactory.getInstructorData(
+							inst, inst.getUser(), numberOfAssigned, trackChanges);
+					instructors.add(instructor);
+				}
+		    }
+					
+			return instructors;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential instructors");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long getCredentialInstructorsCount(long credentialId) 
+					throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT COUNT(credInstructor.id) " +
+					"FROM CredentialInstructor credInstructor " +
+					"WHERE credInstructor.credential.id = :credId";
+			
+			Long result = (Long) persistence
+					.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.uniqueResult();
+					
+			return result == null ? 0 : result;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential instructors number");
+		}
+	}
+	
 }
