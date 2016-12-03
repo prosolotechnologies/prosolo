@@ -39,7 +39,7 @@ public class TargetActivity1 extends BaseEntity {
 	private boolean added;
 	
 	//common score for all activity assessments
-	private int commonScore;
+	private int commonScore = -1;
 	private int numberOfAttempts;
 	
 	//uploaded file

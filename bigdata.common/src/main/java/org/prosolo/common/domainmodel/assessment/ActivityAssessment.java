@@ -29,7 +29,7 @@ public class ActivityAssessment extends BaseEntity {
 	 */
 	@Deprecated
 	private ActivityGrade grade;
-	private int points;
+	private int points = -1;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	public TargetActivity1 getTargetActivity() {
