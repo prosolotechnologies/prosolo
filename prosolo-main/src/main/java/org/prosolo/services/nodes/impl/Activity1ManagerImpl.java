@@ -2557,9 +2557,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			if (filter != null) {
 				if (filter == StudentAssessedFilter.Assessed) {
-					query.append("AND ad.points IS NOT NULL ");
+					query.append("AND ad.points IS NOT NULL AND ad.points >= 0 ");
 				} else {
-					query.append("AND ad.points IS NULL ");
+					query.append("AND ad.points IS NULL OR ad.points < 0 ");
 				}
 			}
 				   		
@@ -2628,6 +2628,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
 							gd.setValue((Integer) row[13]);
+							if(gd.getValue() < 0) {
+								gd.setValue(0);
+							}
 							ad.setGrade(gd);
 							ard.setAssessment(ad);							
 						} else {

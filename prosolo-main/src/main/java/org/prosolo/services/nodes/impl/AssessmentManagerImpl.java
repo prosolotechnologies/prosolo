@@ -184,38 +184,68 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	private long createAssessment(TargetCredential1 targetCredential, long studentId, long assessorId,
 			String message, String credentialTitle, boolean defaultAssessment) {
-		User student = (User) persistence.currentManager().load(User.class, studentId);
-		User assessor = null;
-		if(assessorId > 0) {
-			assessor = (User) persistence.currentManager().load(User.class, assessorId);
+		try {
+			User student = (User) persistence.currentManager().load(User.class, studentId);
+			User assessor = null;
+			if(assessorId > 0) {
+				assessor = (User) persistence.currentManager().load(User.class, assessorId);
+			}
+			CredentialAssessment assessment = new CredentialAssessment();
+			Date creationDate = new Date();
+			assessment.setMessage(message);
+			assessment.setDateCreated(creationDate);
+			assessment.setApproved(false);
+			assessment.setAssessedStudent(student);
+			if(assessor != null) {
+				assessment.setAssessor(assessor);
+			}
+			assessment.setTitle(credentialTitle);
+			assessment.setTargetCredential(targetCredential);
+			assessment.setDefaultAssessment(defaultAssessment);
+			saveEntity(assessment);
+			// create CompetenceAssessment for every competence
+			//List<CompetenceAssessment> competenceAssessments = new ArrayList<>();
+			int credPoints = 0;
+			for (TargetCompetence1 targetCompetence : targetCredential.getTargetCompetences()) {
+				CompetenceAssessment compAssessment = new CompetenceAssessment();
+				compAssessment.setApproved(false);
+				compAssessment.setDateCreated(creationDate);
+				compAssessment.setCredentialAssessment(assessment);
+				compAssessment.setTitle(targetCompetence.getTitle());
+				compAssessment.setTargetCompetence(targetCompetence);
+				compAssessment.setDefaultAssessment(defaultAssessment);
+				saveEntity(compAssessment);
+				//create activity assessments for activities that have automatic score
+				int compPoints = 0;
+				for(TargetActivity1 ta : targetCompetence.getTargetActivities()) {
+					if(ta.getCommonScore() >= 0) {
+						List<Long> participantIds = new ArrayList<>();
+						participantIds.add(studentId);
+						if(assessorId > 0) {
+							participantIds.add(assessorId);
+						}
+						createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0, 
+								defaultAssessment, ta.getCommonScore());
+						compPoints += ta.getCommonScore();
+					}
+				}
+				if(compPoints > 0) {
+					compAssessment.setPoints(compPoints);
+					credPoints += compPoints;
+				}
+				//competenceAssessments.add(compAssessment);
+			}
+			if(credPoints > 0) {
+				assessment.setPoints(credPoints);
+			}
+			//assessment.setCompetenceAssessments(competenceAssessments);
+			//saveEntity(assessment);
+			return assessment.getId();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while creating assessment for credential");
 		}
-		CredentialAssessment assessment = new CredentialAssessment();
-		Date creationDate = new Date();
-		assessment.setMessage(message);
-		assessment.setDateCreated(creationDate);
-		assessment.setApproved(false);
-		assessment.setAssessedStudent(student);
-		if(assessor != null) {
-			assessment.setAssessor(assessor);
-		}
-		assessment.setTitle(credentialTitle);
-		assessment.setTargetCredential(targetCredential);
-		assessment.setDefaultAssessment(defaultAssessment);
-		// create CompetenceAssessment for every competence
-		List<CompetenceAssessment> competenceAssessments = new ArrayList<>();
-		for (TargetCompetence1 targetCompetence : targetCredential.getTargetCompetences()) {
-			CompetenceAssessment compAssessment = new CompetenceAssessment();
-			compAssessment.setApproved(false);
-			compAssessment.setDateCreated(creationDate);
-			compAssessment.setCredentialAssessment(assessment);
-			compAssessment.setTitle(targetCompetence.getTitle());
-			compAssessment.setTargetCompetence(targetCompetence);
-			compAssessment.setDefaultAssessment(defaultAssessment);
-			competenceAssessments.add(compAssessment);
-		}
-		assessment.setCompetenceAssessments(competenceAssessments);
-		saveEntity(assessment);
-		return assessment.getId();
 	}
 
 	@Override
@@ -346,7 +376,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				competenceAssessmentId, session);
 		// merge(competenceAssessment);
 		
-		List<ActivityDiscussionParticipant> participants = new ArrayList<>();
+		activityDiscussion.setAssessment(competenceAssessment);
+		activityDiscussion.setTargetActivity(targetActivity);
+		//activityDiscussion.setParticipants(participants);
+		activityDiscussion.setDefaultAssessment(isDefault);
+		
+//		//TODO change when design is implemented
+//		ActivityGrade ag = new ActivityGrade();
+//		ag.setValue(grade);
+//		saveEntity(ag);
+//		activityDiscussion.setGrade(ag);
+		if (grade != null) {
+			activityDiscussion.setPoints(grade);
+		}
+		
+		saveEntity(activityDiscussion, session);
+		//List<ActivityDiscussionParticipant> participants = new ArrayList<>();
 		for (Long userId : participantIds) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 			User user = loadResource(User.class, userId, session);
@@ -358,22 +403,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				participant.setRead(true);
 			}
 			participant.setParticipant(user);
-			participants.add(participant);
+			saveEntity(participant, session);
+			//participants.add(participant);
 		}
-		activityDiscussion.setAssessment(competenceAssessment);
-		activityDiscussion.setTargetActivity(targetActivity);
-		activityDiscussion.setParticipants(participants);
-		activityDiscussion.setDefaultAssessment(isDefault);
-		
-//		//TODO change when design is implemented
-//		ActivityGrade ag = new ActivityGrade();
-//		ag.setValue(grade);
-//		saveEntity(ag);
-//		activityDiscussion.setGrade(ag);
-		if (grade != null) {
-			activityDiscussion.setPoints(grade);
-		}
-		saveEntity(activityDiscussion, session);
 		return activityDiscussion;
 	}
 
