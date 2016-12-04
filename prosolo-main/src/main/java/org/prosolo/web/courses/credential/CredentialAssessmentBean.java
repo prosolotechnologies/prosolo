@@ -296,6 +296,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			int credPoints = assessmentManager.recalculateScoreForCredentialAssessment(credAssessmentId);
 			fullAssessmentData.setPoints(credPoints);
 			
+			currentAssessment.getGrade().setAssessed(true);
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
 		} catch(Exception e) {
 			e.printStackTrace();

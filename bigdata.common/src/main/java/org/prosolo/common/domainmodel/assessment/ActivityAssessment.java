@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.assessment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -30,6 +31,11 @@ public class ActivityAssessment extends BaseEntity {
 	@Deprecated
 	private ActivityGrade grade;
 	private int points = -1;
+	
+	public ActivityAssessment() {
+		participants = new ArrayList<>();
+		messages = new ArrayList<>();
+	}
 
 	@OneToOne(fetch = FetchType.LAZY)
 	public TargetActivity1 getTargetActivity() {
@@ -50,7 +56,7 @@ public class ActivityAssessment extends BaseEntity {
 		this.assessment = assessment;
 	}
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "activityDiscussion", fetch = FetchType.LAZY)
+	@OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy = "activityDiscussion", fetch = FetchType.LAZY)
 	public List<ActivityDiscussionParticipant> getParticipants() {
 		return participants;
 	}
@@ -69,11 +75,9 @@ public class ActivityAssessment extends BaseEntity {
 	}
 
 	public ActivityDiscussionParticipant getParticipantByUserId(long id) {
-		if (participants != null && participants.size() > 0) {
-			for (ActivityDiscussionParticipant participant : participants) {
-				if (participant.getParticipant().getId() == id) {
-					return participant;
-				}
+		for (ActivityDiscussionParticipant participant : getParticipants()) {
+			if (participant.getParticipant().getId() == id) {
+				return participant;
 			}
 		}
 		return null;

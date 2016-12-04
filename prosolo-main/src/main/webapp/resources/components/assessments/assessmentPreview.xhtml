@@ -362,7 +362,7 @@
 										                 	action="#{cc.attrs.bean.setCurrentAssessment(activityAssessment)}"
 										                 	update=":#{cc.clientId}:activityGradeModal:formGradeModal:panelGradeModal"
 										                 	oncomplete="$('#assessmentGradeModal1').modal('show');">
-										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
 										                 	#{activityAssessment.grade.maxGrade}
 										                </p:commandLink>
 									                </ui:fragment>
@@ -373,7 +373,7 @@
 										                 	disabled="disabled" 
 										                 	data-toggle="tooltip" 
 										                 	title="Grade for this external activity is automatically set upon completion">
-										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
 										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
 										            </ui:fragment>
@@ -384,7 +384,7 @@
 										                 	disabled="disabled" 
 										                 	data-toggle="tooltip" 
 										                 	title="You cannot update the grade">
-										                 	#{not empty activityAssessment.grade.value ? activityAssessment.grade.value : '-'}  / 
+										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
 										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
 										            </ui:fragment>

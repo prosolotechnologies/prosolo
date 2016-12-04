@@ -355,14 +355,14 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	@Override
-	@Transactional
+	@Transactional(readOnly = false)
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException {
 		return createActivityDiscussion(targetActivityId, competenceAssessmentId, participantIds, senderId, isDefault, grade, persistence.currentManager());
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(readOnly = false)
 	public ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException {
 		Date now = new Date();
@@ -404,7 +404,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			participant.setParticipant(user);
 			saveEntity(participant, session);
-			//participants.add(participant);
+			activityDiscussion.getParticipants().add(participant);
 		}
 		return activityDiscussion;
 	}
@@ -414,6 +414,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException {
 		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
+		//persistence.currentManager().refresh(discussion);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
 		if(sender == null) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
@@ -422,8 +423,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			participant.setDateCreated(new Date());
 			participant.setRead(true);
 			participant.setParticipant(user);
+			saveEntity(participant);
 			sender = participant;
-			discussion.getParticipants().add(participant);
+			//discussion.getParticipants().add(participant);
 		}
 		
 		Date now = new Date();
@@ -451,7 +453,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		// save the message
 		saveEntity(message);
 		// update the discussion, updating all participants along the way
-		merge(discussion);
+		//merge(discussion);
 		return ActivityDiscussionMessageData.from(message, null, encoder);
 	}
 
