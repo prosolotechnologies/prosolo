@@ -20,7 +20,6 @@ public class ActivityDiscussionParticipant extends BaseEntity {
 	//private ActivityDiscussionMessage lastReadMessage;
 	private ActivityAssessment activityDiscussion;
 	
-	
 	@Type(type = "true_false")
 	@Column(name="is_read", columnDefinition = "char(1) DEFAULT 'T'")
 	public boolean isRead() {

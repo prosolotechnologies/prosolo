@@ -2630,6 +2630,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							gd.setValue((Integer) row[13]);
 							if(gd.getValue() < 0) {
 								gd.setValue(0);
+							} else {
+								gd.setAssessed(true);
 							}
 							ad.setGrade(gd);
 							ard.setAssessment(ad);							

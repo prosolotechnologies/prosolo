@@ -10,6 +10,7 @@ public class GradeData implements Serializable {
 	private int minGrade;
 	private int maxGrade;
 	private Integer value;
+	private boolean assessed;
 	
 	public int getMinGrade() {
 		return minGrade;
@@ -41,6 +42,14 @@ public class GradeData implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public boolean isAssessed() {
+		return assessed;
+	}
+
+	public void setAssessed(boolean assessed) {
+		this.assessed = assessed;
 	}
 	
 }

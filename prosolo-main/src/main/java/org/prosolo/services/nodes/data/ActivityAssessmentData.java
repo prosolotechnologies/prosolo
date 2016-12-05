@@ -95,6 +95,8 @@ public class ActivityAssessmentData {
 			data.getGrade().setValue(activityDiscussion.getPoints());
 			if(data.getGrade().getValue() < 0) {
 				data.getGrade().setValue(0);
+			} else {
+				data.getGrade().setAssessed(true);
 			}
 		}
 		//there are no discussions/messages for this activity, set it as 'all read'

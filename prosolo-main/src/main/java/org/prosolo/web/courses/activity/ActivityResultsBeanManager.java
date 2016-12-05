@@ -329,6 +329,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			assessmentManager.recalculateScoreForCompetenceAssessment(compAssessmentId);
 			assessmentManager.recalculateScoreForCredentialAssessment(credAssessmentId);
 						
+			currentResult.getAssessment().getGrade().setAssessed(true);
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
 		} catch(Exception e) {
 			e.printStackTrace();
