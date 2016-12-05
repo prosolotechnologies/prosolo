@@ -137,7 +137,8 @@ public interface CredentialManager extends AbstractManager {
 			LearningContextData context) 
 			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
 	
-	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role, 
+			LearningContextData context);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;

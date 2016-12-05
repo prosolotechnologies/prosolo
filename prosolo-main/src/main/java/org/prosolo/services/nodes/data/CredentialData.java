@@ -443,6 +443,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 			setScheduledPublicDate(d);
 		}
 	}
+	
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
 	//change tracking get methods
 	
@@ -460,6 +468,10 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public boolean isHashtagsStringChanged() {
 		return changedAttributes.containsKey("hashtagsString");
+	}
+	
+	public String getOldHashtags() {
+		return (String) changedAttributes.get("hashtagsString");
 	}
 
 	public boolean isPublishedChanged() {
@@ -481,15 +493,5 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
 	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
-	
 
 }

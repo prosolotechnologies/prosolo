@@ -65,6 +65,8 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.annotation.TagManager;
@@ -983,8 +985,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role) {
-    	return credentialManager.updateCredential(data, creatorId, role);
+    		org.prosolo.services.nodes.data.Role role, LearningContextData context) {
+    	return credentialManager.updateCredential(data, creatorId, role, context);
     }
     
     @Override

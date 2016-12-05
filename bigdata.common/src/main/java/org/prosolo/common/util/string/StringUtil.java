@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
+import org.prosolo.common.domainmodel.annotation.Tag;
 
 /**
  * @author "Nikola Milikic"
@@ -107,6 +108,17 @@ public class StringUtil {
 			return url.trim().replaceAll(" ", "%20");
 		}
 		return null;
+	}
+	
+	public static String convertTagsToCSV(Collection<Tag> tags) {
+		String csv = "";
+		for (Tag value : tags) {
+			csv += value.getTitle() + ",";
+		}
+		if (csv.endsWith(",")) {
+			csv = csv.substring(0, csv.lastIndexOf(","));
+		}
+		return csv;
 	}
 
 }
