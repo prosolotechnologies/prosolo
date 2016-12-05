@@ -115,7 +115,8 @@
 		</user>
 	</services>
 	<file-store>
+		<virtual-hosting-url>https://devfiles.prosolo.ca</virtual-hosting-url>
 		<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-		<file-store-bucket-name>prosolo.nikola</file-store-bucket-name>
+		<file-store-bucket-name>devfiles.prosolo.ca</file-store-bucket-name>
 	</file-store>
 </config>

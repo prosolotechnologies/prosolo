@@ -58,10 +58,14 @@ public class AvatarUtils {
 			url = null;
 		} else {
 			FileStoreConfig filesConfig=CommonSettings.getInstance().config.fileStore;
-			url = filesConfig.fileStoreServiceUrl + "/" + 
+			/*url = filesConfig.fileStoreServiceUrl + "/" +
 					filesConfig.fileStoreBucketName + "/" +
 					CommonSettings.getInstance().config.services.userService.userAvatarPath +
 					avatarUrl + "/" + 
+					format+".png";*/
+			url = filesConfig.getFilePath()  +
+					CommonSettings.getInstance().config.services.userService.userAvatarPath +
+					avatarUrl + "/" +
 					format+".png";
 		//	url = Settings.getInstance().config.fileManagement.uploadPath + Settings.getInstance().config.services.userService.userAvatarPath + avatarUrl + File.separator + format + ".png";
 			//url = getUrlFromPath(url);
