@@ -49,5 +49,7 @@ public interface UserManager extends AbstractManager {
 	List<User> getUsers(Long[] toExclude, int limit);
 	
 	User getUserWithRoles(long id) throws DbConnectionException;
+	
+	String getUserEmail(long id) throws DbConnectionException;
 
 }

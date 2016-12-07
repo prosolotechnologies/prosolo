@@ -1,6 +1,8 @@
 package org.prosolo.services.authentication.impl;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
@@ -66,6 +68,12 @@ public class BasicAuthenticationService implements AuthenticationService {
 	@Override
 	public boolean checkPassword(String oldPassword, String newPassword) {
 		return passwordEncrypter.isPasswordValid(oldPassword, newPassword, null);
+	}
+	@Override
+	public void login(HttpServletRequest req, HttpServletResponse resp, String email)
+			throws AuthenticationException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

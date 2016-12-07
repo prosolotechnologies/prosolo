@@ -167,7 +167,14 @@
                          </p>
                      </div>
                      <div class="modal-footer">
-                         <a href="#" class="btn btn-green">Proceed</a>
+                         <p:commandLink
+                         	styleClass="btn btn-green"
+                         	process="@this"
+                         	action="#{adminUsers.loginAs()}"
+                         	update=":growlMain"
+                         	oncomplete="$('#loginAs').modal('hide');">
+                         	Proceed
+                         </p:commandLink>
                          <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                      </div>
                  </h:panelGroup>

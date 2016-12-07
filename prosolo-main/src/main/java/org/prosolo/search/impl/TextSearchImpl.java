@@ -76,6 +76,7 @@ import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -107,6 +108,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private RoleManager roleManager;
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
+	@Inject private UserManager userManager;
 
 	@Override
 	@Transactional
@@ -302,6 +304,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					user.setName((String) fields.get("name"));
 					user.setLastname((String) fields.get("lastname"));
 					user.setAvatarUrl((String) fields.get("avatar"));
+					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
 					List<org.prosolo.common.domainmodel.organization.Role> userRoles = new ArrayList<>();

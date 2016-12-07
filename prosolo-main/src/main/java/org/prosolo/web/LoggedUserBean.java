@@ -364,6 +364,17 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			e.printStackTrace();
 		}
 	}
+	
+	public void forceUserLogout(){
+		try {
+			final String ipAddress = this.getIpAddress();
+			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 
 	/*
 	 * GETTERS / SETTERS
