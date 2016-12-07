@@ -120,6 +120,16 @@
 		                                 <f:param name="id" value="#{util:encodeId(user.id)}"/>
 		                               	 Edit
 	                                </h:link>
+	                                
+	                                <p:commandLink 
+	                                	styleClass="btn btn-green-stroke" 
+	                                	pt:data-toggle="modal" 
+	                                	action="#{adminUsers.prepareLoginAsUser(user)}"
+	                                	update=":formLoginAs:panelLoginAs"
+	                                	oncomplete="$('#loginAs').modal('show');">
+	                                	Login as...
+	                                </p:commandLink>
+	                                
 	                                <p:commandLink 
 	                                	styleClass="linkRed"
 	                                	pt:data-toggle="modal"
@@ -142,6 +152,35 @@
 				links="#{adminUsers.paginationLinks}"
 				toUpdate=":panelUsers" />
     </div>
+
+	<h:form id="formLoginAs">
+		 <div class="modal fade" id="loginAs" tabindex="-1" role="dialog" aria-labelledby="loginAsUser">
+             <div class="modal-dialog" role="document">
+                 <h:panelGroup id="panelLoginAs" layout="block" styleClass="modal-content">
+                     <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                         <h2 class="modal-title" id="loginAsUser">Login as...</h2>
+                     </div>
+                     <div class="modal-body">
+                         <p>
+                             By proceeding your current session will end and you will be logged in as a student [#{adminUsers.loginAsUser.fullName}]. All actions performed during this session will be contributed to this student.
+                         </p>
+                     </div>
+                     <div class="modal-footer">
+                         <p:commandLink
+                         	styleClass="btn btn-green"
+                         	process="@this"
+                         	action="#{adminUsers.loginAs()}"
+                         	update=":growlMain"
+                         	oncomplete="$('#loginAs').modal('hide');">
+                         	Proceed
+                         </p:commandLink>
+                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                     </div>
+                 </h:panelGroup>
+             </div>
+         </div>
+	</h:form>
 
 	<courses:deleteModalDialog id="deleteUserModal"
    			deleteActionMethodName="delete"     	

@@ -96,6 +96,7 @@ public class UserSessionDataLoader implements Serializable{
 			return sessionData;
 		} catch (Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			throw new SessionInitializationException();
 		}
 	}

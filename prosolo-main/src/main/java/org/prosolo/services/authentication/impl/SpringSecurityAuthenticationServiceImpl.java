@@ -9,6 +9,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -24,6 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.authentication.AuthenticationService")
@@ -38,6 +42,10 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Autowired private RoleManager roleManager;
 	@Inject
 	private PasswordEncrypter passwordEncrypter;
+	@Inject
+	private AuthenticationSuccessHandler authSuccessHandler;
+	@Inject
+	private UserDetailsService userDetailsService;
 	
 	//@Inject private TokenBasedRememberMeServices rememberMeService;
 
@@ -68,6 +76,27 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 		}
 		logger.debug("Returning false");
 		return false;
+	}
+	
+	@Override
+	public void login(HttpServletRequest req, HttpServletResponse resp, String email) 
+			throws AuthenticationException {
+		email = email.toLowerCase();
+		logger.debug("email: " + email);
+		
+		try {
+			UserDetails user = userDetailsService.loadUserByUsername(email);
+			Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
+				   user.getAuthorities());
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			if (authentication.isAuthenticated()) {
+				logger.info("AUTHENTICATED");
+			}
+			authSuccessHandler.onAuthenticationSuccess(req, resp, authentication);
+		} catch (Exception e) {
+			logger.error("Error while trying to login as user with email " + email + ";" + e);
+			throw new AuthenticationException("Error while trying to authentication user");
+		}
 	}
 	
 	/*@Override

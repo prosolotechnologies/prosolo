@@ -311,4 +311,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while retrieving user");
 		}
 	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public String getUserEmail(long id) throws DbConnectionException {
+		try {
+			String query = 
+				"SELECT user.email " +
+				"FROM User user " +
+				"WHERE user.id = :id ";
+			
+			String email = (String) persistence.currentManager().createQuery(query).
+					setLong("id", id).
+					uniqueResult();
+			
+			return email;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user email");
+		}
+	}
 }
