@@ -33,6 +33,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -121,6 +122,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(data.isPublished()) {
 				eventFactory.generateEvent(EventType.Create, creatorId, cred, null, page, lContext,
 						service, null);
+				Set<Tag> hashtags = cred.getHashtags();
+				if(!hashtags.isEmpty()) {
+					Map<String, String> params = new HashMap<>();
+					String csv = StringUtil.convertTagsToCSV(hashtags);
+					params.put("newhashtags", csv);
+					params.put("oldhashtags", "");
+					eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, creatorId, cred, null, page, 
+							lContext, service, params);
+				}
 			} else {
 				eventFactory.generateEvent(EventType.Create_Draft, creatorId, cred, null, page, lContext,
 						service, null);
@@ -685,7 +695,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
 			
-			Result<Credential1> res = resourceFactory.updateCredential(data, userId, role);
+			Result<Credential1> res = resourceFactory.updateCredential(data, userId, role, context);
 			Credential1 cred = res.getResult();
 			
 			String page = context != null ? context.getPage() : null; 
@@ -703,6 +713,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				//credential remains published
 				if(!data.isPublishedChanged()) {
 					fireSameVersionCredEditEvent(data, userId, cred, 0, page, lContext, service);
+					if(data.isHashtagsStringChanged()) {
+						Map<String, String> params = new HashMap<>();
+						params.put("newhashtags", data.getHashtagsString());
+						params.put("oldhashtags", data.getOldHashtags());
+						eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, userId, cred, null, page, 
+								lContext, service, params);
+					}
 				} 
 				/*
 				 * this means that credential is published for the first time
@@ -710,6 +727,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				else if(!data.isDraft()) {
 					eventFactory.generateEvent(EventType.Create, userId, cred, null, page, lContext, 
 							service, null);
+					if(!data.getHashtagsString().isEmpty()) {
+						Map<String, String> params = new HashMap<>();
+						params.put("newhashtags", data.getHashtagsString());
+						params.put("oldhashtags", "");
+						eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, userId, cred, null, page, 
+								lContext, service, params);
+					}
 				}
 				/*
 				 * Credential becomes published again. Because data can show what has changed
@@ -812,7 +836,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role) {
+	public Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role,
+			LearningContextData context) {
 		Credential1 cred = (Credential1) persistence.currentManager().get(Credential1.class, 
 				data.getId());
 		/*
@@ -834,7 +859,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					publishTransition;
 		}
 		
-		return updateCredentialData(cred, publishTransition, data, creatorId, role);
+		return updateCredentialData(cred, publishTransition, data, creatorId, role, context);
 	}
 	
 	/**
@@ -856,7 +881,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 */
 	@Transactional(readOnly = false)
 	private Result<Credential1> updateCredentialData(Credential1 cred, EntityPublishTransition publishTransition,
-			CredentialData data, long creatorId, Role role) {
+			CredentialData data, long creatorId, Role role, LearningContextData context) {
 		Result<Credential1> res = new Result<>();
 		Credential1 credToUpdate = null;
 		switch(publishTransition) {
@@ -904,6 +929,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    				data.getHashtagsString())));
 	    	}
 	    } else {
+	    	if(publishTransition == EntityPublishTransition.FROM_DRAFT_VERSION_TO_PUBLISHED) {
+				EventData ev = new EventData();
+				ev.setEventType(EventType.UPDATE_HASHTAGS);
+				ev.setActorId(creatorId);
+				ev.setObject(credToUpdate);
+				if(context != null) {
+					ev.setPage(context.getPage());
+					ev.setContext(context.getLearningContext());
+					ev.setService(context.getService());
+				}
+				Map<String, String> params = new HashMap<>();
+				params.put("newhashtags", data.getHashtagsString());
+				params.put("oldhashtags", StringUtil.convertTagsToCSV(credToUpdate.getHashtags()));
+				ev.setParameters(params);
+				res.addEvent(ev);
+			}
 	    	credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
 	    			data.getTagsString())));
 	    	credToUpdate.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(

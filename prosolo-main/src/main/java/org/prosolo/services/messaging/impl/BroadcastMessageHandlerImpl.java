@@ -27,10 +27,11 @@ public class BroadcastMessageHandlerImpl  implements MessageHandler<BroadcastMes
 		try{
 		switch (message.getServiceType()) {
 		case BROADCAST_SOCIAL_ACTIVITY:
-			long socialActivityId = Long.parseLong(message.getParameters().get("socialActivityId"));
-			SocialActivity1 socialActivity = defaultManager.loadResource(SocialActivity1.class, socialActivityId, session);
-			socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
-			socialActivityFiltering.checkSocialActivity(socialActivity, session);
+			//we currently do not support real time update of social activity wall
+//			long socialActivityId = Long.parseLong(message.getParameters().get("socialActivityId"));
+//			SocialActivity1 socialActivity = defaultManager.loadResource(SocialActivity1.class, socialActivityId, session);
+//			socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
+//			socialActivityFiltering.checkSocialActivity(socialActivity, session);
 			break;
 		
 		}

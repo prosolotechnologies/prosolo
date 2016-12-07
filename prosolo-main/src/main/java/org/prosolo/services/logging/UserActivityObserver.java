@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.GoalNote;
 import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
@@ -80,7 +81,7 @@ public class UserActivityObserver extends EventObserver {
 	public Class<? extends BaseEntity>[] getResourceClasses() {
 		Class<? extends BaseEntity>[] resources=new Class[] { 
 				Course.class,
-				LearningGoal.class, 
+				Credential1.class, 
 				TargetLearningGoal.class, 
 				TargetCompetence.class, 
 				Activity.class,
@@ -125,49 +126,49 @@ public class UserActivityObserver extends EventObserver {
 				}
 			
 				if (Settings.getInstance().config.analyticalServerConfig.enabled) {
-					if (object instanceof TargetActivity) {
-						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, object.getId());
-						Activity activity = targetActivity.getActivity();
-						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
-						Competence competence = targetCompetence.getCompetence();						
-				
-						analyticalServiceCollector.createActivityInteractionData(competence.getId(), activity.getId());
-						
-						List<TargetActivity> tActivities=targetCompetence.getTargetActivities();
-						analyticalServiceCollector.createTargetCompetenceActivitiesData(competence.getId(), targetCompetence.getId(),tActivities);
-					}
-					TargetLearningGoal targetLearningGoal=null;
-					if(target instanceof TargetLearningGoal){						
-						targetLearningGoal=(TargetLearningGoal) target;
-					}else if(target instanceof TargetCompetence){
-						TargetCompetence targetCompetence =(TargetCompetence) target;
-						targetLearningGoal=targetCompetence.getParentGoal();
-
-					}else if(target instanceof TargetActivity){
-						//TargetActivity targetActivity =(TargetActivity) target;
-						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, target.getId());
-						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
-						targetLearningGoal=targetCompetence.getParentGoal();
-
-					}else if(object instanceof TargetActivity){
-						TargetActivity targetActivity =(TargetActivity) object;
-						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
-						targetLearningGoal=targetCompetence.getParentGoal();
-					}
-					if(targetLearningGoal!=null){
-						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
-					}
+					//TODO remove if not needed
+//					if (object instanceof TargetActivity) {
+//						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, object.getId());
+//						Activity activity = targetActivity.getActivity();
+//						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+//						Competence competence = targetCompetence.getCompetence();						
+//				
+//						analyticalServiceCollector.createActivityInteractionData(competence.getId(), activity.getId());
+//						
+//						List<TargetActivity> tActivities=targetCompetence.getTargetActivities();
+//						analyticalServiceCollector.createTargetCompetenceActivitiesData(competence.getId(), targetCompetence.getId(),tActivities);
+//					}
+//					TargetLearningGoal targetLearningGoal=null;
+//					if(target instanceof TargetLearningGoal){						
+//						targetLearningGoal=(TargetLearningGoal) target;
+//					}else if(target instanceof TargetCompetence){
+//						TargetCompetence targetCompetence =(TargetCompetence) target;
+//						targetLearningGoal=targetCompetence.getParentGoal();
+//
+//					}else if(target instanceof TargetActivity){
+//						//TargetActivity targetActivity =(TargetActivity) target;
+//						TargetActivity targetActivity = (TargetActivity) session.load(TargetActivity.class, target.getId());
+//						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+//						targetLearningGoal=targetCompetence.getParentGoal();
+//
+//					}else if(object instanceof TargetActivity){
+//						TargetActivity targetActivity =(TargetActivity) object;
+//						TargetCompetence targetCompetence = targetActivity.getParentCompetence();
+//						targetLearningGoal=targetCompetence.getParentGoal();
+//					}
+//					if(targetLearningGoal!=null){
+//						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
+//					}
 					if(event.getAction().equals(EventType.UPDATE_HASHTAGS)){
-						
-						long goalId=0, userId=0;
-						if(object instanceof LearningGoal){
-							goalId=object.getId();
-						}else if(object instanceof User){
-							userId=object.getId();
+						long credId=0, userId=0;
+						if(object instanceof Credential1) {
+							credId = object.getId();
+						} else if(object instanceof User) {
+							userId = object.getId();
 						}
 						Map<String, String> parameters=event.getParameters();
 						System.out.println("SHOULD UPDATE HASHTAGS ON SERVER HERE..."+parameters.toString());
-						analyticalServiceCollector.sendUpdateHashtagsMessage(parameters, goalId, userId);
+						analyticalServiceCollector.sendUpdateHashtagsMessage(parameters, credId, userId);
 					}
 		
 				}
