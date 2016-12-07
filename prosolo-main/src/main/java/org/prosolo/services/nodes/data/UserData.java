@@ -16,6 +16,7 @@ public class UserData implements Serializable {
 	private String position;
 	private String email;
 	private boolean followedByCurrentUser;
+	private UserType type = UserType.REGULAR_USER;
 	
 	public UserData() {}
 	
@@ -99,6 +100,14 @@ public class UserData implements Serializable {
 
 	public void setFollowedByCurrentUser(boolean followedByCurrentUser) {
 		this.followedByCurrentUser = followedByCurrentUser;
+	}
+
+	public UserType getType() {
+		return type;
+	}
+
+	public void setType(UserType type) {
+		this.type = type;
 	}
 	
 }

@@ -52,10 +52,10 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 	}
 
 	@Override
-	public Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds(Session session) {
-		String query = "SELECT DISTINCT hashtag.title, lGoal.id "
-				+ "FROM LearningGoal lGoal "
-				+ "LEFT JOIN lGoal.hashtags hashtag WHERE hashtag.id > 0";
+	public Map<String, StreamListData> readAllHashtagsAndCredentialIds(Session session) {
+		String query = "SELECT DISTINCT hashtag.title, cred.id "
+				+ "FROM Credential1 cred "
+				+ "LEFT JOIN cred.hashtags hashtag WHERE hashtag.id > 0";
 
 		logger.info("hb query:" + query);
 		@SuppressWarnings("unchecked")

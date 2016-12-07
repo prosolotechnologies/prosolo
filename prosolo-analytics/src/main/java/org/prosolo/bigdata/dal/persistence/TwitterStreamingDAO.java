@@ -20,7 +20,7 @@ import org.prosolo.common.domainmodel.user.User;
 
 public interface TwitterStreamingDAO extends GenericDAO {
 
-	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds(Session session);
+	Map<String, StreamListData> readAllHashtagsAndCredentialIds(Session session);
 
 	Map<String, List<Long>> readAllUserPreferedHashtagsAndUserIds(Session session);
 

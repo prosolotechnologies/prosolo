@@ -40,7 +40,7 @@ public class TwitterHashtagsStreamsManagerImpl {
 		String[] filters = { "#prosolotest1" };
 		TwitterStreamingDAOImpl twitterDAO = new TwitterStreamingDAOImpl();
  
-		twitterDAO.readAllHashtagsAndLearningGoalsIds(HibernateUtil.getSessionFactory().openSession());
+		twitterDAO.readAllHashtagsAndCredentialIds(HibernateUtil.getSessionFactory().openSession());
 		initializeNewStream(filters);
 	}
 

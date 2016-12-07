@@ -27,7 +27,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     val result:java.util.Set[String]=new java.util.HashSet[String]
     val session:Session= HibernateUtil.getSessionFactory().openSession()
     val twitterDAO = new TwitterStreamingDAOImpl()
-    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndLearningGoalsIds(session).asScala
+    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndCredentialIds(session).asScala
     val hashTagsUserIds:collection.mutable.Map[String,java.util.List[java.lang.Long]]=twitterDAO.readAllUserPreferedHashtagsAndUserIds(session).asScala
     session.close()
     for((hashtag, _) <- hashTagsUserIds){
@@ -48,7 +48,7 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager{
     logger.info("INITIALIZE TWITTER STREAMING")
     val twitterDAO = new TwitterStreamingDAOImpl()
     val session:Session= HibernateUtil.getSessionFactory().openSession()
-    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndLearningGoalsIds(session).asScala
+    val hashtagsAndRefs:collection.mutable.Map[String,StreamListData]=twitterDAO.readAllHashtagsAndCredentialIds(session).asScala
     hashtagsAndReferences++=hashtagsAndRefs;
     val hashTagsUserIds:collection.mutable.Map[String,java.util.List[java.lang.Long]]=twitterDAO.readAllUserPreferedHashtagsAndUserIds(session).asScala
    session.close();

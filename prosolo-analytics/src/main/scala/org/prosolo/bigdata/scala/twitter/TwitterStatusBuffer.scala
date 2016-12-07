@@ -110,6 +110,7 @@ object TwitterStatusBuffer {
     val statusText = text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     printTweet("current", creatorName, profileUrl, screenName, profileImage, statusText)
     println("is retweet:" + status.isRetweet + " is retweeted:" + status.isRetweeted)
+    println("retweeted status " + (if(status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
     val twitterPostSocialActivity = if (status.isRetweet) {
       println("this is retweet")
 

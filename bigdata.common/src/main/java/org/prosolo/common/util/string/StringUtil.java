@@ -111,6 +111,9 @@ public class StringUtil {
 	}
 	
 	public static String convertTagsToCSV(Collection<Tag> tags) {
+		if(tags == null) {
+			return "";
+		}
 		String csv = "";
 		for (Tag value : tags) {
 			csv += value.getTitle() + ",";

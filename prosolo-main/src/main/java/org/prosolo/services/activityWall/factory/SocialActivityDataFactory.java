@@ -35,6 +35,7 @@ import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserType;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -157,6 +158,10 @@ public class SocialActivityDataFactory {
 			//twitter post
 			sad.setType(SocialActivityType.Twitter_Post);
 			//if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
+			if(sad.getActor() == null) {
+				sad.setActor(new UserData(0, twitterActorName, twitterActorAvatar, null, null, true));
+				sad.getActor().setType(UserType.TWITTER_USER);
+			}
 			ap = richContentFactory.getAttachmentPreviewForTwitterPost(twitterActorNick, twitterProfileUrl, 
 					text, twitterPostUrl);
 			//}

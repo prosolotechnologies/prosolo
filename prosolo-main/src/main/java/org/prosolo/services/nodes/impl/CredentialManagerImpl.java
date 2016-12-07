@@ -127,6 +127,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					Map<String, String> params = new HashMap<>();
 					String csv = StringUtil.convertTagsToCSV(hashtags);
 					params.put("newhashtags", csv);
+					params.put("oldhashtags", "");
 					eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, creatorId, cred, null, page, 
 							lContext, service, params);
 				}
@@ -715,7 +716,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if(data.isHashtagsStringChanged()) {
 						Map<String, String> params = new HashMap<>();
 						params.put("newhashtags", data.getHashtagsString());
-						params.put("oldhashtags", data.getHashtagsString());
+						params.put("oldhashtags", data.getOldHashtags());
 						eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, userId, cred, null, page, 
 								lContext, service, params);
 					}
@@ -729,6 +730,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if(!data.getHashtagsString().isEmpty()) {
 						Map<String, String> params = new HashMap<>();
 						params.put("newhashtags", data.getHashtagsString());
+						params.put("oldhashtags", "");
 						eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, userId, cred, null, page, 
 								lContext, service, params);
 					}
