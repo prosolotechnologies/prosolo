@@ -420,29 +420,38 @@
 					<div class="sidebarBlock">
 						<h2>Student</h2>
 						<div class="user32">
-							<a href="assessment-preview.html"> 
+							<a href="javascript:void(0);"> 
 								<utilcomp:userAvatar
 									avatar="#{cc.attrs.bean.fullAssessmentData.studentAvatarUrl}"
 									fullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}" />
 							</a>
 							<h3>
-								<a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a>
+								<a href="javascript:void(0);">#{cc.attrs.bean.fullAssessmentData.studentFullName}</a>
 							</h3>
 						</div>
 					</div>
 
 					<div class="sidebarBlock">
 						<h2>Assessor</h2>
-						<div class="user32">
-							<a href="assessment-preview.html">
-								<utilcomp:userAvatar
-									avatar="#{cc.attrs.bean.fullAssessmentData.assessorAvatarUrl}"
-									fullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}" />
-							</a>
-							<h3>
-								<a href="assessment-preview.html">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</a>
-							</h3>
-						</div>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+							<div class="user32">
+								<a href="javascript:void(0);">
+									<utilcomp:userAvatar
+										avatar="#{cc.attrs.bean.fullAssessmentData.assessorAvatarUrl}"
+										fullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}" />
+								</a>
+								<h3>
+									<a href="javascript:void(0);">#{cc.attrs.bean.fullAssessmentData.assessorFullName}</a>
+								</h3>
+							</div>
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId eq 0}">
+							<div class="user32">
+								<h3>
+									Currently, there is no assessor assigned.
+								</h3>
+							</div>
+						</ui:fragment>
 					</div>
 
 					<div class="sidebarBlock">
