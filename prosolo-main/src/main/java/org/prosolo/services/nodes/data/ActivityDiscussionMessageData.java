@@ -68,7 +68,7 @@ public class ActivityDiscussionMessageData {
 			CompetenceAssessment compAssessment) {
 		User assessor = compAssessment.getCredentialAssessment().getAssessor();
 		User messageSender = activityMessage.getSender().getParticipant();
-		return assessor.getId() == messageSender.getId();
+		return assessor == null ? false : assessor.getId() == messageSender.getId();
 	}
 	
 	

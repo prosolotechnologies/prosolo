@@ -42,8 +42,11 @@ public class FullAssessmentData {
 		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
-		data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
-		data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+		if(assessment.getAssessor() != null) {
+			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+			data.setAssessorId(assessment.getAssessor().getId());
+		}
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -52,7 +55,6 @@ public class FullAssessmentData {
 		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
 		data.setDuration(assessment.getTargetCredential().getDuration());
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setAssessorId(assessment.getAssessor().getId());
 		data.setDefaultAssessment(assessment.isDefaultAssessment());
 		data.setPoints(assessment.getPoints());
 		
