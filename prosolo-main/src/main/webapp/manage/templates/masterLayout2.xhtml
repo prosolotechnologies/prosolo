@@ -61,35 +61,32 @@
 			<div class="headerTop">
 				<div class="headerTopLeft">
 					<c:if test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.admin.access')}">
-						<h:form>
 						<div class="dropdown roleChanger">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
 							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
 								<li>
-									<h:commandLink rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/student', 'mainmenu');"
-											action="${loggeduser.switchRole('student')}">
+									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/index">
 										<span></span>Student
-									</h:commandLink>
+									</h:link>
 								</li>
 								<li class="selected">
-									<h:commandLink rendered="#{loggeduser.hasCapability('basic.manager.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
-
-											action="${loggeduser.switchRole('manager')}">
+									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+										outcome="/manage/credentialLibrary">
 										<span></span>Manage
-									</h:commandLink>
+									</h:link>
 								</li>
 								<li>
-									<h:commandLink rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-											action="${loggeduser.switchRole('admin')}">
+									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
+										outcome="/admin/users">
 										<span></span>Admin
-									</h:commandLink>
+									</h:link>
 								</li>
 							</ul>
 						</div>
-						</h:form>
 					</c:if>
 					
 					<a href="#" id="logo">ProSolo</a>
