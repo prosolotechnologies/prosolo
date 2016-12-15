@@ -379,11 +379,11 @@
 										            </ui:fragment>
 									                
 									                <ui:fragment rendered="#{cc.attrs.role eq 'USER' or not cc.attrs.bean.isCurrentUserAssessor() or activityAssessment.grade.maxGrade == 0}">
-										                <a 
+														<a 
 										                 	class="grade" 
 										                 	disabled="disabled" 
 										                 	data-toggle="tooltip" 
-										                 	title="You cannot update the grade">
+										                 	title="#{(cc.attrs.role eq 'USER' or not cc.attrs.bean.isCurrentUserAssessor()) ? 'Only instructor can update the grade' : 'Points are not set for this activity'}">
 										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
 										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
