@@ -169,7 +169,7 @@
 										(notificationData.notificationType eq 'Assessment_Requested' or 
 											notificationData.notificationType eq 'Assessment_Approved' or 
 											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
-									<h:outputLink value="#{notificationData.link}">
+									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}
