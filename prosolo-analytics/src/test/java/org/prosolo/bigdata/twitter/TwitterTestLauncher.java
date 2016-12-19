@@ -44,10 +44,26 @@ public class TwitterTestLauncher {
 
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true);
-            cb.setOAuthConsumerKey("YG2TL5Ih9BKS6NMpo0cEmCZUu");
+           /* cb.setOAuthConsumerKey("YG2TL5Ih9BKS6NMpo0cEmCZUu");
             cb.setOAuthConsumerSecret("3hxRHUieDDjbB5cDkSGBAj9Wh46ZtMtKp17pF5Qhgvw5M5H0Q1");
             cb.setOAuthAccessToken("295349086-1si3jZGyT78fTh6A5ekWURFJMqjMLCJow6TCjbaD");
-            cb.setOAuthAccessTokenSecret("APyIs269NuhtjkYvtAx9p3UdhWuSL356MAjLgHLwPwDb2");
+            cb.setOAuthAccessTokenSecret("APyIs269NuhtjkYvtAx9p3UdhWuSL356MAjLgHLwPwDb2");*/
+        cb.setOAuthConsumerKey("cXE3HD3Q5h2pGoPwj4FHRgkGE");
+        cb.setOAuthConsumerSecret("QWLpjIOAwz7qunVZBbB9EcZWFAzWtG7hLhj862mjcvOMYOe5qg");
+        cb.setOAuthAccessToken("773599719713083396-j91wFvqTyxA5I3ppuzaEh3gbVGCr4MD");
+        cb.setOAuthAccessTokenSecret("TpSyClqAYQGtY3qjTTvCvVZ3YMAnL9fCULaDzuut2qKJW");
+        //cb.setOAuthAccessToken("4040641-Wz8NfCApkBKaaT0WtKoS1tHQTYzOS92Vdl6nPUpUOL");
+        //cb.setOAuthAccessTokenSecret("cD19smKFdB0KCvqm7vOF8hpeL1GoAEzv10l36Viyqkpvg");
+        //cb.setOAuthAccessToken("2698256808-p3kPV63KkC1IE3u2cjOSpeENUeKgtQeYHYsuAG9");
+        //cb.setOAuthAccessTokenSecret("hTOowsZ74MU8f1JGxiBKpYI0V8mEt7I1DXR9kEkMZK7Mh");
+      /*  twitter.consumer.key=cXE3HD3Q5h2pGoPwj4FHRgkGE
+        twitter.consumer.secret=QWLpjIOAwz7qunVZBbB9EcZWFAzWtG7hLhj862mjcvOMYOe5qg
+        twitter.access.token0=773599719713083396-j91wFvqTyxA5I3ppuzaEh3gbVGCr4MD
+        twitter.access.token.secret0=TpSyClqAYQGtY3qjTTvCvVZ3YMAnL9fCULaDzuut2qKJW
+        twitter.access.token1=4040641-Wz8NfCApkBKaaT0WtKoS1tHQTYzOS92Vdl6nPUpUOL
+        twitter.access.token.secret1=cD19smKFdB0KCvqm7vOF8hpeL1GoAEzv10l36Viyqkpvg
+        twitter.access.token2=2698256808-p3kPV63KkC1IE3u2cjOSpeENUeKgtQeYHYsuAG9
+        twitter.access.token.secret2=hTOowsZ74MU8f1JGxiBKpYI0V8mEt7I1DXR9kEkMZK7Mh*/
 
             TwitterStream stream= new TwitterStreamFactory(cb.build()).getInstance();
         StatusListener listener = new StatusListener() {
