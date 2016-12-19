@@ -36,7 +36,7 @@ package org.prosolo.bigdata.twitter;
 
 /**
  * zoran 18/12/16
- */
+ * */
 public class TwitterTestLauncher {
     public static void main(String[] args) {
 
