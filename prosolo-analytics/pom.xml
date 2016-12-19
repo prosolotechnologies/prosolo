@@ -253,6 +253,7 @@
 			<artifactId>spark-mllib_2.11</artifactId>
 			<version>${spark.version}</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.11 -->
 
 		<!-- dependency> <groupId>org.apache.spark</groupId> <artifactId>spark-streaming-twitter_2.11</artifactId> 
@@ -269,6 +270,21 @@
 			<artifactId>twitter4j-stream</artifactId>
 			<version>${twitter4j.version}</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.4.5</version>
+		</dependency>
+
+
 
 
 		<!-- <dependency> -->

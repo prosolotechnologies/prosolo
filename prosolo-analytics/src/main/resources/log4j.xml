@@ -38,6 +38,8 @@
 		<appender-ref ref="console" />
 	</logger>
 
+
+
 		<logger name="javax.persistence">
 		<level value="ERROR" />
 		<appender-ref ref="console" />

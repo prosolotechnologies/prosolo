@@ -16,7 +16,6 @@ import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
 import org.prosolo.common.domainmodel.annotation.Tag
 import scala.collection.JavaConversions._
-import org.prosolo.bigdata.twitter.TestJava8Paralelizm
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
