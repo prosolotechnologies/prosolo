@@ -21,6 +21,7 @@ package org.prosolo.bigdata.twitter;
  import org.apache.http.HttpResponse;
  import org.apache.http.client.methods.HttpPost;
  import org.apache.http.impl.client.DefaultHttpClient;
+ import org.junit.Test;
  import twitter4j.FilterQuery;
  import twitter4j.TwitterStream;
  import twitter4j.TwitterStreamFactory;
@@ -38,7 +39,8 @@ package org.prosolo.bigdata.twitter;
  * zoran 18/12/16
  * */
 public class TwitterTestLauncher {
-    public static void main(String[] args) {
+    @Test
+    public void testTwitterConnection() {
 
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true);
