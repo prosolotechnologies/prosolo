@@ -50,8 +50,11 @@ public class TwitterTestLauncher {
             cb.setOAuthAccessTokenSecret("APyIs269NuhtjkYvtAx9p3UdhWuSL356MAjLgHLwPwDb2");*/
         cb.setOAuthConsumerKey("cXE3HD3Q5h2pGoPwj4FHRgkGE");
         cb.setOAuthConsumerSecret("QWLpjIOAwz7qunVZBbB9EcZWFAzWtG7hLhj862mjcvOMYOe5qg");
-        cb.setOAuthAccessToken("773599719713083396-j91wFvqTyxA5I3ppuzaEh3gbVGCr4MD");
-        cb.setOAuthAccessTokenSecret("TpSyClqAYQGtY3qjTTvCvVZ3YMAnL9fCULaDzuut2qKJW");
+//        cb.setOAuthAccessToken("773599719713083396-j91wFvqTyxA5I3ppuzaEh3gbVGCr4MD");
+  //      cb.setOAuthAccessTokenSecret("TpSyClqAYQGtY3qjTTvCvVZ3YMAnL9fCULaDzuut2qKJW");
+        cb.setOAuthAccessToken("343497431-MlmCc0lFiO95aLO3ctCEEEQVDqzwC9aPtaOD1meT");
+       cb.setOAuthAccessTokenSecret("2hSWKtz4Ql80dl73CQBvlI3St9JKUvfu30GfHcKxj5G4u");
+
         //cb.setOAuthAccessToken("4040641-Wz8NfCApkBKaaT0WtKoS1tHQTYzOS92Vdl6nPUpUOL");
         //cb.setOAuthAccessTokenSecret("cD19smKFdB0KCvqm7vOF8hpeL1GoAEzv10l36Viyqkpvg");
         //cb.setOAuthAccessToken("2698256808-p3kPV63KkC1IE3u2cjOSpeENUeKgtQeYHYsuAG9");

@@ -125,6 +125,7 @@ object TwitterStatusBuffer {
         poster, reCreated, rePostLink, twitterId, true,reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
          reStatusText, twitterHashtags, session);
     }else{
+      println("create twitter post")
         twitterStreamingDao.createTwitterPostSocialActivity(
         poster, created, postLink, twitterId, false, "", creatorName, screenName, profileUrl, profileImage,
         statusText, twitterHashtags, session);
@@ -140,6 +141,7 @@ object TwitterStatusBuffer {
     //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
     twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
     if (twitterPostSocialActivity != null) {
+      println("broadcasting tweet")
       val parameters: java.util.Map[String, String] = new java.util.HashMap[String, String]()
       parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
       BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)
