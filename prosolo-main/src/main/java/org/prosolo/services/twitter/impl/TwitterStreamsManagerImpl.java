@@ -96,6 +96,7 @@ public class TwitterStreamsManagerImpl implements TwitterStreamsManager {
 
 	private void authentificateStream(TwitterStream stream, int accountId) {
 		TwitterSiteProperties properties = null;
+		logger.debug("Authenticate Twitter stream for account:"+accountId);
 		try {
 			properties = new PropertiesFacade()
 					.getTwitterSiteProperties(accountId);
