@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSortOption1;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CourseManager;
@@ -66,7 +66,7 @@ public class CourseMembersBean implements Serializable {
 	private SortingOption sortOrder = SortingOption.ASC;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
-	private InstructorAssignFilterValue instructorAssignedFilter = InstructorAssignFilterValue.All;
+	private CredentialMembersSearchFilterValue instructorAssignedFilter = CredentialMembersSearchFilterValue.All;
 	private boolean filterUnassigned;
 	
 	private List<CourseInstructorData> courseInstructors;

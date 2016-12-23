@@ -15,7 +15,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
@@ -84,7 +84,7 @@ public interface TextSearch extends AbstractManager {
 			boolean loadOneMore, Collection<Tag> tagsToExclude);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembers (
-			String searchTerm, InstructorAssignFilterValue filter, int page, int limit, long credId, 
+			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption);
 	
 	TextSearchResponse1<InstructorData> searchInstructors (
@@ -112,7 +112,7 @@ public interface TextSearch extends AbstractManager {
 			CredentialSearchFilter filter, CredentialSortOption sortOption);
 	
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
+			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit);
 	
 	/**
