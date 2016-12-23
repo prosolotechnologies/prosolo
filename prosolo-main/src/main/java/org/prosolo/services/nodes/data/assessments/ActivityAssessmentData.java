@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.assessments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,9 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class ActivityAssessmentData {

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -111,5 +112,14 @@ public class PageUtil {
 		} else {
 			return PageSection.STUDENT;
 		}
+	}
+
+	/*
+	 * Retrieves original URL after a forward from Rewrite framework
+	 */
+	public static String getRewriteURL() {
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		
+		return (String) request.getAttribute("javax.servlet.forward.request_uri");
 	}
 }

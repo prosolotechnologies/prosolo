@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.assessments;
 
 import java.text.DateFormat;
 import java.util.ArrayList;

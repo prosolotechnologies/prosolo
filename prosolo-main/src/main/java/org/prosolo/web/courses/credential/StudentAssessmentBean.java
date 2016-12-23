@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;

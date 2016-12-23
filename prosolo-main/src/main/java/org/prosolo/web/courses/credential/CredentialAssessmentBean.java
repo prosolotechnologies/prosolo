@@ -25,11 +25,11 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.AssessmentData;
-import org.prosolo.services.nodes.data.CompetenceAssessmentData;
-import org.prosolo.services.nodes.data.FullAssessmentData;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
@@ -68,13 +68,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	// used when managing single assessment
 	private String assessmentId;
 	private long decodedAssessmentId;
-	private FullAssessmentData fullAssessmentData;
+	private AssessmentDataFull fullAssessmentData;
 	private String reviewText;
 
 	// used for managing multiple assessments
 	private String credentialTitle;
 	private String context;
 	private List<AssessmentData> assessmentData;
+	private List<AssessmentData> otherAssessments;
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
 
@@ -129,13 +130,17 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 				credentialTitle = fullAssessmentData.getTitle();
 
+				// for managers, load all other assessments
+				if (isInManageSection()) {
+					otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+				}
 			} catch (Exception e) {
 				logger.error("Error while loading assessment data", e);
 				PageUtil.fireErrorMessage("Error while loading assessment data");
 			}
 		}
 	}
-
+	
 	public void approveCredential() {
 		try {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
@@ -436,6 +441,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		numberOfPages = paginator.getNumberOfPages();
 		paginationLinks = paginator.generatePaginationLinks();
 	}
+	
+	private boolean isInManageSection() {
+		String currentUrl = PageUtil.getRewriteURL();
+		return currentUrl.contains("/manage/");
+	}
+	
+	/*
+	 * GETTERS / SETTERS
+	 */
 
 	public UrlIdEncoder getIdEncoder() {
 		return idEncoder;
@@ -492,6 +506,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void setAssessmentData(List<AssessmentData> assessmentData) {
 		this.assessmentData = assessmentData;
 	}
+	
+	public List<AssessmentData> getOtherAssessments() {
+		return otherAssessments;
+	}
+
+	public void setOtherAssessments(List<AssessmentData> otherAssessments) {
+		this.otherAssessments = otherAssessments;
+	}
 
 	public boolean isSearchForPending() {
 		return searchForPending;
@@ -531,11 +553,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		this.assessmentId = assessmentId;
 	}
 
-	public FullAssessmentData getFullAssessmentData() {
+	public AssessmentDataFull getFullAssessmentData() {
 		return fullAssessmentData;
 	}
 
-	public void setFullAssessmentData(FullAssessmentData fullAssessmentData) {
+	public void setFullAssessmentData(AssessmentDataFull fullAssessmentData) {
 		this.fullAssessmentData = fullAssessmentData;
 	}
 

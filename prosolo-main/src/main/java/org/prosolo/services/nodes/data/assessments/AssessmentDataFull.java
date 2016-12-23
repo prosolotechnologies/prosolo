@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.assessments;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
-public class FullAssessmentData {
+public class AssessmentDataFull {
 
 	private String message;
 	private String studentFullName;
@@ -34,10 +34,10 @@ public class FullAssessmentData {
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static FullAssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
 			long userId, DateFormat dateFormat) {
 		
-		FullAssessmentData data = new FullAssessmentData();
+		AssessmentDataFull data = new AssessmentDataFull();
 		data.setMessage(assessment.getMessage());
 		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());

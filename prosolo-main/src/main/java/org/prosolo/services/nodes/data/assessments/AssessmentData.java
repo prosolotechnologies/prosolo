@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data;
+package org.prosolo.services.nodes.data.assessments;
 
 import java.text.DateFormat;
 import java.util.OptionalInt;
@@ -12,6 +12,8 @@ public class AssessmentData {
 
 	private String studentFullName;
 	private String studentAvatarUrl;
+	private String assessorFullName;
+	private String assessorAvatarUrl;
 	private String dateValue;
 	private String title;
 	private boolean approved;
@@ -24,6 +26,8 @@ public class AssessmentData {
 		AssessmentData data = new AssessmentData();
 		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
+		data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+		data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -46,6 +50,22 @@ public class AssessmentData {
 
 	public void setStudentFullName(String studentFullName) {
 		this.studentFullName = studentFullName;
+	}
+	
+	public String getAssessorFullName() {
+		return assessorFullName;
+	}
+
+	public void setAssessorFullName(String assessorFullName) {
+		this.assessorFullName = assessorFullName;
+	}
+
+	public String getAssessorAvatarUrl() {
+		return assessorAvatarUrl;
+	}
+
+	public void setAssessorAvatarUrl(String assessorAvatarUrl) {
+		this.assessorAvatarUrl = assessorAvatarUrl;
 	}
 
 	public String getDateValue() {
@@ -71,7 +91,6 @@ public class AssessmentData {
 	public void setApproved(boolean approved) {
 		this.approved = approved;
 	}
-
 
 	public String getEncodedCredentialId() {
 		return encodedCredentialId;

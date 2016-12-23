@@ -12,9 +12,9 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.AssessmentData;
-import org.prosolo.services.nodes.data.AssessmentRequestData;
-import org.prosolo.services.nodes.data.FullAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public interface AssessmentManager {
@@ -27,7 +27,7 @@ public interface AssessmentManager {
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
 
-	FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
@@ -96,5 +96,14 @@ public interface AssessmentManager {
 	
 	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
 			long targetCompId, long targetActId, int score, Session session) throws DbConnectionException;
+
+	/**
+	 * Load all credential assessments for the given user, but excluding the specific assessment id
+	 * 
+	 * @param assessedStrudentId
+	 * @param credentialId
+	 * @return list of assessment data instances
+	 */
+	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
 
 }

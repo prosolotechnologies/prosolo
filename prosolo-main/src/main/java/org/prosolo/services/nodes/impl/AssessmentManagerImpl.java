@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +27,9 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.AssessmentData;
-import org.prosolo.services.nodes.data.AssessmentRequestData;
-import org.prosolo.services.nodes.data.FullAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.stereotype.Service;
@@ -250,10 +251,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+	public AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
 		CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
 				.get(CredentialAssessment.class, id);
-		return FullAssessmentData.fromAssessment(assessment, encoder, userId, dateFormat);
+		return AssessmentDataFull.fromAssessment(assessment, encoder, userId, dateFormat);
 	}
 
 	@Override
@@ -416,7 +417,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
 		//persistence.currentManager().refresh(discussion);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
-		if(sender == null) {
+		if (sender == null) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 			User user = loadResource(User.class, senderId);
 			participant.setActivityDiscussion(discussion);
@@ -425,7 +426,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			participant.setParticipant(user);
 			saveEntity(participant);
 			sender = participant;
-			//discussion.getParticipants().add(participant);
+			// discussion.getParticipants().add(participant);
 		}
 		
 		Date now = new Date();
@@ -899,9 +900,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private ActivityAssessment getActivityAssessment(long compAssessmentId, long targetActId, Session session) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT assessment FROM ActivityAssessment assessment " +	
-					   	   "WHERE assessment.targetActivity.id = :taId " +
-					       "AND assessment.assessment.id = :compAssessmentId";
+			String query = 
+					"SELECT assessment " + 
+					"FROM ActivityAssessment assessment " +	
+					"WHERE assessment.targetActivity.id = :taId " +
+						"AND assessment.assessment.id = :compAssessmentId";
 			
 			ActivityAssessment as = (ActivityAssessment) session
 					.createQuery(query)
@@ -910,6 +913,46 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					.uniqueResult();
 			
 			return as;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity assessment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId) {
+		try {
+			String query = 
+					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl " +
+					"FROM CredentialAssessment assessment " +	
+					"LEFT JOIN assessment.assessor assessor " +	
+					"WHERE assessment.assessedStudent.id = :assessedStrudentId " +
+						"AND assessment.targetCredential.credential.id = :credentialId";
+			
+			@SuppressWarnings("unchecked")
+			List<Object[]> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("assessedStrudentId", assessedStudentId)
+					.setLong("credentialId", credentialId)
+					.list();
+			
+			List<AssessmentData> assessments = new LinkedList<>();
+				
+			if (result != null) {
+				for (Object[] record : result) {
+					AssessmentData assessmentData = new AssessmentData();
+					assessmentData.setEncodedAssessmentId(encoder.encodeId((long) record[0]));
+					assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
+					assessmentData.setAssessorFullName(record[1].toString() + " " + record[2].toString());
+					assessmentData.setAssessorAvatarUrl(record[3].toString());
+					
+					assessments.add(assessmentData);
+				}
+			}
+			
+			return assessments;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
