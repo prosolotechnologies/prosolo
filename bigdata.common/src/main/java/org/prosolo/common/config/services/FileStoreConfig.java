@@ -1,9 +1,8 @@
 package org.prosolo.common.config.services;
 
-import org.prosolo.common.config.CommonSettings;
-import org.simpleframework.xml.Element;
-
 import java.io.File;
+
+import org.simpleframework.xml.Element;
 
 public class FileStoreConfig {
 
@@ -16,10 +15,10 @@ public class FileStoreConfig {
 	@Element(name = "file-store-bucket-name")
 	public String fileStoreBucketName;
 
-	public String getFilePath(){
-		String path= fileStoreServiceUrl + "/" +fileStoreBucketName + "/";
-		if(virtualHostingUrl.length()>0){
-			path= virtualHostingUrl+ File.separator;
+	public String getFilePath() {
+		String path = fileStoreServiceUrl + "/" + fileStoreBucketName + "/";
+		if (virtualHostingUrl != null && virtualHostingUrl.length() > 0) {
+			path = virtualHostingUrl + File.separator;
 		}
 		return path;
 	}

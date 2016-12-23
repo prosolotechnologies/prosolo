@@ -34,6 +34,7 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
 import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -2943,6 +2944,46 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving filters");
+		}
+	}
+	
+	@Override
+	public UserData chooseRandomPeer(long credId, long userId) {
+		try {
+			String query = 
+				"SELECT user " +
+				"FROM TargetCredential1 tCred " +
+				"LEFT JOIN tCred.user user " +
+				"WHERE tCred.credential.id = :credId " + 
+					"AND user.id != :userId " + 
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CredentialAssessment assessment " +
+						"LEFT JOIN assessment.targetCredential tCred " +
+						"LEFT JOIN tCred.credential cred " +
+						"WHERE assessment.assessedStudent.id = :userId " +
+							"AND cred.id = :credId " +
+					") " + 
+				"ORDER BY RAND()";
+			
+			@SuppressWarnings("unchecked")
+			List<User> res = (List<User>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("userId", userId)
+					.setMaxResults(1)
+					.list();
+			
+			if (res != null && !res.isEmpty()) {
+				User user = res.get(0);
+				return new UserData(user.getId(), user.getName() + " " + user.getLastname(), user.getAvatarUrl());
+			}
+			
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving random peer");
 		}
 	}
 	

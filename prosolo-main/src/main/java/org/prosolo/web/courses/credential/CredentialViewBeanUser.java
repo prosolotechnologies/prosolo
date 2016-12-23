@@ -18,15 +18,16 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -174,12 +175,13 @@ public class CredentialViewBeanUser implements Serializable {
 		}
 	}
 	
+	public void setAssessor(UserData assessorData) {
+		assessmentRequestData.setAssessorId(assessorData.getId());
+		assessmentRequestData.setAssessorFullName(assessorData.getName());
+		assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
+	}
+	
 	public void submitAssessment() {
-		if (credentialData.isInstructorPresent()) {
-			// there is instructor, set it from existing data (it was set from
-			// getFullTargetCredentialOrCredentialData)
-			assessmentRequestData.setAssessorId(credentialData.getInstructorId());
-		}
 		//at this point, assessor should be set either from credential data or user-submitted peer id
 		if (assessmentRequestData.isAssessorSet()) {
 			populateAssessmentRequestFields();
@@ -189,28 +191,28 @@ public class CredentialViewBeanUser implements Serializable {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentRequestedAsync(assessmentId, page, lContext, service);
+			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext, service);
 
 			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 		}
 		else {
 			logger.error("Student "+ loggedUser.getFullName() + " tried to submit assessment request for credential : " 
-		+ credentialData.getId() + ", but credential has no assessor/instructor set!");
+					+ credentialData.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
 	}
 
-	private void notifyAssessmentRequestedAsync(final long assessmentId, String page, String lContext, String service) {
+	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext, String service) {
 		taskExecutor.execute(() -> {
-			User instructor = new User();
-			instructor.setId(credentialData.getInstructorId());
+			User assessor = new User();
+			assessor.setId(assessorId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(assessmentId);
 			Map<String,String> parameters = new HashMap<>();
 			parameters.put("credentialId", decodedId+""); 
 			try {
 				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), 
-						assessment, instructor, 
+						assessment, assessor, 
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
@@ -240,6 +242,16 @@ public class CredentialViewBeanUser implements Serializable {
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), 
 				credentialData.getTargetCredId()));
+	}
+	
+	public void chooseRandomPeerForAssessor() {
+		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
+		
+		if (randomPeer != null) {
+			assessmentRequestData.setAssessorId(randomPeer.getId());
+			assessmentRequestData.setAssessorFullName(randomPeer.getName());
+			assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
+		}
 	}
 	
 	/*
