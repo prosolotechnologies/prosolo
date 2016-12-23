@@ -16,7 +16,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
@@ -349,6 +349,6 @@ public interface CredentialManager extends AbstractManager {
 	List<StudentData> getCredentialStudentsData(long credId, int limit) 
 			throws DbConnectionException;
 	
-	InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException;
 }

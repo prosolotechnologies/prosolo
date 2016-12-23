@@ -1,19 +1,19 @@
 package org.prosolo.search.util.credential;
 
-public class InstructorAssignFilter {
+public class CredentialMembersSearchFilter {
 
-	private InstructorAssignFilterValue filter;
+	private CredentialMembersSearchFilterValue filter;
 	private long numberOfResults;
 	
-	public InstructorAssignFilter(InstructorAssignFilterValue filter, long numberOfResults) {
+	public CredentialMembersSearchFilter(CredentialMembersSearchFilterValue filter, long numberOfResults) {
 		this.filter = filter;
 		this.numberOfResults = numberOfResults;
 	}
 	
-	public InstructorAssignFilterValue getFilter() {
+	public CredentialMembersSearchFilterValue getFilter() {
 		return filter;
 	}
-	public void setFilter(InstructorAssignFilterValue filter) {
+	public void setFilter(CredentialMembersSearchFilterValue filter) {
 		this.filter = filter;
 	}
 	public long getNumberOfResults() {
