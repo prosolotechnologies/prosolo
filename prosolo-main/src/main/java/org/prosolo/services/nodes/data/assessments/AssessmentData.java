@@ -21,6 +21,7 @@ public class AssessmentData {
 	private String encodedCredentialId;
 	private int totalNumberOfMessages;
 	private String initials;
+	private boolean defaultAssessment;
 
 	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
 		AssessmentData data = new AssessmentData();
@@ -124,14 +125,20 @@ public class AssessmentData {
 		this.studentAvatarUrl = studentAvatarUrl;
 	}
 	
-	
-	
 	public String getInitials() {
 		return initials;
 	}
 
 	public void setInitials(String initials) {
 		this.initials = initials;
+	}
+	
+	public boolean isDefaultAssessment() {
+		return defaultAssessment;
+	}
+
+	public void setDefaultAssessment(boolean defaultAssessment) {
+		this.defaultAssessment = defaultAssessment;
 	}
 
 	private static String getInitialsFromName(String fullname) {

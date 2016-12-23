@@ -337,7 +337,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			// strip all tags except <br> and <a>
 			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
-			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
+			//ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
 			
 			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					ard.getResult(), 

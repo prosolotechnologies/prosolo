@@ -144,13 +144,13 @@
 							<span class="fromLabel">From:</span>
 							<div class="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
-									aria-expanded="true"> #{cc.attrs.bean.fullAssessmentData.assessorFullName} <span class="arrowDown">arrowDown</span>
+									aria-expanded="true"> #{otherAssessment.assessorFullName != null ? otherAssessment.assessorFullName : 'Default assessment'} <span class="arrowDown">arrowDown</span>
 								</a>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
 									<ui:repeat value="#{cc.attrs.bean.otherAssessments}" var="otherAssessment">
 										<li>
 											<h:outputLink value="#{applicationbean.domain}manage/credentials/#{otherAssessment.encodedCredentialId}/assessments/#{otherAssessment.encodedAssessmentId}">
-												#{otherAssessment.assessorFullName} <span class="#{otherAssessment.assessorFullName ? 'approved' : 'pending'}">#{otherAssessment.assessorFullName ? 'Approved' : 'Pending'}</span>
+												#{otherAssessment.assessorFullName != null ? otherAssessment.assessorFullName : 'Default assessment'} <span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved ? 'Approved' : 'Pending'}</span>
 											</h:outputLink>
 										</li>
 									</ui:repeat>
