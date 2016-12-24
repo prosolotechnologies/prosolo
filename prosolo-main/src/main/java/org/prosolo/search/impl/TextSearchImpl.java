@@ -57,11 +57,11 @@ import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.TextSearch;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.search.util.credential.LearningStatusFilter;
@@ -911,7 +911,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public TextSearchResponse1<StudentData> searchCredentialMembers (
-			String searchTerm, InstructorAssignFilterValue filter, int page, int limit, long credId, 
+			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption) {
 		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
 		try {
@@ -951,8 +951,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("credentials",
 					nestedFB);
 //					.innerHit(new QueryInnerHitBuilder());
-			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-					nestedFilter1);
+//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+//					nestedFilter1);
+			bQueryBuilder.filter(nestedFilter1);
 			//bQueryBuilder.must(termQuery("credentials.id", credId));
 			
 			try {
@@ -960,21 +961,24 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-						.setQuery(filteredQueryBuilder)
+						.setQuery(bQueryBuilder)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(AggregationBuilders.filter("filtered")
 										.filter(QueryBuilders.termQuery("credentials.id", credId))
 								.subAggregation(
 										AggregationBuilders.terms("unassigned")
 										.field("credentials.instructorId")
-										.include(new long[] {0}))))
+										.include(new long[] {0}))
+								.subAggregation(AggregationBuilders.filter("completed")
+										.filter(QueryBuilders.termQuery("credentials.progress", 100)))))
+								
 						.setFetchSource(includes, null);
 				
 				/*
 				 * set instructor assign filter as a post filter so it does not influence
 				 * aggregation results
 				 */
-				if(filter == InstructorAssignFilterValue.Unassigned) {
+				if(filter == CredentialMembersSearchFilterValue.Unassigned) {
 					BoolQueryBuilder assignFilter = QueryBuilders.boolQuery();
 					assignFilter.must(QueryBuilders.termQuery("credentials.instructorId", 0));
 					/*
@@ -987,7 +991,18 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					searchRequestBuilder.setPostFilter(nestedFilter);
 //					QueryBuilder qBuilder = termQuery("credentials.instructorId", 0);
 //					nestedBQBuilder.must(qBuilder);
-				} else {
+				} else if(filter == CredentialMembersSearchFilterValue.Completed) {
+					BoolQueryBuilder completedF = QueryBuilders.boolQuery();
+					completedF.must(QueryBuilders.termQuery("credentials.progress", 100));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * credentials for users matched by query
+					 */
+					completedF.must(QueryBuilders.termQuery("credentials.id", credId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
+							completedF).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+			    } else {
 					nestedFilter1.innerHit(new QueryInnerHitBuilder());
 				}
 				
@@ -1073,6 +1088,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
 						Filter filtered = nestedAgg.getAggregations().get("filtered");
 						Terms terms = filtered.getAggregations().get("unassigned");
+						Filter completed = filtered.getAggregations().get("completed");
 						//Terms terms = nestedAgg.getAggregations().get("unassigned");
 						Iterator<Terms.Bucket> it = terms.getBuckets().iterator();
 						long unassignedNo = 0;
@@ -1080,16 +1096,34 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							unassignedNo = it.next().getDocCount();
 						}
 						
-						InstructorAssignFilter[] filters = new InstructorAssignFilter[2];
-						filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
-								filtered.getDocCount());
+						CredentialMembersSearchFilter[] filters = new CredentialMembersSearchFilter[3];
+						long allStudentsNumber = filtered.getDocCount();
+						filters[0] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 
+								allStudentsNumber);
 								//nestedAgg.getDocCount());
-						filters[1] = new InstructorAssignFilter(InstructorAssignFilterValue.Unassigned, 
+						filters[1] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Unassigned, 
 								unassignedNo);
+						filters[2] = new CredentialMembersSearchFilter(
+								CredentialMembersSearchFilterValue.Completed, completed.getDocCount());
+						
+						CredentialMembersSearchFilter selected = null;
+						switch(filter) {
+							case All:
+								selected = filters[0];
+								break;
+							case Unassigned:
+								selected = filters[1];
+								break;
+							case Completed:
+								selected = filters[2];
+								break;
+							default:
+								selected = filters[0];
+								break;
+						}
 						Map<String, Object> additionalInfo = new HashMap<>();
 						additionalInfo.put("filters", filters);
-						additionalInfo.put("selectedFilter", filters[0].getFilter() == filter
-								? filters[0] : filters[1]);
+						additionalInfo.put("selectedFilter", selected);
 						response.setAdditionalInfo(additionalInfo);
 						
 						return response;
@@ -1748,7 +1782,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
+			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit) {
 		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
 		try {
@@ -1887,15 +1921,15 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						unassignedNo = it.next().getDocCount();
 					}
 					long allNo = filtered.getDocCount();
-					InstructorAssignFilter[] filters = new InstructorAssignFilter[3];
-					filters[0] = new InstructorAssignFilter(InstructorAssignFilterValue.All, 
+					CredentialMembersSearchFilter[] filters = new CredentialMembersSearchFilter[3];
+					filters[0] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 
 							allNo);
-					filters[1] = new InstructorAssignFilter(InstructorAssignFilterValue.Assigned, 
+					filters[1] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Assigned, 
 							allNo - unassignedNo);
-					filters[2] = new InstructorAssignFilter(InstructorAssignFilterValue.Unassigned, 
+					filters[2] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Unassigned, 
 							unassignedNo);
-					InstructorAssignFilter selectedFilter = null;
-					for(InstructorAssignFilter f : filters) {
+					CredentialMembersSearchFilter selectedFilter = null;
+					for(CredentialMembersSearchFilter f : filters) {
 						if(f.getFilter() == filter) {
 							selectedFilter = f;
 							break;

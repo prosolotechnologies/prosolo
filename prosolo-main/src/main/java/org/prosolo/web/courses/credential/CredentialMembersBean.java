@@ -21,8 +21,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -76,7 +76,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.DATE;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
-	private InstructorAssignFilter instructorAssignFilter;
+	private CredentialMembersSearchFilter instructorAssignFilter;
 	
 	private List<InstructorData> credentialInstructors;
 	private StudentData studentToAssignInstructor;
@@ -89,12 +89,12 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	private String credentialTitle;
 	
-	private InstructorAssignFilter[] searchFilters;
+	private CredentialMembersSearchFilter[] searchFilters;
 	private CredentialMembersSortOption[] sortOptions;
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
-		instructorAssignFilter = new InstructorAssignFilter(InstructorAssignFilterValue.All, 0);
+		instructorAssignFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
@@ -110,11 +110,11 @@ public class CredentialMembersBean implements Serializable, Paginable {
 					}
 					searchCredentialMembers();
 					if(searchFilters == null) {
-						InstructorAssignFilterValue[] values = InstructorAssignFilterValue.values();
+						CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
 						int size = values.length;
-						searchFilters = new InstructorAssignFilter[size];
+						searchFilters = new CredentialMembersSearchFilter[size];
 						for(int i = 0; i < size; i++) {
-							InstructorAssignFilter filter = new InstructorAssignFilter(values[i], 0);
+							CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
 							searchFilters[i] = filter;
 						}
 					}
@@ -179,8 +179,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		members = searchResponse.getFoundNodes();
 		Map<String, Object> additional = searchResponse.getAdditionalInfo();
 		if(additional != null) {
-			searchFilters = (InstructorAssignFilter[]) additional.get("filters");
-			instructorAssignFilter = (InstructorAssignFilter) additional.get("selectedFilter");
+			searchFilters = (CredentialMembersSearchFilter[]) additional.get("filters");
+			instructorAssignFilter = (CredentialMembersSearchFilter) additional.get("selectedFilter");
 		}
 	}
 	
@@ -191,8 +191,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		sortOption = CredentialMembersSortOption.DATE;
 		members = credManager.getCredentialStudentsData(decodedId, limit);
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
-		for(InstructorAssignFilter f : searchFilters) {
-			if(f.getFilter() == InstructorAssignFilterValue.All) {
+		for(CredentialMembersSearchFilter f : searchFilters) {
+			if(f.getFilter() == CredentialMembersSearchFilterValue.All) {
 				instructorAssignFilter = f;
 				credentialMembersNumber = (int) f.getNumberOfResults();
 				break;
@@ -287,7 +287,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		return studentToAssignInstructor.getInstructor() != null;
 	}
 	
-	public void applySearchFilter(InstructorAssignFilter filter) {
+	public void applySearchFilter(CredentialMembersSearchFilter filter) {
 		this.instructorAssignFilter = filter;
 		this.page = 1;
 		searchCredentialMembers();
@@ -473,11 +473,11 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.decodedId = decodedId;
 	}
 
-	public InstructorAssignFilter getInstructorAssignFilter() {
+	public CredentialMembersSearchFilter getInstructorAssignFilter() {
 		return instructorAssignFilter;
 	}
 
-	public void setInstructorAssignFilter(InstructorAssignFilter instructorAssignFilter) {
+	public void setInstructorAssignFilter(CredentialMembersSearchFilter instructorAssignFilter) {
 		this.instructorAssignFilter = instructorAssignFilter;
 	}
 
@@ -505,11 +505,11 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.studentToAssignInstructor = studentToAssignInstructor;
 	}
 
-	public InstructorAssignFilter[] getSearchFilters() {
+	public CredentialMembersSearchFilter[] getSearchFilters() {
 		return searchFilters;
 	}
 
-	public void setSearchFilters(InstructorAssignFilter[] searchFilters) {
+	public void setSearchFilters(CredentialMembersSearchFilter[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
 

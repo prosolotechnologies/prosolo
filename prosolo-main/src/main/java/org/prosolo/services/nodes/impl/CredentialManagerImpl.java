@@ -35,8 +35,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -2917,10 +2917,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id) " +
+			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id), COUNT(case cred.progress when 100 then 1 else null end)  " +
 						   "FROM TargetCredential1 cred " +
 						   "WHERE cred.credential.id = :credId";
 			
@@ -2931,12 +2931,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if(res != null) {
 				long all = (long) res[0];
-				InstructorAssignFilter allFilter = new InstructorAssignFilter(
-						InstructorAssignFilterValue.All, all);
+				CredentialMembersSearchFilter allFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.All, all);
 				long assigned = (long) res[1];
-				InstructorAssignFilter unassignedFilter = new InstructorAssignFilter(
-						InstructorAssignFilterValue.Unassigned, all - assigned);
-				return new InstructorAssignFilter[] {allFilter, unassignedFilter};
+				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Unassigned, all - assigned);
+				long completed = (long) res[2];
+				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Completed, completed);
+				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, completedFilter};
 			}
 			
 			return null;

@@ -1,13 +1,14 @@
 package org.prosolo.search.util.credential;
 
-public enum InstructorAssignFilterValue {
+public enum CredentialMembersSearchFilterValue {
 	All("All"), 
 	Unassigned("Only unassigned"),
-	Assigned("Only assigned");
+	Assigned("Only assigned"),
+	Completed("Completed");
 	
 	private String label;
 	
-	private InstructorAssignFilterValue(String label) {
+	private CredentialMembersSearchFilterValue(String label) {
 		this.label = label;
 	}
 

@@ -15,10 +15,10 @@ public class FileStoreConfig {
 	@Element(name = "file-store-bucket-name")
 	public String fileStoreBucketName;
 
-	public String getFilePath() {
-		String path = fileStoreServiceUrl + "/" + fileStoreBucketName + "/";
-		if (virtualHostingUrl != null && virtualHostingUrl.length() > 0) {
-			path = virtualHostingUrl + File.separator;
+	public String getFilePath(){
+		String path= fileStoreServiceUrl + "/" +fileStoreBucketName + "/";
+		if(virtualHostingUrl!=null && virtualHostingUrl.length()>0){
+			path= virtualHostingUrl+ File.separator;
 		}
 		return path;
 	}

@@ -34,7 +34,7 @@ public class PropertiesFacade {
 	private Properties getProperties() throws IllegalArgumentException,	IOException {
 		// String propertiesFile = PROPERTIES.get(propertyKey);
 		String pathOfTwitterProperties = "/config/twitter4j"+CommonSettings.getInstance().config.getNamespaceSufix()+".properties";
-
+		///pathOfTwitterProperties ="/config/twitter4j_mooc.properties";
 		System.out.println("PATH:"+pathOfTwitterProperties);
 		Properties properties = new Properties();
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathOfTwitterProperties);
