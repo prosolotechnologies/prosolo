@@ -22,6 +22,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
@@ -804,18 +805,19 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
+				true, creator.getId(), UserGroupPrivilege.None);
 		
 		if (credentialData == null) {
-			CredentialData credentialData1 = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
+					true, creator.getId(), UserGroupPrivilege.None);
 			System.out.println(credentialData1);
 		}
 		
 		if (credentialData != null) {
 			credentialData.setPublished(true);
 			
-			credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(),
-					org.prosolo.services.nodes.data.Role.Manager, null);
+			credentialManager.updateCredential(credentialData, creator.getId(), null);
 		} else {
 			logger.error("Could not load credential " + cred.getId());
 		}

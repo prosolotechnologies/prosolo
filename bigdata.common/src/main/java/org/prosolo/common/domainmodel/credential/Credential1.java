@@ -16,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -35,6 +34,7 @@ public class Credential1 extends BaseEntity {
 	private Set<Tag> tags;
 	private Set<Tag> hashtags;
 	private boolean published;
+	private Date scheduledPublishDate;
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
 	private long duration;
@@ -42,30 +42,30 @@ public class Credential1 extends BaseEntity {
 	private boolean manuallyAssignStudents;
 	private int defaultNumberOfStudentsPerInstructor;
 	private LearningResourceType type;
-	private Credential1 draftVersion;
-	private Credential1 originalVersion;
+	//private Credential1 draftVersion;
+	//private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
 	private List<Announcement> announcements;
 	/** 
 	 * means that this credential instance is just a draft
 	 * version of some other credential
 	 */
-	private boolean draft;
+	//private boolean draft;
 	/**
 	 * tells if credential has draft version of
 	 * credential which means that credential was
 	 * published once but is changed and has draft
 	 * version
 	 */
-	private boolean hasDraft;
+	//private boolean hasDraft;
 	
 	private List<CredentialBookmark> bookmarks;
 	
 	private List<FeedSource> blogs;
 	private List<FeedSource> excludedFeedSources;
 	
-	private boolean visible;
-	private Date scheduledPublicDate;
+	//private boolean visible;
+	
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -173,43 +173,43 @@ public class Credential1 extends BaseEntity {
 		this.type = type;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY)
-	public Credential1 getDraftVersion() {
-		return draftVersion;
-	}
+//	@OneToOne(fetch = FetchType.LAZY)
+//	public Credential1 getDraftVersion() {
+//		return draftVersion;
+//	}
+//
+//	public void setDraftVersion(Credential1 draftVersion) {
+//		this.draftVersion = draftVersion;
+//	}
+//
+//	@OneToOne(fetch = FetchType.LAZY, mappedBy = "draftVersion")
+//	public Credential1 getOriginalVersion() {
+//		return originalVersion;
+//	}
+//
+//	public void setOriginalVersion(Credential1 originalVersion) {
+//		this.originalVersion = originalVersion;
+//	}
 
-	public void setDraftVersion(Credential1 draftVersion) {
-		this.draftVersion = draftVersion;
-	}
-
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "draftVersion")
-	public Credential1 getOriginalVersion() {
-		return originalVersion;
-	}
-
-	public void setOriginalVersion(Credential1 originalVersion) {
-		this.originalVersion = originalVersion;
-	}
-
-	@Column(nullable=true)
-	@Type(type="true_false")
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	@Column(nullable=true)
-	@Type(type="true_false")
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
-	}
+//	@Column(nullable=true)
+//	@Type(type="true_false")
+//	public boolean isDraft() {
+//		return draft;
+//	}
+//
+//	public void setDraft(boolean draft) {
+//		this.draft = draft;
+//	}
+//
+//	@Column(nullable=true)
+//	@Type(type="true_false")
+//	public boolean isHasDraft() {
+//		return hasDraft;
+//	}
+//
+//	public void setHasDraft(boolean hasDraft) {
+//		this.hasDraft = hasDraft;
+//	}
 
 	@OneToMany(mappedBy = "credential")
 	public List<TargetCredential1> getTargetCredentials() {
@@ -256,21 +256,21 @@ public class Credential1 extends BaseEntity {
 		this.announcements = announcements;
 	}
 
-	@Column(name="scheduled_public_date")
-	public Date getScheduledPublicDate() {
-		return scheduledPublicDate;
+	@Column(name="scheduled_publish_date")
+	public Date getScheduledPublishDate() {
+		return scheduledPublishDate;
 	}
 
-	public void setScheduledPublicDate(Date scheduledPublicDate) {
-		this.scheduledPublicDate = scheduledPublicDate;
+	public void setScheduledPublishDate(Date scheduledPublishDate) {
+		this.scheduledPublishDate = scheduledPublishDate;
 	}
 
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
+//	public boolean isVisible() {
+//		return visible;
+//	}
+//
+//	public void setVisible(boolean visible) {
+//		this.visible = visible;
+//	}
 
 }

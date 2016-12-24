@@ -13,7 +13,7 @@ public interface CourseDAO {
 	
 	public void publishCredential(long credentialId);
 	
-	void setPublicVisibilityForCredential(long credentialId) throws DbConnectionException;
+	void changeVisibilityForCredential(long credentialId) throws DbConnectionException;
 	
 	Date getScheduledVisibilityUpdateDate(long credId);
 

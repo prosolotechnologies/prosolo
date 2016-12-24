@@ -9,12 +9,11 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;
@@ -30,14 +29,11 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCompetenceNode(Competence1 comp, long originalVersionId, Session session) {
+	public void saveCompetenceNode(Competence1 comp, Session session) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", comp.getId());
-			builder.field("originalVersionId", originalVersionId);
 			builder.field("published", comp.isPublished());
-			builder.field("isDraft", comp.isDraft());
-			builder.field("hasDraft", comp.isHasDraft());
 			builder.field("title", comp.getTitle());
 			builder.field("description", comp.getDescription());
 			
@@ -51,7 +47,6 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			builder.field("type", comp.getType());
 			builder.field("creatorId", comp.getCreatedBy().getId());
-			builder.field("visible", comp.isVisible());
 			
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
@@ -65,29 +60,28 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCompetenceNode(Competence1 comp, long originalVersionId, 
-			CompetenceChangeTracker changeTracker, Session session) {
+	public void updateCompetenceNode(Competence1 comp, CompetenceChangeTracker changeTracker, 
+			Session session) {
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
-						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isVisibilityChanged())) {
-			saveCompetenceNode(comp, originalVersionId, session);
+						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged())) {
+			saveCompetenceNode(comp, session);
 		}
 	}
 	
-	@Override
-	@Transactional
-	public void updateCompetenceDraftVersionCreated(String id) {
-		try {
-			XContentBuilder doc = XContentFactory.jsonBuilder()
-		            .startObject()
-	                .field("hasDraft", true)
-	                .field("published", false)
-	                .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, id, doc);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
+//	@Override
+//	@Transactional
+//	public void updateCompetenceDraftVersionCreated(String id) {
+//		try {
+//			XContentBuilder doc = XContentFactory.jsonBuilder()
+//		            .startObject()
+//	                .field("hasDraft", true)
+//	                .field("published", false)
+//	                .endObject();
+//			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, id, doc);
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//		}
+//	}
 }

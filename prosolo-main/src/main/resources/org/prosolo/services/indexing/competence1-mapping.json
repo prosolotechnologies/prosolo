@@ -5,19 +5,7 @@
 				"store": false,
 				"type":"long"
 			},
-			"originalVersionId":{
-				"store": false,
-				"type": "long"
-			},
 			"published":{
-				"store": false,
-				"type": "boolean"
-			},
-			"isDraft":{
-				"store": false,
-				"type": "boolean"
-			},
-			"hasDraft":{
 				"store": false,
 				"type": "boolean"
 			},
@@ -44,10 +32,6 @@
 			"creatorId":{
 				"store": false,
 				"type":"long"
-			},
-			"visible":{
-				"store": false,
-				"type": "boolean"
 			}
 		}
 			

@@ -32,8 +32,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int durationMinutes;
 	private String durationString;
 	private boolean published;
-	private boolean draft;
-	private boolean hasDraft;
 	private PublishedStatus status;
 	private long creatorId;
 	
@@ -72,6 +70,9 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private boolean studentCanSeeOtherResponses;
 	private boolean studentCanEditResponse;
+	
+	private boolean canEdit;
+	private boolean canAccess;
 	
 	public ActivityData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
@@ -292,22 +293,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setEnrolled(boolean enrolled) {
 		this.enrolled = enrolled;
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
 	}
 
 	public long getCompetenceId() {
@@ -621,6 +606,22 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
 		observeAttributeChange("studentCanEditResponse", this.studentCanEditResponse, studentCanEditResponse);
 		this.studentCanEditResponse = studentCanEditResponse;
+	}
+	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
 	}
 	
 }

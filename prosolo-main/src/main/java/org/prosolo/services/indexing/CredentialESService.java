@@ -8,11 +8,9 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 
 	/**
 	 * @param cred 
-	 * @param originalVersionId when {@code cred} is a draft version
-	 * originalVersionId is needed. Otherwise 0 should be passed.
 	 * @param session
 	 */
-	void saveCredentialNode(Credential1 cred, long originalVersionId, Session session);
+	void saveCredentialNode(Credential1 cred, Session session);
 	
 	/**
 	 * @param cred
@@ -20,10 +18,7 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 	 * originalVersionId is needed. Otherwise 0 should be passed.
 	 * @param changeTracker
 	 */
-	void updateCredentialNode(Credential1 cred, long originalVersionId, 
-			CredentialChangeTracker changeTracker, Session session);
-	
-	void updateCredentialDraftVersionCreated(String id);
+	void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, Session session);
 	
 	void addBookmarkToCredentialIndex(long credId, long userId);
 	

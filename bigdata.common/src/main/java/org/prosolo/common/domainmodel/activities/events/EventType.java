@@ -120,7 +120,8 @@ public enum EventType {
 	Typed_Response_Posted,
 	Typed_Response_Edit,
 	
-	SCHEDULED_PUBLIC;
+	SCHEDULED_VISIBILITY_UPDATE,
+	CANCEL_SCHEDULED_VISIBILITY_UPDATE;
 	
 	private String customText;
 	

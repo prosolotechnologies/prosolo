@@ -248,20 +248,14 @@ public class BulkDataAdministration implements Serializable {
 //			}
 			
 			//index credentials
-			List<Credential1> credentials = credManager.getAllCredentialsWithTheirDraftVersions(session);
+			List<Credential1> credentials = credManager.getAllCredentials(session);
 			for(Credential1 cred : credentials) {
-				credESService.saveCredentialNode(cred, 0, session);
-				if(cred.getDraftVersion() != null) {
-					credESService.saveCredentialNode(cred.getDraftVersion(), cred.getId(), session);
-				}
+				credESService.saveCredentialNode(cred, session);
 			}
 			//index competences
-			List<Competence1> comps = compManager.getAllCompetencesWithTheirDraftVersions(session);
+			List<Competence1> comps = compManager.getAllCompetences(session);
 			for(Competence1 comp : comps) {
-				compESService.saveCompetenceNode(comp, 0, session);
-				if(comp.getDraftVersion() != null) {
-					compESService.saveCompetenceNode(comp.getDraftVersion(), comp.getId(), session);
-				}
+				compESService.saveCompetenceNode(comp, session);
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);

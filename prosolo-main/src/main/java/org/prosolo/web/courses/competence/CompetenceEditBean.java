@@ -14,11 +14,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -29,7 +32,6 @@ import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -116,26 +118,30 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	private void loadCompetenceData(long credId, long id) {
-		PageSection section = PageUtil.getSectionForView();
-		if (PageSection.MANAGE.equals(section)) {
-			competenceData = compManager
-					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
-		} else {
-			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
-					loggedUser.getUserId(), true);
-		}
-		
-		if(competenceData == null) {
+		try {
+			competenceData = compManager.getCompetenceData(credId, id, false, true, true, 
+					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
+			//PageSection section = PageUtil.getSectionForView();
+	//		if (PageSection.MANAGE.equals(section)) {
+	//			competenceData = compManager
+	//					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
+	//		} else {
+	//			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
+	//					loggedUser.getUserId(), true);
+	//		}
+			List<ActivityData> activities = competenceData.getActivities();
+			for(ActivityData bad : activities) {
+				activitiesToExcludeFromSearch.add(bad.getActivityId());
+			}
+			currentNumberOfActivities = activities.size();
+			
+			logger.info("Loaded competence data for competence with id "+ id);
+		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competence data can not be found");
+			PageUtil.fireErrorMessage("Competence can not be found");
+		} catch(AccessDeniedException ade) {
+			PageUtil.fireErrorMessage("You are not allowed to access this competence");
 		}
-		List<ActivityData> activities = competenceData.getActivities();
-		for(ActivityData bad : activities) {
-			activitiesToExcludeFromSearch.add(bad.getActivityId());
-		}
-		currentNumberOfActivities = activities.size();
-		
-		logger.info("Loaded competence data for competence with id "+ id);
 	}
 
 	private void initializeValues() {
@@ -214,7 +220,7 @@ public class CompetenceEditBean implements Serializable {
 					if(saveAsDraft) {
 						competenceData.setStatus(PublishedStatus.DRAFT);
 					}
-					compManager.updateCompetence(decodedId, competenceData, 
+					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
@@ -252,7 +258,7 @@ public class CompetenceEditBean implements Serializable {
 				 * passing decodedId because we need to pass id of
 				 * original competence and not id of a draft version
 				 */
-				compManager.deleteCompetence(decodedId, competenceData, loggedUser.getUserId());
+				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
 				competenceData = new CompetenceData1(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {

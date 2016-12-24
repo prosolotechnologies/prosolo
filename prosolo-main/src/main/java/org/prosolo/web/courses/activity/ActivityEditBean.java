@@ -13,9 +13,12 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -32,7 +35,6 @@ import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -135,20 +137,18 @@ public class ActivityEditBean implements Serializable {
 	}
 
 	private void loadActivityData(long credId, long compId, long actId) {
-		PageSection section = PageUtil.getSectionForView();
-		if (PageSection.MANAGE.equals(section)) {
-			activityData = activityManager.getCurrentVersionOfActivityForManager(credId, compId, actId);
-		} else {
-			activityData = activityManager.getActivityDataForEdit(credId, compId, actId, 
-					loggedUser.getUserId());
-		}
-		
-		if(activityData == null) {
+		try {
+			activityData = activityManager.getActivityData(credId, compId, actId, 
+					loggedUser.getUserId(), true, UserGroupPrivilege.Edit);
+	
+			logger.info("Loaded activity data for activity with id "+ id);
+		} catch(ResourceNotFoundException rnfe) {
+			logger.error(rnfe);
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");
+		} catch(AccessDeniedException ade) {
+			PageUtil.fireErrorMessage("You are not allowed to access this activity");
 		}
-	
-		logger.info("Loaded activity data for activity with id "+ id);
 	}
 	
 	public ScoreCalculation[] getScoreCalculationTypes() {
@@ -312,10 +312,10 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 	
-	public boolean isCreateUseCaseOrFirstTimeDraft() {
-		return activityData.getActivityId() == 0 || 
-				(!activityData.isPublished() && !activityData.isDraft());
-	}
+//	public boolean isCreateUseCaseOrFirstTimeDraft() {
+//		return activityData.getActivityId() == 0 || 
+//				(!activityData.isPublished() && !activityData.isDraft());
+//	}
 	
 	public void prepareAddingResourceLink() {
 		resLinkToAdd = new ResourceLinkData();
@@ -381,7 +381,7 @@ public class ActivityEditBean implements Serializable {
 					if (saveAsDraft) {
 						activityData.setStatus(PublishedStatus.DRAFT);
 					}
-					activityManager.updateActivity(decodedId, activityData, 
+					activityManager.updateActivity(activityData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {

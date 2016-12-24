@@ -9,6 +9,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
@@ -79,20 +80,17 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	}
 	
 	@Override
-	public void setPublicVisibilityForCredential(long credentialId) throws DbConnectionException {
+	public void changeVisibilityForCredential(long credentialId) throws DbConnectionException {
 		try {
-			String query = "UPDATE Credential1 cred " +
-						   "SET visible = :visibility, " +
-						   "scheduledPublicDate = :date " +
-						   "WHERE cred.id = :credId";
-			session
-				.createQuery(query)
-				.setLong("credId", credentialId)
-				.setBoolean("visibility", true)
-				.setDate("date", null)
-				.executeUpdate();
+			Credential1 cred = (Credential1) session.load(Credential1.class, credentialId);
+			if(cred.isPublished()) {
+				cred.setPublished(false);
+			} else {
+				cred.setPublished(true);
+			}
+			cred.setScheduledPublishDate(null);
 			
-			CredentialIndexerImpl.getInstance().updateVisibilityToPublic(credentialId);
+			CredentialIndexerImpl.getInstance().updateVisibility(credentialId, cred.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

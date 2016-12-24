@@ -27,7 +27,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private long duration;
 	private String durationString;
 	private int order;
-	private boolean published;
 	private PublishedStatus status;
 	private ActivityData activityToShowWithDetails;
 	private boolean activitiesInitialized;
@@ -37,8 +36,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean studentAllowedToAddActivities;
 	private String typeString;
 	private LearningResourceType type;
-	//true if this is data for draft version of credential
-	private boolean draft;
 	
 	private boolean enrolled;
 	private long targetCompId;
@@ -51,7 +48,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	private ObjectStatus objectStatus;
 	
-	private boolean visible;
+	private boolean published;
 	private ResourceVisibility visibility;
 	private Date scheduledPublicDate;
 	private String scheduledPublicDateValue;
@@ -59,21 +56,35 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
 	
+	private boolean canEdit;
+	private boolean canAccess;
+	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
-		this.visibility = ResourceVisibility.PRIVATE;
+		this.visibility = ResourceVisibility.UNPUBLISH;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 	
-	public void setVisibility(boolean visible, Date scheduledPublicDate) {
-		this.visibility =  visible ? ResourceVisibility.PUBLIC : 
-			(scheduledPublicDate != null ? ResourceVisibility.SCHEDULED : ResourceVisibility.PRIVATE);
+	public void setVisibility(boolean published, Date scheduledPublicDate) {
+		if(published) {
+			if(scheduledPublicDate == null) {
+				this.visibility = ResourceVisibility.PUBLISHED;
+			} else {
+				this.visibility = ResourceVisibility.SCHEDULED_UNPUBLISH;
+			}
+		} else {
+			if(scheduledPublicDate == null) {
+				this.visibility = ResourceVisibility.UNPUBLISH;
+			} else {
+				this.visibility = ResourceVisibility.SCHEDULED_PUBLISH;
+			}
+		}
 	}
 	
 	public boolean isCompVisible() {
-		return this.visibility == ResourceVisibility.PUBLIC ? true : false;
+		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
 	}
 	
 	@Override
@@ -314,14 +325,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			setScheduledPublicDate(d);
 		}
 	}
-	
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
 
 	public boolean isEnrolled() {
 		return enrolled;
@@ -404,6 +407,22 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.instructorId = instructorId;
 	}
 	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
+	}
+	
 	//change tracking get methods
 	
 	public boolean isTitleChanged() {
@@ -440,14 +459,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
 	}
 	
 }

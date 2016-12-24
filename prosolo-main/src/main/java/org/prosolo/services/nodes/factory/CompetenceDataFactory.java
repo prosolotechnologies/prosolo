@@ -33,7 +33,6 @@ public class CompetenceDataFactory {
 		comp.setTitle(competence.getTitle());
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
-		comp.setDraft(competence.isDraft());
 		comp.setPublished(competence.isPublished());
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
@@ -55,8 +54,8 @@ public class CompetenceDataFactory {
 			String formattedDate = sdf.format(competence.getScheduledPublicDate());
 			comp.setScheduledPublicDateValue(formattedDate);
 		}
-		comp.setVisible(competence.isVisible());
-		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
+//		comp.setVisible(competence.isVisible());
+//		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		

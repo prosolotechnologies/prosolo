@@ -50,8 +50,6 @@ public class ActivityDataFactory {
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
 		data.setPublished(activity.isPublished());
-		data.setDraft(activity.isDraft());
-		data.setHasDraft(activity.isHasDraft());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
@@ -208,8 +206,6 @@ public class ActivityDataFactory {
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
 		act.setPublished(activity.isPublished());
-		act.setDraft(activity.isDraft());
-		act.setHasDraft(activity.isHasDraft());
 		act.setType(activity.getType());
 		
 		act.setActivityType(getActivityType(activity));

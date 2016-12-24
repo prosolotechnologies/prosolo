@@ -15,10 +15,13 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -107,26 +110,39 @@ public class CredentialEditBean implements Serializable {
 	}
 
 	private void loadCredentialData(long id) {
-		if(manageSection) {
-			role = Role.Manager;
-			credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
-		} else {
-			role = Role.User;
-			credentialData = credentialManager.getCredentialDataForEdit(id, 
-					loggedUser.getUserId(), true);
-		}
-		
-		if(credentialData == null) {
+		try {
+			credentialData = credentialManager.getCredentialData(id, false, true, loggedUser.getUserId(), 
+					UserGroupPrivilege.Edit);
+			if(manageSection) {
+				role = Role.Manager;
+				//credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
+				//credentialData = credentialManager.getCredentialDataForManager(id, false, true);
+			} else {
+				role = Role.User;
+	//			credentialData = credentialManager.getCredentialDataForEdit(id, 
+	//					loggedUser.getUserId(), true);
+				
+				//credentialData = credentialManager.getCredentialDataForUser(id, false, true, 
+						//loggedUser.getUserId());
+			}
+			
+//			if(credentialData == null) {
+//				credentialData = new CredentialData(false);
+//				PageUtil.fireErrorMessage("Credential data can not be found");
+//			}
+			List<CompetenceData1> comps = credentialData.getCompetences();
+			for(CompetenceData1 cd : comps) {
+				compsToExcludeFromSearch.add(cd.getCompetenceId());
+			}
+			currentNumberOfComps = comps.size();
+			
+			logger.info("Loaded credential data for credential with id "+ id);
+		} catch(ResourceNotFoundException rnfe) {
 			credentialData = new CredentialData(false);
-			PageUtil.fireErrorMessage("Credential data can not be found");
+			PageUtil.fireErrorMessage("Credential can not be found");
+		} catch(AccessDeniedException ade) {
+			PageUtil.fireErrorMessage("You are not allowed to access this credential");
 		}
-		List<CompetenceData1> comps = credentialData.getCompetences();
-		for(CompetenceData1 cd : comps) {
-			compsToExcludeFromSearch.add(cd.getCompetenceId());
-		}
-		currentNumberOfComps = comps.size();
-		
-		logger.info("Loaded credential data for credential with id "+ id);
 	}
 	
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
@@ -201,8 +217,8 @@ public class CredentialEditBean implements Serializable {
 					if(saveAsDraft) {
 						credentialData.setStatus(PublishedStatus.DRAFT);
 					}
-					credentialManager.updateCredential(decodedId, credentialData, 
-							loggedUser.getUserId(), role, lcd);
+					credentialManager.updateCredential(credentialData, 
+							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
@@ -237,7 +253,7 @@ public class CredentialEditBean implements Serializable {
 				 * decoded id is passed because we want to pass id of original version
 				 * and not draft
 				 */
-				credentialManager.deleteCredential(decodedId, credentialData, loggedUser.getUserId());
+				credentialManager.deleteCredential(decodedId, loggedUser.getUserId());
 				credentialData = new CredentialData(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {

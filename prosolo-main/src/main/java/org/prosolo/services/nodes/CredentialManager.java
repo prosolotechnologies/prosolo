@@ -1,27 +1,27 @@
 package org.prosolo.services.nodes;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.InstructorAssignFilter;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
@@ -33,28 +33,24 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	/**
-	 * Deletes credential by setting deleted flag to true on original credential and 
-	 * deleting draft version of a credential from database if exists.
+	 * Deletes credential by setting deleted flag to true
 	 * 
-	 * IMPORTANT! Id of original credential should always be passed and not id of a
-	 * draft version.
-	 * @param originalCredId
-	 * @param data
-	 * @param user
+	 * @param credId
+	 * @param userId
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Credential1 deleteCredential(long originalCredId, CredentialData data, long userId) throws DbConnectionException;
+	Credential1 deleteCredential(long credId, long userId) throws DbConnectionException;
 	
 	/**
 	 * Returns user target credential data if user is enrolled in a credential, or credential data 
 	 * if that is not the case.
 	 * @param credentialId
 	 * @param userId
-	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException, AccessDeniedException, DbConnectionException
 	 */
 	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws DbConnectionException;
+			throws ResourceNotFoundException, AccessDeniedException, DbConnectionException;
 	
 	/**
 	 * Returns credential data with specified id. 
@@ -68,36 +64,12 @@ public interface CredentialManager extends AbstractManager {
 	 * @param loadCreatorData
 	 * @param loadCompetences
 	 * @param userId
-	 * @param returnType
+	 * @param privilege - privilege needed to be able to access that credential
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCompetences, 
-			long userId, LearningResourceReturnResultType returnType) throws DbConnectionException;
-	/**
-	 * Returns credential with specified id. If credential is first time draft, it is only returned if
-	 * creator of credential is user specified by {@code userId}
-	 * @param credentialId
-	 * @param loadCreatorData
-	 * @param loadCompetences
-	 * @param userId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	CredentialData getCredentialDataForUser(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences, long userId) throws DbConnectionException;
-	
-	/**
-	 * Returns credential with specified id. If credential is first time draft, it is only returned if
-	 * credential is created by university
-	 * @param credentialId
-	 * @param loadCreatorData
-	 * @param loadCompetences
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	CredentialData getCredentialDataForManager(long credentialId, boolean loadCreatorData,
-			boolean loadCompetences) throws DbConnectionException;
+			long userId, UserGroupPrivilege privilege) throws DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -120,25 +92,24 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getBasicCredentialData(long credentialId, long userId) 
 			throws DbConnectionException;
 	
-	/** Returns credential data for edit. If there is a draft version for a credential
-	 *  that version data will be returned
-	 *  
-	 *  @param credentialId id of a credential
-	 *  @param creatorId id of a user that will get credential data so 
-	 *  we can check if he is a creator of a credential and he can 
-	 *  edit it
-	 *  @param loadCompetences if true credential competences data will be 
-	 *  loaded too
-	 */
-	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
-			throws DbConnectionException;
+//	/** Returns credential data for edit. If there is a draft version for a credential
+//	 *  that version data will be returned
+//	 *  
+//	 *  @param credentialId id of a credential
+//	 *  @param creatorId id of a user that will get credential data so 
+//	 *  we can check if he is a creator of a credential and he can 
+//	 *  edit it
+//	 *  @param loadCompetences if true credential competences data will be 
+//	 *  loaded too
+//	 */
+//	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
+//			throws DbConnectionException;
 	
-	Credential1 updateCredential(long originalCredId, CredentialData data, long makerId, Role role,
-			LearningContextData context) 
-			throws DbConnectionException, CredentialEmptyException, CompetenceEmptyException;
+	Credential1 updateCredential(CredentialData data, long userId, 
+			LearningContextData context) throws DbConnectionException, CredentialEmptyException, 
+			CompetenceEmptyException;
 	
-	Result<Credential1> updateCredential(CredentialData data, long creatorId, Role role, 
-			LearningContextData context);
+	Result<Credential1> updateCredentialData(CredentialData data, long creatorId);
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -161,6 +132,12 @@ public interface CredentialManager extends AbstractManager {
 	List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
 	
+	/**
+	 * returns only published credentials
+	 * @param compId
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
 			throws DbConnectionException;
 
@@ -184,8 +161,6 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialBookmark> getBookmarkedByIds(long credId, Session session) 
 			throws DbConnectionException;
 	
-	Credential1 getOriginalCredentialForDraft(long draftCredId) throws DbConnectionException;
-	
 	void bookmarkCredential(long credId, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
@@ -197,8 +172,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	long deleteCredentialBookmark(long credId, long userId) 
 			throws DbConnectionException;
-	
-	Optional<Long> getDraftVersionIdIfExists(long credId) throws DbConnectionException;
 
 	/**
 	 * Duration for all credentials with competence specified by {@code compId} is updated
@@ -230,8 +203,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException;
 	
-	String getCredentialDraftOrOriginalTitle(long id) throws DbConnectionException;
-	
 	/**
 	 * Returns draft version of credential if exists, otherwise original version is returned.
 	 * @param credentialId
@@ -240,8 +211,8 @@ public interface CredentialManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
-			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
+//	CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
+//			boolean loadCreator, boolean loadCompetences) throws DbConnectionException;
 	
 	/**
 	 * Method for getting all credentials (nevertheless the progress)
@@ -324,9 +295,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
 	
-	List<Credential1> getAllCredentialsWithTheirDraftVersions(Session session) 
-			throws DbConnectionException;
-	
 	CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
 			throws DbConnectionException;
 
@@ -351,4 +319,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException;
+	
+	List<Credential1> getAllCredentials(Session session) throws DbConnectionException;
 }

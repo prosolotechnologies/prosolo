@@ -36,7 +36,6 @@ import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
@@ -143,10 +142,9 @@ public interface ResourceFactory extends AbstractManager {
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
 			long credentialId, boolean visible, Date scheduledPublicDate);
 
-	Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role, LearningContextData context);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId);
 
-	Competence1 updateCompetence(CompetenceData1 data);
+	Competence1 updateCompetence(CompetenceData1 data, long userId);
 	
 	long deleteCredentialBookmark(long credId, long userId);
 	

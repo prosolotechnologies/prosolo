@@ -28,7 +28,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private String tagsString;
 	private Set<Tag> hashtags;
 	private String hashtagsString = "";
-	private boolean published;
 	private PublishedStatus status;
 	private String typeString;
 	private LearningResourceType type;
@@ -38,8 +37,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private ResourceCreator creator;
 	private List<CompetenceData1> competences;
 	//true if this is data for draft version of credential
-	private boolean draft;
-	private boolean hasDraft;
+	//private boolean draft;
+	//private boolean hasDraft;
 	private boolean studentsCanAddCompetences;
 	private boolean automaticallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
@@ -58,25 +57,40 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private Date date;
 	private boolean instructorPresent;
 	
-	private boolean visible;
+	//private boolean visible;
+	private boolean published;
 	private ResourceVisibility visibility;
-	private Date scheduledPublicDate;
-	private String scheduledPublicDateValue;
+	private Date scheduledPublishDate;
+	private String scheduledPublishDateValue;
+	
+	private boolean canEdit;
+	private boolean canAccess;
 	
 	public CredentialData(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
-		this.visibility = ResourceVisibility.PRIVATE;
+		this.visibility = ResourceVisibility.UNPUBLISH;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 	
-	public void setVisibility(boolean visible, Date scheduledPublicDate) {
-		this.visibility =  visible ? ResourceVisibility.PUBLIC : 
-			(scheduledPublicDate != null ? ResourceVisibility.SCHEDULED : ResourceVisibility.PRIVATE);
+	public void setVisibility(boolean published, Date scheduledPublicDate) {
+		if(published) {
+			if(scheduledPublicDate == null) {
+				this.visibility = ResourceVisibility.PUBLISHED;
+			} else {
+				this.visibility = ResourceVisibility.SCHEDULED_UNPUBLISH;
+			}
+		} else {
+			if(scheduledPublicDate == null) {
+				this.visibility = ResourceVisibility.UNPUBLISH;
+			} else {
+				this.visibility = ResourceVisibility.SCHEDULED_PUBLISH;
+			}
+		}
 	}
 	
 	public boolean isCredVisible() {
-		return this.visibility == ResourceVisibility.PUBLIC ? true : false;
+		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
 	}
 	
 	/**
@@ -100,14 +114,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return index < competences.size() - 1;
 	}
 	
-	/**
-	 * Returns true if credential is draft and it is not a draft version, so it
-	 * means that it is original version that is created as draft - has never been published
-	 * @return
-	 */
-	public boolean isFirstTimeDraft() {
-		return !published && !draft && !hasDraft;
-	}
+//	/**
+//	 * Returns true if credential is draft and it is not a draft version, so it
+//	 * means that it is original version that is created as draft - has never been published
+//	 * @return
+//	 */
+//	public boolean isFirstTimeDraft() {
+//		return !published && !draft && !hasDraft;
+//	}
 	
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
@@ -291,13 +305,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.hashtags = hashtags;
 	}
 
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
+//	public boolean isDraft() {
+//		return draft;
+//	}
+//
+//	public void setDraft(boolean draft) {
+//		this.draft = draft;
+//	}
 
 	public boolean isStudentsCanAddCompetences() {
 		return studentsCanAddCompetences;
@@ -335,13 +349,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 		calculateDurationString();
 	}
 
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
-	}
+//	public boolean isHasDraft() {
+//		return hasDraft;
+//	}
+//
+//	public void setHasDraft(boolean hasDraft) {
+//		this.hasDraft = hasDraft;
+//	}
 
 	public boolean isBookmarkedByCurrentUser() {
 		return bookmarkedByCurrentUser;
@@ -407,14 +421,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.instructorPresent = instructorPresent;
 	}
 
-	public Date getScheduledPublicDate() {
-		return scheduledPublicDate;
+	public Date getScheduledPublishDate() {
+		return scheduledPublishDate;
 	}
 
-	public void setScheduledPublicDate(Date scheduledPublicDate) {
-		observeAttributeChange("scheduledPublicDate", this.scheduledPublicDate, scheduledPublicDate, 
+	public void setScheduledPublishDate(Date scheduledPublishDate) {
+		observeAttributeChange("scheduledPublicDate", this.scheduledPublishDate, scheduledPublishDate, 
 				(Date d1, Date d2) -> d1 == null ? d2 == null : d1.compareTo(d2) == 0);
-		this.scheduledPublicDate = scheduledPublicDate;
+		this.scheduledPublishDate = scheduledPublishDate;
 	}
 
 	public ResourceVisibility getVisibility() {
@@ -426,31 +440,47 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.visibility = visibility;
 	}
 
-	public String getScheduledPublicDateValue() {
-		return scheduledPublicDateValue;
+	public String getScheduledPublishDateValue() {
+		return scheduledPublishDateValue;
 	}
 
-	public void setScheduledPublicDateValue(String scheduledPublicDateValue) {
-		this.scheduledPublicDateValue = scheduledPublicDateValue;
-		if(StringUtils.isNotBlank(scheduledPublicDateValue)) {
+	public void setScheduledPublishDateValue(String scheduledPublishDateValue) {
+		this.scheduledPublishDateValue = scheduledPublishDateValue;
+		if(StringUtils.isNotBlank(scheduledPublishDateValue)) {
 			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 			Date d = null;
 			try {
-				d = sdf.parse(scheduledPublicDateValue);
+				d = sdf.parse(scheduledPublishDateValue);
 			} catch(Exception e) {
-				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublicDateValue), e);
+				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublishDateValue), e);
 			}
-			setScheduledPublicDate(d);
+			setScheduledPublishDate(d);
 		}
 	}
 	
-	public boolean isVisible() {
-		return visible;
+	public boolean isCanEdit() {
+		return canEdit;
 	}
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
 	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
+	}
+	
+//	public boolean isVisible() {
+//		return visible;
+//	}
+//
+//	public void setVisible(boolean visible) {
+//		this.visible = visible;
+//	}
 
 	//change tracking get methods
 	

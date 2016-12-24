@@ -38,8 +38,8 @@ public class CredentialDataFactory {
 		cred.setPublished(credential.isPublished());
 		cred.setCredentialStatus();
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		cred.setDraft(credential.isDraft());
-		cred.setHasDraft(credential.isHasDraft());
+		//cred.setDraft(credential.isDraft());
+		//cred.setHasDraft(credential.isHasDraft());
 		cred.setDuration(credential.getDuration());
 		cred.calculateDurationString();
 		if(createdBy != null) {
@@ -52,14 +52,14 @@ public class CredentialDataFactory {
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
-		cred.setScheduledPublicDate(credential.getScheduledPublicDate());
-		if(credential.getScheduledPublicDate() != null) {
+		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
+		if(credential.getScheduledPublishDate() != null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-			String formattedDate = sdf.format(credential.getScheduledPublicDate());
-			cred.setScheduledPublicDateValue(formattedDate);
+			String formattedDate = sdf.format(credential.getScheduledPublishDate());
+			cred.setScheduledPublishDateValue(formattedDate);
 		}
-		cred.setVisible(credential.isVisible());
-		cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
+		//cred.setVisible(credential.isVisible());
+		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
 		
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();

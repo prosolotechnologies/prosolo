@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -16,12 +15,12 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
@@ -37,15 +36,11 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCredentialNode(Credential1 cred, long originalVersionId, Session session) {
+	public void saveCredentialNode(Credential1 cred, Session session) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", cred.getId());
-			builder.field("originalVersionId", originalVersionId);
 			builder.field("published", cred.isPublished());
-			builder.field("isDraft", cred.isDraft());
-			//builder.field("firstTimeDraft", !cred.isPublished() && !cred.isHasDraft() && !cred.isDraft());
-			builder.field("hasDraft", cred.isHasDraft());
 			builder.field("title", cred.getTitle());
 			builder.field("description", cred.getDescription());
 			Date date = cred.getDateCreated();
@@ -76,20 +71,14 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("type", cred.getType());
 			
 			builder.startArray("bookmarkedBy");
-			/*
-			 * Bookmarks should be retrieved for original credential because they are not copied
-			 * to draft version.
-			 */
-			long credIdForBookmarkSearch = originalVersionId != 0 ? originalVersionId : cred.getId();
 			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-					credIdForBookmarkSearch, session);
+					cred.getId(), session);
 			for(CredentialBookmark cb : bookmarks) {
 				builder.startObject();
 				builder.field("id", cb.getUser().getId());
 				builder.endObject();
 			}
 			builder.endArray();
-			builder.field("visible", cred.isVisible());
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(cred);
@@ -102,31 +91,31 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCredentialNode(Credential1 cred, long originalVersionId, 
-			CredentialChangeTracker changeTracker, Session session) {
+	public void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, 
+			Session session) {
 		if(changeTracker != null &&
 				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged() || changeTracker.isVisibilityChanged())) {
-			saveCredentialNode(cred, originalVersionId, session);
+						|| changeTracker.isHashtagsChanged())) {
+			saveCredentialNode(cred, session);
 		}
 	}
 	
-	@Override
-	@Transactional
-	public void updateCredentialDraftVersionCreated(String id) {
-		try {
-			XContentBuilder doc = XContentFactory.jsonBuilder()
-		            .startObject()
-	                .field("hasDraft", true)
-	                .field("published", false)
-	                .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, id, doc);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
-	}
+//	@Override
+//	@Transactional
+//	public void updateCredentialDraftVersionCreated(String id) {
+//		try {
+//			XContentBuilder doc = XContentFactory.jsonBuilder()
+//		            .startObject()
+//	                .field("hasDraft", true)
+//	                .field("published", false)
+//	                .endObject();
+//			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, id, doc);
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//		}
+//	}
 	
 	@Override
 	public void addBookmarkToCredentialIndex(long credId, long userId) {
@@ -161,16 +150,6 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", builder);
-			
-			/*
-			 * check if there is a draft version for this credential and if there is we should add bookmark
-			 * to that ES document too.
-			 */
-			Optional<Long> res = credentialManager.getDraftVersionIdIfExists(credId);
-			
-			if(res.isPresent()) {
-				partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, res.get() + "", builder);
-			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

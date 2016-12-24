@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CompetenceDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CompetenceIndexerImpl;
+import org.prosolo.common.domainmodel.credential.Competence1;
 
 public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 
@@ -18,20 +19,17 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 	}
 	
 	@Override
-	public void setPublicVisibilityForCompetence(long compId) throws DbConnectionException {
+	public void changeVisibilityForCompetence(long compId) throws DbConnectionException {
 		try {
-			String query = "UPDATE Competence1 comp " +
-						   "SET visible = :visibility, " +
-						   "scheduledPublicDate = :date " +
-						   "WHERE comp.id = :compId";
-			session
-				.createQuery(query)
-				.setLong("compId", compId)
-				.setBoolean("visibility", true)
-				.setDate("date", null)
-				.executeUpdate();
+			Competence1 comp = (Competence1) session.load(Competence1.class, compId);
+			if(comp.isPublished()) {
+				comp.setPublished(false);
+			} else {
+				comp.setPublished(true);
+			}
+			comp.setScheduledPublicDate(null);
 			
-			CompetenceIndexerImpl.getInstance().updateVisibilityToPublic(compId);
+			CompetenceIndexerImpl.getInstance().updateVisibility(compId, comp.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

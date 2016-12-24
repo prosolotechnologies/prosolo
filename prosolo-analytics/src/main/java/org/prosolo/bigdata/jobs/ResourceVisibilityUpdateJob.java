@@ -29,9 +29,9 @@ public class ResourceVisibilityUpdateJob  implements Job {
 	        Resource resource = Resource.valueOf(dataMap.getString("resource"));
 	        Long resourceId=dataMap.getLong("resourceId");
 	        if(resource == Resource.CREDENTIAL) {
-	        	courseDao.setPublicVisibilityForCredential(resourceId);
+	        	courseDao.changeVisibilityForCredential(resourceId);
 	        } else if(resource == Resource.COMPETENCE) {
-	        	compDao.setPublicVisibilityForCompetence(resourceId);
+	        	compDao.changeVisibilityForCompetence(resourceId);
 	        }
 	        
 	        logger.info("PUBLISHING " + resource.name() + " ID:" + resourceId);

@@ -52,6 +52,7 @@ import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -79,7 +80,6 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -633,9 +633,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, 
-								false, false, 0, LearningResourceReturnResultType.ANY, 
-								false);
+						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false, 
+								userId, UserGroupPrivilege.None, false);
 						
 						if (cd != null) {
 							response.addFoundNode(cd);

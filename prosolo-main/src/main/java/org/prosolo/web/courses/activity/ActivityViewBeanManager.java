@@ -8,8 +8,11 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -60,41 +63,43 @@ public class ActivityViewBeanManager implements Serializable {
 				decodedCredId = idEncoder.decodeId(credId);
 			}
 			try {
-				boolean shouldReturnDraft = false;
+				UserGroupPrivilege priv = null;
 				if("preview".equals(mode)) {
-					shouldReturnDraft = true;
-				} 
-				competenceData = activityManager
-						.getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(
-								decodedCredId, decodedCompId, decodedActId, shouldReturnDraft);
-				
-				if(competenceData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					priv = UserGroupPrivilege.Edit;
 				} else {
-					/*
-					 * check if user has instructor capability and if has, we should mark his comments as
-					 * instructor comments
-					 */
-					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							hasInstructorCapability);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
+					priv = UserGroupPrivilege.View;
+				}
+				competenceData = activityManager
+						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), priv);
+				
+				/*
+				 * check if user has instructor capability and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+				commentsData = new CommentsData(CommentedResourceType.Activity, 
+						competenceData.getActivityToShowWithDetails().getActivityId(), 
+						hasInstructorCapability);
+				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), 
 //							hasInstructorCapability);
-					
-					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-							competenceData.getActivityToShowWithDetails().getCaptions(), 
-							loggedUser.getUserId());
-					
-					loadCompetenceAndCredentialTitle();
+				
+				ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+						competenceData.getActivityToShowWithDetails().getCaptions(), 
+						loggedUser.getUserId());
+				
+				loadCompetenceAndCredentialTitle();
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
+			} catch(AccessDeniedException ade) {
+				PageUtil.fireErrorMessage("You are not allowed to access this activity");
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
