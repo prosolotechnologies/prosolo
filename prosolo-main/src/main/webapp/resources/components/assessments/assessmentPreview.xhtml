@@ -215,15 +215,25 @@
 												</h:link>
 												<div class="activityOptions">											
 													<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-														<h:link outcome="activity-responses"
+														<h:link outcome="activity-response"
 															styleClass="viewResult"
+															rendered="#{cc.attrs.role eq 'USER'}"
 															pt:data-toggle="tooltip" pt:title="View Response">
 															View Response
 															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 															<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
 															<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" />
-															<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" 
-																disable="#{cc.attrs.role eq 'USER'}"/>
+															<f:param name="targetActId" value="#{activityAssessment.encodedTargetActivityId}" />
+														</h:link>
+														<h:link outcome="activity-responses"
+															styleClass="viewResult"
+															rendered="#{cc.attrs.role eq 'MANAGER'}"
+															pt:data-toggle="tooltip" pt:title="View Response">
+															View Response
+															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+															<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
+															<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" />
+															<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
 														</h:link>
 													</ui:fragment>
 																							

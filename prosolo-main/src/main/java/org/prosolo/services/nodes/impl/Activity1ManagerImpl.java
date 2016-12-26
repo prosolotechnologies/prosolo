@@ -36,6 +36,7 @@ import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -48,6 +49,7 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -62,6 +64,7 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
@@ -69,6 +72,7 @@ import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.useractions.CommentBean;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +89,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private ActivityDataFactory activityFactory;
 	@Inject private Competence1Manager compManager;
 	@Inject private CommentManager commentManager;
+	@Inject private AssessmentManager assessmentManager;
 	@Inject private EventFactory eventFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CredentialManager credManager;
@@ -2773,6 +2778,40 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return null;
 	}
 	
+	@Override
+	@Transactional (readOnly = true)
+	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId) {
+		String query = 
+				"SELECT targetAct, targetCred.user " +
+				"FROM TargetActivity1 targetAct " +
+				"INNER JOIN targetAct.targetCompetence targetComp " + 
+				"INNER JOIN targetComp.targetCredential targetCred " + 
+				"WHERE targetAct.id = :targetActivityId";
+			
+			Object[] result = (Object[]) persistence.currentManager()
+				.createQuery(query.toString())
+				.setLong("targetActivityId", targetActId)
+				.uniqueResult();
+			
+			if (result != null) {
+				TargetActivity1 targetActivity = (TargetActivity1) result[0];
+				User user = (User) result[1];
+				
+				// check whether userToViewId is owner of TargetActivity 
+				if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
+					ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
+							null, false);
+					
+					UserData ud = new UserData(user.getId(), user.getFullName(), 
+							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);
+					
+					activityData.getResultData().setUser(ud);
+					return activityData;
+				}
+			} 
+			return null;
+	}
+	
 //	@Override
 //	@Transactional(readOnly = true)
 //	public ActivityData getActivityForManager(long activityId, Mode mode) 
@@ -2842,7 +2881,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //			throw new DbConnectionException("Error while loading activity data");
 //		}
 //	}
-	
+//
 //	@Transactional(readOnly = true)
 //	private ActivityData getCompetenceActivityDataForManager(long activityId, Mode mode) 
 //			throws DbConnectionException {

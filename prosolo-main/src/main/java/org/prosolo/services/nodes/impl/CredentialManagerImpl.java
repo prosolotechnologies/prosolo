@@ -33,6 +33,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -64,6 +65,7 @@ import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -2733,6 +2735,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
+	@Transactional (readOnly = true)
+	public Object[] getCredentialAndCompetenceTitle(long credId, long compId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT DISTINCT cred.title, comp.title " +
+					"FROM Credential1 cred, Competence1 comp " +
+					"WHERE cred.id = :credId " +
+						"AND comp.id = :compId";
+			
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.uniqueResult();
+			
+			if (res != null) {
+				return res;
+			}
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential and competence title");
+		}
+	}
+	
+	@Override
 	@Transactional
 	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException {
@@ -2979,7 +3009,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if (res != null && !res.isEmpty()) {
 				User user = res.get(0);
-				return new UserData(user.getId(), user.getName() + " " + user.getLastname(), user.getAvatarUrl());
+				return new UserData(user.getId(), user.getName() + " " + user.getLastname(), AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			}
 			
 			return null;

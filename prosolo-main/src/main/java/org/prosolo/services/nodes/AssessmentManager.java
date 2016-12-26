@@ -106,4 +106,13 @@ public interface AssessmentManager {
 	 */
 	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
 
+	/**
+	 * Returns true if the given user is an assessor of the target activity.
+	 * 
+	 * @param userId
+	 * @param targetActivityId
+	 * @return
+	 */
+	boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId);
+
 }

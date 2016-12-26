@@ -965,5 +965,32 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error while retrieving activity assessment");
 		}
 	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId) {
+		try {
+			String query = 
+					"SELECT COUNT(credAssessment.assessor) " +
+					"FROM CredentialAssessment credAssessment " +
+					"INNER JOIN credAssessment.targetCredential targetCred " +
+					"INNER JOIN targetCred.targetCompetences targetCompetence " +
+					"INNER JOIN targetCompetence.targetActivities targetActivity " +
+					"WHERE targetActivity.id = :targetActivityId " +
+						"AND credAssessment.assessor.id = :userId ";
+			
+			Long count = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("targetActivityId", targetActivityId)
+					.setLong("userId", userId)
+					.uniqueResult();
+			
+			return count > 0;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity assessment");
+		}
+	}
 
 }

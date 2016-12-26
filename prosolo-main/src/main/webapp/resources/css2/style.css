@@ -1561,7 +1561,8 @@ input {
   /* line 1120, style.scss */
   #askAssessment .assessmentModalMetaRight .btn {
     position: absolute;
-    right: 0; }
+    right: 0;
+    top: 0; }
 
 /* line 1129, style.scss */
 #newAnnouncementModal .modal-body textarea {

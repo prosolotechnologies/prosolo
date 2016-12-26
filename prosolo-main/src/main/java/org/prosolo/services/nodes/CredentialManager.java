@@ -354,4 +354,15 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 
 	UserData chooseRandomPeer(long credId, long userId);
+
+	/**
+	 * Returns titles of a credential and competence with given ids.
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @return array of two strings where first element is credential title and the second element is competence title.
+	 * @throws DbConnectionException
+	 */
+	
+	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
 }

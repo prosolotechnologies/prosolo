@@ -46,6 +46,8 @@ public class ActivityResultsBeanUser implements Serializable {
 	@Inject private CommentManager commentManager;
 	@Inject private ActivityResultBean activityResultBean;
 
+	private String targetActId;
+	private long decodedTargetActId;
 	private String actId;
 	private long decodedActId;
 	private String compId;
@@ -57,6 +59,7 @@ public class ActivityResultsBeanUser implements Serializable {
 
 	private long nextCompToLearn;
 	private long nextActivityToLearn;
+	private boolean resultOwnerIsLookingThisPage;
 
 	public void init() {
 		decodedActId = idEncoder.decodeId(actId);
@@ -101,7 +104,7 @@ public class ActivityResultsBeanUser implements Serializable {
 //					commentBean.init(CommentedResourceType.Activity, 
 //							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
-					loadCompetenceAndCredentialTitle();
+					loadCompetenceAndCredentialTitleAndNextToLearnInfo();
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -117,11 +120,52 @@ public class ActivityResultsBeanUser implements Serializable {
 		}
 	}
 	
-	private void loadCompetenceAndCredentialTitle() {
+	public void initIndividualResponse() {
+		System.out.println("Init individual response");
+		
+		decodedTargetActId = idEncoder.decodeId(targetActId);
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
+		
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
+			ActivityData activityWithDetails = activityManager.getActivityDataForUserToView(decodedTargetActId, loggedUser.getUserId());
+
+			if (activityWithDetails == null) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				competenceData = new CompetenceData1(false);
+				competenceData.setActivityToShowWithDetails(activityWithDetails);
+				resultOwnerIsLookingThisPage = competenceData.getActivityToShowWithDetails().getResultData().getUser().getId() == loggedUser.getUserId();
+				
+				if (resultOwnerIsLookingThisPage) {
+					loadCompetenceAndCredentialTitleAndNextToLearnInfo();
+				} else {
+					Object[] credCompTitle = credManager.getCredentialAndCompetenceTitle(decodedCredId, decodedCompId);
+					competenceData.setCredentialTitle((String) credCompTitle[0]);
+					competenceData.setTitle((String) credCompTitle[0]);
+				}
+			}
+		} else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				logger.error(ioe);
+			}
+		}
+	}
+	
+	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
 		decodedCredId = idEncoder.decodeId(credId);
 		competenceData.setTitle(compManager.getTargetCompetenceTitle(competenceData
 				.getActivityToShowWithDetails().getCompetenceId()));
-		if(decodedCredId > 0) {
+		
+		if (decodedCredId > 0) {
 			CredentialData cd = credManager
 					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
 							loggedUser.getUserId());
@@ -224,6 +268,22 @@ public class ActivityResultsBeanUser implements Serializable {
 	public void setDecodedActId(long decodedActId) {
 		this.decodedActId = decodedActId;
 	}
+	
+	public String getTargetActId() {
+		return targetActId;
+	}
+
+	public void setTargetActId(String targetActId) {
+		this.targetActId = targetActId;
+	}
+
+	public long getDecodedTargetActId() {
+		return decodedTargetActId;
+	}
+
+	public void setDecodedTargetActId(long decodedTargetActId) {
+		this.decodedTargetActId = decodedTargetActId;
+	}
 
 	public String getCompId() {
 		return compId;
@@ -275,6 +335,10 @@ public class ActivityResultsBeanUser implements Serializable {
 
 	public void setNextActivityToLearn(long nextActivityToLearn) {
 		this.nextActivityToLearn = nextActivityToLearn;
+	}
+
+	public boolean isResultOwnerIsLookingThisPage() {
+		return resultOwnerIsLookingThisPage;
 	}
 	
 }
