@@ -1,41 +1,39 @@
 package org.prosolo.common.domainmodel.user;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
+@Entity
 public class UserGroup extends BaseEntity {
 
 	private static final long serialVersionUID = 5056103791488544103L;
 	
 	private List<UserGroupUser> users;
-	private UserGroupPrivilege privilege = UserGroupPrivilege.View;
 	private String name;
 	//group where users are put by default, it is not created manually and it is not visible to end users
 	private boolean defaultGroup;
 	
+	public UserGroup() {
+		users = new ArrayList<>();
+	}
+	
 	@OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<UserGroupUser> getUsers() {
 		return users;
 	}
 
 	public void setUsers(List<UserGroupUser> users) {
 		this.users = users;
-	}
-
-	@Enumerated(EnumType.STRING)
-	public UserGroupPrivilege getPrivilege() {
-		return privilege;
-	}
-	
-	public void setPrivilege(UserGroupPrivilege privilege) {
-		this.privilege = privilege;
 	}
 	
 	public String getName() {

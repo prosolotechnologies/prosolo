@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
@@ -64,7 +65,8 @@ public class NodeChangeObserver extends EventObserver {
 			Credential1.class,
 			Competence1.class, 
 			CredentialBookmark.class,
-			TargetCredential1.class
+			TargetCredential1.class,
+			UserGroup.class
 		};
 	}
 

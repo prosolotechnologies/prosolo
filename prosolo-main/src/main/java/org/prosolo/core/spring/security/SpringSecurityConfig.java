@@ -260,6 +260,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/settings_old").hasAuthority("BASIC.ADMIN.ACCESS")
 		   .antMatchers("/admin/analyticsSettings").hasAuthority("BASIC.ADMIN.ACCESS")
+		   .antMatchers("/admin/userGroups").hasAuthority("BASIC.ADMIN.ACCESS")
 		  
 		   .antMatchers("/manage/**").denyAll()
 		   .antMatchers("/admin/**").denyAll()
@@ -623,7 +624,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Qualifier("metadata")
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
     	List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
-        providers.add(ssoCircleExtendedMetadataProvider());
+        //providers.add(ssoCircleExtendedMetadataProvider());
 		providers.add(ssoUtaTestExtendedMetadataProvider());
 		providers.add(ssoUtaProdExtendedMetadataProvider());
         //providers.add(simpleSamlProvider());

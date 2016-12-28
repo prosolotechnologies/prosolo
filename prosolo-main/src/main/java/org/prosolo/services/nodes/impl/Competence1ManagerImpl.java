@@ -1650,15 +1650,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT userGroup.privilege " +
+			String query = "SELECT compUserGroup.privilege, comp.createdBy.id " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
+					"INNER JOIN compUserGroup.competence comp " +
 					"LEFT JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
-					"WHERE compUserGroup.competence.id = :compId " +
-					"ORDER BY CASE WHEN userGroup.privilege = :editPriv THEN 1 ELSE 2 END";
+					"WHERE comp.id = :compId " +
+					"ORDER BY CASE WHEN compUserGroup.privilege = :editPriv THEN 1 ELSE 2 END";
 			
-			UserGroupPrivilege priv = (UserGroupPrivilege) persistence.currentManager()
+			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("compId", compId)
@@ -1666,7 +1667,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setMaxResults(1)
 					.uniqueResult();
 			
-			return priv != null ? priv : UserGroupPrivilege.None;
+			if(res == null) {
+				return UserGroupPrivilege.None;
+			}
+			UserGroupPrivilege priv = (UserGroupPrivilege) res[0];
+			if(priv == null) {
+				priv = UserGroupPrivilege.None;
+			}
+			long owner = (long) res[1];
+			return owner == userId ? UserGroupPrivilege.Edit : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

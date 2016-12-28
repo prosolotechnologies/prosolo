@@ -35,6 +35,7 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -181,5 +182,9 @@ public interface ResourceFactory extends AbstractManager {
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles) throws DbConnectionException;
+	
+	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
+	
+	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 
 }

@@ -1616,6 +1616,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public List<EventData> publishActivitiesFromCompetences(long userId, List<Long> compIds) 
 			throws DbConnectionException {
 		try {
+			if(compIds == null || compIds.isEmpty()) {
+				return new ArrayList<>();
+			}
 			List<CompetenceActivity1> acts = getDraftActivitiesFromCompetences(compIds);
 			//publishDraftActivitiesWithoutDraftVersion(actIds);
 			return publishDraftActivitiesFromList(userId, acts);

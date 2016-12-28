@@ -16,4 +16,5 @@ public class ESIndexTypes {
 	public static final String FREQ_COMPETENCE_ACTIVITIES = "frequent_competence_activity";
 
 	public static final String SIMILAR_USERS = "similar_users";
+	public static final String USER_GROUP = "user_group";
 }

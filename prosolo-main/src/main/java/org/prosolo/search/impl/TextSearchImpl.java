@@ -77,12 +77,15 @@ import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +112,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserManager userManager;
+	@Inject private UserGroupManager userGroupManager;
 
 	@Override
 	@Transactional
@@ -2153,5 +2157,121 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e1);
 		}
 		return null;
+	}
+	
+	@Override
+	@Transactional
+	public TextSearchResponse1<UserGroupData> searchUserGroups (
+			String searchString, int page, int limit) {
+		
+		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		
+		try {
+			int start = setStart(page, limit);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+					.field("name");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+			
+			SearchResponse sResponse = null;
+			
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+					.setTypes(ESIndexTypes.USER_GROUP)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFrom(start).setSize(limit)
+					.addSort("name", SortOrder.ASC);
+			//System.out.println(srb.toString());
+			sResponse = srb.execute().actionGet();
+	
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+			
+				for (SearchHit hit : sResponse.getHits()) {
+					logger.info("ID: " + hit.getSource().get("id"));
+					long id = Long.parseLong(hit.getSource().get("id").toString());
+					String name = (String) hit.getSource().get("name");
+					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+					UserGroupData group = new UserGroupData(id, name, userCount);
+					response.addFoundNode(group);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+			String searchTerm, int page, int limit, long groupId) {
+		TextSearchResponse1<UserSelectionData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+			
+			searchRequestBuilder.setFrom(start).setSize(limit);	
+			
+			//add sorting
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			
+			if(sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+				
+				if(searchHits != null) {
+					for(SearchHit sh : searchHits) {
+						Map<String, Object> fields = sh.getSource();
+						User user = new User();
+						user.setId(Long.parseLong(fields.get("id") + ""));
+						user.setName((String) fields.get("name"));
+						user.setLastname((String) fields.get("lastname"));
+						user.setAvatarUrl((String) fields.get("avatar"));
+						user.setPosition((String) fields.get("position"));
+						UserData userData = new UserData(user);
+						
+						boolean isUserInGroup = userGroupManager.isUserInGroup(groupId, 
+								userData.getId());
+						UserSelectionData data = new UserSelectionData(userData, isUserInGroup);
+						
+						response.addFoundNode(data);			
+					}
+				}
+			}
+	
+		} catch (Exception e1) {
+			logger.error(e1);
+		}
+		return response;
 	}
 }

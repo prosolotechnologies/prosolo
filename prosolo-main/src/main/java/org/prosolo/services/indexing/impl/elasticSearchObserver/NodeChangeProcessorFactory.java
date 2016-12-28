@@ -9,11 +9,13 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.indexing.UserGroupESService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +29,8 @@ public class NodeChangeProcessorFactory {
 	private CredentialESService credentialESService;
 	@Inject
 	private CompetenceESService competenceESService;
+	@Inject
+	private UserGroupESService userGroupESService;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -71,8 +75,15 @@ public class NodeChangeProcessorFactory {
 						operation = NodeOperation.Update;
 					}
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
-				}
-				else {
+				} else if(node instanceof UserGroup) {
+					NodeOperation operation = null;
+					if(type == EventType.Create) {
+						operation = NodeOperation.Save;
+					} else {
+						operation = NodeOperation.Update;
+					}
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, operation);
+				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
 				
@@ -84,6 +95,8 @@ public class NodeChangeProcessorFactory {
 				} else if(node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
 							NodeOperation.Delete, session);
+				} else if(node instanceof UserGroup) {
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, NodeOperation.Delete);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:

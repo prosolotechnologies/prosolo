@@ -206,6 +206,13 @@ public interface Competence1Manager {
 //	CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
 //			boolean loadActivities, Mode mode) throws DbConnectionException;
 	
+	/**
+	 * Checks if user is owner of competence and if it is returns edit privilege. Otherwise
+	 * if user has any privilege for competence, it is returned and if he does not, None privilege is returned
+	 * @param compId
+	 * @param userId
+	 * @return {@link UserGroupPrivilege}
+	 */
 	UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
 			throws DbConnectionException;
 

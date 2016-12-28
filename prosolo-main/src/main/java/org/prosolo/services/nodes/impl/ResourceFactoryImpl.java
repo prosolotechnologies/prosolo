@@ -63,6 +63,7 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -1222,6 +1223,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while updating user data");
+		}
+	}
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setName(newName);
+			
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+	}
+
+    @Override
+	@Transactional (readOnly = false)
+	public UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException {
+		try {
+			UserGroup group = new UserGroup();
+			group.setDateCreated(new Date());
+			group.setDefaultGroup(isDefault);
+			group.setName(name);
+			
+			saveEntity(group);
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
 		}
 	}
     

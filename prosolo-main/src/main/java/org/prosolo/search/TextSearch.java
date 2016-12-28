@@ -24,6 +24,8 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 
@@ -135,4 +137,11 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
+	
+	TextSearchResponse1<UserGroupData> searchUserGroups (
+			String searchString, int page, int limit);
+	
+	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+			String searchTerm, int page, int limit, long groupId);
+	
 }

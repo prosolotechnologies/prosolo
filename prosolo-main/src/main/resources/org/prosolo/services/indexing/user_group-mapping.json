@@ -1,0 +1,15 @@
+{
+    "user_group":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"long"
+			},
+			"name":{
+				"store": false,
+				"type": "string"
+			}
+		}	
+	}
+
+}

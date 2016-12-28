@@ -514,7 +514,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				//if user has edit privilege for the credential, we should include not published 
 				//competences to the result also
 				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, priv == UserGroupPrivilege.Edit, 
+						credentialId, false, false , false, priv == UserGroupPrivilege.Edit || priv == UserGroupPrivilege.None, 
 						privilege == UserGroupPrivilege.Edit, userId);
 				credData.setCompetences(compsData);
 			}
@@ -2550,17 +2550,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return ev;
 //	}
 	
+	/**
+	 * Checks if user is owner of credential and if it is returns edit privilege. Otherwise
+	 * if user has any privilege for credential, it is returned and if he does not, None privilege is returned
+	 * @param credId
+	 * @param userId
+	 * @return {@link UserGroupPrivilege}
+	 */
 	private UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) {
 		try {
-			String query = "SELECT userGroup.privilege " +
+			String query = "SELECT credUserGroup.privilege, cred.createdBy.id " +
 					"FROM CredentialUserGroup credUserGroup " +
 					"INNER JOIN credUserGroup.userGroup userGroup " +
+					"INNER JOIN credUserGroup.credential cred " +
 					"LEFT JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
-					"WHERE credUserGroup.credential.id = :credId " +
-					"ORDER BY CASE WHEN userGroup.privilege = :editPriv THEN 1 ELSE 2 END";
+					"WHERE cred.id = :credId " +
+					"ORDER BY CASE WHEN credUserGroup.privilege = :editPriv THEN 1 ELSE 2 END";
 			
-			UserGroupPrivilege priv = (UserGroupPrivilege) persistence.currentManager()
+			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("credId", credId)
@@ -2568,7 +2576,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setMaxResults(1)
 					.uniqueResult();
 			
-			return priv != null ? priv : UserGroupPrivilege.None;
+			if(res == null) {
+				return UserGroupPrivilege.None;
+			}
+			UserGroupPrivilege priv = (UserGroupPrivilege) res[0];
+			if(priv == null) {
+				priv = UserGroupPrivilege.None;
+			}
+			long owner = (long) res[1];
+			return owner == userId ? UserGroupPrivilege.Edit : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

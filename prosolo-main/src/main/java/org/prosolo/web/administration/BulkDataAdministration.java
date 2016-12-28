@@ -23,6 +23,7 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -32,11 +33,13 @@ import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.indexing.UserGroupESService;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +67,8 @@ public class BulkDataAdministration implements Serializable {
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialESService credESService;
 	@Inject private CompetenceESService compESService;
+	@Inject private UserGroupManager userGroupManager;
+	@Inject private UserGroupESService userGroupESService;
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
 
@@ -210,42 +215,6 @@ public class BulkDataAdministration implements Serializable {
 				userEntityESService.saveUserNode(user, session);
 				//}
 			}
-
-//			List<Node> nodes = new ArrayList<Node>();
-//			List<Activity> resourceActivities = defaultManager.getAllResources(Activity.class);
-//			
-//			for (Activity activity : resourceActivities) {
-//				if (!activity.isDeleted()) {
-//					nodes.add(activity);
-//				}
-//			}
-//
-//			List<LearningGoal> learningGoals = defaultManager.getAllResources(LearningGoal.class);
-//			
-//			for (LearningGoal goal : learningGoals) {
-//				if (!goal.isDeleted()) {
-//					nodes.add(goal);
-//				}
-//			}
-//
-//			List<Competence> competences = defaultManager.getAllResources(Competence.class);
-//			
-//			for (Competence competence : competences) {
-//				if (!competence.isDeleted()) {
-//					nodes.add(competence);
-//				}
-//			}
-//			indexNodes(nodes);
-//
-//			List<Course> courses = defaultManager.getAllResources(Course.class);
-//			
-//			for (Course course : courses) {
-//				logger.debug("indexing course:" + course.getId() + "/" + course.getTitle());
-//				
-//				if (!course.isDeleted()) {
-//					nodeEntityESService.saveNodeToES(course);
-//				}
-//			}
 			
 			//index credentials
 			List<Credential1> credentials = credManager.getAllCredentials(session);
@@ -256,6 +225,14 @@ public class BulkDataAdministration implements Serializable {
 			List<Competence1> comps = compManager.getAllCompetences(session);
 			for(Competence1 comp : comps) {
 				compESService.saveCompetenceNode(comp, session);
+			}
+			
+			//index user groups
+			List<UserGroup> groups = userGroupManager.getAllGroups();
+			for(UserGroup group : groups) {
+				if(!group.isDefaultGroup()) {
+					userGroupESService.saveUserGroup(group);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);
