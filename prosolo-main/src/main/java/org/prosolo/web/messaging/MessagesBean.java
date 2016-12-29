@@ -35,8 +35,10 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessagesThreadData;
 import org.prosolo.web.notification.TopInboxBean;
+import org.prosolo.web.search.SearchPeopleBean;
 import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.page.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -60,6 +62,7 @@ public class MessagesBean implements Serializable {
 	@Inject private EventFactory eventFactory;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private TopInboxBean topInboxBean;
+	@Autowired private SearchPeopleBean searchPeopleBean;
 	
 	protected List<UserData> receivers;
 	
@@ -447,6 +450,10 @@ public class MessagesBean implements Serializable {
 
 	public void setNewMessageView(boolean newMessageView) {
 		this.newMessageView = newMessageView;
+		
+		if (newMessageView) {
+			searchPeopleBean.resetSearch();
+		}
 	}
 
 	public void setArchiveView(boolean archiveView) {

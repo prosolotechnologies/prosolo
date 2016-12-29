@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "recommendLearningGoalBean")
 @Component("recommendLearningGoalBean")
 @Scope("view")
+@Deprecated
 public class RecommendLearningGoalBean extends MessagesBean {
 	
 	private static final long serialVersionUID = 5363673157968015524L;
