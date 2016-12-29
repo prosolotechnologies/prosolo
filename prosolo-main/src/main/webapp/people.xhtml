@@ -27,19 +27,33 @@
 	</ui:define>
 
 	<ui:define name="content">
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		
 		<div class="whiteBar">
-			<ui:remove>
-			<div class="container">
-				<div class="whiteBarContent">
-					<div class="whiteBarLeft">
-						<div class="searchBox">
-							<input name="name" value="" placeholder="Search People" type="search" />
+			<h:form id="formSearch">
+				<div class="container">
+					<div class="whiteBarContent">
+						<div class="whiteBarLeft">
+							<div class="searchBox">
+								<p:remoteCommand 
+									name="execSearchStudents" 
+									process="inputStudentSearch"
+									update=":formMainFollowingUsers:panelFollowingUsers"
+									action="#{peopleBean.resetAndSearch()}" />
+															
+								<h:inputText id="inputStudentSearch"
+									type="search"
+									styleClass="studentSearchField"
+									placeholder="Search People You Follow"
+									value="#{peopleBean.searchTerm}"
+									onclick="$(this).select();"
+									onkeyup="searchListener(execSearchStudents);"/>
+							</div>
 						</div>
+						<div class="whiteBarRight"></div>
 					</div>
-					<div class="whiteBarRight"></div>
 				</div>
-			</div>
-			</ui:remove>
+			</h:form>
 		</div>
 
 		<div class="container">
@@ -58,13 +72,13 @@
 									<div class="peopleListLeft">
 										<h:link outcome="/profile">
 											<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-												fullName="#{user.name}" width="64" height="64" />
-											<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+												fullName="#{user.fullName}" width="64" height="64" />
+											<f:param name="id" value="#{util:encodeId(user.id)}" />
 										</h:link>
 										<div>
 											<h2>
 												<h:link outcome="/profile">
-													#{user.name}
+													#{user.fullName}
 													<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
 												</h:link>
 											</h2>

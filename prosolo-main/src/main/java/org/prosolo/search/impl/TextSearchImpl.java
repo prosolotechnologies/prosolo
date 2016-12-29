@@ -2189,4 +2189,60 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		}
 		return null;
 	}
+	
+	@Override
+	public TextSearchResponse1<UserData> searchPeopleUserFollows(
+			String term, int page, int limit, long userId) {
+		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		
+		try {
+			int size = limit;
+			int start = setStart(page, limit);
+			
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name").field("lastname");
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
+			bQueryBuilder.must(termQuery("followers.id", userId));
+			
+			SearchResponse sResponse = null;
+			
+			String[] includes = {"id", "name", "lastname", "avatar"};
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFrom(start).setSize(size)
+					.addSort("name", SortOrder.ASC)
+					.setFetchSource(includes, null);
+			//System.out.println(srb.toString());
+			sResponse = srb.execute().actionGet();
+			
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+				
+				for(SearchHit sh : sResponse.getHits()) {
+					Map<String, Object> fields = sh.getSource();
+					User user = new User();
+					user.setId(Long.parseLong(fields.get("id") + ""));
+					user.setName((String) fields.get("name"));
+					user.setLastname((String) fields.get("lastname"));
+					user.setAvatarUrl((String) fields.get("avatar"));
+					UserData userData = new UserData(user);
+					
+					response.addFoundNode(userData);			
+				}
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
 }

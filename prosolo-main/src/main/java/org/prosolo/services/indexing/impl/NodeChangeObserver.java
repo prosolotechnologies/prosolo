@@ -23,8 +23,10 @@ import org.springframework.stereotype.Service;
 
 @Service("org.prosolo.services.indexing.NodeChangeObserver")
 public class NodeChangeObserver extends EventObserver {
+	
 	private static Logger logger = Logger.getLogger(NodeChangeObserver.class.getName());
-	@Inject NodeChangeProcessorFactory nodeChangeProcessorFactory;
+	
+	@Inject private NodeChangeProcessorFactory nodeChangeProcessorFactory;
 	@Autowired private DefaultManager defaultManager;
 	
 	@Override
@@ -51,7 +53,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ACTIVATE_COURSE,
 			EventType.Bookmark,
 			EventType.RemoveBookmark,
-			EventType.ChangeProgress
+			EventType.ChangeProgress,
+			EventType.Follow,
+			EventType.Unfollow,
 		};
 	}
 

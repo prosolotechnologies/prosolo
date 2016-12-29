@@ -95,6 +95,10 @@ public class NodeChangeProcessorFactory {
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
 			case RemoveBookmark:
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
+			case Follow:
+				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
+			case Unfollow:
+				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Delete);
 			default:
 				return null;
 		}

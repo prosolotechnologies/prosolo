@@ -135,4 +135,16 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
+
+	/**
+	 * Retrieves all users followed by the user with specified id and fulfilling the search term.
+	 * 
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param userId
+	 * @return
+	 */
+	TextSearchResponse1<UserData> searchPeopleUserFollows(String searchTerm,
+			int page, int limit, long userId);
 }

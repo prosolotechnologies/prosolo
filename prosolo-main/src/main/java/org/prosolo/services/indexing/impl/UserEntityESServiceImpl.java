@@ -46,8 +46,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	@Transactional
 	public void saveUserNode(User user, Session session) {
- //	user = (User) session.merge(user);
-		if(user!=null) {
+		if (user != null) {
 	 		try {
 				XContentBuilder builder = getBasicUserDataSet(user);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
@@ -244,6 +243,46 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			params.put("progress", progress);
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addFollowerIndex(long followedUserId, long followerId) {
+		try {
+			String script = 
+					"if (ctx._source[\"followers\"] == null) { " +
+						"ctx._source.followers = follower " +
+					"} else { " +
+						"ctx._source.followers += follower " +
+					"}";
+			
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", followerId);
+			params.put("follower", param);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					followedUserId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void removeFollowerIndex(long followedUserId, long followerId) {
+		try {
+			String script = "ctx._source.followers -= follower;";
+			
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", followerId + "");
+			params.put("follower", param);
+			
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					followedUserId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
