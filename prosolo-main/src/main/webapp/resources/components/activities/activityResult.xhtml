@@ -191,18 +191,38 @@
 				</div>
 				
 				<div class="activityResultTextContent">
-					<p class="commentText">
+					<div class="commentText">
 						<h:outputText escape="false" value="#{cc.attrs.resultData.result}" />
-					</p>
+					</div>
 					
 					<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
+						<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+						<script>
+						tinymce.init({
+							theme: "modern",
+						    skin: 'light',
+						    height : "400",
+							selector:'#activity\\:activityDetails .activityResultTextContent textarea',
+							font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+					    	plugins: 'link media code image',
+							menubar:false,
+						    statusbar: false,
+						    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
+						});
+						</script>
+						
 						<div class="editComment hidden">
 							<h:form>
-								<h:inputTextarea class="hidden" value="#{cc.attrs.resultData.result}" />
-								<div class="contentEditableComment" contenteditable="true"
-									strip-br="true">#{cc.attrs.resultData.result}</div>
+								<h:inputTextarea value="#{cc.attrs.resultData.result}" />
+								
+								<ui:remove>
+									<div class="contentEditableComment" contenteditable="true"
+										strip-br="true">#{cc.attrs.resultData.result}</div>
+								</ui:remove>
+								
 								<p:commandLink styleClass="btn btn-sm btn-green"
 									action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
+									onclick="$('#activity\\:activityDetails .activityResultTextContent textarea').val(tinyMCE.activeEditor.getContent());"
 									update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 									<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
@@ -303,7 +323,7 @@
 					</h:panelGroup>
 					<ui:fragment rendered="#{cc.attrs.studentCanEditResponse and cc.attrs.role eq 'USER' and cc.attrs.resultData.user.id eq loggeduser.userId}">
 						<a href="javascript:void(0)" class="edit"
-							onclick="showEditResponse(this)"><span class="icon"></span>Edit</a>
+							onclick="showEditResponse(this, '#activity\\:activityDetails .activityResultTextContent .commentText')"><span class="icon"></span>Edit</a>
 					</ui:fragment>
 				</div>
 				

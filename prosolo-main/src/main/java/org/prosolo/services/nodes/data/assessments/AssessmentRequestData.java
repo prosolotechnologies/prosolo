@@ -84,5 +84,12 @@ public class AssessmentRequestData implements Serializable {
 	public void setCredentialTitle(String credentialTitle) {
 		this.credentialTitle = credentialTitle;
 	}
+	
+	public void resetAssessorData() {
+		this.assessorId = 0;
+		this.assessorFullName = null;
+		this.assessorAvatarUrl = null;
+		this.assessorSet = false;
+	}
 
 }

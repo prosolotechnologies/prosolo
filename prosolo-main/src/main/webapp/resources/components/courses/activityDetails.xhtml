@@ -256,6 +256,26 @@
 		            	</h:form>
             		</c:if>
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
+            			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+						<script>
+						tinymce.init({
+							theme: "modern",
+						    skin: 'light',
+						    height : "200",
+							selector:'#activity .writeResult textarea',
+							font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+					    	plugins: 'link media code image',
+							menubar:false,
+						    statusbar: false,
+						    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
+						});
+						</script>
+						<style>
+							.mce-panel {
+								margin-bottom: 20px;
+							}
+						</style>
+            		
             			<h:form id="formTypedResult">
 	            			 <div class="whiteBox writeResult">
 			                    <h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
