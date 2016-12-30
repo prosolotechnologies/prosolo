@@ -268,6 +268,33 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getFollowers(long userId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT DISTINCT user " + 
+					"FROM FollowedEntity fEnt " + 
+					"LEFT JOIN fEnt.user user "+
+					"JOIN fEnt.followedUser fUser " + 
+					"WHERE fUser.id = :userId " +
+					"ORDER BY user.name, user.lastname";
+			
+			Query q = persistence.currentManager().createQuery(query)
+					.setLong("userId", userId);
+			
+			List<User> users = q.list();
+			
+			if (users != null) {
+				return users;
+			}
+			return new ArrayList<User>();
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving notification data");
+		}
+	}
+	
 	@Override
 	@Transactional (readOnly = true)
 	public int getNumberOfFollowingUsers(long userId) throws DbConnectionException {

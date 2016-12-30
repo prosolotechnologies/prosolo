@@ -20,6 +20,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -41,6 +42,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Inject
 	private CredentialInstructorManager credInstructorManager;
 	@Inject
+	private FollowResourceManager followResourceManager;
+	@Inject
 	private RoleManager roleManager;
 	
 	@Override
@@ -52,7 +55,8 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
-				for(CredentialData cd : creds) {
+				
+				for (CredentialData cd : creds) {
 					builder.startObject();
 					long credId = cd.getId();
 					builder.field("id", credId);
@@ -81,16 +85,26 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				List<CredentialData> instructorCreds = credInstructorManager
 						.getCredentialIdsAndAssignDateForInstructor(user.getId());
 				builder.startArray("credentialsWithInstructorRole");
-				for(CredentialData cd : instructorCreds) {
+				for (CredentialData cd : instructorCreds) {
 					builder.startObject();
 					builder.field("id", cd.getId());
 					Date date = cd.getDate();
 					String dateString = null;
-					if(date != null) {
+					if (date != null) {
 						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 						dateString = df.format(date);
 					}
 					builder.field("dateAssigned", dateString);
+					builder.endObject();
+				}
+				builder.endArray();
+				
+				builder.startArray("followers");
+				List<User> folowees = followResourceManager.getFollowers(user.getId());
+				
+				for (User foloweee : folowees) {
+					builder.startObject();
+					builder.field("id", foloweee.getId());
 					builder.endObject();
 				}
 				builder.endArray();
@@ -274,12 +288,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	public void removeFollowerIndex(long followedUserId, long followerId) {
 		try {
-			String script = "ctx._source.followers -= follower;";
+			String script = "followerToRemove = null; "
+					+ "for (user in ctx._source.followers) {"
+					+ "if (user['id'] == followerId) "
+					+ "{ followerToRemove = user; break; } }; "
+					+ "if (followerToRemove != null) "
+					+ "{ ctx._source.followers.remove(followerToRemove); }";
 			
 			Map<String, Object> params = new HashMap<>();
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", followerId + "");
-			params.put("follower", param);
+			params.put("followerId", followerId);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					followedUserId+"", script, params);
