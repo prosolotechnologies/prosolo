@@ -324,18 +324,23 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
+	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
 					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, getCommentRecepientId(),
-					fullAssessmentData.getCredentialId());
-
+			
+			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
+			for (Long userId : participantIds) {
+				if (userId != loggedUserBean.getUserId()) {
+					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId,
+							fullAssessmentData.getCredentialId());
+				}
+			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -399,8 +404,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
+					Arrays.asList(loggedUserBean.getUserId(), fullAssessmentData.getAssessedStrudentId()),
 					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;

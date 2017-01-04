@@ -3,7 +3,6 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -340,9 +339,16 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
 		try {
+			List<Long> participantIds = new ArrayList<>();
+			participantIds.add(currentResult.getUser().getId());
+			
+			// check if assessor is set
+			if (currentResult.getAssessment().getAssessorId() > 0) {
+				participantIds.add(currentResult.getAssessment().getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(currentResult.getAssessment().getAssessorId(), 
-							currentResult.getUser().getId()),
+					participantIds,
 					loggedUserBean.getUserId(), true,  
 					currentResult.getAssessment().getGrade().getValue()).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
