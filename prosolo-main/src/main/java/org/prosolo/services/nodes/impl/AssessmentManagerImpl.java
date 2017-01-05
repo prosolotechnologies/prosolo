@@ -281,8 +281,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public List<AssessmentData> getAllAssessmentsForStudent(long studentId, boolean searchForPending,
 			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat, int page,
-			int numberPerPage) {
-		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved, page, numberPerPage);
+			int limit) {
+		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved, page, limit);
 		
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
@@ -301,7 +301,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private Query getAssessmentForCredentialQuery(long studentId, boolean searchForPending, boolean searchForApproved,
-			int page, int numberPerPage) {
+			int page, int limit) {
 		Query query = null;
 		if (searchForApproved && searchForPending) {
 			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_QUERY).setLong("studentId",
@@ -313,7 +313,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY)
 					.setLong("studentId", studentId);
 		}
-		query.setFirstResult(numberPerPage * page).setFetchSize(numberPerPage);
+		query.setFirstResult(limit * page).setMaxResults(limit);
 		return query;
 	}
 

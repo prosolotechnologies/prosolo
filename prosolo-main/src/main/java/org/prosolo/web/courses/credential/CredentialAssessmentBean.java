@@ -33,8 +33,7 @@ import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.courses.util.pagination.PaginationData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -79,11 +78,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
 
-	private List<PaginationLink> paginationLinks;
-	private int page = 1;
-	private int limit = 5;
-	private int numberOfPages;
-	private int assessmentsNumber;
+	private PaginationData paginationData = new PaginationData(5);
 
 	// adding new comment
 	private String newCommentValue;
@@ -101,12 +96,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						LearningResourceType.UNIVERSITY_CREATED);
 				if (title != null) {
 					credentialTitle = title;
-					assessmentsNumber = assessmentManager.countAssessmentsForAssessorAndCredential(
-							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved);
+					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(
+							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved));
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
 							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
-					generatePagination();
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -417,7 +411,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (!searchForApproved || !searchForPending) {
 			searchForApproved = true;
 			searchForPending = true;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
 	}
@@ -427,19 +421,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (searchForApproved || searchForPending) {
 			searchForApproved = false;
 			searchForPending = false;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
-	}
-	
-	private void generatePagination() {
-		// if we don't want to generate all links
-		Paginator paginator = new Paginator(assessmentsNumber, limit, page, 1, "...");
-		// if we want to genearte all links in paginator
-		// Paginator paginator = new Paginator(courseMembersNumber, limit, page,
-		// true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
 	}
 	
 	private boolean isInManageSection() {
@@ -521,7 +505,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -532,7 +516,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -586,49 +570,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-
-	@Override
 	public void changePage(int page) {
-		if (this.page != page) {
-			this.page = page;
+		if (paginationData.getPage() != page) {
+			paginationData.setPage(page);
 			init();
 		}
 	}
 
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return assessmentsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public ActivityAssessmentData getCurrentAssessment() {

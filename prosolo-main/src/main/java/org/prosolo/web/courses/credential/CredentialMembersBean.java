@@ -20,9 +20,9 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -33,8 +33,7 @@ import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.courses.util.pagination.PaginationData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -70,12 +69,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private long decodedId;
 
 	private String searchTerm = "";
-	private int credentialMembersNumber;
-	private int page = 1;
-	private int limit = 10;
 	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.DATE;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	private PaginationData paginationData = new PaginationData();
 	private CredentialMembersSearchFilter instructorAssignFilter;
 	
 	private List<InstructorData> credentialInstructors;
@@ -145,7 +140,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			}
 
 			getCredentialMembers();
-			generatePagination();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -153,32 +147,22 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentialMembers();
-	}
-
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(credentialMembersNumber, limit, page, 
-				1, "...");
-		//if we want to genearte all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
 	}
 
 	public void getCredentialMembers() {
 		TextSearchResponse1<StudentData> searchResponse = textSearch.searchCredentialMembers(
 				searchTerm, 
 				instructorAssignFilter.getFilter(), 
-				page - 1, limit, 
+				this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
 				decodedId, personalizedForUserId, sortOption);
 
-		credentialMembersNumber = (int) searchResponse.getHitsNumber();
+		this.paginationData.update((int) searchResponse.getHitsNumber());
 		members = searchResponse.getFoundNodes();
+		
 		Map<String, Object> additional = searchResponse.getAdditionalInfo();
-		if(additional != null) {
+		if (additional != null) {
 			searchFilters = (CredentialMembersSearchFilter[]) additional.get("filters");
 			instructorAssignFilter = (CredentialMembersSearchFilter) additional.get("selectedFilter");
 		}
@@ -186,19 +170,18 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	public void addStudentsAndResetData() {
 		studentEnrollBean.enrollStudents();
-		page = 1;
+		this.paginationData.setPage(1);
 		searchTerm = "";
 		sortOption = CredentialMembersSortOption.DATE;
-		members = credManager.getCredentialStudentsData(decodedId, limit);
+		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getPage());
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
-		for(CredentialMembersSearchFilter f : searchFilters) {
-			if(f.getFilter() == CredentialMembersSearchFilterValue.All) {
+		for (CredentialMembersSearchFilter f : searchFilters) {
+			if (f.getFilter() == CredentialMembersSearchFilterValue.All) {
 				instructorAssignFilter = f;
-				credentialMembersNumber = (int) f.getNumberOfResults();
+				this.paginationData.update((int) f.getNumberOfResults());
 				break;
 			}
 		}
-		generatePagination();
 	}
 	
 	public void loadCredentialInstructors(StudentData student) {
@@ -289,54 +272,24 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	public void applySearchFilter(CredentialMembersSearchFilter filter) {
 		this.instructorAssignFilter = filter;
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentialMembers();
 	}
 	
 	public void applySortOption(CredentialMembersSortOption sortOption) {
 		this.sortOption = sortOption;
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentialMembers();
 	}
 	
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
-	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if(this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			searchCredentialMembers();
 		}
 	}
 
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return credentialMembersNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
-	}
-	
 //	public void setSortByStudentName() {
 //		setSortField(CredentialMembersSortField.STUDENT_NAME);
 //	}
@@ -425,36 +378,9 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public int getCredentialMembersNumber() {
-		return credentialMembersNumber;
-	}
-
-	public void setCourseMembersNumber(int credentialMembersNumber) {
-		this.credentialMembersNumber = credentialMembersNumber;
-	}
-
-	public int getPage() {
-		return page;
-	}
-
-	public void setPage(int page) {
-		this.page = page;
-	}
-
-	public int getLimit() {
-		return limit;
-	}
-
-	public void setLimit(int limit) {
-		this.limit = limit;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	@Override
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public String getInstructorSearchTerm() {

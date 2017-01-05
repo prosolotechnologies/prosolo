@@ -15,8 +15,7 @@ import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.courses.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -42,11 +41,7 @@ public class PeopleBean implements Paginable, Serializable {
 
 	private List<UserData> followingUsers;
 
-	private int usersNumber;
-	private final int limit = 5;
-	private int page = 1;
-	private int numberOfPages;
-	private List<PaginationLink> paginationLinks;
+	private PaginationData paginationData = new PaginationData(5);
 
 	public void init() {
 		initFollowingUsers();
@@ -55,10 +50,10 @@ public class PeopleBean implements Paginable, Serializable {
 	private void initFollowingUsers() {
 		try {
 			followingUsers = new ArrayList<UserData>();
-			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
+			paginationData.update(followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId()));
 
-			List<User> followingUsersList = usersNumber > 0
-					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit)
+			List<User> followingUsersList = paginationData.getNumberOfResults() > 0
+					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), paginationData.getPage() - 1, paginationData.getLimit())
 					: new ArrayList<User>();
 
 			if (followingUsersList != null && !followingUsersList.isEmpty()) {
@@ -67,7 +62,6 @@ public class PeopleBean implements Paginable, Serializable {
 					followingUsers.add(userData);
 				}
 			}
-			generatePagination();
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -105,96 +99,21 @@ public class PeopleBean implements Paginable, Serializable {
 		}
 	}
 
-	public void generatePagination() {
-		// if we don't want to generate all links
-		Paginator paginator = new Paginator(usersNumber, limit, page, 1, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-		logger.info("Number of pages for following users: " + numberOfPages);
-	}
-
 	// pagination helper methods
-
-	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-
 	@Override
 	public void changePage(int page) {
-		if (this.page != page) {
-			this.page = page;
+		if (this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			initFollowingUsers();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	public List<UserData> getFollowingUsers() {
 		return followingUsers;
 	}
 
-	public void setFollowingUsers(List<UserData> followingUsers) {
-		this.followingUsers = followingUsers;
-	}
-
-	public int getUsersNumber() {
-		return usersNumber;
-	}
-
-	public void setUsersNumber(int usersNumber) {
-		this.usersNumber = usersNumber;
-	}
-
-	public int getPage() {
-		return page;
-	}
-
-	public void setPage(int page) {
-		this.page = page;
-	}
-
-	public int getNumberOfPages() {
-		return numberOfPages;
-	}
-
-	public void setNumberOfPages(int numberOfPages) {
-		this.numberOfPages = numberOfPages;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
-	}
-
-	public int getLimit() {
-		return limit;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 }

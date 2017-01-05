@@ -11,34 +11,33 @@
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
-		<composite:attribute name="links" required="true" type="java.util.List" />
 		<composite:attribute name="toUpdate" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-			<ui:fragment rendered="#{cc.attrs.bean.shouldBeDisplayed()}">
+			<ui:fragment rendered="#{cc.attrs.bean.paginationData.shouldBeDisplayed()}">
 				<nav class="paginationWrapper">
 		            <ul class="pagination">
-		            	<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageFirst()}">
+		            	<ui:fragment rendered="#{!cc.attrs.bean.paginationData.isResultSetEmpty() and cc.attrs.bean.paginationData.isCurrentPageFirst()}">
 							<li class="disabled">
 								<a href="javascript:void(0);" aria-label="Previous">
 									<span aria-hidden="true">Prev</span>
 								</a>
 							</li>
 						</ui:fragment>
-						<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageFirst()}">
+						<ui:fragment rendered="#{!cc.attrs.bean.paginationData.isCurrentPageFirst()}">
 							<li>
 								<p:commandLink 
 									process="@this"
-								    action="#{cc.attrs.bean.goToPreviousPage()}"
+								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getPreviousPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Previous">
 									<span aria-hidden="true">Prev</span>
 								</p:commandLink>
 							</li>
 						</ui:fragment>
-						<ui:repeat var="link" value="#{cc.attrs.links}">
+						<ui:repeat var="link" value="#{cc.attrs.bean.paginationData.links}">
 							<ui:fragment rendered="#{link.isLink()}">
 								<li class="#{link.selected ? 'active' : ''}">
 									<p:commandLink
@@ -54,16 +53,16 @@
 								<li>#{link.linkOutput}</li>
 							</ui:fragment>		
 						</ui:repeat>
-						<ui:fragment rendered="#{!cc.attrs.bean.isResultSetEmpty() and cc.attrs.bean.isCurrentPageLast()}">
+						<ui:fragment rendered="#{!cc.attrs.bean.paginationData.isResultSetEmpty() and cc.attrs.bean.paginationData.isCurrentPageLast()}">
 							<li class="disabled">
 								<a href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">Next</span></a>
 							</li>
 						</ui:fragment>
-						<ui:fragment rendered="#{!cc.attrs.bean.isCurrentPageLast()}">
+						<ui:fragment rendered="#{!cc.attrs.bean.paginationData.isCurrentPageLast()}">
 							<li>
 								<p:commandLink 
 									process="@this"
-								    action="#{cc.attrs.bean.goToNextPage()}"
+								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getNextPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Next">
 									<span aria-hidden="true">Next</span>

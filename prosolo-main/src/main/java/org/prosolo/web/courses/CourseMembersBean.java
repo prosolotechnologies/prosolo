@@ -27,7 +27,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.UserData;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.courses.util.pagination.PaginationData;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
