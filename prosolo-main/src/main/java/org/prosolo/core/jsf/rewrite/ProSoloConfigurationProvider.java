@@ -146,6 +146,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competences").to("/manage/competenceLibrary.xhtml"))
+				.addRule(Join.path("/manage/userGroups").to("/manage/users-groups.xhtml"))
+				.addRule(Join.path("/manage/students").to("/manage/students.xhtml"))
 				
 				//admin
 				.addRule(Join.path("/admin").to("/admin/users.xhtml"))
@@ -159,7 +161,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
 				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
-				.addRule(Join.path("/admin/analyticsSettings").to("/admin/analyticsSettings.xhtml"))
-				.addRule(Join.path("/admin/userGroups").to("/admin/admin-users-groups.xhtml"));
+				.addRule(Join.path("/admin/analyticsSettings").to("/admin/analyticsSettings.xhtml"));
 	}
 }

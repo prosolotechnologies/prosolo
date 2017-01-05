@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.users;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,6 +47,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void init(long groupId) {
 		this.groupId = groupId;
+		this.page = 1;
+		this.searchTerm = "";
 		loadUsers();
 		usersToRemoveFromGroup = new ArrayList<>();
 		usersToAddToGroup = new ArrayList<>();
@@ -55,7 +57,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 	public void updateGroupUsers() {
 		try {
 			userGroupManager.updateGroupUsers(groupId, usersToAddToGroup, usersToRemoveFromGroup);
-			//TODO reload data
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while updating group users");

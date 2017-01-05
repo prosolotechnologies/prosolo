@@ -110,6 +110,12 @@
 									outcome="/manage/credentialLibrary"
 									value="Library" />
 							</li>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'students' or util:getPagePath(view.viewId)  == 'users-groups' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('manage-students','mainmenu');"
+									outcome="/manage/students"
+									value="Students" />
+							</li>
 							<ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'credential-students' ? 'active' : ''}">

@@ -276,7 +276,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
 	public void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo) throws DbConnectionException {
+			List<Long> groupsToAddUserTo, long actorId, LearningContextData context) throws DbConnectionException {
 		try {
 			addUserToGroups(userId, groupsToAddUserTo);
 			removeUserFromGroups(userId, groupsToRemoveUserFrom);
@@ -334,7 +334,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				.setLong("groupId", groupId)
 				.setLong("userId", userId)
 				.uniqueResult();
-		return groupUser == null ? Optional.of(groupUser) : Optional.empty();
+		return groupUser != null ? Optional.of(groupUser) : Optional.empty();
 	}
 	
 	

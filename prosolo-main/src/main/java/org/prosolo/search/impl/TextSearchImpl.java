@@ -103,6 +103,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	private static final long serialVersionUID = -8919953696206394473L;
 	private static Logger logger = Logger.getLogger(TextSearchImpl.class);
 	
+	private static final int maxResults = 1000;
+	
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
 	@Inject private Competence1Manager compManager;
@@ -2167,28 +2169,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
 		
 		try {
-			int start = setStart(page, limit);
-			
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
-			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-					.field("name");
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
-			
-			SearchResponse sResponse = null;
-			
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
-					.setTypes(ESIndexTypes.USER_GROUP)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFrom(start).setSize(limit)
-					.addSort("name", SortOrder.ASC);
-			//System.out.println(srb.toString());
-			sResponse = srb.execute().actionGet();
+			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
 	
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -2207,6 +2188,64 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			logger.error(e);
 		}
 		return response;
+	}
+	
+	@Override
+	@Transactional
+	public TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+			String searchString, long userId, int page, int limit) {
+		
+		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		
+		try {
+			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
+	
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+			
+				for (SearchHit hit : sResponse.getHits()) {
+					logger.info("ID: " + hit.getSource().get("id"));
+					long id = Long.parseLong(hit.getSource().get("id").toString());
+					String name = (String) hit.getSource().get("name");
+					boolean isUserInAGroup = userGroupManager.isUserInGroup(id, userId);
+					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+					UserGroupData group = new UserGroupData(id, name, userCount, isUserInAGroup);
+					response.addFoundNode(group);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return response;
+	}
+	
+	private SearchResponse getUserGroupsSearchResponse(String searchString, int page, int limit) {
+		int start = 0;
+		int size = maxResults;
+		if(limit > 0) {
+			start = setStart(page, limit);
+			size = limit;
+		}
+		
+		Client client = ElasticSearchFactory.getClient();
+		esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+		
+		QueryBuilder qb = QueryBuilders
+				.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+				.field("name");
+		
+		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+		bQueryBuilder.should(qb);
+		
+		SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+				.setTypes(ESIndexTypes.USER_GROUP)
+				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+				.setQuery(bQueryBuilder)
+				.setFrom(start).setSize(size)
+				.addSort("name", SortOrder.ASC);
+		//System.out.println(srb.toString());
+		return srb.execute().actionGet();
 	}
 	
 	@Override
@@ -2274,4 +2313,5 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		}
 		return response;
 	}
+
 }

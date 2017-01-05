@@ -11,6 +11,7 @@ public class UserGroupData implements Serializable {
 	private String name;
 	private long userCount;
 	private List<UserData> users;
+	private boolean isUserInGroup;
 	
 	public UserGroupData() {
 		
@@ -20,6 +21,13 @@ public class UserGroupData implements Serializable {
 		this.id = id;
 		this.name = name;
 		this.userCount = userCount;
+	}
+	
+	public UserGroupData(long id, String name, long userCount, boolean isUserInGroup) {
+		this.id = id;
+		this.name = name;
+		this.userCount = userCount;
+		this.isUserInGroup = isUserInGroup;
 	}
 	
 	public long getId() {
@@ -49,6 +57,14 @@ public class UserGroupData implements Serializable {
 
 	public void setUserCount(long userCount) {
 		this.userCount = userCount;
+	}
+
+	public boolean isUserInGroup() {
+		return isUserInGroup;
+	}
+
+	public void setUserInGroup(boolean isUserInGroup) {
+		this.isUserInGroup = isUserInGroup;
 	}
 	
 }

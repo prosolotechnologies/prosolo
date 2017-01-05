@@ -40,7 +40,7 @@ public interface UserGroupManager extends AbstractManager {
 	void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 	
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo) throws DbConnectionException;
+			List<Long> groupsToAddUserTo, long actorId, LearningContextData context) throws DbConnectionException;
 	
 	long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException;
 	

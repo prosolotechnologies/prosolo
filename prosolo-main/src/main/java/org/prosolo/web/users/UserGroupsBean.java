@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.users;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class UserGroupsBean implements Serializable, Paginable {
 	private String searchTerm = "";
 	private int groupsNumber;
 	private int page = 1;
-	private int limit = 3;
+	private int limit = 10;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
 
@@ -156,6 +156,11 @@ public class UserGroupsBean implements Serializable, Paginable {
 			logger.error(ex);
 			PageUtil.fireErrorMessage("Error while trying to delete group " + groupForEdit.getName());
 		}
+	}
+	
+	public void updateGroupUsers() {
+		groupUsersBean.updateGroupUsers();
+		loadGroupsFromDB();
 	}
 
 	public void loadGroups() {

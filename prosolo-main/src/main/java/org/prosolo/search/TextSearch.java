@@ -141,6 +141,9 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<UserGroupData> searchUserGroups (
 			String searchString, int page, int limit);
 	
+	TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+			String searchString, long userId, int page, int limit);
+	
 	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
 			String searchTerm, int page, int limit, long groupId);
 	
