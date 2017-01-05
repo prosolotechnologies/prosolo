@@ -144,7 +144,7 @@
 							<span class="fromLabel">From:</span>
 							<div class="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
-									aria-expanded="true"> #{otherAssessment.assessorFullName != null ? otherAssessment.assessorFullName : 'Default assessment'} <span class="arrowDown">arrowDown</span>
+									aria-expanded="true"> #{cc.attrs.bean.fullAssessmentData.assessorFullName != null ? cc.attrs.bean.fullAssessmentData.assessorFullName : 'Default assessment'} <span class="arrowDown">arrowDown</span>
 								</a>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
 									<ui:repeat value="#{cc.attrs.bean.otherAssessments}" var="otherAssessment">
