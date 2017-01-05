@@ -3,11 +3,14 @@ package org.prosolo.web.courses.credential;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -405,8 +408,23 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 			
+			// creating a set as there might be duplicates with ids
+			Set<Long> participantIds = new HashSet<>();
+			
+			// adding the student as a participant
+			participantIds.add(fullAssessmentData.getAssessedStrudentId());
+			
+			// adding the logged in user (the message poster) as a participant. It can happen that some other user, 
+			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+			participantIds.add(loggedUserBean.getUserId());
+			
+			// if assessor is set, add him to the discussion
+			if (fullAssessmentData.getAssessorId() > 0) {
+				participantIds.add(fullAssessmentData.getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(loggedUserBean.getUserId(), fullAssessmentData.getAssessedStrudentId()),
+					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
