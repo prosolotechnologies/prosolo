@@ -23,6 +23,21 @@ public class PageUtil {
 		return contextParameters.get(parameterName);
 	}
 	
+	public static String getGetParameter(String parameterName) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		return params.get(parameterName);
+	}
+	
+	public static int getGetParameterAsInteger(String parameterName) {
+		String param = getGetParameter(parameterName);
+		
+		try {
+			return Integer.parseInt(param);
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+	
 	public static void fireSuccessfulInfoMessage(String description) {
 		fireSuccessfulInfoMessage(null, description);
 	}

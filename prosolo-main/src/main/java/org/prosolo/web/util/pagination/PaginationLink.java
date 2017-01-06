@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.util.pagination;
+package org.prosolo.web.util.pagination;
 
 public class PaginationLink {
 

@@ -1,61 +1,73 @@
-package org.prosolo.web.courses.util.pagination;
+package org.prosolo.web.util.pagination;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class Paginator {
+public class PaginationData {
 
 	private int numberOfResults;
 	private int limit;
-	private int currentPage;
+	private int page;
 	private boolean generateAllLinks;
 	// default is 1
 	private int numberOfLinksArroundCurrent = 1;
 	private String missingLinksOutput = "...";
 	private int numberOfPages;
-
-	public Paginator(int numberOfResults, int limit, int currentPage,
-			int numberOfLinksArroundCurrent, String missingLinksOutput) {
-		this.numberOfResults = numberOfResults;
+	
+	private List<PaginationLink> links;
+	
+	public PaginationData() {
+		this.limit = 10;
+		this.page = 1;
+		this.generateAllLinks = false;
+		this.numberOfLinksArroundCurrent = 1;
+		update(numberOfResults);
+	}
+	
+	public PaginationData(int numberOfResults, int limit, int page,
+			boolean generateAllLinks, int numberOfLinksArroundCurrent, String missingLinksOutput) {
 		this.limit = limit;
-		this.currentPage = currentPage;
+		this.page = page;
+		this.generateAllLinks = generateAllLinks;
 		this.numberOfLinksArroundCurrent = numberOfLinksArroundCurrent;
 		this.missingLinksOutput = missingLinksOutput;
-		this.numberOfPages = (int) Math.ceil((double) this.numberOfResults / this.limit);
+		update(numberOfResults);
 	}
-
-	public Paginator(int numberOfResults, int limit, int currentPage, boolean generateAllLinks,
-			String missingLinksOutput) {
-		this.numberOfResults = numberOfResults;
+	
+	public PaginationData(int limit) {
+		this();
 		this.limit = limit;
-		this.currentPage = currentPage;
-		this.generateAllLinks = generateAllLinks;
-		this.missingLinksOutput = missingLinksOutput;
-		this.numberOfPages = (int) Math.ceil((double) this.numberOfResults / this.limit);
+		update(numberOfResults);
 	}
 
-	public List<PaginationLink> generatePaginationLinks() {
-		List<PaginationLink> result = new LinkedList<>();
+	public void update(int numberOfResults) {
+		this.numberOfResults = numberOfResults;
+		this.numberOfPages = (int) Math.ceil((double) this.numberOfResults / this.limit);
+		generatePaginationLinks();
+	}
+
+	private void generatePaginationLinks() {
+		this.links = new LinkedList<>();
 
 		if (generateAllLinks) {
 			for (int i = 1; i <= numberOfPages; i++) {
-				boolean selected = currentPage == i;
+				boolean selected = page == i;
 				PaginationLink link = new PaginationLink(i, i + "", selected, true);
-				result.add(link);
+				this.links.add(link);
 			}
 		} else {
-			int start = currentPage - numberOfLinksArroundCurrent;
+			int start = page - numberOfLinksArroundCurrent;
 			// <= 2 because link for first page should always be generated
 			// so we shouldn't generate "..."
 			if (start <= 2) {
 				start = 1;
 			} else if (start > 2) {
 				PaginationLink firstPage = new PaginationLink(1, 1 + "", false, true);
-				result.add(firstPage);
+				this.links.add(firstPage);
 				PaginationLink link = new PaginationLink(0, missingLinksOutput, false, false);
-				result.add(link);
+				this.links.add(link);
 			}
-			int upperBound = currentPage + numberOfLinksArroundCurrent;
+			int upperBound = page + numberOfLinksArroundCurrent;
 			// >= numberOfPages - 1 because last page link should always be
 			// generated
 			if (upperBound >= numberOfPages - 1) {
@@ -63,21 +75,47 @@ public class Paginator {
 			}
 
 			for (int i = start; i <= upperBound; i++) {
-				boolean selected = currentPage == i;
+				boolean selected = page == i;
 				PaginationLink link = new PaginationLink(i, i + "", selected, true);
-				result.add(link);
+				this.links.add(link);
 			}
 
 			if (upperBound < numberOfPages - 1) {
 				PaginationLink link = new PaginationLink(0, missingLinksOutput, false, false);
-				result.add(link);
+				this.links.add(link);
 				PaginationLink lastPage = new PaginationLink(numberOfPages, numberOfPages + "", false, true);
-				result.add(lastPage);
-
+				this.links.add(lastPage);
 			}
 		}
-		return result;
 	}
+	
+	public boolean isCurrentPageFirst() {
+		return page == 1 || numberOfPages == 0;
+	}
+	
+	public boolean isCurrentPageLast() {
+		return page == numberOfPages || numberOfPages == 0;
+	}
+	
+	public boolean isResultSetEmpty() {
+		return numberOfResults == 0;
+	}
+	
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
+	
+	public int getNextPage() {
+		return page + 1;
+	}
+	
+	public int getPreviousPage() {
+		return page - 1;
+	}
+	
+	/*
+	 * GETTERS / SETTERS
+	 */
 
 	public int getNumberOfResults() {
 		return numberOfResults;
@@ -91,40 +129,24 @@ public class Paginator {
 		return limit;
 	}
 
-	public void setLimit(int limit) {
-		this.limit = limit;
+	public int getPage() {
+		return page;
 	}
 
-	public int getCurrentPage() {
-		return currentPage;
-	}
-
-	public void setCurrentPage(int currentPage) {
-		this.currentPage = currentPage;
+	public void setPage(int page) {
+		this.page = page;
 	}
 
 	public boolean isGenerateAllLinks() {
 		return generateAllLinks;
 	}
 
-	public void setGenerateAllLinks(boolean generateAllLinks) {
-		this.generateAllLinks = generateAllLinks;
-	}
-
 	public int getNumberOfLinksArrountCurrent() {
 		return numberOfLinksArroundCurrent;
 	}
 
-	public void setNumberOfLinksArrountCurrent(int numberOfLinksArrountCurrent) {
-		this.numberOfLinksArroundCurrent = numberOfLinksArrountCurrent;
-	}
-
 	public String getMissingLinksOutput() {
 		return missingLinksOutput;
-	}
-
-	public void setMissingLinksOutput(String missingLinksOutput) {
-		this.missingLinksOutput = missingLinksOutput;
 	}
 
 	public int getNumberOfPages() {
@@ -133,6 +155,10 @@ public class Paginator {
 
 	public void setNumberOfPages(int numberOfPages) {
 		this.numberOfPages = numberOfPages;
+	}
+
+	public List<PaginationLink> getLinks() {
+		return links;
 	}
 
 }

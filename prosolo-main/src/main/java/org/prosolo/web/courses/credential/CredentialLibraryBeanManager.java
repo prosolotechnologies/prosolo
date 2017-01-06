@@ -14,21 +14,20 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -50,13 +49,9 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	//search
 	private String searchTerm = "";
-	private int credentialsNumber;
-	private int page = 1;
-	private int limit = 10;
 	private CredentialSearchFilter searchFilter = CredentialSearchFilter.ALL;
 	private CredentialSortOption sortOption = CredentialSortOption.ALPHABETICALLY;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	private PaginationData paginationData = new PaginationData();
 	
 	private CredentialSortOption[] sortOptions;
 	private CredentialSearchFilter[] searchFilters;
@@ -82,7 +77,6 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	public void searchCredentials(boolean userSearch) {
 		try {
 			getCredentialSearchResults();
-			generatePagination();
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
@@ -104,77 +98,35 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentials(true);
-	}
-
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(credentialsNumber, limit, page, 
-				1, "...");
-		//if we want to genearte all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-		logger.info("Number of pages for credential search: " + numberOfPages);
 	}
 
 	public void getCredentialSearchResults() {
 		TextSearchResponse1<CredentialData> response = textSearch.searchCredentialsForManager(
-				searchTerm, page - 1, limit, loggedUserBean.getUserId(), searchFilter, sortOption);
-		credentialsNumber = (int) response.getHitsNumber();
+				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
+		this.paginationData.update((int) response.getHitsNumber());
 	}
 	
 	public void applySearchFilter(CredentialSearchFilter filter) {
 		this.searchFilter = filter;
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
 	public void applySortOption(CredentialSortOption sortOption) {
 		this.sortOption = sortOption;
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
-	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if (this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			searchCredentials(true);
 		}
-	}
-	
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-	
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-	
-	@Override
-	public boolean isResultSetEmpty() {
-		return credentialsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 	
 	/*
@@ -220,12 +172,8 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		this.sortOption = sortOption;
 	}
 
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public void setCredentials(List<CredentialData> credentials) {
