@@ -381,7 +381,7 @@
 															</div>
 														</div>
 													</div> 
-													<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
+													<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
 														<p:commandLink 
 										                 	styleClass="grade gradeModalLink_#{activityAssessment.activityId}" 
 										                 	pt:data-toggle="modal" data-target="#assessmentGradeModal1"
