@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -19,9 +20,14 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +39,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Inject
 	private CredentialManager credentialManager;
+	@Inject
+	private UserGroupManager userGroupManager;
 	
 	@Override
 	@Transactional
@@ -76,6 +84,39 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			for(CredentialBookmark cb : bookmarks) {
 				builder.startObject();
 				builder.field("id", cb.getUser().getId());
+				builder.endObject();
+			}
+			builder.endArray();
+			List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
+					cred.getId());
+			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
+					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
+			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
+					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+			builder.startArray("usersWithEditPrivilege");
+			for(CredentialUserGroup g : editGroups) {
+				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+					builder.startObject();
+					builder.field("id", user.getUser().getId());
+					builder.endObject();
+				}
+			}
+			builder.endArray();
+			builder.startArray("usersWithViewPrivilege");
+			for(CredentialUserGroup g : viewGroups) {
+				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+					builder.startObject();
+					builder.field("id", user.getUser().getId());
+					builder.endObject();
+				}
+			}
+			builder.endArray();
+			List<TargetCredential1> targetCreds = credentialManager.getTargetCredentialsForCredential(
+					cred.getId(), false);
+			builder.startArray("students");
+			for(TargetCredential1 tc : targetCreds) {
+				builder.startObject();
+				builder.field("id", tc.getUser().getId());
 				builder.endObject();
 			}
 			builder.endArray();
@@ -162,6 +203,70 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			Map<String, Object> param = new HashMap<>();
 			param.put("id", userId + "");
 			params.put("bookmark", param);
+			
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
+					credId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addUserToCredentialIndex(long credId, long userId, UserGroupPrivilege privilege) {
+		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
+		String script = "if (ctx._source[\"" + field + "\"] == null) { " +
+				"ctx._source." + field + " = user " +
+				"} else { " +
+				"ctx._source." + field + " += user " +
+				"}";
+		updateCredentialUsers(credId, userId, script);
+	}
+	
+	@Override
+	public void removeUserFromCredentialIndex(long credId, long userId, UserGroupPrivilege privilege) {
+		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
+		String script = "ctx._source." + field + " -= user";
+		updateCredentialUsers(credId, userId, script);
+	}
+	
+	private void updateCredentialUsers(long credId, long userId, String script) {
+		try {
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", userId + "");
+			params.put("user", param);
+			
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
+					credId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addStudentToCredentialIndex(long credId, long userId) {
+		String script = "if (ctx._source[\"students\"] == null) { " +
+				"ctx._source.students = student " +
+				"} else { " +
+				"ctx._source.students += student " +
+				"}";
+		updateCredentialStudents(credId, userId, script);
+	}
+	
+	@Override
+	public void removeStudentFromCredentialIndex(long credId, long userId) {
+		String script = "ctx._source.students -= student";
+		updateCredentialStudents(credId, userId, script);
+	}
+	
+	private void updateCredentialStudents(long credId, long userId, String script) {
+		try {
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", userId + "");
+			params.put("student", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
 					credId+"", script, params);

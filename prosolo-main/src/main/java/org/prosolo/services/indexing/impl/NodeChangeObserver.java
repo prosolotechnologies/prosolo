@@ -52,7 +52,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ACTIVATE_COURSE,
 			EventType.Bookmark,
 			EventType.RemoveBookmark,
-			EventType.ChangeProgress
+			EventType.ChangeProgress,
+			EventType.ADD_USER_TO_GROUP,
+			EventType.REMOVE_USER_FROM_GROUP
 		};
 	}
 

@@ -8,9 +8,12 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.web.LoggedUserBean;
@@ -31,6 +34,7 @@ public class UsersGroupsBean implements Serializable {
 	@Inject private TextSearch textSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private EventFactory eventFactory;
 	
 	private UserData user;
 	private List<UserGroupData> groups;
@@ -84,12 +88,27 @@ public class UsersGroupsBean implements Serializable {
 
 	public void saveUserGroups() {
 		try {
+			userGroupManager.updateUserParticipationInGroups(user.getId(), groupsToRemoveUserFrom, 
+					groupsToAddUserTo);
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, lContext, service);
-			userGroupManager.updateUserParticipationInGroups(user.getId(), groupsToRemoveUserFrom, 
-					groupsToAddUserTo, loggedUserBean.getUserId(), lcd);
+			User user = new User();
+			user.setId(user.getId());
+			for(long id : groupsToAddUserTo) {
+				UserGroup group = new UserGroup();
+				group.setId(id);
+				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserId(), 
+						user, group, page, lContext,
+						service, null);
+			}
+			for(long id : groupsToRemoveUserFrom) {
+				UserGroup group = new UserGroup();
+				group.setId(id);
+				eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(), 
+						user, group, page, lContext,
+						service, null);
+			}
 			PageUtil.fireSuccessfulInfoMessage("User groups successfully updated");
 		} catch (Exception ex) {
 			logger.error(ex);

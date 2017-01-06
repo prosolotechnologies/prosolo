@@ -8,10 +8,15 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserSelectionData;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.util.pagination.Paginable;
 import org.prosolo.web.courses.util.pagination.PaginationLink;
 import org.prosolo.web.courses.util.pagination.Paginator;
@@ -30,6 +35,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	@Inject private TextSearch textSearch;
 	@Inject private UserGroupManager userGroupManager;
+	@Inject private EventFactory eventFactory;
+	@Inject private LoggedUserBean loggedUserBean;
 	
 	private List<UserSelectionData> users;
 	private List<Long> usersToRemoveFromGroup;
@@ -57,6 +64,25 @@ public class GroupUsersBean implements Serializable, Paginable {
 	public void updateGroupUsers() {
 		try {
 			userGroupManager.updateGroupUsers(groupId, usersToAddToGroup, usersToRemoveFromGroup);
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			UserGroup group = new UserGroup();
+			group.setId(groupId);
+			for(long id : usersToAddToGroup) {
+				User user = new User();
+				user.setId(id);
+				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserId(), 
+						user, group, page, lContext,
+						service, null);
+			}
+			for(long id : usersToRemoveFromGroup) {
+				User user = new User();
+				user.setId(id);
+				eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(), 
+						user, group, page, lContext,
+						service, null);
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while updating group users");

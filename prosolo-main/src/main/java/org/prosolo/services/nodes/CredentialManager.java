@@ -321,4 +321,7 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	List<Credential1> getAllCredentials(Session session) throws DbConnectionException;
+	
+	List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
+			boolean justUncompleted) throws DbConnectionException;
 }

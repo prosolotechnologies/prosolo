@@ -1282,9 +1282,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Transactional(readOnly = true)
-	private List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
-			boolean justUncompleted) 
-			throws DbConnectionException {
+	@Override
+	public List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
+			boolean justUncompleted) throws DbConnectionException {
 		try {		
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 					credentialId);

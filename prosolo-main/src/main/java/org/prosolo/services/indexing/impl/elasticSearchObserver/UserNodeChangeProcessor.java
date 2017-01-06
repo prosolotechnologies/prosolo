@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.ChangeProgressEvent;
 import org.prosolo.services.event.Event;
+import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
 
 public class UserNodeChangeProcessor implements NodeChangeProcessor {
@@ -21,13 +22,15 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private Event event;
 	private Session session;
 	private UserEntityESService userEntityESService;
+	private CredentialESService credESService;
 	private EventUserRole userRole;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			EventUserRole userRole) {
+			CredentialESService credESService, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;
+		this.credESService = credESService;
 		this.userRole = userRole;
 	}
 	
@@ -46,6 +49,8 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					event.getActorId(), 
 					instructorId, 
 					dateEnrolledString);
+			//add student to credential index
+			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {

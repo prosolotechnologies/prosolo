@@ -16,6 +16,7 @@ import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.indexing.UserGroupESService;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +32,8 @@ public class NodeChangeProcessorFactory {
 	private CompetenceESService competenceESService;
 	@Inject
 	private UserGroupESService userGroupESService;
+	@Inject
+	private UserGroupManager userGroupManager;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -43,7 +46,7 @@ public class NodeChangeProcessorFactory {
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
-						 EventUserRole.Subject);
+						 credentialESService, EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
@@ -56,9 +59,11 @@ public class NodeChangeProcessorFactory {
 			case USER_ROLES_UPDATED:
 			case INSTRUCTOR_REMOVED_FROM_COURSE:
 				if (node instanceof User) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Object);
+					return new UserNodeChangeProcessor(event, session, userEntityESService, 
+							credentialESService, EventUserRole.Object);
 				} else if (node instanceof TargetLearningGoal) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
+					return new UserNodeChangeProcessor(event, session, userEntityESService, 
+							credentialESService, EventUserRole.Subject);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {
@@ -76,13 +81,8 @@ public class NodeChangeProcessorFactory {
 					}
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
-					NodeOperation operation = null;
-					if(type == EventType.Create) {
-						operation = NodeOperation.Save;
-					} else {
-						operation = NodeOperation.Update;
-					}
-					return new UserGroupNodeChangeProcessor(event, userGroupESService, operation);
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
+							credentialESService, userGroupManager);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
@@ -96,7 +96,8 @@ public class NodeChangeProcessorFactory {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
 							NodeOperation.Delete, session);
 				} else if(node instanceof UserGroup) {
-					return new UserGroupNodeChangeProcessor(event, userGroupESService, NodeOperation.Delete);
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
+							credentialESService, userGroupManager);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -108,6 +109,10 @@ public class NodeChangeProcessorFactory {
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
 			case RemoveBookmark:
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
+			case ADD_USER_TO_GROUP:
+			case REMOVE_USER_FROM_GROUP:
+				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
+						userGroupManager);
 			default:
 				return null;
 		}

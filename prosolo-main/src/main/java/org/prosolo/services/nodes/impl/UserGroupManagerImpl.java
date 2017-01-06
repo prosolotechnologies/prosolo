@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
@@ -276,7 +277,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
 	public void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo, long actorId, LearningContextData context) throws DbConnectionException {
+			List<Long> groupsToAddUserTo) throws DbConnectionException {
 		try {
 			addUserToGroups(userId, groupsToAddUserTo);
 			removeUserFromGroups(userId, groupsToRemoveUserFrom);
@@ -322,6 +323,45 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while checking if user belongs to a group");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<CredentialUserGroup> getCredentialUserGroups(long groupId) throws DbConnectionException {
+    	try {
+    		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
+				   	   "WHERE credGroup.userGroup.id = :groupId";
+			@SuppressWarnings("unchecked")
+			List<CredentialUserGroup> credGroups = persistence.currentManager()
+					.createQuery(query)
+					.setLong("groupId", groupId)
+					.list();
+			return credGroups == null ? new ArrayList<>() : credGroups;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving credential groups");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<CredentialUserGroup> getAllCredentialUserGroups(long credId) 
+    		throws DbConnectionException {
+    	try {
+    		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
+				   	   "WHERE credGroup.credential.id = :credId";
+			@SuppressWarnings("unchecked")
+			List<CredentialUserGroup> credGroups = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.list();
+			return credGroups == null ? new ArrayList<>() : credGroups;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving credential groups");
     	}
     }
 	

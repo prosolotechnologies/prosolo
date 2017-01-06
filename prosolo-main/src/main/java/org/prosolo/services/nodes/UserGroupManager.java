@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
@@ -40,10 +41,14 @@ public interface UserGroupManager extends AbstractManager {
 	void removeUserFromGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 	
 	void updateUserParticipationInGroups(long userId, List<Long> groupsToRemoveUserFrom, 
-			List<Long> groupsToAddUserTo, long actorId, LearningContextData context) throws DbConnectionException;
+			List<Long> groupsToAddUserTo) throws DbConnectionException;
 	
 	long getNumberOfUsersInAGroup(long groupId) throws DbConnectionException;
 	
 	boolean isUserInGroup(long groupId, long userId) throws DbConnectionException;
+	
+	List<CredentialUserGroup> getCredentialUserGroups(long groupId) throws DbConnectionException;
+	
+	List<CredentialUserGroup> getAllCredentialUserGroups(long credId) throws DbConnectionException;
 
 }
