@@ -11,10 +11,13 @@
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
+		<composite:attribute name="updateUrl" default="true"/>
 		<composite:attribute name="toUpdate" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
+		<script	src="#{request.contextPath}/resources/javascript2/pageutil.js"></script>
+	
 		<div id="#{cc.clientId}">
 			<ui:fragment rendered="#{cc.attrs.bean.paginationData.shouldBeDisplayed()}">
 				<nav class="paginationWrapper">
@@ -30,6 +33,7 @@
 							<li>
 								<p:commandLink 
 									process="@this"
+									onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{cc.attrs.bean.paginationData.getPreviousPage()}')"
 								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getPreviousPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Previous">
@@ -42,6 +46,7 @@
 								<li class="#{link.selected ? 'active' : ''}">
 									<p:commandLink
 								     	process="@this"
+								     	onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{link.page}')"
 								    	action="#{cc.attrs.bean.changePage(link.page)}"
 								    	update="#{cc.attrs.toUpdate} :#{cc.clientId}">
 								    	#{link.linkOutput}
@@ -62,6 +67,7 @@
 							<li>
 								<p:commandLink 
 									process="@this"
+									onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{cc.attrs.bean.paginationData.getNextPage()}')"
 								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getNextPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Next">

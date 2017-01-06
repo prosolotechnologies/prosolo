@@ -14,10 +14,10 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationData;
 import org.prosolo.web.notification.data.FilterNotificationType;
 import org.prosolo.web.notification.data.NotificationTypeFilter;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
