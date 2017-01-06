@@ -23,6 +23,7 @@
 		<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
 		<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
 		<f:viewParam name="user" default="null"/>
+		<f:viewParam name="page" value="#{activityResultsBeanManager.paginationData.page}" default="1"/>
 		<f:viewAction action="#{activityResultsBeanManager.init()}" />
 	</f:metadata>
 </ui:define>

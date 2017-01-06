@@ -16,6 +16,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
+			<f:viewParam name="page" value="#{peopleBean.paginationData.page}" default="1" />
 			<f:viewAction action="#{peopleBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -77,6 +78,7 @@
 						
 						<utilcomp:pagination id="pagination" 
 							bean="#{peopleBean}"
+							updateUrl="true"
 							toUpdate=":formMainFollowingUsers:panelFollowingUsers" />
 					</h:panelGroup>
 					

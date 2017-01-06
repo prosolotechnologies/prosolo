@@ -16,6 +16,7 @@ import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.notification.data.FilterNotificationType;
 import org.prosolo.web.notification.data.NotificationTypeFilter;
+import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
@@ -45,6 +46,8 @@ public class NotificationBean implements Serializable, Paginable {
 			filters.add(f);
 			notificationTypes.add(filterEnum.getType());
 		}
+		int page = PageUtil.getGetParameterAsInteger("page");
+		this.paginationData.setPage(page == 0 ? 1 : page);
 		loadNotifications(true);
 	}
 	

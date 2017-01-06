@@ -15,6 +15,7 @@
 
 <ui:define name="metadata">
 	<f:metadata>
+		<f:viewParam name="page" value="#{adminUsers.paginationData.page}" default="1" />
 		<f:viewParam name="role" value="#{adminUsers.roleId}" default="null" />
 		<f:viewAction action="#{adminUsers.init()}" />
 	</f:metadata>
@@ -146,10 +147,11 @@
             </h:panelGroup>
         </div>
 
-        <utilcomp:pagination
-				id="pagination" 
-				bean="#{adminUsers}"
-				toUpdate=":panelUsers" />
+		<utilcomp:pagination
+			id="pagination" 
+			bean="#{adminUsers}"
+			updateUrl="true"
+			toUpdate=":panelUsers" />
     </div>
 
 	<h:form id="formLoginAs">
