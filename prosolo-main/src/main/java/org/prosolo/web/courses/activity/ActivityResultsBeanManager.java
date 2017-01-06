@@ -3,11 +3,13 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -40,6 +42,8 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import com.google.api.client.util.Lists;
 
 @ManagedBean(name = "activityResultsBeanManager")
 @Component("activityResultsBeanManager")
@@ -319,9 +323,23 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
 		try {
+			// creating a set as there might be duplicates with ids
+			Set<Long> participantIds = new HashSet<>();
+			
+			// adding the student as a participant
+			participantIds.add(currentResult.getUser().getId());
+			
+			// adding the logged in user (the message poster) as a participant. It can happen that some other user, 
+			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+			participantIds.add(loggedUserBean.getUserId());
+			
+			// if assessor is set, add him to the discussion
+			if (currentResult.getAssessment().getAssessorId() > 0) {
+				participantIds.add(currentResult.getAssessment().getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(currentResult.getAssessment().getAssessorId(), 
-							currentResult.getUser().getId()),
+					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), true,  
 					currentResult.getAssessment().getGrade().getValue()).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {

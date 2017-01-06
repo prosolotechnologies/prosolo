@@ -115,4 +115,12 @@ public interface AssessmentManager {
 	 */
 	boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId);
 
+	/**
+	 * Returns ids of all participant in the activity assessment discussion.
+	 * 
+	 * @param actualDiscussionId
+	 * @return list of participant ids
+	 */
+	List<Long> getParticipantIds(long activityAssessmentId);
+
 }

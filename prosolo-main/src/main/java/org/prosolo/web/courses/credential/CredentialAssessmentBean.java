@@ -3,11 +3,14 @@ package org.prosolo.web.courses.credential;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -318,18 +321,23 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
+	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
 					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, getCommentRecepientId(),
-					fullAssessmentData.getCredentialId());
-
+			
+			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
+			for (Long userId : participantIds) {
+				if (userId != loggedUserBean.getUserId()) {
+					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId,
+							fullAssessmentData.getCredentialId());
+				}
+			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -393,8 +401,24 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
+			
+			// creating a set as there might be duplicates with ids
+			Set<Long> participantIds = new HashSet<>();
+			
+			// adding the student as a participant
+			participantIds.add(fullAssessmentData.getAssessedStrudentId());
+			
+			// adding the logged in user (the message poster) as a participant. It can happen that some other user, 
+			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+			participantIds.add(loggedUserBean.getUserId());
+			
+			// if assessor is set, add him to the discussion
+			if (fullAssessmentData.getAssessorId() > 0) {
+				participantIds.add(fullAssessmentData.getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
+					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
