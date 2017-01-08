@@ -33,7 +33,7 @@
 							<li>
 								<p:commandLink 
 									process="@this"
-									onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{cc.attrs.bean.paginationData.getPreviousPage()}')"
+									onclick="if(#{cc.attrs.updateUrl})setQueryParam('p', '#{cc.attrs.bean.paginationData.getPreviousPage()}')"
 								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getPreviousPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Previous">
@@ -46,7 +46,7 @@
 								<li class="#{link.selected ? 'active' : ''}">
 									<p:commandLink
 								     	process="@this"
-								     	onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{link.page}')"
+								     	onclick="if(#{cc.attrs.updateUrl})setQueryParam('p', '#{link.page}')"
 								    	action="#{cc.attrs.bean.changePage(link.page)}"
 								    	update="#{cc.attrs.toUpdate} :#{cc.clientId}">
 								    	#{link.linkOutput}
@@ -67,7 +67,7 @@
 							<li>
 								<p:commandLink 
 									process="@this"
-									onclick="if(#{cc.attrs.updateUrl})setQueryParam('page', '#{cc.attrs.bean.paginationData.getNextPage()}')"
+									onclick="if(#{cc.attrs.updateUrl})setQueryParam('p', '#{cc.attrs.bean.paginationData.getNextPage()}')"
 								    action="#{cc.attrs.bean.changePage(cc.attrs.bean.paginationData.getNextPage())}"
 								    update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 									pt:aria-label="Next">

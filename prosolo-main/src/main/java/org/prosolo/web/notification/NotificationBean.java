@@ -46,7 +46,7 @@ public class NotificationBean implements Serializable, Paginable {
 			filters.add(f);
 			notificationTypes.add(filterEnum.getType());
 		}
-		int page = PageUtil.getGetParameterAsInteger("page");
+		int page = PageUtil.getGetParameterAsInteger("p");
 		this.paginationData.setPage(page == 0 ? 1 : page);
 		loadNotifications(true);
 	}
