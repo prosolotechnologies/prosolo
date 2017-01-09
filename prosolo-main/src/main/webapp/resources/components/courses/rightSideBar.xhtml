@@ -21,6 +21,8 @@
 		<composite:attribute name="toUpdate" required="true" />
 		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
 		<composite:attribute name="linkPreviewClass" required="true" />
+		<composite:attribute name="resource" required="true" /> <!-- Should be either CREDENTIAL or COMPETENCE -->
+		<composite:attribute name="role" required="true" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -83,8 +85,36 @@
 					<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 					Save changes
 				</p:commandLink>
+				<ui:fragment rendered="#{cc.attrs.resource == 'CREDENTIAL' and cc.attrs.role == 'MANAGER'}">
+					<a href="#" data-toggle="modal" data-target="#duplicateCred">Duplicate</a>
+				</ui:fragment>
 				<a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>      
 			</div>
 		</div>
+		
+		<ui:fragment rendered="#{cc.attrs.resource == 'CREDENTIAL' and cc.attrs.role == 'MANAGER'}">
+			<div class="modal fade" id="duplicateCred" tabindex="-1" role="dialog" aria-labelledby="duplicateCredential">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+							<h2 class="modal-title" id="duplicateCredential">Duplicate Credential?</h2>
+						</div>
+						<div class="modal-body">
+							<p>You will create a new credential with the same structure as the original one in terms of competences and activities. The new credential will be empty in terms of students, student results, comments and assessments.</p>
+						</div>
+						<div class="modal-footer">
+							<p:commandLink styleClass="btn btn-green"
+								value="Duplicate Credential"
+								action="#{credentialEditBean.duplicate()}"
+								process="@this"
+							/>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</ui:fragment>
+		
 	</composite:implementation>
 </ui:component>
