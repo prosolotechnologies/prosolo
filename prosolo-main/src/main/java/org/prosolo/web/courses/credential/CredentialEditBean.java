@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
@@ -34,6 +35,7 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.factory.CredentialCloneFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
@@ -53,6 +55,7 @@ public class CredentialEditBean implements Serializable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
+	@Inject private CredentialCloneFactory credentialCloneFactory;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private TextSearch textSearch;
 	@Inject private Activity1Manager activityManager;
@@ -248,6 +251,13 @@ public class CredentialEditBean implements Serializable {
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+	}
+	
+	public void duplicate() {
+		long credCopyId = credentialCloneFactory.clone(credentialData.getId());
+		
+		// if we enable Duplicate button for the regular user (and not just Manager), path should be changed
+		PageUtil.redirect(CommonSettings.getInstance().config.appConfig.domain + "manage/credentials/" + idEncoder.encodeId(credCopyId) + "/edit");
 	}
 	
 	public void searchCompetences() {

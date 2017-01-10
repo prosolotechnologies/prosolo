@@ -200,7 +200,9 @@
 			            		saveAction="#{competenceEditBean.save}"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 			            		previewAction="#{competenceEditBean.preview}"
-			            		linkPreviewClass="hiddenLinkPreview"/>
+			            		linkPreviewClass="hiddenLinkPreview"
+			            		resource="COMPETENCE"
+			            		role="#{cc.attrs.role}" />
 			            		
 			            	<h:link
 								style="display: none;"

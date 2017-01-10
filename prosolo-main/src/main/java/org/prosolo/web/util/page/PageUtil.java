@@ -89,8 +89,12 @@ public class PageUtil {
 	}
 
 	public static void redirectToLoginPage() {
+		redirect("login?faces-redirect=true");
+	}
+	
+	public static void redirect(String url) {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect(url);
 		} catch (IOException e) {
 			logger.error(e);
 		}
