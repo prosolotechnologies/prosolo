@@ -15,23 +15,12 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<script>
 			function changeConversation(threadId) {
 				$('.messagesList li.active').removeClass('active');
 				$('.messagesList li[thread-id='+threadId+']').addClass('active');
 				setQueryParam('id', threadId);
-			}
-			
-			function handleTyping(id) {
-					var item = $("#messages\\:"+id)
-					if(item.val().length >= 3) {
-						$('#usersList').show();
-						return true;
-					}
-					//if we got some results, then backspaced back to, say, 2 letters, reset list
-					$('#usersList').empty();
-					$('#usersList').hide();
-					return false;
 			}
 			
 			function hideConfirmDialog(dialogId) {
@@ -306,15 +295,18 @@
 		          		<section class="whiteBox messagesPane">
 							<div id="messagePaneHead" class="messagePaneHead">
 								<div class="toBox">To:</div>
-								<h:inputText autocomplete="off"
-									onkeyup="return handleTyping('messageRecievingUserName')"
-									value="#{searchPeopleBean.query}" id="messageRecievingUserName"
-									name="messageRecievingUserName">
-									<p:ajax event="keyup" delay="200"
-										execute="messageRecievingUserName"
-										listener="#{searchPeopleBean.searchPeople()}"
-										update="usersListPanel" />
-								</h:inputText>
+								<h:inputText
+									onkeyup="searchListener(execSearchUsers);"
+									value="#{searchPeopleBean.query}" 
+									id="messageRecievingUserName"
+									name="messageRecievingUserName" />
+								
+								<p:remoteCommand 
+									name="execSearchUsers" 
+									process="messageRecievingUserName"
+									action="#{searchPeopleBean.searchPeople()}" 
+									update="usersListPanel"
+								/>
 								
 								<h:panelGroup id="usersListPanel">
 									<h:panelGroup rendered="#{searchPeopleBean.userSize > 0}">

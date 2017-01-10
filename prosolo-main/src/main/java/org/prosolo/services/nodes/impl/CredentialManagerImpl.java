@@ -2991,16 +2991,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String query = 
 				"SELECT user " +
 				"FROM TargetCredential1 tCred " +
-				"LEFT JOIN tCred.user user " +
+				"INNER JOIN tCred.user user " +
 				"WHERE tCred.credential.id = :credId " + 
 					"AND user.id != :userId " + 
 					"AND user.id NOT IN ( " +
 						"SELECT assessment.assessor.id " +
 						"FROM CredentialAssessment assessment " +
-						"LEFT JOIN assessment.targetCredential tCred " +
-						"LEFT JOIN tCred.credential cred " +
+						"INNER JOIN assessment.targetCredential tCred " +
+						"INNER JOIN tCred.credential cred " +
 						"WHERE assessment.assessedStudent.id = :userId " +
 							"AND cred.id = :credId " +
+							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
 					") " + 
 				"ORDER BY RAND()";
 			

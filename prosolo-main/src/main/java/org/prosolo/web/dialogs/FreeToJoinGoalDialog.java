@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "freeToJoinGoalDialog")
 @Component("freeToJoinGoalDialog")
 @Scope("view")
+@Deprecated
 public class FreeToJoinGoalDialog extends MessagesBean{
 
 	private static final long serialVersionUID = -3365757063775626528L;

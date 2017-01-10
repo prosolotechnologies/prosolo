@@ -15,6 +15,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Deprecated
 public class MessagesBean implements Serializable {
 
 	private static final long serialVersionUID = 6303696800061856888L;

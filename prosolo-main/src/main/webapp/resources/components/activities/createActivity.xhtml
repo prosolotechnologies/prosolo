@@ -415,7 +415,7 @@
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
 		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
-		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>

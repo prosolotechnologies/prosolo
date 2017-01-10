@@ -54,7 +54,7 @@ public class ActivityResultBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			// strip all tags except <br>
-			result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
+			//result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
 			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(), 
 					loggedUser.getUserId(), new LearningContextData(page, lContext, service));
 			

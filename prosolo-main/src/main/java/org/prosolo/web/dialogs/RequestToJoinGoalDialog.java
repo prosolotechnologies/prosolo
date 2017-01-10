@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name = "requestToJoinGoalBean")
 @Component("requestToJoinGoalBean")
 @Scope("view")
+@Deprecated
 public class RequestToJoinGoalDialog extends MessagesBean{
 
 	private static final long serialVersionUID = -6164377349129882128L;
