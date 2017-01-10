@@ -161,6 +161,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/new").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/credentials/*/competences/new").hasAuthority("BASIC.USER.ACCESS")

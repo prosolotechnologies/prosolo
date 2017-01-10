@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.util.nodes.CreatedAscComparator;
 
 public class AnnotationUtil {
@@ -20,12 +21,36 @@ public class AnnotationUtil {
 		}
 		return "";
 	}
+	public static String getAnnotationsAsSortedCSVForTagCountData(Collection<TagCountData> tags) {
+		if (tags != null && !tags.isEmpty()) {
+			List<TagCountData> sortedAnnotationsForTagCountData = new ArrayList<TagCountData>(tags);
+			Collections.sort(sortedAnnotationsForTagCountData, new CreatedAscComparator());
+			return getCSVStringForTagCountData(sortedAnnotationsForTagCountData, ",");
+		}
+		return "";
+	}
 	
 	public static String getCSVString(Collection<Tag> tags, String separator) {
 		StringBuffer sb = new StringBuffer();
 		//for (int i = 0; i < tags.size(); i++) {
 		int i=0;
 		for(Tag tag:tags){
+			sb.append(tag.getTitle());
+			//sb.append(tags.get(i).getTitle());
+			if (!(i == tags.size() - 1)) {
+				sb.append(separator);
+			}
+			i++;
+		
+		}
+
+		return sb.toString();
+	}
+	public static String getCSVStringForTagCountData(Collection<TagCountData> tags, String separator) {
+		StringBuffer sb = new StringBuffer();
+		//for (int i = 0; i < tags.size(); i++) {
+		int i=0;
+		for(TagCountData tag:tags){
 			sb.append(tag.getTitle());
 			//sb.append(tags.get(i).getTitle());
 			if (!(i == tags.size() - 1)) {

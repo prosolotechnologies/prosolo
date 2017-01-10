@@ -12,6 +12,8 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -19,11 +21,14 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -365,4 +370,14 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	
 	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
+
+	List<TargetActivity1> getTargetActivities(long credentialId) throws DbConnectionException;
+
+	List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
+
+	List<TargetCompetence1> getTargetCompetences(long credentialId) throws DbConnectionException;
+
+	List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException;
+
+	List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException;
 }

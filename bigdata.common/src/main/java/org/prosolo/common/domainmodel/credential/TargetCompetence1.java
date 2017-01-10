@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -107,7 +108,7 @@ public class TargetCompetence1 extends BaseEntity {
 		this.duration = duration;
 	}
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	public Set<Tag> getTags() {
 		return tags;
 	}
