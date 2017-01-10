@@ -16,7 +16,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="page" value="#{peopleBean.paginationData.page}" default="1" />
+			<f:viewParam name="p" value="#{peopleBean.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{peopleBean.init()}" />
 		</f:metadata>
 	</ui:define>
