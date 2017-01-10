@@ -29,11 +29,11 @@ public class CredentialCloneFactory {
 	 * This method creates a clone of the original credential in terms of its structure: competences and activities.
 	 * It will also create appropriate copies of all competences and activities.
 	 * 
-	 * @param credentialData id of the credential to be cloned
+	 * @param credentialId id of the credential to be cloned
 	 * @return id of the newly created credential
 	 */
 	@Transactional (readOnly = false)
-	public long clone(long credentialId) {
+	public Credential1 clone(long credentialId) {
 		try {
 			Credential1 original = defaultManager.loadResource(Credential1.class, credentialId);
 	
@@ -50,6 +50,12 @@ public class CredentialCloneFactory {
 			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
 			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
 			cred.setType(original.getType());
+			
+			if (original.getBasedOn() == null) {
+				cred.setBasedOn(original);
+			} else {
+				cred.setBasedOn(original.getBasedOn());
+			}
 			cred = defaultManager.saveEntity(cred);
 			
 			List<CredentialCompetence1> competences = original.getCompetences();
@@ -61,7 +67,8 @@ public class CredentialCloneFactory {
 				
 				cred.getCompetences().add(clone);
 			}
-			return cred.getId();
+			
+			return cred;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
