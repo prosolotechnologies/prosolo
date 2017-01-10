@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -384,16 +383,16 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private long getCommentRecepientId() {
-		// logged user is either assessor or assessee
-		long currentUserId = loggedUserBean.getUserId();
-		if (fullAssessmentData.getAssessorId() == currentUserId) {
-			// current user is assessor, get the other id
-			return fullAssessmentData.getAssessedStrudentId();
-		} else
-			return fullAssessmentData.getAssessorId();
-
-	}
+//	private long getCommentRecepientId() {
+//		// logged user is either assessor or assessee
+//		long currentUserId = loggedUserBean.getUserId();
+//		if (fullAssessmentData.getAssessorId() == currentUserId) {
+//			// current user is assessor, get the other id
+//			return fullAssessmentData.getAssessedStrudentId();
+//		} else
+//			return fullAssessmentData.getAssessorId();
+//
+//	}
 
 	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
