@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.nodes.AnnotationUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,6 @@ public class CredentialKeywordsBean {
 	private String chosenKeywordsString;
 
 	public void init() {
-		chosenKeywordsString = null;
 		selectedKeywords = new ArrayList<>();
 		tags = credentialManager.getTagsForCredentialCompetences(idEncoder.decodeId(id));
 		competences = credentialManager.getTargetCompetencesForKeywordSearch(idEncoder.decodeId(id));
@@ -119,7 +119,12 @@ public class CredentialKeywordsBean {
 	}
 	
 	public void removeTag(){
-		
+		String tagToRemove = PageUtil.getGetParameter("tag");
+		for(int i = 0; i<selectedKeywords.size(); i++){
+			if(selectedKeywords.get(i).getTitle().equals(tagToRemove)){
+				selectedKeywords.remove(i);
+			}
+		}
 	}
 
 }
