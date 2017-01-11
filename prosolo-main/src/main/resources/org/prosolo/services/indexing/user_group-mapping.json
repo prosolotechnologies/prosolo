@@ -8,6 +8,22 @@
 			"name":{
 				"store": false,
 				"type": "string"
+			},
+			"credentials": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"competences": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
 			}
 		}	
 	}

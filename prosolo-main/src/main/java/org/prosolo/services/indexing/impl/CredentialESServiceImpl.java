@@ -77,6 +77,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			builder.field("creatorId", cred.getCreatedBy().getId());
 			builder.field("type", cred.getType());
+			builder.field("visibleToAll", cred.isVisibleToAll());
 			
 			builder.startArray("bookmarkedBy");
 			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
@@ -270,6 +271,59 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
 					credId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void updateCredentialUsersWithPrivileges(long credId, Session session) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+		            .startObject();
+			List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
+					credId, session);
+			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
+					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
+			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
+					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+			builder.startArray("usersWithEditPrivilege");
+			for(CredentialUserGroup g : editGroups) {
+				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+					builder.startObject();
+					builder.field("id", user.getUser().getId());
+					builder.endObject();
+				}
+			}
+			builder.endArray();
+			builder.startArray("usersWithViewPrivilege");
+			for(CredentialUserGroup g : viewGroups) {
+				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+					builder.startObject();
+					builder.field("id", user.getUser().getId());
+					builder.endObject();
+				}
+			}
+			builder.endArray();
+			builder.endObject();
+			
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void updateVisibleToAll(long credId, boolean value) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+		            .startObject();
+			builder.field("visibleToAll", value);
+			builder.endObject();
+			
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

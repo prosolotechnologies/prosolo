@@ -61,6 +61,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private ContextJsonParserService contextParser;
+	@Inject private CredentialVisibilityBean visibilityBean;
 	
 	private String id;
 	private long decodedId;
@@ -97,10 +98,15 @@ public class CredentialEditBean implements Serializable {
 				loadCredentialData(decodedId);
 			} catch(Exception e) {
 				logger.error(e);
+				e.printStackTrace();
 				credentialData = new CredentialData(false);
-				PageUtil.fireErrorMessage(e.getMessage());
+				PageUtil.fireErrorMessage("Error while trying to load credential data");
 			}
 		}
+	}
+	
+	public void initVisibilityManageData() {
+		visibilityBean.init(decodedId, manageSection);
 	}
 	
 	private void setContext() {
@@ -478,6 +484,14 @@ public class CredentialEditBean implements Serializable {
 
 	public void setVisibilityTypes(ResourceVisibility[] visibilityTypes) {
 		this.visibilityTypes = visibilityTypes;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
 	}
 	
 }

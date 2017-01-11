@@ -100,7 +100,8 @@ public class CredentialViewBeanUser implements Serializable {
 				PageUtil.fireErrorMessage("You are not allowed to access this credential");
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage(e.getMessage());
+				e.printStackTrace();
+				PageUtil.fireErrorMessage("Error while retrieving credential data");
 			}
 		} else {
 			try {

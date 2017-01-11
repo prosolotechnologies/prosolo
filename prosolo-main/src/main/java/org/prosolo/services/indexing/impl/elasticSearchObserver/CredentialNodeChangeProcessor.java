@@ -3,6 +3,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
@@ -32,14 +33,20 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 		Credential1 cred = (Credential1) event.getObject();
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
-			if(params != null) {
-				String jsonChangeTracker = params.get("changes");
+			if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
+				credentialESService.updateCredentialUsersWithPrivileges(cred.getId(), session);
+			} else if(event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
+				credentialESService.updateVisibleToAll(cred.getId(), cred.isVisibleToAll());
+			} else {
 				if(params != null) {
-					Gson gson = new GsonBuilder().create();
-					CredentialChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
-							 CredentialChangeTracker.class);
-					credentialESService.updateCredentialNode(cred, changeTracker,
-							session);
+					String jsonChangeTracker = params.get("changes");
+					if(params != null) {
+						Gson gson = new GsonBuilder().create();
+						CredentialChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
+								 CredentialChangeTracker.class);
+						credentialESService.updateCredentialNode(cred, changeTracker,
+								session);
+					}
 				}
 			}
 		} else if(operation == NodeOperation.Save) {

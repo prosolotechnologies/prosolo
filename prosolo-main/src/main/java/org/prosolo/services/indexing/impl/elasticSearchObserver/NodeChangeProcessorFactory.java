@@ -58,6 +58,8 @@ public class NodeChangeProcessorFactory {
 			case STUDENT_REASSIGNED_TO_INSTRUCTOR:
 			case USER_ROLES_UPDATED:
 			case INSTRUCTOR_REMOVED_FROM_COURSE:
+			case RESOURCE_VISIBILITY_CHANGE:
+			case VISIBLE_TO_ALL_CHANGED:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
 							credentialESService, EventUserRole.Object);
@@ -111,6 +113,8 @@ public class NodeChangeProcessorFactory {
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
 			case ADD_USER_TO_GROUP:
 			case REMOVE_USER_FROM_GROUP:
+			case USER_GROUP_ADDED_TO_RESOURCE:
+			case USER_GROUP_REMOVED_FROM_RESOURCE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
 						userGroupManager);
 			default:

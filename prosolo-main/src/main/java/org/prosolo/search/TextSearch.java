@@ -21,6 +21,7 @@ import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -146,5 +147,20 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
 			String searchTerm, int page, int limit, long groupId);
+	
+	/**
+	 * Returns combined top {@code limit} users and groups that are not currently assigned to
+	 * credential given by {@code credId}
+	 * @param credId
+	 * @param searchTerm
+	 * @param limit
+	 * @param usersToExclude
+	 * @return
+	 */
+	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude);
+	
+	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsers(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude);
 	
 }

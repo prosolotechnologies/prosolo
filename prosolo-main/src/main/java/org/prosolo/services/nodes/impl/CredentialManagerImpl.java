@@ -51,11 +51,13 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibility;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
@@ -97,6 +99,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private AssessmentManager assessmentManager;
 	@Inject
 	private CredentialInstructorDataFactory credInstructorFactory;
+	@Inject
+	private UserGroupManager userGroupManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -494,6 +498,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 * AccessDeniedException is thrown
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
+			//TODO remove
+			canAccess = true;
+			
 			if(!canAccess && priv != UserGroupPrivilege.View) {
 				throw new AccessDeniedException();
 			}
@@ -2559,20 +2566,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 */
 	private UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) {
 		try {
-			String query = "SELECT credUserGroup.privilege, cred.createdBy.id " +
+			String query = "SELECT credUserGroup.privilege, cred.createdBy.id, cred.visibleToAll " +
 					"FROM CredentialUserGroup credUserGroup " +
 					"INNER JOIN credUserGroup.userGroup userGroup " +
-					"INNER JOIN credUserGroup.credential cred " +
-					"LEFT JOIN userGroup.users user " +
+					"RIGHT JOIN credUserGroup.credential cred " +
+					"INNER JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
 					"WHERE cred.id = :credId " +
-					"ORDER BY CASE WHEN credUserGroup.privilege = :editPriv THEN 1 ELSE 2 END";
+					"ORDER BY CASE credUserGroup.privilege WHEN :editPriv THEN 1 WHEN :viewPriv THEN 2 ELSE 3 END";
 			
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("credId", credId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
+					.setParameter("viewPriv", UserGroupPrivilege.View)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -2584,7 +2592,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				priv = UserGroupPrivilege.None;
 			}
 			long owner = (long) res[1];
-			return owner == userId ? UserGroupPrivilege.Edit : priv;
+			boolean visibleToAll = (boolean) res[2];
+			return owner == userId 
+				? UserGroupPrivilege.Edit
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -2615,6 +2626,47 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credentials");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
+    				throws DbConnectionException {
+		try {
+			if(visibleToAllChanged) {
+				Credential1 cred = (Credential1) persistence.currentManager().load(
+						Credential1.class, credId);
+				cred.setVisibleToAll(visibleToAll);
+			}
+			userGroupManager.saveCredentialUsersAndGroups(credId, groups, users);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential visibility");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isVisibleToAll(long credId) throws DbConnectionException {
+		try {
+			String query=
+					"SELECT cred.visibleToAll " +
+					"FROM Credential1 cred " +
+					"WHERE cred.id = :credId";
+			  	
+			Boolean result = (Boolean) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+				  	.uniqueResult();
+			
+			return result == null ? false : result;
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential visibility");
 		}
 	}
 }

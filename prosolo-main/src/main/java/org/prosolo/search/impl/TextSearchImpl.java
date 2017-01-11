@@ -81,6 +81,7 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -2311,6 +2312,178 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		} catch (Exception e1) {
 			logger.error(e1);
 		}
+		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		try {
+			SearchHit[] userHits = getCredentialUsers(credId, searchTerm, limit, usersToExclude);
+			SearchHit[] groupHits = getCredentialGroups(credId, searchTerm, limit);
+			
+			int userLength = userHits.length, groupLength = groupHits.length;
+			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
+			int userNumber = limit - groupNumber < userLength ? limit - groupNumber : userLength;
+			if(groupNumber + userNumber < limit) {
+				groupNumber = limit - userNumber < groupLength ? limit - userNumber : groupLength;
+			}
+			for(int i = 0; i < groupNumber; i++) {
+				SearchHit hit = groupHits[i];
+				long id = Long.parseLong(hit.getSource().get("id").toString());
+				String name = (String) hit.getSource().get("name");
+				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+			}
+			for(int i = 0; i < userNumber; i++) {
+				SearchHit hit = userHits[i];
+				response.addFoundNode(extractCredentialUserResult(hit));
+			}
+//			if(userHits.length > 0 || groupHits.length > 0) {
+//				int userInd = 0, userEnd = userHits.length - 1, groupInd = 0, groupEnd = groupHits.length - 1, counter = 0;
+//				//all results count from both lists
+//				int resNumber = userEnd + 1 + groupEnd + 1;
+//				int finalResNumber = limit < resNumber ? limit : resNumber;
+//				while(counter < finalResNumber) {
+//					if(groupInd > groupEnd || (userInd <= userEnd && userHits[userInd].getScore() >= groupHits[groupInd].getScore())) {
+//						SearchHit hit = userHits[userInd++];
+//						response.addFoundNode(extractCredentialUserResult(hit));
+//					} else {
+//						SearchHit hit = groupHits[groupInd++];
+//						long id = Long.parseLong(hit.getSource().get("id").toString());
+//						String name = (String) hit.getSource().get("name");
+//						long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+//						response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+//					}
+//					counter++;
+//				}
+//			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private SearchHit[] getCredentialUsers(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			//search users
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			if (usersToExclude != null) {
+				for (Long exUserId : usersToExclude) {
+					bQueryBuilder.mustNot(termQuery("id", exUserId));
+				}
+			}
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+			
+			searchRequestBuilder.setSize(limit);	
+			
+			//add sorting
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse userResponse = searchRequestBuilder.execute().actionGet();
+			SearchHit[] userHits = null;
+			if(userResponse != null) {
+				SearchHits hits = userResponse.getHits();
+				if(hits != null) {
+					userHits = hits.hits();
+				}
+			}
+			if(userHits == null) {
+				userHits = new SearchHit[0];
+			}
+			return userHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
+	}
+	
+	private SearchHit[] getCredentialGroups(long credId,
+			String searchTerm, int limit) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name");
+			
+			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
+			bqBuilder.must(qb);
+			
+			bqBuilder.mustNot(QueryBuilders.termQuery("credentials.id", credId));
+			
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+					.setTypes(ESIndexTypes.USER_GROUP)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bqBuilder)
+					.setSize(limit)
+					.addSort("name", SortOrder.ASC);
+	
+			SearchResponse groupResponse = srb.execute().actionGet();
+			SearchHit[] groupHits = null;
+			if(groupResponse != null) {
+				SearchHits hits = groupResponse.getHits();
+				if(hits != null) {
+					groupHits = hits.hits();
+				}
+			}
+			if(groupHits == null) {
+				groupHits = new SearchHit[0];
+			}
+			
+			return groupHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
+	}
+	
+	private ResourceVisibilityMember extractCredentialUserResult(SearchHit hit) {
+		Map<String, Object> fields = hit.getSource();
+		User user = new User();
+		user.setId(Long.parseLong(fields.get("id") + ""));
+		user.setName((String) fields.get("name"));
+		user.setLastname((String) fields.get("lastname"));
+		user.setAvatarUrl((String) fields.get("avatar"));
+		user.setPosition((String) fields.get("position"));
+		return new ResourceVisibilityMember(0, user, null, false);
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsers(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		SearchHit[] userHits = getCredentialUsers(credId, searchTerm, limit, usersToExclude);
+			
+		for(SearchHit h : userHits) {
+			response.addFoundNode(extractCredentialUserResult(h));
+		}
+			
 		return response;
 	}
 

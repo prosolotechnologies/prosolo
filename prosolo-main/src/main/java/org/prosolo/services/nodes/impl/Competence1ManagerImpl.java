@@ -1650,20 +1650,21 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT compUserGroup.privilege, comp.createdBy.id " +
+			String query = "SELECT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
-					"INNER JOIN compUserGroup.competence comp " +
-					"LEFT JOIN userGroup.users user " +
+					"RIGHT JOIN compUserGroup.competence comp " +
+					"INNER JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
 					"WHERE comp.id = :compId " +
-					"ORDER BY CASE WHEN compUserGroup.privilege = :editPriv THEN 1 ELSE 2 END";
+					"ORDER BY CASE compUserGroup.privilege WHEN :editPriv THEN 1 WHEN :viewPriv THEN 2 ELSE 3 END";
 			
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("compId", compId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
+					.setParameter("viewPriv", UserGroupPrivilege.View)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -1675,7 +1676,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				priv = UserGroupPrivilege.None;
 			}
 			long owner = (long) res[1];
-			return owner == userId ? UserGroupPrivilege.Edit : priv;
+			boolean visibleToAll = (boolean) res[2];
+			return owner == userId 
+				? UserGroupPrivilege.Edit
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

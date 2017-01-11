@@ -22,6 +22,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
@@ -324,4 +325,10 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
 			boolean justUncompleted) throws DbConnectionException;
+	
+	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
+    				throws DbConnectionException;
+	
+	boolean isVisibleToAll(long credId) throws DbConnectionException;
 }

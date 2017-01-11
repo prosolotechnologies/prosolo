@@ -40,6 +40,9 @@ public class Competence1 extends BaseEntity {
 
 	private Date scheduledPublicDate;
 	
+	//all existing users have View privilege
+	private boolean visibleToAll;
+	
 	public Competence1() {
 		tags = new HashSet<>();
 		activities = new ArrayList<>();
@@ -133,6 +136,15 @@ public class Competence1 extends BaseEntity {
 
 	public void setScheduledPublicDate(Date scheduledPublicDate) {
 		this.scheduledPublicDate = scheduledPublicDate;
+	}
+	
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isVisibleToAll() {
+		return visibleToAll;
+	}
+
+	public void setVisibleToAll(boolean visibleToAll) {
+		this.visibleToAll = visibleToAll;
 	}
 	
 }

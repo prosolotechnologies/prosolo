@@ -2,11 +2,14 @@ package org.prosolo.services.nodes;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
 
 public interface UserGroupManager extends AbstractManager {
@@ -50,5 +53,40 @@ public interface UserGroupManager extends AbstractManager {
 	List<CredentialUserGroup> getCredentialUserGroups(long groupId) throws DbConnectionException;
 	
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId) throws DbConnectionException;
+	
+	List<CompetenceUserGroup> getCompetenceUserGroups(long groupId) throws DbConnectionException;
+	
+	/**
+	 * Returns list of all non default user groups for specified credential
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId) 
+    		throws DbConnectionException;
+	
+	/**
+	 * Returns all users data from default user groups defined for credential.
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId) 
+    		throws DbConnectionException;
+	
+	/**
+	 * Saves all newly added credential user groups, updates groups if there were privilege changes,
+	 * removes credential groups that should be removed from db. Also this method saves, updates and removes
+	 * individual users inside credential default user groups.
+	 * @param credId
+	 * @param groups
+	 * @param users
+	 * @throws DbConnectionException
+	 */
+	void saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
+	    	List<ResourceVisibilityMember> users) throws DbConnectionException;
+	
+	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
+    		throws DbConnectionException;
 
 }

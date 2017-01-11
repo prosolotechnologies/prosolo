@@ -64,15 +64,18 @@ public class Credential1 extends BaseEntity {
 	private List<FeedSource> blogs;
 	private List<FeedSource> excludedFeedSources;
 	
+	//All existing users have View privilege
+	private boolean visibleToAll;
+	
 	//private boolean visible;
-	
-	
+
 	public Credential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
 		competences = new ArrayList<>();
 		blogs = new ArrayList<FeedSource>();
 		excludedFeedSources = new ArrayList<FeedSource>();
+		announcements = new ArrayList<>();
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -265,12 +268,14 @@ public class Credential1 extends BaseEntity {
 		this.scheduledPublishDate = scheduledPublishDate;
 	}
 
-//	public boolean isVisible() {
-//		return visible;
-//	}
-//
-//	public void setVisible(boolean visible) {
-//		this.visible = visible;
-//	}
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isVisibleToAll() {
+		return visibleToAll;
+	}
+
+	public void setVisibleToAll(boolean visibleToAll) {
+		this.visibleToAll = visibleToAll;
+	}
 
 }

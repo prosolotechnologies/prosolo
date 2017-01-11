@@ -7,18 +7,25 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
+import org.prosolo.services.nodes.factory.UserGroupPrivilegeDataFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +38,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
+	@Inject private UserGroupPrivilegeDataFactory groupPrivilegeFactory;
 	 
 	@Override
 	@Transactional(readOnly = true)
@@ -59,7 +67,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			String query = 
 				"SELECT g " +
 				"FROM UserGroup g " +
-				"WHERE g.name LIKE :term";
+				"WHERE g.name LIKE :term " +
+				"ORDER BY g.name ASC";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			@SuppressWarnings("unchecked")
@@ -349,11 +358,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Transactional(readOnly = true)
     public List<CredentialUserGroup> getAllCredentialUserGroups(long credId) 
     		throws DbConnectionException {
+    	return getAllCredentialUserGroups(credId, persistence.currentManager());
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
+    		throws DbConnectionException {
     	try {
     		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
 				   	   "WHERE credGroup.credential.id = :credId";
 			@SuppressWarnings("unchecked")
-			List<CredentialUserGroup> credGroups = persistence.currentManager()
+			List<CredentialUserGroup> credGroups = session
 					.createQuery(query)
 					.setLong("credId", credId)
 					.list();
@@ -364,6 +380,240 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while retrieving credential groups");
     	}
     }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<CompetenceUserGroup> getCompetenceUserGroups(long groupId) throws DbConnectionException {
+    	try {
+    		String query = "SELECT compGroup FROM CompetenceUserGroup compGroup " +
+				   	   "WHERE compGroup.userGroup.id = :groupId";
+			@SuppressWarnings("unchecked")
+			List<CompetenceUserGroup> compGroups = persistence.currentManager()
+					.createQuery(query)
+					.setLong("groupId", groupId)
+					.list();
+			return compGroups == null ? new ArrayList<>() : compGroups;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving competence groups");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId) 
+    		throws DbConnectionException {
+    	List<ResourceVisibilityMember> members = new ArrayList<>();
+		try {
+    		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
+    					   "INNER JOIN fetch credGroup.userGroup userGroup " +
+    					   "WHERE credGroup.credential.id = :credId " +
+    					   "AND userGroup.defaultGroup = :defaultGroup ";
+			@SuppressWarnings("unchecked")
+			List<CredentialUserGroup> credGroups = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", false)
+					.list();
+			if(credGroups != null) {
+				for(CredentialUserGroup group : credGroups) {
+					UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
+							group.getPrivilege());
+					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
+							group.getUserGroup().getName(), group.getUserGroup().getUsers().size(), 
+							priv, true));
+				}
+			}
+			
+			return members;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving credential groups");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId) 
+    		throws DbConnectionException {
+    	List<ResourceVisibilityMember> members = new ArrayList<>();
+		try {
+			String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN fetch credGroup.userGroup userGroup " +
+					   "LEFT JOIN fetch userGroup.users users " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.defaultGroup = :defaultGroup ";
+			@SuppressWarnings("unchecked")
+			List<CredentialUserGroup> defaultGroups = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true)
+					.list();
+			if(defaultGroups != null) {
+				for(CredentialUserGroup group : defaultGroups) {
+					List<UserGroupUser> users = group.getUserGroup().getUsers();
+					for(UserGroupUser u : users) {
+						UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
+								group.getPrivilege());
+						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(), 
+								priv, true));
+					}
+				}
+			}
+			
+			return members;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving credential users");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = false)
+    public void saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users) 
+    				throws DbConnectionException {
+    	try {
+    		saveCredentialUsers(credId, users);
+    		saveCredentialGroups(credId, groups);
+    	} catch(DbConnectionException dce) {
+    		throw dce;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while saving credential users and groups");
+    	}
+    }
+	
+	@Transactional(readOnly = false)
+    private void saveCredentialUsers(long credId, List<ResourceVisibilityMember> users) 
+    		throws DbConnectionException {
+    	try {
+    		if(users == null) {
+    			return;
+    		}
+    		for(ResourceVisibilityMember user : users) {
+    			UserGroupUser userGroupUser = null;
+    			CredentialUserGroup credGroup = null;
+    			switch(user.getStatus()) {
+    				case CREATED:
+    					userGroupUser = new UserGroupUser();
+    					User u = (User) persistence.currentManager().load(User.class, user.getUserId());
+    					userGroupUser.setUser(u);
+    					credGroup = getOrCreateDefaultCredentialUserGroup(credId, 
+    							groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege()));
+    					userGroupUser.setGroup(credGroup.getUserGroup());
+    					saveEntity(userGroupUser);
+    					break;
+    				case CHANGED:
+    					userGroupUser = (UserGroupUser) persistence
+    							.currentManager().load(UserGroupUser.class, user.getId());
+    					credGroup = getOrCreateDefaultCredentialUserGroup(credId, 
+    							groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege()));
+    					userGroupUser.setGroup(credGroup.getUserGroup());
+    					break;
+    				case REMOVED:
+    					userGroupUser = (UserGroupUser) persistence
+							.currentManager().load(UserGroupUser.class, user.getId());
+    					delete(userGroupUser);
+    					break;
+    				case UP_TO_DATE:
+    					break;
+    					
+    			}
+    		}
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while saving credential users");
+    	}
+    }
+	
+	@Transactional(readOnly = false)
+    private void saveCredentialGroups(long credId, List<ResourceVisibilityMember> groups) 
+    		throws DbConnectionException {
+    	try {
+    		if(groups == null) {
+    			return;
+    		}
+    		for(ResourceVisibilityMember group : groups) {
+    			CredentialUserGroup credGroup = null;
+    			switch(group.getStatus()) {
+    				case CREATED:
+    					credGroup = new CredentialUserGroup();
+    					Credential1 cred = (Credential1) persistence.currentManager().load(
+    							Credential1.class, credId);
+    					credGroup.setCredential(cred);
+    					UserGroup userGroup = (UserGroup) persistence.currentManager().load(
+    							UserGroup.class, group.getGroupId());
+    					credGroup.setUserGroup(userGroup);
+    					credGroup.setPrivilege(groupPrivilegeFactory.getUserGroupPrivilege(
+    							group.getPrivilege()));
+    					saveEntity(credGroup);
+    					break;
+    				case CHANGED:
+    					credGroup = (CredentialUserGroup) persistence
+    							.currentManager().load(CredentialUserGroup.class, group.getId());
+    					credGroup.setPrivilege(groupPrivilegeFactory.getUserGroupPrivilege(
+    							group.getPrivilege()));
+    					break;
+    				case REMOVED:
+    					credGroup = (CredentialUserGroup) persistence
+							.currentManager().load(CredentialUserGroup.class, group.getId());
+    					delete(credGroup);
+    					break;
+    				case UP_TO_DATE:
+    					break;
+    					
+    			}
+    		}
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while saving credential groups");
+    	}
+    }
+	
+	private CredentialUserGroup getOrCreateDefaultCredentialUserGroup(long credId, UserGroupPrivilege priv) {
+		Optional<CredentialUserGroup> credGroupOptional = getCredentialDefaultGroup(credId, priv);
+		CredentialUserGroup credGroup = null;
+		if(credGroupOptional.isPresent()) {
+			credGroup = credGroupOptional.get();
+		} else {
+			UserGroup userGroup = new UserGroup();
+			userGroup.setDefaultGroup(true);
+			saveEntity(userGroup);
+			credGroup = new CredentialUserGroup();
+			credGroup.setUserGroup(userGroup);
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
+					credId);
+			credGroup.setCredential(cred);
+			credGroup.setPrivilege(priv);
+			saveEntity(credGroup);
+		}
+		return credGroup;
+	}
+	
+	private Optional<CredentialUserGroup> getCredentialDefaultGroup(long credId, UserGroupPrivilege privilege) {
+		String query = "SELECT credGroup FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND credGroup.privilege = :priv " +
+					   "AND userGroup.defaultGroup = :default";
+		
+		CredentialUserGroup credGroup = (CredentialUserGroup) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setParameter("priv", privilege)
+				.setBoolean("default", true)
+				.setMaxResults(1)
+				.uniqueResult();
+		
+		return credGroup != null ? Optional.of(credGroup) : Optional.empty();
+	}
 	
 	private Optional<UserGroupUser> getUserGroupUser(long groupId, long userId) {
 		String query = "SELECT groupUser FROM UserGroupUser groupUser " +

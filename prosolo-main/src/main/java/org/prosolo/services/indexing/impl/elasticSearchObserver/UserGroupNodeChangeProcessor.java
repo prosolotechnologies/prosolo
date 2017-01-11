@@ -3,7 +3,10 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
@@ -29,15 +32,22 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	
 	@Override
 	public void process() {
-		UserGroup group = (UserGroup) event.getObject();
 		EventType type = event.getAction();
+		BaseEntity object = event.getObject();
+		BaseEntity target = event.getTarget();
 		if(type == EventType.Create || type == EventType.Edit) {
-			groupESService.saveUserGroup(group);
+			UserGroup group = (UserGroup) object;
+			if(!group.isDefaultGroup()) {
+				groupESService.saveUserGroup(group);
+			}
 		} else if(type == EventType.Delete) {
-			groupESService.deleteNodeFromES(group);
+			UserGroup group = (UserGroup) object;
+			if(!group.isDefaultGroup()) {
+				groupESService.deleteNodeFromES(group);
+			}
 		} else if(type == EventType.ADD_USER_TO_GROUP || type == EventType.REMOVE_USER_FROM_GROUP) {
-			long userId = ((User) event.getObject()).getId();
-			long groupId = ((UserGroup) event.getTarget()).getId();
+			long userId = ((User) object).getId();
+			long groupId = ((UserGroup) target).getId();
 			//get all credentials associated with this user group
 			List<CredentialUserGroup> credGroups = userGroupManager.getCredentialUserGroups(groupId);
 			if(type == EventType.ADD_USER_TO_GROUP) {
@@ -52,6 +62,20 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			}
 			//TODO when competence search is implemented include competence index update too
+		} else if(type == EventType.USER_GROUP_ADDED_TO_RESOURCE) {
+			long groupId = ((UserGroup) object).getId();
+			if(target instanceof Credential1) {
+				groupESService.addCredential(groupId, ((Credential1) target).getId());
+			} else if(target instanceof Competence1) {
+				groupESService.addCompetence(groupId, ((Competence1) target).getId());
+			}
+		} else if(type == EventType.USER_GROUP_REMOVED_FROM_RESOURCE) {
+			long groupId = ((UserGroup) object).getId();
+			if(target instanceof Credential1) {
+				groupESService.removeCredential(groupId, ((Credential1) target).getId());
+			} else if(target instanceof Competence1) {
+				groupESService.removeCompetence(groupId, ((Competence1) target).getId());
+			}
 		}
 	}
 
