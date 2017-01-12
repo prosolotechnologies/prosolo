@@ -67,6 +67,9 @@ public class Credential1 extends BaseEntity {
 	private boolean visible;
 	private Date scheduledPublicDate;
 	
+	// when credential is cloned, this reference to the original
+	private Credential1 basedOn;
+	
 	public Credential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
@@ -271,6 +274,15 @@ public class Credential1 extends BaseEntity {
 
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+
+	@OneToOne (fetch = FetchType.LAZY)
+	public Credential1 getBasedOn() {
+		return basedOn;
+	}
+
+	public void setBasedOn(Credential1 basedOn) {
+		this.basedOn = basedOn;
 	}
 
 }

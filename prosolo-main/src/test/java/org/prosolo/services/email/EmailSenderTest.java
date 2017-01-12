@@ -102,8 +102,8 @@ public class EmailSenderTest {
 	}
 	@Test
 	public void testAmazonSES(){
-		final String FROM = "zoran.jeremic@gmail.com";   // Replace with your "From" address. This address must be verified.
-	   final String TO = "zoran.jeremic@gmail.com";  // Replace with a "To" address. If your account is still in the 
+		final String FROM = "test@gmail.com";   // Replace with your "From" address. This address must be verified.
+	   final String TO = "test@gmail.com";  // Replace with a "To" address. If your account is still in the
 	                                                       // sandbox, this address must be verified.
 	    
 	    final String BODY = "This email was sent through the Amazon SES SMTP interface by using Java.";
