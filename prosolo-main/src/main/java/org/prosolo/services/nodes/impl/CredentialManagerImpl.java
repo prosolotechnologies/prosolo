@@ -33,9 +33,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -58,6 +56,7 @@ import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -65,7 +64,6 @@ import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.impl.util.EntityPublishTransition;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -2981,6 +2979,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
+	@Transactional (readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
 			String query = 
@@ -3010,7 +3009,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if (res != null && !res.isEmpty()) {
 				User user = res.get(0);
-				return new UserData(user.getId(), user.getName() + " " + user.getLastname(), AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
+				return new UserData(user);
 			}
 			
 			return null;
@@ -3018,6 +3017,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving random peer");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
+		try {
+			String query = 
+				"SELECT assessment.assessor.id " +
+				"FROM CredentialAssessment assessment " +
+				"INNER JOIN assessment.targetCredential tCred " +
+				"INNER JOIN tCred.credential cred " +
+				"WHERE assessment.assessedStudent.id = :userId " +
+					"AND cred.id = :credId " +
+					"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = (List<Long>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credentialId)
+					.list();
+			
+			if (res != null) {
+				return res;
+			}
+			
+			return new ArrayList<Long>();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
 	

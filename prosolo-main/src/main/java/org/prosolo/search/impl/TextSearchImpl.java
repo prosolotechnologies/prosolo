@@ -2189,4 +2189,77 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		}
 		return null;
 	}
+	
+	@Override
+	public TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
+		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
+					.must(bQueryBuilder)
+					.filter(QueryBuilders.nestedQuery("credentials",
+						QueryBuilders.boolQuery()
+						.must(QueryBuilders.termQuery("credentials.id", credId))));
+			
+			if (peersToExcludeFromSearch != null) {
+				for (Long exUserId : peersToExcludeFromSearch) {
+					bqb.mustNot(termQuery("id", exUserId));
+				}
+			}
+			
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bqb)
+						.addSort("name", SortOrder.ASC)
+						.setFetchSource(includes, null)
+						.setSize(3);	
+				
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
+				if (sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if (searchHits != null) {
+						for (SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							
+							response.addFoundNode(userData);
+						}
+						
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
+	}
 }

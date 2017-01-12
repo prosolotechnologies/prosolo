@@ -13,17 +13,17 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -363,6 +363,15 @@ public interface CredentialManager extends AbstractManager {
 	 * @return array of two strings where first element is credential title and the second element is competence title.
 	 * @throws DbConnectionException
 	 */
-	
 	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
+
+	/**
+	 * Returns list of ids of all assessors that this particular user has asked
+	 * for assessment for the credential with the given id
+	 * 
+	 * @param credentialId credential id
+	 * @param userId user id
+	 * @return list of ids
+	 */
+	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
 }

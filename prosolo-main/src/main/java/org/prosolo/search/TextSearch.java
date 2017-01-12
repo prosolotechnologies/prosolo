@@ -135,4 +135,16 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
+
+	/**
+	 * Searches through credential members by their name and last name, except for the excluded ones.
+	 * 
+	 * @param searchTerm search term
+	 * @param limit number of results to return
+	 * @param credId credential id
+	 * @param peersToExcludeFromSearch user ids to exclude from search
+	 * @return response containing initialized UserData that matches the search.
+	 */
+	TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 }
