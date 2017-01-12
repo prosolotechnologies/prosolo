@@ -2568,7 +2568,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 			}
 				   		
-			query.append("GROUP BY targetAct.id "); 
+			query.append("GROUP BY targetAct.id, p.is_read "); 
 			
 			if (returnAssessmentData) {
 				query.append(", ad.id ");

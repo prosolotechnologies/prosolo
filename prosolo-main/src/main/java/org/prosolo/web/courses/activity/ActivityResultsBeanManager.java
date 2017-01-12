@@ -3,7 +3,6 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +41,6 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-
-import com.google.api.client.util.Lists;
 
 @ManagedBean(name = "activityResultsBeanManager")
 @Component("activityResultsBeanManager")
@@ -274,8 +271,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void addCommentToActivityDiscussion() {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
-			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
-					currentResult.getAssessment().getCompAssessmentId());
+			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), currentResult.getAssessment().getCompAssessmentId());
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -347,32 +343,29 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
+	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
 					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(), page, 
-					lContext, service, getCommentRecepientId(), decodedCredId);
+			
+			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
+			for (Long userId : participantIds) {
+				if (userId != loggedUserBean.getUserId()) {
+					notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(), page, 
+							lContext, service, userId, decodedCredId);
+				}
+			}
+			
 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
 		}
-	}
-	
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
-			long competenceAssessmentId) {
-		if (isCurrentUserAssessor(currentResult)) {
-			newComment.setSenderInsructor(true);
-		}
-		currentResult.getAssessment().getActivityDiscussionMessageData().add(newComment);
-		currentResult.getAssessment().setNumberOfMessages(
-				currentResult.getAssessment().getNumberOfMessages() + 1);
 	}
 	
 	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext, 
@@ -397,15 +390,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		});
 	}
 	
-	private long getCommentRecepientId() {
-		// logged user is either assessor or assessee
-		long currentUserId = loggedUserBean.getUserId();
-		if (currentResult.getAssessment().getAssessorId() == currentUserId) {
-			// current user is assessor, get the other id
-			return currentResult.getUser().getId();
-		} else
-			return currentResult.getAssessment().getAssessorId();
-
+	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
+			long competenceAssessmentId) {
+		if (isCurrentUserAssessor(currentResult)) {
+			newComment.setSenderInsructor(true);
+		}
+		currentResult.getAssessment().getActivityDiscussionMessageData().add(newComment);
+		currentResult.getAssessment().setNumberOfMessages(
+				currentResult.getAssessment().getNumberOfMessages() + 1);
 	}
 	
 	private void cleanupCommentData() {
