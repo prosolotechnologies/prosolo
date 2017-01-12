@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
+import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserGroupESService;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -20,14 +22,17 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private UserGroupESService groupESService;
 	private CredentialESService credESService;
 	private UserGroupManager userGroupManager;
+	private CompetenceESService compESService;
 	
 	
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
-			CredentialESService credESService, UserGroupManager userGroupManager) {
+			CredentialESService credESService, UserGroupManager userGroupManager, 
+			CompetenceESService compESService) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
+		this.compESService = compESService;
 	}
 	
 	@Override
@@ -61,7 +66,19 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 							g.getPrivilege());
 				}
 			}
-			//TODO when competence search is implemented include competence index update too
+			//get all competences associated with this user group
+			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
+			if(type == EventType.ADD_USER_TO_GROUP) {
+				for(CompetenceUserGroup g : compGroups) {
+					compESService.addUserToIndex(g.getCompetence().getId(), userId, 
+							g.getPrivilege());
+				}
+			} else {
+				for(CompetenceUserGroup g : compGroups) {
+					compESService.removeUserFromIndex(g.getCompetence().getId(), userId, 
+							g.getPrivilege());
+				}
+			}
 		} else if(type == EventType.USER_GROUP_ADDED_TO_RESOURCE) {
 			long groupId = ((UserGroup) object).getId();
 			if(target instanceof Credential1) {

@@ -54,6 +54,12 @@ public interface UserGroupManager extends AbstractManager {
 	
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId) throws DbConnectionException;
 	
+	List<CompetenceUserGroup> getAllCompetenceUserGroups(long compId) 
+    		throws DbConnectionException;
+	
+	List<CompetenceUserGroup> getAllCompetenceUserGroups(long compId, Session session) 
+    		throws DbConnectionException;
+	
 	List<CompetenceUserGroup> getCompetenceUserGroups(long groupId) throws DbConnectionException;
 	
 	/**
@@ -88,5 +94,14 @@ public interface UserGroupManager extends AbstractManager {
 	
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
     		throws DbConnectionException;
+	
+	List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId) 
+    		throws DbConnectionException;
+	
+	List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId) 
+    		throws DbConnectionException;
+	
+	void saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users) throws DbConnectionException;
 
 }

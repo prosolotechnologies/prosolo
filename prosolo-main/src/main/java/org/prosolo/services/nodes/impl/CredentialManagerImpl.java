@@ -498,8 +498,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 * AccessDeniedException is thrown
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			//TODO remove
-			canAccess = true;
 			
 			if(!canAccess && priv != UserGroupPrivilege.View) {
 				throw new AccessDeniedException();

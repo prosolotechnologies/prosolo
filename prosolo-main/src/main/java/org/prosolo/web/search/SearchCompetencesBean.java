@@ -121,27 +121,27 @@ public class SearchCompetencesBean implements Serializable {
 	public void fetchCompetences(String searchQuery, long[] compsToExclude, int limit, 
 			boolean loadOneMore) {
 		//loadOneMore=false;
-	 	TextSearchResponse searchResponse = textSearch.searchCompetences(
-				searchQuery,
-				this.page, 
-				limit,
-				loadOneMore,
-				compsToExclude,
-				filterTags,
-				this.sortTitleAsc);
-		
-		@SuppressWarnings("unchecked")
-		List<Competence> foundCompetences = (List<Competence>) searchResponse.getFoundNodes();
-		compsSize = (int) searchResponse.getHitsNumber();
-		// if there is more than limit, set moreToLoad to true
-		if (loadOneMore && foundCompetences.size() == limit+1) {
-			foundCompetences = foundCompetences.subList(0, foundCompetences.size()-1);
-			moreToLoad = true;
-		} else {
-			moreToLoad = false;
-		}
-		
-		competences.addAll(SearchCompetencesBean.convertToCompetenceData(foundCompetences));
+//	 	TextSearchResponse searchResponse = textSearch.searchCompetences(
+//				searchQuery,
+//				this.page, 
+//				limit,
+//				loadOneMore,
+//				compsToExclude,
+//				filterTags,
+//				this.sortTitleAsc);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<Competence> foundCompetences = (List<Competence>) searchResponse.getFoundNodes();
+//		compsSize = (int) searchResponse.getHitsNumber();
+//		// if there is more than limit, set moreToLoad to true
+//		if (loadOneMore && foundCompetences.size() == limit+1) {
+//			foundCompetences = foundCompetences.subList(0, foundCompetences.size()-1);
+//			moreToLoad = true;
+//		} else {
+//			moreToLoad = false;
+//		}
+//		
+//		competences.addAll(SearchCompetencesBean.convertToCompetenceData(foundCompetences));
 	}
 
 	public boolean hasMoreCompetences() {

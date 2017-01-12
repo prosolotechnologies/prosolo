@@ -46,7 +46,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -450,96 +449,96 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 
-	@Override
-	@Transactional
-	public TextSearchResponse searchCompetences(
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
-		System.out.println("searchCompetences:"+page+" limit:"+limit);
-		
-		TextSearchResponse response = new TextSearchResponse();
-		
-		try {
-			int start = setStart(page, limit);
-			limit = setLimit(limit, loadOneMore);
-			
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
-			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("title");
-	
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
-			
-	//		if (filterTags != null) {
-	//			for (Annotation tag : filterTags) {
-	//				bQueryBuilder.must(termQuery("tags.title", tag.getTitle()));
-	//			}
-	//		}
-			if (filterTags != null) {
-				for (Tag tag : filterTags) {
-					QueryBuilder tagQB = QueryBuilders
-							.queryStringQuery(tag.getTitle()).useDisMax(true)
-							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-							.field("tags.title");
-					bQueryBuilder.must(tagQB);
-				}
-			}
-			
-			if (toExclude != null) {
-				for (int i = 0; i < toExclude.length; i++) {
-					bQueryBuilder.mustNot(termQuery("id", toExclude[i]));
-				}
-			}
-			
-			SearchRequestBuilder searchResultBuilder = client
-					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
-			
-			if (!sortTitleAsc.equals(SortingOption.NONE)) {
-				switch (sortTitleAsc) {
-					case ASC:
-						searchResultBuilder.addSort("title", SortOrder.ASC);
-						break;
-					case DESC:
-						searchResultBuilder.addSort("title", SortOrder.DESC);
-						break;
-					default:
-						break;
-				}
-			}
-			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
-			SearchResponse sResponse = searchResultBuilder
-					.execute().actionGet();
-			
-			if (sResponse != null) {
-				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				
-				for (SearchHit hit : sResponse.getHits()) {
-					Long id = ((Integer) hit.getSource().get("id")).longValue();
-					
-					try {
-						Competence competence = defaultManager.loadResource(Competence.class, id);
-						competence.getMaker();
-						
-						if (competence != null) {
-							response.addFoundNode(competence);
-						}
-					} catch (ResourceCouldNotBeLoadedException e) {
-						logger.error("Competence was not found: " + id);
-					}
-				}
-			}
-		} catch (NoNodeAvailableException e1) {
-			logger.error(e1);
-		}
-		return response;
-	}
+//	@Override
+//	@Transactional
+//	public TextSearchResponse searchCompetences(
+//			String searchString, int page, int limit, boolean loadOneMore,
+//			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
+//		System.out.println("searchCompetences:"+page+" limit:"+limit);
+//		
+//		TextSearchResponse response = new TextSearchResponse();
+//		
+//		try {
+//			int start = setStart(page, limit);
+//			limit = setLimit(limit, loadOneMore);
+//			
+//			Client client = ElasticSearchFactory.getClient();
+//			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+//			
+//			QueryBuilder qb = QueryBuilders
+//					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+//					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//					.field("title");
+//	
+//			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+//			bQueryBuilder.should(qb);
+//			
+//	//		if (filterTags != null) {
+//	//			for (Annotation tag : filterTags) {
+//	//				bQueryBuilder.must(termQuery("tags.title", tag.getTitle()));
+//	//			}
+//	//		}
+//			if (filterTags != null) {
+//				for (Tag tag : filterTags) {
+//					QueryBuilder tagQB = QueryBuilders
+//							.queryStringQuery(tag.getTitle()).useDisMax(true)
+//							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//							.field("tags.title");
+//					bQueryBuilder.must(tagQB);
+//				}
+//			}
+//			
+//			if (toExclude != null) {
+//				for (int i = 0; i < toExclude.length; i++) {
+//					bQueryBuilder.mustNot(termQuery("id", toExclude[i]));
+//				}
+//			}
+//			
+//			SearchRequestBuilder searchResultBuilder = client
+//					.prepareSearch(ESIndexNames.INDEX_NODES)
+//					.setTypes(ESIndexTypes.COMPETENCE)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+//			
+//			if (!sortTitleAsc.equals(SortingOption.NONE)) {
+//				switch (sortTitleAsc) {
+//					case ASC:
+//						searchResultBuilder.addSort("title", SortOrder.ASC);
+//						break;
+//					case DESC:
+//						searchResultBuilder.addSort("title", SortOrder.DESC);
+//						break;
+//					default:
+//						break;
+//				}
+//			}
+//			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
+//			SearchResponse sResponse = searchResultBuilder
+//					.execute().actionGet();
+//			
+//			if (sResponse != null) {
+//				response.setHitsNumber(sResponse.getHits().getTotalHits());
+//				
+//				for (SearchHit hit : sResponse.getHits()) {
+//					Long id = ((Integer) hit.getSource().get("id")).longValue();
+//					
+//					try {
+//						Competence competence = defaultManager.loadResource(Competence.class, id);
+//						competence.getMaker();
+//						
+//						if (competence != null) {
+//							response.addFoundNode(competence);
+//						}
+//					} catch (ResourceCouldNotBeLoadedException e) {
+//						logger.error("Competence was not found: " + id);
+//					}
+//				}
+//			}
+//		} catch (NoNodeAvailableException e1) {
+//			logger.error(e1);
+//		}
+//		return response;
+//	}
 	
 	//query for new competence
 	@Override
@@ -2317,11 +2316,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude) {
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
 		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
 		try {
-			SearchHit[] userHits = getCredentialUsers(credId, searchTerm, limit, usersToExclude);
-			SearchHit[] groupHits = getCredentialGroups(credId, searchTerm, limit);
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			SearchHit[] groupHits = getCredentialGroups(credId, searchTerm, limit, groupsToExclude);
 			
 			int userLength = userHits.length, groupLength = groupHits.length;
 			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
@@ -2338,7 +2337,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			}
 			for(int i = 0; i < userNumber; i++) {
 				SearchHit hit = userHits[i];
-				response.addFoundNode(extractCredentialUserResult(hit));
+				response.addFoundNode(extractVisibilityUserResult(hit));
 			}
 //			if(userHits.length > 0 || groupHits.length > 0) {
 //				int userInd = 0, userEnd = userHits.length - 1, groupInd = 0, groupEnd = groupHits.length - 1, counter = 0;
@@ -2366,8 +2365,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 	
-	private SearchHit[] getCredentialUsers(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude) {
+	private SearchHit[] getResourceVisibilityUsers(String searchTerm, int limit, 
+			List<Long> usersToExclude) {
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -2421,7 +2420,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	}
 	
 	private SearchHit[] getCredentialGroups(long credId,
-			String searchTerm, int limit) {
+			String searchTerm, int limit, List<Long> groupsToExclude) {
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
@@ -2435,6 +2434,12 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			bqBuilder.must(qb);
 			
 			bqBuilder.mustNot(QueryBuilders.termQuery("credentials.id", credId));
+			
+			if (groupsToExclude != null) {
+				for (Long g : groupsToExclude) {
+					bqBuilder.mustNot(termQuery("id", g));
+				}
+			}
 			
 			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
 					.setTypes(ESIndexTypes.USER_GROUP)
@@ -2463,7 +2468,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return new SearchHit[0];
 	}
 	
-	private ResourceVisibilityMember extractCredentialUserResult(SearchHit hit) {
+	private ResourceVisibilityMember extractVisibilityUserResult(SearchHit hit) {
 		Map<String, Object> fields = hit.getSource();
 		User user = new User();
 		user.setId(Long.parseLong(fields.get("id") + ""));
@@ -2475,16 +2480,97 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	}
 	
 	@Override
-	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsers(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude) {
+	public TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm, 
+			int limit, List<Long> usersToExclude) {
 		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
-		SearchHit[] userHits = getCredentialUsers(credId, searchTerm, limit, usersToExclude);
+		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
 			
 		for(SearchHit h : userHits) {
-			response.addFoundNode(extractCredentialUserResult(h));
+			response.addFoundNode(extractVisibilityUserResult(h));
 		}
 			
 		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		try {
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			SearchHit[] groupHits = getCompetenceGroups(compId, searchTerm, limit, groupsToExclude);
+			
+			int userLength = userHits.length, groupLength = groupHits.length;
+			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
+			int userNumber = limit - groupNumber < userLength ? limit - groupNumber : userLength;
+			if(groupNumber + userNumber < limit) {
+				groupNumber = limit - userNumber < groupLength ? limit - userNumber : groupLength;
+			}
+			for(int i = 0; i < groupNumber; i++) {
+				SearchHit hit = groupHits[i];
+				long id = Long.parseLong(hit.getSource().get("id").toString());
+				String name = (String) hit.getSource().get("name");
+				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+			}
+			for(int i = 0; i < userNumber; i++) {
+				SearchHit hit = userHits[i];
+				response.addFoundNode(extractVisibilityUserResult(hit));
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private SearchHit[] getCompetenceGroups(long compId,
+			String searchTerm, int limit, List<Long> groupsToExclude) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name");
+			
+			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
+			bqBuilder.must(qb);
+			
+			bqBuilder.mustNot(QueryBuilders.termQuery("competences.id", compId));
+			
+			if (groupsToExclude != null) {
+				for (Long g : groupsToExclude) {
+					bqBuilder.mustNot(termQuery("id", g));
+				}
+			}
+			
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+					.setTypes(ESIndexTypes.USER_GROUP)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bqBuilder)
+					.setSize(limit)
+					.addSort("name", SortOrder.ASC);
+	
+			SearchResponse groupResponse = srb.execute().actionGet();
+			SearchHit[] groupHits = null;
+			if(groupResponse != null) {
+				SearchHits hits = groupResponse.getHits();
+				if(hits != null) {
+					groupHits = hits.hits();
+				}
+			}
+			if(groupHits == null) {
+				groupHits = new SearchHit[0];
+			}
+			
+			return groupHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
 	}
 
 }

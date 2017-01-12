@@ -18,6 +18,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface Competence1Manager {
@@ -215,5 +216,11 @@ public interface Competence1Manager {
 	 */
 	UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
 			throws DbConnectionException;
+	
+	boolean isVisibleToAll(long compId) throws DbConnectionException;
+	
+	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
+    				throws DbConnectionException;
 
 }

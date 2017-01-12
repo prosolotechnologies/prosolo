@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.competence;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,12 +8,12 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
@@ -23,36 +23,36 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "credentialVisibilityBean")
-@Component("credentialVisibilityBean")
+@ManagedBean(name = "competenceVisibilityBean")
+@Component("competenceVisibilityBean")
 @Scope("view")
-public class CredentialVisibilityBean implements Serializable {
+public class CompetenceVisibilityBean implements Serializable {
 
-	private static final long serialVersionUID = -926922726442064817L;
+	private static final long serialVersionUID = 6705556179040324163L;
 
-	private static Logger logger = Logger.getLogger(CredentialVisibilityBean.class);
+	private static Logger logger = Logger.getLogger(CompetenceVisibilityBean.class);
 	
 	@Inject private TextSearch textSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
-	@Inject private CredentialManager credManager;
+	@Inject private Competence1Manager compManager;
 	
-	private long credentialId;
+	private long compId;
 	
 	private boolean manageSection;
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
 	
-	public CredentialVisibilityBean() {
+	public CompetenceVisibilityBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
-	public void init(long credentialId, boolean manageSection) {
-		this.credentialId = credentialId;
+	public void init(long compId, boolean manageSection) {
+		this.compId = compId;
 		this.manageSection = manageSection;
 		resVisibilityUtil.initializeValues();
 		try {
-			logger.info("Manage visibility for credential with id " + credentialId);
+			logger.info("Manage visibility for competence with id " + compId);
 
 			loadData();
 		} catch(Exception e) {
@@ -62,9 +62,9 @@ public class CredentialVisibilityBean implements Serializable {
 	}
 	
 	private void loadData() {
-		setVisibleToEveryone(credManager.isVisibleToAll(credentialId));
-		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId));
-		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId)); 
+		setVisibleToEveryone(compManager.isVisibleToAll(compId));
+		setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId));
+		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(compId)); 
 		for(ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
 		}
@@ -77,7 +77,7 @@ public class CredentialVisibilityBean implements Serializable {
 		}
 		TextSearchResponse1<ResourceVisibilityMember> res = null;
 		if(manageSection) {
-			res = textSearch.searchCredentialUsersAndGroups(credentialId, searchTerm, getLimit(), 
+			res = textSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(), 
 					getUsersToExclude(), getGroupsToExclude());
 		} else {
 			res = textSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
@@ -105,19 +105,19 @@ public class CredentialVisibilityBean implements Serializable {
 	
 	public void saveVisibilityMembersData() {
 		try {
-			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
+			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(), 
 					isVisibleToEveryone(), isVisibleToEveryoneChanged());
 			//userGroupManager.saveCredentialUsersAndGroups(credentialId, existingGroups, existingUsers);
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			
-			Credential1 cred = new Credential1();
-			cred.setId(credentialId);
-			cred.setVisibleToAll(isVisibleToEveryone());
+			Competence1 comp = new Competence1();
+			comp.setId(compId);
+			comp.setVisibleToAll(isVisibleToEveryone());
 			if(isVisibleToEveryoneChanged()) {
 				eventFactory.generateEvent(EventType.VISIBLE_TO_ALL_CHANGED, 
-						loggedUserBean.getUserId(), cred, null, page, lContext,
+						loggedUserBean.getUserId(), comp, null, page, lContext,
 						service, null);
 			}
 			for(ResourceVisibilityMember group : getExistingGroups()) {
@@ -135,17 +135,17 @@ public class CredentialVisibilityBean implements Serializable {
 				if(eventType != null) {
 					UserGroup userGroup = new UserGroup();
 					userGroup.setId(group.getGroupId());
-					eventFactory.generateEvent(eventType, loggedUserBean.getUserId(), userGroup, cred, page, 
+					eventFactory.generateEvent(eventType, loggedUserBean.getUserId(), userGroup, comp, page, 
 							lContext, service, null);
 				}
 			}
 			eventFactory.generateEvent(EventType.RESOURCE_VISIBILITY_CHANGE, 
-					loggedUserBean.getUserId(), cred, null, page, lContext,
+					loggedUserBean.getUserId(), comp, null, page, lContext,
 					service, null);
-			PageUtil.fireSuccessfulInfoMessage("Credential visibility options successfully updated");
+			PageUtil.fireSuccessfulInfoMessage("Competence visibility options successfully updated");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update credential visibility");
+			PageUtil.fireErrorMessage("Error while trying to update competence visibility");
 		}
 	}
 
@@ -224,4 +224,5 @@ public class CredentialVisibilityBean implements Serializable {
 	private List<Long> getGroupsToExclude() {
 		return resVisibilityUtil.getGroupsToExclude();
 	}
+	
 }

@@ -48,9 +48,9 @@ public interface TextSearch extends AbstractManager {
 			String searchString, int page, int limit, boolean loadOneMore,
 			Collection<LearningGoal> existingGoals);
 
-	TextSearchResponse searchCompetences(
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
+//	TextSearchResponse searchCompetences(
+//			String searchString, int page, int limit, boolean loadOneMore,
+//			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 	
 	TextSearchResponse searchActivities(
 			String searchString, int page, int limit, boolean loadOneMore,
@@ -158,9 +158,12 @@ public interface TextSearch extends AbstractManager {
 	 * @return
 	 */
 	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude);
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
 	
-	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsers(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude);
+	TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
+			int limit, List<Long> usersToExclude);
+	
+	TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
 	
 }

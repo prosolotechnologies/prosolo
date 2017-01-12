@@ -3,6 +3,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
@@ -32,6 +33,11 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 		Competence1 comp = (Competence1) event.getObject();
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
+			if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
+				competenceESService.updateCompetenceUsersWithPrivileges(comp.getId(), session);
+			} else if(event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
+				competenceESService.updateVisibleToAll(comp.getId(), comp.isVisibleToAll());
+			}
 			if(params != null) {
 				String jsonChangeTracker = params.get("changes");
 				if(params != null) {

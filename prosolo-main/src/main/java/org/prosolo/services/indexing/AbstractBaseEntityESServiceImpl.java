@@ -106,14 +106,8 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	public String getIndexTypeForNode(BaseEntity node) {
 		String indexType = null;
 	 
-		if (node instanceof TargetCompetence || node instanceof Competence) {
-			indexType = ESIndexTypes.COMPETENCE;
-		} else if (node instanceof LearningGoal) {
-			indexType = ESIndexTypes.LEARNINGGOAL;
-		} else if (node instanceof User) {
+		if (node instanceof User) {
 			indexType = ESIndexTypes.USER;
-		} else if (node instanceof Course) {
-			indexType = ESIndexTypes.COURSE;
 		} else if (node instanceof Activity || node instanceof TargetActivity) {
 			indexType = ESIndexTypes.ACTIVITY;
 		} else if (node instanceof Tag) {

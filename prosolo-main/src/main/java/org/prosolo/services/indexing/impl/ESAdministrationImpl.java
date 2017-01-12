@@ -97,7 +97,7 @@ public class ESAdministrationImpl implements ESAdministration {
 					this.addMapping(client,  indexName, ESIndexTypes.DOCUMENT);
 				} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
 					this.addMapping(client, indexName, ESIndexTypes.ACTIVITY);
-					this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
+					this.addMapping(client, indexName, ESIndexTypes.COMPETENCE1);
 					this.addMapping(client, indexName, ESIndexTypes.COURSE);
 					this.addMapping(client, indexName, ESIndexTypes.LEARNINGGOAL);
 					this.addMapping(client, indexName, ESIndexTypes.TAGS);

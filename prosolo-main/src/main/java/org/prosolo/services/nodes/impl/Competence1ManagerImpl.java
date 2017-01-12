@@ -41,11 +41,13 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibility;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;
@@ -73,6 +75,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private ResourceFactory resourceFactory;
 	@Inject
 	private CredentialManager credentialManager;
+	@Inject
+	private UserGroupManager userGroupManager;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -1684,6 +1688,47 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while trying to retrieve user privilege for competence");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isVisibleToAll(long compId) throws DbConnectionException {
+		try {
+			String query=
+					"SELECT comp.visibleToAll " +
+					"FROM Competence1 comp " +
+					"WHERE comp.id = :compId";
+			  	
+			Boolean result = (Boolean) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+				  	.uniqueResult();
+			
+			return result == null ? false : result;
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence visibility");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
+    				throws DbConnectionException {
+		try {
+			if(visibleToAllChanged) {
+				Competence1 comp = (Competence1) persistence.currentManager().load(
+						Competence1.class, compId);
+				comp.setVisibleToAll(visibleToAll);
+			}
+			userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential visibility");
 		}
 	}
 	

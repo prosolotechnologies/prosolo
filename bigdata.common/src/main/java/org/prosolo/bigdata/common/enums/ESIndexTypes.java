@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.common.enums;
 
 public class ESIndexTypes {
-	public static final String COMPETENCE = "competence";
+	//public static final String COMPETENCE = "competence";
 	public static final String LEARNINGGOAL = "learninggoal";
 	public static final String USER = "user";
 	public static final String TAGS = "tags";

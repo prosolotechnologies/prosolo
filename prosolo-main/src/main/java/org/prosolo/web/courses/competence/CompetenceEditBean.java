@@ -32,6 +32,7 @@ import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -50,6 +51,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
+	@Inject private CompetenceVisibilityBean visibilityBean;
 
 	private String id;
 	private String credId;
@@ -73,8 +75,11 @@ public class CompetenceEditBean implements Serializable {
 	
 	private String context;
 	
+	private boolean manageSection;
+	
 	public void init() {
 		try {
+			manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 			initializeValues();
 			decodedCredId = idEncoder.decodeId(credId);
 			if(id == null) {
@@ -106,6 +111,10 @@ public class CompetenceEditBean implements Serializable {
 			competenceData = new CompetenceData1(false);
 			PageUtil.fireErrorMessage("Error while loading competence data");
 		}
+	}
+	
+	public void initVisibilityManageData() {
+		visibilityBean.init(decodedId, manageSection);
 	}
 	
 	private void setContext() {

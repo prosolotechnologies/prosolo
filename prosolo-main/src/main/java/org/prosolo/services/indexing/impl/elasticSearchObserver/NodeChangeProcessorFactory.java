@@ -84,7 +84,7 @@ public class NodeChangeProcessorFactory {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager);
+							credentialESService, userGroupManager, competenceESService);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
@@ -99,7 +99,7 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Delete, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager);
+							credentialESService, userGroupManager, competenceESService);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -116,7 +116,7 @@ public class NodeChangeProcessorFactory {
 			case USER_GROUP_ADDED_TO_RESOURCE:
 			case USER_GROUP_REMOVED_FROM_RESOURCE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
-						userGroupManager);
+						userGroupManager, competenceESService);
 			default:
 				return null;
 		}
