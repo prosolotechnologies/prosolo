@@ -281,8 +281,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public List<AssessmentData> getAllAssessmentsForStudent(long studentId, boolean searchForPending,
 			boolean searchForApproved, UrlIdEncoder idEncoder, SimpleDateFormat simpleDateFormat, int page,
-			int numberPerPage) {
-		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved, page, numberPerPage);
+			int limit) {
+		Query query = getAssessmentForCredentialQuery(studentId, searchForPending, searchForApproved, page, limit);
 		
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
@@ -301,7 +301,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private Query getAssessmentForCredentialQuery(long studentId, boolean searchForPending, boolean searchForApproved,
-			int page, int numberPerPage) {
+			int page, int limit) {
 		Query query = null;
 		if (searchForApproved && searchForPending) {
 			query = persistence.currentManager().createQuery(ALL_ASSESSMENTS_FOR_USER_QUERY).setLong("studentId",
@@ -313,7 +313,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			query = persistence.currentManager().createQuery(ALL_PENDING_ASSESSMENTS_FOR_USER_QUERY)
 					.setLong("studentId", studentId);
 		}
-		query.setFirstResult(numberPerPage * page).setFetchSize(numberPerPage);
+		query.setFirstResult(limit * page).setMaxResults(limit);
 		return query;
 	}
 
@@ -405,7 +405,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 			participant.setParticipant(user);
 			saveEntity(participant, session);
-			activityDiscussion.getParticipants().add(participant);
+			activityDiscussion.addParticipant(participant);
 		}
 		return activityDiscussion;
 	}
@@ -415,8 +415,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException {
 		ActivityAssessment discussion = get(ActivityAssessment.class, actualDiscussionId);
-		//persistence.currentManager().refresh(discussion);
 		ActivityDiscussionParticipant sender = discussion.getParticipantByUserId(senderId);
+		
 		if (sender == null) {
 			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
 			User user = loadResource(User.class, senderId);
@@ -426,13 +426,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			participant.setParticipant(user);
 			saveEntity(participant);
 			sender = participant;
-			// discussion.getParticipants().add(participant);
+			discussion.addParticipant(participant);
 		}
 		
 		Date now = new Date();
 		// create new comment
 		ActivityDiscussionMessage message = new ActivityDiscussionMessage();
-		// can happen if there are no messages in discussionS
+		// can happen if there are no messages in discussion
 		if (discussion.getMessages() == null) {
 			discussion.setMessages(new ArrayList<>());
 		}
@@ -451,6 +451,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				participant.setRead(false);
 			}
 		}
+		saveEntity(discussion);
 		// save the message
 		saveEntity(message);
 		// update the discussion, updating all participants along the way
@@ -993,4 +994,31 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	@Override
+	@Transactional (readOnly = true)
+	public List<Long> getParticipantIds(long activityAssessmentId) {
+		try {
+			String query = 
+					"SELECT participant.id " +
+					"FROM ActivityAssessment actAssessment " +
+					"INNER JOIN actAssessment.participants participants " +
+					"INNER JOIN participants.participant participant " +
+					"WHERE actAssessment.id = :activityAssessmentId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> ids = persistence.currentManager()
+					.createQuery(query)
+					.setLong("activityAssessmentId", activityAssessmentId)
+					.list();
+			
+			if (ids != null) {
+				return ids;
+			}
+			return new ArrayList<Long>();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity assessment");
+		}
+	}
 }

@@ -162,11 +162,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					.createQuery(queryBuilder.toString())
 					.setLong("credId", credentialId)
 					.setInteger("unlimitedNo", 0);
-			
-			if(instructorToExcludeId > 0) {
+
+			if (instructorToExcludeId > 0) {
 				q.setLong("excludeId", instructorToExcludeId);
 			}
-			//q.setFetchSize(numberOfInstructorsToReturn);
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = q.list();

@@ -3,11 +3,14 @@ package org.prosolo.web.courses.credential;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -32,10 +35,9 @@ import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -79,11 +81,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
 
-	private List<PaginationLink> paginationLinks;
-	private int page = 1;
-	private int limit = 5;
-	private int numberOfPages;
-	private int assessmentsNumber;
+	private PaginationData paginationData = new PaginationData(5);
 
 	// adding new comment
 	private String newCommentValue;
@@ -101,12 +99,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						LearningResourceType.UNIVERSITY_CREATED);
 				if (title != null) {
 					credentialTitle = title;
-					assessmentsNumber = assessmentManager.countAssessmentsForAssessorAndCredential(
-							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved);
+					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(
+							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved));
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
 							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
-					generatePagination();
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -324,18 +321,23 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
+	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
 					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, getCommentRecepientId(),
-					fullAssessmentData.getCredentialId());
-
+			
+			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
+			for (Long userId : participantIds) {
+				if (userId != loggedUserBean.getUserId()) {
+					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId,
+							fullAssessmentData.getCredentialId());
+				}
+			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -399,8 +401,24 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
+			
+			// creating a set as there might be duplicates with ids
+			Set<Long> participantIds = new HashSet<>();
+			
+			// adding the student as a participant
+			participantIds.add(fullAssessmentData.getAssessedStrudentId());
+			
+			// adding the logged in user (the message poster) as a participant. It can happen that some other user, 
+			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+			participantIds.add(loggedUserBean.getUserId());
+			
+			// if assessor is set, add him to the discussion
+			if (fullAssessmentData.getAssessorId() > 0) {
+				participantIds.add(fullAssessmentData.getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
+					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
@@ -417,7 +435,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (!searchForApproved || !searchForPending) {
 			searchForApproved = true;
 			searchForPending = true;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
 	}
@@ -427,19 +445,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (searchForApproved || searchForPending) {
 			searchForApproved = false;
 			searchForPending = false;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
-	}
-	
-	private void generatePagination() {
-		// if we don't want to generate all links
-		Paginator paginator = new Paginator(assessmentsNumber, limit, page, 1, "...");
-		// if we want to genearte all links in paginator
-		// Paginator paginator = new Paginator(courseMembersNumber, limit, page,
-		// true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
 	}
 	
 	private boolean isInManageSection() {
@@ -521,7 +529,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -532,7 +540,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -586,49 +594,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-
-	@Override
 	public void changePage(int page) {
-		if (this.page != page) {
-			this.page = page;
+		if (paginationData.getPage() != page) {
+			paginationData.setPage(page);
 			init();
 		}
 	}
 
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return assessmentsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public ActivityAssessmentData getCurrentAssessment() {

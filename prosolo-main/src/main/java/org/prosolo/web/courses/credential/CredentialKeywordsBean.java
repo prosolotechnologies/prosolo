@@ -37,22 +37,28 @@ public class CredentialKeywordsBean {
 	private List<CompetenceData1> competences;
 	private List<ActivityData> activities;
 	private String chosenKeywordsString;
+	private List<CompetenceData1> filteredCompetences;
 
 	public void init() {
 		selectedKeywords = new ArrayList<>();
+		filteredCompetences = new ArrayList<>();
 		tags = credentialManager.getTagsForCredentialCompetences(idEncoder.decodeId(id));
 		competences = credentialManager.getTargetCompetencesForKeywordSearch(idEncoder.decodeId(id));
 		activities = credentialManager.getTargetActivityForKeywordSearch(idEncoder.decodeId(id));
-
+		filterCompetences();
 		logger.info("init");
 	}
 
-	public String getTagSearchTerm() {
+	public List<CompetenceData1> getFilteredCompetences() {
+		return filteredCompetences;
+	}
+
+	public String getChosenKeywordsString() {
 		return AnnotationUtil.getAnnotationsAsSortedCSVForTagCountData(selectedKeywords);
 	}
 
-	public void setTagSearchTerm(String tagSearchTerm) {
-		this.chosenKeywordsString = tagSearchTerm;
+	public void setChosenKeywordsString(String chosenKeywordsString) {
+		this.chosenKeywordsString = chosenKeywordsString;
 	}
 
 	public List<CompetenceData1> getCompetences() {
@@ -77,16 +83,15 @@ public class CredentialKeywordsBean {
 
 	public void addKeyword(TagCountData t) {
 		lastSelected = t;
-		if (!selectedKeywords.contains(t)) {
-			selectedKeywords.add(t);
-		}
+		selectedKeywords.add(t);
+		filterCompetences();
 	}
 
 	public List<ActivityData> getActivities() {
 		List<ActivityData> filteredActivities = new ArrayList<>();
 		if (!selectedKeywords.isEmpty()) {
 			for (ActivityData activity : activities) {
-				for (CompetenceData1 competence : filter()) {
+				for (CompetenceData1 competence : filteredCompetences) {
 					if (activity.getCompetenceId() == competence.getCompetenceId()) {
 						filteredActivities.add(activity);
 						break;
@@ -104,25 +109,29 @@ public class CredentialKeywordsBean {
 		this.activities = activities;
 	}
 
-	public List<CompetenceData1> filter() {
-		List<CompetenceData1> filtered = new ArrayList<>();
-		if (!selectedKeywords.isEmpty() || !getTagSearchTerm().equals("")) {
+	public void filterCompetences() {
+		if (!selectedKeywords.isEmpty() || !getChosenKeywordsString().equals("")) {
+			filteredCompetences.clear();
 			for (CompetenceData1 comp : getCompetences()) {
-				if (comp.getTagsString().contains(lastSelected.getTitle())) {
-					filtered.add(comp);
+				for (TagCountData tag : selectedKeywords) {
+					if (comp.getTagsString().contains(tag.getTitle())) {
+						filteredCompetences.add(comp);
+						break;
+					}
 				}
 			}
 		} else {
-			filtered = getCompetences();
+			filteredCompetences = new ArrayList<>(competences);
 		}
-		return filtered;
 	}
-	
-	public void removeTag(){
+
+	public void removeTag() {
 		String tagToRemove = PageUtil.getGetParameter("tag");
-		for(int i = 0; i<selectedKeywords.size(); i++){
-			if(selectedKeywords.get(i).getTitle().equals(tagToRemove)){
+		for (int i = 0; i < selectedKeywords.size(); i++) {
+			if (selectedKeywords.get(i).getTitle().equals(tagToRemove)) {
 				selectedKeywords.remove(i);
+				filterCompetences();
+				break;
 			}
 		}
 	}

@@ -45,6 +45,7 @@
 			<groupId>org.prosolo</groupId>
 			<artifactId>bigdata.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 		<!--local prosolo repository dependencies-->
 		<dependency>

@@ -3111,7 +3111,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				"FROM TargetCompetence1 targetComp " + 
 				"LEFT JOIN targetComp.tags tag " +
 				"WHERE targetComp.targetCredential.id = :credId "+
-				"ORDER BY tag");
+				"GROUP BY tag " +
+				"ORDER BY tag.title");
 		
 		@SuppressWarnings("unchecked")
 		List<Object[]> res = (List<Object[]>) persistence.currentManager()
@@ -3154,7 +3155,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				"SELECT DISTINCT targetComp " +
 				"FROM TargetCompetence1 targetComp " + 
 				"LEFT JOIN targetComp.tags tag "+
-				"WHERE targetComp.targetCredential.id = :credId");
+				"WHERE targetComp.targetCredential.id = :credId " +
+				"ORDER BY targetComp.title");
 		
 		@SuppressWarnings("unchecked")
 		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()

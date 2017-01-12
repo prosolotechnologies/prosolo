@@ -68,7 +68,7 @@ public abstract class Observable {
 	 * @param oldValue attribute value before new value is set
 	 * @param newValue object of a class that implements
 	 */
-	public final <T> void observeAttributeChange(String fieldName, T oldValue, T newValue) {
+	public <T> void observeAttributeChange(String fieldName, T oldValue, T newValue) {
 		observeAttributeChange(fieldName, oldValue, newValue, null);
 	}
 
