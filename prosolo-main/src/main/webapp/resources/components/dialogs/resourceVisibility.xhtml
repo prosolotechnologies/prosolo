@@ -41,7 +41,8 @@
 								name="execSearchGroups" 
 								process="inputGroupSearch"
 								update="panelGroupSearchResults"
-								action="#{cc.attrs.bean.searchUsersAndGroups()}" />
+								action="#{cc.attrs.bean.searchUsersAndGroups()}"
+								oncomplete="showSearchResults('.panelGroupSearchResultsSelector', '.groupSearchFieldSelector');" />
 														
 							<h:inputText id="inputGroupSearch"
 								type="search"
@@ -49,7 +50,7 @@
 								placeholder="Search Users #{cc.attrs.bean.manageSection ? 'or Groups' : ''}"
 								value="#{cc.attrs.bean.searchTerm}"
 								onclick="$(this).select();"
-								onkeyup="showSearchResults('.panelGroupSearchResultsSelector', '.groupSearchFieldSelector');searchIfNeeded('.groupSearchFieldSelector', execSearchGroups);return false;"/>
+								onkeyup="searchIfNeeded('.groupSearchFieldSelector', execSearchGroups); return false;"/>
 						
 							<h:panelGroup id="panelGroupSearchResults">
 								<ui:fragment rendered="#{not empty cc.attrs.bean.searchMembers}">
