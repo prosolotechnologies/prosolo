@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -248,11 +247,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		return Optional.empty();
 	}
 
-	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId,
-			String encodedCompetenceAssessmentId) {
+	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
-			actualDiscussionId = createDiscussion(encodedTargetActivityId, encodedCompetenceAssessmentId);
+			actualDiscussionId = createDiscussion(idEncoder.decodeId(encodedTargetActivityId), idEncoder.decodeId(encodedCompetenceAssessmentId));
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -272,8 +270,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			long credAssessmentId = currentAssessment.getCredAssessmentId();
 			
 			if (StringUtils.isBlank(currentAssessment.getEncodedDiscussionId())) {
-				long actualDiscussionId = createDiscussion(currentAssessment.getEncodedTargetActivityId(), 
-						idEncoder.encodeId(compAssessmentId));
+				long actualDiscussionId = createDiscussion(idEncoder.decodeId(currentAssessment.getEncodedTargetActivityId()), compAssessmentId);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -334,8 +331,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
 			for (Long userId : participantIds) {
 				if (userId != loggedUserBean.getUserId()) {
-					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId,
-							fullAssessmentData.getCredentialId());
+					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId, fullAssessmentData.getCredentialId());
 				}
 			}
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -384,21 +380,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private long getCommentRecepientId() {
-		// logged user is either assessor or assessee
-		long currentUserId = loggedUserBean.getUserId();
-		if (fullAssessmentData.getAssessorId() == currentUserId) {
-			// current user is assessor, get the other id
-			return fullAssessmentData.getAssessedStrudentId();
-		} else
-			return fullAssessmentData.getAssessorId();
-
-	}
-
-	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
-		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
-		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
-
+	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 			

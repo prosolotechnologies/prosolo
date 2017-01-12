@@ -107,8 +107,10 @@
 							<p:commandLink styleClass="btn btn-green"
 								value="Duplicate Credential"
 								action="#{credentialEditBean.duplicate()}"
-								process="@this"
-							/>
+								process="@this">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="name:credential" />
+							</p:commandLink>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 						</div>
 					</div>

@@ -403,7 +403,7 @@ public interface CredentialManager extends AbstractManager {
 	 * Returns titles of a tag and number of tag occurrences for given credential
 	 * 
 	 * @param credId
-	 * @return array of two elements where first element is tag title and the second element is number of tag occurrence
+	 * @return array of two elements where first element is tag title and the second element is competence title.
 	 * @throws DbConnectionException
 	 */
 	List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException;

@@ -18,7 +18,8 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.search.TextSearch;
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -27,10 +28,10 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.search.SearchPeopleBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +55,7 @@ public class CredentialViewBeanUser implements Serializable {
 	@Inject private AssessmentManager assessmentManager;
 	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired private EventFactory eventFactory;
-	@Autowired private SearchPeopleBean searchPeopleBean;
+	@Autowired private TextSearch textSearch;
 
 	private String id;
 	private long decodedId;
@@ -67,6 +68,11 @@ public class CredentialViewBeanUser implements Serializable {
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
 	private boolean noRandomAssessor = false;
+	
+	// used for search in the Ask for Assessment modal
+	private List<UserData> peersForAssessment;
+	private String peerSearchTerm;
+	private List<Long> peersToExcludeFromSearch;
 
 	public void init() {	
 		decodedId = idEncoder.decodeId(id);
@@ -171,17 +177,61 @@ public class CredentialViewBeanUser implements Serializable {
 		return credentialData.getCompetences().size() != index + 1;
 	}
 	
+	/*
+	 * Ask for Assessment modal
+	 */
+	public void resetAskForAssessmentModal() {
+		noRandomAssessor = false;
+		assessmentRequestData = new AssessmentRequestData();
+		peersForAssessment = null;
+		peerSearchTerm = null;
+	}
+	
+	public void chooseRandomPeerForAssessor() {
+		resetAskForAssessmentModal();
+		
+		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
+		
+		if (randomPeer != null) {
+			assessmentRequestData.setAssessorId(randomPeer.getId());
+			assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
+			assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
+			noRandomAssessor = false;
+		} else {
+			noRandomAssessor = true;;
+		}
+	}
+	
+	public void searchCredentialPeers() {
+		if (peerSearchTerm == null && peerSearchTerm.isEmpty()) {
+			peersForAssessment = null;
+		} else {
+			try {
+				if (peersToExcludeFromSearch == null) {
+					peersToExcludeFromSearch = credentialManager.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
+					peersToExcludeFromSearch.add(loggedUser.getUserId());
+				}
+				
+				TextSearchResponse1<UserData> result = textSearch
+						.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
+				peersForAssessment = result.getFoundNodes();
+			} catch(Exception e) {
+				logger.error(e);
+			}
+		}
+	}
+	
 	public void setupAssessmentRequestRecepient() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String id = params.get("assessmentRecipient");
-		if(StringUtils.isNotBlank(id)){
+		if (StringUtils.isNotBlank(id)) {
 			assessmentRequestData.setAssessorId(Long.valueOf(id));
 		}
 	}
 	
 	public void setAssessor(UserData assessorData) {
 		assessmentRequestData.setAssessorId(assessorData.getId());
-		assessmentRequestData.setAssessorFullName(assessorData.getName());
+		assessmentRequestData.setAssessorFullName(assessorData.getFullName());
 		assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
 		
 		noRandomAssessor = false;
@@ -200,12 +250,17 @@ public class CredentialViewBeanUser implements Serializable {
 			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext, service);
 
 			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+			
+			if (peersToExcludeFromSearch != null) {
+				peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+			}
 		}
 		else {
 			logger.error("Student "+ loggedUser.getFullName() + " tried to submit assessment request for credential : " 
 					+ credentialData.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
+		resetAskForAssessmentModal();
 	}
 
 	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext, String service) {
@@ -248,28 +303,6 @@ public class CredentialViewBeanUser implements Serializable {
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), 
 				credentialData.getTargetCredId()));
-	}
-	
-	public void resetAskForAssessmentModal() {
-		noRandomAssessor = false;
-		assessmentRequestData = new AssessmentRequestData();
-		searchPeopleBean.resetSearch();
-	}
-	
-	public void chooseRandomPeerForAssessor() {
-		assessmentRequestData.resetAssessorData();
-		searchPeopleBean.resetSearch();
-		
-		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
-		
-		if (randomPeer != null) {
-			assessmentRequestData.setAssessorId(randomPeer.getId());
-			assessmentRequestData.setAssessorFullName(randomPeer.getName());
-			assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
-			noRandomAssessor = false;
-		} else {
-			noRandomAssessor = true;;
-		}
 	}
 	
 	/*
@@ -352,4 +385,16 @@ public class CredentialViewBeanUser implements Serializable {
 		return noRandomAssessor;
 	}
 
+	public String getPeerSearchTerm() {
+		return peerSearchTerm;
+	}
+
+	public void setPeerSearchTerm(String peerSearchTerm) {
+		this.peerSearchTerm = peerSearchTerm;
+	}
+
+	public List<UserData> getPeersForAssessment() {
+		return peersForAssessment;
+	}
+	
 }
