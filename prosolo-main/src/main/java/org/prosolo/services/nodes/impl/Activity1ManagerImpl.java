@@ -461,7 +461,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			//we need user privilege for competence on which activity is dependend
 			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(competenceId, userId);
-			
 			/*
 			 * user can access activity:
 			 *  - when he has the right privilege and
@@ -521,7 +520,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 */
 			StringBuilder queryB = new StringBuilder("SELECT compAct " +
 					   "FROM CompetenceActivity1 compAct " +
-					   "INNER JOIN compAct.activity act ");
+					   "INNER JOIN fetch compAct.activity act ");
 			
 			if(loadLinks) {
 				queryB.append("LEFT JOIN fetch act.links link " +
@@ -971,7 +970,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			ActivityData activityWithDetails = getActivityData(credId, compId, activityId, 
 					creatorId, true, privilege);
-
 			if (activityWithDetails != null) {
 					compData = new CompetenceData1(false);
 					compData.setActivityToShowWithDetails(activityWithDetails);

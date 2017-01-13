@@ -2571,7 +2571,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"INNER JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
 					"WHERE cred.id = :credId " +
-					"ORDER BY CASE credUserGroup.privilege WHEN :editPriv THEN 1 WHEN :viewPriv THEN 2 ELSE 3 END";
+					"ORDER BY CASE WHEN credUserGroup.privilege = :editPriv THEN 1 WHEN credUserGroup.privilege = :viewPriv THEN 2 ELSE 3 END";
 			
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)

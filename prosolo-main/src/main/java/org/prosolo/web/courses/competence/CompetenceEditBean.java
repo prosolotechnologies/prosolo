@@ -108,6 +108,7 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			competenceData = new CompetenceData1(false);
 			PageUtil.fireErrorMessage("Error while loading competence data");
 		}

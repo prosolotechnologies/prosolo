@@ -1661,7 +1661,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"INNER JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
 					"WHERE comp.id = :compId " +
-					"ORDER BY CASE compUserGroup.privilege WHEN :editPriv THEN 1 WHEN :viewPriv THEN 2 ELSE 3 END";
+					"ORDER BY CASE WHEN compUserGroup.privilege = :editPriv THEN 1 WHEN compUserGroup.privilege = :viewPriv THEN 2 ELSE 3 END";
 			
 			Object[] res = (Object[]) persistence.currentManager()
 					.createQuery(query)

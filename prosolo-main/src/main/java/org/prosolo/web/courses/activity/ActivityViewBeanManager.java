@@ -73,25 +73,33 @@ public class ActivityViewBeanManager implements Serializable {
 						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), priv);
 				
-				/*
-				 * check if user has instructor capability and if has, we should mark his comments as
-				 * instructor comments
-				 */
-				boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-				commentsData = new CommentsData(CommentedResourceType.Activity, 
-						competenceData.getActivityToShowWithDetails().getActivityId(), 
-						hasInstructorCapability);
-				commentsData.setCommentId(idEncoder.decodeId(commentId));
-				commentBean.loadComments(commentsData);
-//					commentBean.init(CommentedResourceType.Activity, 
-//							competenceData.getActivityToShowWithDetails().getActivityId(), 
-//							hasInstructorCapability);
-				
-				ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-						competenceData.getActivityToShowWithDetails().getCaptions(), 
-						loggedUser.getUserId());
-				
-				loadCompetenceAndCredentialTitle();
+				if(competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else {
+					/*
+					 * check if user has instructor capability and if has, we should mark his comments as
+					 * instructor comments
+					 */
+					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+					commentsData = new CommentsData(CommentedResourceType.Activity, 
+							competenceData.getActivityToShowWithDetails().getActivityId(), 
+							hasInstructorCapability);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
+					commentBean.loadComments(commentsData);
+	//					commentBean.init(CommentedResourceType.Activity, 
+	//							competenceData.getActivityToShowWithDetails().getActivityId(), 
+	//							hasInstructorCapability);
+					
+					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+							competenceData.getActivityToShowWithDetails().getCaptions(), 
+							loggedUser.getUserId());
+					
+					loadCompetenceAndCredentialTitle();
+				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -101,6 +109,7 @@ public class ActivityViewBeanManager implements Serializable {
 			} catch(AccessDeniedException ade) {
 				PageUtil.fireErrorMessage("You are not allowed to access this activity");
 			} catch(Exception e) {
+				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
