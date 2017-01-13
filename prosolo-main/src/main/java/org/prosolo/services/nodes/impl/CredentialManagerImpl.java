@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -394,7 +393,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, AccessDeniedException, DbConnectionException {
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		CredentialData credData = null;
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
@@ -475,10 +474,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences, long userId, UserGroupPrivilege privilege) 
-					throws ResourceNotFoundException, AccessDeniedException, DbConnectionException {
+					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
 			if(privilege == null) {
-				throw new AccessDeniedException();
+				throw new IllegalArgumentException();
 			}
 			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
 			
@@ -492,23 +491,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			 * user can access credential:
 			 *  - when he has the right privilege and
 			 *  - when credential is published if user has View privilege
-			 *  
-			 * when user has view privilege, we always return credential, but
-			 * if user has privilege other than View and canAccess is false 
-			 * AccessDeniedException is thrown
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
 			
-			if(!canAccess && priv != UserGroupPrivilege.View) {
-				throw new AccessDeniedException();
-			}
+			//user can't access credential with View privilege if credential is not published
 			if(canAccess && priv == UserGroupPrivilege.View && !cred.isPublished()) {
 				canAccess = false;
 			}
 			
-//			if(!canAccess) {
-//				throw new AccessDeniedException();
-//			}
 			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
 			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred,
 					cred.getTags(), cred.getHashtags(), true);
@@ -519,7 +509,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				//if user has edit privilege for the credential, we should include not published 
 				//competences to the result also
 				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, priv == UserGroupPrivilege.Edit || priv == UserGroupPrivilege.None, 
+						credentialId, false, false , false, privilege == UserGroupPrivilege.Edit, 
 						privilege == UserGroupPrivilege.Edit, userId);
 				credData.setCompetences(compsData);
 			}
@@ -527,8 +517,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return credData;
 		} catch (ResourceNotFoundException rfe) {
 			throw rfe;
-		} catch(AccessDeniedException ade) {
-			throw ade;
+		} catch(IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -824,7 +814,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    	
 	    	if(data.isPublished() && data.isPublishedChanged()) {
     			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
-	    		List<EventData> events = compManager.publishCompetences(compIds, creatorId);
+	    		List<EventData> events = compManager.publishCompetences(data.getId(), compIds, creatorId);
 	    		res.addEvents(events);
     		}
 	    }
@@ -2555,14 +2545,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return ev;
 //	}
 	
-	/**
-	 * Checks if user is owner of credential and if it is returns edit privilege. Otherwise
-	 * if user has any privilege for credential, it is returned and if he does not, None privilege is returned
-	 * @param credId
-	 * @param userId
-	 * @return {@link UserGroupPrivilege}
-	 */
-	private UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) {
+	@Override
+	@Transactional(readOnly = true)
+	public UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
+			throws DbConnectionException {
 		try {
 			String query = "SELECT credUserGroup.privilege, cred.createdBy.id, cred.visibleToAll " +
 					"FROM CredentialUserGroup credUserGroup " +

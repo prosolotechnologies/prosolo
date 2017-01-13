@@ -121,7 +121,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = textSearch.searchCredentialsForManager(
+		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(
 				searchTerm, page - 1, limit, loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentialsNumber = (int) response.getHitsNumber();
 		credentials = response.getFoundNodes();

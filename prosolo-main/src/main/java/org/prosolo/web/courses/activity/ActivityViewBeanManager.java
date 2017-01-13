@@ -8,7 +8,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -80,25 +79,33 @@ public class ActivityViewBeanManager implements Serializable {
 						logger.error(e);
 					}
 				} else {
-					/*
-					 * check if user has instructor capability and if has, we should mark his comments as
-					 * instructor comments
-					 */
-					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							hasInstructorCapability);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
-	//					commentBean.init(CommentedResourceType.Activity, 
-	//							competenceData.getActivityToShowWithDetails().getActivityId(), 
-	//							hasInstructorCapability);
-					
-					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-							competenceData.getActivityToShowWithDetails().getCaptions(), 
-							loggedUser.getUserId());
-					
-					loadCompetenceAndCredentialTitle();
+					if(!competenceData.getActivityToShowWithDetails().isCanAccess()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						/*
+						 * check if user has instructor capability and if has, we should mark his comments as
+						 * instructor comments
+						 */
+						boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+						commentsData = new CommentsData(CommentedResourceType.Activity, 
+								competenceData.getActivityToShowWithDetails().getActivityId(), 
+								hasInstructorCapability);
+						commentsData.setCommentId(idEncoder.decodeId(commentId));
+						commentBean.loadComments(commentsData);
+		//					commentBean.init(CommentedResourceType.Activity, 
+		//							competenceData.getActivityToShowWithDetails().getActivityId(), 
+		//							hasInstructorCapability);
+						
+						ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+								competenceData.getActivityToShowWithDetails().getCaptions(), 
+								loggedUser.getUserId());
+						
+						loadCompetenceAndCredentialTitle();
+					}
 				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {
@@ -106,8 +113,6 @@ public class ActivityViewBeanManager implements Serializable {
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(AccessDeniedException ade) {
-				PageUtil.fireErrorMessage("You are not allowed to access this activity");
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);

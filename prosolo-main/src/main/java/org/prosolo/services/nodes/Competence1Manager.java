@@ -3,7 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -72,12 +71,12 @@ public interface Competence1Manager {
 	 * @param shouldTrackChanges
 	 * @return
 	 * @throws ResourceNotFoundException
-	 * @throws AccessDeniedException
+	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, long userId, UserGroupPrivilege privilege,
-			boolean shouldTrackChanges) throws ResourceNotFoundException, AccessDeniedException, DbConnectionException;
+			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, boolean includeNotPublished, boolean includeCanEdit, long userId) 
@@ -157,20 +156,21 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
-			long userId) throws DbConnectionException;
+			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
 	/**
 	 * this is the method that should be called when you want to publish competences
 	 * 
 	 * Returns List of data for events that should be generated after transaction commits.
 	 * 
+	 * @param credId
 	 * @param compIds
 	 * @param creatorId
 	 * @param role
 	 * @throws DbConnectionException
 	 * @throws CompetenceEmptyException
 	 */
-	List<EventData> publishCompetences(List<Long> compIds, long creatorId) 
+	List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
 			throws DbConnectionException, CompetenceEmptyException;
 	
 	/**
@@ -208,13 +208,16 @@ public interface Competence1Manager {
 //			boolean loadActivities, Mode mode) throws DbConnectionException;
 	
 	/**
-	 * Checks if user is owner of competence and if it is returns edit privilege. Otherwise
-	 * if user has any privilege for competence, it is returned and if he does not, None privilege is returned
+	 * Returns privilege of a user with {@code userId} id for competence with {@code compId} id.
+	 * 
+	 * If {@code credId} is greater than 0, privilege for credential is returned, otherwise privilege
+	 * for competence is returned.
+	 * @param credId
 	 * @param compId
 	 * @param userId
 	 * @return {@link UserGroupPrivilege}
 	 */
-	UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
+	UserGroupPrivilege getUserPrivilegeForCompetence(long credId, long compId, long userId) 
 			throws DbConnectionException;
 	
 	boolean isVisibleToAll(long compId) throws DbConnectionException;

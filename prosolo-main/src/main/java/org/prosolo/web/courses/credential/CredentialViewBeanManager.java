@@ -9,7 +9,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -57,22 +56,12 @@ public class CredentialViewBeanManager implements Serializable {
 							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
 									UserGroupPrivilege.View);
 				}
-				
-//				if(credentialData == null) {
-//					try {
-//						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-//					} catch (IOException e) {
-//						logger.error(e);
-//					}
-//				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(AccessDeniedException ade) {
-				PageUtil.fireErrorMessage("You are not allowed to access this credential");
 			} catch(Exception e) {
 				logger.error(e);
 				e.printStackTrace();
@@ -115,7 +104,7 @@ public class CredentialViewBeanManager implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = activityManager
-					.getCompetenceActivitiesData(cd.getCompetenceId());
+					.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}

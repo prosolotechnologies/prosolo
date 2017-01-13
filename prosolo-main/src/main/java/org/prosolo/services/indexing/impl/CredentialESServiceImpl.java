@@ -26,6 +26,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
@@ -41,6 +42,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private CredentialManager credentialManager;
 	@Inject
 	private UserGroupManager userGroupManager;
+	@Inject
+	private CredentialInstructorManager credInstructorManager;
 	
 	@Override
 	@Transactional
@@ -85,6 +88,15 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			for(CredentialBookmark cb : bookmarks) {
 				builder.startObject();
 				builder.field("id", cb.getUser().getId());
+				builder.endObject();
+			}
+			builder.endArray();
+			List<Long> instructorsUserIds = credInstructorManager
+					.getCredentialInstructorsUserIds(cred.getId());
+			builder.startArray("instructors");
+			for(Long id : instructorsUserIds) {
+				builder.startObject();
+				builder.field("id", id);
 				builder.endObject();
 			}
 			builder.endArray();

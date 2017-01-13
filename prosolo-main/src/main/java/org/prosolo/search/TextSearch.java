@@ -102,15 +102,49 @@ public interface TextSearch extends AbstractManager {
 	
 	List<Long> getInstructorCourseIds (long userId);
 	
-	TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
+	/**
+	 * Returns competences that user with id specified by {@code userId} is allowed to see.
+	 * 
+	 * Conditions that should be met in order for competence to be returned:
+	 *  - competence is published and visible to all users or
+	 *  - competence is published and user has View privilege or
+	 *  - user is owner of a competence or
+	 *  - user has Edit privilege for competence
+	 *  
+	 * @param userId
+	 * @param role
+	 * @param searchString
+	 * @param page
+	 * @param limit
+	 * @param loadOneMore
+	 * @param toExclude
+	 * @param filterTags
+	 * @param sortTitleAsc
+	 * @return
+	 */
+	TextSearchResponse1<CompetenceData1> searchCompetences(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 	
+	/**
+	 * Returns credentials that user with id specified by {@code userId} is allowed to see.
+	 * 
+	 * Conditions that should be met in order for credential to be returned:
+	 *  - credential is published and visible to all users or
+	 *  - credential is published and user has View privilege or
+	 *  - user is enrolled in a credential (currently learning or completed credential) or
+	 *  - user is owner of a credential or
+	 *  - user has Edit privilege for credential
+	 *  
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param userId
+	 * @param filter
+	 * @param sortOption
+	 * @return
+	 */
 	TextSearchResponse1<CredentialData> searchCredentials(
-			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption);
-	
-	TextSearchResponse1<CredentialData> searchCredentialsForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilter filter, CredentialSortOption sortOption);
 	

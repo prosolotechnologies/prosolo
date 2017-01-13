@@ -15,7 +15,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.hibernate.Query;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -213,11 +212,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityData> getCompetenceActivitiesData(long competenceId) 
-			throws DbConnectionException {
+	public List<ActivityData> getCompetenceActivitiesData(long competenceId, 
+			boolean includeNotPublished) throws DbConnectionException {
 		List<ActivityData> result = new ArrayList<>();
 		try {
-			List<CompetenceActivity1> res = getCompetenceActivities(competenceId, false);
+			List<CompetenceActivity1> res = getCompetenceActivities(competenceId, false, 
+					includeNotPublished);
 
 			if (res != null) {
 				for (CompetenceActivity1 act : res) {
@@ -235,8 +235,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
-			throws DbConnectionException {
+	public List<CompetenceActivity1> getCompetenceActivities(long competenceId, 
+			boolean loadResourceLinks, boolean includeNotPublished) throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
@@ -249,8 +249,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					       	   "LEFT JOIN fetch act.files ");
 			}
 			
-			builder.append("WHERE compAct.competence = :comp " +					       
-				           "ORDER BY compAct.order");
+			builder.append("WHERE compAct.competence = :comp ");
+			
+			if(!includeNotPublished) {
+				builder.append("AND act.published = :published ");
+			}
+			
+			builder.append("ORDER BY compAct.order");
 			
 //			String query = "SELECT distinct compAct " +
 //					       "FROM CompetenceActivity1 compAct " + 
@@ -260,11 +265,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //					       "WHERE compAct.competence = :comp " +					       
 //					       "ORDER BY compAct.order";
 
-			@SuppressWarnings("unchecked")
-			List<CompetenceActivity1> res = persistence.currentManager()
+			Query query = persistence.currentManager()
 				.createQuery(builder.toString())
-				.setEntity("comp", comp)
-				.list();
+				.setEntity("comp", comp);
+			
+			if(!includeNotPublished) {
+				query.setBoolean("published", true);
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<CompetenceActivity1> res = query.list();
 			
 			if(res == null) {
 				return new ArrayList<>();
@@ -283,7 +293,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
 			throws DbConnectionException {
 		try {
-			List<CompetenceActivity1> compActivities = getCompetenceActivities(compId, true);
+			//we should not create target activities for unpublished activities
+			List<CompetenceActivity1> compActivities = getCompetenceActivities(compId, true, false);
 			List<TargetActivity1> targetActivities = new ArrayList<>();
 			if(compActivities != null) {
 				for(CompetenceActivity1 act : compActivities) {
@@ -448,10 +459,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	public ActivityData getActivityData(long credId, long competenceId, 
 			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		try {
 			if(privilege == null) {
-				throw new AccessDeniedException();
+				throw new IllegalArgumentException();
 			}
 			
 			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, loadLinks);
@@ -460,31 +471,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				throw new ResourceNotFoundException();
 			}
 			//we need user privilege for competence on which activity is dependend
-			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(competenceId, userId);
+			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, competenceId, 
+					userId);
 			/*
 			 * user can access activity:
 			 *  - when he has the right privilege and
 			 *  - when activity is published if user has View privilege
 			 *  
-			 * when user has view privilege, we always return activity, but
-			 * if user has privilege other than View and canAccess is false 
-			 * AccessDeniedException is thrown
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(!canAccess && priv != UserGroupPrivilege.View) {
-				throw new AccessDeniedException();
-			}
 			if(canAccess && priv == UserGroupPrivilege.View && !res.getActivity().isPublished()) {
 				canAccess = false;
 			}
 			
 			ActivityData actData = activityFactory.getActivityData(
 					res, res.getActivity().getLinks(), res.getActivity().getFiles(), true);
+			actData.setCanAccess(canAccess);
+			actData.setCanEdit(priv == UserGroupPrivilege.Edit);
 			return actData;
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(AccessDeniedException ade) {
-			throw ade;
+		} catch(IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -965,7 +973,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
 			long compId, long activityId, long creatorId, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
 			ActivityData activityWithDetails = getActivityData(credId, compId, activityId, 
@@ -974,15 +982,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					compData = new CompetenceData1(false);
 					compData.setActivityToShowWithDetails(activityWithDetails);
 					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId());
+							activityWithDetails.getCompetenceId(), false);
 					compData.setActivities(activities);
 					return compData;
 			}
 			return null;
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(AccessDeniedException ade) {
-			throw ade;
+		} catch(IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1094,7 +1102,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
@@ -1107,12 +1115,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			return compData;
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(AccessDeniedException ade) {
-			throw ade;
+		} catch(IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error while loading activity data");
 		}
 	}
 	
@@ -1611,15 +1619,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> publishActivitiesFromCompetences(long userId, List<Long> compIds) 
-			throws DbConnectionException {
+	public List<EventData> publishActivitiesFromCompetences(long credId, long userId, 
+			List<Long> compIds) throws DbConnectionException {
 		try {
 			if(compIds == null || compIds.isEmpty()) {
 				return new ArrayList<>();
 			}
 			List<CompetenceActivity1> acts = getDraftActivitiesFromCompetences(compIds);
 			//publishDraftActivitiesWithoutDraftVersion(actIds);
-			return publishDraftActivitiesFromList(userId, acts);
+			return publishDraftActivitiesFromList(credId, userId, acts);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1629,12 +1637,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> publishDraftActivities(long userId, List<Long> actIds) 
+	public List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
 			throws DbConnectionException {
 		try {
 			//get all draft activities
 			List<CompetenceActivity1> acts = getDraftActivitiesFromList(actIds);
-			return publishDraftActivitiesFromList(userId, acts);
+			return publishDraftActivitiesFromList(credId, userId, acts);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1648,12 +1656,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = false)
-	private List<EventData> publishDraftActivitiesFromList(long userId, 
+	private List<EventData> publishDraftActivitiesFromList(long credId, long userId, 
 			List<CompetenceActivity1> activities) throws DbConnectionException {
 		List<EventData> events = new ArrayList<>();
 		for(CompetenceActivity1 a : activities) {
 			//check if user can edit this activity
-			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(
+			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, 
 					a.getCompetence().getId(), userId);
 			if(priv == UserGroupPrivilege.Edit) {
 				Activity1 act = a.getActivity();

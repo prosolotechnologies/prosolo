@@ -20,6 +20,7 @@
 		<composite:attribute name="isPreview" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="role" default="USER"/>
+		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -152,12 +153,12 @@
 							</div>
 						</div>
 					</div>
-	                    
+	                   
 					<div class="collapseActivityList">
 						<div id="comp#{comp.competenceId}" class="collapse">
 							<h:panelGroup id="actList">
 								<ul>
-									<ui:fragment rendered="#{cc.attrs.isEdit}">
+									<ui:fragment rendered="#{cc.attrs.isEdit or cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
 											<li class="noLink #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
 												<span class="iconType"></span>
@@ -165,8 +166,8 @@
 											</li>
 										</ui:repeat>   
 									</ui:fragment>
-									
-									<ui:fragment rendered="#{!cc.attrs.isEdit}">
+			
+									<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
 											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
 												<h:link outcome="activity">

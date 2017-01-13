@@ -13,7 +13,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -96,8 +95,6 @@ public class CredentialViewBeanUser implements Serializable {
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(AccessDeniedException ade) {
-				PageUtil.fireErrorMessage("You are not allowed to access this credential");
 			} catch(Exception e) {
 				logger.error(e);
 				e.printStackTrace();
@@ -142,7 +139,8 @@ public class CredentialViewBeanUser implements Serializable {
 			if(cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), 
+						isPreview());
 			}
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);

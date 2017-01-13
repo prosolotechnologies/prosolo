@@ -27,9 +27,8 @@
 			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
 		
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
-     	
+     	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
+     		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.activityToShowWithDetails.canEdit}"></ui:param>
      	<c:choose>
 			<c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
 				<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>

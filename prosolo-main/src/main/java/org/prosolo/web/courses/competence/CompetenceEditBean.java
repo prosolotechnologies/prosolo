@@ -14,7 +14,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -131,26 +130,24 @@ public class CompetenceEditBean implements Serializable {
 		try {
 			competenceData = compManager.getCompetenceData(credId, id, false, true, true, 
 					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
-			//PageSection section = PageUtil.getSectionForView();
-	//		if (PageSection.MANAGE.equals(section)) {
-	//			competenceData = compManager
-	//					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
-	//		} else {
-	//			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
-	//					loggedUser.getUserId(), true);
-	//		}
-			List<ActivityData> activities = competenceData.getActivities();
-			for(ActivityData bad : activities) {
-				activitiesToExcludeFromSearch.add(bad.getActivityId());
+			if(!competenceData.isCanAccess()) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				List<ActivityData> activities = competenceData.getActivities();
+				for(ActivityData bad : activities) {
+					activitiesToExcludeFromSearch.add(bad.getActivityId());
+				}
+				currentNumberOfActivities = activities.size();
+				
+				logger.info("Loaded competence data for competence with id "+ id);
 			}
-			currentNumberOfActivities = activities.size();
-			
-			logger.info("Loaded competence data for competence with id "+ id);
 		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
 			PageUtil.fireErrorMessage("Competence can not be found");
-		} catch(AccessDeniedException ade) {
-			PageUtil.fireErrorMessage("You are not allowed to access this competence");
 		}
 	}
 

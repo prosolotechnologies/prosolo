@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -322,10 +321,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
 			boolean loadActivities, long userId, UserGroupPrivilege privilege,
-			boolean shouldTrackChanges) throws ResourceNotFoundException, AccessDeniedException, DbConnectionException {
+			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
 			if(privilege == null) {
-				throw new AccessDeniedException();
+				throw new IllegalArgumentException();
 			}
 			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, userId);
 			
@@ -333,21 +332,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				throw new ResourceNotFoundException();
 			}
 			
-			UserGroupPrivilege priv = getUserPrivilegeForCompetence(compId, userId);
-			
+			UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, compId, userId);
 			/*
 			 * user can access competence:
 			 *  - when he has the right privilege and
 			 *  - when competence is published if user has View privilege
-			 *  
-			 * when user has view privilege, we always return competence, but
-			 * if user has privilege other than View and canAccess is false 
-			 * AccessDeniedException is thrown
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(!canAccess && priv != UserGroupPrivilege.View) {
-				throw new AccessDeniedException();
-			}
 			if(canAccess && priv == UserGroupPrivilege.View && !comp.isPublished()) {
 				canAccess = false;
 			}
@@ -361,15 +352,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compData.setCanAccess(canAccess);
 			
 			if(loadActivities) {
-				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
+				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId,
+						privilege == UserGroupPrivilege.Edit);
 				compData.setActivities(activities);
 			}
 			
 			return compData;
 		} catch (ResourceNotFoundException rfe) {
 			throw rfe;
-		} catch(AccessDeniedException ade) {
-			throw ade;
+		} catch(IllegalArgumentException iae) { 
+			throw iae;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -560,7 +552,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    	}
 	    
 	    	if(data.isPublished() && data.isPublishedChanged()) {
-	    		activityManager.publishDraftActivities(userId, actIds);
+	    		activityManager.publishDraftActivities(0, userId, actIds);
 	    	}
 	    }
 	    
@@ -637,7 +629,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						creator, credComp, tags, true);
 				
 				if(includeCanEdit) {
-					UserGroupPrivilege priv = getUserPrivilegeForCompetence(
+					UserGroupPrivilege priv = getUserPrivilegeForCompetence(credentialId,
 							credComp.getCompetence().getId(), userId);
 					if(priv == UserGroupPrivilege.Edit) {
 						compData.setCanEdit(true);
@@ -646,7 +638,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				
 				if(loadActivities) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
-							credComp.getCompetence().getId());
+							credComp.getCompetence().getId(), includeNotPublished);
 					compData.setActivities(activities);
 				}
 				
@@ -1264,7 +1256,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
-			long userId) throws DbConnectionException {
+			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
@@ -1277,6 +1269,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 				
 			return compData;
+		} catch(ResourceNotFoundException rnfe) {
+			throw rnfe;
+		} catch(IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1337,7 +1333,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(List<Long> compIds, long creatorId) 
+	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
 			throws DbConnectionException, CompetenceEmptyException {
 		try {
 			//get all draft competences
@@ -1359,7 +1355,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					throw new CompetenceEmptyException();
 				}
 				//check if user can edit this competence
-				UserGroupPrivilege priv = getUserPrivilegeForCompetence(c.getId(), creatorId);
+				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, c.getId(), creatorId);
 				if(priv == UserGroupPrivilege.Edit) {
 					c.setPublished(true);
 					EventData ev = new EventData();
@@ -1380,7 +1376,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 			
-			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(
+			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
 					creatorId, publishedComps);
 			events.addAll(actEvents);
 			return events;
@@ -1649,11 +1645,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 //	}
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
-	public UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
+	public UserGroupPrivilege getUserPrivilegeForCompetence(long credId, long compId, long userId) 
 			throws DbConnectionException {
 		try {
+			if(credId > 0) {
+				return credentialManager.getUserPrivilegeForCredential(credId, userId);
+			}
 			String query = "SELECT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +

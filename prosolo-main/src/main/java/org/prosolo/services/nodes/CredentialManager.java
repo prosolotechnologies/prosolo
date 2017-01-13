@@ -3,7 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -48,10 +47,10 @@ public interface CredentialManager extends AbstractManager {
 	 * if that is not the case.
 	 * @param credentialId
 	 * @param userId
-	 * @throws ResourceNotFoundException, AccessDeniedException, DbConnectionException
+	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
 	 */
 	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, AccessDeniedException, DbConnectionException;
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
 	 * Returns credential data with specified id. 
@@ -67,10 +66,10 @@ public interface CredentialManager extends AbstractManager {
 	 * @param userId
 	 * @param privilege - privilege needed to be able to access that credential
 	 * @return
-	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
 	 */
 	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCompetences, 
-			long userId, UserGroupPrivilege privilege) throws DbConnectionException;
+			long userId, UserGroupPrivilege privilege) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -331,4 +330,15 @@ public interface CredentialManager extends AbstractManager {
     				throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
+	
+	/**
+	 * Checks if user is owner of credential and if it is returns edit privilege. Otherwise
+	 * if user has any privilege for credential, it is returned and if he does not, None privilege is returned
+	 * @param credId
+	 * @param userId
+	 * @return {@link UserGroupPrivilege}
+	 * @throws DbConnectionException
+	 */
+	UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
+			throws DbConnectionException;
 }

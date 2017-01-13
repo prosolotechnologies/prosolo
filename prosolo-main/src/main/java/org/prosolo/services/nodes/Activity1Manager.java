@@ -3,7 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.Date;
 import java.util.List;
 
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Activity1;
@@ -29,7 +28,7 @@ public interface Activity1Manager extends AbstractManager {
 	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
 			throws DbConnectionException;
 
-	List<ActivityData> getCompetenceActivitiesData(long competenceId)
+	List<ActivityData> getCompetenceActivitiesData(long competenceId, boolean includeNotPublished)
 			throws DbConnectionException;
 	
 	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
@@ -40,11 +39,12 @@ public interface Activity1Manager extends AbstractManager {
 
 	/**
 	 * Publishes all activities from competences with specified ids.
+	 * @param credId
 	 * @param userId
 	 * @param compIds
 	 * @throws DbConnectionException
 	 */
-	List<EventData> publishActivitiesFromCompetences(long userId, List<Long> compIds) 
+	List<EventData> publishActivitiesFromCompetences(long credId, long userId, List<Long> compIds) 
 			throws DbConnectionException;
 	
 //	/**
@@ -55,8 +55,8 @@ public interface Activity1Manager extends AbstractManager {
 //	 */
 //	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
 	
-	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
-			throws DbConnectionException;
+	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks,
+			boolean includeNotPublished) throws DbConnectionException;
 	
 	Activity1 updateActivity(ActivityData data, long userId, 
 			LearningContextData context) throws DbConnectionException;
@@ -80,7 +80,7 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
 			long compId, long activityId, long creatorId, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	 void saveResponse(long targetActId, String path, Date postDate, long userId, 
 				ActivityResultType resType, LearningContextData context) throws DbConnectionException;
@@ -103,7 +103,7 @@ public interface Activity1Manager extends AbstractManager {
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
 			long actId, long userId, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -113,9 +113,7 @@ public interface Activity1Manager extends AbstractManager {
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
 	
-	
-	
-	List<EventData> publishDraftActivities(long userId, List<Long> actIds) 
+	List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
 			throws DbConnectionException;
 	
 	List<TargetActivity1> getTargetActivities(long targetCompId) 
@@ -142,5 +140,5 @@ public interface Activity1Manager extends AbstractManager {
 
 	ActivityData getActivityData(long credId, long competenceId, 
 			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
-					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
+					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 }

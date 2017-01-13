@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -571,6 +572,32 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential instructors number");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getCredentialInstructorsUserIds(long credentialId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT instructor.id " +
+					"FROM CredentialInstructor credInstructor " +
+					"INNER JOIN credInstructor.user instructor " +
+					"WHERE credInstructor.credential.id = :credId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> result = persistence
+					.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.list();
+			
+			return result != null ? result : Collections.emptyList();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential instructors user ids");
 		}
 	}
 	

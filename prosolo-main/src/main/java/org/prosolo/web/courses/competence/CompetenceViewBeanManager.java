@@ -8,7 +8,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -88,8 +87,6 @@ public class CompetenceViewBeanManager implements Serializable {
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(AccessDeniedException ade) {
-				PageUtil.fireErrorMessage("You are not allowed to access this competence");
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());

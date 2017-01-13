@@ -15,7 +15,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -119,42 +118,37 @@ public class CredentialEditBean implements Serializable {
 		try {
 			credentialData = credentialManager.getCredentialData(id, false, true, loggedUser.getUserId(), 
 					UserGroupPrivilege.Edit);
-			if(manageSection) {
-				role = Role.Manager;
-				//credentialData = credentialManager.getCurrentVersionOfCredentialForManager(id, false, true);
-				//credentialData = credentialManager.getCredentialDataForManager(id, false, true);
+			if(!credentialData.isCanAccess()) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} else {
-				role = Role.User;
-	//			credentialData = credentialManager.getCredentialDataForEdit(id, 
-	//					loggedUser.getUserId(), true);
+				if(manageSection) {
+					role = Role.Manager;
+				} else {
+					role = Role.User;
+				}
 				
-				//credentialData = credentialManager.getCredentialDataForUser(id, false, true, 
-						//loggedUser.getUserId());
+				List<CompetenceData1> comps = credentialData.getCompetences();
+				for(CompetenceData1 cd : comps) {
+					compsToExcludeFromSearch.add(cd.getCompetenceId());
+				}
+				currentNumberOfComps = comps.size();
+				
+				logger.info("Loaded credential data for credential with id "+ id);
 			}
-			
-//			if(credentialData == null) {
-//				credentialData = new CredentialData(false);
-//				PageUtil.fireErrorMessage("Credential data can not be found");
-//			}
-			List<CompetenceData1> comps = credentialData.getCompetences();
-			for(CompetenceData1 cd : comps) {
-				compsToExcludeFromSearch.add(cd.getCompetenceId());
-			}
-			currentNumberOfComps = comps.size();
-			
-			logger.info("Loaded credential data for credential with id "+ id);
 		} catch(ResourceNotFoundException rnfe) {
 			credentialData = new CredentialData(false);
 			PageUtil.fireErrorMessage("Credential can not be found");
-		} catch(AccessDeniedException ade) {
-			PageUtil.fireErrorMessage("You are not allowed to access this credential");
 		}
 	}
 	
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
-			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), true);
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
@@ -281,7 +275,7 @@ public class CredentialEditBean implements Serializable {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
 			Role role = manageSection ? Role.Manager : Role.User;
-			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences1(
+			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences(
 					loggedUser.getUserId(),
 					role,
 					compSearchTerm,

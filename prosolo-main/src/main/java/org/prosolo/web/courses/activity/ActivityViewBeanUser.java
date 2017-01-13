@@ -12,7 +12,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -135,9 +134,15 @@ public class ActivityViewBeanUser implements Serializable {
 							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 									0, decodedCompId, decodedActId,  loggedUser.getUserId(), priv);
 				}
-				if (competenceData == null) {
+				if (competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else if(!competenceData.getActivityToShowWithDetails().isCanAccess()){
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
 					}
@@ -166,8 +171,6 @@ public class ActivityViewBeanUser implements Serializable {
 					loadCompetenceAndCredentialTitle();
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
-					
-					
 				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {
@@ -175,8 +178,6 @@ public class ActivityViewBeanUser implements Serializable {
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(AccessDeniedException ade) {
-				PageUtil.fireErrorMessage("You are not allowed to access this activity");
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");

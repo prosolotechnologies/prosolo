@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Activity1;
@@ -140,14 +139,20 @@ public class ActivityEditBean implements Serializable {
 		try {
 			activityData = activityManager.getActivityData(credId, compId, actId, 
 					loggedUser.getUserId(), true, UserGroupPrivilege.Edit);
-	
-			logger.info("Loaded activity data for activity with id "+ id);
+			
+			if(!activityData.isCanAccess()) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				logger.info("Loaded activity data for activity with id "+ id);
+			}
 		} catch(ResourceNotFoundException rnfe) {
 			logger.error(rnfe);
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");
-		} catch(AccessDeniedException ade) {
-			PageUtil.fireErrorMessage("You are not allowed to access this activity");
 		}
 	}
 	
@@ -311,11 +316,6 @@ public class ActivityEditBean implements Serializable {
 			logger.error(e);
 		}
 	}
-	
-//	public boolean isCreateUseCaseOrFirstTimeDraft() {
-//		return activityData.getActivityId() == 0 || 
-//				(!activityData.isPublished() && !activityData.isDraft());
-//	}
 	
 	public void prepareAddingResourceLink() {
 		resLinkToAdd = new ResourceLinkData();
