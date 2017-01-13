@@ -317,8 +317,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       AND sa.activity_target = actTarget.id \n " +
 				"   LEFT JOIN (competence_activity1 compActivity \n " +   
 						"   INNER JOIN competence1 AS actTargetCompetence \n " +
-						"       ON compActivity.competence = actTargetCompetence.id \n " +
-						"       AND actTargetCompetence.draft = :boolFalse) \n " + 
+						"       ON compActivity.competence = actTargetCompetence.id) \n " + 
 				"       ON actTarget.id = compActivity.activity \n " +
 				//activity complete social activity
 				"	LEFT JOIN target_activity1 AS tActObject \n" +
@@ -382,7 +381,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("compCompleteDType", CompetenceCompleteSocialActivity.class.getSimpleName())
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
-			.setBoolean("boolFalse", false)
+			//.setBoolean("boolFalse", false)
 			.setCharacter("saDeleted", 'F')
 			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
 			.setResultTransformer(new ResultTransformer() {
