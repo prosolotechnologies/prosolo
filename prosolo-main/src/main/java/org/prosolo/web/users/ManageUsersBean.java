@@ -50,7 +50,7 @@ public class ManageUsersBean implements Serializable, Paginable {
 		logger.debug("initializing");
 		long filterId = 0;
 		long decodedRoleId = idEncoder.decodeId(roleId);
-		if(decodedRoleId > 0) {
+		if (decodedRoleId > 0) {
 			filterId = decodedRoleId;
 		}
 		filter = new RoleFilter(filterId, "All", 0);
