@@ -1994,11 +1994,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 			}
 				   		
-			query.append("GROUP BY targetAct.id, p.is_read "); 
+			query.append("GROUP BY targetAct.id, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
+			   "u.id, u.name, u.lastname, u.avatar_url ");
+			
 			
 			if (returnAssessmentData) {
-				query.append(", ad.id ");
+				query.append(", ad.id, p.is_read, act.max_points ");
 			}
+			if (returnAssessmentData || filter != null) {
+				query.append(", ad.points ");
+			}
+			
 			query.append("ORDER BY targetAct.result_post_date ");
 			
 			if (paginate) {
@@ -2106,7 +2112,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					"AND targetAct.result IS NOT NULL " +
 					"AND com.user = :userId " +
 					"AND user.id != :userId " +
-				"GROUP BY targetAct.id ";
+				"GROUP BY targetAct.id, user.name, user.lastname ";
 		
 		@SuppressWarnings("unchecked")
 		List<Object[]> rows = persistence.currentManager().createSQLQuery(query)
