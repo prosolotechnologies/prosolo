@@ -1211,6 +1211,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
 				ActivityData activity = activityFactory.getActivityData(res, links, 
 						files, true);
+				
+				//retrieve user privilege to be able to tell if user can edit this activity
+				UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
+						userId);
+				activity.setCanEdit(priv == UserGroupPrivilege.Edit);
+				//target activity can always be accessed
+				activity.setCanAccess(true);
 				return activity;
 			}
 			return null;

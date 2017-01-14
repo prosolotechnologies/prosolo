@@ -419,6 +419,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
 						res, res.getTags(), res.getHashtags(), true);
 				
+				//retrieve privilege to be able to tell if user can edit credential
+				UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
+				credData.setCanEdit(priv == UserGroupPrivilege.Edit);
+				//target credential can always be accessed
+				credData.setCanAccess(true);
+				
 				if(credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
 							.getTargetCompetencesData(res.getId(), false);

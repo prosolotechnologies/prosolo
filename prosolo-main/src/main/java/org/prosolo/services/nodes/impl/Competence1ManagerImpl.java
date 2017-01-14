@@ -1316,6 +1316,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
 						res.getTags(), null, true);
 				
+				//retrieve user privilege to be able to tell if user can edit this competence
+				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, compId, userId);
+				compData.setCanEdit(priv == UserGroupPrivilege.Edit);
+				//target competence can always be accessed
+				compData.setCanAccess(true);
+				
 				if(compData != null && loadActivities) {
 					List<ActivityData> activities = activityManager
 							.getTargetActivitiesData(compData.getTargetCompId());
