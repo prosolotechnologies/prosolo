@@ -180,79 +180,79 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 	
-	@Override
-	@Transactional
-	public TextSearchResponse1<UserData> searchUsers1 (
-			String term, int page, int limit, boolean paginate, List<Long> excludeIds) {
-		
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
-		
-		try {
-			int start = 0;
-			int size = 1000;
-			if(paginate) {
-				start = setStart(page, limit);
-				size = limit;
-			}
-			
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name").field("lastname");
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
-			bQueryBuilder.mustNot(termQuery("system", true));
-			
-			if (excludeIds != null) {
-				for (Long exUserId : excludeIds) {
-					bQueryBuilder.mustNot(termQuery("id", exUserId));
-				}
-			}
-			SearchResponse sResponse = null;
-			
-			String[] includes = {"id", "name", "lastname", "avatar"};
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFrom(start).setSize(size)
-					.addSort("name", SortOrder.ASC)
-					.setFetchSource(includes, null);
-			//System.out.println(srb.toString());
-			sResponse = srb.execute().actionGet();
-			
-			if (sResponse != null) {
-				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				
-				for(SearchHit sh : sResponse.getHits()) {
-					Map<String, Object> fields = sh.getSource();
-					User user = new User();
-					user.setId(Long.parseLong(fields.get("id") + ""));
-					user.setName((String) fields.get("name"));
-					user.setLastname((String) fields.get("lastname"));
-					user.setAvatarUrl((String) fields.get("avatar"));
-					UserData userData = new UserData(user);
-					
-					response.addFoundNode(userData);			
-				}
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
-		}
-		return response;
-	}
+//	@Override
+//	@Transactional
+//	public TextSearchResponse1<UserData> searchUsers1 (
+//			String term, int page, int limit, boolean paginate, List<Long> excludeIds) {
+//		
+//		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+//		
+//		try {
+//			int start = 0;
+//			int size = 1000;
+//			if(paginate) {
+//				start = setStart(page, limit);
+//				size = limit;
+//			}
+//			
+//			Client client = ElasticSearchFactory.getClient();
+//			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+//			
+//			QueryBuilder qb = QueryBuilders
+//					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
+//					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//					.field("name").field("lastname");
+//			
+//			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+//			bQueryBuilder.should(qb);
+//			bQueryBuilder.mustNot(termQuery("system", true));
+//			
+//			if (excludeIds != null) {
+//				for (Long exUserId : excludeIds) {
+//					bQueryBuilder.mustNot(termQuery("id", exUserId));
+//				}
+//			}
+//			SearchResponse sResponse = null;
+//			
+//			String[] includes = {"id", "name", "lastname", "avatar"};
+//			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
+//					.setTypes(ESIndexTypes.USER)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder)
+//					.setFrom(start).setSize(size)
+//					.addSort("name", SortOrder.ASC)
+//					.setFetchSource(includes, null);
+//			//System.out.println(srb.toString());
+//			sResponse = srb.execute().actionGet();
+//			
+//			if (sResponse != null) {
+//				response.setHitsNumber(sResponse.getHits().getTotalHits());
+//				
+//				for(SearchHit sh : sResponse.getHits()) {
+//					Map<String, Object> fields = sh.getSource();
+//					User user = new User();
+//					user.setId(Long.parseLong(fields.get("id") + ""));
+//					user.setName((String) fields.get("name"));
+//					user.setLastname((String) fields.get("lastname"));
+//					user.setAvatarUrl((String) fields.get("avatar"));
+//					UserData userData = new UserData(user);
+//					
+//					response.addFoundNode(userData);			
+//				}
+//			}
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//			logger.error(e1);
+//		}
+//		return response;
+//	}
 
 	@Override
 	@Transactional
-	public TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId) {
+	public TextSearchResponse1<UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds) {
 		
-		TextSearchResponse1<org.prosolo.web.administration.data.UserData> response = 
+		TextSearchResponse1<UserData> response = 
 				new TextSearchResponse1<>();
 		
 		try {
@@ -274,9 +274,19 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
 			
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+			
+			if (excludeIds != null) {
+				for (Long exUserId : excludeIds) {
+					bQueryBuilder.mustNot(termQuery("id", exUserId));
+				}
+			}
+			
 			SearchResponse sResponse = null;
 			
-			String[] includes = {"id", "name", "lastname", "avatar", "roles"};
+			String[] includes = {"id", "name", "lastname", "avatar", "roles", "position"};
 			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
 					.setTypes(ESIndexTypes.USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -308,6 +318,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					user.setName((String) fields.get("name"));
 					user.setLastname((String) fields.get("lastname"));
 					user.setAvatarUrl((String) fields.get("avatar"));
+					user.setPosition((String) fields.get("position"));
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
@@ -320,8 +331,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							}
 						}
 					}
-					org.prosolo.web.administration.data.UserData userData = 
-							new org.prosolo.web.administration.data.UserData(user, userRoles);
+					UserData userData = new UserData(user, userRoles);
 					
 					response.addFoundNode(userData);			
 				}
@@ -2059,7 +2069,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public TextSearchResponse1<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId) {
+			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
 		TextSearchResponse1<UserSelectionData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -2076,6 +2086,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
+			}
+			
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
 			}
 			
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};

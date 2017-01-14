@@ -15,8 +15,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="p" value="#{userGroupsBean.paginationData.pageString}" default="1" />
-			<f:viewAction action="#{userGroupsBean.init()}" />
+			<f:viewParam name="p" value="#{manageGroupsBean.paginationData.pageString}" default="1" />
+			<f:viewAction action="#{manageGroupsBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
@@ -41,21 +41,21 @@
 					<div class="whiteBarLeft">
 						<p:commandLink styleClass="btn btn-green btn-sm item"
 							pt:data-toggle="modal"
-							action="#{userGroupsBean.prepareGroupForAdding()}"
+							action="#{manageGroupsBean.prepareGroupForAdding()}"
 							update=":newGroupForm:panelNewGroup"
 							oncomplete="$('#newGroupModal').modal('show');">
-                    	New Group
-                    </p:commandLink>
+	                    	New Group
+	                    </p:commandLink>
 
 						<div class="searchBox">
 							<h:form>
 								<p:remoteCommand name="execSearchGroups"
 									process="inputGroupSearch" update=":panelGroups :pagination"
-									action="#{userGroupsBean.resetAndSearch()}" />
+									action="#{manageGroupsBean.resetAndSearch()}" />
 
 								<h:inputText id="inputGroupSearch" type="search"
-									placeholder="Filter by Keywords"
-									value="#{userGroupsBean.searchTerm}"
+									placeholder="Filter by Name"
+									value="#{manageGroupsBean.searchTerm}"
 									onclick="$(this).select();"
 									onkeyup="searchListener(execSearchGroups);" />
 							</h:form>
@@ -69,7 +69,7 @@
 			<div class="row">
 				<h:panelGroup layout="block" id="panelGroups" styleClass="col-md-12">
 					<ul class="whiteBox peopleList">
-						<ui:repeat value="#{userGroupsBean.groups}" var="group">
+						<ui:repeat value="#{manageGroupsBean.groups}" var="group">
 							<li>
 								<div class="peopleListLeft">
 									<h2>#{group.name}</h2>
@@ -80,25 +80,25 @@
 									</div>
 									<div class="userEditOpt">
 										<p:commandLink pt:data-toggle="modal"
-											action="#{userGroupsBean.prepareGroupForEdit(group)}"
+											action="#{manageGroupsBean.prepareGroupForEdit(group)}"
 											update=":newGroupForm:panelNewGroup"
 											oncomplete="$('#newGroupModal').modal('show');">
 					                    	Edit Name
 					                    </p:commandLink>
 
 										<p:commandLink pt:data-toggle="modal"
-											action="#{userGroupsBean.prepareGroupUsers(group.id)}"
+											action="#{manageGroupsBean.prepareGroupUsers(group.id)}"
 											update=":formManageUsers:panelManageUsers"
 											oncomplete="$('#addStudentsModal').modal('show');">
 					                    	Manage Users
 					                    </p:commandLink>
 
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-											action="#{userGroupsBean.prepareGroupForEdit(group)}"
+											action="#{manageGroupsBean.prepareGroupForEdit(group)}"
 											update=":formDeleteGroup:panelDeleteGroup"
 											oncomplete="$('#deleteGroup').modal('show');">
-	                                	Delete
-	                                </p:commandLink>
+		                                	Delete
+		                                </p:commandLink>
 									</div>
 								</div>
 							</li>
@@ -108,39 +108,39 @@
 			</div>
 
 			<utilcomp:pagination id="pagination"
-			 	bean="#{userGroupsBean}"
+			 	bean="#{manageGroupsBean}"
 				updateUrl="true"
 				toUpdate=":panelGroups" />
 		</div>
 
 		<h:form id="newGroupForm">
-			<div class="modal fade newGroupModal" id="newGroupModal"
-				tabindex="-1" role="dialog" aria-labelledby="nGroupModal">
+			<div class="modal fade newGroupModal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="nGroupModal">
 				<div class="modal-dialog">
 					<h:panelGroup layout="block" id="panelNewGroup" styleClass="modal-content">
-						<ui:fragment rendered="#{not empty userGroupsBean.groupForEdit}">
+						<ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
 							<div class="modal-header alignLeft">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
 									<span aria-hidden="true">&#215;</span>
 								</button>
-								<h2 class="modal-title">#{userGroupsBean.groupForEdit.id >
-									0 ? 'Edit Group Name' : 'New Group'}</h2>
+								<h2 class="modal-title">#{manageGroupsBean.groupForEdit.id > 0 ? 'Edit Group Name' : 'New Group'}</h2>
 							</div>
+							
 							<div class="modal-body alignLeft">
 								<h:inputText placeholder="Group Name"
-									value="#{userGroupsBean.groupForEdit.name}" />
+									value="#{manageGroupsBean.groupForEdit.name}" />
 							</div>
+							
 							<div class="modal-footer alignLeft">
 								<p:commandLink styleClass="btn btn-green"
-									action="#{userGroupsBean.saveGroup()}"
+									action="#{manageGroupsBean.saveGroup()}"
 									update=":panelGroups :growlMain :pagination"
 									oncomplete="$('#newGroupModal').modal('hide');">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 									<f:param name="learningContext"
-										value="name:edit_dialog#{userGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(userGroupsBean.groupForEdit.id) : ''}" />
-	                        	#{userGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
-	                        </p:commandLink>
+										value="name:edit_dialog#{manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''}" />
+									#{manageGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
+								</p:commandLink>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>
@@ -172,6 +172,7 @@
 									onclick="$(this).select();"
 									onkeyup="searchListener(execSearchGroupUsers);" />
 							</div>
+							
 							<h:panelGroup id="panelUsers">
 								<ul class="list">
 									<ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
@@ -184,6 +185,7 @@
 													</h:selectBooleanCheckbox>
 													<h:outputLabel for="selectBooleanUser" />
 												</div>
+												
 												<utilcomp:userAvatar avatar="#{user.user.avatarUrl}"
 													fullName="#{user.user.fullName}" width="48" height="48" />
 													
@@ -203,11 +205,11 @@
 								
 							<div class="modal-footer alignLeft">
 								<p:commandLink styleClass="btn btn-green"
-									action="#{userGroupsBean.updateGroupUsers()}"
-									update=":panelGroups"
+									action="#{manageGroupsBean.updateGroupUsers()}"
+									update=":panelGroups :growlMain"
 									oncomplete="$('#addStudentsModal').modal('hide');">
-	                       		Done
-	                       	</p:commandLink>
+	                       			Done
+	                       		</p:commandLink>
 							</div>
 						</ui:fragment>
 					</h:panelGroup>
@@ -216,12 +218,10 @@
 		</h:form>
 
 		<h:form id="formDeleteGroup">
-			<div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog"
-				aria-labelledby="delGroup">
+			<div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog" aria-labelledby="delGroup">
 				<div class="modal-dialog" role="document">
-					<h:panelGroup layout="block" id="panelDeleteGroup"
-						styleClass="modal-content">
-						<ui:fragment rendered="#{not empty userGroupsBean.groupForEdit}">
+					<h:panelGroup layout="block" id="panelDeleteGroup" styleClass="modal-content">
+						<ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
@@ -229,20 +229,21 @@
 								</button>
 								<h2 class="modal-title" id="delGroup">Delete group?</h2>
 							</div>
+							
 							<div class="modal-body">
-								<p>Are you sure you want to delete group
-									"#{userGroupsBean.groupForEdit.name}"?</p>
+								<p>Are you sure you want to delete group "#{manageGroupsBean.groupForEdit.name}"?</p>
 							</div>
+							
 							<div class="modal-footer">
 								<p:commandLink styleClass="btn btn-red"
-									action="#{userGroupsBean.deleteGroup()}"
+									action="#{manageGroupsBean.deleteGroup()}"
 									update=":panelGroups :pagination :growlMain"
 									oncomplete="$('#deleteGroup').modal('hide');">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 									<f:param name="learningContext"
-										value="name:delete_dialog|id:#{userGroupsBean.groupForEdit.id}"></f:param>
-	                         	Delete
-	                         </p:commandLink>
+										value="name:delete_dialog|id:#{manageGroupsBean.groupForEdit.id}" />
+									Delete
+								</p:commandLink>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>

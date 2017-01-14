@@ -15,9 +15,9 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
@@ -112,7 +112,7 @@ public class UsersGroupsBean implements Serializable {
 						user, group, page, lContext,
 						service, null);
 			}
-			PageUtil.fireSuccessfulInfoMessage("User groups successfully updated");
+			PageUtil.fireSuccessfulInfoMessage("User is added to the group");
 		} catch (Exception ex) {
 			logger.error(ex);
 			loadGroups();

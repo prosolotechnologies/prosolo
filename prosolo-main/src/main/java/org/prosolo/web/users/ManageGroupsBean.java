@@ -21,14 +21,14 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "userGroupsBean")
-@Component("userGroupsBean")
+@ManagedBean(name = "manageGroupsBean")
+@Component("manageGroupsBean")
 @Scope("view")
-public class UserGroupsBean implements Serializable, Paginable {
+public class ManageGroupsBean implements Serializable, Paginable {
 
 	private static final long serialVersionUID = -5157474361020134689L;
 
-	protected static Logger logger = Logger.getLogger(UserGroupsBean.class);
+	protected static Logger logger = Logger.getLogger(ManageGroupsBean.class);
 
 	@Inject private TextSearch textSearch;
 	@Inject private GroupUsersBean groupUsersBean;
@@ -82,11 +82,11 @@ public class UserGroupsBean implements Serializable, Paginable {
 			if(groupForEdit.getId() > 0) {
 				userGroupManager.updateGroupName(groupForEdit.getId(), groupForEdit.getName(),
 						loggedUserBean.getUserId(), lcd);
-				PageUtil.fireSuccessfulInfoMessage("Group name successfully updated");
+				PageUtil.fireSuccessfulInfoMessage("Group name is updated");
 			} else {
 				userGroupManager.saveNewGroup(groupForEdit.getName(), false, 
 						loggedUserBean.getUserId(), lcd);
-				PageUtil.fireSuccessfulInfoMessage("Group " + groupForEdit.getName() + " is saved");
+				PageUtil.fireSuccessfulInfoMessage("Group " + groupForEdit.getName() + " is created");
 			}
 			loadGroupsFromDB();
 			groupForEdit = null;

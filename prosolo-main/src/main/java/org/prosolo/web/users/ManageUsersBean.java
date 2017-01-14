@@ -11,8 +11,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
@@ -82,7 +82,7 @@ public class ManageUsersBean implements Serializable, Paginable {
 		this.users = new ArrayList<UserData>();
 		try {
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId());
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), false, null);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");

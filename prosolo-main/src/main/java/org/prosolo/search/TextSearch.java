@@ -41,8 +41,8 @@ public interface TextSearch extends AbstractManager {
 			int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds);
 	
-	TextSearchResponse1<UserData> searchUsers1 (
-			String term, int page, int limit, boolean paginate, List<Long> excludeIds);
+//	TextSearchResponse1<UserData> searchUsers1 (
+//			String term, int page, int limit, boolean paginate, List<Long> excludeIds);
 
 	TextSearchResponse searchLearningGoals(
 			String searchString, int page, int limit, boolean loadOneMore,
@@ -161,10 +161,12 @@ public interface TextSearch extends AbstractManager {
 	 * @param limit
 	 * @param paginate
 	 * @param roleId pass 0 if All filter and role id otherwise
+	 * @param includeSystemUsers whether to include system users
+	 * @param excludeIds usersToExclude
 	 * @return
 	 */
-	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId);
+	TextSearchResponse1<UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
@@ -180,7 +182,7 @@ public interface TextSearch extends AbstractManager {
 			String searchString, long userId, int page, int limit);
 	
 	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId);
+			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
 	
 	/**
 	 * Returns combined top {@code limit} users and groups that are not currently assigned to

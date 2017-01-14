@@ -78,6 +78,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 						user, group, page, lContext,
 						service, null);
 			}
+			PageUtil.fireSuccessfulInfoMessage("Group is updated");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while updating group users");
@@ -100,7 +101,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		try {
 			TextSearchResponse1<UserSelectionData> res = textSearch.searchUsersInGroups(searchTerm, 
-					paginationData.getPage() - 1, paginationData.getLimit(), groupId);
+					paginationData.getPage() - 1, paginationData.getLimit(), groupId, false);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			setCurrentlySelectedGroupUsers();
