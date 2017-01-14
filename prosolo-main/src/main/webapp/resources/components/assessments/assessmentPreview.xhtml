@@ -137,12 +137,28 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-9 mandatoryFlow">
-					<ui:remove>
-					<p>
-						#{cc.attrs.bean.fullAssessmentData.studentFullName} has asked you for assessment. You can review his results and write comments for each activity before approving a competence or credential. 
-						All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.<br /><br />When you decide to approve the credential, you will be asked for a public review that will be shown on student's profile.
-					</p>
-					</ui:remove>
+					<h2 class="bottom10">Credential Assessment</h2>
+					
+					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
+						<div class="fromBox">
+							<span class="fromLabel">From:</span>
+							<div class="dropdown fromDrop">
+								<a data-toggle="dropdown" aria-haspopup="true"
+									aria-expanded="true"> #{cc.attrs.bean.fullAssessmentData.assessorFullName != null ? cc.attrs.bean.fullAssessmentData.assessorFullName : 'Default assessment'} <span class="arrowDown">arrowDown</span>
+								</a>
+								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+									<ui:repeat value="#{cc.attrs.bean.otherAssessments}" var="otherAssessment">
+										<li>
+											<h:outputLink value="#{applicationbean.domain}manage/credentials/#{otherAssessment.encodedCredentialId}/assessments/#{otherAssessment.encodedAssessmentId}">
+												#{otherAssessment.assessorFullName != null ? otherAssessment.assessorFullName : 'Default assessment'} <span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved ? 'Approved' : 'Pending'}</span>
+											</h:outputLink>
+										</li>
+									</ui:repeat>
+								</ul>
+							</div>
+						</div>
+					</ui:fragment>
+
 					<p>
 						Here you can assess this credential for #{cc.attrs.bean.fullAssessmentData.studentFullName}. All comments between #{cc.attrs.bean.fullAssessmentData.studentFullName} and you are private.
 					</p>
@@ -199,15 +215,25 @@
 												</h:link>
 												<div class="activityOptions">											
 													<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-														<h:link outcome="activity-responses"
+														<h:link outcome="activity-response"
 															styleClass="viewResult"
+															rendered="#{cc.attrs.role eq 'USER'}"
 															pt:data-toggle="tooltip" pt:title="View Response">
 															View Response
 															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 															<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
 															<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" />
-															<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" 
-																disable="#{cc.attrs.role eq 'USER'}"/>
+															<f:param name="targetActId" value="#{activityAssessment.encodedTargetActivityId}" />
+														</h:link>
+														<h:link outcome="activity-responses"
+															styleClass="viewResult"
+															rendered="#{cc.attrs.role eq 'MANAGER'}"
+															pt:data-toggle="tooltip" pt:title="View Response">
+															View Response
+															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+															<f:param name="compId" value="#{util:encodeId(activityAssessment.competenceId)}" />
+															<f:param name="credId" value="#{util:encodeId(activityAssessment.credentialId)}" />
+															<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
 														</h:link>
 													</ui:fragment>
 																							
@@ -355,7 +381,7 @@
 															</div>
 														</div>
 													</div> 
-													<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
+													<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
 														<p:commandLink 
 										                 	styleClass="grade gradeModalLink_#{activityAssessment.activityId}" 
 										                 	pt:data-toggle="modal" data-target="#assessmentGradeModal1"
@@ -378,12 +404,12 @@
 										                </a>
 										            </ui:fragment>
 									                
-									                <ui:fragment rendered="#{cc.attrs.role eq 'USER' or not cc.attrs.bean.isCurrentUserAssessor() or activityAssessment.grade.maxGrade == 0}">
-										                <a 
+									                <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor() or activityAssessment.grade.maxGrade == 0}">
+														<a 
 										                 	class="grade" 
 										                 	disabled="disabled" 
 										                 	data-toggle="tooltip" 
-										                 	title="You cannot update the grade">
+										                 	title="#{(not cc.attrs.bean.isCurrentUserAssessor()) ? 'Only assessor can update the grade' : 'Points are not set for this activity'}">
 										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
 										                 	#{activityAssessment.grade.maxGrade}
 										                </a>
@@ -432,8 +458,8 @@
 					</div>
 
 					<div class="sidebarBlock">
-						<h2>Assessor</h2>
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+						<ui:fragment rendered="#{(cc.attrs.role eq 'USER') and cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+							<h2>Assessor</h2>
 							<div class="user32">
 								<a href="javascript:void(0);">
 									<utilcomp:userAvatar
@@ -445,6 +471,7 @@
 								</h3>
 							</div>
 						</ui:fragment>
+						
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId eq 0}">
 							<div class="user32">
 								<h3>

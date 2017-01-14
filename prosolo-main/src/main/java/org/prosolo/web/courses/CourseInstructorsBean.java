@@ -4,7 +4,6 @@
 package org.prosolo.web.courses;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.search.TextSearch;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -27,10 +25,9 @@ import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseInstructorData;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -48,7 +45,6 @@ public class CourseInstructorsBean implements Serializable {
 	private List<CourseInstructorData> instructors;
 
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private TextSearch textSearch;
 	@Inject private CourseManager courseManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
@@ -60,12 +56,8 @@ public class CourseInstructorsBean implements Serializable {
 	private long decodedId;
 
 	private String searchTerm = "";
-	private int courseInstructorsNumber;
-	private int page = 1;
-	private int limit = 10;
 	private SortingOption sortOrder = SortingOption.ASC;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	private PaginationData paginationData = new PaginationData();
 	
 	private CourseInstructorData instructorForRemoval;
 	private CourseInstructorData instructorForReassign;
@@ -101,22 +93,10 @@ public class CourseInstructorsBean implements Serializable {
 			}
 
 			getCourseInstructors();
-			generatePagination();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
 		}
-	}
-
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(courseInstructorsNumber, limit, page, 
-				1, "...");
-		//if we want to genearate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
 	}
 
 	//TODO
@@ -127,28 +107,20 @@ public class CourseInstructorsBean implements Serializable {
 //		populateInstructorsData(searchResponse);
 	}
 
-	private void populateInstructorsData(Map<String, Object> searchResponse) {
-		instructors = new ArrayList<>();
-		
-		if (searchResponse != null) {
-			courseInstructorsNumber = ((Long) searchResponse.get("resultNumber")).intValue();
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
-			if(data != null) {
-				for (Map<String, Object> resMap : data) {
-					instructors.add(new CourseInstructorData(resMap));
-				}
-			}
-		}
-	}
-	
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
+//	private void populateInstructorsData(Map<String, Object> searchResponse) {
+//		instructors = new ArrayList<>();
+//		
+//		if (searchResponse != null) {
+//			paginationData.update(((Long) searchResponse.get("resultNumber")).intValue());
+//			@SuppressWarnings("unchecked")
+//			List<Map<String, Object>> data = (List<Map<String, Object>>) searchResponse.get("data");
+//			if(data != null) {
+//				for (Map<String, Object> resMap : data) {
+//					instructors.add(new CourseInstructorData(resMap));
+//				}
+//			}
+//		}
+//	}
 	
 	public void changeSortOrder() {
 		if(sortOrder == SortingOption.ASC) {
@@ -160,7 +132,7 @@ public class CourseInstructorsBean implements Serializable {
 	} 
 	
 	public void resetSearchOptions() {
-		this.page = 1;
+		paginationData.setPage(1);
 		resetSortOptions();	
 	}
 	
@@ -308,36 +280,8 @@ public class CourseInstructorsBean implements Serializable {
 		this.searchTerm = searchTerm;
 	}
 
-	public int getCourseInstructorsNumber() {
-		return courseInstructorsNumber;
-	}
-
-	public void setCourseInstructorsNumber(int courseInstructorsNumber) {
-		this.courseInstructorsNumber = courseInstructorsNumber;
-	}
-
-	public int getPage() {
-		return page;
-	}
-
-	public void setPage(int page) {
-		this.page = page;
-	}
-
-	public int getLimit() {
-		return limit;
-	}
-
-	public void setLimit(int limit) {
-		this.limit = limit;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public CourseInstructorData getInstructorForRemoval() {

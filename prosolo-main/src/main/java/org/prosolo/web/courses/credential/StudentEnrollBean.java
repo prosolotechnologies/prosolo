@@ -20,10 +20,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,11 +43,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	private long credId;
 
 	private String studentSearchTerm;
-	private int studentsNumber;
-	private int page = 1;
-	private int limit = 3;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	private PaginationData paginationData = new PaginationData(3);
 	
 	private String context;
 
@@ -70,18 +65,17 @@ public class StudentEnrollBean implements Serializable, Paginable {
 			}
 		}
 		studentSearchTerm = "";
-		page = 1;
+		paginationData.setPage(1);
 		studentsToEnroll = new ArrayList<>();
 		searchStudents();
 	}
 	
 	public void searchStudents() {
 		TextSearchResponse1<StudentData> result = textSearch
-				.searchUnenrolledUsersWithUserRole(studentSearchTerm, page - 1, limit, credId, userRoleId);
+				.searchUnenrolledUsersWithUserRole(studentSearchTerm, paginationData.getPage() - 1, paginationData.getLimit(), credId, userRoleId);
 		students = result.getFoundNodes();
 		setCurrentlyEnrolledStudents();
-		studentsNumber = (int) result.getHitsNumber();
-		generatePagination();
+		paginationData.update((int) result.getHitsNumber());
 	}
 	
 //	public void updateMaxNumberOfStudents() {
@@ -135,58 +129,17 @@ public class StudentEnrollBean implements Serializable, Paginable {
 		}
 	}
 
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(studentsNumber, limit, page, 
-				1, "...");
-		//if we want to genearate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
-	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		searchStudents();	
 	}
 	
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
-	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if(this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			searchStudents();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return studentsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	public long getCredId() {
@@ -205,12 +158,8 @@ public class StudentEnrollBean implements Serializable, Paginable {
 		this.studentSearchTerm = studentSearchTerm;
 	}
 
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public List<StudentData> getStudents() {

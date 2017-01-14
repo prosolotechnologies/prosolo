@@ -17,10 +17,9 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -46,15 +45,11 @@ public class GroupUsersBean implements Serializable, Paginable {
 	
 	// used for group search
 	private String searchTerm = "";
-	private int usersNumber;
-	private int page = 1;
-	private int limit = 10;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	
+	private PaginationData paginationData = new PaginationData();
 
 	public void init(long groupId) {
 		this.groupId = groupId;
-		this.page = 1;
 		this.searchTerm = "";
 		usersToRemoveFromGroup = new ArrayList<>();
 		usersToAddToGroup = new ArrayList<>();
@@ -90,70 +85,28 @@ public class GroupUsersBean implements Serializable, Paginable {
 	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		loadUsers();
 	}
 
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(usersNumber, limit, page, 
-				1, "...");
-		//if we want to generate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
-
-	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
 	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if (this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			loadUsers();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return usersNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	public void loadUsers() {
 		try {
 			TextSearchResponse1<UserSelectionData> res = textSearch.searchUsersInGroups(searchTerm, 
-					page - 1, limit, groupId);
-			usersNumber = (int) res.getHitsNumber();
+					paginationData.getPage() - 1, paginationData.getLimit(), groupId);
+			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			setCurrentlySelectedGroupUsers();
 		} catch(Exception e) {
 			logger.error(e);
 		}
-		generatePagination();
 	}
 	
 	private void setCurrentlySelectedGroupUsers() {
@@ -209,14 +162,6 @@ public class GroupUsersBean implements Serializable, Paginable {
 	 * GETTERS / SETTERS
 	 */
 
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
-	}
-
 	public String getSearchTerm() {
 		return searchTerm;
 	}
@@ -229,8 +174,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 		return users;
 	}
 
-	public void setUsers(List<UserSelectionData> users) {
-		this.users = users;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
-	
+
 }

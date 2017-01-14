@@ -37,6 +37,12 @@
 		<level value="DEBUG" />
 		<appender-ref ref="console" />
 	</logger>
+	<logger name="org.prosolo.bigdata.scala.messaging">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+	</logger>
+
+
 
 		<logger name="javax.persistence">
 		<level value="ERROR" />

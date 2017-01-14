@@ -30,10 +30,13 @@
 		tinymce.init({
 			theme: "modern",
 		    skin: 'light',
+		    height : "200",
 			selector:'.fieldsText textarea',
+			font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+	    	plugins: 'link media code image',
 			menubar:false,
 		    statusbar: false,
-		    toolbar: 'undo redo | bold italic | link image | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent'
+		    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
 		});
 		</script>
 	

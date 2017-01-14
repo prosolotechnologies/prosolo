@@ -15,6 +15,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
+			<f:viewParam name="p" value="#{userGroupsBean.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{userGroupsBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -106,8 +107,10 @@
 				</h:panelGroup>
 			</div>
 
-			<utilcomp:pagination id="pagination" bean="#{userGroupsBean}"
-				links="#{userGroupsBean.paginationLinks}" toUpdate=":panelGroups" />
+			<utilcomp:pagination id="pagination"
+			 	bean="#{userGroupsBean}"
+				updateUrl="true"
+				toUpdate=":panelGroups" />
 		</div>
 
 		<h:form id="newGroupForm">

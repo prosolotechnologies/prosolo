@@ -15,8 +15,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="role" value="#{manageUsersBean.roleId}"
-				default="null" />
+			<f:viewParam name="p" value="#{manageUsersBean.paginationData.pageString}" default="1" />
+			<f:viewParam name="role" value="#{manageUsersBean.roleId}" default="null" />
 			<f:viewAction action="#{manageUsersBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -113,7 +113,7 @@
 
 			<utilcomp:pagination id="pagination" 
 				bean="#{manageUsersBean}"
-				links="#{manageUsersBean.paginationLinks}" 
+				updateUrl="true"
 				toUpdate=":panelUsers" />
 		</div>
 

@@ -79,8 +79,8 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
-	public List<AnnouncementData> getAllAnnouncementsForCredential(Long credentialId, int page, int numberPerPage) throws ResourceCouldNotBeLoadedException {
-		Query query = getAnnouncementsForCredentialQuery(credentialId, page, numberPerPage, false);
+	public List<AnnouncementData> getAllAnnouncementsForCredential(Long credentialId, int page, int limit) throws ResourceCouldNotBeLoadedException {
+		Query query = getAnnouncementsForCredentialQuery(credentialId, page, limit, false);
 		List<Announcement> announcements = query.list();
 		List<AnnouncementData> announcementData = new ArrayList<>(announcements.size());
 		for(Announcement original : announcements) {
@@ -116,11 +116,11 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		else return null;
 	}
 
-	private Query getAnnouncementsForCredentialQuery(Long credentialId, int page, int numberPerPage, boolean deleted) {
+	private Query getAnnouncementsForCredentialQuery(Long credentialId, int page, int limit, boolean deleted) {
 		Query query = persistence.currentManager().createQuery(GET_ANNOUNCEMENTS_FOR_CREDENTIAL)
 				.setLong("credentialId", credentialId)
 				.setBoolean("deleted", deleted);
-		query.setFirstResult(numberPerPage * page).setFetchSize(numberPerPage);
+		query.setFirstResult(limit * page).setMaxResults(limit);
 		return query;
 	}
 	

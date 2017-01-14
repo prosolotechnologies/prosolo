@@ -17,7 +17,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.StudentAssessedFilter;
+import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager extends AbstractManager {
@@ -70,7 +70,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param compId
 	 * @param activityId
 	 * @param creatorId id of a logged in user that should be creator of activity if {@code shouldReturnDraft}
-	 * is true. If this id doesn not match activity creator id, null will be returned.
+	 * is true. If this id does not match activity creator id, null will be returned.
 	 * @param shouldReturnDraft true if draft updates for activity with specified id should
 	 * be returned
 	 * @param role
@@ -136,9 +136,21 @@ public interface Activity1Manager extends AbstractManager {
 
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId);
 
-	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);
-
 	ActivityData getActivityData(long credId, long competenceId, 
 			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
+
+	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);
+
+	/**
+	 * Returns activity data for the given target activity id and for the specified user to see it. 
+	 * Method checks whether the user should see the target activity data. Target activity data should 
+	 * see only an owner of target activity or a user who is assessing this target activity (credential
+	 * this target activity is a part of).
+	 * 
+	 * @param targetActId
+	 * @param userId
+	 * @return
+	 */
+	ActivityData getActivityDataForUserToView(long targetActId, long userId);
 }

@@ -19,6 +19,7 @@ import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,8 @@ public class UsersGroupsBean implements Serializable {
 
 	// used for group search
 	private String searchTerm = "";
+	
+	private PaginationData paginationData = new PaginationData();
 
 	public void init(UserData user) {
 		this.user = user;
@@ -154,6 +157,10 @@ public class UsersGroupsBean implements Serializable {
 
 	public void setUser(UserData user) {
 		this.user = user;
+	}
+
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 	
 }

@@ -36,8 +36,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -58,6 +58,7 @@ import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -2260,6 +2261,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
+	@Transactional (readOnly = true)
+	public Object[] getCredentialAndCompetenceTitle(long credId, long compId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT DISTINCT cred.title, comp.title " +
+					"FROM Credential1 cred, Competence1 comp " +
+					"WHERE cred.id = :credId " +
+						"AND comp.id = :compId";
+			
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.uniqueResult();
+			
+			if (res != null) {
+				return res;
+			}
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential and competence title");
+		}
+	}
+	
+	@Override
 	@Transactional
 	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException {
@@ -2444,10 +2473,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id) " +
+			String query = "SELECT COUNT(cred.id), COUNT(cred.instructor.id), COUNT(case cred.progress when 100 then 1 else null end)  " +
 						   "FROM TargetCredential1 cred " +
 						   "WHERE cred.credential.id = :credId";
 			
@@ -2458,12 +2487,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if(res != null) {
 				long all = (long) res[0];
-				InstructorAssignFilter allFilter = new InstructorAssignFilter(
-						InstructorAssignFilterValue.All, all);
+				CredentialMembersSearchFilter allFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.All, all);
 				long assigned = (long) res[1];
-				InstructorAssignFilter unassignedFilter = new InstructorAssignFilter(
-						InstructorAssignFilterValue.Unassigned, all - assigned);
-				return new InstructorAssignFilter[] {allFilter, unassignedFilter};
+				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Unassigned, all - assigned);
+				long completed = (long) res[2];
+				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Completed, completed);
+				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, completedFilter};
 			}
 			
 			return null;
@@ -2471,6 +2503,80 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving filters");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public UserData chooseRandomPeer(long credId, long userId) {
+		try {
+			String query = 
+				"SELECT user " +
+				"FROM TargetCredential1 tCred " +
+				"INNER JOIN tCred.user user " +
+				"WHERE tCred.credential.id = :credId " + 
+					"AND user.id != :userId " + 
+					"AND user.id NOT IN ( " +
+						"SELECT assessment.assessor.id " +
+						"FROM CredentialAssessment assessment " +
+						"INNER JOIN assessment.targetCredential tCred " +
+						"INNER JOIN tCred.credential cred " +
+						"WHERE assessment.assessedStudent.id = :userId " +
+							"AND cred.id = :credId " +
+							"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
+					") " + 
+				"ORDER BY RAND()";
+			
+			@SuppressWarnings("unchecked")
+			List<User> res = (List<User>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("userId", userId)
+					.setMaxResults(1)
+					.list();
+			
+			if (res != null && !res.isEmpty()) {
+				User user = res.get(0);
+				return new UserData(user);
+			}
+			
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving random peer");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
+		try {
+			String query = 
+				"SELECT assessment.assessor.id " +
+				"FROM CredentialAssessment assessment " +
+				"INNER JOIN assessment.targetCredential tCred " +
+				"INNER JOIN tCred.credential cred " +
+				"WHERE assessment.assessedStudent.id = :userId " +
+					"AND cred.id = :credId " +
+					"AND assessment.assessor IS NOT NULL "; // can be NULL in default assessments when instructor is not set
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res = (List<Long>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credentialId)
+					.list();
+			
+			if (res != null) {
+				return res;
+			}
+			
+			return new ArrayList<Long>();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
 	

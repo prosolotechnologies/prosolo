@@ -15,7 +15,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
@@ -23,6 +23,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -317,7 +318,7 @@ public interface CredentialManager extends AbstractManager {
 	List<StudentData> getCredentialStudentsData(long credId, int limit) 
 			throws DbConnectionException;
 	
-	InstructorAssignFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
+	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
 			throws DbConnectionException;
 	
 	List<Credential1> getAllCredentials(Session session) throws DbConnectionException;
@@ -341,4 +342,26 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
 			throws DbConnectionException;
+
+	UserData chooseRandomPeer(long credId, long userId);
+
+	/**
+	 * Returns titles of a credential and competence with given ids.
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @return array of two strings where first element is credential title and the second element is competence title.
+	 * @throws DbConnectionException
+	 */
+	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
+
+	/**
+	 * Returns list of ids of all assessors that this particular user has asked
+	 * for assessment for the credential with the given id
+	 * 
+	 * @param credentialId credential id
+	 * @param userId user id
+	 * @return list of ids
+	 */
+	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
 }

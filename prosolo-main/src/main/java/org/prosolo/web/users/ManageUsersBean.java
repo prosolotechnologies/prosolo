@@ -13,9 +13,8 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.administration.data.UserData;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,13 +37,10 @@ public class ManageUsersBean implements Serializable, Paginable {
 
 	// used for search
 	private String searchTerm = "";
-	private int usersNumber;
-	private int page = 1;
-	private int limit = 10;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
+	
+	private PaginationData paginationData = new PaginationData();
 
 	public void init() {
 		logger.debug("initializing");
@@ -62,63 +58,23 @@ public class ManageUsersBean implements Serializable, Paginable {
 	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		loadUsers();
 	}
 
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(usersNumber, limit, page, 
-				1, "...");
-		//if we want to generate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
-	
 	public void applySearchFilter(RoleFilter filter) {
 		this.filter = filter;
-		this.page = 1;
+		this.paginationData.setPage(1);
 		loadUsers();
 	}
 
-	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
 	
 	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if (this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			loadUsers();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return usersNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -126,8 +82,8 @@ public class ManageUsersBean implements Serializable, Paginable {
 		this.users = new ArrayList<UserData>();
 		try {
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, page - 1, limit, true, filter.getId());
-			usersNumber = (int) res.getHitsNumber();
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId());
+			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
 			filters = roleFilters != null ? roleFilters : new ArrayList<>();
@@ -136,7 +92,6 @@ public class ManageUsersBean implements Serializable, Paginable {
 		} catch(Exception e) {
 			logger.error(e);
 		}
-		generatePagination();
 	}
 
 	/*
@@ -145,14 +100,6 @@ public class ManageUsersBean implements Serializable, Paginable {
 
 	public List<UserData> getUsers() {
 		return this.users;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
 	}
 
 	public String getSearchTerm() {
@@ -185,6 +132,10 @@ public class ManageUsersBean implements Serializable, Paginable {
 
 	public void setFilters(List<RoleFilter> filters) {
 		this.filters = filters;
+	}
+
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 	
 }

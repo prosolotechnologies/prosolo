@@ -101,8 +101,7 @@ public class AvatarUtils {
 	}
 	
 	public static String getInitials(String fullName) {
-		//TODO for Nikola to check
-		if(fullName == null || fullName.isEmpty()) {
+		if (fullName == null || fullName.isEmpty()) {
 			return "NN";
 		}
 		String[] parts = fullName.split(" ");

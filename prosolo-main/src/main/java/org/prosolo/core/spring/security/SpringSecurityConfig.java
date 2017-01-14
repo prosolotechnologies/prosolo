@@ -541,7 +541,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //	        //return idpDiscovery;
 //	    }
     
-	@Bean
+	/*@Bean
 	@Qualifier("idp-ssocircle")
 	public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider()
 			throws MetadataProviderException {
@@ -555,7 +555,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		extendedMetadataDelegate.setMetadataTrustCheck(true);
 		extendedMetadataDelegate.setMetadataRequireSignature(false);
 		return extendedMetadataDelegate;
-	}
+	}*/
 
 	@Bean
 	@Qualifier("idp-testutaedu")
@@ -626,7 +626,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Qualifier("metadata")
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
     	List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
-        //providers.add(ssoCircleExtendedMetadataProvider());
+      //  providers.add(ssoCircleExtendedMetadataProvider());
 		providers.add(ssoUtaTestExtendedMetadataProvider());
 		providers.add(ssoUtaProdExtendedMetadataProvider());
         //providers.add(simpleSamlProvider());

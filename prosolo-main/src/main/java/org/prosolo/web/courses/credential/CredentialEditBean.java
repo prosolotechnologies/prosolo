@@ -19,12 +19,16 @@ import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -36,12 +40,14 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.factory.CredentialCloneFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "credentialEditBean")
@@ -55,12 +61,15 @@ public class CredentialEditBean implements Serializable {
 	
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
+	@Inject private CredentialCloneFactory credentialCloneFactory;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private TextSearch textSearch;
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private ContextJsonParserService contextParser;
 	@Inject private CredentialVisibilityBean visibilityBean;
+	@Inject private ThreadPoolTaskExecutor taskExecutor;
+	@Inject private EventFactory eventFactory;
 	
 	private String id;
 	private long decodedId;
@@ -264,6 +273,36 @@ public class CredentialEditBean implements Serializable {
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
+	}
+	
+	public void duplicate() {
+
+		Credential1 cred = credentialCloneFactory.clone(credentialData.getId());
+		
+		// if we enable Duplicate button for the regular user (and not just Manager), path should be changed
+		PageUtil.redirect(CommonSettings.getInstance().config.appConfig.domain + "manage/credentials/" + idEncoder.encodeId(cred.getId()) + "/edit");
+		
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+
+		taskExecutor.execute(() -> {
+			try {
+				String learningContext = context;
+				if (lContext != null && !lContext.isEmpty()) {
+					learningContext = contextParser.addSubContext(context, lContext);
+				}
+				LearningContextData lcd = new LearningContextData(page, learningContext, service);
+				
+        		HashMap<String, String> parameters = new HashMap<String, String>();
+        		parameters.put("duplicate", "true");
+        		
+        		eventFactory.generateEvent(EventType.Create, loggedUser.getUserId(), cred, null, lcd.getPage(), 
+        				lcd.getLearningContext(), lcd.getService(), parameters);
+        	} catch (EventException e) {
+        		logger.error(e);
+        	}
+		});
 	}
 	
 	public void searchCompetences() {

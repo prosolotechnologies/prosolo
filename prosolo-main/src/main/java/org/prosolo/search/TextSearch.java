@@ -15,7 +15,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
@@ -87,7 +87,7 @@ public interface TextSearch extends AbstractManager {
 			boolean loadOneMore, Collection<Tag> tagsToExclude);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembers (
-			String searchTerm, InstructorAssignFilterValue filter, int page, int limit, long credId, 
+			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption);
 	
 	TextSearchResponse1<InstructorData> searchInstructors (
@@ -149,7 +149,7 @@ public interface TextSearch extends AbstractManager {
 			CredentialSearchFilter filter, CredentialSortOption sortOption);
 	
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
-			String searchTerm, long credId, long instructorId, InstructorAssignFilterValue filter,
+			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit);
 	
 	/**
@@ -172,7 +172,7 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
-	
+
 	TextSearchResponse1<UserGroupData> searchUserGroups (
 			String searchString, int page, int limit);
 	
@@ -199,5 +199,16 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
 			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
-	
+
+	/**
+	 * Searches through credential members by their name and last name, except for the excluded ones.
+	 * 
+	 * @param searchTerm search term
+	 * @param limit number of results to return
+	 * @param credId credential id
+	 * @param peersToExcludeFromSearch user ids to exclude from search
+	 * @return response containing initialized UserData that matches the search.
+	 */
+	TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 }

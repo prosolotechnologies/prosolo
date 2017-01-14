@@ -60,12 +60,12 @@ public class AssessmentRequestEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	String getNotificationLink() {
-		//request notifications will be read by assessors, prefix url with "manage"
+		//request notifications will be read by regular users
 //		return "/manage/credential-assessment.xhtml?id=" +
 //				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 //				"&assessmentId=" +
 //				idEncoder.encodeId(event.getTarget().getId());
-		return "/manage/credentials/" +
+		return "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
 				idEncoder.encodeId(event.getObject().getId());

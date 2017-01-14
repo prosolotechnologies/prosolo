@@ -15,10 +15,9 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -42,11 +41,8 @@ public class UserGroupsBean implements Serializable, Paginable {
 
 	// used for group search
 	private String searchTerm = "";
-	private int groupsNumber;
-	private int page = 1;
-	private int limit = 10;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
+	
+	private PaginationData paginationData = new PaginationData();
 
 	public void init() {
 		loadGroups();
@@ -65,57 +61,16 @@ public class UserGroupsBean implements Serializable, Paginable {
 	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		this.paginationData.setPage(1);
 		loadGroups();
 	}
 
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(groupsNumber, limit, page, 
-				1, "...");
-		//if we want to generate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
-
-	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
 	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if (this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			loadGroups();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return groupsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	public void saveGroup() {
@@ -167,24 +122,22 @@ public class UserGroupsBean implements Serializable, Paginable {
 		this.groups = new ArrayList<UserGroupData>();
 		try {
 			TextSearchResponse1<UserGroupData> res = textSearch.searchUserGroups(searchTerm, 
-					page - 1, limit);
-			groupsNumber = (int) res.getHitsNumber();
+					paginationData.getPage() - 1, paginationData.getLimit());
+			this.paginationData.update((int) res.getHitsNumber());
 			groups = res.getFoundNodes();
 		} catch(Exception e) {
 			logger.error(e);
 		}
-		generatePagination();
 	}
 	
 	public void loadGroupsFromDB() {
 		try {
-			groupsNumber = (int) userGroupManager.countGroups(searchTerm);
-			int numberOfPages = (int) Math.ceil((double) groupsNumber / limit);
-			if(page > numberOfPages) {
-				page = numberOfPages;
+			this.paginationData.update((int) userGroupManager.countGroups(searchTerm));
+			int numberOfPages = (int) Math.ceil((double) this.paginationData.getNumberOfResults() / paginationData.getLimit());
+			if(paginationData.getPage() > numberOfPages) {
+				paginationData.setPage(numberOfPages);
 			}
-			groups = userGroupManager.searchGroups(searchTerm, limit, page - 1);
-			generatePagination();
+			groups = userGroupManager.searchGroups(searchTerm, paginationData.getLimit(), paginationData.getPage() - 1);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 		}
@@ -193,14 +146,6 @@ public class UserGroupsBean implements Serializable, Paginable {
 	/*
 	 * GETTERS / SETTERS
 	 */
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
-	}
 
 	public String getSearchTerm() {
 		return searchTerm;
@@ -224,6 +169,10 @@ public class UserGroupsBean implements Serializable, Paginable {
 
 	public void setGroupForEdit(UserGroupData groupForEdit) {
 		this.groupForEdit = groupForEdit;
+	}
+
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 	
 }

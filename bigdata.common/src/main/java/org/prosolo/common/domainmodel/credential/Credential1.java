@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -67,8 +68,9 @@ public class Credential1 extends BaseEntity {
 	//All existing users have View privilege
 	private boolean visibleToAll;
 	
-	//private boolean visible;
-
+	// when credential is cloned, this reference to the original
+	private Credential1 basedOn;
+	
 	public Credential1() {
 		tags = new HashSet<>();
 		hashtags = new HashSet<>();
@@ -276,6 +278,15 @@ public class Credential1 extends BaseEntity {
 
 	public void setVisibleToAll(boolean visibleToAll) {
 		this.visibleToAll = visibleToAll;
+	}
+
+	@OneToOne(fetch = FetchType.LAZY)
+	public Credential1 getBasedOn() {
+		return basedOn;
+	}
+
+	public void setBasedOn(Credential1 basedOn) {
+		this.basedOn = basedOn;
 	}
 
 }

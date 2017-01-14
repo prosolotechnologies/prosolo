@@ -25,7 +25,7 @@
 	    <script src="#{request.contextPath}/resources/javascript2/videojs.js"></script>
 		<link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
-		
+			
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
      		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.activityToShowWithDetails.canEdit}"></ui:param>
