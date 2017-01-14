@@ -806,11 +806,11 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getService(CredentialManager.class);
 		
 		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
-				true, creator.getId(), UserGroupPrivilege.None);
+				true, creator.getId(), UserGroupPrivilege.Edit);
 		
 		if (credentialData == null) {
 			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
-					true, creator.getId(), UserGroupPrivilege.None);
+					true, creator.getId(), UserGroupPrivilege.Edit);
 			System.out.println(credentialData1);
 		}
 		
