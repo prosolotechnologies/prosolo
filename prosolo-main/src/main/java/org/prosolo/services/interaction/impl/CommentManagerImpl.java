@@ -1,6 +1,8 @@
 package org.prosolo.services.interaction.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,6 +32,7 @@ import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.interaction.data.CommentSortField;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.util.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,50 +73,62 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	public List<CommentData> getComments(CommentedResourceType resourceType, long resourceId, 
 			boolean paginate, int maxResults, CommentSortData commentSortData, 
 			CommentReplyFetchMode replyFetchMode, long userId) throws DbConnectionException {
+	
+		if (replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
+			return getCommentsWithNumberOfReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId);
+		} else if (replyFetchMode == CommentReplyFetchMode.FetchReplies) {
+			return getCommentsWithReplies(resourceType, resourceId, paginate, maxResults, commentSortData, userId);
+		} else {
+			logger.warn("Comment loading with mode " + replyFetchMode + " is not supported");
+			return new LinkedList<>();
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommentData> getCommentsWithNumberOfReplies(CommentedResourceType resourceType, long resourceId, 
+			boolean paginate, int maxResults, CommentSortData commentSortData, 
+			long userId) throws DbConnectionException {
 		try {
 			CommentSortField sortField = commentSortData.getSortField();
 			SortingOption sortOption = commentSortData.getSortOption();
 			String order = sortOption == SortingOption.DESC ? "DESC" : "ASC";
-			StringBuilder query = new StringBuilder("SELECT distinct comment ");
-			if(replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
-				query.append(", count(child.id)");
-			}
-			query.append("FROM Comment1 comment " +
-					"INNER JOIN fetch comment.user user ");
-			if(replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
-				query.append("LEFT JOIN comment.childComments child ");
-			}
-			if(replyFetchMode == CommentReplyFetchMode.FetchReplies) {
-				query.append("LEFT JOIN fetch comment.childComments child ");
-			}
-			query.append("WHERE comment.resourceType = :resType " +
+			
+			StringBuilder query = new StringBuilder(
+					"SELECT DISTINCT comment.id, comment.description,  " +
+					"comment.instructor, comment.likeCount, comment.commentedResourceId, comment.postDate, " +
+					"user.id, user.name, user.lastname, user.avatarUrl, user.position, count(child.id) AS numberOfReplies " +
+					"FROM Comment1 comment " +
+					"INNER JOIN comment.user user " +
+					"LEFT JOIN comment.childComments child " +
+					"WHERE comment.resourceType = :resType " +
 					   "AND comment.commentedResourceId = :resourceId " +
 					   "AND comment.parentComment is NULL "); 
-			if(paginate && commentSortData.getPreviousId() > 0) {
+			
+			if (paginate && commentSortData.getPreviousId() > 0) {
 				String sign = sortOption == SortingOption.ASC ? ">=" : "<=";
 				query.append("AND comment." + sortField.getSortField() + sign + " :previousFieldValue " +
 						 "AND NOT (comment." + sortField.getSortField() + " = :previousFieldValue AND comment.id >= :previousId) ");
 			}
-			if(replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
-				query.append("GROUP BY comment.id ");
-			}
-			query.append("ORDER BY comment." + sortField.getSortField() + " " + order +
+			
+			query.append("GROUP BY comment.id, comment.description,  " +
+				"comment.instructor, comment.likeCount, comment.commentedResourceId, comment.postDate, " +
+				"user.id, user.name, user.lastname, user.avatarUrl, user.position " +
+				"ORDER BY comment." + sortField.getSortField() + " " + order +
 					   ", comment.id DESC");
-			if(replyFetchMode == CommentReplyFetchMode.FetchReplies) {
-				query.append(", child.postDate ASC");
-			}
 
 			Query q = persistence.currentManager()
 					.createQuery(query.toString())
 					.setParameter("resType", resourceType)
 					.setLong("resourceId", resourceId);
 			
-			if(paginate) {
-				if(commentSortData.getPreviousId() > 0) {
+			if (paginate) {
+				if (commentSortData.getPreviousId() > 0) {
 					q.setLong("previousId", commentSortData.getPreviousId());
-					if(sortField == CommentSortField.DATE_CREATED) {
+					
+					if (sortField == CommentSortField.DATE_CREATED) {
 						q.setTimestamp("previousFieldValue", commentSortData.getPreviousDate());
-					} else if(sortField == CommentSortField.LIKE_COUNT) {
+					} else if (sortField == CommentSortField.LIKE_COUNT) {
 						q.setInteger("previousFieldValue", commentSortData.getPreviousLikeCount());
 					}
 				}
@@ -122,44 +137,107 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			
 			List<CommentData> comments = new ArrayList<>();
 			
-			if(replyFetchMode == CommentReplyFetchMode.FetchNumberOfReplies) {
-				@SuppressWarnings("unchecked")
-				List<Object[]> res = q.list();
-				if(res == null) {
-					return new ArrayList<>();
-				}
-				for(Object[] row : res) {
-					if(row != null) {
-						Comment1 comment = (Comment1) row[0];
-						int numberOfReplies = ((Long) row[1]).intValue();
-						CommentData commentData = getCommentData(comment, userId, null, numberOfReplies);
-						comments.add(commentData);
-					}
-				}
-				
-			} else {
-				@SuppressWarnings("unchecked")
-				List<Comment1> res = q.list();
-				
-				if(res == null) {
-					return new ArrayList<>();
-				}
-		
-				for(Comment1 comment : res) {
-					CommentData commentData = getCommentData(comment, userId, null, 0);
-					if(replyFetchMode == CommentReplyFetchMode.FetchReplies) {
-						List<CommentData> childComments = new ArrayList<>();
-						if(comment.getChildComments() != null) {
-							for(Comment1 childComment : comment.getChildComments()) {
-								CommentData child = getCommentData(childComment, userId, commentData, 0);
-								childComments.add(child);
-							}
-							commentData.setChildComments(childComments);
-							commentData.setNumberOfReplies(childComments.size());
-						}
-					}
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+			
+			if (res == null) {
+				return new ArrayList<>();
+			}
+			
+			for (Object[] row : res) {
+				if (row != null) {
+					CommentData commentData = commentFactory.getCommentData(
+							(Long) row[0],			// id, 
+							(String) row[1],		// description, 
+							new UserData((Long) row[6], (String) row[7], (String) row[8], (String) row[9], (String) row[10], null, true),
+							(Boolean) row[2],		// isInstructor, 
+							(Integer) row[3],		// likeCount,
+							hasUserLikedComment(userId, (Long) row[0]), 
+							(Long) row[4],			// commentedResourceId, 
+							(Date) row[5],			// dateCreated, 
+							null,					// parent
+							((Long) row[11]).intValue());		// numberOfReplies
 					comments.add(commentData);
 				}
+			}
+				
+			return comments;
+			
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading comments");
+		}
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommentData> getCommentsWithReplies(CommentedResourceType resourceType, long resourceId, 
+			boolean paginate, int maxResults, CommentSortData commentSortData, long userId) throws DbConnectionException {
+		try {
+			CommentSortField sortField = commentSortData.getSortField();
+			SortingOption sortOption = commentSortData.getSortOption();
+			String order = sortOption == SortingOption.DESC ? "DESC" : "ASC";
+			
+			StringBuilder query = new StringBuilder(
+					"SELECT DISTINCT comment " +
+					"FROM Comment1 comment " +
+					"INNER JOIN comment.user user " +
+					"LEFT JOIN fetch comment.childComments child " +
+					"WHERE comment.resourceType = :resType " +
+					"AND comment.commentedResourceId = :resourceId " +
+					"AND comment.parentComment is NULL "); 
+			
+			if (paginate && commentSortData.getPreviousId() > 0) {
+				String sign = sortOption == SortingOption.ASC ? ">=" : "<=";
+				
+				query.append("AND comment." + sortField.getSortField() + sign + " :previousFieldValue " +
+						"AND NOT (comment." + sortField.getSortField() + " = :previousFieldValue AND comment.id >= :previousId) ");
+			}
+			
+			query.append("ORDER BY comment." + sortField.getSortField() + " " + order +
+					", comment.id DESC, child.postDate ASC");
+			
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setParameter("resType", resourceType)
+					.setLong("resourceId", resourceId);
+			
+			if (paginate) {
+				if (commentSortData.getPreviousId() > 0) {
+					q.setLong("previousId", commentSortData.getPreviousId());
+					
+					if (sortField == CommentSortField.DATE_CREATED) {
+						q.setTimestamp("previousFieldValue", commentSortData.getPreviousDate());
+					} else if (sortField == CommentSortField.LIKE_COUNT) {
+						q.setInteger("previousFieldValue", commentSortData.getPreviousLikeCount());
+					}
+				}
+				q.setMaxResults(maxResults + 1);
+			}
+			
+			List<CommentData> comments = new ArrayList<>();
+			
+			@SuppressWarnings("unchecked")
+			List<Comment1> res = q.list();
+			
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			for (Comment1 comment : res) {
+				CommentData commentData = getCommentData(comment, userId, null, 0);
+				
+				List<CommentData> childComments = new ArrayList<>();
+				
+				if (comment.getChildComments() != null) {
+					for (Comment1 childComment : comment.getChildComments()) {
+						CommentData child = getCommentData(childComment, userId, commentData, 0);
+						childComments.add(child);
+					}
+					commentData.setChildComments(childComments);
+					commentData.setNumberOfReplies(childComments.size());
+				}
+				comments.add(commentData);
 			}
 			return comments;
 			
