@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;

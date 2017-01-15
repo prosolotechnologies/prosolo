@@ -37,7 +37,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -2986,6 +2986,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
+	@Transactional (readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
 		try {
 			String query = 
@@ -3015,7 +3016,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if (res != null && !res.isEmpty()) {
 				User user = res.get(0);
-				return new UserData(user.getId(), user.getName() + " " + user.getLastname(), AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
+				return new UserData(user);
 			}
 			
 			return null;
