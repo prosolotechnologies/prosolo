@@ -53,7 +53,7 @@ public class CredentialVisibilityBean implements Serializable {
 		this.credentialId = credentialId;
 		this.creator = creator;
 		this.manageSection = manageSection;
-		resVisibilityUtil.initializeValues();
+		resVisibilityUtil.initializeValues(credManager.isVisibleToAll(credentialId));
 		try {
 			logger.info("Manage visibility for credential with id " + credentialId);
 
@@ -65,7 +65,6 @@ public class CredentialVisibilityBean implements Serializable {
 	}
 	
 	private void loadData() {
-		setVisibleToEveryone(credManager.isVisibleToAll(credentialId));
 		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId));
 		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId)); 
 		for(ResourceVisibilityMember rvm : getExistingUsers()) {
@@ -187,11 +186,7 @@ public class CredentialVisibilityBean implements Serializable {
 	public boolean isVisibleToEveryone() {
 		return resVisibilityUtil.isVisibleToEveryone();
 	}
-
-	public void setVisibleToEveryone(boolean visibleToEveryone) {
-		resVisibilityUtil.setVisibleToEveryone(visibleToEveryone);
-	}
-
+	
 	public UserGroupPrivilegeData[] getPrivileges() {
 		return resVisibilityUtil.getPrivileges();
 	}
@@ -232,4 +227,7 @@ public class CredentialVisibilityBean implements Serializable {
 		return creator;
 	}
 	
+	public void setVisibleToEveryone(boolean val) {
+		resVisibilityUtil.setVisibleToEveryone(val);
+	}
 }

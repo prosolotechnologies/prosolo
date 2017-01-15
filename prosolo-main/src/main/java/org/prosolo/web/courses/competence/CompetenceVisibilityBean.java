@@ -15,6 +15,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
 import org.prosolo.web.LoggedUserBean;
@@ -39,6 +40,7 @@ public class CompetenceVisibilityBean implements Serializable {
 	@Inject private Competence1Manager compManager;
 	
 	private long compId;
+	private ResourceCreator creator;
 	
 	private boolean manageSection;
 	
@@ -47,10 +49,11 @@ public class CompetenceVisibilityBean implements Serializable {
 	public CompetenceVisibilityBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
-	public void init(long compId, boolean manageSection) {
+	public void init(long compId, ResourceCreator creator, boolean manageSection) {
 		this.compId = compId;
+		this.creator = creator;
 		this.manageSection = manageSection;
-		resVisibilityUtil.initializeValues();
+		resVisibilityUtil.initializeValues(compManager.isVisibleToAll(compId));
 		try {
 			logger.info("Manage visibility for competence with id " + compId);
 
@@ -62,7 +65,6 @@ public class CompetenceVisibilityBean implements Serializable {
 	}
 	
 	private void loadData() {
-		setVisibleToEveryone(compManager.isVisibleToAll(compId));
 		setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId));
 		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(compId)); 
 		for(ResourceVisibilityMember rvm : getExistingUsers()) {
@@ -223,6 +225,10 @@ public class CompetenceVisibilityBean implements Serializable {
 	
 	private List<Long> getGroupsToExclude() {
 		return resVisibilityUtil.getGroupsToExclude();
+	}
+	
+	public ResourceCreator getCreator() {
+		return creator;
 	}
 	
 }

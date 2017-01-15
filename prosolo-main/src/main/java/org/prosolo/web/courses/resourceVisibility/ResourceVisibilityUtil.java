@@ -29,7 +29,7 @@ public class ResourceVisibilityUtil implements Serializable {
 	private UserGroupPrivilegeData[] privileges;
 	private UserGroupPrivilegeData newMemberPrivilege = UserGroupPrivilegeData.View;
 
-	public void initializeValues() {
+	public void initializeValues(boolean visibleToEveryone) {
 		searchTerm = "";
 		searchMembers = new ArrayList<>();
 		existingGroups = new ArrayList<>();
@@ -37,6 +37,7 @@ public class ResourceVisibilityUtil implements Serializable {
 		privileges = UserGroupPrivilegeData.values();
 		usersToExclude = new ArrayList<>();
 		groupsToExclude = new ArrayList<>();
+		this.visibleToEveryone = visibleToEveryone;
 	}
 	
 	//TODO add searchUsersandgroups

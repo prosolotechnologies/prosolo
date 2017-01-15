@@ -113,7 +113,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void initVisibilityManageData() {
-		visibilityBean.init(decodedId, manageSection);
+		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
 	}
 	
 	private void setContext() {
@@ -127,7 +127,7 @@ public class CompetenceEditBean implements Serializable {
 	
 	private void loadCompetenceData(long credId, long id) {
 		try {
-			competenceData = compManager.getCompetenceData(credId, id, false, true, true, 
+			competenceData = compManager.getCompetenceData(credId, id, true, true, true, 
 					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
 			if(!competenceData.isCanAccess()) {
 				try {

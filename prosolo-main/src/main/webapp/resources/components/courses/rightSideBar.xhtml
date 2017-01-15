@@ -65,8 +65,8 @@
 					$('.selectpicker').selectpicker('refresh');
 					$(function () {
 					    $("[id$=datetimepicker4]").datetimepicker({
-					    	minDate : new Date(),
-					    	defaultDate : new Date()
+					    	minDate : new Date()
+					    	//defaultDate : new Date()
 					    });
 					    $("[id$=datetimepicker4]").keypress(function(event) {event.preventDefault();});
 					    var status = $(document.getElementById("#{cc.clientId}:selectStatus")).val();

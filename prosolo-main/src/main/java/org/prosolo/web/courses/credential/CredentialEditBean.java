@@ -84,7 +84,7 @@ public class CredentialEditBean implements Serializable {
 	
 	private PublishedStatus[] courseStatusArray;
 	
-	private Role role;
+	//private Role role;
 
 	private boolean manageSection;
 
@@ -134,11 +134,11 @@ public class CredentialEditBean implements Serializable {
 					logger.error(e);
 				}
 			} else {
-				if(manageSection) {
-					role = Role.Manager;
-				} else {
-					role = Role.User;
-				}
+//				if(manageSection) {
+//					role = Role.Manager;
+//				} else {
+//					role = Role.User;
+//				}
 				
 				List<CompetenceData1> comps = credentialData.getCompetences();
 				for(CompetenceData1 cd : comps) {
