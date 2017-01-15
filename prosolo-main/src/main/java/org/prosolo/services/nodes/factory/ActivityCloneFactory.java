@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.factory;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -68,8 +69,8 @@ public class ActivityCloneFactory {
 			activity.setTitle(original.getTitle());
 			activity.setDescription(original.getDescription());
 			activity.setDuration(original.getDuration());
-			activity.setLinks(new HashSet<ResourceLink>(original.getLinks()));
-			activity.setFiles(new HashSet<ResourceLink>(original.getFiles()));
+			activity.setLinks(cloneLinks(original.getLinks()));
+			activity.setFiles(cloneLinks(original.getFiles()));
 			activity.setResultType(original.getResultType());
 			activity.setType(original.getType());
 			activity.setMaxPoints(original.getMaxPoints());
@@ -82,6 +83,21 @@ public class ActivityCloneFactory {
 			e.printStackTrace();
 			throw new DbConnectionException("Error while cloning activity");
 		}
+	}
+
+	private Set<ResourceLink> cloneLinks(Set<ResourceLink> links) {
+		Set<ResourceLink> cloneLinks = new HashSet<ResourceLink>();
+		
+		for (ResourceLink link : links) {
+			ResourceLink linkClone = new ResourceLink();
+			linkClone.setLinkName(link.getLinkName());
+			linkClone.setUrl(link.getUrl());
+			linkClone = defaultManager.saveEntity(linkClone);
+			
+			cloneLinks.add(linkClone);
+		}
+		
+		return cloneLinks;
 	}
 
 	private Activity1 cloneActivityBasedOnType(Activity1 original) {
