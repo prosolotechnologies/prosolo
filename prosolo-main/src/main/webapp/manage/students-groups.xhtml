@@ -127,7 +127,7 @@
 							</div>
 							
 							<div class="modal-body alignLeft">
-								<h:inputText placeholder="Group Name"
+								<h:inputText id="nameSearch" placeholder="Group Name"
 									value="#{manageGroupsBean.groupForEdit.name}" />
 							</div>
 							
@@ -147,6 +147,12 @@
 					</h:panelGroup>
 				</div>
 			</div>
+			
+			<script>
+			$('#newGroupModal').on('shown.bs.modal', function () {
+			    $('#newGroupForm\\:nameSearch').focus();
+			}) 
+			</script>
 		</h:form>
 
 		<h:form id="formManageUsers">
@@ -215,6 +221,11 @@
 					</h:panelGroup>
 				</div>
 			</div>
+			<script>
+			$('#addStudentsModal').on('shown.bs.modal', function () {
+			    $('#formManageUsers\\:inputGroupUsersSearch').focus();
+			}) 
+			</script>
 		</h:form>
 
 		<h:form id="formDeleteGroup">

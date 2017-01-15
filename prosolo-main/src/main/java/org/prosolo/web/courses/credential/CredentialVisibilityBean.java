@@ -15,6 +15,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
 import org.prosolo.web.LoggedUserBean;
@@ -39,6 +40,7 @@ public class CredentialVisibilityBean implements Serializable {
 	@Inject private CredentialManager credManager;
 	
 	private long credentialId;
+	private ResourceCreator creator;
 	
 	private boolean manageSection;
 	
@@ -47,8 +49,9 @@ public class CredentialVisibilityBean implements Serializable {
 	public CredentialVisibilityBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
-	public void init(long credentialId, boolean manageSection) {
+	public void init(long credentialId, ResourceCreator creator, boolean manageSection) {
 		this.credentialId = credentialId;
+		this.creator = creator;
 		this.manageSection = manageSection;
 		resVisibilityUtil.initializeValues();
 		try {
@@ -224,4 +227,9 @@ public class CredentialVisibilityBean implements Serializable {
 	private List<Long> getGroupsToExclude() {
 		return resVisibilityUtil.getGroupsToExclude();
 	}
+	
+	public ResourceCreator getCreator() {
+		return creator;
+	}
+	
 }

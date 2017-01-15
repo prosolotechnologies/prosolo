@@ -114,7 +114,7 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	public void initVisibilityManageData() {
-		visibilityBean.init(decodedId, manageSection);
+		visibilityBean.init(decodedId, credentialData.getCreator(), manageSection);
 	}
 	
 	private void setContext() {
@@ -125,7 +125,7 @@ public class CredentialEditBean implements Serializable {
 
 	private void loadCredentialData(long id) {
 		try {
-			credentialData = credentialManager.getCredentialData(id, false, true, loggedUser.getUserId(), 
+			credentialData = credentialManager.getCredentialData(id, true, true, loggedUser.getUserId(), 
 					UserGroupPrivilege.Edit);
 			if(!credentialData.isCanAccess()) {
 				try {

@@ -45,7 +45,8 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
@@ -91,7 +92,8 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
