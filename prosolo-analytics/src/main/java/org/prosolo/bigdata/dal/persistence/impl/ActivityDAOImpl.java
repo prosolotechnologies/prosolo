@@ -212,6 +212,7 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 			for(Activity1 a : acts) {
 				a.setPublished(true);
 			}
+			session.flush();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

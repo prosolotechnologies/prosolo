@@ -93,6 +93,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 						.load(Competence1.class, id);
 				comp.setDuration(getRecalculatedDuration(id));
 			}
+			session.flush();
 		} catch(CompetenceEmptyException cee) {
 			logger.error(cee);
 			//cee.printStackTrace();
@@ -106,6 +107,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 	
 	private List<Competence1> getDraftCompetencesForCredential(long credId) {
 		StringBuilder queryB = new StringBuilder("SELECT comp FROM CredentialCompetence1 credComp " +
+					   "INNER JOIN credComp.competence comp " +
 					   "WHERE credComp.credential.id = :credId " +
 					   "AND comp.published = :published ");
 		

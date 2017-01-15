@@ -93,7 +93,7 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 				cred.setDuration(getRecalculatedDuration(credentialId));
 			}
 			cred.setScheduledPublishDate(null);
-			
+			session.flush();
 			CredentialIndexerImpl.getInstance().updateVisibility(credentialId, cred.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
@@ -105,7 +105,7 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	@Override
 	public Date getScheduledVisibilityUpdateDate(long credId) {
 		String query = 
-			"SELECT cred.scheduledPublicDate " +
+			"SELECT cred.scheduledPublishDate " +
 			"FROM Credential1 cred " +
 			"WHERE cred.id = :credId";
 		try {
