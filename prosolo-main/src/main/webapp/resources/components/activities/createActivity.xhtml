@@ -186,7 +186,7 @@
 			                    <h2>Publish</h2>
 			                    <p:commandLink
 			                    	id="linkPreview"
-									value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
+									value="Preview #{activityEditBean.activityData.status eq 'UNPUBLISH' ? 'Draft' : ''}"
 									styleClass="linkPreview"
 									action="#{activityEditBean.preview()}"
 									update=":#{cc.clientId}:formMain"

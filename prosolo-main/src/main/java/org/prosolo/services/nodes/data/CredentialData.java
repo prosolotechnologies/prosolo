@@ -59,39 +59,42 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	//private boolean visible;
 	private boolean published;
-	private ResourceVisibility visibility;
 	private Date scheduledPublishDate;
 	private String scheduledPublishDateValue;
+	private String scheduledPublishDateStringView;
 	
 	private boolean canEdit;
 	private boolean canAccess;
 	
 	public CredentialData(boolean listenChanges) {
-		this.status = PublishedStatus.DRAFT;
-		this.visibility = ResourceVisibility.UNPUBLISH;
+		this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
 	
-	public void setVisibility(boolean published, Date scheduledPublicDate) {
+	public void setCredentialStatus() {
+		setCredentialStatus(published, scheduledPublishDate);
+	}
+	
+	public void setCredentialStatus(boolean published, Date scheduledPublicDate) {
 		if(published) {
 			if(scheduledPublicDate == null) {
-				this.visibility = ResourceVisibility.PUBLISHED;
+				this.status = PublishedStatus.PUBLISHED;
 			} else {
-				this.visibility = ResourceVisibility.SCHEDULED_UNPUBLISH;
+				this.status = PublishedStatus.SCHEDULED_UNPUBLISH;
 			}
 		} else {
 			if(scheduledPublicDate == null) {
-				this.visibility = ResourceVisibility.UNPUBLISH;
+				this.status = PublishedStatus.UNPUBLISH;
 			} else {
-				this.visibility = ResourceVisibility.SCHEDULED_PUBLISH;
+				this.status = PublishedStatus.SCHEDULED_PUBLISH;
 			}
 		}
 	}
 	
-	public boolean isCredVisible() {
-		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
-	}
+//	public boolean isCredVisible() {
+//		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
+//	}
 	
 	/**
 	 * This method needed to be overriden to deal with collection of competences because
@@ -127,14 +130,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 	
-	//setting course status based on published flag
-	public void setCredentialStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
-	}
-	
 	//setting published flag based on course status
 	private void setPublished() {
-		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+		if(status == PublishedStatus.PUBLISHED || status == PublishedStatus.UNPUBLISH) {
+			setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+		}
 	}
 	
 	private void setCredentialTypeFromString() {
@@ -427,17 +427,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setScheduledPublishDate(Date scheduledPublishDate) {
 		observeAttributeChange("scheduledPublicDate", this.scheduledPublishDate, scheduledPublishDate, 
-				(Date d1, Date d2) -> d1 == null ? d2 == null : d1.compareTo(d2) == 0);
+				(Date d1, Date d2) -> d1 == null ? d2 == null : d2 == null ? false : d1.compareTo(d2) == 0);
 		this.scheduledPublishDate = scheduledPublishDate;
-	}
-
-	public ResourceVisibility getVisibility() {
-		return visibility;
-	}
-
-	public void setVisibility(ResourceVisibility visibility) {
-		observeAttributeChange("visibility", this.visibility, visibility);
-		this.visibility = visibility;
 	}
 
 	public String getScheduledPublishDateValue() {
@@ -522,6 +513,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
+	}
+
+	public String getScheduledPublishDateStringView() {
+		return scheduledPublishDateStringView;
+	}
+
+	public void setScheduledPublishDateStringView(String scheduledPublishDateStringView) {
+		this.scheduledPublishDateStringView = scheduledPublishDateStringView;
 	}
 
 }

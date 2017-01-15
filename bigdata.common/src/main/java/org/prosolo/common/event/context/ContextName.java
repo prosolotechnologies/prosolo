@@ -60,7 +60,8 @@ public enum ContextName {
 	STUDENTS(""),
 	EDIT_DIALOG(""),
 	USER_GROUPS_DIALOG("User"),
-	MANAGE_VISIBILITY_DIALOG("");
+	MANAGE_VISIBILITY_DIALOG(""),
+	PUBLISH_RESOURCE_DIALOG("");
 	
     private String objectType; 
     

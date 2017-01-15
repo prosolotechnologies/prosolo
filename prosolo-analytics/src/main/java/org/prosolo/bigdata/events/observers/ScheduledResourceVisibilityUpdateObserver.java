@@ -42,6 +42,7 @@ public class ScheduledResourceVisibilityUpdateObserver implements EventObserver 
 		Resource resource = null;
 		Date date = null;
 		long resourceId = logEvent.getObjectId();
+		long actorId = logEvent.getActorId();
 		try {
 			if(Credential1.class.getSimpleName().equals(logEvent.getObjectType())) {
 				date = courseDAO.getScheduledVisibilityUpdateDate(resourceId);
@@ -60,7 +61,7 @@ public class ScheduledResourceVisibilityUpdateObserver implements EventObserver 
 				}
 				//job does not yet exist, create one
 				else {
-					visibilityService.updateVisibilityAtSpecificTime(resourceId, resource, date);
+					visibilityService.updateVisibilityAtSpecificTime(actorId, resourceId, resource, date);
 					logger.info(String.format("Creating job for visibility update for " + resource.name() + " : %s", resourceId));
 				}
 			}

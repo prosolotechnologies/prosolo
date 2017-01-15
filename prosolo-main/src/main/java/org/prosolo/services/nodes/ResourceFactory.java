@@ -121,7 +121,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
 			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps, boolean visible, Date scheduledDate);
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
 
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
@@ -141,7 +141,7 @@ public interface ResourceFactory extends AbstractManager {
 	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId, boolean visible, Date scheduledPublicDate);
+			long credentialId);
 
 	Result<Credential1> updateCredential(CredentialData data, long creatorId);
 

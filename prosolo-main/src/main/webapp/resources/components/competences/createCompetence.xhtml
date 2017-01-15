@@ -206,15 +206,14 @@
 			            		id="compSideBar"
 			            		publishValues="#{competenceEditBean.compStatusArray}" 
 			            		publishValue="#{competenceEditBean.competenceData.status}"
-			            		visibilityValues="#{competenceEditBean.visibilityTypes}"
-								visibilityValue="#{competenceEditBean.competenceData.visibility}"
-								scheduledDateValue="#{competenceEditBean.competenceData.scheduledPublicDateValue}"
 			            		saveAction="#{competenceEditBean.save}"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 			            		previewAction="#{competenceEditBean.preview}"
 			            		linkPreviewClass="hiddenLinkPreview"
 			            		resource="COMPETENCE"
-			            		role="#{cc.attrs.role}" />
+			            		role="#{cc.attrs.role}"
+			            		resourceLowerCase="competence"
+								childResourcePlural="activities"/>
 			            		
 			            	<h:link
 								style="display: none;"

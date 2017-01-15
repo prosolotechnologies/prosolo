@@ -178,7 +178,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 		}
 		
-		if(duration != 0) {
+		/*
+		 * We should update competences duration only if activity was published. If it
+		 * was not published, its duration was not even added to duration of a competence.
+		 */
+		if(duration != 0 && act.isPublished()) {
 			compManager.updateDurationForCompetenceWithActivity(actId, duration, Operation.Subtract);
 		}
 		
@@ -851,26 +855,47 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private Activity1 updateActivityData(Activity1 actToUpdate, 
 			Class<? extends Activity1> activityClass, ActivityData data) {
 		try {
-			if(data.isDurationHoursChanged() || data.isDurationMinutesChanged()) {
-				int oldHours = 0;
-				int oldMinutes = 0;
-				Optional<Integer> optDurationHours = data.getDurationHoursBeforeUpdate();
-				if(optDurationHours.isPresent()) {
-					oldHours = optDurationHours.get().intValue();
-				} else {
-					oldHours = data.getDurationHours();
-				}
-				Optional<Integer> optDurationMinutes = data.getDurationMinutesBeforeUpdate();
-				if(optDurationMinutes.isPresent()) {
-					oldMinutes = optDurationMinutes.get().intValue();
-				} else {
-					oldMinutes = data.getDurationMinutes();
-				}
-				long oldDuration = oldHours * 60 + 
-						oldMinutes;
-				long newDuration1 = data.getDurationHours() * 60 + data.getDurationMinutes();
-				updateCompDuration(actToUpdate.getId(), newDuration1, oldDuration);
+			long oldDuration = 0;
+			long newDuration = 0;
+			/*
+			 * if activity is published and was published before, we calculate old duration, and 
+			 * new changed duration
+			 */
+			if(data.isPublished() && !data.isPublishedChanged()) {
+				oldDuration = getActivityDurationBeforeUpdate(data);
+				newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
 			}
+			/*
+			 * if activity is published and was unpublished before, old duration is 0 because
+			 * it was not added to competence duration, and we calculate current activity
+			 * duration as new duration. 
+			 */
+			else if(data.isPublished() && data.isPublishedChanged()) {
+				oldDuration = 0;
+				newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
+			} 
+			/*
+			 * if activity is unpublished and was published before, we calculate old duration, and 
+			 * new duration is 0 because we don't want to add duration of unpublished activity to 
+			 * competence duration.
+			 */
+			else if(!data.isPublished() && data.isPublishedChanged()) {
+				oldDuration = getActivityDurationBeforeUpdate(data);
+				newDuration = 0;
+			} 
+			/*
+			 * if activity is unpublished and was unpublished before, competence duration should
+			 * not be changed
+			 */
+			else if(!data.isPublished() && !data.isPublishedChanged()) {
+				oldDuration = 0;
+				newDuration = 0;
+			}
+			
+			if(oldDuration != newDuration) {
+				updateCompDuration(actToUpdate.getId(), newDuration, oldDuration);
+			}
+		
 			
 			actToUpdate.setTitle(data.getTitle());
 			actToUpdate.setDescription(data.getDescription());
@@ -919,6 +944,30 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	private long getActivityDurationBeforeUpdate(ActivityData data) {
+		long oldDuration = 0;
+		if(data.isDurationHoursChanged() || data.isDurationMinutesChanged()) {
+			int oldHours = 0;
+			int oldMinutes = 0;
+			Optional<Integer> optDurationHours = data.getDurationHoursBeforeUpdate();
+			if(optDurationHours.isPresent()) {
+				oldHours = optDurationHours.get().intValue();
+			} else {
+				oldHours = data.getDurationHours();
+			}
+			Optional<Integer> optDurationMinutes = data.getDurationMinutesBeforeUpdate();
+			if(optDurationMinutes.isPresent()) {
+				oldMinutes = optDurationMinutes.get().intValue();
+			} else {
+				oldMinutes = data.getDurationMinutes();
+			}
+			oldDuration = oldHours * 60 + oldMinutes;
+		} else {
+			oldDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
+		}
+		return oldDuration;
 	}
 	
 	private void updateCompDuration(long actId, long newDuration, long oldDuration) {

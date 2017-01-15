@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -36,7 +37,7 @@ public class CredentialDataFactory {
 		}
 		cred.setType(credential.getType());
 		cred.setPublished(credential.isPublished());
-		cred.setCredentialStatus();
+		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
 		//cred.setDraft(credential.isDraft());
 		//cred.setHasDraft(credential.isHasDraft());
@@ -59,6 +60,8 @@ public class CredentialDataFactory {
 			String formattedDate = sdf.format(credential.getScheduledPublishDate());
 			cred.setScheduledPublishDateValue(formattedDate);
 		}
+		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
+				credential.getScheduledPublishDate()));
 		//cred.setVisible(credential.isVisible());
 		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
 		

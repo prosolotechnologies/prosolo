@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +46,6 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
@@ -92,7 +92,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
 					data.getDescription(), data.getTagsString(), creatorId, 
 					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
-					data.getDuration(), data.getActivities(), credentialId, data.isCompVisible(), data.getScheduledPublicDate());
+					data.getDuration(), data.getActivities(), credentialId);
 			
 			comp = res.getResult();
 			
@@ -113,11 +113,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			eventFactory.generateEvent(EventType.Create, creatorId, comp, null, page, lContext,
 					service, null);
 			
-			if((data.getVisibility() == ResourceVisibility.SCHEDULED_PUBLISH || data.getVisibility() == ResourceVisibility.SCHEDULED_UNPUBLISH) 
-					&& data.getScheduledPublicDate() != null) {
-				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, comp, null, page, lContext, 
-						service, null);
-			}
+//			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+//					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
+//					&& data.getScheduledPublicDate() != null) {
+//				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, comp, null, page, lContext, 
+//						service, null);
+//			}
 
 			return comp;
 		} catch(CompetenceEmptyException cee) {
@@ -158,10 +159,33 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Competence1 comp = (Competence1) persistence.currentManager()
 				.load(Competence1.class, compId);
 		long duration = comp.getDuration();
+
+		List<CredentialCompetence1> res = getAllCredentialCompetencesForCompetence(compId);
+		boolean published = comp.isPublished();
+		for(CredentialCompetence1 cc : res) {
+			//credMap.put(cc.getCredential(), cc.getOrder());
+			Credential1 cred = cc.getCredential();
+			//TODO use hql update to avoid select + update
+			/*
+			 * We should update credentials duration only if competence was published. 
+			 * If it was not published competence duration was not event added to credential
+			 * duration.
+			 */
+			if(published) {
+				cred.setDuration(cred.getDuration() - duration);
+			}
+			shiftOrderOfCompetencesUp(cred.getId(), cc.getOrder());
+			delete(cc);
+		}
 		
+	}
+	
+	private List<CredentialCompetence1> getAllCredentialCompetencesForCompetence(long compId) {
+		Competence1 comp = (Competence1) persistence.currentManager()
+				.load(Competence1.class, compId);
 		String query = "SELECT credComp " +
-			       	   "FROM CredentialCompetence1 credComp " + 
-			       	   "WHERE credComp.competence = :comp";
+		       	   "FROM CredentialCompetence1 credComp " + 
+		       	   "WHERE credComp.competence = :comp";
 
 		@SuppressWarnings("unchecked")
 		List<CredentialCompetence1> res = persistence.currentManager()
@@ -169,17 +193,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			.setEntity("comp", comp)
 			.list();
 		
-		if(res != null) {
-			for(CredentialCompetence1 cc : res) {
-				//credMap.put(cc.getCredential(), cc.getOrder());
-				Credential1 cred = cc.getCredential();
-				//TODO use hql update to avoid select + update
-				cred.setDuration(cred.getDuration() - duration);
-				shiftOrderOfCompetencesUp(cred.getId(), cc.getOrder());
-				delete(cc);
-			}
-		}
-		
+		return res != null ? res : Collections.emptyList();
 	}
 
 	private void shiftOrderOfCompetencesUp(long id, int order) {
@@ -455,20 +469,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			String service = context != null ? context.getService() : null; 
 			
 			fireCompEditEvent(data, userId, updatedComp, page, lContext, service);
- 			
- 			if((data.getVisibility() == ResourceVisibility.SCHEDULED_PUBLISH || data.getVisibility() == ResourceVisibility.SCHEDULED_UNPUBLISH)
- 					&& data.getScheduledPublicDate() != null && data.isScheduledPublicDateChanged()) {
-				Competence1 co = new Competence1();
-				co.setId(data.getCompetenceId());
- 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, co, null, page, lContext, 
-						service, null);
-			} else if(data.getVisibility() != ResourceVisibility.SCHEDULED_PUBLISH && data.getVisibility() != ResourceVisibility.SCHEDULED_UNPUBLISH &&
-					data.getScheduledPublicDate() == null && data.isScheduledPublicDateChanged()) {
-				Competence1 co = new Competence1();
-				co.setId(data.getCompetenceId());
- 				eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, userId, co, null, page, lContext, 
-						service, null);
-			}
 
 		    return updatedComp;
 		} catch(CompetenceEmptyException cee) {
@@ -506,7 +506,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		compToUpdate.setDescription(data.getDescription());
 		compToUpdate.setPublished(data.isPublished());
 		compToUpdate.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
-		compToUpdate.setScheduledPublicDate(data.getScheduledPublicDate());
     	if(data.isTagsStringChanged()) {
     		compToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
     				data.getTagsString())));		     
@@ -551,12 +550,46 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    		}
 	    	}
 	    
-	    	if(data.isPublished() && data.isPublishedChanged()) {
+	    	if(data.isPublished()) {
 	    		activityManager.publishDraftActivities(0, userId, actIds);
+//	    		updateDurationForAllCredentialsWithCompetence(data.getCompetenceId(), 
+//	    				Operation.Add, compToUpdate.getDuration());
+	    		persistence.currentManager().flush();
+	    		long oldDuration = compToUpdate.getDuration();
+	    		long newDuration = getRecalculatedDuration(compToUpdate.getId());
+	    		compToUpdate.setDuration(newDuration);
+	    		if(data.isPublishedChanged()) {
+	    			oldDuration = 0;
+	    		}
+	    		updateCredDuration(compToUpdate.getId(), newDuration, oldDuration);
+//	    		credentialManager.updateDurationForCredentialsWithCompetence(data.getCompetenceId(), 
+//	    				compToUpdate.getDuration(), Operation.Add);
+	    	}
+	    	if(!data.isPublished() && data.isPublishedChanged()) {
+//	    		updateDurationForAllCredentialsWithCompetence(data.getCompetenceId(), 
+//	    				Operation.Subtract, compToUpdate.getDuration());
+	    		credentialManager.updateDurationForCredentialsWithCompetence(data.getCompetenceId(), 
+	    				compToUpdate.getDuration(), Operation.Subtract);
 	    	}
 	    }
 	    
 	    return compToUpdate;
+	}
+	
+	private void updateCredDuration(long compId, long newDuration, long oldDuration) {
+		long durationChange = newDuration - oldDuration;
+    	Operation op = null;
+    	if(durationChange == 0) {
+    		return;
+    	}
+    	if(durationChange > 0) {
+    		op = Operation.Add;
+    	} else {
+    		durationChange = -durationChange;
+    		op = Operation.Subtract;
+    	}
+    	credentialManager.updateDurationForCredentialsWithCompetence(compId, 
+				durationChange, op);
 	}
 	
 //	@Transactional(readOnly = true)
@@ -1037,10 +1070,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			ca.setOrder(comp.getActivities().size() + 1);
 			saveEntity(ca);
 			/* 
-			 * If duration of added activity is greater than 0,
+			 * If duration of added activity is greater than 0 and activity is published
 			 * update competence duration
 			*/
-			if(act.getDuration() > 0) {
+			if(act.getDuration() > 0 && act.isPublished()) {
 				comp.setDuration(comp.getDuration() + act.getDuration());
 				credentialManager.updateDurationForCredentialsWithCompetence(compId, 
 						act.getDuration(), Operation.Add);
@@ -1384,6 +1417,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
 					creatorId, publishedComps);
+			persistence.currentManager().flush();
+			for(long id : publishedComps) {
+				Competence1 comp = (Competence1) persistence.currentManager()
+						.load(Competence1.class, id);
+				comp.setDuration(getRecalculatedDuration(id));
+			}
 			events.addAll(actEvents);
 			return events;
 		} catch(CompetenceEmptyException cee) {
@@ -1735,6 +1774,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating credential visibility");
 		}
+	}
+	
+	private long getRecalculatedDuration(long compId) {
+		String query = "SELECT sum(a.duration) FROM CompetenceActivity1 ca " +
+					   "INNER JOIN ca.activity a " +
+					   "WHERE ca.competence.id = :compId " +
+					   "AND a.published = :published";
+		Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("published", true)
+				.uniqueResult();
+		
+		return res != null ? res : 0;
 	}
 	
 }

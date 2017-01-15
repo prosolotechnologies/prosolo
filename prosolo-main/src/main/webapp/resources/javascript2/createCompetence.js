@@ -5,7 +5,7 @@ $(function () {
 var containerId;
 
 function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val('UNPUBLISH').change();
 }
 
 function attachListenersForUpdatingStatus() {
@@ -20,7 +20,7 @@ function attachListenersForUpdatingStatus() {
 
 function onStatusChange() {
 	var status = $('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val();
-	if(status === "DRAFT") {
+	if(status === "UNPUBLISH") {
 		$('#noteDraft').show();
 		$('#' + containerId + '\\:formMain\\:compSideBar\\:linkPreview').text('Preview Draft');
 	} else {
@@ -29,13 +29,6 @@ function onStatusChange() {
 	}
 }
 
-function onVisibilityChange() {
-	var vis = $('#' + containerId + '\\:formMain\\:compSideBar\\:selectVisibility').val();
-	//handle publish status
-	if(vis === "SCHEDULED") {
-		$("[id$=datetimepicker4]").show()
-	} else {
-		$("[id$=datetimepicker4]").val("")
-		$("[id$=datetimepicker4]").hide()
-	}
+function getStatus() {
+	return $('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val();
 }

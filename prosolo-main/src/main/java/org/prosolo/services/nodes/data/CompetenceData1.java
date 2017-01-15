@@ -1,13 +1,10 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -18,6 +15,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	private static final long serialVersionUID = 6562985459763765320L;
 	
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceData1.class);
 	
 	private long credentialCompetenceId;
@@ -49,9 +47,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private ObjectStatus objectStatus;
 	
 	private boolean published;
-	private ResourceVisibility visibility;
-	private Date scheduledPublicDate;
-	private String scheduledPublicDateValue;
 	
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
@@ -60,31 +55,10 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean canAccess;
 	
 	public CompetenceData1(boolean listenChanges) {
-		this.status = PublishedStatus.DRAFT;
-		this.visibility = ResourceVisibility.UNPUBLISH;
+		this.status = PublishedStatus.UNPUBLISH;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
-	}
-	
-	public void setVisibility(boolean published, Date scheduledPublicDate) {
-		if(published) {
-			if(scheduledPublicDate == null) {
-				this.visibility = ResourceVisibility.PUBLISHED;
-			} else {
-				this.visibility = ResourceVisibility.SCHEDULED_UNPUBLISH;
-			}
-		} else {
-			if(scheduledPublicDate == null) {
-				this.visibility = ResourceVisibility.UNPUBLISH;
-			} else {
-				this.visibility = ResourceVisibility.SCHEDULED_PUBLISH;
-			}
-		}
-	}
-	
-	public boolean isCompVisible() {
-		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
 	}
 	
 	@Override
@@ -130,7 +104,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	//setting competence status based on published flag
 	public void setCompStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
+		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on competence status
@@ -287,43 +261,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		observeAttributeChange("studentAllowedToAddActivities", this.studentAllowedToAddActivities, 
 				studentAllowedToAddActivities);
 		this.studentAllowedToAddActivities = studentAllowedToAddActivities;
-	}
-	
-	public Date getScheduledPublicDate() {
-		return scheduledPublicDate;
-	}
-
-	public void setScheduledPublicDate(Date scheduledPublicDate) {
-		observeAttributeChange("scheduledPublicDate", this.scheduledPublicDate, scheduledPublicDate, 
-				(Date d1, Date d2) -> d1 == null ? d2 == null : d1.compareTo(d2) == 0);
-		this.scheduledPublicDate = scheduledPublicDate;
-	}
-
-	public ResourceVisibility getVisibility() {
-		return visibility;
-	}
-
-	public void setVisibility(ResourceVisibility visibility) {
-		observeAttributeChange("visibility", this.visibility, visibility);
-		this.visibility = visibility;
-	}
-
-	public String getScheduledPublicDateValue() {
-		return scheduledPublicDateValue;
-	}
-
-	public void setScheduledPublicDateValue(String scheduledPublicDateValue) {
-		this.scheduledPublicDateValue = scheduledPublicDateValue;
-		if(StringUtils.isNotBlank(scheduledPublicDateValue)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-			Date d = null;
-			try {
-				d = sdf.parse(scheduledPublicDateValue);
-			} catch(Exception e) {
-				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublicDateValue), e);
-			}
-			setScheduledPublicDate(d);
-		}
 	}
 
 	public boolean isEnrolled() {

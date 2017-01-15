@@ -55,7 +55,7 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibility;
+import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -117,7 +117,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
 					data.getTagsString(), data.getHashtagsString(), creatorId,
 					data.getType(), data.isMandatoryFlow(), data.isPublished(), data.getDuration(),
-					!data.isAutomaticallyAssingStudents(), data.getCompetences(), data.isCredVisible(), data.getScheduledPublishDate());
+					!data.isAutomaticallyAssingStudents(), data.getCompetences(), data.getScheduledPublishDate());
 			
 			//generate create event only if credential is published
 			String page = context != null ? context.getPage() : null; 
@@ -135,7 +135,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
 			
-			if((data.getVisibility() == ResourceVisibility.SCHEDULED_PUBLISH || data.getVisibility() == ResourceVisibility.SCHEDULED_UNPUBLISH) 
+			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
 					&& data.getScheduledPublishDate() != null) {
 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, cred, null, page, lContext, 
 						service, null);
@@ -704,19 +705,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
  			
- 			if((data.getVisibility() == ResourceVisibility.SCHEDULED_PUBLISH || data.getVisibility() == ResourceVisibility.SCHEDULED_UNPUBLISH)
+ 			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+ 					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH)
  					&& data.getScheduledPublishDate() != null && data.isScheduledPublicDateChanged()) {
 				Credential1 cr = new Credential1();
 				cr.setId(data.getId());
  				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
 						service, null);
-			} else if(data.getVisibility() != ResourceVisibility.SCHEDULED_PUBLISH && data.getVisibility() != ResourceVisibility.SCHEDULED_UNPUBLISH &&
-					data.getScheduledPublishDate() == null && data.isScheduledPublicDateChanged()) {
-				Credential1 cr = new Credential1();
-				cr.setId(data.getId());
- 				eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
-						service, null);
-			}
+			} 
+// 			else if(data.getStatus() != PublishedStatus.SCHEDULED_PUBLISH 
+//					&& data.getStatus() != PublishedStatus.SCHEDULED_UNPUBLISH &&
+//					data.getScheduledPublishDate() == null && data.isScheduledPublicDateChanged()) {
+//				Credential1 cr = new Credential1();
+//				cr.setId(data.getId());
+// 				eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
+//						service, null);
+//			}
 
 		    return cred;
 		} catch(CredentialEmptyException cee) {
@@ -732,6 +736,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating credential");
 		}
+	}
+	
+	private long getRecalculatedDuration(long credId) {
+		String query = "SELECT sum(c.duration) FROM CredentialCompetence1 cc " +
+					   "INNER JOIN cc.competence c " +
+					   "WHERE cc.credential.id = :credId " +
+					   "AND c.published = :published";
+		Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setBoolean("published", true)
+				.uniqueResult();
+		
+		return res != null ? res : 0;
 	}
 	
 	private void fireEditEvent(CredentialData data, long userId, 
@@ -794,7 +812,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    				cc1.setCompetence(comp);
 	    				saveEntity(cc1);
 	    				compIds.add(cd.getCompetenceId());
-	    				
 	    				//if competence is added to credential
 	    				User user = new User();
 	    				user.setId(creatorId);
@@ -819,12 +836,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    		}
 	    	}
 	    	
-	    	if(data.isPublished() && data.isPublishedChanged()) {
+	    	if(data.isPublished()) {
     			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
 	    		List<EventData> events = compManager.publishCompetences(data.getId(), compIds, creatorId);
 	    		res.addEvents(events);
     		}
 	    }
+	    persistence.currentManager().flush();
+	    credToUpdate.setDuration(getRecalculatedDuration(data.getId()));
 	    res.setResult(credToUpdate);
 	    return res;
 	}
@@ -1061,11 +1080,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cc.setOrder(cred.getCompetences().size() + 1);
 			saveEntity(cc);
 			/* 
-			 * If duration of added competence is greater than 0,
+			 * If duration of added competence is greater than 0 and competence is published
 			 * update credential duration
 			*/
 			//TODO check if this requires select + update and if so, use hql update instead
-			if(comp.getDuration() > 0) {
+			if(comp.getDuration() > 0 && comp.isPublished()) {
 				cred.setDuration(cred.getDuration() + comp.getDuration());
 			}
 			

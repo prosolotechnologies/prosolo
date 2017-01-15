@@ -225,5 +225,4 @@ public interface Competence1Manager {
 	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
     				throws DbConnectionException;
-
 }

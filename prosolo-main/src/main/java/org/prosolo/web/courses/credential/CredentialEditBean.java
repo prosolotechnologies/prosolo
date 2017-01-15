@@ -3,6 +3,7 @@ package org.prosolo.web.courses.credential;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,6 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
-import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.factory.CredentialCloneFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -83,7 +83,6 @@ public class CredentialEditBean implements Serializable {
 	private int competenceForRemovalIndex;
 	
 	private PublishedStatus[] courseStatusArray;
-	private ResourceVisibility[] visibilityTypes;
 	
 	private Role role;
 
@@ -111,6 +110,7 @@ public class CredentialEditBean implements Serializable {
 				PageUtil.fireErrorMessage("Error while trying to load credential data");
 			}
 		}
+		initializeCredentialStatusArray();
 	}
 	
 	public void initVisibilityManageData() {
@@ -166,8 +166,21 @@ public class CredentialEditBean implements Serializable {
 	private void initializeValues() {
 		compsToRemove = new ArrayList<>();
 		compsToExcludeFromSearch = new ArrayList<>();
-		courseStatusArray = PublishedStatus.values();
-		visibilityTypes = ResourceVisibility.values();
+	}
+
+	private void initializeCredentialStatusArray() {
+		courseStatusArray = Arrays.stream(PublishedStatus.values()).filter(
+				s -> shouldIncludeStatus(s))
+				.toArray(PublishedStatus[]::new);
+	}
+	
+	private boolean shouldIncludeStatus(PublishedStatus s) {
+		boolean published = credentialData.isPublished();
+		if(published && s == PublishedStatus.SCHEDULED_PUBLISH 
+				|| !published && s == PublishedStatus.SCHEDULED_UNPUBLISH) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean hasMoreCompetences(int index) {
@@ -224,14 +237,14 @@ public class CredentialEditBean implements Serializable {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
 					if(saveAsDraft) {
-						credentialData.setStatus(PublishedStatus.DRAFT);
+						credentialData.setStatus(PublishedStatus.UNPUBLISH);
 					}
 					credentialManager.updateCredential(credentialData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
-					credentialData.setStatus(PublishedStatus.DRAFT);
+					credentialData.setStatus(PublishedStatus.UNPUBLISH);
 				}
 				
 				Credential1 cred = credentialManager.saveNewCredential(credentialData,
@@ -245,6 +258,7 @@ public class CredentialEditBean implements Serializable {
 			if(reloadData && credentialData.hasObjectChanged()) {
 				initializeValues();
 				loadCredentialData(decodedId);
+				initializeCredentialStatusArray();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
@@ -252,6 +266,28 @@ public class CredentialEditBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
+		}
+	}
+	
+	public void cancelScheduledUpdate() {
+		String page = PageUtil.getPostParameter("page");
+		String lContext = PageUtil.getPostParameter("learningContext");
+		String service = PageUtil.getPostParameter("service");
+		String learningContext = context;
+		if(lContext != null && !lContext.isEmpty()) {
+			learningContext = contextParser.addSubContext(context, lContext);
+		}
+		Credential1 cr = new Credential1();
+		cr.setId(decodedId);
+		try {
+			eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, 
+					loggedUser.getUserId(), cr, null, page, learningContext, 
+					service, null);
+			credentialData.setScheduledPublishDate(null);
+			credentialData.setCredentialStatus();
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 	
@@ -361,7 +397,7 @@ public class CredentialEditBean implements Serializable {
 		currentNumberOfComps ++;
 		compSearchResults = new ArrayList<>();
 		//change status because competence is added
-		credentialData.setStatus(PublishedStatus.DRAFT);
+		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	private CompetenceData1 getCompetenceIfPreviouslyRemoved(CompetenceData1 compData) {
@@ -395,14 +431,14 @@ public class CredentialEditBean implements Serializable {
 		Collections.swap(competences, i, k);
 		
 		//set status to draft because order changed
-		credentialData.setStatus(PublishedStatus.DRAFT);
+		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeComp() {
 		removeComp(competenceForRemovalIndex);
 		
 		//set status to draft because competence is removed
-		credentialData.setStatus(PublishedStatus.DRAFT);
+		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeComp(int index) {
@@ -509,14 +545,6 @@ public class CredentialEditBean implements Serializable {
 
 	public void setCompetenceForRemovalIndex(int competenceForRemovalIndex) {
 		this.competenceForRemovalIndex = competenceForRemovalIndex;
-	}
-
-	public ResourceVisibility[] getVisibilityTypes() {
-		return visibilityTypes;
-	}
-
-	public void setVisibilityTypes(ResourceVisibility[] visibilityTypes) {
-		this.visibilityTypes = visibilityTypes;
 	}
 
 	public long getDecodedId() {

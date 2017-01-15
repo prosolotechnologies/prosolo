@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTimeConstants;
@@ -313,6 +314,23 @@ public class DateUtil {
 		return monthBegin.toDateTimeAtStartOfDay().plusMonths(1).toDate();
 	}
 	
+	/**
+	 * Returns string representation of a date. Example of a string returned: 
+	 * Dec 15, 2016 at 12:00 AM
+	 * @param date
+	 * @return
+	 */
+	public static String parseDateWithShortMonthName(Date date) {
+		if(date == null) {
+			return null;
+		}
+	 
+	    DateFormat dfFr = new SimpleDateFormat(
+	        "MMM dd, yyyy 'at' hh:mm a");
+
+	    return dfFr.format(date);
+	}
+	
 	public static void main(String[] args) {
 		Calendar cal = new GregorianCalendar();
 		
@@ -320,6 +338,8 @@ public class DateUtil {
 		
 		System.out.println(getWeekBeginningDate(cal.getTime()));
 		System.out.println(getNextWeekBeginningDate(cal.getTime()));
+		Date date = new GregorianCalendar(2016, 0, 15).getTime();
+		System.out.println(parseDateWithShortMonthName(date));
 		
 	}
 }

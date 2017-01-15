@@ -3,6 +3,7 @@ package org.prosolo.web.courses.competence;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,6 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
-import org.prosolo.services.nodes.data.ResourceVisibility;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
@@ -68,7 +68,6 @@ public class CompetenceEditBean implements Serializable {
 	private int activityForRemovalIndex;
 	
 	private PublishedStatus[] compStatusArray;
-	private ResourceVisibility[] visibilityTypes;
 	
 	private String credTitle;
 	
@@ -154,8 +153,9 @@ public class CompetenceEditBean implements Serializable {
 	private void initializeValues() {
 		activitiesToRemove = new ArrayList<>();
 		activitiesToExcludeFromSearch = new ArrayList<>();
-		compStatusArray = PublishedStatus.values();
-		visibilityTypes = ResourceVisibility.values();
+		compStatusArray = Arrays.stream(PublishedStatus.values()).filter(
+				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
+				.toArray(PublishedStatus[]::new);
 	}
 
 	public boolean hasMoreActivities(int index) {
@@ -225,14 +225,14 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if(competenceData.hasObjectChanged()) {
 					if(saveAsDraft) {
-						competenceData.setStatus(PublishedStatus.DRAFT);
+						competenceData.setStatus(PublishedStatus.UNPUBLISH);
 					}
 					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
-					competenceData.setStatus(PublishedStatus.DRAFT);
+					competenceData.setStatus(PublishedStatus.UNPUBLISH);
 				}
 				long credentialId = addToCredential ? decodedCredId : 0;
 				//competenceData.setDuration(4);
@@ -325,14 +325,14 @@ public class CompetenceEditBean implements Serializable {
 		Collections.swap(activities, i, k);
 		
 		//when activity order changes update status to draft
-		competenceData.setStatus(PublishedStatus.DRAFT);
+		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity() {
 		removeActivity(activityForRemovalIndex);
 		
 		//when activity is removed update status to draft
-		competenceData.setStatus(PublishedStatus.DRAFT);
+		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity(int index) {
@@ -449,14 +449,6 @@ public class CompetenceEditBean implements Serializable {
 
 	public void setCredTitle(String credTitle) {
 		this.credTitle = credTitle;
-	}
-
-	public ResourceVisibility[] getVisibilityTypes() {
-		return visibilityTypes;
-	}
-
-	public void setVisibilityTypes(ResourceVisibility[] visibilityTypes) {
-		this.visibilityTypes = visibilityTypes;
 	}
 
 }

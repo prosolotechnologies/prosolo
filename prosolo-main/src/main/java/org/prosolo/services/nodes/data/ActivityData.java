@@ -75,6 +75,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean canAccess;
 	
 	public ActivityData(boolean listenChanges) {
+		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
@@ -145,7 +146,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	//setting activity status based on published flag
 	public void setActivityStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
+		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on course status

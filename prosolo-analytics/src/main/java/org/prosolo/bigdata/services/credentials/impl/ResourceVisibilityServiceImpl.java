@@ -43,12 +43,14 @@ public class ResourceVisibilityServiceImpl implements VisibilityService {
 //    }
     
     @Override
-    public void updateVisibilityAtSpecificTime(long resourceId, Resource resource, Date startDate) {
+    public void updateVisibilityAtSpecificTime(long actorId, long resourceId, Resource resource, 
+    		Date startDate) {
         String identity = getIdentity(resource, resourceId);
         JobBuilder jobBuilder=JobBuilder.newJob(ResourceVisibilityUpdateJob.class).withIdentity(identity, VISIBILITYGROUP);
         jobBuilder.storeDurably(false);
         jobBuilder.usingJobData("resourceId",resourceId);
         jobBuilder.usingJobData("resource", resource.name());
+        jobBuilder.usingJobData("userId", actorId);
 
         JobDetail jobDetails=jobBuilder.build();
             SimpleTrigger trigger=(SimpleTrigger) TriggerBuilder.newTrigger()

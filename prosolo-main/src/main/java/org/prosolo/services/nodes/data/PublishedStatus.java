@@ -1,7 +1,10 @@
 package org.prosolo.services.nodes.data;
 
 public enum PublishedStatus {
-	DRAFT("Draft"), PUBLISHED("Published");
+	PUBLISHED("Published"),
+	UNPUBLISH("Un-Published"),
+	SCHEDULED_PUBLISH("Scheduled Publish"),
+	SCHEDULED_UNPUBLISH("Scheduled Un-Publish");
 	
 	private String label;
 

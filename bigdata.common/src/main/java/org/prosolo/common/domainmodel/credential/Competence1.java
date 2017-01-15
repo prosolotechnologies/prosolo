@@ -1,7 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,8 +36,6 @@ public class Competence1 extends BaseEntity {
 	private List<TargetCompetence1> targetCompetences;
 	
 	private List<CredentialCompetence1> credentialCompetence;
-
-	private Date scheduledPublicDate;
 	
 	//all existing users have View privilege
 	private boolean visibleToAll;
@@ -127,15 +124,6 @@ public class Competence1 extends BaseEntity {
 
 	public void setType(LearningResourceType type) {
 		this.type = type;
-	}
-	
-	@Column(name="scheduled_public_date")
-	public Date getScheduledPublicDate() {
-		return scheduledPublicDate;
-	}
-
-	public void setScheduledPublicDate(Date scheduledPublicDate) {
-		this.scheduledPublicDate = scheduledPublicDate;
 	}
 	
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")

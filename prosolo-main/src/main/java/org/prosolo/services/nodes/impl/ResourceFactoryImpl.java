@@ -891,7 +891,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Credential1 createCredential(String title, String description, String tagsString, 
     		String hashtagsString, long creatorId, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps, boolean visible, Date scheduledDate) {
+    		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -936,7 +936,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId, boolean visible, Date scheduledPublicDate) {
+			long credentialId) {
     	try {
     		 Result<Competence1> result = new Result<>();
 			 Competence1 comp = new Competence1();
@@ -949,7 +949,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     comp.setPublished(published);
 		     comp.setDuration(duration);
 		     comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     comp.setScheduledPublicDate(scheduledPublicDate);
 		     saveEntity(comp);
 		     
 		     if(activities != null) {
