@@ -115,7 +115,7 @@ public class CompetenceViewBeanManager implements Serializable {
  			return "(Preview)";
  		} else if(!competenceData.isPublished() && 
  				competenceData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

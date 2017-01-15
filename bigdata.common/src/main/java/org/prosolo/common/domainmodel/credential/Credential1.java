@@ -108,8 +108,8 @@ public class Credential1 extends BaseEntity {
 		this.hashtags = hashTags;
 	}
 
-	@Column(nullable=true)
 	@Type(type="true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isPublished() {
 		return published;
 	}

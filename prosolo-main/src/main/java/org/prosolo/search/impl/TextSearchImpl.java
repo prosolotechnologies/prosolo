@@ -2204,6 +2204,9 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 				bQueryBuilder.must(qb);
 			}
+			
+			bQueryBuilder.mustNot(termQuery("system", true));
+			
 			if (usersToExclude != null) {
 				for (Long exUserId : usersToExclude) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));

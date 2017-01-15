@@ -153,7 +153,7 @@ public class ActivityViewBeanManager implements Serializable {
  		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
  				competenceData.getActivityToShowWithDetails().getType() 
  					== LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

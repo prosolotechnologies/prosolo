@@ -284,7 +284,7 @@ public class ActivityViewBeanUser implements Serializable {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
  				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

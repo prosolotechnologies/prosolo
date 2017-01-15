@@ -130,7 +130,7 @@ public class CredentialViewBeanUser implements Serializable {
  		if(isPreview()) {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

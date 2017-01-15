@@ -137,7 +137,7 @@ public class CompetenceViewBeanUser implements Serializable {
  		if(isPreview()) {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !competenceData.isEnrolled() && !competenceData.isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

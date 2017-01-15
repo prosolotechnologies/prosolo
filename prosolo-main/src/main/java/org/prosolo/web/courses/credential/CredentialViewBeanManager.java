@@ -87,7 +87,7 @@ public class CredentialViewBeanManager implements Serializable {
  			return "(Preview)";
  		} else if(!credentialData.isPublished() && 
  				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}
