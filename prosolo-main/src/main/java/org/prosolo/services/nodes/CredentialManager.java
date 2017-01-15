@@ -371,6 +371,18 @@ public interface CredentialManager extends AbstractManager {
 	
 	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
 	
+	
+	/**
+	 * Returns list of ids of all assessors that this particular user has asked
+	 * for assessment for the credential with the given id
+	 * 
+	 * @param credentialId credential id
+	 * @param userId user id
+	 * @return list of ids
+	 */
+	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
+	
+	
 	/**
 	 * Returns list of TargetActivities for given credentials.
 	 * 
