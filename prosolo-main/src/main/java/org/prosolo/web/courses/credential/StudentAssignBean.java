@@ -27,6 +27,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.LoggedUserBean;
@@ -53,6 +54,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private NodeChangeObserver nodeChangeObserver;
+	@Inject private CredentialManager credManager;
 
 	private long credId;
 
@@ -69,6 +71,9 @@ public class StudentAssignBean implements Serializable, Paginable {
 	private List<StudentData> students;
 	private List<Long> studentsToAssign;
 	private List<Long> studentsToUnassign;
+	
+	private boolean selectAll;
+	private List<Long> studentsToExcludeFromAssign;
 	
 	public void init(long credId, String context) {
 		this.credId = credId;
@@ -94,14 +99,36 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public void prepareStudentAssign(InstructorData id) {
+		selectAll = false;
 		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
 		instructorForStudentAssign = id;
 		maxNumberOfStudents = instructorForStudentAssign.getMaxNumberOfStudents();
 		studentSearchTerm = "";
 		studentsToAssign = new ArrayList<>();
 		studentsToUnassign = new ArrayList<>();
+		studentsToExcludeFromAssign = new ArrayList<>();
 		paginationData.setPage(1);
 		searchStudents();
+	}
+	
+	public void selectAllChecked() {
+		studentsToUnassign = new ArrayList<>();
+		studentsToAssign = new ArrayList<>();
+		studentsToExcludeFromAssign = new ArrayList<>();
+		//if select all is checked then all students should be preselected
+		if(selectAll) {
+			for(StudentData s : students) {
+				s.setAssigned(true);
+			}
+		} else {
+			for(StudentData s : students) {
+				if(s.getInstructor() == null) {
+					s.setAssigned(false);
+				} else {
+					s.setAssigned(true);
+				}
+			}
+		}
 	}
 	
 	public void searchStudents() {
@@ -135,7 +162,13 @@ public class StudentAssignBean implements Serializable, Paginable {
 				if(sd.isAssigned()) {
 					sd.setAssigned(!checkIfExists(sd.getUser().getId(), studentsToUnassign));
 				} else {
-					sd.setAssigned(checkIfExists(sd.getUser().getId(), studentsToAssign));
+					if(selectAll) {
+						if(!checkIfExists(sd.getUser().getId(), studentsToExcludeFromAssign)) {
+							sd.setAssigned(true);
+						}
+					} else {
+						sd.setAssigned(checkIfExists(sd.getUser().getId(), studentsToAssign));
+					}
 				}
 			}
 		}
@@ -159,13 +192,21 @@ public class StudentAssignBean implements Serializable, Paginable {
 			if(sd.getInstructor() != null) {
 				studentsToUnassign.remove(new Long(sd.getUser().getId()));
 			} else {
-				studentsToAssign.add(sd.getUser().getId());
+				if(selectAll) {
+					studentsToExcludeFromAssign.remove(new Long(sd.getUser().getId()));
+				} else {
+					studentsToAssign.add(sd.getUser().getId());
+				}
 			}
 		} else {
 			if(sd.getInstructor() != null) {
 				studentsToUnassign.add(sd.getUser().getId());
 			} else {
-				studentsToAssign.remove(new Long(sd.getUser().getId()));
+				if(selectAll) {
+					studentsToExcludeFromAssign.add(sd.getUser().getId());
+				} else {
+					studentsToAssign.remove(new Long(sd.getUser().getId()));
+				}
 			}
 		}
 	}
@@ -184,11 +225,21 @@ public class StudentAssignBean implements Serializable, Paginable {
 				String service = PageUtil.getPostParameter("service");
 				String lContext = context + "|context:/name:INSTRUCTOR|id:" 
 						+ instructorForStudentAssign.getInstructorId() + "/";
+				List<Long> usersToAssign = null;
+				if(selectAll) {
+					List<Long> studentsToExcludeCopy = new ArrayList<>(studentsToExcludeFromAssign);
+					//exclude instructor because user can not be instructor for himself
+					studentsToExcludeCopy.add(instructorForStudentAssign.getUser().getId());
+					usersToAssign = credManager.getUnassignedCredentialMembersIds(
+							credId, studentsToExcludeCopy);
+				} else {
+					usersToAssign = studentsToAssign;
+				}
 				credInstructorManager.updateInstructorAndStudentsAssigned(credId, 
-						instructorForStudentAssign, studentsToAssign, studentsToUnassign);
-				fireAssignEvent(instructorForStudentAssign, studentsToAssign, page, lContext, service);
+						instructorForStudentAssign, usersToAssign, studentsToUnassign);
+				fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
 				fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
-				int numberOfAffectedStudents = studentsToAssign.size() - studentsToUnassign.size();
+				int numberOfAffectedStudents = usersToAssign.size() - studentsToUnassign.size();
 				instructorForStudentAssign.setNumberOfAssignedStudents(
 						instructorForStudentAssign.getNumberOfAssignedStudents() + numberOfAffectedStudents);
 				//instructorForStudentAssign = null;
@@ -361,6 +412,14 @@ public class StudentAssignBean implements Serializable, Paginable {
 
 	public PaginationData getPaginationData() {
 		return paginationData;
+	}
+
+	public boolean isSelectAll() {
+		return selectAll;
+	}
+
+	public void setSelectAll(boolean selectAll) {
+		this.selectAll = selectAll;
 	}
 	
 }

@@ -364,4 +364,18 @@ public interface CredentialManager extends AbstractManager {
 	 * @return list of ids
 	 */
 	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
+	
+	/**
+	 * Returns list of ids of all users that currently do not have instructor assigned for credential
+	 * with {@code credId} id, except users which ids are contained in {@code usersToExclude} list.
+	 * 
+	 * If you do not want to exclude any user, pass null or empty list for {@code usersToExclude} parameter.
+	 *
+	 * @param credId
+	 * @param usersToExclude
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
+			throws DbConnectionException;
 }

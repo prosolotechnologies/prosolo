@@ -1611,16 +1611,17 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			credFilter.must(unassignedOrWithSpecifiedInstructorFilter);
 			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials",
 					credFilter);
-			
-			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
-					nestedCredFilter);
+		
+			BoolQueryBuilder qb = QueryBuilders.boolQuery();
+			qb.must(bQueryBuilder);
+			qb.filter(nestedCredFilter);
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-						.setQuery(filteredQueryBuilder)
+						.setQuery(qb)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(
 										AggregationBuilders.filter("filtered")
@@ -1652,6 +1653,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						filterBuilder = QueryBuilders.boolQuery();
 						filterBuilder.must(QueryBuilders.termQuery("credentials.id", credId));
 						filterBuilder.must(QueryBuilders.termQuery("credentials.instructorId", 0));
+						break;
+					default:
 						break;
 				}
 				if(filterBuilder != null) {
