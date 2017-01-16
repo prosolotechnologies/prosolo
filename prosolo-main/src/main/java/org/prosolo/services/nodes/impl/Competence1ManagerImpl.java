@@ -487,7 +487,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					throws EventException {
 		Map<String, String> params = new HashMap<>();
 	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
-	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false, 
+	    		data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false, 
 	    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
@@ -1399,15 +1399,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					c.setPublished(true);
 					EventData ev = new EventData();
 					ev.setActorId(creatorId);
-					ev.setEventType(EventType.Edit);
-					CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(true,
-				    		true, false, false, false, 
-				    		false, false);
-				    Gson gson = new GsonBuilder().create();
-				    String jsonChangeTracker = gson.toJson(changeTracker);
-				    Map<String, String> params = new HashMap<>();
-				    params.put("changes", jsonChangeTracker);
-				    ev.setParameters(params);
+					ev.setEventType(EventType.STATUS_CHANGED);
 				    ev.setObject(c);
 					events.add(ev);
 					

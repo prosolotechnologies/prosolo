@@ -38,5 +38,7 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	void updateVisibleToAll(long compId, boolean value);
 	
 	void updateCompetenceUsersWithPrivileges(long compId, Session session);
+	
+	void updateStatus(long compId, boolean published);
 
 }

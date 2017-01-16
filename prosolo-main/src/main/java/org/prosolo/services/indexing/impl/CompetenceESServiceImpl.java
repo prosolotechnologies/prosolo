@@ -98,7 +98,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	public void updateCompetenceNode(Competence1 comp, CompetenceChangeTracker changeTracker, 
 			Session session) {
 		if(changeTracker != null &&
-				(changeTracker.isVersionChanged() || changeTracker.isTitleChanged() || 
+				(changeTracker.isStatusChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged())) {
 			saveCompetenceNode(comp, session);
 		}
@@ -184,6 +184,20 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 			
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void updateStatus(long compId, boolean published) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+			    .startObject()
+		        .field("published", published)
+		        .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

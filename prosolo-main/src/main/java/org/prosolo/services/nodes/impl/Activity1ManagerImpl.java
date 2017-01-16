@@ -777,7 +777,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
 	    		actClass, 
 	    		data.isPublished(), 
-	    		false, 
+	    		data.isPublishedChanged(), 
 	    		data.isTitleChanged(), 
 	    		data.isDescriptionChanged(), 
 	    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 

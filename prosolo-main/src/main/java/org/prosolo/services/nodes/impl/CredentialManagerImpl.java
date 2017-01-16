@@ -757,7 +757,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String service) throws EventException {   
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(data.isPublished(),
-	    		false, data.isTitleChanged(), data.isDescriptionChanged(), false,
+	    		data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false,
 	    		data.isTagsStringChanged(), data.isHashtagsStringChanged(), 
 	    		data.isMandatoryFlowChanged());
 	    Gson gson = new GsonBuilder().create();
