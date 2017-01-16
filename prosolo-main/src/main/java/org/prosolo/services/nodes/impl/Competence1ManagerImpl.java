@@ -1,7 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -193,7 +192,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			.setEntity("comp", comp)
 			.list();
 		
-		return res != null ? res : Collections.emptyList();
+		return res != null ? res : new ArrayList<>();
 	}
 
 	private void shiftOrderOfCompetencesUp(long id, int order) {

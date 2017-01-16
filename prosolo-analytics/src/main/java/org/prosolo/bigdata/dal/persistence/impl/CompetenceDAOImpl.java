@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -116,7 +115,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 		
 		@SuppressWarnings("unchecked")
 		List<Competence1> comps = q.list();
-		return comps != null ? comps : Collections.emptyList();
+		return comps != null ? comps : new ArrayList<>();
 	}
 	
 	private UserGroupPrivilege getUserPrivilegeForCompetence(long credId, long compId, long userId) 
