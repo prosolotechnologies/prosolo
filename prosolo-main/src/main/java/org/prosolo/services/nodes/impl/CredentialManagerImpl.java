@@ -2784,4 +2784,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential visibility");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
+			throws DbConnectionException {
+		try {
+			String query=
+					"SELECT cred.user.id " +
+					"FROM TargetCredential1 cred " +
+					"WHERE cred.credential.id = :credId " +
+					"AND cred.instructor is NULL";
+			
+			if(usersToExclude != null && !usersToExclude.isEmpty()) {
+				query += " AND cred.user.id NOT IN (:excludeList)";
+			}
+			  	
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId);
+			
+			if(usersToExclude != null && !usersToExclude.isEmpty()) {
+				q.setParameterList("excludeList", usersToExclude);
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<Long> result = q.list();
+			
+			return result != null ? result : new ArrayList<>();
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential unassigned member ids");
+		}
+	}
 }
