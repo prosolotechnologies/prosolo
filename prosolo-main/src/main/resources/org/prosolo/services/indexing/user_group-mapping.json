@@ -1,0 +1,31 @@
+{
+    "user_group":{
+		"properties":{
+			"id":{
+				"store": false,
+				"type":"long"
+			},
+			"name":{
+				"store": false,
+				"type": "string"
+			},
+			"credentials": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"competences": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			}
+		}	
+	}
+
+}

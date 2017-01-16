@@ -124,7 +124,7 @@
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{activityEditBean.isCreateUseCase()}">
 			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
 			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
 			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -147,7 +147,7 @@
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
 			                                         <ul class="addedItems">
 			                                             <li>
 			                                                 #{activityEditBean.activityData.activityType.label}
@@ -186,7 +186,7 @@
 			                    <h2>Publish</h2>
 			                    <p:commandLink
 			                    	id="linkPreview"
-									value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
+									value="Preview #{activityEditBean.activityData.status eq 'UNPUBLISH' ? 'Draft' : ''}"
 									styleClass="linkPreview"
 									action="#{activityEditBean.preview()}"
 									update=":#{cc.clientId}:formMain"

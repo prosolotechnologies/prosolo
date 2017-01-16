@@ -8,7 +8,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -60,49 +62,49 @@ public class CompetenceViewBeanUser implements Serializable {
 							decodedCredId, decodedCompId, loggedUser.getUserId());
 				} else {
 					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceDataForEdit(decodedCredId, 
-								decodedCompId, loggedUser.getUserId(), true);
+						competenceData = competenceManager.getCompetenceData(
+								decodedCredId, decodedCompId, true, true, true, loggedUser.getUserId(), 
+								UserGroupPrivilege.Edit, false);
 
 						ResourceCreator rc = new ResourceCreator();
 						rc.setFullName(loggedUser.getFullName());
 						rc.setAvatarUrl(loggedUser.getAvatar());
 						competenceData.setCreator(rc);
 					} else {
-						competenceData = competenceManager.getCompetenceDataForUser(0, decodedCompId, true, 
-								true, true, loggedUser.getUserId(), true);
+						competenceData = competenceManager.getCompetenceData(0, decodedCompId, true, 
+								true, true, loggedUser.getUserId(), UserGroupPrivilege.View, false);
 					}
 				}
-				if(competenceData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				} else {
-					commentsData = new CommentsData(CommentedResourceType.Competence, 
-							competenceData.getCompetenceId(), false);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
-					
-					if(decodedCredId > 0) {
-						String credTitle = null;
-						if(competenceData.isEnrolled()) {
-							CredentialData cd = credManager
-									.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-											loggedUser.getUserId());
-							if(cd != null) {
-								credTitle = cd.getTitle();
-								nextCompToLearn = cd.getNextCompetenceToLearnId();
-								mandatoryOrder = cd.isMandatoryFlow();
-							}
+				
+				commentsData = new CommentsData(CommentedResourceType.Competence, 
+						competenceData.getCompetenceId(), false);
+				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentBean.loadComments(commentsData);
+				
+				if(decodedCredId > 0) {
+					String credTitle = null;
+					if(competenceData.isEnrolled()) {
+						CredentialData cd = credManager
+								.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
+										loggedUser.getUserId());
+						if(cd != null) {
+							credTitle = cd.getTitle();
+							nextCompToLearn = cd.getNextCompetenceToLearnId();
+							mandatoryOrder = cd.isMandatoryFlow();
+						}
 //							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
 //									loggedUser.getUser().getId());
-						} else {
-							credTitle = credManager.getCredentialTitle(decodedCredId);
-						}
-						competenceData.setCredentialId(decodedCredId);
-						competenceData.setCredentialTitle(credTitle);
+					} else {
+						credTitle = credManager.getCredentialTitle(decodedCredId);
 					}
+					competenceData.setCredentialId(decodedCredId);
+					competenceData.setCredentialTitle(credTitle);
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -135,7 +137,7 @@ public class CompetenceViewBeanUser implements Serializable {
  		if(isPreview()) {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !competenceData.isEnrolled() && !competenceData.isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

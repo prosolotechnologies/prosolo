@@ -21,6 +21,7 @@
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="mainForm" default="" />
+		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -36,11 +37,11 @@
             			styleClass="iconType">
             		</h:panelGroup>
             		<h3>
-	            		<ui:fragment rendered="#{cc.attrs.isEdit}">
+	            		<ui:fragment rendered="#{cc.attrs.isEdit or cc.attrs.readOnly}">
 	                   		#{act.title}
-	                   		<h:panelGroup rendered="#{!act.published}"><span>(Draft)</span></h:panelGroup>
+	                   		<h:panelGroup rendered="#{!act.published}"><span>(Unpublished)</span></h:panelGroup>
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{!cc.attrs.isEdit}">
+	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="activity">

@@ -35,8 +35,8 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
@@ -121,7 +121,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
 			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps, boolean visible, Date scheduledDate);
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
 
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
@@ -141,12 +141,11 @@ public interface ResourceFactory extends AbstractManager {
 	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId, boolean visible, Date scheduledPublicDate);
+			long credentialId);
 
-	Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role, LearningContextData context);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId);
 
-	Competence1 updateCompetence(CompetenceData1 data);
+	Competence1 updateCompetence(CompetenceData1 data, long userId);
 	
 	long deleteCredentialBookmark(long credId, long userId);
 	
@@ -183,5 +182,9 @@ public interface ResourceFactory extends AbstractManager {
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles) throws DbConnectionException;
+	
+	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
+	
+	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 
 }

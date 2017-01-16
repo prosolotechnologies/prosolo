@@ -20,9 +20,9 @@ import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -49,6 +49,7 @@ public class UsersBean implements Serializable, Paginable {
 	private String roleId;
 	
 	private List<UserData> users;
+	
 	
 	private UserData userToDelete;
 
@@ -124,7 +125,7 @@ public class UsersBean implements Serializable, Paginable {
 				
 				userEntityESService.deleteNodeFromES(user);
 				users.remove(userToDelete);
-				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getName()+" "+userToDelete.getLastName()+" is deleted.");
+				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName()+" is deleted.");
 				userToDelete = null;
 			} catch (Exception ex) {
 				logger.error(ex);
@@ -138,7 +139,7 @@ public class UsersBean implements Serializable, Paginable {
 		this.users = new ArrayList<UserData>();
 		try {
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId());
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), true, null);
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
 			filters = roleFilters != null ? roleFilters : new ArrayList<>();

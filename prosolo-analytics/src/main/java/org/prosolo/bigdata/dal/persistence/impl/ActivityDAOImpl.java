@@ -3,14 +3,17 @@ package org.prosolo.bigdata.dal.persistence.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Transaction;
+import org.hibernate.Query;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.ActivityDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 
@@ -198,5 +201,37 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 	
 	private boolean isIntegerValue(BigDecimal bd) {
 		  return bd.signum() == 0 || bd.scale() <= 0 || bd.stripTrailingZeros().scale() <= 0;
+	}
+	
+	@Override
+	public void publishActivitiesForCompetences(List<Long> compIds) 
+			throws DbConnectionException {
+		try {
+			//get all draft activities
+			List<Activity1> acts = getDraftActivitiesFromCompetences(compIds);
+			for(Activity1 a : acts) {
+				a.setPublished(true);
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while publishing activities");
+		}
+	}
+	
+	private List<Activity1> getDraftActivitiesFromCompetences(List<Long> compIds) {
+		String query = "SELECT act FROM CompetenceActivity1 cAct " +
+					   "INNER JOIN cAct.activity act " +
+					   "WHERE cAct.competence.id IN (:compIds) " +
+					   "AND act.published = :published";
+		
+		Query q = session
+				.createQuery(query)
+				.setParameterList("compIds", compIds)
+				.setBoolean("published", false);
+		
+		@SuppressWarnings("unchecked")
+		List<Activity1> activities = q.list();
+		return activities != null ? activities : Collections.emptyList();
 	}
 }

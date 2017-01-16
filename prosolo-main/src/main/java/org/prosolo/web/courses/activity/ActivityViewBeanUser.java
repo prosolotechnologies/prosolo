@@ -13,7 +13,9 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
@@ -116,23 +118,31 @@ public class ActivityViewBeanUser implements Serializable {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
-				boolean shouldReturnDraft = false;
+			
+				UserGroupPrivilege priv = null;
 				if ("preview".equals(mode)) {
-					shouldReturnDraft = true;
+					priv = UserGroupPrivilege.Edit;
+				} else {
+					priv = UserGroupPrivilege.View;
 				}
 				if (decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
+									decodedCompId, decodedActId, loggedUser.getUserId(), priv);
 				} else { 
 					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
-									shouldReturnDraft);
+							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+									0, decodedCompId, decodedActId,  loggedUser.getUserId(), priv);
 				}
-				if (competenceData == null) {
+				if (competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else if(!competenceData.getActivityToShowWithDetails().isCanAccess()){
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
 					}
@@ -161,8 +171,12 @@ public class ActivityViewBeanUser implements Serializable {
 					loadCompetenceAndCredentialTitle();
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
-					
-					
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -270,7 +284,7 @@ public class ActivityViewBeanUser implements Serializable {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
  				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

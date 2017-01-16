@@ -9,7 +9,9 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 
@@ -79,20 +81,20 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	}
 	
 	@Override
-	public void setPublicVisibilityForCredential(long credentialId) throws DbConnectionException {
+	public void changeVisibilityForCredential(long credentialId, long userId) throws DbConnectionException {
 		try {
-			String query = "UPDATE Credential1 cred " +
-						   "SET visible = :visibility, " +
-						   "scheduledPublicDate = :date " +
-						   "WHERE cred.id = :credId";
-			session
-				.createQuery(query)
-				.setLong("credId", credentialId)
-				.setBoolean("visibility", true)
-				.setDate("date", null)
-				.executeUpdate();
+			Credential1 cred = (Credential1) session.load(Credential1.class, credentialId);
+			if(cred.isPublished()) {
+				cred.setPublished(false);
+			} else {
+				cred.setPublished(true);
+				new CompetenceDAOImpl().publishCompetences(credentialId, userId);
+				session.flush();
+				cred.setDuration(getRecalculatedDuration(credentialId));
+			}
+			cred.setScheduledPublishDate(null);
 			
-			CredentialIndexerImpl.getInstance().updateVisibilityToPublic(credentialId);
+			CredentialIndexerImpl.getInstance().updateVisibility(credentialId, cred.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -115,5 +117,60 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+	
+	@Override
+	public UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT credUserGroup.privilege, cred.createdBy.id, cred.visibleToAll " +
+					"FROM CredentialUserGroup credUserGroup " +
+					"INNER JOIN credUserGroup.userGroup userGroup " +
+					"RIGHT JOIN credUserGroup.credential cred " +
+					"INNER JOIN userGroup.users user " +
+						"WITH user.user.id = :userId " +
+					"WHERE cred.id = :credId " +
+					"ORDER BY CASE WHEN credUserGroup.privilege = :editPriv THEN 1 WHEN credUserGroup.privilege = :viewPriv THEN 2 ELSE 3 END";
+			
+			Object[] res = (Object[]) session
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credId)
+					.setParameter("editPriv", UserGroupPrivilege.Edit)
+					.setParameter("viewPriv", UserGroupPrivilege.View)
+					.setMaxResults(1)
+					.uniqueResult();
+			
+			if(res == null) {
+				return UserGroupPrivilege.None;
+			}
+			UserGroupPrivilege priv = (UserGroupPrivilege) res[0];
+			if(priv == null) {
+				priv = UserGroupPrivilege.None;
+			}
+			long owner = (long) res[1];
+			boolean visibleToAll = (boolean) res[2];
+			return owner == userId 
+				? UserGroupPrivilege.Edit
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while trying to retrieve user privilege for credential");
+		}
+	}
+	
+	private long getRecalculatedDuration(long credId) {
+		String query = "SELECT sum(c.duration) FROM CredentialCompetence1 cc " +
+					   "INNER JOIN cc.competence c " +
+					   "WHERE cc.credential.id = :credId " +
+					   "AND c.published = :published";
+		Long res = (Long) session
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setBoolean("published", true)
+				.uniqueResult();
+		
+		return res != null ? res : 0;
 	}
 }

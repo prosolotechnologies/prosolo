@@ -25,11 +25,11 @@ public class ActivityChangeTracker extends LearningResourceChangeTracker {
 	}
 	
 	public ActivityChangeTracker(Class<? extends Activity1> activityClass, boolean published, 
-			boolean versionChanged, boolean titleChanged, boolean descriptionChanged, 
+			boolean statusChanged, boolean titleChanged, boolean descriptionChanged, 
 			boolean durationChanged, boolean linksChanged, boolean filesChanged, 
 			boolean uploadResultChanged, boolean textChanged, boolean urlChanged, 
 			boolean launchUrlChanged, boolean consumerKeyChanged, boolean sharedSecretChanged, boolean openInNewWindowChanged) {
-		super(published, versionChanged, titleChanged, descriptionChanged, durationChanged);
+		super(published, statusChanged, titleChanged, descriptionChanged, durationChanged);
 		this.activityClass = activityClass;
 		this.linksChanged = linksChanged;
 		this.filesChanged = filesChanged;

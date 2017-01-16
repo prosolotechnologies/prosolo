@@ -21,6 +21,7 @@
 		<composite:attribute name="service" default=""/>
 		<composite:attribute name="toUpdateOnSaveTopLevelComment" default=""/>
 		<composite:attribute name="toUpdateOnCommentSave" default=""/>
+		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -84,33 +85,35 @@
 					</h:panelGroup>
 					
 					<div class="addComment">
-						<utilcomp:userAvatar
-							avatar="#{loggeduser.avatar}"
-							fullName="#{loggeduser.fullName}" />
-
-						<div class="commentForm">
-							<h:inputTextarea class="hidden"
-								value="#{cc.attrs.comments.topLevelComment}" />
+						<ui:fragment rendered="#{!cc.attrs.readOnly}">
+							<utilcomp:userAvatar
+								avatar="#{loggeduser.avatar}"
+								fullName="#{loggeduser.fullName}" />
+	
+							<div class="commentForm">
+								<h:inputTextarea class="hidden"
+									value="#{cc.attrs.comments.topLevelComment}" />
+								
+								<div class="contentEditableComment" placeholder="Add Comment..." 
+									strip-br="true" contenteditable="true"
+									onkeyup="displaySubmitButton(this);"></div>
+	
+								<p:commandButton styleClass="btn btn-sm btn-green hidden"
+									value="Submit" action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
+									update="formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave}"
+									oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+									<f:param name="learningContext"
+										value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
+								</p:commandButton>
+							</div>
 							
-							<div class="contentEditableComment" placeholder="Add Comment..." 
-								strip-br="true" contenteditable="true"
-								onkeyup="displaySubmitButton(this);"></div>
-
-							<p:commandButton styleClass="btn btn-sm btn-green hidden"
-								value="Submit" action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
-								update="formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave}"
-								oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
-								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-								<f:param name="learningContext"
-									value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
-							</p:commandButton>
-						</div>
-						
-						<script>
-							$('#' + escapeColons('#{cc.clientId}') + ' .addComment .contentEditableComment').on('keyup', function(e) {
-								$(this).prev('textarea').val($(this).html());
-							});
-						</script>
+							<script>
+								$('#' + escapeColons('#{cc.clientId}') + ' .addComment .contentEditableComment').on('keyup', function(e) {
+									$(this).prev('textarea').val($(this).html());
+								});
+							</script>
+						</ui:fragment>
 					</div>
                     <div class="clear"></div>
 				</div>

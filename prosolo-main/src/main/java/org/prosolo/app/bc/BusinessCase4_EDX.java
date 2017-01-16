@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -22,11 +23,13 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.MessagingManager;
@@ -172,7 +175,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					5,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 			
@@ -185,7 +188,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Example datasets used in the videos",
 					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 			
@@ -198,7 +201,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"CCK11 dataset for social network analysis",
 					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 			
@@ -211,7 +214,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					8,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
 			
@@ -224,7 +227,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					6,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
 			
@@ -257,7 +260,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					1,
 					0,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			
 			publishCredential(cred1, cred1.getCreatedBy());
@@ -308,7 +311,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					15,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -319,7 +322,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					17,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -330,7 +333,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					11,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -341,7 +344,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					9,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -352,7 +355,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					10,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -804,18 +807,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
+				true, creator.getId(), UserGroupPrivilege.Edit);
 		
 		if (credentialData == null) {
-			CredentialData credentialData1 = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
+					true, creator.getId(), UserGroupPrivilege.Edit);
 			System.out.println(credentialData1);
 		}
 		
 		if (credentialData != null) {
 			credentialData.setPublished(true);
 			
-			credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(),
-					org.prosolo.services.nodes.data.Role.Manager, null);
+			credentialManager.updateCredential(credentialData, creator.getId(), null);
+			
+			try {
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
+			} catch (EventException e) {
+				e.printStackTrace();
+			}
 		} else {
 			logger.error("Could not load credential " + cred.getId());
 		}
@@ -851,6 +861,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setDescription(description);
 		actData.setPublished(true);
 		actData.setActivityType(type);
+		actData.setStudentCanSeeOtherResponses(true);
 		
 		switch (type) {
 		case VIDEO:

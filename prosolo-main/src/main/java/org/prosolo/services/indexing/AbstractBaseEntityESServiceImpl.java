@@ -29,6 +29,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -105,14 +106,8 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	public String getIndexTypeForNode(BaseEntity node) {
 		String indexType = null;
 	 
-		if (node instanceof TargetCompetence || node instanceof Competence) {
-			indexType = ESIndexTypes.COMPETENCE;
-		} else if (node instanceof LearningGoal) {
-			indexType = ESIndexTypes.LEARNINGGOAL;
-		} else if (node instanceof User) {
+		if (node instanceof User) {
 			indexType = ESIndexTypes.USER;
-		} else if (node instanceof Course) {
-			indexType = ESIndexTypes.COURSE;
 		} else if (node instanceof Activity || node instanceof TargetActivity) {
 			indexType = ESIndexTypes.ACTIVITY;
 		} else if (node instanceof Tag) {
@@ -121,6 +116,8 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 			indexType = ESIndexTypes.CREDENTIAL;
 		} else if (node instanceof Competence1) {
 			indexType = ESIndexTypes.COMPETENCE1;
+		} else if (node instanceof UserGroup) {
+			indexType = ESIndexTypes.USER_GROUP;
 		}
 		return indexType;
 	}
@@ -130,6 +127,8 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 		String indexName = null;
 		if (node instanceof User) {
 			indexName = ESIndexNames.INDEX_USERS;
+		} else if(node instanceof UserGroup) {
+			indexName = ESIndexNames.INDEX_USER_GROUP;
 		} else {
 			indexName = ESIndexNames.INDEX_NODES;
 		}

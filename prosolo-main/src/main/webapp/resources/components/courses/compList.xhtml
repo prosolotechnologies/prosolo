@@ -20,6 +20,7 @@
 		<composite:attribute name="isPreview" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="role" default="USER"/>
+		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -30,7 +31,7 @@
 						<h2>
 							<ui:fragment rendered="#{cc.attrs.isEdit}">
 								#{comp.title}
-								<h:panelGroup rendered="#{!comp.published}"><span>(Draft)</span></h:panelGroup>
+								<h:panelGroup rendered="#{!comp.published}"><span>(Unpublished)</span></h:panelGroup>
 							</ui:fragment>
 							
 							<ui:fragment rendered="#{!cc.attrs.isEdit}">
@@ -78,7 +79,7 @@
 						<div class="metaBox">
 							<div class="metaLeft">
 								<ui:fragment rendered="#{cc.attrs.isEdit}">
-									<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and comp.type eq 'UNIVERSITY_CREATED' || cc.attrs.role eq 'USER' and comp.type eq 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp)}">
+									<ui:fragment rendered="#{comp.canEdit}">
 										<h:link 
 											styleClass="btn btn-green-stroke btn-sm"
 											value="Edit" 
@@ -87,7 +88,7 @@
 											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
 										</h:link> 
 									</ui:fragment>
-									<ui:fragment rendered="#{not (cc.attrs.role eq 'MANAGER' and comp.type eq 'UNIVERSITY_CREATED' || cc.attrs.role eq 'USER' and comp.type eq 'USER_CREATED' and cc.attrs.bean.isCompetenceCreator(comp))}">
+									<ui:fragment rendered="#{not comp.canEdit}">
 										<a
 											class="btn btn-green-stroke btn-sm"
 											disabled="disabled"
@@ -152,12 +153,12 @@
 							</div>
 						</div>
 					</div>
-	                    
+	                   
 					<div class="collapseActivityList">
 						<div id="comp#{comp.competenceId}" class="collapse">
 							<h:panelGroup id="actList">
 								<ul>
-									<ui:fragment rendered="#{cc.attrs.isEdit}">
+									<ui:fragment rendered="#{cc.attrs.isEdit or cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
 											<li class="noLink #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
 												<span class="iconType"></span>
@@ -165,8 +166,8 @@
 											</li>
 										</ui:repeat>   
 									</ui:fragment>
-									
-									<ui:fragment rendered="#{!cc.attrs.isEdit}">
+			
+									<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
 										<ui:repeat var="act" value="#{comp.activities}">
 											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
 												<h:link outcome="activity">

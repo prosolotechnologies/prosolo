@@ -63,10 +63,9 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.annotation.TagManager;
@@ -892,7 +891,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Credential1 createCredential(String title, String description, String tagsString, 
     		String hashtagsString, long creatorId, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps, boolean visible, Date scheduledDate) {
+    		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -903,8 +902,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
 		     cred.setPublished(published);
 		     cred.setDuration(duration);
-		     cred.setVisible(visible);
-		     cred.setScheduledPublicDate(scheduledDate);
+		     //cred.setVisible(visible);
+		     cred.setScheduledPublishDate(scheduledDate);
 		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
 		     cred.setManuallyAssignStudents(manuallyAssign);
@@ -937,7 +936,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
 			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId, boolean visible, Date scheduledPublicDate) {
+			long credentialId) {
     	try {
     		 Result<Competence1> result = new Result<>();
 			 Competence1 comp = new Competence1();
@@ -950,8 +949,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     comp.setPublished(published);
 		     comp.setDuration(duration);
 		     comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     comp.setVisible(visible);
-		     comp.setScheduledPublicDate(scheduledPublicDate);
 		     saveEntity(comp);
 		     
 		     if(activities != null) {
@@ -984,15 +981,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role, LearningContextData context) {
-    	return credentialManager.updateCredential(data, creatorId, role, context);
+    public Result<Credential1> updateCredential(CredentialData data, long creatorId) {
+    	return credentialManager.updateCredentialData(data, creatorId);
     }
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Competence1 updateCompetence(CompetenceData1 data) {
-    	return competenceManager.updateCompetence(data);
+    public Competence1 updateCompetence(CompetenceData1 data, long userId) {
+    	return competenceManager.updateCompetenceData(data, userId);
     }
     
     @Override
@@ -1226,6 +1222,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while updating user data");
+		}
+	}
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setName(newName);
+			
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+	}
+
+    @Override
+	@Transactional (readOnly = false)
+	public UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException {
+		try {
+			UserGroup group = new UserGroup();
+			group.setDateCreated(new Date());
+			group.setDefaultGroup(isDefault);
+			group.setName(name);
+			
+			saveEntity(group);
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
 		}
 	}
     

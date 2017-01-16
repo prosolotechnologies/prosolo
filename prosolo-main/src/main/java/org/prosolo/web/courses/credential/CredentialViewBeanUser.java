@@ -14,9 +14,11 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -79,8 +81,8 @@ public class CredentialViewBeanUser implements Serializable {
 		if (decodedId > 0) {
 			try {
 				if("preview".equals(mode)) {
-					credentialData = credentialManager.getCredentialDataForEdit(decodedId, 
-							loggedUser.getUserId(), true);
+					credentialData = credentialManager.getCredentialData(decodedId, false, true, 
+							loggedUser.getUserId(), UserGroupPrivilege.Edit);
 					ResourceCreator rc = new ResourceCreator();
 					rc.setFullName(loggedUser.getFullName());
 					rc.setAvatarUrl(loggedUser.getAvatar());
@@ -93,21 +95,21 @@ public class CredentialViewBeanUser implements Serializable {
 								credentialData.getTitle());
 					}
 				}
-				if(credentialData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				} else {
-					if(credentialData.isEnrolled()) {
-						numberOfUsersLearningCred = credentialManager
-								.getNumberOfUsersLearningCredential(decodedId);
-					}
+		
+				if(credentialData.isEnrolled()) {
+					numberOfUsersLearningCred = credentialManager
+							.getNumberOfUsersLearningCredential(decodedId);
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage(e.getMessage());
+				e.printStackTrace();
+				PageUtil.fireErrorMessage("Error while retrieving credential data");
 			}
 		} else {
 			try {
@@ -128,7 +130,7 @@ public class CredentialViewBeanUser implements Serializable {
  		if(isPreview()) {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}
@@ -148,7 +150,8 @@ public class CredentialViewBeanUser implements Serializable {
 			if(cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), 
+						isPreview());
 			}
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);

@@ -317,8 +317,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       AND sa.activity_target = actTarget.id \n " +
 				"   LEFT JOIN (competence_activity1 compActivity \n " +   
 						"   INNER JOIN competence1 AS actTargetCompetence \n " +
-						"       ON compActivity.competence = actTargetCompetence.id \n " +
-						"       AND actTargetCompetence.draft = :boolFalse) \n " + 
+						"       ON compActivity.competence = actTargetCompetence.id) \n " + 
 				"       ON actTarget.id = compActivity.activity \n " +
 				//activity complete social activity
 				"	LEFT JOIN target_activity1 AS tActObject \n" +
@@ -358,7 +357,82 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 		
 		return q + specificPartOfTheCondition +	
-			"GROUP BY sa.id, compActivity.competence, annotation.id " +
+			"GROUP BY sa.id, compActivity.competence, annotation.id, " +
+			"sa.dtype, " +
+			"sa.created, " +
+			"sa.last_action, " +
+			"sa.comments_disabled, " +
+			"sa.text, " +
+			"sa.like_count, " +
+			"sa.actor, " +
+			"actor.name, " +
+			"actor.lastname, " +
+			"actor.avatar_url, " +
+			"sa.twitter_poster_name, " +
+			"sa.twitter_poster_nickname, " +
+			"sa.twitter_poster_profile_url, " +
+			"sa.twitter_poster_avatar_url, " +
+			"sa.twitter_post_url, " +
+			"sa.twitter_user_type, " +
+			"sa.rich_content_title, " +
+			"sa.rich_content_description, " +
+			"sa.rich_content_content_type, " +
+			"sa.rich_content_image_url, " +
+			"sa.rich_content_link, " +
+			"sa.rich_content_embed_id, " +
+			"sa.rich_content_image_size, " +
+			"sa.post_object, " +
+			"postObject.text, " +
+			"postObject.rich_content_title, " +
+			"postObject.rich_content_description, " +
+			"postObject.rich_content_content_type, " +
+			"postObject.rich_content_image_url, " +
+			"postObject.rich_content_link, " +
+			"postObject.rich_content_embed_id, " +
+			"postObject.rich_content_image_size, " +
+			"postObject.actor, " +
+			"postObjectActor.name, " +
+			"postObjectActor.lastname, " +
+			"postObjectActor.avatar_url, " +
+			"postObject.created, " +
+			"sa.credential_object, " +
+			"credObject.title, " +
+			"credObject.duration, " +
+			"credObject.type, " +
+			"credObject.created_by, " +
+			"credObjectActor.name, " +
+			"credObjectActor.lastname, " +
+			"credObject.description, " +
+			"sa.comment_object, " +
+			"commentObject.description, " +
+			"sa.competence_target, " +
+			"compTarget.title, " +
+			"sa.activity_target, " +
+			"actTarget.title, " +
+			"compActivity.competence, " +
+			"actTarget.dtype, " +
+			"actTarget.url_type, " +
+			"tActObject.activity, " +
+			"actObject.title, " +
+			"actObject.duration, " +
+			"actObject.type, " +
+			"actObject.created_by, " +
+			"actObjectActor.name, " +
+			"actObjectActor.lastname, " +
+			"actObject.description, " +
+			"actObject.dtype, " +
+			"actObject.url_type, " +
+			"tComp.competence, " +
+			"tCred.credential, " +
+			"tCompObject.competence, " +
+			"compObject.title, " +
+			"compObject.duration, " +
+			"compObject.type, " +
+			"compObject.created_by, " +
+			"compObjectActor.name, " +
+			"compObjectActor.lastname, " +
+			"compObject.description, " +
+			"compObjectTCred.credential " +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +
@@ -382,7 +456,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			.setString("compCompleteDType", CompetenceCompleteSocialActivity.class.getSimpleName())
 			.setString("annotatedResource", AnnotatedResource.SocialActivity.name())
 			.setString("annotationType", AnnotationType.Like.name())
-			.setBoolean("boolFalse", false)
+			//.setBoolean("boolFalse", false)
 			.setCharacter("saDeleted", 'F')
 			.setString("commentResourceType", CommentedResourceType.SocialActivity.name())
 			.setResultTransformer(new ResultTransformer() {
