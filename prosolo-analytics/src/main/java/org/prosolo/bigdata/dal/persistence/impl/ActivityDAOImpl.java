@@ -3,7 +3,6 @@ package org.prosolo.bigdata.dal.persistence.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -232,6 +231,6 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 		
 		@SuppressWarnings("unchecked")
 		List<Activity1> activities = q.list();
-		return activities != null ? activities : Collections.emptyList();
+		return activities != null ? activities : new ArrayList<>();
 	}
 }

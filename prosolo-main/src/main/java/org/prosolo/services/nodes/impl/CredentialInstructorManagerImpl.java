@@ -1,7 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -592,7 +591,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					.setLong("credId", credentialId)
 					.list();
 			
-			return result != null ? result : Collections.emptyList();
+			return result != null ? result : new ArrayList<>();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
