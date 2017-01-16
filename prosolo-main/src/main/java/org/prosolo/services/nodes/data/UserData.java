@@ -70,7 +70,9 @@ public class UserData implements Serializable {
 	}
 	
 	private static String getFullName(String name, String lastName) {
-		return name + (lastName != null ? " " + lastName : "");
+		String fName = name != null ? name : "";
+		String lName = lastName != null ? lastName + " " : "";
+		return lName + fName;
 	}
 
 	public long getId() {
