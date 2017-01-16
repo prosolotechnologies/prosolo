@@ -150,7 +150,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		if(changeTracker != null &&
 				(changeTracker.isStatusChanged() || changeTracker.isTitleChanged() || 
 						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged() || changeTracker.isPublished())) {
+						|| changeTracker.isHashtagsChanged())) {
 			saveCredentialNode(cred, session);
 		}
 	}
