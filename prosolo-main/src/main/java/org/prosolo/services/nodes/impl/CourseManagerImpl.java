@@ -1298,7 +1298,9 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
 					"INNER JOIN courseInstructor.course course "+
 					"WHERE course.id = :courseId " +
-					"GROUP BY courseInstructor.id";
+					"GROUP BY courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
+						"instructor.position, courseInstructor.maxNumberOfStudents";
+
 			
 					@SuppressWarnings("unchecked")
 					List<Object[]> result = persistence.currentManager().createQuery(query).

@@ -151,7 +151,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			}
 			
 			queryBuilder.append(
-					"GROUP BY instructor.id " +
+					"GROUP BY instructor.id, instructor.maxNumberOfStudents, instructor.user.id " +
 					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
 					"OR count(student) < instructor.maxNumberOfStudents ");
 			
