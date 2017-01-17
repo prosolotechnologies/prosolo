@@ -151,6 +151,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFrom(start).setSize(limit)
+						.addSort("lastname", SortOrder.ASC)
 						.addSort("name", SortOrder.ASC);
 				//System.out.println(srb.toString());
 				sResponse = srb.execute().actionGet();
@@ -292,6 +293,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
+					.addSort("lastname", SortOrder.ASC)
 					.addSort("name", SortOrder.ASC)
 					.addAggregation(AggregationBuilders.terms("roles")
 							.field("roles.id"))
@@ -1269,8 +1271,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(1000);
 				
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -1345,8 +1347,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(1000);
 				
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -1663,8 +1665,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				}
 				searchRequestBuilder.addSort("credentials.instructorId", SortOrder.DESC);
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -1913,6 +1915,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
@@ -1921,6 +1924,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 				bQueryBuilder.must(qb);
 			}
+			bQueryBuilder.mustNot(termQuery("system", true));
 			
 			//bQueryBuilder.filter(termQuery("roles.id", userRoleId));
 			
@@ -1944,8 +1948,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				
@@ -2105,8 +2109,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			searchRequestBuilder.setFrom(start).setSize(limit);	
 			
 			//add sorting
-			searchRequestBuilder.addSort("name", SortOrder.ASC);
 			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
@@ -2226,8 +2230,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			searchRequestBuilder.setSize(limit);	
 			
 			//add sorting
-			searchRequestBuilder.addSort("name", SortOrder.ASC);
 			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse userResponse = searchRequestBuilder.execute().actionGet();
 			SearchHit[] userHits = null;
@@ -2438,6 +2442,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
+						.addSort("lastname", SortOrder.ASC)
 						.addSort("name", SortOrder.ASC)
 						.setFetchSource(includes, null)
 						.setSize(3);	

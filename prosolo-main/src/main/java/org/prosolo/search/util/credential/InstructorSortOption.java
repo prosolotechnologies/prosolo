@@ -4,7 +4,7 @@ import org.prosolo.services.util.SortingOption;
 
 public enum InstructorSortOption {
 
-	Instructor_Name("Alphabetically", new String[] {"name", "lastname"}, SortingOption.ASC),  
+	Instructor_Name("Alphabetically", new String[] {"lastname", "name"}, SortingOption.ASC),  
 	Date("Recent", new String[] {"credentialsWithInstructorRole.dateAssigned"}, SortingOption.DESC);
 	
 	//ui label
