@@ -365,8 +365,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compData.setCanAccess(canAccess);
 			
 			if(loadActivities) {
+				/*
+				 * we should include not published activities if Edit privilege is needed
+				 * for this use case and user has Edit privilege, or if None privilege is needed
+				 */
+				boolean includeNotPublished = privilege == UserGroupPrivilege.Edit 
+						&& priv == UserGroupPrivilege.Edit 
+						|| privilege == UserGroupPrivilege.None;
 				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId,
-						privilege == UserGroupPrivilege.Edit);
+						includeNotPublished);
 				compData.setActivities(activities);
 			}
 			
