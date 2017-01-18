@@ -7,10 +7,9 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventData;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -116,7 +115,7 @@ public interface Activity1Manager {
 	 CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(long credId, 
 				long compId, long activityId, boolean shouldReturnDraft) throws DbConnectionException;
 
-	 void saveAssignment(long targetActId, String path, Date postDate, long userId, 
+	 void saveResponse(long targetActId, String path, Date postDate, long userId, 
 				ActivityResultType resType, LearningContextData context) throws DbConnectionException;
 	 
 	 void updateTextResponse(long targetActId, String path, long userId, 
@@ -177,5 +176,7 @@ public interface Activity1Manager {
 	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
 			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
 			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException;
+
+	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId);
 
 }

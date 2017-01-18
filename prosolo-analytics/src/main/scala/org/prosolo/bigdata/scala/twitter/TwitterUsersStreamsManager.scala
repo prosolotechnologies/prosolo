@@ -68,12 +68,14 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
    */
   def updateTwitterUserFromAnalyticsEvent(event: AnalyticsEvent){
     val data:JsonObject=event.getData()
+    println("")
     val userid:Long=data.get("twitterId").getAsLong
     val shouldAdd:Boolean=data.get("add").getAsBoolean
     if(shouldAdd)addNewTwitterUser(userid) else removeTwitterUser(userid)
   }
   private def addNewTwitterUser(userid:Long){
     if(!usersAndStreamsIds.contains(userid)){
+
         val currentFilterList:ListBuffer[Long]= getLatestStreamAndList._2
         currentFilterList+=userid
        if(currentFilterList.size>STREAMLIMIT){
@@ -82,6 +84,8 @@ object TwitterUsersStreamsManager extends TwitterStreamsManager {
       }else{
         restartStream(getLatestStreamAndList._1,getLatestStreamAndList._2)
       }
+      println("stream ID:"+(streamsCounter-1))
+      usersAndStreamsIds.put(userid,streamsCounter-1)
     }
   }
   private def removeTwitterUser(userid:Long){

@@ -66,6 +66,9 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private List<ActivityResultData> studentResults;
 	private GradeData gradeOptions;
 	
+	private boolean studentCanSeeOtherResponses;
+	private boolean studentCanEditResponse;
+	
 	public ActivityData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
@@ -563,6 +566,24 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setGradeOptions(GradeData gradeOptions) {
 		this.gradeOptions = gradeOptions;
+	}
+
+	public boolean isStudentCanSeeOtherResponses() {
+		return studentCanSeeOtherResponses;
+	}
+
+	public void setStudentCanSeeOtherResponses(boolean studentCanSeeOtherResponses) {
+		observeAttributeChange("studentCanSeeOtherResponses", this.studentCanSeeOtherResponses, studentCanSeeOtherResponses);
+		this.studentCanSeeOtherResponses = studentCanSeeOtherResponses;
+	}
+
+	public boolean isStudentCanEditResponse() {
+		return studentCanEditResponse;
+	}
+
+	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
+		observeAttributeChange("studentCanEditResponse", this.studentCanEditResponse, studentCanEditResponse);
+		this.studentCanEditResponse = studentCanEditResponse;
 	}
 	
 }

@@ -20,6 +20,7 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" required="true" />
+		<composite:attribute name="role" type="java.lang.String" default="USER"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -140,14 +141,15 @@
 	            <ul class="whiteBox activityLinksBox">
 	            	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
 	            		<li>
+	            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? loggeduser.sessionData.encodedUserId : '[USER ID]')}" />
 		                    <div class="actBoxLeft">
 		                        <h3>#{link.linkName}</h3>
-		                        <span>#{link.url}</span>
+		                        <span>#{link.url}#{urlSufix}</span>
 		                    </div>
-		                    <a href="#{link.url}" 
+		                    <a href="#{link.url}#{urlSufix}" 
 	                    		target="_blank" 
 	                    		class="btn btn-green btn-sm"
-	                    		onclick="sendLogPageNavigation('#{link.url}', 
+	                    		onclick="sendLogPageNavigation('#{link.url}#{urlSufix}', 
 	                    				'#{facesContext.viewRoot.viewId}', 
 	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
 	                    				null);">
@@ -177,7 +179,7 @@
 	            </ul>
 	        </ui:fragment>	     
 	        
-            <h:panelGroup id="panelUploadAssignment" rendered="#{cc.attrs.activity.enrolled and cc.attrs.activity.resultData.resultType ne 'NONE'}">
+            <h:panelGroup id="panelUploadAssignment" rendered="#{cc.attrs.activity.enrolled and !cc.attrs.isPreview and cc.attrs.activity.resultData.resultType ne 'NONE'}">
             	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
             		<h2>Your Response</h2>
             		<activities:activityResult
@@ -188,16 +190,18 @@
             			assignmentUploadModalId="newRes"
             			growlToUpdate=":#{cc.clientId}:growlDetails"
             			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
+            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
             		/>
-            		<h:link 
+            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
             			outcome="/activity-responses" 
             			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
             			View responses from other students
-            			<f:param name="credId" value="#{param['credId']}"/>
-            			<f:param name="compId" value="#{param['compId']}"/>
-            			<f:param name="actId" value="#{param['actId']}"/>
+            			<f:param name="credId" value="#{param['credId']}" />
+            			<f:param name="compId" value="#{param['compId']}" />
+            			<f:param name="actId" value="#{param['actId']}" />
             		</h:link>
             	</ui:fragment>
+            	
             	<ui:fragment rendered="#{empty cc.attrs.activity.resultData.result}">
             		<h2>Submit Response</h2>
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
@@ -206,37 +210,45 @@
 			            		uploadFileInfo="Upload Response"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
+			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
 			            		learningContext="#{cc.attrs.learningContext}"
+			            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+			            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
 			            	/> 
 		            	</h:form>
             		</c:if>
             		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
             			<h:form id="formTypedResult">
 	            			 <div class="whiteBox writeResult">
-			                    <h:inputTextarea 
+			                    <h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
 			                    	placeholder="Type your response here..."
 			                    	value="#{cc.attrs.activity.resultData.result}">
 			                    </h:inputTextarea>
-			                    <p:commandLink 
+			                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
 			                    	styleClass="btn btn-sm btn-green"
 			                    	action="#{cc.attrs.bean.saveTextResponse()}"
-			                    	update=":#{cc.clientId}:panelUploadAssignment"
+			                    	update=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
 			                    	value="Submit">
 			                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 			                    </p:commandLink>
+			                    <ui:fragment rendered="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
+				                    <a href="javascript:void(0);"
+				                    	disabled="disabled"
+				                    	class="btn btn-sm btn-green"
+				                    	data-toggle="tooltip" 
+										title="In order to submit a response for this activity, previous tasks need to be completed.">
+										Submit
+				                    </a>
+			                    </ui:fragment>
 			                </div>
 			            </h:form>
             		</c:if>
-            		 
             	</ui:fragment>
-
             </h:panelGroup>
-          
         </div>
-        
-        <h:form id="formModalUpload">
+
+        <h:form id="formModalUpload" rendered="#{cc.attrs.activity.studentCanEditResponse}">
         	<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -253,7 +265,7 @@
                         		id="simpleFileUpload"
 			            		fileUploadListenerMethodName="handleFileUpload"
 			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment"
+			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
 			            		uploadButtonStyle="btn btn-green"
 			            		chooseFileLabel="Upload New Response"
 			            		learningContext="#{cc.attrs.learningContext}"

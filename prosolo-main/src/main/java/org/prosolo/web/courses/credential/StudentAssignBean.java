@@ -343,6 +343,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 	public boolean isResultSetEmpty() {
 		return studentsNumber == 0;
 	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
+	}
 
 	public long getCredId() {
 		return credId;

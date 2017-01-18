@@ -23,7 +23,7 @@ public class SlideShareUtils {
 	 * @return
 	 */
 	public static MediaData convertSlideShareURLToEmbededUrl(String slideShareUrl, String embedId){
-		String presentationId = null;
+		String presentationId = "";
 		if(embedId != null && !embedId.isEmpty()) {
 			presentationId = embedId;
 		} else {
@@ -41,16 +41,13 @@ public class SlideShareUtils {
 				JSONObject jsonObject = new JSONObject(jsonString);
 				
 				if (jsonObject.has("slideshow_id")) {
-					presentationId = jsonObject.getString("slideshow_id");
+					Object id = jsonObject.get("slideshow_id");
+					presentationId = String.valueOf(id);
 				}
 			} catch (JSONException e) {
 				logger.error("Exception to convert url:"+slideShareUrl+" json string is:"+jsonString);
 				e.printStackTrace();
 			}
-		}
-		
-		if (presentationId == null) {
-			return null;
 		}
 		
 		String slideUrl = "http://www.slideshare.net/slideshow/embed_code/"	+ presentationId;

@@ -62,12 +62,13 @@ public class ActivityResultsBeanUser implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
+		
 		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 			try {
 				competenceData = activityManager
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId());
-				if(competenceData == null) {
+				if (competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
@@ -76,7 +77,17 @@ public class ActivityResultsBeanUser implements Serializable {
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
-					if(ad.isEnrolled()) {
+					
+					if (!ad.isStudentCanSeeOtherResponses()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
+							logger.error(ioe);
+						}
+					}
+					
+					if (ad.isEnrolled()) {
 						int numberOfComments = (int) commentManager.getCommentsNumber(
 								CommentedResourceType.ActivityResult, 
 								ad.getTargetActivityId());
@@ -112,7 +123,7 @@ public class ActivityResultsBeanUser implements Serializable {
 				.getActivityToShowWithDetails().getCompetenceId()));
 		if(decodedCredId > 0) {
 			CredentialData cd = credManager
-					.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
+					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
 							loggedUser.getUserId());
 			competenceData.setCredentialTitle(cd.getTitle());
 			nextCompToLearn = cd.getNextCompetenceToLearnId();
@@ -186,6 +197,8 @@ public class ActivityResultsBeanUser implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
+		
+		PageUtil.fireSuccessfulInfoMessage("File uploaded");
 	}
 	
 	/*

@@ -76,6 +76,7 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 
 	private long nextActivityToLearn;
+	private boolean mandatoryOrder;
 
 	public void init() {
 		List<String> roles = new ArrayList<>();
@@ -83,21 +84,22 @@ public class ActivityViewBeanUser implements Serializable {
 		roles.add(RoleNames.INSTRUCTOR);
 		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
 		if (hasManagerOrInstructorRole) {
-			this.roles="Instructor";
-		}else{
-			this.roles="Learner";
+			this.roles = "Instructor";
+		} else {
+			this.roles = "Learner";
 		}
 		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
+		
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
 				boolean shouldReturnDraft = false;
-				if("preview".equals(mode)) {
+				if ("preview".equals(mode)) {
 					shouldReturnDraft = true;
 				}
-				if(decodedCredId > 0) {
+				if (decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
 									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
@@ -107,7 +109,7 @@ public class ActivityViewBeanUser implements Serializable {
 									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
 									shouldReturnDraft);
 				}
-				if(competenceData == null) {
+				if (competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
@@ -120,7 +122,8 @@ public class ActivityViewBeanUser implements Serializable {
 					commentBean.loadComments(commentsData);
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
-					if(ad.isEnrolled()) {
+					
+					if (ad.isEnrolled()) {
 						int numberOfComments = (int) commentManager.getCommentsNumber(
 								CommentedResourceType.ActivityResult, 
 								ad.getTargetActivityId());
@@ -160,12 +163,22 @@ public class ActivityViewBeanUser implements Serializable {
 			if(decodedCredId > 0) {
 //				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
 //						.getUser().getId());
-				CredentialData cd = credManager
-						.getTargetCredentialTitleAndNextCompAndActivityToLearn(decodedCredId, 
-								loggedUser.getUserId());
-				credTitle = cd.getTitle();
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
+					CredentialData cd = credManager
+							.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
+									loggedUser.getUserId());
+					credTitle = cd.getTitle();
+					nextCompToLearn = cd.getNextCompetenceToLearnId();
+					nextActivityToLearn = cd.getNextActivityToLearnId();
+					mandatoryOrder = cd.isMandatoryFlow();
+			}
+			if(!mandatoryOrder) {
+				for (ActivityData ad : competenceData.getActivities()) {
+					if(!ad.isCompleted()) {
+						nextCompToLearn = decodedCompId;
+						nextActivityToLearn = ad.getActivityId();
+						break;
+					}
+				}
 			}
 		} else {
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -236,20 +249,30 @@ public class ActivityViewBeanUser implements Serializable {
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
+			boolean localNextToLearn = false;
 			for (ActivityData ad : competenceData.getActivities()) {
 				if (ad.getActivityId() == competenceData.getActivityToShowWithDetails().getActivityId()) {
 					ad.setCompleted(true);
 				}
+				if(!ad.isCompleted() && !mandatoryOrder && !localNextToLearn) {
+					nextCompToLearn = decodedCompId;
+					nextActivityToLearn = ad.getActivityId();
+					localNextToLearn = true;
+				}
 			}
 			
 			try {
-				CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
-						decodedCredId, loggedUser.getUserId());
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
+				if(!localNextToLearn) {
+					CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
+							decodedCredId, loggedUser.getUserId());
+					nextCompToLearn = cd.getNextCompetenceToLearnId();
+					nextActivityToLearn = cd.getNextActivityToLearnId();
+				}
 			} catch(DbConnectionException e) {
 				logger.error(e);
 			}
+			
+			PageUtil.fireSuccessfulInfoMessage("Activity Completed");
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while marking activity as completed");
@@ -262,15 +285,18 @@ public class ActivityViewBeanUser implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			Date postDate = new Date();
-			// strip all tags except <br>
+			
+			// strip all tags except <br> and <a>
 			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
 			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
-			activityManager.saveAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), 
+			
+			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					ard.getResult(), 
 					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
 					new LearningContextData(page, lContext, service));
 			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
+			
+			completeActivity();
 		} catch(Exception e) {
 			logger.error(e);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
@@ -281,6 +307,8 @@ public class ActivityViewBeanUser implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
+		
+		completeActivity();
 	}
 	
 	public void deleteAssignment() {
@@ -397,6 +425,14 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public boolean isMandatoryOrder() {
+		return mandatoryOrder;
+	}
+
+	public void setMandatoryOrder(boolean mandatoryOrder) {
+		this.mandatoryOrder = mandatoryOrder;
 	}
 	
 }

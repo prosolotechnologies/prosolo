@@ -123,9 +123,8 @@
 		<individual-competences-can-not-be-evaluated>false</individual-competences-can-not-be-evaluated>
 	</admin>
 	<analytical-server>
-		<enabled>true</enabled>
-		<api-host>localhost</api-host>
-		<api-port>8082</api-port>
-		<api-services-path>api</api-services-path>
+		<enabled>false</enabled>
+		<api-host>http://localhost:8082/prosolo-analytics/</api-host> <!-- Path should end with the slash sign (/)-->
+		<api-services-path>api</api-services-path> <!-- Should not end with the slash sign (/)-->
 	</analytical-server>
 </config>

@@ -60,6 +60,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 /*import com.mongodb.BasicDBList;
@@ -71,6 +76,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
+
 */
 /**
  * @author Zoran Jeremic 2013-10-07
@@ -353,24 +359,24 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		return targetUserId != null ? targetUserId : 0;
 	}
 
-//	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-//		Long courseId=extractCourseIdFromContext(learningContext.getContext());
-//		if(learningContext != null && learningContext.getContext() != null) {
-//			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
-//					courseId=learningContext.getContext().getContext().getId();
-//					System.out.println("ExtractedCourse id:"+courseId);
-//			}
-//		}
-//		System.out.println("EXTRACTED COURSE ID:"+courseId);
-//		return 0L;
-//	}
-//	private Long extractCourseIdFromContext(Context context){
-//		if(context==null){
-//			return 0l;
-//		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
-//			return context.getId();
-//		}else return extractCourseIdFromContext(context.getContext());
-//	}
+ 	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
+		Long courseId=extractCourseIdFromContext(learningContext.getContext());
+		/*if(learningContext != null && learningContext.getContext() != null) {
+			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
+					courseId=learningContext.getContext().getContext().getId();
+					System.out.println("ExtractedCourse id:"+courseId);
+			}
+		}*/
+		System.out.println("EXTRACTED COURSE ID:"+courseId);
+		return courseId;
+	}
+	private Long extractCourseIdFromContext(Context context){
+		if(context==null){
+			return 0l;
+		}else	if(context.getName().equals(ContextName.CREDENTIAL)){
+			return context.getId();
+		}else return extractCourseIdFromContext(context.getContext());
+	}
 
 
 	@Override
@@ -645,7 +651,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				}
 			}
 
-			//logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
+			  logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
 			Long targetUserId=(long) 0;
 
 			if (parameters != null && !parameters.isEmpty()) {
@@ -666,7 +672,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				targetUserId=extractSocialInteractionTargetUser(logObject, eventType);
 
 			}else{
-				System.out.println("We are not interested in this interaction:"+eventType.name());
+				System.out.println("We are not interested in this interaction for target user id:"+eventType.name());
 			}
 			logObject.put("targetUserId", targetUserId);
 

@@ -27,7 +27,8 @@ public class ActivityAssessmentData {
 	private Long activityId;
 	private Long competenceId;
 	private Long credentialId;
-	private boolean allRead;
+	private boolean allRead = true; 	// whether user has read all the messages in the thread
+	private boolean participantInDiscussion; 	// whether user is participant in the discussion
 	private boolean messagesInitialized;
 	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
 	private List<String> downloadResourceUrls;
@@ -62,8 +63,18 @@ public class ActivityAssessmentData {
 		
 		if (activityDiscussion != null) {
 			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
-			boolean isAllRead = hasUserReadAllMessages(activityDiscussion, userId, encoder);
-			data.setAllRead(isAllRead);
+			
+			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+			
+			if (currentParticipant != null) {
+				data.setParticipantInDiscussion(true);
+				data.setAllRead(currentParticipant.isRead());
+			} else {
+				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+				data.setAllRead(false);
+				data.setParticipantInDiscussion(false);
+			}
+			
 			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
 			
 			if (CollectionUtils.isNotEmpty(messages)) {
@@ -80,7 +91,7 @@ public class ActivityAssessmentData {
 		}
 		//there are no discussions/messages for this activity, set it as 'all read'
 		else {
-			data.setAllRead(true);
+			data.setParticipantInDiscussion(false);
 		}
 		return data;
 	}
@@ -100,12 +111,6 @@ public class ActivityAssessmentData {
 //		}
 //	}
 
-	private static boolean hasUserReadAllMessages(ActivityDiscussion activityDiscussion, long userId,
-			UrlIdEncoder encoder) {
-		ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
-		return currentParticipant.isRead();
-	}
-	
 	//Taken from ActivityDataFactory
 	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
 		if (activity instanceof HibernateProxy) {
@@ -175,6 +180,14 @@ public class ActivityAssessmentData {
 
 	public void setAllRead(boolean allRead) {
 		this.allRead = allRead;
+	}
+	
+	public boolean isParticipantInDiscussion() {
+		return participantInDiscussion;
+	}
+
+	public void setParticipantInDiscussion(boolean participantInDiscussion) {
+		this.participantInDiscussion = participantInDiscussion;
 	}
 
 	public List<String> getDownloadResourceUrls() {

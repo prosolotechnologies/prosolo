@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
@@ -186,7 +187,7 @@ public class ProfileSettingsBean implements Serializable {
 			UploadedFile uploadedFile = event.getFile();
 			String relativePath = avatarProcessor.storeTempAvatar(loggedUser.getUserId(), uploadedFile.getInputstream(),
 					uploadedFile.getFileName(), 300, 300);
-			newAvatar = Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
+			newAvatar = CommonSettings.getInstance().config.appConfig.domain + Settings.getInstance().config.fileManagement.urlPrefixFolder + relativePath;
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage());
 

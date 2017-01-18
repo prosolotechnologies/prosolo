@@ -173,6 +173,7 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public void selectCredential(CredentialProgressData credProgressData) {
+		System.out.println("SELECT CREDENTIAL:"+credProgressData.getName()+" id:"+credProgressData.getCredentialId());
 		try {
 			if (selectedCredential != null) {
 				selectedCredential.setCompetences(null);
@@ -273,14 +274,12 @@ public class StudentProfileBean implements Serializable {
 			compId = selectedCredential.getSelectedCompetence() != null ? 
 					selectedCredential.getSelectedCompetence().getId() : 0;
 		}
-		//TODO it is maybe better to include scheme in config file too instead of hardcoding.
-		return "http://" + getApiHost() + "/competences/" + compId + "/activities";
-				//Settings.getInstance().config.application.domain + "api/competences/" + compId + "/activities";
+		return getApiHost() + "/competences/" + compId + "/activities";
 	}
 	
 	private String getApiHost() {
 		AnalyticalServerConfig config = Settings.getInstance().config.analyticalServerConfig;
-		return config.apiHost + ":" + config.apiPort+"/"+config.apiServicesPath;
+		return config.apiHost + config.apiServicesPath;
 	}
 	
 	private void initializeSocialNetworkNameMap() {
@@ -342,6 +341,7 @@ public class StudentProfileBean implements Serializable {
 	}
 
 	public List<CredentialProgressData> getCredentials() {
+		System.out.println("GET CREDENTIALS:"+credentials.size());
 		return credentials;
 	}
 

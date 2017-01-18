@@ -147,7 +147,7 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 
 	@Override
 	public SocialActivity1 createTwitterPostSocialActivity(User actor, Date dateCreated, String postLink, 
-			long tweetId, String creatorName, String screenName, String userUrl, String profileImage,
+			long tweetId, boolean isRetweet, String retweetComment, String creatorName, String screenName, String userUrl, String profileImage,
 			String text, Collection<String> hashtags, Session session) {
 		TwitterPostSocialActivity1 tp = new TwitterPostSocialActivity1();
 
@@ -155,6 +155,8 @@ public class TwitterStreamingDAOImpl extends GenericDAOImpl implements
 		tp.setNickname(screenName);
 		tp.setProfileUrl(userUrl);
 		tp.setAvatarUrl(profileImage);
+		tp.setRetweet(isRetweet);
+		tp.setComment(retweetComment);
 		if(actor != null) {
 			tp.setActor(actor);
 			tp.setUserType(UserType.REGULAR_USER);

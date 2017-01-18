@@ -33,18 +33,19 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 	
 	@Override
 	public boolean updateTimeSpentOnActivities(Map<Long, Long> activitiesWithTimeSpent) {
-		Transaction t = null;
+	//	Transaction t = null;
 		try{
-			t = session.beginTransaction();
+			System.out.println("REMOVED TRANSACTION HERE");
+			//t = session.beginTransaction();
 			for(Entry<Long, Long> entry : activitiesWithTimeSpent.entrySet()) {
 				updateTimeSpentOnActivity(entry.getKey(), entry.getValue());
 			}
-			t.commit();
+			//t.commit();
 			return true;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			t.rollback();
+		//	t.rollback();
 			return false;
 		}
 	}
@@ -64,9 +65,9 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 	@Override
 	public List<TargetActivity1> getTargetActivities(long targetCompId) 
 			throws Exception {
-		Transaction t = null;
+		//Transaction t = null;
 		try {
-			t = session.beginTransaction();
+		//	t = session.beginTransaction();
 			TargetCompetence1 targetComp = (TargetCompetence1) session.load(
 					TargetCompetence1.class, targetCompId);
 			
@@ -80,7 +81,7 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 				.createQuery(query)
 				.setEntity("targetComp", targetComp)
 				.list();
-			t.commit();
+			//t.commit();
 			if(res == null) {
 				return new ArrayList<>();
 			}
@@ -88,16 +89,16 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			t.rollback();
+			//t.rollback();
 			throw new Exception("Error while loading activities");
 		}
 	}
 	
 	@Override
 	public List<Long> getTimeSpentOnActivityForAllUsersSorted(long activityId) throws Exception {
-		Transaction t = null;
+		//Transaction t = null;
 		try {
-			t = session.beginTransaction();
+			//t = session.beginTransaction();
 			String query =
 				"SELECT tActivity.timeSpent " +
 				"FROM TargetActivity1 tActivity "+
@@ -113,7 +114,7 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 				.setLong("timeSpent", 0)
 				.setBoolean("completed", true)
 				.list();
-			t.commit();
+			//t.commit();
 			if (result != null && !result.isEmpty()) {
 				return result;
 			}
@@ -121,7 +122,7 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			t.rollback();
+			//t.rollback();
 			throw new Exception("Error while loading time spent on activity");
 		}
 	}

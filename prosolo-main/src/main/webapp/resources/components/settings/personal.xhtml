@@ -52,7 +52,7 @@
 									<div class="formLineRight">
 										<h:inputText id="editEmail" class="editEmail" disabled="true"
 											value="#{profileSettings.accountData.email}" />
-										<small>Email can not be changed. Email will not be publicly displayed.</small>
+										<small>Email cannot be changed. Email will not be publicly displayed.</small>
 									</div>
 								</div>
 								
@@ -222,7 +222,7 @@
 												onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
 												action="#{profileSettings.crop()}"
 												process="hiddenCoordinates"
-												update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl" />
+												update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl :userMenuForm" />
 	
 											<p:commandLink styleClass="btn btn-default btn-sm" value="Cancel"
 												action="#{profileSettings.cancelCrop()}"

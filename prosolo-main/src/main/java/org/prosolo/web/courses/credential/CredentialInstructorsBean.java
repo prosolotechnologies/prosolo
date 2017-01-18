@@ -267,6 +267,12 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 //		}
 //	}
 	
+	public void applySortOption(InstructorSortOption sortOption) {
+		this.sortOption = sortOption;
+		this.page = 1;
+		searchCredentialInstructors();
+	}
+	
 	public void removeInstructorFromCredential() {
 		try {
 			StudentAssignData res = credInstructorManager.removeInstructorFromCredential(
@@ -393,6 +399,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	@Override
 	public boolean isResultSetEmpty() {
 		return credentialInstructorsNumber == 0;
+	}
+	
+	@Override
+	public boolean shouldBeDisplayed() {
+		return numberOfPages > 1;
 	}
 
 	/*

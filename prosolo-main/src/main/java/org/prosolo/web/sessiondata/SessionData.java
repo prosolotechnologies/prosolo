@@ -11,6 +11,7 @@ import org.prosolo.services.activityWall.filters.Filter;
 public class SessionData {
 
 	private long userId;
+	private String encodedUserId;
 	private String name;
 	private String lastName;
 	private String fullName;
@@ -37,6 +38,14 @@ public class SessionData {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+	
+	public String getEncodedUserId() {
+		return encodedUserId;
+	}
+
+	public void setEncodedUserId(String encodedUserId) {
+		this.encodedUserId = encodedUserId;
 	}
 
 	public String getEmail() {

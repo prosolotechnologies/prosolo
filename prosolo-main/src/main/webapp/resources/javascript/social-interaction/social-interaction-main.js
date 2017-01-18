@@ -2,7 +2,6 @@ $(function () {
 	var root = document.getElementById("social-interaction");
 
 	var graphWidth = $(".tab-content").width() / 12 * 9 - 50;
-	console.log("should load social interactions:"+root.dataset.api);
 	socialInteractionGraph.load({
 		host: root.dataset.api,
 		courseId : root.dataset.courseId,
@@ -42,18 +41,20 @@ $(function () {
 		noResultsMessage: "No results found for given parameters.",
 		systemNotAvailableMessage: "System is not available."
 	});
-var getStudentsData=function(peers){
-	return $.ajax({
-		url : "http://" + root.dataset.api + "/social/interactions/data",
-		data : {"students" : peers},
-		type : "GET",
-		crossDomain: true,
-		dataType: 'json'
-	});
-}
-	var initializeDataForSelectedStudent=function(student, courseid){
+	
+	var getStudentsData = function(peers) {
+		return $.ajax({
+			url : root.dataset.api + "/social/interactions/data",
+			data : {"students" : peers},
+			type : "GET",
+			crossDomain: true,
+			dataType: 'json'
+		});
+	}
+
+	var initializeDataForSelectedStudent = function(student, courseid) {
 		$.ajax({
-			url : "http://" + root.dataset.api + "/social/interactions/interactionsbypeers/"+courseid+"/"+student.id,
+			url : root.dataset.api + "/social/interactions/interactionsbypeers/"+courseid+"/"+student.id,
 			//data : {"students" : part},
 			type : "GET",
 			crossDomain: true,
@@ -66,7 +67,7 @@ var getStudentsData=function(peers){
 			var interactions=data[0].interactions;
 			var peersinteractions={};
 			var peers=[];
-			if(interactions.length>0){
+			if (interactions.length > 0) {
 				interactions.forEach(function(interaction){
 					var intobject={};
 					if(typeof (peersinteractions[interaction.peer])!=='undefined'){
@@ -86,12 +87,17 @@ var getStudentsData=function(peers){
 							var interaction=peersinteractions[peerId];
 							var student=studentsData[peerId];
 							innerHtml=innerHtml+"<tr><td>"+student.name+"</td>"
-							if(typeof(interaction.OUT)!=='undefined')
+							if(typeof(interaction.OUT)!=='undefined'){
 								innerHtml=innerHtml+"<td>"+interaction.OUT.count+"("+interaction.OUT.percentage+" %)</td>";
-							if(typeof(interaction.IN)!=='undefined')
+							}else{
+								innerHtml=innerHtml+"<td/>";
+							}
+
+							if(typeof(interaction.IN)!=='undefined'){
 								innerHtml=innerHtml+"<td>"+interaction.IN.count+"("+interaction.IN.percentage+" %)"+"</td>";
-
-
+							}else{
+								innerHtml=innerHtml+"<td/>";
+							}
 						};
 
 						innerHtml=innerHtml+"</table>";
@@ -102,7 +108,7 @@ var getStudentsData=function(peers){
 		});
 
 		$.ajax({
-			url : "http://" + root.dataset.api + "/social/interactions/interactionsbytype/"+courseid+"/"+student.id,
+			url : root.dataset.api + "/social/interactions/interactionsbytype/"+courseid+"/"+student.id,
 			//data : {"students" : part},
 			type : "GET",
 			crossDomain: true,

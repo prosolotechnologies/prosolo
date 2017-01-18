@@ -40,15 +40,15 @@
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
 				            		outcome="credential">
-				            		<f:param name="id" value="#{param['credId']}"></f:param>
+				            		<f:param name="id" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <li>
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
 				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}"></f:param>
-				            		<f:param name="credId" value="#{param['credId']}"></f:param>
+				            		<f:param name="compId" value="#{param['compId']}" />
+				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
@@ -68,7 +68,7 @@
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
 				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}"></f:param>
+				            		<f:param name="compId" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
@@ -359,6 +359,23 @@
 		                        	requiredMessage="Url must be entered"
 		                        	validator="urlValidator">
 		                        </h:inputText>
+		                        
+								<div class="checkbox checkLine">
+									<input type="checkbox" id="checkPassID" onchange="$('#addParameterContainer').fadeToggle();"/>
+									<label for="checkPassID">Pass user id with URL</label>
+								</div>
+								<div id="addParameterContainer" style="display: none;">
+									<p>You can pass student id via URL variable. Please consult the tool you are using about the name of the URL variable you should use and insert it to the field bellow.</p>
+									
+									<h:inputText id="idParameterName"
+			                        	placeholder="Variable name"
+			                        	value="#{activityEditBean.resLinkToAdd.idParamName}" />
+									
+									<p class="linkPreview">Preview: <span class="url"></span><strong><span class="param"></span></strong></p>
+								
+									<script src="#{request.contextPath}/resources/javascript2/createActivity.modalAddUrl.js"></script>
+								</div>
+								
 		                        <div id="loaderContainerUrlTitle"/>
 		                        <p:remoteCommand
 		                        	name="fetchPageTitle"
@@ -369,29 +386,33 @@
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
 		                        
-		                        <h:panelGroup 
-		                        	layout="block" 
-		                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}" 
-		                        	styleClass="alert alert-warning" 
-		                        	pt:role="alert">
-		                            <h:message for="inputUrlTitle"></h:message>
-		                        </h:panelGroup>
-		                        <h:panelGroup 
-		                        	layout="block" 
-		                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}" 
-		                        	styleClass="alert alert-warning" 
-		                        	pt:role="alert">
-		                            <h:message for="inputUrl"></h:message>
+		                        <h:panelGroup id="errorMessages">
+			                        <h:panelGroup 
+			                        	id="inputUrlTitleErrorMsg"
+			                        	layout="block" 
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}" 
+			                        	styleClass="alert alert-warning" 
+			                        	pt:role="alert">
+			                            <h:message for="inputUrlTitle" />
+			                        </h:panelGroup>
+			                        <h:panelGroup 
+			                        	id="inputUrlErrorMsg"
+			                        	layout="block" 
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}" 
+			                        	styleClass="alert alert-warning" 
+			                        	pt:role="alert">
+			                            <h:message for="inputUrl" />
+			                        </h:panelGroup>
 		                        </h:panelGroup>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
 		                    	<p:commandLink 
-		                    		process="inputUrlTitle inputUrl"
+		                    		process="inputUrlTitle inputUrl idParameterName"
 		                    		styleClass="btn btn-green"
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
-		                    		update=":#{cc.clientId}:formModalAddUrl:panelAddUrlContent :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
+		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
 		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>

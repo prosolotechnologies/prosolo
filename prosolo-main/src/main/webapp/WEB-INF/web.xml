@@ -27,6 +27,19 @@
         <url-pattern>/files/*</url-pattern>
     </servlet-mapping>
     <filter>
+        <filter-name>AbsoluteSendRedirectFilter</filter-name>
+        <filter-class>org.prosolo.core.ssl.AbsoluteSendRedirectFilter</filter-class>
+        <init-param>
+            <param-name>parm1</param-name>
+            <param-value>parm1value</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>AbsoluteSendRedirectFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
         <init-param>
@@ -77,6 +90,18 @@
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
+    
+	<filter>
+		<filter-name>PrimeFaces FileUpload Filter</filter-name>
+		<filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>PrimeFaces FileUpload Filter</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+    
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>

@@ -1,9 +1,8 @@
 var socialInteractionGraph = (function () {
 
 	function readClusterInteractions(config) {
-		console.log("read cluster interactions:"+"http://" + config.host + "/social/interactions/cluster");
 		return $.ajax({
-			url : "http://" + config.host + "/social/interactions/cluster",
+			url : config.host + "/social/interactions/cluster",
 			data : {"studentId" : config.studentId, "courseId" : config.courseId},
 			type : "GET",
 			crossDomain: true,
@@ -13,7 +12,7 @@ var socialInteractionGraph = (function () {
 
 	function readOuterInteractions(config) {
 		return $.ajax({
-			url : "http://" + config.host + "/social/interactions/outer",
+			url : config.host + "/social/interactions/outer",
 			data : {"studentId" : config.studentId, "courseId" : config.courseId},
 			type : "GET",
 			crossDomain: true,
@@ -31,7 +30,7 @@ var socialInteractionGraph = (function () {
 	function readStudentData(config, students) {
 		return partition(students, 50).map(function(part) {
 			return $.ajax({
-				url : "http://" + config.host + "/social/interactions/data",
+				url : config.host + "/social/interactions/data",
 				data : {"students" : part},
 				type : "GET",
 				crossDomain: true,

@@ -363,7 +363,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //		ag.setValue(grade);
 //		saveEntity(ag);
 //		activityDiscussion.setGrade(ag);
-		activityDiscussion.setPoints(grade);
+		if (grade != null)
+			activityDiscussion.setPoints(grade);
 		
 		saveEntity(activityDiscussion);
 		return activityDiscussion.getId();
