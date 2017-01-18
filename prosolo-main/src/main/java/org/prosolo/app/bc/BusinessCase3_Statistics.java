@@ -825,6 +825,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
  	}
 	
 	private void publishCredential(Credential1 cred, User creator) {
+		//to make sure that all documents will be indexed in ES before we try to update them.
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			logger.error(e);
+		}
 		CredentialManager credentialManager = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class);

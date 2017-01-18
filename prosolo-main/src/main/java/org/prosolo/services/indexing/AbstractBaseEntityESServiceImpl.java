@@ -100,6 +100,7 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 		
 		@SuppressWarnings("unused")
 		IndexResponse response = requestBuilder.execute().actionGet();
+		logger.info("Saving document for index name: " + indexName + ", indexType " + indexType + ", document id: " + indexId);
 	}
 	
 	@Override
@@ -159,6 +160,7 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	public void partialUpdate(String indexName, String indexType, String docId, 
 			XContentBuilder partialDoc) {
 		try {
+			logger.info("Partial update for index name: " + indexName + ", indexType " + indexType + ", document id: " + docId);
 			UpdateRequest updateRequest = new UpdateRequest(indexName, 
 					indexType, docId)
 			        .doc(partialDoc);

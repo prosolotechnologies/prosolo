@@ -514,11 +514,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			credData.setCanAccess(canAccess);
 			
 			if(loadCompetences) {
-				//if user has edit privilege for the credential, we should include not published 
-				//competences to the result also
+				/*
+				 * if edit privilege is needed for use case, we should include information
+				 * wheter user can edit competences.
+				 */
+				boolean includeCanEdit = privilege == UserGroupPrivilege.Edit;
+				/*
+				 * we should include not published competences if Edit privilege is needed
+				 * for this use case and user has Edit privilege, or if None privilege is needed
+				 */
+				boolean includeNotPublished = privilege == UserGroupPrivilege.Edit 
+						&& priv == UserGroupPrivilege.Edit 
+						|| privilege == UserGroupPrivilege.None;
 				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, privilege == UserGroupPrivilege.Edit, 
-						privilege == UserGroupPrivilege.Edit, userId);
+						credentialId, false, false , false, includeNotPublished, includeCanEdit, 
+						userId);
 				credData.setCompetences(compsData);
 			}
 	
