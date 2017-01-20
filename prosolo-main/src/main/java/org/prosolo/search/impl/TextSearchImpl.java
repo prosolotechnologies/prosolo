@@ -1432,7 +1432,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption) {
+			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			boolean includeEnrolledCredentials) {
 		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -1508,8 +1509,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			boolFilter.should(publishedAndVisibleFilter);
 			
-			//user is enrolled in a credential (currently learning or completed credential)
-			boolFilter.should(QueryBuilders.termQuery("students.id", userId));
+			if(includeEnrolledCredentials) {
+				//user is enrolled in a credential (currently learning or completed credential)
+				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
+			}
 			
 			//user is owner of a credential
 			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
@@ -1553,8 +1556,17 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						Long id = Long.parseLong(hit.getSource().get("id").toString());
 						try {
 							CredentialData cd = null;
-							cd = credentialManager
-									.getCredentialDataWithProgressIfExists(id, userId);
+							/*
+							 * we should include user progress in this credential only
+							 * if includeEnrolledCredentials is true
+							 */
+							if(includeEnrolledCredentials) {
+								cd = credentialManager
+										.getCredentialDataWithProgressIfExists(id, userId);
+							} else {
+								cd = credentialManager
+										.getBasicCredentialData(id, userId);
+							}
 							
 							if(cd != null) {
 								response.addFoundNode(cd);
