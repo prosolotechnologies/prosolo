@@ -57,6 +57,8 @@ public class Activity1 extends BaseEntity {
 	@Deprecated
 	private GradingOptions gradingOptions;
 	
+	private boolean visibleForUnenrolledStudents = false;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
@@ -166,6 +168,16 @@ public class Activity1 extends BaseEntity {
 
 	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
 		this.studentCanEditResponse = studentCanEditResponse;
+	}
+	
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isVisibleForUnenrolledStudents() {
+		return visibleForUnenrolledStudents;
+	}
+
+	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
+		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 	
 }
