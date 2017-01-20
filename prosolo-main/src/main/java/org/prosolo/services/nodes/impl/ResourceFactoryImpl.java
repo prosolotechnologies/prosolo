@@ -1068,6 +1068,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		
     		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
     		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
+    		activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
     		
     		saveEntity(activity);
     		
