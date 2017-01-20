@@ -22,10 +22,12 @@
 		<composite:attribute name="toUpdateOnSaveTopLevelComment" default=""/>
 		<composite:attribute name="toUpdateOnCommentSave" default=""/>
 		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="rendered" type="java.lang.Boolean" default="true"/>
 	</composite:interface>
 	
 	<composite:implementation>
 		<div id="#{cc.clientId}">
+		<ui:fragment rendered="#{cc.attrs.rendered}">
 			<script>var firstLoad#{cc.attrs.uniqueId} = true;</script>
 			<h:form id="formComments">
 				
@@ -124,6 +126,7 @@
 					firstLoad#{cc.attrs.uniqueId} = false;
 				</script>
 			</h:form>
+		</ui:fragment>
 		</div>
 	</composite:implementation>
 </ui:component>
