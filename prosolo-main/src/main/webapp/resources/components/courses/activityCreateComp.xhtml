@@ -281,6 +281,13 @@
 						</label>
 						<div class="infoIcon">info</div>
 					</div>
+					<div class="checkbox checkLine">
+                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students</label>
+                    </div>
 				</div>
 			</div>
 		</h:panelGroup>
@@ -376,11 +383,11 @@
                     </div>
                    
                     <div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled1"
                     		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
                     		onchange="updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students too</label>
+                        <label for="#{cc.clientId}:checkVisibleToUnenrolled1">This activity should be available to unenrolled students</label>
                     </div>
                     
                     <div id="scoreCalcPanel" style="#{cc.attrs.activity.acceptGrades ? '' : 'display:none;'}">

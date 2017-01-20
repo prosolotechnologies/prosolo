@@ -58,6 +58,7 @@ public class ActivityDataFactory {
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
 		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -185,7 +186,6 @@ public class ActivityDataFactory {
 			act.setConsumerKey(extAct.getConsumerKey());
 			act.setAcceptGrades(extAct.isAcceptGrades());
 			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-			act.setVisibleForUnenrolledStudents(extAct.isVisibleForUnenrolledStudents());
 			act.setScoreCalculation(extAct.getScoreCalculation());
 		}
 	}
@@ -511,7 +511,6 @@ public class ActivityDataFactory {
 				extAct.setConsumerKey(activityData.getConsumerKey());
 				extAct.setAcceptGrades(activityData.isAcceptGrades());
 				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
-				extAct.setVisibleForUnenrolledStudents(activityData.isVisibleForUnenrolledStudents());
 				extAct.setScoreCalculation(activityData.getScoreCalculation());
 				return extAct;
 			default: 
