@@ -132,6 +132,7 @@
 		               		commentsContainerDivId="commentsContainerDiv"
 		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
+		               		rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled or cc.attrs.role eq 'MANAGER'}"
 		               />
 		            </div>
 		            
