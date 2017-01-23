@@ -148,7 +148,7 @@ public interface TextSearch extends AbstractManager {
 	TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilter filter, CredentialSortOption sortOption, 
-			boolean includeEnrolledCredentials);
+			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege);
 	
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
