@@ -51,7 +51,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			setString("email", email).
 		 	setBoolean("verifiedEmail",true).
 			uniqueResult();
-		
 		if (result != null) {
 			return result;
 		}

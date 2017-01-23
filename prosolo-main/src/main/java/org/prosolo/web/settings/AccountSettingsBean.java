@@ -49,6 +49,10 @@ public class AccountSettingsBean implements Serializable {
 		accountData.setEmail(email);
 	}
 
+	public void initializeAccountDataForPasswordChange(String email) {
+		accountData = new AccountData();
+		accountData.setEmail(email);
+	}
 	/*
 	 * ACTIONS
 	 */

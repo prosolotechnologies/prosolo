@@ -1,0 +1,123 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">Edit User</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{userEditBean.id}" />
+			<f:viewAction action="#{userEditBean.init()}" />
+		</f:metadata>
+	</ui:define>
+	<ui:define name="content">
+		<div class="container" style="background: #4a3b5a">
+			<ul class="nav nav-tabs headerSubmenu">
+				<li><h:link outcome="/admin/adminUserEdit">
+						<f:param name="id" value="#{util:encodeId(user.id)}" />Personal Info</h:link></li>
+				<li><h:link outcome="/admin/adminUserEditPassword">
+						<f:param name="id" value="#{util:encodeId(user.id)}" />Change Password</h:link></li>
+			</ul>
+		</div>
+		<div class="whiteBar"></div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h2>Edit User</h2>
+						<H2>
+							<h:outputText
+								value="#{userEditBean.user.name} #{userEditBean.user.lastName} - Personal Info" />
+						</H2>
+						<h:form id="formMain">
+							<div class="formWrapper">
+								<div class="formLine">
+									<label>First name</label>
+									<div class="formLineRight">
+										<h:inputText id="inputTextUserName" required="true"
+											requiredMessage="First name is required"
+											value="#{userEditBean.user.name}">
+										</h:inputText>
+										<h:panelGroup layout="block"
+											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}"
+											styleClass="alert alert-danger" pt:role="alert">
+											<h:message for="inputTextUserName"></h:message>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Last name</label>
+									<div class="formLineRight">
+										<h:inputText id="inputTextUserLastname" required="true"
+											requiredMessage="Last name is required"
+											value="#{userEditBean.user.lastName}">
+										</h:inputText>
+										<h:panelGroup layout="block"
+											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}"
+											styleClass="alert alert-danger" pt:role="alert">
+											<h:message for="inputTextUserLastname"></h:message>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Email</label>
+									<div class="formLineRight">
+										<h:inputText id="inputTextUserEmail" required="true"
+											requiredMessage="Email is required"
+											value="#{userEditBean.user.email}"></h:inputText>
+										<small>Email will not be publicly displayed.</small>
+										<h:panelGroup layout="block"
+											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}"
+											styleClass="alert alert-danger" pt:role="alert">
+											<h:message for="inputTextUserEmail"></h:message>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Position</label>
+									<div class="formLineRight">
+										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Role</label>
+									<div class="formLineRight">
+										<h:selectManyCheckbox id="selectRoles"
+											value="#{userEditBean.user.roleIds}" layout="pageDirection"
+											styleClass="checkbox checkLine" required="true"
+											requiredMessage="At least one role should be selected">
+											<f:selectItems value="#{userEditBean.allRoles}" var="role"
+												itemValue="role" />
+										</h:selectManyCheckbox>
+										<h:panelGroup layout="block"
+											rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}"
+											styleClass="alert alert-danger" pt:role="alert">
+											<h:message for="selectRoles"></h:message>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>&#160;</label>
+									<div class="formLineRight">
+										<p:commandLink styleClass="btn btn-green"
+											action="#{userEditBean.saveUser()}" update=":formMain">
+	                                	Save Changes
+	                                </p:commandLink>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>
