@@ -322,7 +322,7 @@ if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().c
 			TriggerBuilder tb = TriggerBuilder.newTrigger();
 			tb.forJob(startupJobKey);
 			tb.withIdentity(jobClassName+"_startup","job");
-			tb.startAt(DateBuilder.futureDate(this.startupJobsCounter*120, DateBuilder.IntervalUnit.SECOND));
+			tb.startAt(DateBuilder.futureDate(this.startupJobsCounter*30, DateBuilder.IntervalUnit.SECOND));
 			Trigger trigger=tb.build();
 
 			sched.addJob(jobDetails, true);
