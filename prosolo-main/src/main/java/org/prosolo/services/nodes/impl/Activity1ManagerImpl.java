@@ -479,7 +479,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if(res == null) {
 				throw new ResourceNotFoundException();
 			}
-			//we need user privilege for competence on which activity is dependend
+			//we need user privilege for competence on which activity is dependent
 			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, competenceId, 
 					userId);
 			/*
@@ -905,6 +905,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
+			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
@@ -934,7 +935,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extAct.setConsumerKey(data.getConsumerKey());
 				extAct.setAcceptGrades(data.isAcceptGrades());
 				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
-				extAct.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 				extAct.setScoreCalculation(data.getScoreCalculation());
 			}
 		    
@@ -1035,8 +1035,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (activityWithDetails != null) {
 					compData = new CompetenceData1(false);
 					compData.setActivityToShowWithDetails(activityWithDetails);
+					//TODO we are calling this method twice so better solution should probably be found
+					UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
+							creatorId);
 					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId(), false);
+							activityWithDetails.getCompetenceId(), priv == UserGroupPrivilege.Edit);
 					compData.setActivities(activities);
 					return compData;
 			}

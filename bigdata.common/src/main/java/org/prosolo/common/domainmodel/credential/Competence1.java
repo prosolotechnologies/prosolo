@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -126,6 +127,7 @@ public class Competence1 extends BaseEntity {
 		this.type = type;
 	}
 	
+	@Type(type = "true_false")
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isVisibleToAll() {
 		return visibleToAll;

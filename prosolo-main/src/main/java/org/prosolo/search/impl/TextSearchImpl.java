@@ -1432,7 +1432,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption) {
+			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege) {
 		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -1498,18 +1499,22 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 			
-			//credential is published and: visible to all users or user has View privilege
-			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
-			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
-			BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
-			visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
-			visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
-			publishedAndVisibleFilter.filter(visibleFilter);
+			if(includeCredentialsWithViewPrivilege) {
+				//credential is published and: visible to all users or user has View privilege
+				BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
+				publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
+				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
+				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
+				visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
+				publishedAndVisibleFilter.filter(visibleFilter);
+				
+				boolFilter.should(publishedAndVisibleFilter);
+			}
 			
-			boolFilter.should(publishedAndVisibleFilter);
-			
-			//user is enrolled in a credential (currently learning or completed credential)
-			boolFilter.should(QueryBuilders.termQuery("students.id", userId));
+			if(includeEnrolledCredentials) {
+				//user is enrolled in a credential (currently learning or completed credential)
+				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
+			}
 			
 			//user is owner of a credential
 			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
@@ -1553,8 +1558,17 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						Long id = Long.parseLong(hit.getSource().get("id").toString());
 						try {
 							CredentialData cd = null;
-							cd = credentialManager
-									.getCredentialDataWithProgressIfExists(id, userId);
+							/*
+							 * we should include user progress in this credential only
+							 * if includeEnrolledCredentials is true
+							 */
+							if(includeEnrolledCredentials) {
+								cd = credentialManager
+										.getCredentialDataWithProgressIfExists(id, userId);
+							} else {
+								cd = credentialManager
+										.getBasicCredentialData(id, userId);
+							}
 							
 							if(cd != null) {
 								response.addFoundNode(cd);

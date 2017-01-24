@@ -153,6 +153,7 @@
 		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
 		               		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
+		               		rendered="#{cc.attrs.bean.competenceData.enrolled or cc.attrs.role eq 'MANAGER'}"
 		               />
 		            </div>
 		            <div class="col-md-4">
