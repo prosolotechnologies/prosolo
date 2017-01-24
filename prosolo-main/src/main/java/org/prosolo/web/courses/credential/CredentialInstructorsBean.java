@@ -202,7 +202,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					}
 					params.put("dateAssigned", dateString);
 					try {
-						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, 
+						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 								loggedUserBean.getUserId(), instr, cred, page, lContext, service, params);
 					} catch (EventException e) {
 							logger.error(e);
@@ -270,7 +270,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			try {
 				@SuppressWarnings("unchecked")
 				Event event = eventFactory.generateEvent(
-						EventType.INSTRUCTOR_REMOVED_FROM_COURSE, 
+						EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, 
 						loggedUserBean.getUserId(), instr, cred, 
 						appPage, lContext, service, 
 						new Class[] {NodeChangeObserver.class}, null);
