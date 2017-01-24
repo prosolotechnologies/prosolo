@@ -92,7 +92,7 @@
                 	<ui:repeat var="user" value="#{adminUsers.users}">
 	                    <li>
 	                        <div class="peopleListLeft">
-	                        	<h:link outcome="/admin/userEdit">
+	                        	<h:link outcome="/admin/adminUserEdit">
 			                   		<utilcomp:userAvatar
 										avatar="#{user.avatarUrl}"
 										fullName="#{user.fullName}"	
@@ -104,7 +104,7 @@
 	                            
 	                            <div>
 	                                <h2>
-	                                	<h:link outcome="/admin/userEdit">
+	                                	<h:link outcome="/admin/adminUserEdit">
 					                   		#{user.fullName}    
 								    		<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
 			                    		</h:link>
