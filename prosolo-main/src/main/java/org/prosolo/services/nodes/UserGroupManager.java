@@ -16,7 +16,7 @@ public interface UserGroupManager extends AbstractManager {
 
 	List<UserGroup> getAllGroups() throws DbConnectionException;
 
-	UserGroup getGroup(long groupgId) throws DbConnectionException;
+	UserGroupData getGroup(long groupgId) throws DbConnectionException;
 	
 	List<UserGroupData> searchGroups(String searchTerm, int limit, int page) throws DbConnectionException;
 	

@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -54,9 +53,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	}
 	
 	public void prepareGroupForEditJoinURL(long groupId) {
-		UserGroup group = userGroupManager.getGroup(groupId);
-		
-		this.groupForEdit = new UserGroupData(group);
+		this.groupForEdit = userGroupManager.getGroup(groupId);
 	}
 	
 	public void prepareGroupForAdding() {

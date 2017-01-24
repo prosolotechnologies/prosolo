@@ -1,14 +1,12 @@
 package org.prosolo.web.users;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.omnifaces.util.Ajax;
-import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -39,12 +37,9 @@ public class JoinGroupBean implements Serializable {
 	public void init() {
 		this.decodedId = idEncoder.decodeId(id);
 		
-		UserGroup group = userGroupManager.getGroup(decodedId);
+		this.groupData = userGroupManager.getGroup(decodedId);
 	
-		if (group != null && group.isJoinUrlActive()) {
-			groupData = new UserGroupData(group.getId(), group.getName(), -1);
-			groupData.setJoinUrlPassword(group.getJoinUrlPassword());
-			
+		if (groupData != null && groupData.isJoinUrlActive()) {
 			// check if this user is already a member of the group
 			if (userGroupManager.isUserInGroup(decodedId, loggedUserBean.getUserId())) {
 				PageUtil.fireErrorMessage("You are already a member of this group");
@@ -62,12 +57,18 @@ public class JoinGroupBean implements Serializable {
 				(this.password == null || this.password.isEmpty()))
 				||
 				this.password.equals(groupData.getJoinUrlPassword())) {
-			userGroupManager.updateGroupUsers(decodedId, Arrays.asList(loggedUserBean.getUserId()), null);
 			
-			PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
+			try {
+				userGroupManager.addUserToTheGroup(decodedId, loggedUserBean.getUserId());
+				
+				PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
+			} catch (DbConnectionException e) {
+				logger.warn(e);
+				PageUtil.fireErrorMessage("growlJoinSuccess", "Error joining the group.");
+			}
 			this.joinButtonDisabled = true;
 		} else {
-			PageUtil.fireErrorMessage("joinForm:join", "Wrong password.");
+			PageUtil.fireErrorMessage("joinForm:join", "Wrong password");
 		}
 		this.password = null;
 	}

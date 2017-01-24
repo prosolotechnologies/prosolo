@@ -62,7 +62,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-	public UserGroup getGroup(long groupgId) throws DbConnectionException {
+	public UserGroupData getGroup(long groupgId) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT g " +
@@ -73,7 +73,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				.setLong("groupId", groupgId)
 				.uniqueResult();
 			
-			return result; 
+			return new UserGroupData(result); 
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -234,7 +234,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while deleting user group");
+			throw new DbConnectionException("Error while adding the user to the group");
 		}
 	}
 
