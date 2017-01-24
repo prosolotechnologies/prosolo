@@ -1239,6 +1239,28 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while saving user group");
 		}
 	}
+    
+    @Override
+   	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword)
+    		throws DbConnectionException {
+    	try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setJoinUrlActive(joinUrlActive);
+			
+			if (joinUrlActive) {
+				group.setJoinUrlPassword(joinUrlPassword);
+			} else {
+				group.setJoinUrlPassword(null);
+			}
+			
+			return group;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+    }
 
     @Override
 	@Transactional (readOnly = false)

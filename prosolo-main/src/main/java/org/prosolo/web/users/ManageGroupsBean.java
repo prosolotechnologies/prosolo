@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -52,6 +53,12 @@ public class ManageGroupsBean implements Serializable, Paginable {
 		this.groupForEdit = group;
 	}
 	
+	public void prepareGroupForEditJoinURL(long groupId) {
+		UserGroup group = userGroupManager.getGroup(groupId);
+		
+		this.groupForEdit = new UserGroupData(group);
+	}
+	
 	public void prepareGroupForAdding() {
 		this.groupForEdit = new UserGroupData();
 	}
@@ -93,6 +100,25 @@ public class ManageGroupsBean implements Serializable, Paginable {
 		} catch (Exception ex) {
 			logger.error(ex);
 			PageUtil.fireErrorMessage("Error while trying to save the group");
+		}
+	}
+	
+	public void saveGroupJoinUrl() {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData lcd = new LearningContextData(page, lContext, service);
+			
+			if (groupForEdit.getId() > 0) {
+				userGroupManager.updateJoinUrl(groupForEdit.getId(), groupForEdit.isJoinUrlActive(), groupForEdit.getJoinUrlPassword(),
+						loggedUserBean.getUserId(), lcd);
+				PageUtil.fireSuccessfulInfoMessage("Join by URL settings updated");
+			}
+			groupForEdit = null;
+		} catch (Exception ex) {
+			logger.error(ex);
+			PageUtil.fireErrorMessage("Error while trying to save join by URL settings");
 		}
 	}
 	

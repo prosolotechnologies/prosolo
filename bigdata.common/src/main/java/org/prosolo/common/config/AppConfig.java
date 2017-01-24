@@ -32,5 +32,9 @@ public class AppConfig {
 	public String getSupportEmail() {
 		return supportEmail;
 	}
+
+	public String getDomain() {
+		return domain;
+	}
 	
 }
