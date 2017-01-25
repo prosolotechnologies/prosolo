@@ -73,6 +73,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private boolean canEdit;
 	private boolean canAccess;
+	private boolean autograde;
 	
 	public ActivityData(boolean listenChanges) {
 		this.status = PublishedStatus.UNPUBLISH;
@@ -478,76 +479,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.scoreCalculation = scoreCalculation;
 	}
 	
-	//change tracking get methods
-
-	public boolean isTitleChanged() {
-		return changedAttributes.containsKey("title");
-	}
-
-	public boolean isDescriptionChanged() {
-		return changedAttributes.containsKey("description");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
-	
-	public boolean isObjectStatusChanged() {
-		return changedAttributes.containsKey("objectStatus");
-	}
-	
-	public boolean isOrderChanged() {
-		return changedAttributes.containsKey("order");
-	}
-	
-	public boolean isUploadAssignmentChanged() {
-		return changedAttributes.containsKey("uploadAssignment");
-	}
-	
-	public boolean isLinkChanged() {
-		return changedAttributes.containsKey("link");
-	}
-
-	public boolean isLinkNameChanged() {
-		return changedAttributes.containsKey("linkName");
-	}
-	
-	public boolean isLaunchUrlChanged() {
-		return changedAttributes.containsKey("launchUrl");
-	}
-	
-	public boolean isSharedSecretChanged() {
-		return changedAttributes.containsKey("sharedSecret");
-	}
-	
-	public boolean isConsumerKeyChanged() {
-		return changedAttributes.containsKey("consumerKey");
-	}
-	
-	public boolean isAcceptGradesChanged() {
-		return changedAttributes.containsKey("acceptGrades");
-	}
-	
-	public boolean isOpenInNewWindowChanged() {
-		return changedAttributes.containsKey("openInNewWindow");
-	}
-	
-	public boolean isTextChanged() {
-		return changedAttributes.containsKey("text");
-	}
-	
-	public boolean isDurationHoursChanged() {
-		return changedAttributes.containsKey("durationHours");
-	}
-	
-	public boolean isDurationMinutesChanged() {
-		return changedAttributes.containsKey("durationMinutes");
-	}
-	
-	public boolean isActivityTypeChanged() {
-		return changedAttributes.containsKey("activityType");
-	}
-	
 	//special methods to retrieve duration before update
 	public Optional<Integer> getDurationHoursBeforeUpdate() {
 		Integer dur = (Integer) changedAttributes.get("durationHours");
@@ -624,5 +555,89 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setCanAccess(boolean canAccess) {
 		this.canAccess = canAccess;
 	}
+
+	public boolean isAutograde() {
+		return autograde;
+	}
+
+	public void setAutograde(boolean autograde) {
+		observeAttributeChange("autograde", this.autograde, autograde);
+		this.autograde = autograde;
+	}
+	
+	//change tracking get methods
+
+	public boolean isAutogradeChanged() {
+		return changedAttributes.containsKey("autograde");
+	}
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+	
+	public boolean isObjectStatusChanged() {
+		return changedAttributes.containsKey("objectStatus");
+	}
+	
+	public boolean isOrderChanged() {
+		return changedAttributes.containsKey("order");
+	}
+	
+	public boolean isUploadAssignmentChanged() {
+		return changedAttributes.containsKey("uploadAssignment");
+	}
+	
+	public boolean isLinkChanged() {
+		return changedAttributes.containsKey("link");
+	}
+
+	public boolean isLinkNameChanged() {
+		return changedAttributes.containsKey("linkName");
+	}
+	
+	public boolean isLaunchUrlChanged() {
+		return changedAttributes.containsKey("launchUrl");
+	}
+	
+	public boolean isSharedSecretChanged() {
+		return changedAttributes.containsKey("sharedSecret");
+	}
+	
+	public boolean isConsumerKeyChanged() {
+		return changedAttributes.containsKey("consumerKey");
+	}
+	
+	public boolean isAcceptGradesChanged() {
+		return changedAttributes.containsKey("acceptGrades");
+	}
+	
+	public boolean isOpenInNewWindowChanged() {
+		return changedAttributes.containsKey("openInNewWindow");
+	}
+	
+	public boolean isTextChanged() {
+		return changedAttributes.containsKey("text");
+	}
+	
+	public boolean isDurationHoursChanged() {
+		return changedAttributes.containsKey("durationHours");
+	}
+	
+	public boolean isDurationMinutesChanged() {
+		return changedAttributes.containsKey("durationMinutes");
+	}
+	
+	public boolean isActivityTypeChanged() {
+		return changedAttributes.containsKey("activityType");
+	}
+	
 	
 }

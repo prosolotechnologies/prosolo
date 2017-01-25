@@ -262,6 +262,15 @@
 				<label>Other</label>
 				<div class="formLineRight">
 					<div class="checkbox checkLine">
+                		<h:selectBooleanCheckbox id="checkAutograding1"
+                    		value="#{cc.attrs.activity.autograde}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <h:outputLabel for="checkAutograding1">
+                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
+                        </h:outputLabel>
+	                </div>
+					<div class="checkbox checkLine">
 						<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
                     		value="#{cc.attrs.activity.studentCanSeeOtherResponses}"
                     		onchange="updateStatusToDraft();">
@@ -367,6 +376,15 @@
             <div class="formLine">
                 <label>Other</label>
                 <div class="formLineRight">
+                	<div class="checkbox checkLine">
+                		<h:selectBooleanCheckbox id="checkAutograding"
+                    		value="#{cc.attrs.activity.autograde}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <h:outputLabel for="checkAutograding">
+                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
+                        </h:outputLabel>
+	                </div>
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
                     		value="#{cc.attrs.activity.openInNewWindow}"
