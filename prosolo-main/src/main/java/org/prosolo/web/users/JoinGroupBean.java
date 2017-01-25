@@ -40,12 +40,19 @@ public class JoinGroupBean implements Serializable {
 		this.groupData = userGroupManager.getGroup(decodedId);
 	
 		if (groupData != null && groupData.isJoinUrlActive()) {
-			// check if this user is already a member of the group
-			if (userGroupManager.isUserInGroup(decodedId, loggedUserBean.getUserId())) {
-				PageUtil.fireErrorMessage("You are already a member of this group");
+			
+			try {
+				// check if this user is already a member of the group
+				if (userGroupManager.isUserInGroup(decodedId, loggedUserBean.getUserId())) {
+					PageUtil.fireErrorMessage("You are already a member of this group");
+					this.joinButtonDisabled = true;
+				} else {
+					this.joinButtonDisabled = false;
+				}
+			} catch (DbConnectionException e) {
+				logger.warn(e);
+				PageUtil.fireErrorMessage("growlJoinSuccess", "Error loading the page.");
 				this.joinButtonDisabled = true;
-			} else {
-				this.joinButtonDisabled = false;
 			}
 		} else {
 			PageUtil.showNotFoundPage();
