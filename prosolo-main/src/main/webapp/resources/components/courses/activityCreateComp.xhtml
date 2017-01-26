@@ -41,6 +41,12 @@
 		</script>
 	
 		<div id="#{cc.clientId}">
+		<script>
+        	$(function() {
+        		disableAutogradeIfAcceptGradesChecked('#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');
+        		disableAcceptGradesIfAutogradeChecked('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');
+        	});
+        </script>
 		<!-- video activity start -->
 	    <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'VIDEO'}" styleClass="fieldsVideo">
            <div class="formLine">
@@ -379,9 +385,9 @@
                 	<div class="checkbox checkLine">
                 		<h:selectBooleanCheckbox id="checkAutograding"
                     		value="#{cc.attrs.activity.autograde}"
-                    		onchange="updateStatusToDraft();">
+                    		onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel'); updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
-                        <h:outputLabel for="checkAutograding">
+                        <h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
                         	Autograding - When a student marks activity as completed, he will be given maximum number of points.
                         </h:outputLabel>
 	                </div>
@@ -395,9 +401,11 @@
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
-                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel');updateStatusToDraft();">
+                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel'); updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
+                        <h:outputLabel for="checkAcceptGrades" id="checkAcceptGradesLabel">
+                        	Accept grades
+                        </h:outputLabel>
                     </div>
                    
                     <div class="checkbox checkLine">
