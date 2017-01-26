@@ -149,7 +149,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 					CommentData commentData = commentFactory.getCommentData(
 							(Long) row[0],			// id, 
 							(String) row[1],		// description, 
-							new UserData((Long) row[6], (String) row[7], (String) row[8], (String) row[9], (String) row[10], null, true),
+							new UserData((Long) row[6], (String) row[7], (String) row[8], (String) row[9], (String) row[10], null, false),
 							(Boolean) row[2],		// isInstructor, 
 							(Integer) row[3],		// likeCount,
 							hasUserLikedComment(userId, (Long) row[0]), 

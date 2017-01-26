@@ -32,7 +32,6 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -136,14 +135,17 @@ public class ActivityViewBeanUser implements Serializable {
 				}
 				if (competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
 					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/notfound.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
 					}
 				} else if(!competenceData.getActivityToShowWithDetails().isCanAccess()){
 					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/accessDenied.xhtml");
 					} catch (IOException e) {
+						e.printStackTrace();
 						logger.error(e);
 					}
 				} else {
@@ -179,6 +181,7 @@ public class ActivityViewBeanUser implements Serializable {
 					logger.error(e);
 				}
 			} catch(Exception e) {
+				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
