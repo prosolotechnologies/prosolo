@@ -56,6 +56,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -2826,6 +2827,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential unassigned member ids");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ResourceAccessData getCredentialAccessRights(long credId, long userId, 
+			UserGroupPrivilege neededPrivilege) throws DbConnectionException {
+		try {
+			UserGroupPrivilege priv = getUserPrivilegeForCredential(credId, userId);
+			return new ResourceAccessData(
+					neededPrivilege.isPrivilegeIncluded(priv), 
+					priv == UserGroupPrivilege.Edit
+			);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential access rights for user: " + userId);
 		}
 	}
 }

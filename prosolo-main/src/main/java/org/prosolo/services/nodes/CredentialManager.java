@@ -21,6 +21,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
@@ -378,4 +379,7 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
 			throws DbConnectionException;
+	
+	ResourceAccessData getCredentialAccessRights(long credId, long userId, 
+			UserGroupPrivilege neededPrivilege) throws DbConnectionException;
 }
