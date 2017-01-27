@@ -246,7 +246,11 @@ public class CredentialViewBeanUser implements Serializable {
 			populateAssessmentRequestFields();
 			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
 			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData);
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");

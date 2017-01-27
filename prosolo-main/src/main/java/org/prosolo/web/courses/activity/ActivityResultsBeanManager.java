@@ -20,7 +20,9 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -271,7 +273,12 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void addCommentToActivityDiscussion() {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
-			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), currentResult.getAssessment().getCompAssessmentId());
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
+					currentResult.getAssessment().getCompAssessmentId(), lcd);
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -287,10 +294,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void updateGrade() {
 		try {
 			long compAssessmentId = currentResult.getAssessment().getCompAssessmentId();
-			
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
 			if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
 				long actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
-						compAssessmentId);
+						compAssessmentId, lcd);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -299,7 +309,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			} else {
 				assessmentManager.updateGradeForActivityAssessment(
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade().getValue());
+						currentResult.getAssessment().getGrade().getValue(), 
+						loggedUserBean.getUserId(), lcd);
 			}
 			
 			long credAssessmentId = currentResult.getAssessment().getCredAssessmentId();
@@ -317,7 +328,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
+	private long createDiscussion(long targetActivityId, long competenceAssessmentId, 
+			LearningContextData context) {
 		try {
 			// creating a set as there might be duplicates with ids
 			Set<Long> participantIds = new HashSet<>();
@@ -337,8 +349,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), true,  
-					currentResult.getAssessment().getGrade().getValue()).getId();
-		} catch (ResourceCouldNotBeLoadedException e) {
+					currentResult.getAssessment().getGrade().getValue(), context).getId();
+		} catch (ResourceCouldNotBeLoadedException | EventException e) {
+			logger.error(e);
 			return -1;
 		}
 	}

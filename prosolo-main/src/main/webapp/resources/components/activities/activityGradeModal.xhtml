@@ -20,6 +20,7 @@
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="minGrade" required="true"/>
 		<composite:attribute name="maxGrade" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -78,6 +79,9 @@
 		                       		action="#{cc.attrs.bean.updateGrade()}"
 		                       		update="#{cc.attrs.toUpdate}"
 		                       		oncomplete="$('#assessmentGradeModal1').modal('hide');">
+		                       		<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_assessment|id:&#34;.concat(util:decodeId(cc.attrs.assessment.encodedDiscussionId)))}"></f:param>
+									<f:param name="service" value="name:activity_grade_dialog"></f:param>
 		                       		Done
 		                       </p:commandLink>
 		                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
