@@ -59,29 +59,7 @@ public class PasswordReset implements Serializable {
 				logger.error(e);
 			}  
 		}
-	}
-	public void sendNewPassword() {
-		
-		User user = userManager.getUser(email);
-		if (user != null) {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, email, CommonSettings.getInstance().config.appConfig.domain + "recovery");
-			
-			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to "+email);
-				
-			} else {
-				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-			}
-		} else {
-			try {
-				PageUtil.fireErrorMessage("resetMessage", "Error", 
-						ResourceBundleUtil.getMessage("passwordreset.noUser", new Locale("en"), email));
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}  
-		}
-	}
-	
+	}	
 	/*
 	 *  GETTERS / SETTERS
 	 */

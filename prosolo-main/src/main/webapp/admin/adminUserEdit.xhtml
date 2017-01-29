@@ -21,9 +21,9 @@
 		<div class="container" style="background: #4a3b5a">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li><h:link outcome="/admin/adminUserEdit">
-						<f:param name="id" value="#{util:encodeId(user.id)}" />Personal Info</h:link></li>
+						<f:param name="id" value="#{userEditBean.id}" />Personal Info</h:link></li>
 				<li><h:link outcome="/admin/adminUserEditPassword">
-						<f:param name="id" value="#{util:encodeId(user.id)}" />Change Password</h:link></li>
+						<f:param name="id" value="#{userEditBean.id}" />Change Password</h:link></li>
 			</ul>
 		</div>
 		<div class="whiteBar"></div>

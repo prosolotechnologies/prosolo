@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
@@ -38,10 +38,7 @@ public class AccountSettingsBean implements Serializable {
 
 	private AccountData accountData;
 	private String currentPassword;
-	private User user;
-	private String email;
-	private long id;
-
+	private UserData userData;
 	@Autowired
 	private AuthenticationService authenticationService;
 
@@ -51,12 +48,6 @@ public class AccountSettingsBean implements Serializable {
 
 		// emails
 		String email = loggedUser.getSessionData().getEmail();
-		accountData.setEmail(email);
-	}
-
-	public void initializeAccountDataForPasswordChange() {
-		accountData = new AccountData();
-		user = userManager.getUser(email);
 		accountData.setEmail(email);
 	}
 	/*
@@ -91,34 +82,6 @@ public class AccountSettingsBean implements Serializable {
 			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
 		}
 	}
-	
-	public void savePassChangeForAnotherUser() {
-		if(user.getPassword() != null && !user.getPassword().isEmpty()) {
-			if (authenticationService.checkPassword(user.getPassword(), accountData.getPassword())) {
-				savePasswordIfConditionsAreMetForAnotherUser();
-			} else {
-				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
-			}
-		} else {
-			savePasswordIfConditionsAreMetForAnotherUser();
-		}
-	}
-	private void savePasswordIfConditionsAreMetForAnotherUser() {
-		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
-					"Password is too short. It has to contain more that 6 characters.");
-			return;
-		}
-
-		try {
-			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			
-			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
-		}
-	}
 
 	/*
 	 * GETTERS / SETTERS
@@ -134,22 +97,6 @@ public class AccountSettingsBean implements Serializable {
 
 	public void setCurrentPassword(String currentPassword) {
 		this.currentPassword = currentPassword;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 	
 }

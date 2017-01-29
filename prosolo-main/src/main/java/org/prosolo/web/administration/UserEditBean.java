@@ -1,18 +1,27 @@
 package org.prosolo.web.administration;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -20,10 +29,14 @@ import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserData;
+import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.unauthorized.PasswordReset;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.prosolo.web.settings.data.AccountData;
 
 @ManagedBean(name = "userEditBean")
 @Component("userEditBean")
@@ -38,11 +51,16 @@ public class UserEditBean implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
+	@Inject private PasswordResetManager passwordResetManager;
+	
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	private UIInput passwordInput;
 	
 	private String id;
 	private long decodedId;
+	private AccountData accountData;
 	
 	private UserData user;
 	private SelectItem[] allRoles;
@@ -62,6 +80,9 @@ public class UserEditBean implements Serializable {
 							this.user.addRoleId(r.getId());
 						}
 					}
+					accountData = new AccountData();
+					String email = userManager.getUserEmail(decodedId);
+					accountData.setEmail(email);
 				} else {
 					this.user = new UserData();
 					PageUtil.fireErrorMessage("User cannot be found");
@@ -103,7 +124,7 @@ public class UserEditBean implements Serializable {
 	public void saveUser() {
 		if(this.user.getId() == 0) {
 			createNewUser();
-			
+			sendNewPassword();
 		} else {
 			updateUser();
 		}
@@ -232,4 +253,66 @@ public class UserEditBean implements Serializable {
 		this.allRoles = allRoles;
 	}
 	
+	
+	@SuppressWarnings("deprecation")
+	public void savePassChangeForAnotherUser() {
+		if(user.getPassword() != null && !user.getPassword().isEmpty()) {
+			if (authenticationService.checkPassword(user.getPassword(), accountData.getPassword())) {
+				savePasswordIfConditionsAreMetForAnotherUser();
+			} else {
+				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
+			}
+		} else {
+			savePasswordIfConditionsAreMetForAnotherUser();
+		}
+	}
+	private void savePasswordIfConditionsAreMetForAnotherUser() {
+		if (accountData.getNewPassword().length() < 6) {
+			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
+					"Password is too short. It has to contain more that 6 characters.");
+			return;
+		}
+		try {
+			userManager.changePassword(user.getId(), accountData.getNewPassword());
+			
+			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
+		}
+	}
+
+	/*
+	 * GETTERS / SETTERS
+	 */
+
+	public AccountData getAccountData() {
+		return accountData;
+	}
+	
+public void sendNewPassword() {
+		
+		User userNewPass = userManager.getUser(user.getEmail());
+		if (userNewPass != null) {
+			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
+			
+			if (resetLinkSent) {
+				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to "+user.getEmail());
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().redirect("reset/successful/" + URLEncoder.encode(userNewPass.getEmail(), "utf-8"));
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+			}
+		} else {
+			try {
+				PageUtil.fireErrorMessage("resetMessage", "Error", 
+						ResourceBundleUtil.getMessage("passwordreset.noUser", new Locale("en"), user.getEmail()));
+			} catch (KeyNotFoundInBundleException e) {
+				logger.error(e);
+			}  
+		}
+	}
 }
