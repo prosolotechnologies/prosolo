@@ -3160,24 +3160,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 		return tags;
 	}
-	@Override
-	@Transactional(readOnly = true)
-	public List<TargetCompetence1> getTargetCompetences(long credentialId) throws DbConnectionException {
 
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetComp " +
-				"FROM TargetCompetence1 targetComp " + 
-				"WHERE targetComp.targetCredential.id = :credId");
-		
-		@SuppressWarnings("unchecked")
-		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", credentialId)
-				.list();
-		
-		return competences;
-	}
-	
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
@@ -3185,7 +3168,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT DISTINCT targetComp " +
 				"FROM TargetCompetence1 targetComp " + 
-				"LEFT JOIN targetComp.tags tag "+
+				"LEFT JOIN FETCH targetComp.tags tag "+
 				"WHERE targetComp.targetCredential.id = :credId " +
 				"ORDER BY targetComp.title");
 		
@@ -3238,24 +3221,4 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 		return data;
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<TargetActivity1> getTargetActivities(long credentialId) throws DbConnectionException {
-
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetAct " +
-				"FROM TargetCompetence1 targetComp " + 
-				"JOIN targetComp.targetActivities targetAct "+
-				"WHERE targetComp.targetCredential.id = :credId");
-		
-		@SuppressWarnings("unchecked")
-		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", credentialId)
-				.list();
-		
-		return activities;
-	}
-
 }

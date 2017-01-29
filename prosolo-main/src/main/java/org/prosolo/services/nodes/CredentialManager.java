@@ -382,17 +382,6 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
 	
-	
-	/**
-	 * Returns list of TargetActivities for given credentials.
-	 * 
-	 * @param credId
-	 * @return list of distinct target activities
-	 * @throws DbConnectionException
-	 */
-	List<TargetActivity1> getTargetActivities(long credentialId) throws DbConnectionException;
-
-
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 
@@ -402,15 +391,6 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
 
-	/**
-	 * Returns list of TargetCompetence for given credentials.
-	 * 
-	 * @param credId
-	 * @return list of distinct target competence
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetence1> getTargetCompetences(long credentialId) throws DbConnectionException;
-	
 	/**
 	 * Returns titles of a tag and number of tag occurrences for given credential
 	 * 
