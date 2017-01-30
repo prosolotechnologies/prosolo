@@ -52,6 +52,10 @@ public class ManageGroupsBean implements Serializable, Paginable {
 		this.groupForEdit = group;
 	}
 	
+	public void prepareGroupForEditJoinURL(long groupId) {
+		this.groupForEdit = userGroupManager.getGroup(groupId);
+	}
+	
 	public void prepareGroupForAdding() {
 		this.groupForEdit = new UserGroupData();
 	}
@@ -93,6 +97,25 @@ public class ManageGroupsBean implements Serializable, Paginable {
 		} catch (Exception ex) {
 			logger.error(ex);
 			PageUtil.fireErrorMessage("Error while trying to save the group");
+		}
+	}
+	
+	public void saveGroupJoinUrl() {
+		try {
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData lcd = new LearningContextData(page, lContext, service);
+			
+			if (groupForEdit.getId() > 0) {
+				userGroupManager.updateJoinUrl(groupForEdit.getId(), groupForEdit.isJoinUrlActive(), groupForEdit.getJoinUrlPassword(),
+						loggedUserBean.getUserId(), lcd);
+				PageUtil.fireSuccessfulInfoMessage("Join by URL settings updated");
+			}
+			groupForEdit = null;
+		} catch (Exception ex) {
+			logger.error(ex);
+			PageUtil.fireErrorMessage("Error while trying to save join by URL settings");
 		}
 	}
 	

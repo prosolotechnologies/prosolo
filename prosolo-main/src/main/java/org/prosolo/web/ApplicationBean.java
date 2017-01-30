@@ -54,6 +54,9 @@ public class ApplicationBean implements Serializable {
 		
 		if (userSessions.containsKey(userId)) {
 			userSessions.remove(userId);
+		} 
+		if (sessionIdsUser.containsKey(session)) {
+			sessionIdsUser.remove(session);
 		}
 		userSessions.put(userId, session);
 	}

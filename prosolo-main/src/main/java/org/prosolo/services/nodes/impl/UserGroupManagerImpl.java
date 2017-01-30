@@ -62,6 +62,27 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
+	public UserGroupData getGroup(long groupgId) throws DbConnectionException {
+		try {
+			String query = 
+				"SELECT g " +
+				"FROM UserGroup g " +
+				"WHERE g.id = :groupId ";
+			
+			UserGroup result = (UserGroup) persistence.currentManager().createQuery(query)
+				.setLong("groupId", groupgId)
+				.uniqueResult();
+			
+			return new UserGroupData(result); 
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving group");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public List<UserGroupData> searchGroups(String searchTerm, int limit, int page) 
 			throws DbConnectionException {
 		try {
@@ -157,6 +178,25 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throw new DbConnectionException("Error while saving user group");
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public UserGroup updateJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword, long userId,
+			LearningContextData context) {
+		try {
+			UserGroup group = resourceFactory.updateGroupJoinUrl(groupId, joinUrlActive, joinUrlPassword);
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			eventFactory.generateEvent(EventType.Edit, userId, group, null, page, lContext,
+					service, null);
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+	}
 
 	@Override
 	@Transactional(readOnly = false)
@@ -194,7 +234,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while deleting user group");
+			throw new DbConnectionException("Error while adding the user to the group");
 		}
 	}
 
@@ -246,8 +286,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void updateGroupUsers(long groupId, List<Long> usersToAdd, List<Long> usersToRemove)
 			throws DbConnectionException {
 		try {
-			addUsersToTheGroup(groupId, usersToAdd);
-			removeUsersFromTheGroup(groupId, usersToRemove);
+			if (usersToAdd != null && !usersToAdd.isEmpty()) {
+				addUsersToTheGroup(groupId, usersToAdd);
+			}
+			
+			if (usersToRemove != null && !usersToRemove.isEmpty()) {
+				removeUsersFromTheGroup(groupId, usersToRemove);
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

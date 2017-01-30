@@ -959,7 +959,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
 				//create default assessment for user
-				assessmentManager.createDefaultAssessment(targetCred, instructorId);
+				assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
 			}
 			
 			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 

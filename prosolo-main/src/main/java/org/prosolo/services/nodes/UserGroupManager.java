@@ -15,6 +15,8 @@ import org.prosolo.services.nodes.data.UserGroupData;
 public interface UserGroupManager extends AbstractManager {
 
 	List<UserGroup> getAllGroups() throws DbConnectionException;
+
+	UserGroupData getGroup(long groupgId) throws DbConnectionException;
 	
 	List<UserGroupData> searchGroups(String searchTerm, int limit, int page) throws DbConnectionException;
 	
@@ -25,6 +27,8 @@ public interface UserGroupManager extends AbstractManager {
 	
 	UserGroup updateGroupName(long groupId, String newName, long userId, LearningContextData context) 
 			throws DbConnectionException;
+	
+	UserGroup updateJoinUrl(long id, boolean joinUrlActive, String joinUrlPassword, long userId, LearningContextData lcd);
 	
 	void deleteUserGroup(long id, long userId, LearningContextData context) throws DbConnectionException;
 	

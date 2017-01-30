@@ -3,6 +3,8 @@ package org.prosolo.services.nodes.data;
 import java.io.Serializable;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.user.UserGroup;
+
 public class UserGroupData implements Serializable {
 
 	private static final long serialVersionUID = -3541954295853729418L;
@@ -12,6 +14,8 @@ public class UserGroupData implements Serializable {
 	private long userCount;
 	private List<UserData> users;
 	private boolean isUserInGroup;
+	private boolean joinUrlActive;
+	private String joinUrlPassword;
 	
 	public UserGroupData() {
 		
@@ -30,6 +34,13 @@ public class UserGroupData implements Serializable {
 		this.isUserInGroup = isUserInGroup;
 	}
 	
+	public UserGroupData(UserGroup group) {
+		this.id = group.getId();
+		this.name = group.getName();
+		this.joinUrlActive = group.isJoinUrlActive();
+		this.joinUrlPassword = group.getJoinUrlPassword();
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -65,6 +76,22 @@ public class UserGroupData implements Serializable {
 
 	public void setUserInGroup(boolean isUserInGroup) {
 		this.isUserInGroup = isUserInGroup;
+	}
+
+	public boolean isJoinUrlActive() {
+		return joinUrlActive;
+	}
+
+	public void setJoinUrlActive(boolean joinUrlActive) {
+		this.joinUrlActive = joinUrlActive;
+	}
+
+	public String getJoinUrlPassword() {
+		return joinUrlPassword;
+	}
+
+	public void setJoinUrlPassword(String joinUrlPassword) {
+		this.joinUrlPassword = joinUrlPassword;
 	}
 	
 }

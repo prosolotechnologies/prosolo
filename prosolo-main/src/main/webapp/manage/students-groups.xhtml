@@ -80,19 +80,26 @@
 									</div>
 									<div class="userEditOpt">
 										<p:commandLink pt:data-toggle="modal"
-											action="#{manageGroupsBean.prepareGroupForEdit(group)}"
-											update=":newGroupForm:panelNewGroup"
-											oncomplete="$('#newGroupModal').modal('show');">
-					                    	Edit Name
-					                    </p:commandLink>
-
-										<p:commandLink pt:data-toggle="modal"
 											action="#{manageGroupsBean.prepareGroupUsers(group.id)}"
 											update=":formManageUsers:panelManageUsers"
 											oncomplete="$('#addStudentsModal').modal('show');">
 					                    	Manage Users
 					                    </p:commandLink>
 
+										<p:commandLink pt:data-toggle="modal"
+											action="#{manageGroupsBean.prepareGroupForEditJoinURL(group.id)}"
+											update=":joinURLForm"
+											oncomplete="$('#joinURLModal').modal('show');">
+					                    	Join URL
+					                    </p:commandLink>
+
+										<p:commandLink pt:data-toggle="modal"
+											action="#{manageGroupsBean.prepareGroupForEdit(group)}"
+											update=":newGroupForm:panelNewGroup"
+											oncomplete="$('#newGroupModal').modal('show');">
+					                    	Edit Name
+					                    </p:commandLink>
+					                    
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
 											action="#{manageGroupsBean.prepareGroupForEdit(group)}"
 											update=":formDeleteGroup:panelDeleteGroup"
@@ -113,48 +120,6 @@
 				toUpdate=":panelGroups" />
 		</div>
 
-		<h:form id="newGroupForm">
-			<div class="modal fade newGroupModal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="nGroupModal">
-				<div class="modal-dialog">
-					<h:panelGroup layout="block" id="panelNewGroup" styleClass="modal-content">
-						<ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
-							<div class="modal-header alignLeft">
-								<button type="button" class="close" data-dismiss="modal"
-									aria-label="Close">
-									<span aria-hidden="true">&#215;</span>
-								</button>
-								<h2 class="modal-title">#{manageGroupsBean.groupForEdit.id > 0 ? 'Edit Group Name' : 'New Group'}</h2>
-							</div>
-							
-							<div class="modal-body alignLeft">
-								<h:inputText id="nameSearch" placeholder="Group Name"
-									value="#{manageGroupsBean.groupForEdit.name}" />
-							</div>
-							
-							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green"
-									action="#{manageGroupsBean.saveGroup()}"
-									update=":panelGroups :growlMain :pagination"
-									oncomplete="$('#newGroupModal').modal('hide');">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-									<f:param name="learningContext"
-										value="name:edit_dialog#{manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''}" />
-									#{manageGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
-								</p:commandLink>
-								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-							</div>
-						</ui:fragment>
-					</h:panelGroup>
-				</div>
-			</div>
-			
-			<script>
-			$('#newGroupModal').on('shown.bs.modal', function () {
-			    $('#newGroupForm\\:nameSearch').focus();
-			}) 
-			</script>
-		</h:form>
-
 		<h:form id="formManageUsers">
 			<div class="modal fade addStudentsModal" id="addStudentsModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModal">
 				<div class="modal-dialog">
@@ -164,6 +129,7 @@
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
 									<span aria-hidden="true">&#215;</span>
+
 								</button>
 								<h2 class="modal-title">Manage Users</h2>
 							</div>
@@ -210,12 +176,14 @@
 								toUpdate=":formManageUsers:panelUsers" />
 								
 							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green"
+								<p:commandLink id="done"
+									styleClass="btn btn-green"
 									action="#{manageGroupsBean.updateGroupUsers()}"
 									update=":panelGroups :growlMain"
 									oncomplete="$('#addStudentsModal').modal('hide');">
 	                       			Done
 	                       		</p:commandLink>
+	                       		<p:defaultCommand target="done" />
 							</div>
 						</ui:fragment>
 					</h:panelGroup>
@@ -227,7 +195,106 @@
 			}) 
 			</script>
 		</h:form>
+		
+		<h:form id="joinURLForm">
+			<div class="modal fade joinURLModal" id="joinURLModal" tabindex="-1" role="dialog" aria-labelledby="jURLModal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">Join URL</h2>
+							</div>
+							<div class="modal-body alignLeft">
+								<div class="checkbox checkLine">
+									<h:selectBooleanCheckbox id="activateJoiningViaUrl"
+										value="#{manageGroupsBean.groupForEdit.joinUrlActive}"
+										onchange="$('#joinUrlHidden').toggle();">
+									</h:selectBooleanCheckbox>
+									<h:outputLabel for="activateJoiningViaUrl">Activate joining via URL</h:outputLabel>
+								</div>
+								<div id="joinUrlHidden">
+									<p>Share this URL with students and they will automatically join this group:</p>
+									<input type="text" value="#{applicationbean.commonConfig.appConfig.domain}groups/#{util:encodeId(manageGroupsBean.groupForEdit.id)}/join" readonly="true" />
+									
+									<p>Only students who enter the following password can join the group:</p>
+									<h:inputText type="text" 
+										placeholder="Password to join the group..." 
+										value="#{manageGroupsBean.groupForEdit.joinUrlPassword}" />
+								</div>
+								<script>
+									if (!#{manageGroupsBean.groupForEdit.joinUrlActive}) {
+										$('#joinUrlHidden').hide();
+									}
+									
+									$("#joinURLModal #joinUrlHidden input[type='text']").click(function () {
+									   $(this).select();
+									});
+								</script>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink styleClass="btn btn-green"
+									action="#{manageGroupsBean.saveGroupJoinUrl()}"
+									update=":growlMain"
+									oncomplete="$('#joinURLModal').modal('hide');">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+									<f:param name="learningContext" value="name:join_by_url_group_dialog|id:#{manageGroupsBean.groupForEdit.id}" />
+									Done
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+						</ui:fragment>
+					</div>
+				</div>
+			</div>
+		</h:form>
 
+		<h:form id="newGroupForm">
+			<div class="modal fade newGroupModal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="nGroupModal">
+				<div class="modal-dialog">
+					<h:panelGroup layout="block" id="panelNewGroup" styleClass="modal-content">
+						<ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">#{manageGroupsBean.groupForEdit.id > 0 ? 'Edit Group Name' : 'New Group'}</h2>
+							</div>
+							
+							<div class="modal-body alignLeft">
+								<h:inputText id="nameSearch" placeholder="Group Name"
+									value="#{manageGroupsBean.groupForEdit.name}" />
+							</div>
+							
+							<div class="modal-footer alignLeft">
+								<p:commandLink id="create"
+									styleClass="btn btn-green"
+									action="#{manageGroupsBean.saveGroup()}"
+									update=":panelGroups :growlMain :pagination"
+									oncomplete="$('#newGroupModal').modal('hide');">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+									<f:param name="learningContext"
+										value="name:edit_dialog#{manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''}" />
+									#{manageGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
+								</p:commandLink>
+								<p:defaultCommand target="create" />
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+						</ui:fragment>
+					</h:panelGroup>
+				</div>
+			</div>
+			
+			<script>
+			$('#newGroupModal').on('shown.bs.modal', function () {
+			    $('#newGroupForm\\:nameSearch').focus();
+			}) 
+			</script>
+		</h:form>
+		
 		<h:form id="formDeleteGroup">
 			<div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog" aria-labelledby="delGroup">
 				<div class="modal-dialog" role="document">

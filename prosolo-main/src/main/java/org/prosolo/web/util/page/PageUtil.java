@@ -141,4 +141,12 @@ public class PageUtil {
 		
 		return (String) request.getAttribute("javax.servlet.forward.request_uri");
 	}
+
+	public static void showNotFoundPage() {
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+		} catch (IOException e) {
+			logger.error(e);
+		}
+	}
 }
