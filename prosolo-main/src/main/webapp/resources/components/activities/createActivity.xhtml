@@ -39,15 +39,15 @@
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
-				            		outcome="credential">
+				            		outcome="create-credential">
 				            		<f:param name="id" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <li>
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}" />
+				            		outcome="create-competence">
+				            		<f:param name="id" value="#{param['compId']}" />
 				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
@@ -67,8 +67,8 @@
 			    			<li>
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}" />
+				            		outcome="create-competence">
+				            		<f:param name="id" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
