@@ -3,6 +3,7 @@ package org.prosolo.search.util.credential;
 public enum CredentialSearchFilter {
 
 	ALL("All"), 
+	ENROLLED("Enrolled"),
 	BOOKMARKS("Bookmarks"),
 	UNIVERSITY("University"),
 	FROM_CREATOR("Created by you"),

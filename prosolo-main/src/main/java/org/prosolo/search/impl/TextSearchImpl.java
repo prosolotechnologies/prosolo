@@ -1493,6 +1493,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					break;
 				case YOUR_CREDENTIALS:
 					bQueryBuilder.filter(termQuery("instructors.id", userId));
+					break;
+				case ENROLLED:
+					bQueryBuilder.filter(termQuery("students.id", userId));
+					break;
 				default:
 					break;
 			}
