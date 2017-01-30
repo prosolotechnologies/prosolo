@@ -18,6 +18,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -28,6 +29,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -86,6 +88,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	private CredentialMembersSearchFilter[] searchFilters;
 	private CredentialMembersSortOption[] sortOptions;
+	
+	private ResourceAccessData access;
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
@@ -98,22 +102,33 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				String title = credManager.getCredentialTitleForCredentialWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if(title != null) {
-					credentialTitle = title;
-					boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
-					if(!showAll) {
-						personalizedForUserId = loggedUserBean.getUserId();
-					}
-					searchCredentialMembers();
-					if(searchFilters == null) {
-						CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
-						int size = values.length;
-						searchFilters = new CredentialMembersSearchFilter[size];
-						for(int i = 0; i < size; i++) {
-							CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
-							searchFilters[i] = filter;
+					access = credManager.getCredentialAccessRights(decodedId, 
+							loggedUserBean.getUserId(), UserGroupPrivilege.View);
+					if(!access.isCanAccess()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch(
+									"/accessDenied.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
 						}
+					} else {
+						credentialTitle = title;
+						boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
+						if(!showAll) {
+							personalizedForUserId = loggedUserBean.getUserId();
+						}
+						searchCredentialMembers();
+						if(searchFilters == null) {
+							CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
+							int size = values.length;
+							searchFilters = new CredentialMembersSearchFilter[size];
+							for(int i = 0; i < size; i++) {
+								CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
+								searchFilters[i] = filter;
+							}
+						}
+						studentEnrollBean.init(decodedId, context);
 					}
-					studentEnrollBean.init(decodedId, context);
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -288,6 +303,10 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			this.paginationData.setPage(page);
 			searchCredentialMembers();
 		}
+	}
+	
+	public boolean canEdit() {
+		return access != null && access.isCanEdit();
 	}
 
 //	public void setSortByStudentName() {

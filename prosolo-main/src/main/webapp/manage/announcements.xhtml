@@ -89,8 +89,19 @@
 							Here you can publish an announcement to all credential
 							participants.<br />
 							<br />
-							<a href="#" class="btn btn-green" data-toggle="modal"
-								data-target="#newAnnouncementModal">New Announcement</a>
+							<ui:fragment rendered="#{announcementBean.canEdit()}">
+								<a href="javascript:void(0);" class="btn btn-green" data-toggle="modal"
+									data-target="#newAnnouncementModal">New Announcement</a>
+							</ui:fragment>
+							<ui:fragment rendered="#{not announcementBean.canEdit()}">
+								<a href="javascript:void(0);" 
+									disabled="true"
+									class="btn btn-green"
+									data-toggle="tooltip"
+									title="You are not allowed to publish announcements for this credential">
+									New Announcement
+								</a>
+							</ui:fragment>
 						</p>
 						<div class="clear"></div>
 						
