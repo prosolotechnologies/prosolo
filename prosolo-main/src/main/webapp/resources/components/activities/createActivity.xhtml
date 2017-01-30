@@ -20,6 +20,8 @@
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 	    
 	    <div class="whiteBar">
 	    </div>
@@ -111,10 +113,14 @@
 			                                <div class="formLine">
 			                                    <label>Description</label>
 			                                    <div class="formLineRight">
-			                                    	<h:inputTextarea
+			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.description}"
 			                                    		onkeyup="updateStatusToDraft();" />
+			                                    		
+			                                    	<script>
+			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
+			                                    	</script>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -260,12 +266,12 @@
 			                    <div class="publishRow">
 			                    	<p:commandLink 
 					              	  	styleClass="btn btn-green"
-					              	  	onclick="if ($('.fieldsText').length>0)$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
+					              	  	onclick="copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:description');copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
-					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-					              	  		Save changes
+					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+				              	  		Save changes
 					              	</p:commandLink>
 			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
 			                        

@@ -1,9 +1,9 @@
-package org.prosolo.web.activitywall.util;
+package org.prosolo.web.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
-public class PostUtil {
+public class HTMLUtil {
 
 	public static String cleanHTMLTagsExceptBrA(String text) {
 		Whitelist whitelist = Whitelist.none();
@@ -14,6 +14,8 @@ public class PostUtil {
         return safe;
 	}
 	
-	
+	public static String cleanHTMLTags(String text) {
+		return Jsoup.clean(text, Whitelist.none());
+	}
 
 }

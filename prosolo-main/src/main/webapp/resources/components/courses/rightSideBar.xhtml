@@ -25,6 +25,7 @@
 		<composite:attribute name="role" required="true" />
 		<composite:attribute name="resourceLowerCase" required="true" />
 		<composite:attribute name="childResourcePlural" required="true" />
+		<composite:attribute name="onclickSave" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -87,10 +88,11 @@
 					onclick="saveChangesBtnClick(getStatus());">Save changes</a>
 				<p:commandLink style="display: none;"
 					styleClass="saveChangesSelector"
+					onclick="#{cc.attrs.onclickSave}"
 					action="#{cc.attrs.saveAction}"
 					update="#{cc.attrs.toUpdate}"
 					oncomplete="attachListenersForUpdatingStatus();">
-					<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 					Save changes
 				</p:commandLink>
 				<ui:fragment rendered="#{cc.attrs.resource == 'CREDENTIAL' and cc.attrs.role == 'MANAGER'}">
@@ -110,6 +112,7 @@
 			                <div class="modal-footer">
 			                    <p:commandLink
 									styleClass="btn btn-green"
+									onclick="#{cc.attrs.onclickSave}"
 									action="#{cc.attrs.saveAction}"
 									update="#{cc.attrs.toUpdate}"
 									oncomplete="attachListenersForUpdatingStatus(); hideModal('publishModal');">
