@@ -81,11 +81,12 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	public void updateAnalyticsEventCounter(AnalyticsEvent event) {
 		String statementName = "UPDATE_"
 				+ event.getDataName().name().toUpperCase();
+		try {
 		Statements statement=Statements.valueOf(statementName);
 		PreparedStatement preparedStatement=getStatement(getSession(),statement);
 		BoundStatement boundStatement=new BoundStatement(preparedStatement);
 		JsonObject data = event.getData();
-		String str = statements.get(statementName);
+		String str = statements.get(statement);
 		String whereclause = str.substring(str.lastIndexOf("WHERE") + 6,
 				str.lastIndexOf(";"));
 		whereclause = whereclause.replaceAll("AND ", "");
@@ -101,7 +102,6 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 				boundStatement.setLong(i, val);
 			}
 		}
-		try {
 			this.getSession().execute(boundStatement);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -154,7 +154,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		BoundStatement boundStatement=new BoundStatement(preparedStatement);
 
 		JsonObject data = event.getData();
-		String str = this.statements.get(statementName);
+		String str = this.statements.get(statement);
 		String paramsStr = str
 				.substring(str.indexOf("(") + 1, str.indexOf(")"));
 		String[] words = paramsStr.split("\\s*,\\s*");

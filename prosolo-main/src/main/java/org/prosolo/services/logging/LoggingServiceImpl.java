@@ -51,9 +51,11 @@ import org.prosolo.common.domainmodel.content.Post;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,8 +64,6 @@ import org.springframework.stereotype.Service;
 
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.common.event.context.data.LearningContextData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -97,6 +97,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
+
+    @Inject
+    private AnalyticalServiceCollector analyticalServiceCollector;
 
 	private static String pageNavigationCollection = "log_page_navigation";
 	private static String serviceUseCollection = "log_service_use";
@@ -296,6 +299,11 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
 			
 			logsMessageDistributer.distributeMessage(logObject);
+
+			if(courseId>0 && actorId>0){
+			    System.out.println("INCREASING USER ACTIVITY FOR CREDENTIAL...");
+                analyticalServiceCollector.increaseUserActivityForCredentialLog(actorId, courseId, DateUtil.getDaysSinceEpoch());
+            }
 				
 		/*	try {
 				@SuppressWarnings("unused")
@@ -652,8 +660,8 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 					logger.error(e);
 				}
 			}
-
-			  logObject.put("courseId",extractCourseIdForUsedResource(learningContext));
+            Long courseId=extractCourseIdForUsedResource(learningContext);
+			  logObject.put("courseId",courseId);
 			Long targetUserId=(long) 0;
 
 			if (parameters != null && !parameters.isEmpty()) {
@@ -703,6 +711,10 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
 			
 			logsMessageDistributer.distributeMessage(logObject);
+        if(courseId>0 && actorId>0){
+            System.out.println("INCREASING USER ACTIVITY FOR CREDENTIAL...");
+            analyticalServiceCollector.increaseUserActivityForCredentialLog(actorId, courseId, DateUtil.getDaysSinceEpoch());
+        }
 			/*
 			try {
 				@SuppressWarnings("unused")

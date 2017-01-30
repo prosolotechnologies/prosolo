@@ -41,10 +41,10 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 	}
 	
 	@Override
-	public void increaseUserActivityForLearningGoalLog(long userid, long learningGoal, long daysSinceEpoch) {
+	public void increaseUserActivityForCredentialLog(long userid, long credentialId, long daysSinceEpoch) {
 		JsonObject data=new JsonObject();
 		data.add("userid", new JsonPrimitive(userid));
-		data.add("learninggoalid", new JsonPrimitive(learningGoal));
+		data.add("learninggoalid", new JsonPrimitive(credentialId));
 		data.add("date", new JsonPrimitive(daysSinceEpoch));
 		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.USERLEARNINGGOALACTIVITY, DataType.COUNTER, data);
 		messageDistributer.distributeMessage(message);
