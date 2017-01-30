@@ -231,15 +231,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				//create activity assessments for activities that have automatic score
 				int compPoints = 0;
 				for(TargetActivity1 ta : targetCompetence.getTargetActivities()) {
-					if(ta.getCommonScore() >= 0) {
+					/*
+					 * if common score is set or activity is completed and autograde is true
+					 * we create activity assessment with appropriate grade
+					 */
+					if(ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
 						List<Long> participantIds = new ArrayList<>();
 						participantIds.add(studentId);
 						if(assessorId > 0) {
 							participantIds.add(assessorId);
 						}
+						int grade = ta.isCompleted() && ta.getActivity().isAutograde() 
+								? ta.getActivity().getMaxPoints()
+								: ta.getCommonScore();
 						createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0, 
-								defaultAssessment, ta.getCommonScore(), context);
-						compPoints += ta.getCommonScore();
+								defaultAssessment, grade, context);
+						compPoints += grade;
 					}
 				}
 				if(compPoints > 0) {

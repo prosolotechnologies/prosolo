@@ -59,6 +59,8 @@ public class Activity1 extends BaseEntity {
 	
 	private boolean visibleForUnenrolledStudents = false;
 	
+	private boolean autograde;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
@@ -178,6 +180,16 @@ public class Activity1 extends BaseEntity {
 
 	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
 		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isAutograde() {
+		return autograde;
+	}
+
+	public void setAutograde(boolean autograde) {
+		this.autograde = autograde;
 	}
 	
 }
