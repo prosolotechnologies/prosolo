@@ -74,6 +74,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean canEdit;
 	private boolean canAccess;
 	
+	private int difficulty;
+	
 	public ActivityData(boolean listenChanges) {
 		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
@@ -548,6 +550,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("activityType");
 	}
 	
+	public boolean isDifficultyChanged() {
+		return changedAttributes.containsKey("difficulty");
+	}
+	
 	//special methods to retrieve duration before update
 	public Optional<Integer> getDurationHoursBeforeUpdate() {
 		Integer dur = (Integer) changedAttributes.get("durationHours");
@@ -623,6 +629,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setCanAccess(boolean canAccess) {
 		this.canAccess = canAccess;
+	}
+
+	public int getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(int difficulty) {
+		observeAttributeChange("difficulty", this.difficulty, difficulty);
+		this.difficulty = difficulty;
 	}
 	
 }

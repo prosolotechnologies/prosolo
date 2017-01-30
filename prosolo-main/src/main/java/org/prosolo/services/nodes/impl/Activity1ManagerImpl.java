@@ -913,7 +913,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
-
+			actToUpdate.setDifficulty(data.getDifficulty());
+			
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
 			
 			updateResourceLinks(data.getFiles(), actToUpdate.getFiles());

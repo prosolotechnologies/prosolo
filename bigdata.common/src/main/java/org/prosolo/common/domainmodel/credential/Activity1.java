@@ -59,6 +59,8 @@ public class Activity1 extends BaseEntity {
 	
 	private boolean visibleForUnenrolledStudents = false;
 	
+	private int difficulty;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
@@ -178,6 +180,15 @@ public class Activity1 extends BaseEntity {
 
 	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
 		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
+	}
+
+	@Column(columnDefinition = "int(11) DEFAULT 3")
+	public int getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(int difficulty) {
+		this.difficulty = difficulty;
 	}
 	
 }

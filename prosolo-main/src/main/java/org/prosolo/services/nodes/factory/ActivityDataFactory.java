@@ -59,6 +59,7 @@ public class ActivityDataFactory {
 		data.setType(activity.getType());
 		data.setCreatorId(activity.getCreatedBy().getId());
 		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
+		data.setDifficulty(activity.getDifficulty());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -475,6 +476,7 @@ public class ActivityDataFactory {
 		activity.setType(data.getType());
 		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
+		activity.setDifficulty(data.getDifficulty());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activityData) {
