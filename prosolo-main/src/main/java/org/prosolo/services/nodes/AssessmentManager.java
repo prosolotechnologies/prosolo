@@ -10,7 +10,9 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
@@ -19,10 +21,10 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public interface AssessmentManager {
 
-	long requestAssessment(AssessmentRequestData assessmentRequestData);
+	long requestAssessment(AssessmentRequestData assessmentRequestData, LearningContextData context);
 
-	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId) 
-			throws DbConnectionException;
+	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId, 
+			LearningContextData context) throws DbConnectionException;
 	
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
@@ -34,10 +36,12 @@ public interface AssessmentManager {
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException;
+			long senderId, boolean isDefault, Integer grade, LearningContextData context) 
+					throws ResourceCouldNotBeLoadedException, EventException;
 	
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException;
+			long senderId, boolean isDefault, Integer grade, Session session, 
+			LearningContextData context) throws ResourceCouldNotBeLoadedException, EventException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
@@ -79,8 +83,8 @@ public interface AssessmentManager {
 	void updateDefaultAssessmentsAssessor(List<Long> targetCredIds, long assessorId) 
 			throws DbConnectionException;
 	
-	void updateGradeForActivityAssessment(long activityDiscussionId, Integer value) 
-			throws DbConnectionException;
+	void updateGradeForActivityAssessment(long activityDiscussionId, Integer value, 
+			long userId, LearningContextData context) throws DbConnectionException;
 	
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
@@ -95,7 +99,8 @@ public interface AssessmentManager {
 	ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
 	
 	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
-			long targetCompId, long targetActId, int score, Session session) throws DbConnectionException;
+			long targetCompId, long targetActId, int score, Session session, 
+			LearningContextData context) throws DbConnectionException;
 
 	/**
 	 * Load all credential assessments for the given user, but excluding the specific assessment id

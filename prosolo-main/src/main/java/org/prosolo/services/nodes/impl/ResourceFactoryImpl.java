@@ -30,6 +30,9 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.CompetenceType;
@@ -1280,5 +1283,54 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while saving user group");
 		}
 	}
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public ActivityAssessment createActivityAssessment(long targetActivityId, 
+    		long competenceAssessmentId, List<Long> participantIds, long senderId, boolean isDefault, 
+    		Integer grade, Session session) throws ResourceCouldNotBeLoadedException {
+    	Date now = new Date();
+		ActivityAssessment activityDiscussion = new ActivityAssessment();
+		activityDiscussion.setDateCreated(now);
+		TargetActivity1 targetActivity = loadResource(TargetActivity1.class, targetActivityId, session);
+		//TargetActivity1 targetActivity = (TargetActivity1) persistence.currentManager().load(TargetActivity1.class, targetActivityId);
+		//GradingOptions go = targetActivity.getActivity().getGradingOptions();
+		// merge(targetActivity);
+		CompetenceAssessment competenceAssessment = loadResource(CompetenceAssessment.class, 
+				competenceAssessmentId, session);
+		// merge(competenceAssessment);
+		
+		activityDiscussion.setAssessment(competenceAssessment);
+		activityDiscussion.setTargetActivity(targetActivity);
+		//activityDiscussion.setParticipants(participants);
+		activityDiscussion.setDefaultAssessment(isDefault);
+		
+//		//TODO change when design is implemented
+//		ActivityGrade ag = new ActivityGrade();
+//		ag.setValue(grade);
+//		saveEntity(ag);
+//		activityDiscussion.setGrade(ag);
+		if (grade != null) {
+			activityDiscussion.setPoints(grade);
+		}
+		
+		saveEntity(activityDiscussion, session);
+		//List<ActivityDiscussionParticipant> participants = new ArrayList<>();
+		for (Long userId : participantIds) {
+			ActivityDiscussionParticipant participant = new ActivityDiscussionParticipant();
+			User user = loadResource(User.class, userId, session);
+			participant.setActivityDiscussion(activityDiscussion);
+			participant.setDateCreated(now);
+			if (userId != senderId) {
+				participant.setRead(false);
+			} else {
+				participant.setRead(true);
+			}
+			participant.setParticipant(user);
+			saveEntity(participant, session);
+			activityDiscussion.addParticipant(participant);
+		}
+		return activityDiscussion;
+    }
     
 }

@@ -521,6 +521,7 @@
 		toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
 		minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
 		maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
+		learningContext="#{learningContext}"
 	/>
 	
 	<ui:fragment rendered="#{not empty param['user']}">

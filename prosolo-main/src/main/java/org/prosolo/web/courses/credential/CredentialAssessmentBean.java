@@ -23,7 +23,9 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -250,7 +252,12 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
-			actualDiscussionId = createDiscussion(idEncoder.decodeId(encodedTargetActivityId), idEncoder.decodeId(encodedCompetenceAssessmentId));
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			actualDiscussionId = createDiscussion(idEncoder.decodeId(encodedTargetActivityId), 
+					idEncoder.decodeId(encodedCompetenceAssessmentId), lcd);
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -269,8 +276,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			long compAssessmentId = currentAssessment.getCompAssessmentId();
 			long credAssessmentId = currentAssessment.getCredAssessmentId();
 			
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
 			if (StringUtils.isBlank(currentAssessment.getEncodedDiscussionId())) {
-				long actualDiscussionId = createDiscussion(idEncoder.decodeId(currentAssessment.getEncodedTargetActivityId()), compAssessmentId);
+				long actualDiscussionId = createDiscussion(
+						idEncoder.decodeId(currentAssessment.getEncodedTargetActivityId()), 
+						compAssessmentId, lcd);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -279,7 +292,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			} else {
 				assessmentManager.updateGradeForActivityAssessment(
 						idEncoder.decodeId(currentAssessment.getEncodedDiscussionId()),
-						currentAssessment.getGrade().getValue());
+						currentAssessment.getGrade().getValue(), loggedUserBean.getUserId(), lcd);
 			}
 			
 			// recalculate points of parent competence and credential assessments
@@ -380,7 +393,8 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
+	private long createDiscussion(long targetActivityId, long competenceAssessmentId, 
+			LearningContextData context) {
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
 			
@@ -400,9 +414,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			}
 			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					new ArrayList<Long>(participantIds),
-					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
-		} catch (ResourceCouldNotBeLoadedException e) {
+					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), 
+					fullAssessmentData.isDefaultAssessment(), grade, context).getId();
+		} catch (ResourceCouldNotBeLoadedException | EventException e) {
+			logger.error(e);
 			return -1;
 		}
 	}
