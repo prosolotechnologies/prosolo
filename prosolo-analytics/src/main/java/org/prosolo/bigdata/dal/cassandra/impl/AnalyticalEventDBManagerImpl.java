@@ -37,19 +37,19 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 	private static HashMap<Statements, String> statements = new HashMap<Statements, String>();
 
 	static {
-		statements.put(Statements.UPDATE_USERACTIVITY,"UPDATE useractivity  SET count=count+1 WHERE userid=? AND date=?;");
-		statements.put(Statements.UPDATE_USERLEARNINGGOALACTIVITY,"UPDATE userlearninggoalactivity  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;");
-		statements.put(Statements.FIND_USERLEARNINGOALACTIVITY,"SELECT * FROM userlearninggoalactivity WHERE date=? ALLOW FILTERING;");
-		statements.put(Statements.UPDATE_ACTIVITYINTERACTION,"UPDATE activityinteraction  SET count=count+1 WHERE competenceid=? AND activityid=?;");
+		statements.put(Statements.UPDATE_USERACTIVITY,"UPDATE "+TablesNames.USER_ACTIVITY+"  SET count=count+1 WHERE userid=? AND date=?;");
+		statements.put(Statements.UPDATE_USERLEARNINGGOALACTIVITY,"UPDATE "+TablesNames.USER_LEARNINGGOAL_ACTIVITY+"  SET count=count+1 WHERE userid=? AND learninggoalid=? AND date=?;");
+		statements.put(Statements.FIND_USERLEARNINGOALACTIVITY,"SELECT * FROM "+TablesNames.USER_LEARNINGGOAL_ACTIVITY+"  WHERE date=? ALLOW FILTERING;");
+		statements.put(Statements.UPDATE_ACTIVITYINTERACTION,"UPDATE "+TablesNames.ACTIVITY_INTERACTION+"  SET count=count+1 WHERE competenceid=? AND activityid=?;");
 		statements.put(Statements.INSERT_TARGETCOMPETENCEACTIVITIES,"");
-		statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"INSERT INTO mostactiveusersforlearninggoalbydate(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
-		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * FROM mostactiveusersforlearninggoalbydate WHERE date=? ALLOW FILTERING;");
-		statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE,"SELECT * FROM activityinteraction WHERE competenceid=? ALLOW FILTERING;");
-		statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES,"SELECT * FROM targetcompetenceactivities WHERE competenceid=? ALLOW FILTERING;");
-		statements.put(Statements.FIND_ALLCOMPETENCES,"SELECT distinct competenceid FROM targetcompetenceactivities;");
-		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE dash_eventdailycount SET count=count+1 WHERE event=? AND date=?;");
-		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE dash_usereventdailycount SET count=count+1 WHERE user=? AND event=? AND date=?;");
-		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE failedfeeds  SET count=count+1 WHERE url=? AND date=?;");
+		statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"INSERT INTO "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+"(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
+		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+" WHERE date=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE,"SELECT * FROM "+TablesNames.ACTIVITY_INTERACTION+"  WHERE competenceid=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES,"SELECT * FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+" WHERE competenceid=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_ALLCOMPETENCES,"SELECT distinct competenceid FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+";");
+		 statements.put(Statements.UPDATE_EVENTDAILYCOUNT,"UPDATE "+TablesNames.DASH_EVENT_DAILY_COUNT+" SET count=count+1 WHERE event=? AND date=?;");
+		 statements.put(Statements.UPDATE_USEREVENTDAILYCOUNT, "UPDATE "+TablesNames.DASH_USER_EVENT_DAILY_COUNT+"  SET count=count+1 WHERE user=? AND event=? AND date=?;");
+		statements.put(Statements.UPDATE_FAILEDFEEDS,"UPDATE "+TablesNames.FAILED_FEEDS+"   SET count=count+1 WHERE url=? AND date=?;");
 		statements.put(Statements.UPDATE_SOCIALINTERACTIONCOUNT,"UPDATE "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+" SET count = count + 1 WHERE course=? AND source=? AND target=?;");
 
 

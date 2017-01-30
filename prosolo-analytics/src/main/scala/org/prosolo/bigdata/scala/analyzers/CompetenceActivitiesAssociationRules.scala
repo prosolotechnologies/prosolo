@@ -22,6 +22,7 @@ class CompetenceActivitiesAssociationRules {
     val competencesRDD=sc.parallelize(competences.asScala)
     competencesRDD.foreach{
       competence=>
+        println("Analyze competence:"+competence)
         associationRulesAnalyzer.analyseCompetence(competence)
     }
   }
