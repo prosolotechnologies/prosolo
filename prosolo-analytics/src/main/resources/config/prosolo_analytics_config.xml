@@ -30,9 +30,9 @@
 		<quartz-jobs>
 			<class name="org.prosolo.bigdata.jobs.GenerateFeedsJob">
 				<job>
-					<activated>true</activated>
-					<on-startup>true</on-startup>
-					<schedule>0 0 1 ? * SUN *</schedule>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 1 * * ?</schedule><!--0 0 1 * * ? Executes every day at 1AM-->
 				</job>
 			</class>
 
@@ -50,13 +50,7 @@
 					<schedule>0 0 6 * * ?</schedule><!--0 0 6 * * ? Executes every day at 6AM-->
 				</job>
 			</class>
-			<class name="org.prosolo.bigdata.jobs.GenerateFeedsJob">
-				<job>
-					<activated>false</activated>
-					<on-startup>false</on-startup>
-					<schedule>0 0 1 * * ?</schedule><!--0 0 1 * * ? Executes every day at 1AM-->
-				</job>
-			</class>
+
 			<class name="org.prosolo.bigdata.jobs.TwitterHashtagStatisticsJob">
 				<job>
 					<activated>false</activated>
