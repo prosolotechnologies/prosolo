@@ -166,7 +166,7 @@
 				</ui:fragment>
 	           
 	            <ui:fragment rendered="#{not empty cc.attrs.activity.description}">
-	            	<p>#{cc.attrs.activity.description}</p>
+	            	<p><h:outputText escape="false" value="#{cc.attrs.activity.description}"/></p>
 	            </ui:fragment>
 	            
 	            <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
