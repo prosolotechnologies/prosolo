@@ -1,6 +1,7 @@
 package org.prosolo.web.util;
 
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 import org.jsoup.safety.Whitelist;
 
 public class HTMLUtil {
@@ -15,7 +16,8 @@ public class HTMLUtil {
 	}
 	
 	public static String cleanHTMLTags(String text) {
-		return Jsoup.clean(text, Whitelist.none());
+		String noTags = Jsoup.clean(text, Whitelist.none());
+		return Parser.unescapeEntities(noTags, false);
 	}
 
 }
