@@ -43,7 +43,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 		statements.put(Statements.UPDATE_ACTIVITYINTERACTION,"UPDATE "+TablesNames.ACTIVITY_INTERACTION+"  SET count=count+1 WHERE competenceid=? AND activityid=?;");
 		statements.put(Statements.INSERT_TARGETCOMPETENCEACTIVITIES,"");
 		statements.put(Statements.INSERT_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"INSERT INTO "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+"(date, learninggoalid, mostactiveusers) VALUES (?, ?, ?);");
-		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+" WHERE date=? ALLOW FILTERING;");
+		statements.put(Statements.FIND_MOSTACTIVEUSERSFORLEARNINGGOALBYDATE,"SELECT * FROM "+TablesNames.MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE+" WHERE date=? ALLOW FILTERING;");
 		statements.put(Statements.FIND_ACTIVITIESFORCOMPETENCE,"SELECT * FROM "+TablesNames.ACTIVITY_INTERACTION+"  WHERE competenceid=? ALLOW FILTERING;");
 		statements.put(Statements.FIND_TARGETCOMPETENCEACTIVITIES,"SELECT * FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+" WHERE competenceid=? ALLOW FILTERING;");
 		statements.put(Statements.FIND_ALLCOMPETENCES,"SELECT distinct competenceid FROM "+TablesNames.TARGET_COMPETENCE_ACTIVITIES+";");
