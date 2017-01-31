@@ -119,7 +119,7 @@
 	                            </h:link>
                             </h2>
                             <p>
-                               #{cc.attrs.attachmentPreview.description}
+                               #{util:cleanHTMLTags(cc.attrs.attachmentPreview.description)}
                             </p>
                             <div class="meta">
                             	<ui:fragment rendered="#{!cc.attrs.attachmentPreview.universityCreated}">
@@ -148,7 +148,7 @@
 		                            </h:link> 
                                 </h2>
                                 <p>
-                                     #{cc.attrs.attachmentPreview.description}
+                                     #{util:cleanHTMLTags(cc.attrs.attachmentPreview.description)}
                                 </p>
                                 <div class="meta">
 	                                <div class="duration">#{cc.attrs.attachmentPreview.duration}</div>
