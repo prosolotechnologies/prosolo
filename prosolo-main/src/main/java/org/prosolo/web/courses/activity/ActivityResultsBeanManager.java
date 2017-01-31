@@ -61,6 +61,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private EventFactory eventFactory;
+	@Inject private ActivityResultBean actResultBean;
 
 	private String actId;
 	private long decodedActId;
@@ -68,6 +69,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
+	private String targetActId;
+	private long decodedTargetActId;
+	private String commentId;
 	
 	private ActivityData activity;
 	private String credentialTitle;
@@ -103,7 +107,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, hasInstructorCapability,
+								decodedCredId, decodedCompId, decodedActId, 0, hasInstructorCapability,
 								paginate, paginationData.getPage() - 1, paginationData.getLimit(), null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
 					loadAdditionalData(ard);
@@ -120,6 +124,61 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					}
 				} else {
 					loadCompetenceAndCredentialTitle();
+				}
+			} catch(Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while loading activity results");
+			}
+		} else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				logger.error(ioe);
+			}
+		}
+	}
+	
+	public void initIndividualResponse() {
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
+		decodedTargetActId = idEncoder.decodeId(targetActId);
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
+			/*
+			 * check if user has instructor capability and if has, we should mark his comments as
+			 * instructor comments
+			 */
+			hasInstructorCapability = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+			try {
+				activity = activityManager
+						.getActivityDataWithStudentResultsForManager(
+								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
+								hasInstructorCapability, false, 0, 
+								0, null);
+				if(activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
+					currentResult = activity.getStudentResults().get(0);
+					loadAdditionalData(currentResult);
+					if(commentId != null) {
+						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+						initializeResultCommentsIfNotInitialized(currentResult);
+					}
+					
+					if(activity == null || currentResult == null) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						loadCompetenceAndCredentialTitle();
+					}
+				} else {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -152,7 +211,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					updatePaginationData(countStudentResults(saFilter));
 				}
 				List<ActivityResultData> results = activityManager
-						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 
+						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
 								hasInstructorCapability, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
@@ -176,6 +235,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		decodedCredId = idEncoder.decodeId(credId);
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		credentialTitle = credManager.getCredentialTitle(decodedCredId);
+	}
+	
+	public void initializeResultCommentsIfNotInitialized(ActivityResultData result) {
+		try {
+			actResultBean.initializeResultCommentsIfNotInitialized(result);
+		} catch(Exception e) {
+			logger.error(e);
+		}
 	}
 	
 	public void filterChanged(StudentAssessedFilterState filter) {
@@ -572,6 +639,30 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	public void setFilters(List<StudentAssessedFilterState> filters) {
 		this.filters = filters;
+	}
+
+	public String getTargetActId() {
+		return targetActId;
+	}
+
+	public void setTargetActId(String targetActId) {
+		this.targetActId = targetActId;
+	}
+
+	public long getDecodedTargetActId() {
+		return decodedTargetActId;
+	}
+
+	public void setDecodedTargetActId(long decodedTargetActId) {
+		this.decodedTargetActId = decodedTargetActId;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 	
 }
