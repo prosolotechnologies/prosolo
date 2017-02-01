@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.old.CourseSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
@@ -34,7 +35,6 @@ import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
@@ -1298,7 +1298,8 @@ public class CourseManagerImpl extends AbstractManagerImpl implements CourseMana
 					"LEFT JOIN courseInstructor.assignedStudents courseEnrollment "+
 					"INNER JOIN courseInstructor.course course "+
 					"WHERE course.id = :courseId " +
-					"GROUP BY courseInstructor.id";
+					"GROUP BY courseInstructor.id, instructor.avatarUrl, instructor.name, instructor.lastname, " +
+						"instructor.position, courseInstructor.maxNumberOfStudents";
 			
 					@SuppressWarnings("unchecked")
 					List<Object[]> result = persistence.currentManager().createQuery(query).

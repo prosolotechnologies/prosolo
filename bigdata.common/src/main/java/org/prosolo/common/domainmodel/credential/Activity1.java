@@ -38,20 +38,6 @@ public class Activity1 extends BaseEntity {
 	private LearningResourceType type;
 	private int maxPoints;
 	
-	private Activity1 draftVersion;
-	/** 
-	 * means that this credential instance is just a draft
-	 * version of some other credential
-	 */
-	private boolean draft;
-	/**
-	 * tells if credential has draft version of
-	 * credential which means that credential was
-	 * published once but is changed and has draft
-	 * version
-	 */
-	private boolean hasDraft;
-	
 	/**
 	 * Flag that determines whether upon submission, a student can see responses
 	 * from other students
@@ -70,6 +56,8 @@ public class Activity1 extends BaseEntity {
 	 */
 	@Deprecated
 	private GradingOptions gradingOptions;
+	
+	private boolean visibleForUnenrolledStudents = false;
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -98,31 +86,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setMaxPoints(int maxPoints) {
 		this.maxPoints = maxPoints;
-	}
-
-	@OneToOne(fetch = FetchType.LAZY)
-	public Activity1 getDraftVersion() {
-		return draftVersion;
-	}
-
-	public void setDraftVersion(Activity1 draftVersion) {
-		this.draftVersion = draftVersion;
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
 	}
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -205,6 +168,16 @@ public class Activity1 extends BaseEntity {
 
 	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
 		this.studentCanEditResponse = studentCanEditResponse;
+	}
+	
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isVisibleForUnenrolledStudents() {
+		return visibleForUnenrolledStudents;
+	}
+
+	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
+		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 	
 }

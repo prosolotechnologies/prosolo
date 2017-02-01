@@ -31,9 +31,9 @@
 	            fileLimit="1"
 	        	auto="true"
 	            label="Choose a file"
-	            update="#{cc.attrs.toUpdate}"
-	            onstart="$('#loaderSimpleFileUpload').show();"
-	            oncomplete="$('#loaderSimpleFileUpload').hide(); #{cc.attrs.oncomplete}">
+	            update="@this #{cc.attrs.toUpdate}"
+	            onstart="$('#' + escapeColons('#{cc.clientId}') + '  #loaderSimpleFileUpload').show();"
+	            oncomplete="$('#' + escapeColons('#{cc.clientId}') + '  #loaderSimpleFileUpload').hide(); #{cc.attrs.oncomplete}">
 	            <f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
 	        	<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />
 	        	<f:attribute name="service" value="#{cc.attrs.service}" />

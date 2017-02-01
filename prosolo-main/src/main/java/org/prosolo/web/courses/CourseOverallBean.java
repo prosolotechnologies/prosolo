@@ -10,13 +10,13 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.data.PublishedStatus;

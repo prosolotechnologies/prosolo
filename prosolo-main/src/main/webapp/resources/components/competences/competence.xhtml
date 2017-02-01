@@ -21,8 +21,8 @@
 	
 	<composite:implementation>
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.competenceData.type == 'USER_CREATED' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' 
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.canEdit}"></ui:param>
      	
      	<c:choose>
 		    <c:when test="#{cc.attrs.bean.competenceData.enrolled}">
@@ -133,7 +133,7 @@
 		        <div class="row">
 		            <div class="col-md-8">
 		                <h2>About Competence</h2>
-		                <p>#{cc.attrs.bean.competenceData.description}</p>
+		                <p><h:outputText escape="false" value="#{cc.attrs.bean.competenceData.description}"/></p>
 		                <div class="whiteBox activitiesList">
 			                <courses:activityList
 			                    		activities="#{cc.attrs.bean.competenceData.activities}"
@@ -143,6 +143,7 @@
 			                    		isEdit="false"
 			                    		showMarkedIfCompleted="true"
 			                    		isPreview="#{isPreview}"
+			                    		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
 			                />
 		               </div>
 		               <post:comments 
@@ -151,6 +152,8 @@
 		               		commentsContainerDivId="commentsContainerDiv"
 		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
+		               		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
+		               		rendered="#{cc.attrs.bean.competenceData.enrolled or cc.attrs.role eq 'MANAGER'}"
 		               />
 		            </div>
 		            <div class="col-md-4">

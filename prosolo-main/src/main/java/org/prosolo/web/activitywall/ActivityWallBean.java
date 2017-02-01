@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
@@ -31,7 +32,6 @@ import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.data.CommentsData;
@@ -42,9 +42,9 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.StatusWallFilter;
-import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.useractions.CommentBean;
+import org.prosolo.web.util.HTMLUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -265,7 +265,7 @@ public class ActivityWallBean implements Serializable {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData lcd = new LearningContextData(page, lContext, service);
 			
-			newSocialActivity.setText(PostUtil.cleanHTMLTagsExceptBrA(newSocialActivity.getText()));
+			newSocialActivity.setText(HTMLUtil.cleanHTMLTagsExceptBrA(newSocialActivity.getText()));
 			
 			PostSocialActivity1 post = socialActivityManger.createNewPost(loggedUser.getUserId(), 
 					newSocialActivity, lcd);

@@ -14,7 +14,7 @@ public class UserData {
 	private String lastName;
 	private String fullName;
 	private String position;
-	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size120x120.png";
 	private CourseInstructorData instructor;
 	private int courseProgress;
 	
@@ -28,7 +28,7 @@ public class UserData {
 		this.lastName = user.getLastname();
 		setFullName(user.getName(), user.getLastname());
 		this.position = user.getPosition();
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 	}
 	
 	public UserData(User user, Map<String, Object> instructor, int progress, String profileType, String profileTitle) {

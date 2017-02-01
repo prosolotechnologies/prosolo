@@ -117,7 +117,7 @@ public class SocialInteractionStatisticsService {
 			@Override
 			public void accept(Long key) {
 				String avatar = studentsData.get(key).get("avatar");
-				studentsData.get(key).put("avatar", getAvatarUrlInFormat(key, avatar, ImageFormat.size60x60));
+				studentsData.get(key).put("avatar", getAvatarUrlInFormat(key, avatar, ImageFormat.size120x120));
 			}
 
 		});
@@ -135,11 +135,12 @@ public class SocialInteractionStatisticsService {
 		if (avatarUrl == null || avatarUrl.equals("") || avatarUrl.equals(avatarConfig.defaultAvatarName)) {
 			return "/" + avatarConfig.defaultAvatarPath + format + ".png";
 		}
-		String serviceUrl = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl;
-		String bucketName = CommonSettings.getInstance().config.fileStore.fileStoreBucketName;
+		//String serviceUrl = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl;
+		//String bucketName = CommonSettings.getInstance().config.fileStore.fileStoreBucketName;
 		String avatarPath = avatarConfig.userAvatarPath;
 		String separator = File.separator;
-		return serviceUrl + separator + bucketName + separator + avatarPath + avatarUrl + separator + format + ".png";
+		//return serviceUrl + separator + bucketName + separator + avatarPath + avatarUrl + separator + format + ".png";
+		return CommonSettings.getInstance().config.fileStore.getFilePath()+ avatarPath + avatarUrl + separator + format + ".png";
 	}
 
 	@GET

@@ -31,7 +31,7 @@
 	            fileLimit="1"
 	        	auto="true"
 	            label="Choose a file"
-	            update="#{cc.attrs.toUpdate}"
+	            update="@this #{cc.attrs.toUpdate}"
 	            onstart="showLoader('#loaderContainerFileUpload');"
 	            oncomplete="hideLoader('#loaderContainerFileUpload');">
 	        	<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />

@@ -96,12 +96,13 @@ public class UserSessionDataLoader implements Serializable{
 			return sessionData;
 		} catch (Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			throw new SessionInitializationException();
 		}
 	}
 	
 	private String initializeAvatar(String avatarUrl) {
-		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size60x60);
+		return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size120x120);
 	}
 
 	private void registerNewUserSession(User user, HttpSession session) {

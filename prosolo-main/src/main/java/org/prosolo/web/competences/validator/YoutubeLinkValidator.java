@@ -16,7 +16,7 @@ public class YoutubeLinkValidator extends Validator {
 		String id = null;
 		//
 		//^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$
-		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
+		Pattern pattern = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)(&.*)?",
 				Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(obj.toString());
 		if (matcher.matches()) {

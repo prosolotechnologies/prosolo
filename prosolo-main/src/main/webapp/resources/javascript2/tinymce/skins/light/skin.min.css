@@ -7,10 +7,40 @@
 .mce-toolbar .mce-btn { background: #fff; border: 0; }
 .mce-toolbar .mce-btn i { color: #555; }
 .mce-toolbar .mce-btn:hover i { color: #333; }
-.mce-primary { background: #6ba72b; }
-.mce-primary:hover { background: #68a029; }
+.mce-primary { color: #fff; background: #64BFCD; border: 1px solid #64BFCD; border-radius: 5px;}
+.mce-primary .mce-txt{ color: #fff;}
+.mce-primary:hover { background: #51b7c7; border-color: #51b7c7; }
 .mce-btn-group:not(:first-child) { border-left: 3px solid #fff; }
 .mce-menu-item:hover { background: #eee; }
 .mce-menu-item.mce-disabled * { color: #ddd !important; }
 .mce-edit-area { border: 0 solid #ddd; border-width: 1px !important; }
 .mce-toolbar .mce-btn.mce-active {background-color: #dbdbdb; border-color: #ccc;}
+.mce-window {border: none;
+-webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+-moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;}
+
+.mce-panel .mce-foot {border: none;
+-webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+-moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;}
+
+.mce-window-head .mce-close {
+	position: absolute;
+	top: 6px;
+	right: 10px;
+	opacity: .2;
+}
+
+.mce-window-head .mce-close .mce-ico{
+	font-size: 12px;
+line-height: 16px;
+width: 12px;
+height: 12px
+}

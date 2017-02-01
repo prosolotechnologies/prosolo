@@ -15,25 +15,25 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.InstructorAssignFilter;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
-import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -54,17 +54,14 @@ public class StudentAssignBean implements Serializable, Paginable {
 	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private NodeChangeObserver nodeChangeObserver;
+	@Inject private CredentialManager credManager;
 
 	private long credId;
 
 	private String studentSearchTerm;
-	private int studentsNumber;
-	private int page = 1;
-	private int limit = 3;
-	private List<PaginationLink> paginationLinks;
-	private int numberOfPages;
-	private InstructorAssignFilter searchFilter;
-	private InstructorAssignFilter[] searchFilters;
+	private PaginationData paginationData = new PaginationData(3);
+	private CredentialMembersSearchFilter searchFilter;
+	private CredentialMembersSearchFilter[] searchFilters;
 	
 	private InstructorData instructorForStudentAssign;
 	private int maxNumberOfStudents;
@@ -74,6 +71,9 @@ public class StudentAssignBean implements Serializable, Paginable {
 	private List<StudentData> students;
 	private List<Long> studentsToAssign;
 	private List<Long> studentsToUnassign;
+	
+	private boolean selectAll;
+	private List<Long> studentsToExcludeFromAssign;
 	
 	public void init(long credId, String context) {
 		this.credId = credId;
@@ -99,30 +99,52 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public void prepareStudentAssign(InstructorData id) {
-		searchFilter = new InstructorAssignFilter(InstructorAssignFilterValue.All, 0);
+		selectAll = false;
+		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
 		instructorForStudentAssign = id;
 		maxNumberOfStudents = instructorForStudentAssign.getMaxNumberOfStudents();
 		studentSearchTerm = "";
 		studentsToAssign = new ArrayList<>();
 		studentsToUnassign = new ArrayList<>();
-		page = 1;
+		studentsToExcludeFromAssign = new ArrayList<>();
+		paginationData.setPage(1);
 		searchStudents();
+	}
+	
+	public void selectAllChecked() {
+		studentsToUnassign = new ArrayList<>();
+		studentsToAssign = new ArrayList<>();
+		studentsToExcludeFromAssign = new ArrayList<>();
+		//if select all is checked then all students should be preselected
+		if(selectAll) {
+			for(StudentData s : students) {
+				s.setAssigned(true);
+			}
+		} else {
+			for(StudentData s : students) {
+				if(s.getInstructor() == null) {
+					s.setAssigned(false);
+				} else {
+					s.setAssigned(true);
+				}
+			}
+		}
 	}
 	
 	public void searchStudents() {
 		TextSearchResponse1<StudentData> result = textSearch
 				.searchUnassignedAndStudentsAssignedToInstructor(studentSearchTerm, credId, 
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
-						page - 1, limit);
+						paginationData.getPage() - 1, paginationData.getLimit());
 		students = result.getFoundNodes();
 		setCurrentlyAssignedAndUnassignedStudents();
-		studentsNumber = (int) result.getHitsNumber();
+		paginationData.update((int) result.getHitsNumber());
 		Map<String, Object> additional = result.getAdditionalInfo();
-		if(additional != null) {
-			searchFilters = (InstructorAssignFilter[]) additional.get("filters");
-			searchFilter = (InstructorAssignFilter) additional.get("selectedFilter");
+		
+		if (additional != null) {
+			searchFilters = (CredentialMembersSearchFilter[]) additional.get("filters");
+			searchFilter = (CredentialMembersSearchFilter) additional.get("selectedFilter");
 		}
-		generatePagination();
 	}
 	
 //	public void updateMaxNumberOfStudents() {
@@ -140,7 +162,13 @@ public class StudentAssignBean implements Serializable, Paginable {
 				if(sd.isAssigned()) {
 					sd.setAssigned(!checkIfExists(sd.getUser().getId(), studentsToUnassign));
 				} else {
-					sd.setAssigned(checkIfExists(sd.getUser().getId(), studentsToAssign));
+					if(selectAll) {
+						if(!checkIfExists(sd.getUser().getId(), studentsToExcludeFromAssign)) {
+							sd.setAssigned(true);
+						}
+					} else {
+						sd.setAssigned(checkIfExists(sd.getUser().getId(), studentsToAssign));
+					}
 				}
 			}
 		}
@@ -164,13 +192,21 @@ public class StudentAssignBean implements Serializable, Paginable {
 			if(sd.getInstructor() != null) {
 				studentsToUnassign.remove(new Long(sd.getUser().getId()));
 			} else {
-				studentsToAssign.add(sd.getUser().getId());
+				if(selectAll) {
+					studentsToExcludeFromAssign.remove(new Long(sd.getUser().getId()));
+				} else {
+					studentsToAssign.add(sd.getUser().getId());
+				}
 			}
 		} else {
 			if(sd.getInstructor() != null) {
 				studentsToUnassign.add(sd.getUser().getId());
 			} else {
-				studentsToAssign.remove(new Long(sd.getUser().getId()));
+				if(selectAll) {
+					studentsToExcludeFromAssign.add(sd.getUser().getId());
+				} else {
+					studentsToAssign.remove(new Long(sd.getUser().getId()));
+				}
 			}
 		}
 	}
@@ -189,11 +225,21 @@ public class StudentAssignBean implements Serializable, Paginable {
 				String service = PageUtil.getPostParameter("service");
 				String lContext = context + "|context:/name:INSTRUCTOR|id:" 
 						+ instructorForStudentAssign.getInstructorId() + "/";
+				List<Long> usersToAssign = null;
+				if(selectAll) {
+					List<Long> studentsToExcludeCopy = new ArrayList<>(studentsToExcludeFromAssign);
+					//exclude instructor because user can not be instructor for himself
+					studentsToExcludeCopy.add(instructorForStudentAssign.getUser().getId());
+					usersToAssign = credManager.getUnassignedCredentialMembersIds(
+							credId, studentsToExcludeCopy);
+				} else {
+					usersToAssign = studentsToAssign;
+				}
 				credInstructorManager.updateInstructorAndStudentsAssigned(credId, 
-						instructorForStudentAssign, studentsToAssign, studentsToUnassign);
-				fireAssignEvent(instructorForStudentAssign, studentsToAssign, page, lContext, service);
+						instructorForStudentAssign, usersToAssign, studentsToUnassign);
+				fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
 				fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
-				int numberOfAffectedStudents = studentsToAssign.size() - studentsToUnassign.size();
+				int numberOfAffectedStudents = usersToAssign.size() - studentsToUnassign.size();
 				instructorForStudentAssign.setNumberOfAssignedStudents(
 						instructorForStudentAssign.getNumberOfAssignedStudents() + numberOfAffectedStudents);
 				//instructorForStudentAssign = null;
@@ -205,26 +251,15 @@ public class StudentAssignBean implements Serializable, Paginable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
-
-	private void generatePagination() {
-		//if we don't want to generate all links
-		Paginator paginator = new Paginator(studentsNumber, limit, page, 
-				1, "...");
-		//if we want to genearate all links in paginator
-//		Paginator paginator = new Paginator(courseMembersNumber, limit, page, 
-//				true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
 	
 	public void resetAndSearch() {
-		this.page = 1;
+		paginationData.setPage(1);
 		searchStudents();	
 	}
 	
-	public void applySearchFilter(InstructorAssignFilter filter) {
+	public void applySearchFilter(CredentialMembersSearchFilter filter) {
 		this.searchFilter = filter;
-		this.page = 1;
+		paginationData.setPage(1);
 		searchStudents();
 	}
 	
@@ -312,41 +347,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 //	}
 	
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-	
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-	
-	@Override
 	public void changePage(int page) {
-		if(this.page != page) {
-			this.page = page;
+		if(this.paginationData.getPage() != page) {
+			this.paginationData.setPage(page);
 			searchStudents();
 		}
-	}
-
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return studentsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
 	}
 
 	public long getCredId() {
@@ -365,19 +370,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.studentSearchTerm = studentSearchTerm;
 	}
 
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
-	}
-
-	public InstructorAssignFilter getSearchFilter() {
+	public CredentialMembersSearchFilter getSearchFilter() {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(InstructorAssignFilter searchFilter) {
+	public void setSearchFilter(CredentialMembersSearchFilter searchFilter) {
 		this.searchFilter = searchFilter;
 	}
 
@@ -397,11 +394,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.instructorForStudentAssign = instructorForStudentAssign;
 	}
 
-	public InstructorAssignFilter[] getSearchFilters() {
+	public CredentialMembersSearchFilter[] getSearchFilters() {
 		return searchFilters;
 	}
 
-	public void setSearchFilters(InstructorAssignFilter[] searchFilters) {
+	public void setSearchFilters(CredentialMembersSearchFilter[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
 
@@ -413,4 +410,16 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.maxNumberOfStudents = maxNumberOfStudents;
 	}
 
+	public PaginationData getPaginationData() {
+		return paginationData;
+	}
+
+	public boolean isSelectAll() {
+		return selectAll;
+	}
+
+	public void setSelectAll(boolean selectAll) {
+		this.selectAll = selectAll;
+	}
+	
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.user.User;
@@ -14,7 +15,6 @@ import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.PasswordEncrypter;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -309,6 +309,27 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user");
+		}
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public String getUserEmail(long id) throws DbConnectionException {
+		try {
+			String query = 
+				"SELECT user.email " +
+				"FROM User user " +
+				"WHERE user.id = :id ";
+			
+			String email = (String) persistence.currentManager().createQuery(query).
+					setLong("id", id).
+					uniqueResult();
+			
+			return email;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user email");
 		}
 	}
 }

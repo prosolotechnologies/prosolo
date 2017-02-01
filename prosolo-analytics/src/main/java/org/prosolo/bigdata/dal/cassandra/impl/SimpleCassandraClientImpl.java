@@ -1,6 +1,7 @@
 package org.prosolo.bigdata.dal.cassandra.impl;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.policies.EC2MultiRegionAddressTranslator;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.config.DBServerConfig;
 import org.prosolo.bigdata.config.Settings;
@@ -71,6 +72,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	}
 
 	public void reconnect() {
+		this.close();
 		this.session = null;
 		this.cluster = null;
 		DBServerConfig dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig;
@@ -109,7 +111,9 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
 				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
 				.withPort(dbPort)
-				.addContactPoint(node).build();
+				.addContactPoints(node)
+				//.withAddressTranslator(new EC2MultiRegionAddressTranslator())
+				.build();
 		Metadata metadata = cluster.getMetadata();
 		System.out.printf("Connected to cluster: %s\n",
 				metadata.getClusterName());
@@ -121,6 +125,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 			try {
 				this.session = this.cluster.connect(keyspace);
 			} catch (InvalidQueryException iqu) {
+				logger.error(iqu);
 				this.session = this.cluster.connect();
 				this.createSchemaIfNotExists(this.session, keyspace,
 						replicationFactor);
@@ -128,6 +133,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 		} else {
 			this.session = this.cluster.connect();
 		}
+		this.session.execute("USE "+keyspace);
 	}
 	@Override
 	public String getSchemaName(){
@@ -141,6 +147,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 				+ " WITH  replication "
 				+ "= {'class':'SimpleStrategy', 'replication_factor':"
 				+ replicationFactor + "};");
+
 	}
 	@Override
 	public void updateCurrentTimestamp(TableNames tablename, Long timestamp){

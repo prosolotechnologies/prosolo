@@ -5,19 +5,7 @@
 				"store": false,
 				"type":"long"
 			},
-			"originalVersionId":{
-				"store": false,
-				"type": "long"
-			},
 			"published":{
-				"store": false,
-				"type": "boolean"
-			},
-			"isDraft":{
-				"store": false,
-				"type": "boolean"
-			},
-			"hasDraft":{
 				"store": false,
 				"type": "boolean"
 			},
@@ -44,6 +32,26 @@
 			"creatorId":{
 				"store": false,
 				"type":"long"
+			},
+			"visibleToAll":{
+				"store": false,
+				"type":"boolean"
+			},
+			"usersWithEditPrivilege": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"usersWithViewPrivilege": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
 			}
 		}
 			

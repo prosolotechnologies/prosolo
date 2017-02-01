@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>prosolo</artifactId>
 	<groupId>ca.prosolo</groupId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.6.1-SNAPSHOT</version>
 	<name>ProSolo</name>
 	<packaging>war</packaging>
 	<properties>
@@ -214,6 +214,17 @@
 			<artifactId>simple-xml</artifactId>
 			<version>2.3.6</version>
 		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jcabi</groupId>
+			<artifactId>jcabi-xml</artifactId>
+			<version>0.14</version>
+		</dependency>
+
 		<!-- dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId>
 			<version>1.6.1</version> </dependency -->
 
@@ -476,6 +487,27 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>${jaxrs.version}</version>
 		</dependency>
+	<!-- Jersey 2.19 -->
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.ext</groupId>
+			<artifactId>jersey-bean-validation</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
 		<!--dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-contaigoogle-api-clientner-servlet</artifactId>
@@ -644,6 +676,27 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.3</version>
 			<scope>compile</scope>
+		</dependency>
+		<!-- Youtube data api -->
+		<dependency>
+      		<groupId>com.google.apis</groupId>
+      		<artifactId>google-api-services-youtube</artifactId>
+      		<version>v3-rev179-1.22.0</version>
+   		</dependency>
+   		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client</artifactId>
+		    <version>1.22.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client-java6</artifactId>
+		    <version>1.22.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client-jetty</artifactId>
+		    <version>1.22.0</version>
 		</dependency>
 	</dependencies>
 

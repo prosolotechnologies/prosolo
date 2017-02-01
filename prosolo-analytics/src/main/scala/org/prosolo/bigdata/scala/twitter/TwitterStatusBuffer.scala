@@ -16,7 +16,6 @@ import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
 import org.prosolo.common.domainmodel.annotation.Tag
 import scala.collection.JavaConversions._
-import org.prosolo.bigdata.twitter.TestJava8Paralelizm
 import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
@@ -110,6 +109,7 @@ object TwitterStatusBuffer {
     val statusText = text.replaceAll("[^\\x00-\\x7f-\\x80-\\xad]", "")
     printTweet("current", creatorName, profileUrl, screenName, profileImage, statusText)
     println("is retweet:" + status.isRetweet + " is retweeted:" + status.isRetweeted)
+    println("retweeted status " + (if(status.getRetweetedStatus == null) "NULL" else status.getRetweetedStatus.getText));
     val twitterPostSocialActivity = if (status.isRetweet) {
       println("this is retweet")
 
@@ -125,6 +125,7 @@ object TwitterStatusBuffer {
         poster, reCreated, rePostLink, twitterId, true,reText, reCreatorName, reScreenName, reProfileUrl, reProfileImage,
          reStatusText, twitterHashtags, session);
     }else{
+      println("create twitter post")
         twitterStreamingDao.createTwitterPostSocialActivity(
         poster, created, postLink, twitterId, false, "", creatorName, screenName, profileUrl, profileImage,
         statusText, twitterHashtags, session);
@@ -140,6 +141,7 @@ object TwitterStatusBuffer {
     //val twitterHashtagStatisticsDBManager:TwitterHashtagStatisticsDBManager=new TwitterHashtagStatisticsDBManagerImpl
     twitterHashtags.map { hashtag => TwitterHashtagStatisticsDBManagerImpl.getInstance().updateTwitterHashtagDailyCount(hashtag, day) };
     if (twitterPostSocialActivity != null) {
+      println("broadcasting tweet")
       val parameters: java.util.Map[String, String] = new java.util.HashMap[String, String]()
       parameters.put("socialActivityId", twitterPostSocialActivity.getId.toString())
       BroadcastDistributer.distributeMessage(MServiceType.BROADCAST_SOCIAL_ACTIVITY, parameters)

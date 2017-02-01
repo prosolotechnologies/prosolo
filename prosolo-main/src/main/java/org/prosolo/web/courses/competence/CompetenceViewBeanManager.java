@@ -8,8 +8,10 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -55,36 +57,35 @@ public class CompetenceViewBeanManager implements Serializable {
 			try {
 				if("preview".equals(mode)) {
 					competenceData = competenceManager
-							.getCurrentVersionOfCompetenceForManager(decodedCredId, decodedCompId, true, true);
+							.getCompetenceData(decodedCredId, decodedCompId, true, true, true, 
+									loggedUser.getUserId(), UserGroupPrivilege.Edit, false);
 				} else {
 					competenceData = competenceManager
-							.getCompetenceDataForManager(decodedCredId, decodedCompId, true, true, 
-									true, false);
+							.getCompetenceData(decodedCredId, decodedCompId, true, true, true, 
+									loggedUser.getUserId(), UserGroupPrivilege.View, false);
 				}
 				
-				if(competenceData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				} else {
-					/*
-					 * check if user has instructor capability and if has, we should mark his comments as
-					 * instructor comments
-					 */
-					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentsData = new CommentsData(CommentedResourceType.Competence, 
-							competenceData.getCompetenceId(), hasInstructorCapability);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
+				/*
+				 * check if user has instructor capability and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+				commentsData = new CommentsData(CommentedResourceType.Competence, 
+						competenceData.getCompetenceId(), hasInstructorCapability);
+				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 //							hasInstructorCapability);
-					if(decodedCredId > 0) {
-						String credTitle = credManager.getCredentialTitle(decodedCredId);
-						competenceData.setCredentialId(decodedCredId);
-						competenceData.setCredentialTitle(credTitle);
-					}
+				if(decodedCredId > 0) {
+					String credTitle = credManager.getCredentialTitle(decodedCredId);
+					competenceData.setCredentialId(decodedCredId);
+					competenceData.setCredentialTitle(credTitle);
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -114,7 +115,7 @@ public class CompetenceViewBeanManager implements Serializable {
  			return "(Preview)";
  		} else if(!competenceData.isPublished() && 
  				competenceData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

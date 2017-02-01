@@ -17,7 +17,9 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -48,9 +50,10 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.GradingOptions;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -60,13 +63,13 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.authentication.PasswordEncrypter;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventData;
@@ -601,11 +604,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 //}
     @Override
     @Transactional (readOnly = false)
-    public SimpleOutcome createSimpleOutcome(double resultValue){
+    public SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session) {
         SimpleOutcome sOutcome=new SimpleOutcome();
         sOutcome.setDateCreated(new Date());
         sOutcome.setResult(resultValue);
-        return saveEntity(sOutcome);
+        TargetActivity1 ta = (TargetActivity1) session.load(
+        		TargetActivity1.class, targetActId);
+        sOutcome.setActivity(ta);
+        return saveEntity(sOutcome, session);
     }
     
     @Override
@@ -885,7 +891,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Credential1 createCredential(String title, String description, String tagsString, 
     		String hashtagsString, long creatorId, LearningResourceType type, 
     		boolean compOrderMandatory, boolean published, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) {
+    		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(loadResource(User.class, creatorId));
@@ -896,6 +902,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
 		     cred.setPublished(published);
 		     cred.setDuration(duration);
+		     //cred.setVisible(visible);
+		     cred.setScheduledPublishDate(scheduledDate);
 		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
 		     cred.setManuallyAssignStudents(manuallyAssign);
@@ -973,15 +981,14 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role) {
-    	return credentialManager.updateCredential(data, creatorId, role);
+    public Result<Credential1> updateCredential(CredentialData data, long creatorId) {
+    	return credentialManager.updateCredentialData(data, creatorId);
     }
     
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Competence1 updateCompetence(CompetenceData1 data) {
-    	return competenceManager.updateCompetence(data);
+    public Competence1 updateCompetence(CompetenceData1 data, long userId) {
+    	return competenceManager.updateCompetenceData(data, userId);
     }
     
     @Override
@@ -1033,18 +1040,35 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     			}
     			activity.setFiles(activityFiles);
     		}
+			
+			if(data.getActivityType() == org.prosolo.services.nodes.data.ActivityType.VIDEO) {
+				Set<ResourceLink> captions = new HashSet<>();
+	    		
+				if (data.getCaptions() != null) {
+					for (ResourceLinkData rl : data.getCaptions()) {
+	    				ResourceLink link = new ResourceLink();
+	    				link.setLinkName(rl.getLinkName());
+	    				link.setUrl(rl.getUrl());
+	    				saveEntity(link);
+	    				captions.add(link);
+	    			}
+	    			((UrlActivity1) activity).setCaptions(captions);
+	    		}
+			}
    
     		User creator = (User) persistence.currentManager().load(User.class, userId);
     		activity.setCreatedBy(creator);
     		
-    		GradingOptions go = new GradingOptions();
-    		go.setMinGrade(0);
-    		go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-    		saveEntity(go);
-    		activity.setGradingOptions(go);
+    		//GradingOptions go = new GradingOptions();
+    		//go.setMinGrade(0);
+    		//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+    		//saveEntity(go);
+    		//activity.setGradingOptions(go);
+    		activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
     		
     		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
     		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
+    		activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
     		
     		saveEntity(activity);
     		
@@ -1199,6 +1223,61 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while updating user data");
+		}
+	}
+    
+    @Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setName(newName);
+			
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+	}
+    
+    @Override
+   	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    public UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword)
+    		throws DbConnectionException {
+    	try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			group.setJoinUrlActive(joinUrlActive);
+			
+			if (joinUrlActive) {
+				group.setJoinUrlPassword(joinUrlPassword);
+			} else {
+				group.setJoinUrlPassword(null);
+			}
+			
+			return group;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
+		}
+    }
+
+    @Override
+	@Transactional (readOnly = false)
+	public UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException {
+		try {
+			UserGroup group = new UserGroup();
+			group.setDateCreated(new Date());
+			group.setDefaultGroup(isDefault);
+			group.setName(name);
+			
+			saveEntity(group);
+			return group;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving user group");
 		}
 	}
     

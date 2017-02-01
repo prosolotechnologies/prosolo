@@ -56,7 +56,13 @@ public enum ContextName {
 	UPLOAD_RESULT_DIALOG(""),
 	RESULT("TargetActivity1"),
 	RESULTS(""),
-	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1");
+	RESULT_PRIVATE_CONVERSATION_DIALOG("TargetActivity1"),
+	STUDENTS(""),
+	EDIT_DIALOG(""),
+	USER_GROUPS_DIALOG("User"),
+	JOIN_BY_URL_GROUP_DIALOG(""),
+	MANAGE_VISIBILITY_DIALOG(""),
+	PUBLISH_RESOURCE_DIALOG("");
 	
     private String objectType; 
     

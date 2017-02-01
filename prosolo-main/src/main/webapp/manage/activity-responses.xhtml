@@ -23,6 +23,7 @@
 		<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
 		<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
 		<f:viewParam name="user" default="null"/>
+		<f:viewParam name="p" value="#{activityResultsBeanManager.paginationData.pageString}" default="1"/>
 		<f:viewAction action="#{activityResultsBeanManager.init()}" />
 	</f:metadata>
 </ui:define>
@@ -169,7 +170,6 @@
 	                <utilcomp:pagination
 			        	id="pagination" 
 			        	bean="#{activityResultsBeanManager}"
-			        	links="#{activityResultsBeanManager.paginationLinks}"
 			        	toUpdate=":panelResults"
 			        />
 			    </h:form></ui:remove>
@@ -326,21 +326,18 @@
 									value="#{activityResultsBeanManager.newCommentValue}"
 									placeholder="Add Comment..."
 									onkeyup="displaySubmitButtonPrivateConvModal(this)" />
-								<ui:fragment rendered="#{activityResultsBeanManager.isCurrentUserAssessor(activityResultsBeanManager.currentResult)}">
-									<p:commandLink
-										action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
-										type="button" styleClass="btn btn-sm btn-green hidden"
-										name="button"
-										update=":formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
-										Submit
-										<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-										<f:param name="learningContext" value="#{learningContext}"/>
-										<f:param name="service" value="name:result_private_conversation_dialog|id:#{activityResultsBeanManager.currentResult.targetActivityId}"/>
-									</p:commandLink>
-								</ui:fragment>
-								<ui:fragment rendered="#{not activityResultsBeanManager.isCurrentUserAssessor(activityResultsBeanManager.currentResult)}">
-									<a href="javascript:void(0);" disabled="disabled" data-toggle="tooltip" title="You cannot post comments because you are not an instructor for this user." type="button" class="btn btn-sm btn-green hidden" name="button">Submit</a>
-								</ui:fragment>
+								
+								<p:commandLink
+									action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
+									type="button" styleClass="btn btn-sm btn-green hidden"
+									name="button"
+									update=":formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
+									Submit
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+									<f:param name="learningContext" value="#{learningContext}"/>
+									<f:param name="service" value="name:result_private_conversation_dialog|id:#{activityResultsBeanManager.currentResult.targetActivityId}"/>
+								</p:commandLink>
+								
 							</div>
 						</div>
                       <div class="clear"></div>

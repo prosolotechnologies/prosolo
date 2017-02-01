@@ -116,7 +116,6 @@ public class EventFactory {
 	public Event generateEvent(EventType eventType, long actorId, BaseEntity object, BaseEntity target, 
 			String page, String context, String service, 
 			Class<? extends EventObserver>[] observersToExclude, Map<String, String> parameters) throws EventException {
-		
 		logger.debug("Generating "+eventType.name()+" " +
 				"event " + (object != null ? " object: "+object.getId() : "") + 
 				(target != null ? ", target: "+target.getId() : "") + 

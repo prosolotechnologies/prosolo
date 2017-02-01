@@ -8,8 +8,10 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -18,6 +20,7 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -59,38 +62,59 @@ public class ActivityViewBeanManager implements Serializable {
 				decodedCredId = idEncoder.decodeId(credId);
 			}
 			try {
-				boolean shouldReturnDraft = false;
+				UserGroupPrivilege priv = null;
 				if("preview".equals(mode)) {
-					shouldReturnDraft = true;
-				} 
+					priv = UserGroupPrivilege.Edit;
+				} else {
+					priv = UserGroupPrivilege.View;
+				}
 				competenceData = activityManager
-						.getCompetenceActivitiesWithSpecifiedActivityInFocusForManager(
-								decodedCredId, decodedCompId, decodedActId, shouldReturnDraft);
+						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), priv);
 				
-				if(competenceData == null) {
+				if(competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 					} catch (IOException e) {
 						logger.error(e);
 					}
 				} else {
-					/*
-					 * check if user has instructor capability and if has, we should mark his comments as
-					 * instructor comments
-					 */
-					boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							hasInstructorCapability);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
-					commentBean.loadComments(commentsData);
-//					commentBean.init(CommentedResourceType.Activity, 
-//							competenceData.getActivityToShowWithDetails().getActivityId(), 
-//							hasInstructorCapability);
-					
-					loadCompetenceAndCredentialTitle();
+					if(!competenceData.getActivityToShowWithDetails().isCanAccess()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						/*
+						 * check if user has instructor capability and if has, we should mark his comments as
+						 * instructor comments
+						 */
+						boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+						commentsData = new CommentsData(CommentedResourceType.Activity, 
+								competenceData.getActivityToShowWithDetails().getActivityId(), 
+								hasInstructorCapability);
+						commentsData.setCommentId(idEncoder.decodeId(commentId));
+						commentBean.loadComments(commentsData);
+		//					commentBean.init(CommentedResourceType.Activity, 
+		//							competenceData.getActivityToShowWithDetails().getActivityId(), 
+		//							hasInstructorCapability);
+						
+						ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+								competenceData.getActivityToShowWithDetails().getCaptions(), 
+								loggedUser.getUserId());
+						
+						loadCompetenceAndCredentialTitle();
+					}
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
+				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
@@ -129,7 +153,7 @@ public class ActivityViewBeanManager implements Serializable {
  		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
  				competenceData.getActivityToShowWithDetails().getType() 
  					== LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}

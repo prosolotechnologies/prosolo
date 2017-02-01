@@ -69,7 +69,7 @@ public abstract class NotificationEventProcessor {
 		try {
 			transaction = session.beginTransaction();
 			emailNotificationSettings = notificationsSettingsManager
-					.getOrCreateEmailNotificationsSettings(receiverId, type, session);
+					.getOrCreateNotificationSettings(receiverId, type, session);
 			transaction.commit();
 		} catch (Exception e) {
 			transaction.rollback();

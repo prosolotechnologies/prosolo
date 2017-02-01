@@ -16,7 +16,7 @@ $(function () {
 var containerId;
 
 function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val('UNPUBLISH').change();
 }
 
 function attachListenersForUpdatingStatus() {
@@ -45,15 +45,29 @@ function showOrHideMandatoryArrows() {
 }
 
 function onStatusChange() {
-	var status = $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
-	if(status === "DRAFT") {
+	var status = getStatus();
+	if(status === "UNPUBLISH") {
 		$('#noteDraft').show();
 		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview Draft');
 	} else {
 		$('#noteDraft').hide();
 		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview');
 	}
-	
+	if(isScheduledUpdate()) {
+		$("[id$=datetimepicker4]").show();
+	} else {
+		$("[id$=datetimepicker4]").val("");
+		$("[id$=datetimepicker4]").hide();
+	}
+}
+
+function getStatus() {
+	return $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
+}
+
+function isScheduledUpdate() {
+	var status = getStatus();
+	return status === "SCHEDULED_PUBLISH" || status === "SCHEDULED_UNPUBLISH";
 }
 
 //function getFieldValue(label) {

@@ -9,7 +9,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -47,22 +49,23 @@ public class CredentialViewBeanManager implements Serializable {
 			try {
 				if("preview".equals(mode)) {
 					credentialData = credentialManager
-							.getCurrentVersionOfCredentialForManager(decodedId, true, true);
+							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
+									UserGroupPrivilege.Edit);
 				} else {
 					credentialData = credentialManager
-							.getCredentialDataForManager(decodedId, true, true);
+							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
+									UserGroupPrivilege.View);
 				}
-				
-				if(credentialData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage(e.getMessage());
+				e.printStackTrace();
+				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
 			}
 		} else {
 			try {
@@ -84,7 +87,7 @@ public class CredentialViewBeanManager implements Serializable {
  			return "(Preview)";
  		} else if(!credentialData.isPublished() && 
  				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}
@@ -101,7 +104,7 @@ public class CredentialViewBeanManager implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = activityManager
-					.getCompetenceActivitiesData(cd.getCompetenceId());
+					.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}

@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Capability;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.config.security.CapabilityConfig;
@@ -16,7 +17,6 @@ import org.prosolo.config.security.SecurityConfigLoader;
 import org.prosolo.config.security.SecurityContainer;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.config.security.exceptions.NonexistentRoleException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CapabilityManager;
 import org.prosolo.services.nodes.RoleManager;

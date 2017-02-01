@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
 
+@Deprecated
 public class UserData implements Serializable {
 
 	private static final long serialVersionUID = -8175020115862390741L;
@@ -22,7 +23,7 @@ public class UserData implements Serializable {
 	private String position;
 	private String email;
 	private String reEnterPassword;
-	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size60x60.png";;
+	private String avatarUrl = "/" + CommonSettings.getInstance().config.services.userService.defaultAvatarPath + "size120x120.png";
 	private boolean changePassword = false;
 	private boolean sendEmail = false;
 	private UploadedFile file;
@@ -44,7 +45,7 @@ public class UserData implements Serializable {
 		this.password = user.getPassword();
 		this.email = user.getEmail();
 		this.position = user.getPosition();
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user, ImageFormat.size120x120);
 		if(roles != null) {
 			for(Role role : roles) {
 				this.roles.add(new RoleData(role));

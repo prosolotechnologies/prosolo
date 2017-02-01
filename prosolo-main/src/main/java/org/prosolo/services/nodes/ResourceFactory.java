@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -33,9 +35,9 @@ import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
@@ -95,7 +97,7 @@ public interface ResourceFactory extends AbstractManager {
             ActivityFormData activityFormData, VisibilityType vis)
             throws EventException, ResourceCouldNotBeLoadedException;
 
-    SimpleOutcome createSimpleOutcome(double resultValue);
+    SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
     Map<String, Object> enrollUserInCourse(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
     
@@ -119,7 +121,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
 			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps);
+			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
 
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
@@ -141,10 +143,9 @@ public interface ResourceFactory extends AbstractManager {
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
 			long credentialId);
 
-	Result<Credential1> updateCredential(CredentialData data, long creatorId, 
-    		org.prosolo.services.nodes.data.Role role);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId);
 
-	Competence1 updateCompetence(CompetenceData1 data);
+	Competence1 updateCompetence(CompetenceData1 data, long userId);
 	
 	long deleteCredentialBookmark(long credId, long userId);
 	
@@ -181,5 +182,11 @@ public interface ResourceFactory extends AbstractManager {
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
 			String position, List<Long> roles) throws DbConnectionException;
+	
+	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
+
+	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;
+	
+	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 
 }

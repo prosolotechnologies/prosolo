@@ -575,7 +575,8 @@ public class PostManagerImpl extends AbstractManagerImpl implements PostManager 
 									imageName;
 					
 					s3Manager.storeInputStreamByKey(is, key,fileType);
-					selectedImage = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" + key;
+					selectedImage=CommonSettings.getInstance().config.fileStore.getFilePath()+ key;
+					//selectedImage = CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" + CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" + key;
 				} catch (IOException e) {
 					logger.error("IOException while storing:"+selectedImage,e);
 				} catch (NoSuchAlgorithmException e) {

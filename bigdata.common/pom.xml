@@ -177,6 +177,12 @@
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
 			<version>2.3.0</version>
+			<exclusions>
+				<!--exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion-->
+			</exclusions>
  	</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>

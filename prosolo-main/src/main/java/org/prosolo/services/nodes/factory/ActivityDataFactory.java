@@ -28,12 +28,12 @@ import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.web.competences.validator.YoutubeLinkValidator;
+import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ActivityDataFactory {
-
+	
 	public ActivityData getActivityData(CompetenceActivity1 competenceActivity, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges) {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
@@ -50,8 +50,6 @@ public class ActivityDataFactory {
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
 		data.setPublished(activity.isPublished());
-		data.setDraft(activity.isDraft());
-		data.setHasDraft(activity.isHasDraft());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
@@ -60,6 +58,7 @@ public class ActivityDataFactory {
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
 		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -153,10 +152,22 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
+					}
+					if(urlAct.getCaptions() != null) {
+						List<ResourceLinkData> captions = new ArrayList<>();
+						for(ResourceLink rl : urlAct.getCaptions()) {
+							ResourceLinkData rlData = new ResourceLinkData();
+							rlData.setId(rl.getId());
+							rlData.setLinkName(rl.getLinkName());
+							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+							rlData.setUrl(rl.getUrl());
+							rlData.setStatus(ObjectStatus.UP_TO_DATE);
+							captions.add(rlData);
+						}
+						act.setCaptions(captions);
 					}
 					break;
 				case Slides:
@@ -175,6 +186,7 @@ public class ActivityDataFactory {
 			act.setConsumerKey(extAct.getConsumerKey());
 			act.setAcceptGrades(extAct.isAcceptGrades());
 			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
+			act.setScoreCalculation(extAct.getScoreCalculation());
 		}
 	}
 	
@@ -194,8 +206,6 @@ public class ActivityDataFactory {
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
 		act.setPublished(activity.isPublished());
-		act.setDraft(activity.isDraft());
-		act.setHasDraft(activity.isHasDraft());
 		act.setType(activity.getType());
 		
 		act.setActivityType(getActivityType(activity));
@@ -369,10 +379,22 @@ public class ActivityDataFactory {
 				case Video:
 					act.setActivityType(ActivityType.VIDEO);
 					try {
-						act.setEmbedId((String) new YoutubeLinkValidator(null)
-								.performValidation(urlAct.getUrl(), null));
+						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
 					} catch(Exception e) {
 						e.printStackTrace();
+					}
+					if(urlAct.getCaptions() != null) {
+						List<ResourceLinkData> captions = new ArrayList<>();
+						for(ResourceLink rl : urlAct.getCaptions()) {
+							ResourceLinkData rlData = new ResourceLinkData();
+							rlData.setId(rl.getId());
+							rlData.setLinkName(rl.getLinkName());
+							rlData.setUrl(rl.getUrl());
+							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+							rlData.setStatus(ObjectStatus.UP_TO_DATE);
+							captions.add(rlData);
+						}
+						act.setCaptions(captions);
 					}
 					break;
 				case Slides:
@@ -489,6 +511,7 @@ public class ActivityDataFactory {
 				extAct.setConsumerKey(activityData.getConsumerKey());
 				extAct.setAcceptGrades(activityData.isAcceptGrades());
 				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
+				extAct.setScoreCalculation(activityData.getScoreCalculation());
 				return extAct;
 			default: 
 				return null;

@@ -17,6 +17,8 @@
 
 	<composite:interface>
 		<composite:attribute name="activity" required="true" />
+		<composite:attribute name="credentialId" required="true" />
+		<composite:attribute name="competenceId" required="true" />
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" required="true" />
@@ -26,228 +28,284 @@
 	<composite:implementation>
 		<div id="#{cc.clientId}">
 			<p:growl id="growlDetails" globalOnly="true" showDetail="true" />
-		            	
-            <ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
-				<div class="activityMain">
-					<socialWall:youtubevideopreview
-						embedId="#{cc.attrs.activity.embedId}"
-						width="731"
-						height="413"
-						context="#{cc.attrs.learningContext}"/>
-				</div>
-			</ui:fragment>
-			
-			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}">
-				<iframe src="#{cc.attrs.activity.embedId}"
-					width="731" height="413" frameborder="0"
-					marginwidth="0" marginheight="0" scrolling="no"
-					style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
-				</iframe>
-			</ui:fragment>
-			
-			<ui:fragment rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}">
-				<ui:fragment rendered="#{!cc.attrs.activity.openInNewWindow}">
-					<h:link 
-						style="display:none;"
-						value="Load"
-						styleClass="linkLoadExternalActivity"
-						outcome="/lti" 
-						target="extActivityFrame"
-						onclick="sendLogPageNavigationWithParameters('/lti', {});">
-						<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
-						<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
-						<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
-						<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
-						<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
-						<f:param name="title" value="#{cc.attrs.activity.title}"/>
-						<f:param name="description" value="#{cc.attrs.activity.description}"/>
-						<f:param name="contextName" value="#{cc.attrs.activity.competenceName}"/>
-					</h:link>
-				
-					<iframe name="extActivityFrame"
-						width="731" height="413" frameborder="0"
-						marginwidth="0" marginheight="0" scrolling="yes"
-						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
-					</iframe>
-					
-					<script>
-					$(function(){
-						document.getElementsByClassName("linkLoadExternalActivity")[0].click();
-					});
-					</script>
-				</ui:fragment>
-			
-				<ui:fragment rendered="#{cc.attrs.activity.openInNewWindow}">
-					<h:outputScript library="javascript" name="oauth.js" target="head" />
-					<h:outputScript library="javascript" name="sha1.js" target="head" />
-					<h:outputScript library="javascript" name="prosolo.lti.js" target="head" />
-					
-					<form action="#{cc.attrs.activity.launchUrl}" name="ltiLaunchForm" target="_blank" 
-						onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
-						enctype="application/x-www-form-urlencoded">
-							<input type="hidden" name="context_id" value="#{cc.attrs.activity.targetActivityId}" />
-							<input type="hidden" name="context_label" value="#{cc.attrs.activity.competenceName}" />
-							<input type="hidden" name="context_title" value="#{cc.attrs.activity.competenceName}" />
-							<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
-							<input type="hidden" name="tool_consumer_instance_guid" value="prosolo.ca" />
-							<input type="hidden" name="tool_consumer_instance_description" value="ProSolo" />
-							<input type="hidden" name="lti_version" value="LTI-1p0" />
-							<input type="hidden" name="resource_link_id" value="#{cc.attrs.activity.activityId}" />
-							<input type="hidden" name="resource_link_title" value="#{cc.attrs.activity.title}" />
-							<input type="hidden" name="resource_link_description" value="#{cc.attrs.activity.description}" />
-							<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
-							<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
-							<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />
-							<input type="hidden" name="lis_person_name_family" value="#{loggeduser.lastName}" />
-							<input type="hidden" name="lis_person_name_given" value="#{loggeduser.name}" />
-							<input type="hidden" name="lis_person_contact_email_primary" value="#{loggeduser.email}" />
-							<input type="hidden" name="tool_consumer_instance_url" value="#{applicationbean.domain}" />
-							<input type="hidden" name="lis_result_sourcedid"  value="#{loggeduser.userId}::#{cc.attrs.activity.activityId}::#{cc.attrs.activity.targetActivityId}" />
-							<input type="hidden" name="oauth_version" value="1.0" />
-							<input type="hidden" name="oauth_consumer_key" value="#{cc.attrs.activity.consumerKey}" />
-							<input type="hidden" name="oauth_callback" value="about:blank" />
-							<input type="hidden" name="oauth_signature" value="blahs" />
-							<input type="hidden" name="launch_presentation_locale" value="en-US" />
-							<input type="hidden" name="oauth_nonce" value="0" />
-							<input type="hidden" name="oauth_timestamp" value="0" />
-							<input type="hidden" name="roles" value="#{activityViewBean.roles}" />
-							<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1" />            
-							<input type="hidden" name="ltiLaunchForm" value="" />
-							<input type="button" hidden="true" onclick="doOnLoad('#{cc.attrs.activity.sharedSecret}','#{cc.attrs.activity.launchUrl}',this.form)" 
-								id="submitLTILaunchFormButton" name="submit_form_button" class="hidden" value="Launch external tool" />
-					</form>
-					
-					<ul class="whiteBox activityLinksBox">
-	                    <li>
-							<div class="actBoxLeft noUrl">
-	                            <h3>External Tool</h3>
-	                        </div>
-	                        <a href="javascript:void(0)" onclick="$('#submitLTILaunchFormButton').click()" class="btn btn-green btn-sm">Open</a>
-	                    </li>
-	                </ul>
-				</ui:fragment>
-				
-			</ui:fragment>
-           
-            <ui:fragment rendered="#{not empty cc.attrs.activity.description}">
-            	<p>#{cc.attrs.activity.description}</p>
+		    
+		    <ui:fragment rendered="#{!(cc.attrs.role eq 'MANAGER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents or cc.attrs.isPreview)}">
+				<div class="whiteBox activityTextBox activityExternalEnroll">
+	                   <p>Content available only to enrolled students.</p>
+	                   <p:commandLink rendered="#{cc.attrs.credentialId > 0}"
+	                   	styleClass="btn btn-green btn-sm item"
+	                   	process="@this"
+	                   	action="#{cc.attrs.bean.enrollInCredential()}">
+	                   	Start Credential
+	                   	<f:param name="context" value="#{cc.attrs.learningContext}" />
+	                   </p:commandLink>
+	            </div>
             </ui:fragment>
             
-            <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
-				<h:outputText escape="false" value="#{cc.attrs.activity.text}"/>
-            </h:panelGroup>
-            
-            <ui:fragment rendered="#{cc.attrs.activity.activityType != 'EXTERNAL_TOOL'}">
-	            <ul class="whiteBox activityLinksBox">
-	            	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
-	            		<li>
-	            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? loggeduser.sessionData.encodedUserId : '[USER ID]')}" />
-		                    <div class="actBoxLeft">
-		                        <h3>#{link.linkName}</h3>
-		                        <span>#{link.url}#{urlSufix}</span>
-		                    </div>
-		                    <a href="#{link.url}#{urlSufix}" 
-	                    		target="_blank" 
-	                    		class="btn btn-green btn-sm"
-	                    		onclick="sendLogPageNavigation('#{link.url}#{urlSufix}', 
-	                    				'#{facesContext.viewRoot.viewId}', 
-	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
-	                    				null);">
-	                    		Open
-		                    </a>
-		                </li>
-	            	</ui:repeat>    
-	            </ul>
-	            <ul class="whiteBox activityFilesBox">
-	            	<ui:repeat var="file" value="#{cc.attrs.activity.files}">
-	            		<li>
-		                    <div class="actBoxLeft">
-		                        <h3>#{file.linkName}</h3>
-		                        <span>#{file.linkName}</span>
-		                    </div>
-		                    <a href="#{file.url}" 
-		                    	target="_blank" 
-		                    	class="btn btn-green btn-sm"
-		                    	onclick="sendLogPageNavigation('#{file.url}', 
-	                    				'#{facesContext.viewRoot.viewId}', 
-	                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_file|id:&#34;.concat(file.id))}', 
-	                    				null);">
-		                    	Download
-		                    </a>
-		                </li>
-	            	</ui:repeat>    	             
-	            </ul>
-	        </ui:fragment>	     
-	        
-            <h:panelGroup id="panelUploadAssignment" rendered="#{cc.attrs.activity.enrolled and !cc.attrs.isPreview and cc.attrs.activity.resultData.resultType ne 'NONE'}">
-            	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
-            		<h2>Your Response</h2>
-            		<activities:activityResult
-            			resultData="#{cc.attrs.activity.resultData}"
-            			resultType="#{cc.attrs.activity.resultData.resultType}"
-            			learningContext="#{cc.attrs.learningContext}"
-            			role="USER"
-            			assignmentUploadModalId="newRes"
-            			growlToUpdate=":#{cc.clientId}:growlDetails"
-            			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
-            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
-            		/>
-            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
-            			outcome="/activity-responses" 
-            			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
-            			View responses from other students
-            			<f:param name="credId" value="#{param['credId']}" />
-            			<f:param name="compId" value="#{param['compId']}" />
-            			<f:param name="actId" value="#{param['actId']}" />
-            		</h:link>
-            	</ui:fragment>
-            	
-            	<ui:fragment rendered="#{empty cc.attrs.activity.resultData.result}">
-            		<h2>Submit Response</h2>
-            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
-            			<h:form id="formUpload" enctype="multipart/form-data">
-			            	<utilcomp:fileUpload
-			            		uploadFileInfo="Upload Response"
-			            		fileUploadListenerMethodName="handleFileUpload"
-			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
-			            		learningContext="#{cc.attrs.learningContext}"
-			            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
-			            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
-			            	/> 
-		            	</h:form>
-            		</c:if>
-            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
-            			<h:form id="formTypedResult">
-	            			 <div class="whiteBox writeResult">
-			                    <h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
-			                    	placeholder="Type your response here..."
-			                    	value="#{cc.attrs.activity.resultData.result}">
-			                    </h:inputTextarea>
-			                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
-			                    	styleClass="btn btn-sm btn-green"
-			                    	action="#{cc.attrs.bean.saveTextResponse()}"
-			                    	update=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
-			                    	value="Submit">
-			                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-			                    </p:commandLink>
-			                    <ui:fragment rendered="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
-				                    <a href="javascript:void(0);"
-				                    	disabled="disabled"
-				                    	class="btn btn-sm btn-green"
-				                    	data-toggle="tooltip" 
-										title="In order to submit a response for this activity, previous tasks need to be completed.">
-										Submit
-				                    </a>
-			                    </ui:fragment>
-			                </div>
-			            </h:form>
-            		</c:if>
-            	</ui:fragment>
-            </h:panelGroup>
-        </div>
-
+            <ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents or cc.attrs.isPreview}">
+            	<ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
+					<div class="activityMain">
+						<ui:remove><socialWall:youtubevideopreview
+							embedId="#{cc.attrs.activity.embedId}"
+							width="731"
+							height="413"
+							context="#{cc.attrs.learningContext}"/></ui:remove>
+						
+						<video width="731" height="413" id="player1">
+		    				<source type="video/youtube" src="#{cc.attrs.activity.link}" />
+		   					<ui:repeat var="subtitle" value="#{cc.attrs.activity.captions}">
+		   						<ui:fragment rendered="#{not empty subtitle.tempUrl}">
+		   							<track kind="subtitles" src="#{subtitle.tempUrl}" srclang="#{subtitle.linkName}" /> 
+		   						</ui:fragment>
+		   					</ui:repeat>
+						</video>
+						<script>
+							$(function() {					
+								initializeVideo({
+									page: '#{facesContext.viewRoot.viewId}',
+									learningContext: '#{cc.attrs.learningContext}',
+									service: null
+								});
+							});
+						</script>
+					</div>
+					
+				</ui:fragment>
+				
+				<ui:fragment rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}">
+					<iframe src="#{cc.attrs.activity.embedId}"
+						width="731" height="413" frameborder="0"
+						marginwidth="0" marginheight="0" scrolling="no"
+						style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+					</iframe>
+				</ui:fragment>
+				
+				<ui:fragment rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}">
+					<ui:fragment rendered="#{!cc.attrs.activity.openInNewWindow}">
+						<h:link 
+							style="display:none;"
+							value="Load"
+							styleClass="linkLoadExternalActivity"
+							outcome="/lti" 
+							target="extActivityFrame"
+							onclick="sendLogPageNavigationWithParameters('/lti', {});">
+							<f:param name="launchUrl" value="#{cc.attrs.activity.launchUrl}"/>
+							<f:param name="sharedSecret" value="#{cc.attrs.activity.sharedSecret}"/>
+							<f:param name="consumerKey" value="#{cc.attrs.activity.consumerKey}"/>
+							<f:param name="targetActivityId" value="#{cc.attrs.activity.targetActivityId}"/>
+							<f:param name="credentialId" value="#{cc.attrs.credentialId}"/>
+							<f:param name="competenceId" value="#{cc.attrs.competenceId}"/>
+							<f:param name="activityId" value="#{cc.attrs.activity.activityId}"/>
+							<f:param name="title" value="#{cc.attrs.activity.title}"/>
+							<f:param name="description" value="#{cc.attrs.activity.description}"/>
+							<f:param name="contextName" value="#{cc.attrs.activity.competenceName}"/>
+							<f:param name="role" value="#{ltiBean.roles}" />
+						</h:link>
+					
+						<iframe name="extActivityFrame"
+							width="731" height="413" frameborder="0"
+							marginwidth="0" marginheight="0" scrolling="yes"
+							style="border: 1px solid #CCC; border-width: 1px 1px 0; margin-bottom: 5px">
+						</iframe>
+						
+						<script>
+						$(function(){
+							document.getElementsByClassName("linkLoadExternalActivity")[0].click();
+						});
+						</script>
+					</ui:fragment>
+				
+					<ui:fragment rendered="#{cc.attrs.activity.openInNewWindow}">
+						<h:outputScript library="javascript" name="oauth.js" target="head" />
+						<h:outputScript library="javascript" name="sha1.js" target="head" />
+						<h:outputScript library="javascript" name="prosolo.lti.js" target="head" />
+						<form action="#{cc.attrs.activity.launchUrl}" name="ltiLaunchForm" target="_blank" 
+							onsubmit="form.removeChild(document.getElementById('javax.faces.ViewState'))" method="post" 
+							enctype="application/x-www-form-urlencoded">
+								<input type="hidden" name="context_id" value="#{applicationbean.domain}::#{cc.attrs.credentialId}::#{cc.attrs.competenceId}::#{cc.attrs.activity.activityId}::#{loggeduser.userId}" />
+								<input type="hidden" name="context_label" value="#{cc.attrs.activity.competenceName}" />
+								<input type="hidden" name="context_title" value="#{cc.attrs.activity.competenceName}" />
+								<input type="hidden" name="lti_message_type" value="basic-lti-launch-request" />
+								<input type="hidden" name="tool_consumer_instance_guid" value="prosolo.ca" />
+								<input type="hidden" name="tool_consumer_instance_description" value="ProSolo" />
+								<input type="hidden" name="lti_version" value="LTI-1p0" />
+								<input type="hidden" name="resource_link_id" value="#{cc.attrs.activity.activityId}" />
+								<input type="hidden" name="resource_link_title" value="#{cc.attrs.activity.title}" />
+								<input type="hidden" name="resource_link_description" value="#{cc.attrs.activity.description}" />
+								<input type="hidden" name="user_id" value="#{loggeduser.userId}" />
+								<input type="hidden" name="lis_outcome_service_url" value="#{applicationbean.domain}api/lti/replaceresult" />
+								<input type="hidden" name="lis_person_name_full" value="#{loggeduser.name} #{loggeduser.lastName}" />
+								<input type="hidden" name="lis_person_name_family" value="#{loggeduser.lastName}" />
+								<input type="hidden" name="lis_person_name_given" value="#{loggeduser.name}" />
+								<input type="hidden" name="lis_person_contact_email_primary" value="#{loggeduser.email}" />
+								<input type="hidden" name="tool_consumer_instance_url" value="#{applicationbean.domain}" />
+								<input type="hidden" name="lis_result_sourcedid"  value="#{loggeduser.userId}::#{cc.attrs.activity.activityId}::#{cc.attrs.activity.targetActivityId}" />
+								<input type="hidden" name="oauth_version" value="1.0" />
+								<input type="hidden" name="oauth_consumer_key" value="#{cc.attrs.activity.consumerKey}" />
+								<input type="hidden" name="oauth_callback" value="about:blank" />
+								<input type="hidden" name="oauth_signature" value="blahs" />
+								<input type="hidden" name="launch_presentation_locale" value="en-US" />
+								<input type="hidden" name="oauth_nonce" value="0" />
+								<input type="hidden" name="oauth_timestamp" value="0" />
+								<input type="hidden" name="roles" value="#{ltiBean.roles}" />
+								<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1" />            
+								<input type="hidden" name="ltiLaunchForm" value="" />
+								<input type="button" hidden="true" onclick="doOnLoad('#{cc.attrs.activity.sharedSecret}','#{cc.attrs.activity.launchUrl}',this.form)" 
+									id="submitLTILaunchFormButton" name="submit_form_button" class="hidden" value="Launch external tool" />
+						</form>
+						
+						<ul class="whiteBox activityLinksBox">
+		                    <li>
+								<div class="actBoxLeft noUrl">
+		                            <h3>External Tool</h3>
+		                        </div>
+		                        <a href="javascript:void(0)" onclick="$('#submitLTILaunchFormButton').click()" class="btn btn-green btn-sm">Open</a>
+		                    </li>
+		                </ul>
+					</ui:fragment>				
+				</ui:fragment>
+	           
+	            <ui:fragment rendered="#{not empty cc.attrs.activity.description}">
+	            	<p><h:outputText escape="false" value="#{cc.attrs.activity.description}"/></p>
+	            </ui:fragment>
+	            
+	            <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="whiteBox activityTextBox">
+					<h:outputText escape="false" value="#{cc.attrs.activity.text}"/>
+	            </h:panelGroup>
+	            
+	            <ui:fragment rendered="#{cc.attrs.activity.activityType != 'EXTERNAL_TOOL'}">
+		            <ul class="whiteBox activityLinksBox">
+		            	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
+		            		<li>
+		            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? loggeduser.sessionData.encodedUserId : '[USER ID]')}" />
+			                    <div class="actBoxLeft">
+			                        <h3>#{link.linkName}</h3>
+			                        <span>#{link.url}#{urlSufix}</span>
+			                    </div>
+			                    <a href="#{link.url}#{urlSufix}" 
+		                    		target="_blank" 
+		                    		class="btn btn-green btn-sm"
+		                    		onclick="sendLogPageNavigation('#{link.url}#{urlSufix}', 
+		                    				'#{facesContext.viewRoot.viewId}', 
+		                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
+		                    				null);">
+		                    		Open
+			                    </a>
+			                </li>
+		            	</ui:repeat>    
+		            </ul>
+		            <ul class="whiteBox activityFilesBox">
+		            	<ui:repeat var="file" value="#{cc.attrs.activity.files}">
+		            		<li>
+			                    <div class="actBoxLeft">
+			                        <h3>#{file.linkName}</h3>
+			                        <span>#{file.linkName}</span>
+			                    </div>
+			                    <a href="#{file.url}" 
+			                    	target="_blank" 
+			                    	class="btn btn-green btn-sm"
+			                    	onclick="sendLogPageNavigation('#{file.url}', 
+		                    				'#{facesContext.viewRoot.viewId}', 
+		                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_file|id:&#34;.concat(file.id))}', 
+		                    				null);">
+			                    	Download
+			                    </a>
+			                </li>
+		            	</ui:repeat>    	             
+		            </ul>
+		        </ui:fragment>	     
+		        
+	            <h:panelGroup id="panelUploadAssignment" rendered="#{cc.attrs.activity.enrolled and !cc.attrs.isPreview and cc.attrs.activity.resultData.resultType ne 'NONE'}">
+	            	<ui:fragment rendered="#{not empty cc.attrs.activity.resultData.result}">
+	            		<h2>Your Response</h2>
+	            		<activities:activityResult
+	            			resultData="#{cc.attrs.activity.resultData}"
+	            			resultType="#{cc.attrs.activity.resultData.resultType}"
+	            			learningContext="#{cc.attrs.learningContext}"
+	            			role="USER"
+	            			assignmentUploadModalId="newRes"
+	            			growlToUpdate=":#{cc.clientId}:growlDetails"
+	            			regionToUpdate=":#{cc.clientId}:panelUploadAssignment"
+	            			studentCanEditResponse="#{cc.attrs.activity.studentCanEditResponse}"
+	            		/>
+	            		<h:link rendered="#{cc.attrs.activity.studentCanSeeOtherResponses}"
+	            			outcome="/activity-responses" 
+	            			styleClass="btn btn-green-stroke btn-sm btnFullWidth btnAllResults">
+	            			View responses from other students
+	            			<f:param name="credId" value="#{param['credId']}" />
+	            			<f:param name="compId" value="#{param['compId']}" />
+	            			<f:param name="actId" value="#{param['actId']}" />
+	            		</h:link>
+	            	</ui:fragment>
+	            	
+	            	<ui:fragment rendered="#{empty cc.attrs.activity.resultData.result}">
+	            		<h2>Submit Response</h2>
+	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
+	            			<h:form id="formUpload" enctype="multipart/form-data">
+				            	<utilcomp:fileUpload
+				            		uploadFileInfo="Upload Response"
+				            		fileUploadListenerMethodName="handleFileUpload"
+				            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
+				            		toUpdate=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
+				            		learningContext="#{cc.attrs.learningContext}"
+				            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+				            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
+				            	/> 
+			            	</h:form>
+	            		</c:if>
+	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
+	            			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+							<script>
+							tinymce.init({
+								theme: "modern",
+							    skin: 'light',
+							    height : "200",
+								selector:'#activity .writeResult textarea',
+								font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
+						    	plugins: 'link media code image',
+								menubar:false,
+							    statusbar: false,
+							    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
+							});
+							</script>
+							<style>
+								.mce-panel {
+									margin-bottom: 20px;
+								}
+							</style>
+	            		
+	            			<h:form id="formTypedResult">
+		            			 <div class="whiteBox writeResult">
+				                    <h:inputTextarea disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+				                    	placeholder="Type your response here..."
+				                    	value="#{cc.attrs.activity.resultData.result}">
+				                    </h:inputTextarea>
+				                    <p:commandLink rendered="#{cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder}"
+				                    	styleClass="btn btn-sm btn-green"
+				                    	onclick="if ($('#activity .writeResult textarea').length>0)$('#activity .writeResult textarea').val(tinyMCE.activeEditor.getContent());"
+				                    	action="#{cc.attrs.bean.saveTextResponse()}"
+				                    	update=":#{cc.clientId}:panelUploadAssignment :activity:header:formMain:panelComplete :activity:panelCompProgress :#{cc.clientId}:growlDetails"
+				                    	value="Submit">
+				                    	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+										<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+				                    </p:commandLink>
+				                    <ui:fragment rendered="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
+					                    <a href="javascript:void(0);"
+					                    	disabled="disabled"
+					                    	class="btn btn-sm btn-green"
+					                    	data-toggle="tooltip" 
+											title="In order to submit a response for this activity, previous tasks need to be completed.">
+											Submit
+					                    </a>
+				                    </ui:fragment>
+				                </div>
+				            </h:form>
+	            		</c:if>
+	            	</ui:fragment>
+	            </h:panelGroup>
+            </ui:fragment>
+         </div>
+	
         <h:form id="formModalUpload" rendered="#{cc.attrs.activity.studentCanEditResponse}">
         	<div class="modal fade" id="newRes" tabindex="-1" role="dialog" aria-labelledby="newResult">
                 <div class="modal-dialog" role="document">
@@ -277,6 +335,7 @@
                     </div>
                 </div>
             </div>
-        </h:form>
+        </h:form> 
+		            	
 	</composite:implementation>
 </ui:component>

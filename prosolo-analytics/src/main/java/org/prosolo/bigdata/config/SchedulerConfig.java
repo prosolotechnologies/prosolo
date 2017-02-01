@@ -14,6 +14,9 @@ public class SchedulerConfig {
 	@Element(name = "auto-start", required = true)
 	public boolean autoStart;
 
+	@Element(name = "create-tables", required = true)
+	public boolean createTables;
+
 	@Element(name = "instance-name", required = true)
 	public String instanceName;
 

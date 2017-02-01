@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -14,6 +15,9 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	private static final long serialVersionUID = 6562985459763765320L;
 	
+	@SuppressWarnings("unused")
+	private static Logger logger = Logger.getLogger(CompetenceData1.class);
+	
 	private long credentialCompetenceId;
 	private long competenceId;
 	private String title;
@@ -21,7 +25,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private long duration;
 	private String durationString;
 	private int order;
-	private boolean published;
 	private PublishedStatus status;
 	private ActivityData activityToShowWithDetails;
 	private boolean activitiesInitialized;
@@ -31,8 +34,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean studentAllowedToAddActivities;
 	private String typeString;
 	private LearningResourceType type;
-	//true if this is data for draft version of credential
-	private boolean draft;
 	
 	private boolean enrolled;
 	private long targetCompId;
@@ -45,11 +46,16 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	private ObjectStatus objectStatus;
 	
+	private boolean published;
+	
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
 	
+	private boolean canEdit;
+	private boolean canAccess;
+	
 	public CompetenceData1(boolean listenChanges) {
-		this.status = PublishedStatus.DRAFT;
+		this.status = PublishedStatus.UNPUBLISH;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
@@ -98,7 +104,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	//setting competence status based on published flag
 	public void setCompStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
+		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on competence status
@@ -256,48 +262,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 				studentAllowedToAddActivities);
 		this.studentAllowedToAddActivities = studentAllowedToAddActivities;
 	}
-	
-	//change tracking get methods
-	
-	public boolean isTitleChanged() {
-		return changedAttributes.containsKey("title");
-	}
-
-	public boolean isDescriptionChanged() {
-		return changedAttributes.containsKey("description");
-	}
-
-	public boolean isTagsStringChanged() {
-		return changedAttributes.containsKey("tagsString");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
-	
-	public boolean isObjectStatusChanged() {
-		return changedAttributes.containsKey("objectStatus");
-	}
-	
-	public boolean isOrderChanged() {
-		return changedAttributes.containsKey("order");
-	}
-	
-	public boolean isDurationChanged() {
-		return changedAttributes.containsKey("duration");
-	}
-	
-	public boolean isStudentAllowedToAddActivitiesChanged() {
-		return changedAttributes.containsKey("studentAllowedToAddActivities");
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
 
 	public boolean isEnrolled() {
 		return enrolled;
@@ -380,5 +344,58 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.instructorId = instructorId;
 	}
 	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
+	}
+	
+	//change tracking get methods
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+	
+	public boolean isObjectStatusChanged() {
+		return changedAttributes.containsKey("objectStatus");
+	}
+	
+	public boolean isOrderChanged() {
+		return changedAttributes.containsKey("order");
+	}
+	
+	public boolean isDurationChanged() {
+		return changedAttributes.containsKey("duration");
+	}
+	
+	public boolean isStudentAllowedToAddActivitiesChanged() {
+		return changedAttributes.containsKey("studentAllowedToAddActivities");
+	}
+	
+	public boolean isScheduledPublicDateChanged() {
+		return changedAttributes.containsKey("scheduledPublicDate");
+	}
 	
 }

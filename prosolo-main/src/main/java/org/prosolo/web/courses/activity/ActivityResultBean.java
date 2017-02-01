@@ -16,8 +16,8 @@ import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.CommentBean;
+import org.prosolo.web.util.HTMLUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class ActivityResultBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			// strip all tags except <br>
-			result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
+			//result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
 			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(), 
 					loggedUser.getUserId(), new LearningContextData(page, lContext, service));
 			

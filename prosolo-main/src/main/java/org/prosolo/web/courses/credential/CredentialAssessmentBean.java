@@ -3,11 +3,13 @@ package org.prosolo.web.courses.credential;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -25,17 +27,16 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.AssessmentData;
-import org.prosolo.services.nodes.data.CompetenceAssessmentData;
-import org.prosolo.services.nodes.data.FullAssessmentData;
+import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -68,21 +69,18 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	// used when managing single assessment
 	private String assessmentId;
 	private long decodedAssessmentId;
-	private FullAssessmentData fullAssessmentData;
+	private AssessmentDataFull fullAssessmentData;
 	private String reviewText;
 
 	// used for managing multiple assessments
 	private String credentialTitle;
 	private String context;
 	private List<AssessmentData> assessmentData;
+	private List<AssessmentData> otherAssessments;
 	private boolean searchForPending = true;
 	private boolean searchForApproved = true;
 
-	private List<PaginationLink> paginationLinks;
-	private int page = 1;
-	private int limit = 5;
-	private int numberOfPages;
-	private int assessmentsNumber;
+	private PaginationData paginationData = new PaginationData(5);
 
 	// adding new comment
 	private String newCommentValue;
@@ -100,12 +98,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						LearningResourceType.UNIVERSITY_CREATED);
 				if (title != null) {
 					credentialTitle = title;
-					assessmentsNumber = assessmentManager.countAssessmentsForAssessorAndCredential(
-							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved);
+					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(
+							decodedId, loggedUserBean.getUserId(), searchForPending, searchForApproved));
 					assessmentData = assessmentManager.getAllAssessmentsForCredential(decodedId,
 							loggedUserBean.getUserId(), searchForPending, searchForApproved, idEncoder,
 							new SimpleDateFormat("MMMM dd, yyyy"));
-					generatePagination();
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -129,13 +126,17 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));
 				credentialTitle = fullAssessmentData.getTitle();
 
+				// for managers, load all other assessments
+				if (isInManageSection()) {
+					otherAssessments = assessmentManager.loadOtherAssessmentsForUserAndCredential(fullAssessmentData.getAssessedStrudentId(), fullAssessmentData.getCredentialId());
+				}
 			} catch (Exception e) {
 				logger.error("Error while loading assessment data", e);
 				PageUtil.fireErrorMessage("Error while loading assessment data");
 			}
 		}
 	}
-
+	
 	public void approveCredential() {
 		try {
 			assessmentManager.approveCredential(idEncoder.decodeId(fullAssessmentData.getEncodedId()),
@@ -246,11 +247,10 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		return Optional.empty();
 	}
 
-	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId,
-			String encodedCompetenceAssessmentId) {
+	public void addCommentToActivityDiscussion(String encodedActivityDiscussionId, String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(encodedActivityDiscussionId)) {
-			actualDiscussionId = createDiscussion(encodedTargetActivityId, encodedCompetenceAssessmentId);
+			actualDiscussionId = createDiscussion(idEncoder.decodeId(encodedTargetActivityId), idEncoder.decodeId(encodedCompetenceAssessmentId));
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -270,8 +270,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			long credAssessmentId = currentAssessment.getCredAssessmentId();
 			
 			if (StringUtils.isBlank(currentAssessment.getEncodedDiscussionId())) {
-				long actualDiscussionId = createDiscussion(currentAssessment.getEncodedTargetActivityId(), 
-						idEncoder.encodeId(compAssessmentId));
+				long actualDiscussionId = createDiscussion(idEncoder.decodeId(currentAssessment.getEncodedTargetActivityId()), compAssessmentId);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -296,6 +295,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			int credPoints = assessmentManager.recalculateScoreForCredentialAssessment(credAssessmentId);
 			fullAssessmentData.setPoints(credPoints);
 			
+			currentAssessment.getGrade().setAssessed(true);
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -318,18 +318,22 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		}
 	}
 
-	private void addComment(long actualDiscussionId, long competenceAssessmentId) {
+	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(actualDiscussionId,
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
 					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, actualDiscussionId, competenceAssessmentId);
+			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, getCommentRecepientId(),
-					fullAssessmentData.getCredentialId());
-
+			
+			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
+			for (Long userId : participantIds) {
+				if (userId != loggedUserBean.getUserId()) {
+					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId, fullAssessmentData.getCredentialId());
+				}
+			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -376,26 +380,28 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			return loggedUserBean.getUserId() == fullAssessmentData.getAssessorId();
 	}
 
-	private long getCommentRecepientId() {
-		// logged user is either assessor or assessee
-		long currentUserId = loggedUserBean.getUserId();
-		if (fullAssessmentData.getAssessorId() == currentUserId) {
-			// current user is assessor, get the other id
-			return fullAssessmentData.getAssessedStrudentId();
-		} else
-			return fullAssessmentData.getAssessorId();
-
-	}
-
-	private long createDiscussion(String encodedTargetActivityId, String encodedCompetenceAssessmentId) {
-		long targetActivityId = idEncoder.decodeId(encodedTargetActivityId);
-		long competenceAssessmentId = idEncoder.decodeId(encodedCompetenceAssessmentId);
-
+	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
 		try {
 			Integer grade = currentAssessment != null ? currentAssessment.getGrade().getValue() : null;
+			
+			// creating a set as there might be duplicates with ids
+			Set<Long> participantIds = new HashSet<>();
+			
+			// adding the student as a participant
+			participantIds.add(fullAssessmentData.getAssessedStrudentId());
+			
+			// adding the logged in user (the message poster) as a participant. It can happen that some other user, 
+			// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+			participantIds.add(loggedUserBean.getUserId());
+			
+			// if assessor is set, add him to the discussion
+			if (fullAssessmentData.getAssessorId() > 0) {
+				participantIds.add(fullAssessmentData.getAssessorId());
+			}
+			
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					Arrays.asList(fullAssessmentData.getAssessorId(), fullAssessmentData.getAssessedStrudentId()),
-					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade);
+					new ArrayList<Long>(participantIds),
+					loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade).getId();
 		} catch (ResourceCouldNotBeLoadedException e) {
 			return -1;
 		}
@@ -411,7 +417,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (!searchForApproved || !searchForPending) {
 			searchForApproved = true;
 			searchForPending = true;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
 	}
@@ -421,20 +427,19 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (searchForApproved || searchForPending) {
 			searchForApproved = false;
 			searchForPending = false;
-			page = 1;
+			paginationData.setPage(1);
 			init();
 		}
 	}
 	
-	private void generatePagination() {
-		// if we don't want to generate all links
-		Paginator paginator = new Paginator(assessmentsNumber, limit, page, 1, "...");
-		// if we want to genearte all links in paginator
-		// Paginator paginator = new Paginator(courseMembersNumber, limit, page,
-		// true, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
+	private boolean isInManageSection() {
+		String currentUrl = PageUtil.getRewriteURL();
+		return currentUrl.contains("/manage/");
 	}
+	
+	/*
+	 * GETTERS / SETTERS
+	 */
 
 	public UrlIdEncoder getIdEncoder() {
 		return idEncoder;
@@ -491,6 +496,14 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	public void setAssessmentData(List<AssessmentData> assessmentData) {
 		this.assessmentData = assessmentData;
 	}
+	
+	public List<AssessmentData> getOtherAssessments() {
+		return otherAssessments;
+	}
+
+	public void setOtherAssessments(List<AssessmentData> otherAssessments) {
+		this.otherAssessments = otherAssessments;
+	}
 
 	public boolean isSearchForPending() {
 		return searchForPending;
@@ -498,7 +511,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForPending(boolean searchForPending) {
 		this.searchForPending = searchForPending;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -509,7 +522,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void setSearchForApproved(boolean searchForApproved) {
 		this.searchForApproved = searchForApproved;
-		page = 1;
+		paginationData.setPage(1);
 		init();
 		RequestContext.getCurrentInstance().update("assessmentList:filterAssessmentsForm");
 	}
@@ -530,11 +543,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		this.assessmentId = assessmentId;
 	}
 
-	public FullAssessmentData getFullAssessmentData() {
+	public AssessmentDataFull getFullAssessmentData() {
 		return fullAssessmentData;
 	}
 
-	public void setFullAssessmentData(FullAssessmentData fullAssessmentData) {
+	public void setFullAssessmentData(AssessmentDataFull fullAssessmentData) {
 		this.fullAssessmentData = fullAssessmentData;
 	}
 
@@ -563,49 +576,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-
-	@Override
 	public void changePage(int page) {
-		if (this.page != page) {
-			this.page = page;
+		if (paginationData.getPage() != page) {
+			paginationData.setPage(page);
 			init();
 		}
 	}
 
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return assessmentsNumber == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public ActivityAssessmentData getCurrentAssessment() {

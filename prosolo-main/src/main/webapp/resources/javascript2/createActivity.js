@@ -5,7 +5,7 @@ $(function () {
 var containerId;
 
 function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:selectStatus').val('UNPUBLISH').change();
 }
 
 function bindPasteEventForUpdatingStatus() {
@@ -24,11 +24,20 @@ function attachListenerForFetchingPageTitle() {
 
 function onStatusChange() {
 	var status = $('#' + containerId + '\\:formMain\\:selectStatus').val();
-	if(status === "DRAFT") {
+	if(status === "UNPUBLISH") {
 		$('#noteDraft').show();
 		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview Draft');
 	} else {
 		$('#noteDraft').hide();
 		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview');
+	}
+}
+
+function acceptGradesChanged(acceptGradeCheckboxId, scoreCalcTypeId) {
+	var checked = $(document.getElementById(acceptGradeCheckboxId)).is(":checked");
+	if(checked) {
+		$(document.getElementById(scoreCalcTypeId)).show();
+	} else {
+		$(document.getElementById(scoreCalcTypeId)).hide();
 	}
 }

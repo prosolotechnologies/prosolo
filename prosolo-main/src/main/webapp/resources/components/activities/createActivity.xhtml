@@ -20,6 +20,8 @@
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 	    
 	    <div class="whiteBar">
 	    </div>
@@ -111,10 +113,14 @@
 			                                <div class="formLine">
 			                                    <label>Description</label>
 			                                    <div class="formLineRight">
-			                                    	<h:inputTextarea
+			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.description}"
 			                                    		onkeyup="updateStatusToDraft();" />
+			                                    		
+			                                    	<script>
+			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
+			                                    	</script>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -124,7 +130,7 @@
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{activityEditBean.isCreateUseCase()}">
 			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
 			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
 			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -147,7 +153,7 @@
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
 			                                         <ul class="addedItems">
 			                                             <li>
 			                                                 #{activityEditBean.activityData.activityType.label}
@@ -162,11 +168,13 @@
 			                                	bean="#{activityEditBean}"
 			                                	uploadFileModalId="uploadFile"
 			                                	addLinkModalId="addURL"
+			                                	uploadCaptionModalId="addSubtitles"
 			                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
 			                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
 			                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
 			                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
 			                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
+			                                	toUpdateModalUploadCaption=":#{cc.clientId}:formModalUploadCaption"
 			                                	mainForm=":#{cc.clientId}:formMain"
 			                                />
 			                            </div>
@@ -184,7 +192,7 @@
 			                    <h2>Publish</h2>
 			                    <p:commandLink
 			                    	id="linkPreview"
-									value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
+									value="Preview #{activityEditBean.activityData.status eq 'UNPUBLISH' ? 'Draft' : ''}"
 									styleClass="linkPreview"
 									action="#{activityEditBean.preview()}"
 									update=":#{cc.clientId}:formMain"
@@ -258,12 +266,12 @@
 			                    <div class="publishRow">
 			                    	<p:commandLink 
 					              	  	styleClass="btn btn-green"
-					              	  	onclick="if ($('.fieldsText').length>0)$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
+					              	  	onclick="copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:description');copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
-					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-					              	  		Save changes
+					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+				              	  		Save changes
 					              	</p:commandLink>
 			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
 			                        
@@ -413,7 +421,65 @@
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
 		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
-		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
+		                    	</p:commandLink>
+		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+		                    </div>
+		                </h:panelGroup>
+		            </div>
+		        </div>
+		    </h:form>
+		    
+		    
+		      <h:form id="formModalUploadCaption" enctype="multipart/form-data">
+		        <div class="modal fade" id="addSubtitles" tabindex="-1" role="dialog" aria-labelledby="addNewSubtitles">
+		            <div class="modal-dialog" role="document">
+		                <h:panelGroup layout="block" id="panelUploadFile" styleClass="modal-content">
+		                    <div class="modal-header alignLeft">
+		                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+		                        <h2 class="modal-title" id="addNewSubtitles">Add Subtitles</h2>
+		                    </div>
+		                    
+		                    <div class="modal-body alignLeft">
+		                        <h:inputText id="inputFileTitle"
+		                        	placeholder="Language"
+									value="#{activityEditBean.resLinkToAdd.linkName}">
+		                        </h:inputText>
+		                        
+		                        <div class="chooseFileBox">
+		                        	<utilcomp:simpleFileUpload
+		                        		id="simpleFileUploadCaptions"
+					            		fileUploadListenerMethodName="handleFileUpload"
+					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
+					            		uploadButtonStyle="btn btn-green btn-sm"
+		                        	/>
+		                            <h:panelGroup id="panelFileName">
+		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
+		                            </h:panelGroup>
+		                        </div>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
+									 Language must be entered
+								</h:panelGroup>
+								
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
+									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
+									  	Subtitles must be uploaded
+									  </ui:fragment>
+									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
+									  	Invalid file. Only SRT format allowed.
+									  </ui:fragment>
+								</h:panelGroup>
+		                    </div>
+		                    
+		                    <div class="modal-footer alignLeft">
+		                    	<p:commandLink 
+		                    		styleClass="btn btn-green"
+		                    		value="Add"
+		                    		action="#{activityEditBean.addUploadedCaption()}"
+		                    		update=":#{cc.clientId}:formModalUploadCaption:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelCaptions :#{cc.clientId}:formMain:panelStatus"
+		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addSubtitles').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 		                    </div>

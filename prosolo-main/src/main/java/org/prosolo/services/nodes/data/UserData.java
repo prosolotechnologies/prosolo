@@ -1,9 +1,14 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.AvatarUtils;
 
 public class UserData implements Serializable {
@@ -16,15 +21,30 @@ public class UserData implements Serializable {
 	private String position;
 	private String email;
 	private boolean followedByCurrentUser;
+	private UserType type = UserType.REGULAR_USER;
+	private List<RoleData> roles = new ArrayList<>();
 	
-	public UserData() {}
+	public UserData() {
+		this.roles = new LinkedList<RoleData>();
+	}
 	
 	public UserData(User user) {
+		this();
 		this.id = user.getId();
 		setFullName(user.getName(), user.getLastname());
-		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60);
+		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 		this.position = user.getPosition();
 		this.email = user.getEmail();
+	}
+	
+	public UserData(User user, List<Role> roles) {
+		this(user);
+		
+		if(roles != null) {
+			for(Role role : roles) {
+				this.roles.add(new RoleData(role));
+			}
+		}
 	}
 	
 	public UserData(long id, String firstName, String lastName, String avatar, String position,
@@ -38,7 +58,7 @@ public class UserData implements Serializable {
 		this.fullName = fullName;
 		String readyAvatar = avatar;
 		if(avatar != null && !isAvatarReady) {
-			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size60x60);
+			readyAvatar = AvatarUtils.getAvatarUrlInFormat(avatar, ImageFormat.size120x120);
 		}
 		this.avatarUrl = readyAvatar;
 		this.position = position;
@@ -50,7 +70,9 @@ public class UserData implements Serializable {
 	}
 	
 	private static String getFullName(String name, String lastName) {
-		return name + (lastName != null ? " " + lastName : "");
+		String fName = name != null ? name : "";
+		String lName = lastName != null ? lastName + " " : "";
+		return lName + fName;
 	}
 
 	public long getId() {
@@ -99,6 +121,35 @@ public class UserData implements Serializable {
 
 	public void setFollowedByCurrentUser(boolean followedByCurrentUser) {
 		this.followedByCurrentUser = followedByCurrentUser;
+	}
+
+	public UserType getType() {
+		return type;
+	}
+
+	public void setType(UserType type) {
+		this.type = type;
+	}
+
+	public List<RoleData> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<RoleData> roles) {
+		this.roles = roles;
+	}
+	
+	public String getRolesCSV() {
+		String rolesString = "";
+		if(roles != null) {
+			for(RoleData rd : roles) {
+				if(!rolesString.isEmpty()) {
+					rolesString += ", ";
+				}
+				rolesString += rd.getName();
+			}
+		}
+		return rolesString;
 	}
 	
 }

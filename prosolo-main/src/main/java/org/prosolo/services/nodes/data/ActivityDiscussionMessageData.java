@@ -54,7 +54,7 @@ public class ActivityDiscussionMessageData {
 		data.setEncodedMessageId(encoder.encodeId(activityMessage.getId()));
 		data.setEncodedSenderId(encoder.encodeId(activityMessage.getSender().getParticipant().getId()));
 		data.setSenderFullName(activityMessage.getSender().getParticipant().getName()+" "+activityMessage.getSender().getParticipant().getLastname());
-		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size34x34));
+		data.setSenderAvatarUrl(AvatarUtils.getAvatarUrlInFormat(activityMessage.getSender().getParticipant(), ImageFormat.size120x120));
 		if(compAssessment != null) {
 			data.setSenderInsructor(isSenderAssessor(activityMessage,compAssessment));
 		}
@@ -68,7 +68,7 @@ public class ActivityDiscussionMessageData {
 			CompetenceAssessment compAssessment) {
 		User assessor = compAssessment.getCredentialAssessment().getAssessor();
 		User messageSender = activityMessage.getSender().getParticipant();
-		return assessor.getId() == messageSender.getId();
+		return assessor == null ? false : assessor.getId() == messageSender.getId();
 	}
 	
 	

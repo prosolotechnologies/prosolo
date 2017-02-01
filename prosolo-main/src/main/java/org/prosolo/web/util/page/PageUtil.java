@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -20,6 +21,21 @@ public class PageUtil {
 	public static String getPostParameter(String parameterName) {
 		Map<String, String> contextParameters = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		return contextParameters.get(parameterName);
+	}
+	
+	public static String getGetParameter(String parameterName) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		return params.get(parameterName);
+	}
+	
+	public static int getGetParameterAsInteger(String parameterName) {
+		String param = getGetParameter(parameterName);
+		
+		try {
+			return Integer.parseInt(param);
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 	
 	public static void fireSuccessfulInfoMessage(String description) {
@@ -73,8 +89,12 @@ public class PageUtil {
 	}
 
 	public static void redirectToLoginPage() {
+		redirect("login?faces-redirect=true");
+	}
+	
+	public static void redirect(String url) {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect(url);
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -110,6 +130,23 @@ public class PageUtil {
 			return PageSection.MANAGE;
 		} else {
 			return PageSection.STUDENT;
+		}
+	}
+
+	/*
+	 * Retrieves original URL after a forward from Rewrite framework
+	 */
+	public static String getRewriteURL() {
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		
+		return (String) request.getAttribute("javax.servlet.forward.request_uri");
+	}
+
+	public static void showNotFoundPage() {
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+		} catch (IOException e) {
+			logger.error(e);
 		}
 	}
 }

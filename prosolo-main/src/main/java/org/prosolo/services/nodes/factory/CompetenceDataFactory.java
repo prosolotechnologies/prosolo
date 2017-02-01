@@ -32,7 +32,6 @@ public class CompetenceDataFactory {
 		comp.setTitle(competence.getTitle());
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
-		comp.setDraft(competence.isDraft());
 		comp.setPublished(competence.isPublished());
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
@@ -40,13 +39,16 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
+					user.getPosition());
 			comp.setCreator(creator);
 		}
 		if(tags != null) {
 			comp.setTags(tags);
 			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
 		}
+//		comp.setVisible(competence.isVisible());
+//		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -80,7 +82,8 @@ public class CompetenceDataFactory {
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
+					user.getPosition());
 			comp.setCreator(creator);
 		}
 		if(tags != null) {

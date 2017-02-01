@@ -137,11 +137,27 @@
 													
 													<h:panelGroup rendered="#{profileSettings.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
-															action="#{twitterBean.disconnectUserAccount}"
+															action="#{twitterBean.disconnectUserAccount(true)}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
 															<span></span>Disconnect from Twitter
 														</p:commandLink>
 													</h:panelGroup>
+													<script>
+														function twitterWarningOnClick() {
+															var newLink = $('##{cc.clientId}\\:socialNetworksSettingsForm\\:twitterProfileUrl').val();
+															$('##{cc.clientId}\\:formTwitterWarning\\:twitterProfileUrl').val(newLink);
+															$('#twitterWarning').modal('show');
+														}
+														function saveChangesClick() {
+															var newLink = $('##{cc.clientId}\\:socialNetworksSettingsForm\\:twitterProfileUrl').val();
+															console.log(newLink);
+															if(#{!profileSettings.connectedToTwitter} || '#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}' === newLink) {
+																$('##{cc.clientId}\\:socialNetworksSettingsForm\\:saveChangesLink').click();
+															} else {
+																$('#saveChangesTwitterWarningLink').click();
+															}
+														}
+													</script>
 												</h:panelGroup>
 											</div>
 										</div>
@@ -164,12 +180,19 @@
 									<div class="formLine">
 										<label>&#160;</label>
 										<div class="formLineRight">
-											<p:commandLink styleClass="btn btn-green"
+											<a class="btn btn-green" onclick="saveChangesClick();">Save Changes</a>
+					
+											<p:commandLink id="saveChangesLink" style="display: none;"
 												value="Save Changes"
 												action="#{profileSettings.saveSocialNetworkChanges}"
-												update="settingsSocialNetworksGrowl #{cc.attrs.toUpdate}" />
+												update="settingsSocialNetworksGrowl twitter #{cc.attrs.toUpdate}" />
+											<a id="saveChangesTwitterWarningLink" style="display: none;"
+												onclick="twitterWarningOnClick();">
+												Save Changes
+											</a>
 										</div>
 									</div>
+										
 								</h:panelGroup>
 							</h:form>
 						</div>
@@ -254,5 +277,39 @@
 				</div>
 			</div>
 		</div>
+		
+		<h:form id="formTwitterWarning">
+	    	<div class="modal fade removeInstructorModal" id="twitterWarning" tabindex="-1" role="dialog">
+	          <div class="modal-dialog" role="document">
+	              <div class="modal-content">
+	                  <div class="modal-header">
+	                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                      <h2 class="modal-title" id="removeInst1">Change Twitter Profile URL?</h2>
+	                  </div>
+	                  <div class="modal-body">
+	                      <p>Your Twitter account is connected to ProSolo. If you change your Twitter profile URL, you will need to connect the new account to ProSolo. Are you sure you want to continue?</p>
+	                  </div>
+	                  <div class="modal-footer">
+	                  	  <h:inputHidden id="twitterProfileUrl" value="#{profileSettings.socialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
+	                  	  <p:commandLink
+	                  	  	value="Save Changes"
+	                  	  	styleClass="btn btn-green"
+	                  	  	actionListener="#{twitterBean.disconnectUserAccount(false)}"
+	                  	  	action="#{profileSettings.saveSocialNetworkChanges}"
+							update=":#{cc.clientId}:socialNetworksSettingsForm:settingsSocialNetworksGrowl #{cc.clientId}:socialNetworksSettingsForm:twitter #{cc.attrs.toUpdate}"
+	                  	  	oncomplete="$('#twitterWarning').modal('hide');">
+	                  	  </p:commandLink>
+	                      <p:commandLink 
+	                      	styleClass="btn btn-default" 
+	                      	process="@this"
+	                      	update="#{cc.clientId}:socialNetworksSettingsForm:twitterProfileUrl"
+	                      	oncomplete="$('#twitterWarning').modal('hide');">
+	                      	Cancel
+	                      </p:commandLink>
+	                  </div>
+	              </div>
+	          </div>
+	      </div>
+	    </h:form>
 	</composite:implementation>
 </ui:component>

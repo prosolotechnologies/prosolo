@@ -55,9 +55,10 @@ public class RecommendedDocument implements Serializable {
 	}
 	
 	private String createLinkToFileFromKey(String key){
-		return CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" + 
-				CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" + 
-				key;
+		//return CommonSettings.getInstance().config.fileStore.fileStoreServiceUrl + "/" +
+		//		CommonSettings.getInstance().config.fileStore.fileStoreBucketName + "/" +
+		//		key;
+		return CommonSettings.getInstance().config.fileStore.getFilePath()+key;
 	}
 
 	public String getFilename() {

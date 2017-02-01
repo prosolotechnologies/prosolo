@@ -3,6 +3,7 @@ package org.prosolo.web.courses.competence;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -14,11 +15,13 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.services.common.exception.CompetenceEmptyException;
-import org.prosolo.services.common.exception.DbConnectionException;
-import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -47,6 +50,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
+	@Inject private CompetenceVisibilityBean visibilityBean;
 
 	private String id;
 	private String credId;
@@ -69,8 +73,11 @@ public class CompetenceEditBean implements Serializable {
 	
 	private String context;
 	
+	private boolean manageSection;
+	
 	public void init() {
 		try {
+			manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 			initializeValues();
 			decodedCredId = idEncoder.decodeId(credId);
 			if(id == null) {
@@ -99,9 +106,14 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			competenceData = new CompetenceData1(false);
 			PageUtil.fireErrorMessage("Error while loading competence data");
 		}
+	}
+	
+	public void initVisibilityManageData() {
+		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
 	}
 	
 	private void setContext() {
@@ -114,32 +126,36 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	private void loadCompetenceData(long credId, long id) {
-		PageSection section = PageUtil.getSectionForView();
-		if (PageSection.MANAGE.equals(section)) {
-			competenceData = compManager
-					.getCurrentVersionOfCompetenceForManager(credId, id, false, true);
-		} else {
-			competenceData = compManager.getCompetenceDataForEdit(credId, id, 
-					loggedUser.getUserId(), true);
-		}
-		
-		if(competenceData == null) {
+		try {
+			competenceData = compManager.getCompetenceData(credId, id, true, true, true, 
+					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
+			if(!competenceData.isCanAccess()) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				List<ActivityData> activities = competenceData.getActivities();
+				for(ActivityData bad : activities) {
+					activitiesToExcludeFromSearch.add(bad.getActivityId());
+				}
+				currentNumberOfActivities = activities.size();
+				
+				logger.info("Loaded competence data for competence with id "+ id);
+			}
+		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competence data can not be found");
+			PageUtil.fireErrorMessage("Competence can not be found");
 		}
-		List<ActivityData> activities = competenceData.getActivities();
-		for(ActivityData bad : activities) {
-			activitiesToExcludeFromSearch.add(bad.getActivityId());
-		}
-		currentNumberOfActivities = activities.size();
-		
-		logger.info("Loaded competence data for competence with id "+ id);
 	}
 
 	private void initializeValues() {
 		activitiesToRemove = new ArrayList<>();
 		activitiesToExcludeFromSearch = new ArrayList<>();
-		compStatusArray = PublishedStatus.values();
+		compStatusArray = Arrays.stream(PublishedStatus.values()).filter(
+				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
+				.toArray(PublishedStatus[]::new);
 	}
 
 	public boolean hasMoreActivities(int index) {
@@ -209,14 +225,14 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if(competenceData.hasObjectChanged()) {
 					if(saveAsDraft) {
-						competenceData.setStatus(PublishedStatus.DRAFT);
+						competenceData.setStatus(PublishedStatus.UNPUBLISH);
 					}
-					compManager.updateCompetence(decodedId, competenceData, 
+					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if(saveAsDraft) {
-					competenceData.setStatus(PublishedStatus.DRAFT);
+					competenceData.setStatus(PublishedStatus.UNPUBLISH);
 				}
 				long credentialId = addToCredential ? decodedCredId : 0;
 				//competenceData.setDuration(4);
@@ -249,7 +265,7 @@ public class CompetenceEditBean implements Serializable {
 				 * passing decodedId because we need to pass id of
 				 * original competence and not id of a draft version
 				 */
-				compManager.deleteCompetence(decodedId, competenceData, loggedUser.getUserId());
+				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
 				competenceData = new CompetenceData1(false);
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
@@ -309,14 +325,14 @@ public class CompetenceEditBean implements Serializable {
 		Collections.swap(activities, i, k);
 		
 		//when activity order changes update status to draft
-		competenceData.setStatus(PublishedStatus.DRAFT);
+		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity() {
 		removeActivity(activityForRemovalIndex);
 		
 		//when activity is removed update status to draft
-		competenceData.setStatus(PublishedStatus.DRAFT);
+		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity(int index) {

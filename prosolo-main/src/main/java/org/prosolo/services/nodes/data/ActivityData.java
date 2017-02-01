@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -31,13 +32,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int durationMinutes;
 	private String durationString;
 	private boolean published;
-	private boolean draft;
-	private boolean hasDraft;
 	private PublishedStatus status;
 	private long creatorId;
 	
 	private List<ResourceLinkData> links;
 	private List<ResourceLinkData> files;
+	private List<ResourceLinkData> captions;
 	private String typeString;
 	private LearningResourceType type;
 	
@@ -56,6 +56,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private String consumerKey;
 	private boolean acceptGrades;
 	private boolean openInNewWindow;
+	private boolean visibleForUnenrolledStudents;
+	private ScoreCalculation scoreCalculation;
 	
 	//TextActivity specific
 	private String text;
@@ -69,10 +71,15 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean studentCanSeeOtherResponses;
 	private boolean studentCanEditResponse;
 	
+	private boolean canEdit;
+	private boolean canAccess;
+	
 	public ActivityData(boolean listenChanges) {
+		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
+		captions = new ArrayList<>();
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
@@ -95,6 +102,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 			}
 			
 			for(ResourceLinkData rl : getFiles()) {
+				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
+					return true;
+				}
+			}
+			
+			for(ResourceLinkData rl : getCaptions()) {
 				if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
 					return true;
 				}
@@ -133,7 +146,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	//setting activity status based on published flag
 	public void setActivityStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
+		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on course status
@@ -281,22 +294,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setEnrolled(boolean enrolled) {
 		this.enrolled = enrolled;
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
 	}
 
 	public long getCompetenceId() {
@@ -455,6 +452,32 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.creatorId = creatorId;
 	}
 	
+	public List<ResourceLinkData> getCaptions() {
+		return captions;
+	}
+
+	public void setCaptions(List<ResourceLinkData> captions) {
+		this.captions = captions;
+	}
+	
+	public boolean isVisibleForUnenrolledStudents() {
+		return visibleForUnenrolledStudents;
+	}
+
+	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
+		observeAttributeChange("visibleForUnenrolledStudents", this.visibleForUnenrolledStudents, visibleForUnenrolledStudents);
+		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
+	}
+	
+	public ScoreCalculation getScoreCalculation() {
+		return scoreCalculation;
+	}
+
+	public void setScoreCalculation(ScoreCalculation scoreCalculation) {
+		observeAttributeChange("scoreCalculation", this.scoreCalculation, scoreCalculation);
+		this.scoreCalculation = scoreCalculation;
+	}
+	
 	//change tracking get methods
 
 	public boolean isTitleChanged() {
@@ -584,6 +607,22 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
 		observeAttributeChange("studentCanEditResponse", this.studentCanEditResponse, studentCanEditResponse);
 		this.studentCanEditResponse = studentCanEditResponse;
+	}
+	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
 	}
 	
 }

@@ -10,10 +10,10 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
@@ -23,8 +23,8 @@ import org.prosolo.services.interaction.data.CommentSortOption;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.PostUtil;
 import org.prosolo.web.useractions.util.ICommentBean;
+import org.prosolo.web.util.HTMLUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -171,7 +171,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		newComment.setDateCreated(new Date());
 		
 		// strip all tags except <br>
-		newComment.setComment(PostUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
+		newComment.setComment(HTMLUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
 		
 		UserData creator = new UserData(
 				loggedUser.getUserId(), 

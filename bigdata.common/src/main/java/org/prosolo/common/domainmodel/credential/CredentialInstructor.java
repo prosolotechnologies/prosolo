@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,10 @@ public class CredentialInstructor {
 	private Credential1 credential;
 	private List<TargetCredential1> assignedStudents;
 	private Date dateAssigned;
+	
+	public CredentialInstructor() {
+		assignedStudents = new ArrayList<>();
+	}
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)

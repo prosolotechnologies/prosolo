@@ -1,11 +1,14 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.services.common.observable.StandardObservable;
@@ -16,6 +19,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = -8784334832131740545L;
 	
+	private static Logger logger = Logger.getLogger(CredentialData.class);
+	
 	private long id;
 	private String title;
 	private String description;
@@ -23,7 +28,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private String tagsString;
 	private Set<Tag> hashtags;
 	private String hashtagsString = "";
-	private boolean published;
 	private PublishedStatus status;
 	private String typeString;
 	private LearningResourceType type;
@@ -33,8 +37,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private ResourceCreator creator;
 	private List<CompetenceData1> competences;
 	//true if this is data for draft version of credential
-	private boolean draft;
-	private boolean hasDraft;
+	//private boolean draft;
+	//private boolean hasDraft;
 	private boolean studentsCanAddCompetences;
 	private boolean automaticallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
@@ -53,11 +57,44 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private Date date;
 	private boolean instructorPresent;
 	
+	//private boolean visible;
+	private boolean published;
+	private Date scheduledPublishDate;
+	private String scheduledPublishDateValue;
+	private String scheduledPublishDateStringView;
+	
+	private boolean canEdit;
+	private boolean canAccess;
+	
 	public CredentialData(boolean listenChanges) {
-		this.status = PublishedStatus.DRAFT;
+		this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
+	
+	public void setCredentialStatus() {
+		setCredentialStatus(published, scheduledPublishDate);
+	}
+	
+	public void setCredentialStatus(boolean published, Date scheduledPublicDate) {
+		if(published) {
+			if(scheduledPublicDate == null) {
+				this.status = PublishedStatus.PUBLISHED;
+			} else {
+				this.status = PublishedStatus.SCHEDULED_UNPUBLISH;
+			}
+		} else {
+			if(scheduledPublicDate == null) {
+				this.status = PublishedStatus.UNPUBLISH;
+			} else {
+				this.status = PublishedStatus.SCHEDULED_PUBLISH;
+			}
+		}
+	}
+	
+//	public boolean isCredVisible() {
+//		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
+//	}
 	
 	/**
 	 * This method needed to be overriden to deal with collection of competences because
@@ -80,27 +117,24 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return index < competences.size() - 1;
 	}
 	
-	/**
-	 * Returns true if credential is draft and it is not a draft version, so it
-	 * means that it is original version that is created as draft - has never been published
-	 * @return
-	 */
-	public boolean isFirstTimeDraft() {
-		return !published && !draft && !hasDraft;
-	}
+//	/**
+//	 * Returns true if credential is draft and it is not a draft version, so it
+//	 * means that it is original version that is created as draft - has never been published
+//	 * @return
+//	 */
+//	public boolean isFirstTimeDraft() {
+//		return !published && !draft && !hasDraft;
+//	}
 	
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 	
-	//setting course status based on published flag
-	public void setCredentialStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
-	}
-	
 	//setting published flag based on course status
 	private void setPublished() {
-		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+		if(status == PublishedStatus.PUBLISHED || status == PublishedStatus.UNPUBLISH) {
+			setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+		}
 	}
 	
 	private void setCredentialTypeFromString() {
@@ -254,40 +288,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setDurationString(String durationString) {
 		this.durationString = durationString;
 	}
-
-	//change tracking get methods
-	
-	public boolean isTitleChanged() {
-		return changedAttributes.containsKey("title");
-	}
-
-	public boolean isDescriptionChanged() {
-		return changedAttributes.containsKey("description");
-	}
-
-	public boolean isTagsStringChanged() {
-		return changedAttributes.containsKey("tagsString");
-	}
-
-	public boolean isHashtagsStringChanged() {
-		return changedAttributes.containsKey("hashtagsString");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
-
-	public boolean isStatusChanged() {
-		return changedAttributes.containsKey("status");
-	}
-
-	public boolean isMandatoryFlowChanged() {
-		return changedAttributes.containsKey("mandatoryFlow");
-	}
-	
-	public boolean isDurationChanged() {
-		return changedAttributes.containsKey("duration");
-	}
 	
 	public Set<Tag> getTags() {
 		return tags;
@@ -305,13 +305,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.hashtags = hashtags;
 	}
 
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
+//	public boolean isDraft() {
+//		return draft;
+//	}
+//
+//	public void setDraft(boolean draft) {
+//		this.draft = draft;
+//	}
 
 	public boolean isStudentsCanAddCompetences() {
 		return studentsCanAddCompetences;
@@ -349,13 +349,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 		calculateDurationString();
 	}
 
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
-	}
+//	public boolean isHasDraft() {
+//		return hasDraft;
+//	}
+//
+//	public void setHasDraft(boolean hasDraft) {
+//		this.hasDraft = hasDraft;
+//	}
 
 	public boolean isBookmarkedByCurrentUser() {
 		return bookmarkedByCurrentUser;
@@ -419,6 +419,108 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setInstructorPresent(boolean instructorPresent) {
 		this.instructorPresent = instructorPresent;
+	}
+
+	public Date getScheduledPublishDate() {
+		return scheduledPublishDate;
+	}
+
+	public void setScheduledPublishDate(Date scheduledPublishDate) {
+		observeAttributeChange("scheduledPublicDate", this.scheduledPublishDate, scheduledPublishDate, 
+				(Date d1, Date d2) -> d1 == null ? d2 == null : d2 == null ? false : d1.compareTo(d2) == 0);
+		this.scheduledPublishDate = scheduledPublishDate;
+	}
+
+	public String getScheduledPublishDateValue() {
+		return scheduledPublishDateValue;
+	}
+
+	public void setScheduledPublishDateValue(String scheduledPublishDateValue) {
+		this.scheduledPublishDateValue = scheduledPublishDateValue;
+		if(StringUtils.isNotBlank(scheduledPublishDateValue)) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+			Date d = null;
+			try {
+				d = sdf.parse(scheduledPublishDateValue);
+			} catch(Exception e) {
+				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublishDateValue), e);
+			}
+			setScheduledPublishDate(d);
+		}
+	}
+	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
+	}
+	
+//	public boolean isVisible() {
+//		return visible;
+//	}
+//
+//	public void setVisible(boolean visible) {
+//		this.visible = visible;
+//	}
+
+	//change tracking get methods
+	
+	public boolean isTitleChanged() {
+		return changedAttributes.containsKey("title");
+	}
+
+	public boolean isDescriptionChanged() {
+		return changedAttributes.containsKey("description");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
+	}
+
+	public boolean isHashtagsStringChanged() {
+		return changedAttributes.containsKey("hashtagsString");
+	}
+	
+	public String getOldHashtags() {
+		return (String) changedAttributes.get("hashtagsString");
+	}
+
+	public boolean isPublishedChanged() {
+		return changedAttributes.containsKey("published");
+	}
+
+	public boolean isStatusChanged() {
+		return changedAttributes.containsKey("status");
+	}
+
+	public boolean isMandatoryFlowChanged() {
+		return changedAttributes.containsKey("mandatoryFlow");
+	}
+	
+	public boolean isDurationChanged() {
+		return changedAttributes.containsKey("duration");
+	}
+	
+	public boolean isScheduledPublicDateChanged() {
+		return changedAttributes.containsKey("scheduledPublicDate");
+	}
+
+	public String getScheduledPublishDateStringView() {
+		return scheduledPublishDateStringView;
+	}
+
+	public void setScheduledPublishDateStringView(String scheduledPublishDateStringView) {
+		this.scheduledPublishDateStringView = scheduledPublishDateStringView;
 	}
 
 }

@@ -9,8 +9,8 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
 import org.prosolo.web.LoggedUserBean;
@@ -112,7 +112,7 @@ public class TopNotificationsBean1 {
 	public void setRefreshRate(int refreshRate) {
 		this.refreshRate = refreshRate;
 	}
-
+	
 	public String getDomainPrefix() {
 		return domainPrefix;
 	}

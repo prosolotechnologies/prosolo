@@ -31,9 +31,10 @@ function toggleReplyInput(replyBtn) {
     return false;
 }
 
-function showEditResponse(editBtn) {
+function showEditResponse(editBtn, responseContainer) {
     $(editBtn).parent().prev().find('.editComment').toggleClass('hidden');
     $(editBtn).parent().prev().find('.commentText').toggleClass('hidden');
+    $(responseContainer).hide();
     $(editBtn).addClass('hidden');
     return false;
 }
@@ -202,5 +203,11 @@ function replaceInlineUserLink(selector) {
 		$(this).attr('href', 'profile/'+$(this).attr('data-id'))
 			   .attr('target', '_blank');
 	});
+}
+
+function hideModal(dialogId) {
+	$('#'+dialogId).modal('hide');
+	$("body").removeAttr("class").removeAttr("style");
+	$("div.modal-backdrop.fade.in").remove();
 }
 

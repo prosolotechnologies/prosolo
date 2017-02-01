@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -824,17 +825,21 @@ public class BusinessCase3_Statistics extends BusinessCase {
  	}
 	
 	private void publishCredential(Credential1 cred, User creator) {
+		//to make sure that all documents will be indexed in ES before we try to update them.
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			logger.error(e);
+		}
 		CredentialManager credentialManager = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), 
-				false, true);
+		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
+				true, creator.getId(), UserGroupPrivilege.None);
 		
 		credentialData.setPublished(true);
-		
-		credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(), 
-				org.prosolo.services.nodes.data.Role.Manager, null);
+		credentialManager.updateCredential(credentialData, creator.getId(), null);
 	}
 
 //	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {

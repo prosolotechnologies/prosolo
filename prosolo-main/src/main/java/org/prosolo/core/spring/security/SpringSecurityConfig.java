@@ -179,6 +179,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/assessments").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/posts/*").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
+		   
 		   //remove
 		   .antMatchers("/manage/course.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competence.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
@@ -245,6 +247,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   // ADDED
 		   .antMatchers("/manage/studentProfile.history.xhtml").hasAuthority("BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
+		   
+		   .antMatchers("/manage/students").hasAuthority("BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/groups").hasAuthority("BASIC.MANAGER.ACCESS")
 		   
 		   //admin
 		   .antMatchers("/admin").hasAuthority("BASIC.ADMIN.ACCESS")
@@ -623,7 +628,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Qualifier("metadata")
     public CachingMetadataManager metadata() throws MetadataProviderException, ResourceException {
     	List<MetadataProvider> providers = new ArrayList<MetadataProvider>();
-       // providers.add(ssoCircleExtendedMetadataProvider());
+      //  providers.add(ssoCircleExtendedMetadataProvider());
 		providers.add(ssoUtaTestExtendedMetadataProvider());
 		providers.add(ssoUtaProdExtendedMetadataProvider());
         //providers.add(simpleSamlProvider());
@@ -717,7 +722,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
         SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
-        successLogoutHandler.setDefaultTargetUrl("/");
+        successLogoutHandler.setDefaultTargetUrl("/login");
         return successLogoutHandler;
     }
      

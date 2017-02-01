@@ -44,15 +44,15 @@
 								<h2>
 									<ui:fragment rendered="#{cc.attrs.assessor}">
 										<h:link outcome="/manage/credential-assessment">#{assessmentData.title}
-											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-											<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
 										</h:link>
 									</ui:fragment>
 									
 									<ui:fragment rendered="#{not cc.attrs.assessor}">
 										<h:link outcome="/credential-assessment">#{assessmentData.title}
-											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId"></f:param>
-											<f:param value="#{assessmentData.encodedCredentialId}" name="id"></f:param>
+											<f:param value="#{assessmentData.encodedAssessmentId}" name="assessmentId" />
+											<f:param value="#{assessmentData.encodedCredentialId}" name="id" />
 										</h:link>
 									</ui:fragment>
 								</h2>
@@ -67,11 +67,16 @@
 								<div class="clear"></div>
 								
 								<div class="user32">
-									Student:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
+									Asked to:<h:outputText value="&#160;" /><h:outputText value="&#160;" /><h:outputText value="&#160;" />
 									<!-- when avatar is null, display initials div -->
-									<utilcomp:userAvatar avatar="#{assessmentData.studentAvatarUrl}"
-										fullName="#{assessmentData.studentFullName}"/>
-									<h3>#{assessmentData.studentFullName}</h3>
+									<ui:fragment rendered="#{assessmentData.assessorFullName != null}">
+										<utilcomp:userAvatar avatar="#{assessmentData.assessorAvatarUrl}"
+											fullName="#{assessmentData.assessorFullName}"/>
+										<h3>#{assessmentData.assessorFullName}</h3>
+									</ui:fragment>
+									<ui:fragment rendered="#{assessmentData.assessorFullName == null}">
+										<h3>Instructor Assessment</h3>
+									</ui:fragment>
 								</div>
 								
 								<div class="commentsNumber">
@@ -88,7 +93,7 @@
 						<utilcomp:pagination
 							id="pagination" 
 							bean="#{cc.attrs.bean}"
-							links="#{cc.attrs.bean.paginationLinks}"
+							updateUrl="true"
 							toUpdate=":#{cc.attrs.id}:filterAssessmentsForm" />
 					</div>
 						        

@@ -22,6 +22,7 @@
 	 
 	<scheduler-config>
 		<auto-start>false</auto-start>
+		<create-tables>false</create-tables>
 		<instance-name>ProsoloAnalyticsScheduler</instance-name>
 		<thread-count>10</thread-count>
 		<job-store-class>org.quartz.simpl.RAMJobStore</job-store-class>

@@ -2,9 +2,9 @@ package org.prosolo.services.interaction;
 
 import java.util.List;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
@@ -39,8 +39,15 @@ public interface CommentManager {
 			boolean paginate, int maxResults, CommentSortData commentSortData, 
 			CommentReplyFetchMode replyFetchMode, long userId) throws DbConnectionException;
 	
-	 List<CommentData> getAllCommentReplies(CommentData parent, CommentSortData commentSortData, 
-				long userId) throws DbConnectionException;
+	List<CommentData> getCommentsWithNumberOfReplies(CommentedResourceType resourceType, long resourceId,
+			boolean paginate, int maxResults, CommentSortData commentSortData, long userId)
+			throws DbConnectionException;
+	
+	List<CommentData> getCommentsWithReplies(CommentedResourceType resourceType, long resourceId, boolean paginate,
+			int maxResults, CommentSortData commentSortData, long userId) throws DbConnectionException;
+	
+	List<CommentData> getAllCommentReplies(CommentData parent, CommentSortData commentSortData, 
+			long userId) throws DbConnectionException;
 	
 	void likeComment(long userId, long commentId, LearningContextData context) 
 			throws DbConnectionException;
@@ -66,5 +73,7 @@ public interface CommentManager {
 	List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
 			long commentId, long userId) throws DbConnectionException;
+	
+	
 
 }

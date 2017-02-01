@@ -78,14 +78,11 @@ public class TwitterBean implements Serializable {
 				accessToken = twitterApiManager.verifyAndGetTwitterAccessToken(loggedUser.getUserId(), oauthVerifier);
 				
 				if (accessToken != null) {
-					PageUtil.fireSuccessfulInfoMessage("You have connected your Twitter account with ProSolo");
-					context.getExternalContext().getFlash().setKeepMessages(true);
-					
 					SocialNetworkAccount twitterAccount = socialNetworksManager.getSocialNetworkAccount(loggedUser.getUserId(), SocialNetworkName.TWITTER);
 					
 					if (twitterAccount != null) {
-						if (twitterAccount.getLink().isEmpty() || !twitterAccount.getLink().equals(accessToken.getProfileLink())) {
-							socialNetworksManager.updateSocialNetworkAccount(twitterAccount);
+						if (!accessToken.getProfileLink().equals(twitterAccount.getLink())) {
+							socialNetworksManager.updateSocialNetworkAccount(twitterAccount, accessToken.getProfileLink());
 						}
 					} else {
 						socialNetworksManager.addSocialNetworkAccount(
@@ -100,7 +97,7 @@ public class TwitterBean implements Serializable {
 						String domain = CommonSettings.getInstance().config.appConfig.domain;
 						String pageSection = parameterMap.get("section");
 						
-						String settingsUrl = domain.substring(0,  domain.length()-1) + PageSection.valueOf(pageSection).getPrefix() + "/settings";
+						String settingsUrl = domain.substring(0,  domain.length()-1) + PageSection.valueOf(pageSection).getPrefix() + "/settings?twitterConnected=true";
 						externalContext.redirect(settingsUrl);
 						redirected = true;
 					} catch (IOException e) {
@@ -160,7 +157,7 @@ public class TwitterBean implements Serializable {
 		return publicLink;
 	}
 
-	public void disconnectUserAccount() {
+	public void disconnectUserAccount(boolean showSuccessMsg) {
 		logger.debug("Disconnecct from twitter for user " + loggedUser.getUserId());
 
 		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
@@ -168,8 +165,10 @@ public class TwitterBean implements Serializable {
 		
 		profileSettingsBean.setConnectedToTwitter(false);
 		
-		PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
-				"Your Twitter account is disconnected from ProSolo.");
+		if(showSuccessMsg) {
+			PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",
+					"Your Twitter account is disconnected from ProSolo.");
+		}
 	}
 
 //	public void updateHashTagsAction() {

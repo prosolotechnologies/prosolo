@@ -13,12 +13,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CourseManager;
@@ -311,7 +311,7 @@ public class InstructorEditBean implements Serializable {
 						instr.setId(instructor.getUserId());
 						
 						try {
-							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUserId(), instr, course, page, lContext, service, null);
+							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, loggedUserBean.getUserId(), instr, course, page, lContext, service, null);
 						} catch (EventException e) {
 								logger.error(e);
 						}

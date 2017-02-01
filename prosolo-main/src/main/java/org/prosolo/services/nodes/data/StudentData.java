@@ -10,6 +10,7 @@ public class StudentData {
 	private int credProgress;
 	private boolean assigned;
 	private long assessmentId;
+	private boolean enrolled;
 	
 	public StudentData() {
 
@@ -68,6 +69,14 @@ public class StudentData {
 
 	public void setAssessmentId(long assessmentId) {
 		this.assessmentId = assessmentId;
+	}
+
+	public boolean isEnrolled() {
+		return enrolled;
+	}
+
+	public void setEnrolled(boolean enrolled) {
+		this.enrolled = enrolled;
 	}
 	
 }

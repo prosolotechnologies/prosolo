@@ -12,13 +12,13 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSortOption1;
-import org.prosolo.search.util.credential.InstructorAssignFilterValue;
-import org.prosolo.services.common.exception.DbConnectionException;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CourseManager;
@@ -26,10 +26,10 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseInstructorData;
 import org.prosolo.web.courses.data.UserData;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.PaginationData;
+import org.prosolo.web.util.pagination.PaginationLink;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -66,7 +66,7 @@ public class CourseMembersBean implements Serializable {
 	private SortingOption sortOrder = SortingOption.ASC;
 	private List<PaginationLink> paginationLinks;
 	private int numberOfPages;
-	private InstructorAssignFilterValue instructorAssignedFilter = InstructorAssignFilterValue.All;
+	private CredentialMembersSearchFilterValue instructorAssignedFilter = CredentialMembersSearchFilterValue.All;
 	private boolean filterUnassigned;
 	
 	private List<CourseInstructorData> courseInstructors;

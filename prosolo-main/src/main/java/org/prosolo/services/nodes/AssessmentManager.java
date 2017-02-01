@@ -5,14 +5,16 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.AssessmentData;
-import org.prosolo.services.nodes.data.AssessmentRequestData;
-import org.prosolo.services.nodes.data.FullAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
+import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public interface AssessmentManager {
@@ -25,14 +27,17 @@ public interface AssessmentManager {
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
 
-	FullAssessmentData getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
+	AssessmentDataFull getFullAssessmentData(long id, UrlIdEncoder encoder, long userId, DateFormat dateFormat);
 
 	Long countAssessmentsForUserAndCredential(long userId, long credentialId);
 
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	long createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
 			long senderId, boolean isDefault, Integer grade) throws ResourceCouldNotBeLoadedException;
+	
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
+			long senderId, boolean isDefault, Integer grade, Session session) throws ResourceCouldNotBeLoadedException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
@@ -64,6 +69,9 @@ public interface AssessmentManager {
 	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
 			throws DbConnectionException;
 	
+	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
+			throws DbConnectionException;
+	
 	long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException;
 	
 	void updateDefaultAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;
@@ -77,7 +85,42 @@ public interface AssessmentManager {
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
 	int recalculateScoreForCompetenceAssessment(long compAssessmentId);
+	
+	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session);
 
 	int recalculateScoreForCredentialAssessment(long credAssessmentId);
+	
+	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session);
+	
+	ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
+	
+	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
+			long targetCompId, long targetActId, int score, Session session) throws DbConnectionException;
+
+	/**
+	 * Load all credential assessments for the given user, but excluding the specific assessment id
+	 * 
+	 * @param assessedStrudentId
+	 * @param credentialId
+	 * @return list of assessment data instances
+	 */
+	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
+
+	/**
+	 * Returns true if the given user is an assessor of the target activity.
+	 * 
+	 * @param userId
+	 * @param targetActivityId
+	 * @return
+	 */
+	boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId);
+
+	/**
+	 * Returns ids of all participant in the activity assessment discussion.
+	 * 
+	 * @param actualDiscussionId
+	 * @return list of participant ids
+	 */
+	List<Long> getParticipantIds(long activityAssessmentId);
 
 }

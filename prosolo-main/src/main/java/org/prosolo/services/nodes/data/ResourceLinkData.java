@@ -1,9 +1,13 @@
 package org.prosolo.services.nodes.data;
 
+import java.io.File;
+
 public class ResourceLinkData {
 
 	private long id;
 	private String url;
+	private String tempUrl;
+	private File tempFile;
 	private boolean urlInvalid;
 	private String linkName;
 	private boolean linkNameInvalid;
@@ -84,6 +88,22 @@ public class ResourceLinkData {
 
 	public void setIdParamName(String idParamName) {
 		this.idParamName = idParamName;
+	}
+
+	public String getTempUrl() {
+		return tempUrl;
+	}
+
+	public void setTempUrl(String tempUrl) {
+		this.tempUrl = tempUrl;
+	}
+
+	public File getTempFile() {
+		return tempFile;
+	}
+
+	public void setTempFile(File tempFile) {
+		this.tempFile = tempFile;
 	}
 	
 }

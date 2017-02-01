@@ -7,7 +7,7 @@ public enum CredentialSortOption {
 	NEWEST_FIRST("Newest first", "dateCreated", SortingOption.DESC),
 	//add when implemented
 	//RELEVANCE("Relevance", "", SortingOption.ASC),
-	ALPHABETICALLY("Alphabetically", "title", SortingOption.ASC);
+	ALPHABETICALLY("Alphabetically", "title.raw", SortingOption.ASC);
 	
 	//ui label
 	private String label;

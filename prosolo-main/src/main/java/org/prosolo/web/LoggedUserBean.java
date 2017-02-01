@@ -1,5 +1,6 @@
 package org.prosolo.web;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,8 +17,10 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
@@ -47,6 +50,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "loggeduser")
@@ -109,8 +113,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		session.removeAttribute("user");
 	}
 	
-	private void initializeData(Map<String, Object> userData) {
-		if (userData != null) {
+	private synchronized void initializeData(Map<String, Object> userData) {
+		if (!initialized && userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
 			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
@@ -138,7 +142,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
 			sessionData.setFullName(setFullName(sessionData.getName(), sessionData.getLastName()));
-			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size60x60));
+			sessionData.setAvatar(AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120));
 			sessionData.setPosition(user.getPosition());
 			sessionData.setEmail(user.getEmail());
 			sessionData.setFullName(setFullName(user.getName(), user.getLastname()));
@@ -159,7 +163,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	}
 	
 	public void initializeAvatar() {
-		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size60x60));
+		setAvatar(AvatarUtils.getAvatarUrlInFormat(getSessionData().getAvatar(), ImageFormat.size120x120));
 	}
 
 	public boolean isLoggedIn() {
@@ -240,7 +244,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if(initialized){
 			final String ipAddress = this.getIpAddress();
 			//loggingService.logEvent(EventType.LOGOUT, user, ipAddress);
-
+			//delete all temp files for this user
+			try {
+				FileUtils.deleteDirectory(new File(Settings.getInstance().config.fileManagement.uploadPath + 
+						File.separator + getUserId()));
+			} catch (IOException e) {
+				logger.error(e);
+			}
 			userManager.fullCacheClear();
 			if (getUserId() > 0) {
 				try {
@@ -325,6 +335,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return false;
 	}
 	
+	private Authentication getAuthenticationObject() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null) {
+			return null;
+		}
+
+		return context.getAuthentication();
+	}
+	
 	public void userLogout(){
 		try {
 			final String ipAddress = this.getIpAddress();
@@ -332,8 +351,26 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 			HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
 					.getExternalContext().getRequest();
 			String contextP = req.getContextPath() == "/" ? "" : req.getContextPath();
-			FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+			Authentication auth = getAuthenticationObject();
+			if(auth != null) {
+				if(auth.getCredentials() instanceof SAMLCredential) {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/saml/logout");
+				} else {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(contextP + "/logout");
+				}
+			}
 		} catch (IOException e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	public void forceUserLogout(){
+		try {
+			final String ipAddress = this.getIpAddress();
+			loggingService.logEvent(EventType.LOGOUT, getUserId(), ipAddress);
+			FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
@@ -363,9 +400,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		sData.setEmail(email);
 	}
 
-//	public String getPassword() {
-//		return getSessionData() == null ? null : getSessionData().getPassword();
-//	}
+	public String getPassword() {
+		return getSessionData() == null ? null : getSessionData().getPassword();
+	}
 
 	public void setPassword(String password) {
 		getSessionData().setPassword(password);
@@ -418,6 +455,16 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public void setSelectedStatusWallFilter(Filter selectedStatusWallFilter) {
 		getSessionData().setSelectedStatusWallFilter(selectedStatusWallFilter);
 	}
+//	public String switchRole(String rolename){
+//		getSessionData().setSelectedRole(rolename);
+//		String navigateTo="/index";
+//		if(rolename.equalsIgnoreCase("manager")){
+//			navigateTo= "/manage/credentialLibrary";
+//		}else if (rolename.equalsIgnoreCase("admin")){
+//			navigateTo= "/admin/users";
+//		}
+//		return navigateTo;
+// 	}
 
 //	public LearningGoalFilter getSelectedLearningGoalFilter() {
 //		return getSessionData() == null ? null : getSessionData().getSelectedLearningGoalFilter();

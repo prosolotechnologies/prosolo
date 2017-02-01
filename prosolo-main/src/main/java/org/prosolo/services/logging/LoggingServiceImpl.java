@@ -321,7 +321,9 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		}else if(objectType.equals(Comment1.class.getSimpleName())){
 			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
-			}else targetUserId=logsDataManager.getParentCommentMaker(objectId);
+			}else if(eventType.equals(EventType.Comment)){
+				targetUserId=logsDataManager.getUserOfTargetActivity(targetId);
+			} else targetUserId=logsDataManager.getParentCommentMaker(objectId);
 		}
 
 

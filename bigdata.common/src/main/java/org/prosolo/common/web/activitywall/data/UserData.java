@@ -21,7 +21,7 @@ public class UserData implements Serializable, Comparable<UserData> {
 	private long id;
 	private String name = "";
 	private String profileUrl = "";
-	private String avatarUrl ="size60x60.png";
+	private String avatarUrl ="size120x120.png";
 	private String position = "";
 	private boolean disabled;
 	private boolean followed;
@@ -147,10 +147,13 @@ public class UserData implements Serializable, Comparable<UserData> {
 
 	@Override
 	public String toString() {
-		return "UserData [id=" + id + ", name=" + name + ", profileUrl="
-				+ profileUrl + "]";
+		return "UserData [id=" + id + ", name=" + name + ", profileUrl=" + profileUrl + ", avatarUrl=" + avatarUrl
+				+ ", position=" + position + ", disabled=" + disabled + ", followed=" + followed + ", loggedUser="
+				+ loggedUser + ", externalUser=" + externalUser + ", publishingService=" + publishingService
+				+ ", locationName=" + locationName + ", latitude=" + latitude + ", longitude=" + longitude
+				+ ", lastAction=" + lastAction + "]";
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		UserData userData = (UserData) obj;

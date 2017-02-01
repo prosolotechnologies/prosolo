@@ -12,9 +12,11 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.common.exception.DbConnectionException;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -30,7 +32,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.util.PostUtil;
+import org.prosolo.web.courses.activity.util.ActivityUtil;
 import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -71,8 +73,24 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	private String roles="Learner";
 	
-	public String getRoles() {
+	/*public String getRoles() {
 		return roles;
+	}*/
+	public String getRoles(){
+		System.out.println("GET ROLES IN ACTIVITY VIEW BEAN USER...");
+		String selectedRole=loggedUser.getSessionData().getSelectedRole();
+		System.out.println("Selected role for LTI:"+selectedRole);
+		String role="Learner";
+		if(selectedRole!=null){
+			if( selectedRole.equalsIgnoreCase("manager")){
+				role= "Instructor";
+			}else if(selectedRole.equalsIgnoreCase("admin")){
+				role= "Administrator";
+			}
+		}
+
+		return role;
+		//return this.roles;
 	}
 
 	private long nextActivityToLearn;
@@ -92,27 +110,42 @@ public class ActivityViewBeanUser implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		
+		initializeActivityData();
+	}
+	
+	private void initializeActivityData() {
 		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
-				boolean shouldReturnDraft = false;
+			
+				UserGroupPrivilege priv = null;
 				if ("preview".equals(mode)) {
-					shouldReturnDraft = true;
+					priv = UserGroupPrivilege.Edit;
+				} else {
+					priv = UserGroupPrivilege.View;
 				}
 				if (decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId(), shouldReturnDraft);
+									decodedCompId, decodedActId, loggedUser.getUserId(), priv);
 				} else { 
 					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocusForUser(
-									0, decodedCompId, decodedActId,  loggedUser.getUserId(), 
-									shouldReturnDraft);
+							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+									0, decodedCompId, decodedActId,  loggedUser.getUserId(), priv);
 				}
-				if (competenceData == null) {
+				if (competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
 					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/notfound.xhtml");
 					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else if(!competenceData.getActivityToShowWithDetails().isCanAccess()){
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/accessDenied.xhtml");
+					} catch (IOException e) {
+						e.printStackTrace();
 						logger.error(e);
 					}
 				} else {
@@ -138,8 +171,17 @@ public class ActivityViewBeanUser implements Serializable {
 //							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
 					loadCompetenceAndCredentialTitle();
+					
+					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
+				}
+			} catch(ResourceNotFoundException rnfe) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
 				}
 			} catch(Exception e) {
+				e.printStackTrace();
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity");
 			}
@@ -152,7 +194,7 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 		}
 	}
-	
+
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = null;
 		String credTitle = null;
@@ -204,6 +246,30 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
+	public void enrollInCredential() {
+		try {
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
+			lcd.setLearningContext(PageUtil.getPostParameter("context"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			credManager.enrollInCredential(decodedCredId, 
+					loggedUser.getUserId(), lcd);
+			initializeActivityData();
+			
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().redirect("/credentials/" + 
+					credId + "/" + compId + "/" + actId);
+			} catch (IOException e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage(e.getMessage());
+		}
+	}
+	
 	public boolean isNextToLearn() {
 		return decodedCompId == nextCompToLearn;
 	}
@@ -221,7 +287,7 @@ public class ActivityViewBeanUser implements Serializable {
  			return "(Preview)";
  		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
  				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
- 			return "(Draft)";
+ 			return "(Unpublished)";
  		} else {
  			return "";
  		}
@@ -288,7 +354,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			// strip all tags except <br> and <a>
 			ActivityResultData ard = competenceData.getActivityToShowWithDetails().getResultData();
-			ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
+			//ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
 			
 			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					ard.getResult(), 

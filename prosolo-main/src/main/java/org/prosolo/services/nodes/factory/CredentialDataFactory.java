@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.factory;
 
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -7,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -35,22 +37,34 @@ public class CredentialDataFactory {
 		}
 		cred.setType(credential.getType());
 		cred.setPublished(credential.isPublished());
-		cred.setCredentialStatus();
+		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		cred.setDraft(credential.isDraft());
-		cred.setHasDraft(credential.isHasDraft());
+		//cred.setDraft(credential.isDraft());
+		//cred.setHasDraft(credential.isHasDraft());
 		cred.setDuration(credential.getDuration());
 		cred.calculateDurationString();
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
+		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
+		if(credential.getScheduledPublishDate() != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+			String formattedDate = sdf.format(credential.getScheduledPublishDate());
+			cred.setScheduledPublishDateValue(formattedDate);
+		}
+		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
+				credential.getScheduledPublishDate()));
+		//cred.setVisible(credential.isVisible());
+		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
+		
 		if(shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
@@ -81,7 +95,8 @@ public class CredentialDataFactory {
 		if(createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size60x60));
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
 		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
@@ -95,7 +110,7 @@ public class CredentialDataFactory {
 			cred.setInstructorId(credential.getInstructor().getUser().getId());
 			cred.setInstructorAvatarUrl(
 					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
-					ImageFormat.size60x60));
+					ImageFormat.size120x120));
 			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());
