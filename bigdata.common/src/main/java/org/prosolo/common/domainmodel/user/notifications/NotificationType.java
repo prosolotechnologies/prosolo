@@ -1,5 +1,12 @@
 package org.prosolo.common.domainmodel.user.notifications;
 
+/**
+ * When new notification type is added, appropriate label should be added to dd_messages.properties file.
+ * Format: settings.notifications.{Here goes the type}={String label}. 
+ * 
+ * @author stefanvuckovic
+ *
+ */
 public enum NotificationType {
 
 	Follow_User,
@@ -10,6 +17,6 @@ public enum NotificationType {
 	Assessment_Requested,
 	Assessment_Approved,
 	Assessment_Comment,
-	Started_Learning, 
+	//Started_Learning, 
 	AnnouncementPublished;
 }
