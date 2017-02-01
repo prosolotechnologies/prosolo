@@ -60,6 +60,7 @@ public class Activity1 extends BaseEntity {
 	private boolean visibleForUnenrolledStudents = false;
 	
 	private int difficulty;
+	private boolean autograde;
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -189,6 +190,16 @@ public class Activity1 extends BaseEntity {
 
 	public void setDifficulty(int difficulty) {
 		this.difficulty = difficulty;
+	}
+	
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isAutograde() {
+		return autograde;
+	}
+
+	public void setAutograde(boolean autograde) {
+		this.autograde = autograde;
 	}
 	
 }

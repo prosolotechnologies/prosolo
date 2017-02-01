@@ -13,10 +13,13 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -40,6 +43,7 @@ public class CredentialFeedsBean implements Serializable {
 	@Autowired private FeedsManager feedsManager;
 	@Autowired private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private LoggedUserBean loggedUserBean;
 	
 	private List<CredentialFeedsData> userFeedSources;
 	private List<CredentialFeedsData> credentialFeeds;
@@ -52,16 +56,29 @@ public class CredentialFeedsBean implements Serializable {
 	
 	private String credentialTitle;
 	
+	private ResourceAccessData access;
+	
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		
 		if (decodedId > 0) {
 			try {
-				if(credentialTitle == null) {
-					credentialTitle = credentialManager.getCredentialTitle(decodedId);
+				access = credentialManager.getCredentialAccessRights(decodedId, 
+						loggedUserBean.getUserId(), UserGroupPrivilege.View);
+				if(!access.isCanAccess()) {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/accessDenied.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else {
+					if(credentialTitle == null) {
+						credentialTitle = credentialManager.getCredentialTitle(decodedId);
+					}
+					userFeedSources = feedsManager.getUserFeedsForCredential(decodedId);
+					credentialFeeds = feedsManager.getCredentialFeeds(decodedId);
 				}
-				userFeedSources = feedsManager.getUserFeedsForCredential(decodedId);
-				credentialFeeds = feedsManager.getCredentialFeeds(decodedId);
 			} catch(DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
@@ -188,6 +205,10 @@ public class CredentialFeedsBean implements Serializable {
 			}
 		}
 		return false;
+	}
+	
+	public boolean canEdit() {
+		return access != null && access.isCanEdit();
 	}
 
 	/*

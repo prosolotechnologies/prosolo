@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -188,5 +189,9 @@ public interface ResourceFactory extends AbstractManager {
 	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;
 	
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
+	
+	ActivityAssessment createActivityAssessment(long targetActivityId, long competenceAssessmentId, 
+			List<Long> participantIds, long senderId, boolean isDefault, Integer grade, 
+			Session session) throws ResourceCouldNotBeLoadedException;
 
 }

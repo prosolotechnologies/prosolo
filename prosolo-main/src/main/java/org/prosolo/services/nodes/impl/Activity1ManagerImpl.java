@@ -912,6 +912,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
+			actToUpdate.setAutograde(data.isAutograde());
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 			actToUpdate.setDifficulty(data.getDifficulty());
 			

@@ -60,6 +60,7 @@ public class ActivityDataFactory {
 		data.setCreatorId(activity.getCreatedBy().getId());
 		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		data.setDifficulty(activity.getDifficulty());
+		data.setAutograde(activity.isAutograde());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -208,6 +209,7 @@ public class ActivityDataFactory {
 		act.calculateDurationString();
 		act.setPublished(activity.isPublished());
 		act.setType(activity.getType());
+		act.setAutograde(activity.isAutograde());
 		
 		act.setActivityType(getActivityType(activity));
 		
@@ -477,6 +479,7 @@ public class ActivityDataFactory {
 		activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 		activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
 		activity.setDifficulty(data.getDifficulty());
+		activity.setAutograde(data.isAutograde());
 	}
 	
 	public Activity1 getActivityFromActivityData(ActivityData activityData) {

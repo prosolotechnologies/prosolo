@@ -18,6 +18,7 @@ import org.jdom2.JDOMException;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
@@ -155,8 +156,12 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							ta.setCommonScore(calculatedScore);
 							ta.setNumberOfAttempts(ta.getNumberOfAttempts() + 1);
 							if(calculatedScore != prevScore) {
-								assessmentManager.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(userId, 0, 
-										ta.getTargetCompetence().getId(), ta.getId(), calculatedScore, session);
+								LearningContextData lcd = new LearningContextData();
+								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
+								assessmentManager
+									.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(
+											userId, 0, ta.getTargetCompetence().getId(), ta.getId(), 
+											calculatedScore, session, lcd);
 							}
 						}
 					}
