@@ -91,16 +91,16 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String frequentCompetenceActivitiesDDL = "CREATE TABLE IF NOT EXISTS frequentcompetenceactivities(competenceid bigint, activities list<bigint>, PRIMARY KEY (competenceid))";
 		this.cqls.add(frequentCompetenceActivitiesDDL);
 		
- 		this.cqls.add("CREATE TABLE IF NOT EXISTS dash_eventdailycount(event text, count counter, date bigint, PRIMARY KEY(event, date));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS dash_usereventdailycount(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS dash_instanceloggeduserscount(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS twitter_hashtagdailycount(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS twitter_hashtagweeklyaverage(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS twitter_hashtaguserscount(hashtag text, users counter, PRIMARY KEY(hashtag));");
-		this.cqls.add("CREATE TABLE IF NOT EXISTS twitter_disabledhashtags(hashtag text, PRIMARY KEY(hashtag));");
+ 		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.DASH_EVENT_DAILY_COUNT+" (event text, count counter, date bigint, PRIMARY KEY(event, date));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.DASH_USER_EVENT_DAILY_COUNT+"(user bigint, event text, count counter, date bigint, PRIMARY KEY(user, event, date));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.DASH_INSTANCE_LOGGED_USERS_COUNT+"(instance text, timestamp bigint, count bigint, PRIMARY KEY(instance, timestamp));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.TWITTER_HASHTAG_DAILY_COUNT+"(hashtag text, date bigint, count counter, PRIMARY KEY(hashtag, date));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.TWITTER_HASHTAG_WEEKLY_AVERAGE+"(day bigint, hashtag text, average double, PRIMARY KEY(day, hashtag));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+"(hashtag text, users counter, PRIMARY KEY(hashtag));");
+		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.TWITTER_DISABLED_HASHTAGS+"(hashtag text, PRIMARY KEY(hashtag));");
 		this.cqls.add("CREATE TABLE IF NOT EXISTS "+TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT+"(course bigint, source bigint, target bigint, count counter, PRIMARY KEY(course, source, target));");
 		
-		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS failedfeeds(url text, date bigint, count counter, PRIMARY KEY (url, date))";
+		String failedFeedsDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.FAILED_FEEDS+"(url text, date bigint, count counter, PRIMARY KEY (url, date))";
 		this.cqls.add(failedFeedsDDL);
 		
 		String clusteringusersobservationsbydateDDL =

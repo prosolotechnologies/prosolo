@@ -85,17 +85,20 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		}
 		
 		FeedsPreferences feedsPreferences = diggestGeneratorDAO.getFeedsPreferences(userid);
-		FeedSource personalBlogSource = feedsPreferences.getPersonalBlogSource();
+		if(feedsPreferences!=null){
+			FeedSource personalBlogSource = feedsPreferences.getPersonalBlogSource();
 
-		if (personalBlogSource != null) {
-			System.out.println("PARSING PERSONAL BLOG:"+personalBlogSource.getLink());
-			String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
-			
-			List<FeedEntry> entries=parseRSSFeed(user, user, personalBlogSource, userTokenizedString);
-			if(entries.size()>0){		 		 
-		 		diggestGeneratorDAO.saveInBatch(entries);
+			if (personalBlogSource != null) {
+				System.out.println("PARSING PERSONAL BLOG:"+personalBlogSource.getLink());
+				String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
+
+				List<FeedEntry> entries=parseRSSFeed(user, user, personalBlogSource, userTokenizedString);
+				if(entries.size()>0){
+					diggestGeneratorDAO.saveInBatch(entries);
+				}
 			}
-		} 
+		}
+
 	}
 	@Override
 	public void generateDailyFriendsRSSFeedDigest(Long userid, Date date) {
@@ -175,30 +178,32 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		}
 		
 		String userTokenizedString = resourceTokenizer.getTokenizedStringForUser(user);
-		List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(userid).getSubscribedRssSources();
-		List<FeedEntry> subscribedRSSFeedEntries =new ArrayList<FeedEntry>();	
-		for (FeedSource feedSource : subscribedRssSources) {
-		 	List<FeedEntry> entries=parseRSSFeed(null, user, feedSource, userTokenizedString);
-		 	feedSource.setLastCheck(new Date());
-		 	if(entries.size()>0){		 		 
-		 		diggestGeneratorDAO.saveInBatch(entries);
-		 		subscribedRSSFeedEntries.addAll(entries);
-		 	}
-		 
-		 
+		if(diggestGeneratorDAO.getFeedsPreferences(userid)!=null) {
+			List<FeedSource> subscribedRssSources = diggestGeneratorDAO.getFeedsPreferences(userid).getSubscribedRssSources();
+			List<FeedEntry> subscribedRSSFeedEntries = new ArrayList<FeedEntry>();
+			for (FeedSource feedSource : subscribedRssSources) {
+				List<FeedEntry> entries = parseRSSFeed(null, user, feedSource, userTokenizedString);
+				feedSource.setLastCheck(new Date());
+				if (entries.size() > 0) {
+					diggestGeneratorDAO.saveInBatch(entries);
+					subscribedRSSFeedEntries.addAll(entries);
+				}
+
+
+			}
+			if (subscribedRSSFeedEntries != null && !subscribedRSSFeedEntries.isEmpty()) {
+				SubscribedRSSFeedsDigest subscribedRSSFeedDigest = new SubscribedRSSFeedsDigest();
+				subscribedRSSFeedDigest.setEntries(subscribedRSSFeedEntries);
+				subscribedRSSFeedDigest.setDateCreated(new Date());
+				subscribedRSSFeedDigest.setTimeFrame(TimeFrame.DAILY);
+				subscribedRSSFeedDigest.setFeedsSubscriber(user);
+				//System.out.println("RSS digest:"+gson.toJson(subscribedRSSFeedDigest));
+				diggestGeneratorDAO.save(subscribedRSSFeedDigest);
+				//feedsManager.saveEntity(subscribedRSSFeedDigest);
+
+				logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
+			} //
 		}
-		if (subscribedRSSFeedEntries != null && !subscribedRSSFeedEntries.isEmpty()) {
-			SubscribedRSSFeedsDigest subscribedRSSFeedDigest = new SubscribedRSSFeedsDigest();
-			subscribedRSSFeedDigest.setEntries(subscribedRSSFeedEntries);
-			subscribedRSSFeedDigest.setDateCreated(new Date());
-			subscribedRSSFeedDigest.setTimeFrame(TimeFrame.DAILY);
-			subscribedRSSFeedDigest.setFeedsSubscriber(user);
-			//System.out.println("RSS digest:"+gson.toJson(subscribedRSSFeedDigest));
-			diggestGeneratorDAO.save(subscribedRSSFeedDigest);
-			//feedsManager.saveEntity(subscribedRSSFeedDigest);
-			
-			logger.info("Created feed digest of subscribed feeds for user " + user + "; total entries:" + subscribedRSSFeedEntries.size());
-	 	} //
 	}
 	
 	@Override
@@ -324,8 +329,11 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			return;
 		}
 		FeedsPreferences feedsPreferences = diggestGeneratorDAO.getFeedsPreferences(userid);
-		
-		TimeFrame interval = feedsPreferences.getUpdatePeriod();
+		TimeFrame interval =null;
+		if(feedsPreferences!=null){
+			interval = feedsPreferences.getUpdatePeriod();
+		}
+
 		
 		if (interval == null) {
 			interval = TimeFrame.DAILY;
@@ -430,6 +438,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			}
 			
 			String email = user.getEmail();
+
 			System.out.println("FEEDS DIGEST TO SEND:"+feedsDigests.size()+" for user:"+user.getId()+" email:"+email);
 			// If development mode, send only to developer email
 			if(!feedsDigests.isEmpty()){

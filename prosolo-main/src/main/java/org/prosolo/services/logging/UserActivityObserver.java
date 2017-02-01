@@ -157,7 +157,7 @@ public class UserActivityObserver extends EventObserver {
 //						targetLearningGoal=targetCompetence.getParentGoal();
 //					}
 //					if(targetLearningGoal!=null){
-//						analyticalServiceCollector.increaseUserActivityForLearningGoalLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
+//						analyticalServiceCollector.increaseUserActivityForCredentialLog(userid, targetLearningGoal.getLearningGoal().getId(),DateUtil.getDaysSinceEpoch());
 //					}
 					if(event.getAction().equals(EventType.UPDATE_HASHTAGS)){
 						long credId=0, userId=0;
