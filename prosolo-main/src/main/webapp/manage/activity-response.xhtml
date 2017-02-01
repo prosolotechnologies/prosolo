@@ -1,0 +1,306 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+
+	<ui:define name="windowTitle">
+		Activity Response
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="targetActId" value="#{activityResultsBeanManager.targetActId}" default="null" />
+			<f:viewParam name="actId" value="#{activityResultsBeanManager.actId}" default="null" />
+			<f:viewParam name="compId" value="#{activityResultsBeanManager.compId}" default="null"/>
+			<f:viewParam name="credId" value="#{activityResultsBeanManager.credId}" default="null"/>
+			<f:viewParam name="comment" value="#{activityResultsBeanManager.commentId}" default="null"/>
+			<f:viewAction action="#{activityResultsBeanManager.initIndividualResponse()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h1>#{activityResultsBeanManager.activity.title}</h1>
+    </ui:define>
+    
+	<ui:define name="content">
+	<h:outputStylesheet library="css2" name="bootstrap-slider.css"  />
+	<script	src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
+	<script>
+		$(function() {
+			if(#{not empty param['comment']}) {
+				if(#{activityResultsBeanManager.currentResult.resultComments.initialized}) {
+					$('#commentsContainerDiv#{activityResultsBeanManager.currentResult.targetActivityId}').collapse();
+				}
+				scrollTo('comment_' + #{util:decodeId(param['comment'])});
+			}	
+		});
+		
+		function markDiscussionAsSeen(discussionId, parentElement) {
+			markActivityDiscussionRead([{name:'encodedActivityDiscussionId', value:discussionId}])
+			$(parentElement).removeClass( "hasNewComments" );
+		}
+		
+		//comment form hide/show
+		function displaySubmitButtonPrivateConvModal(inputElem) {
+		    if ($(inputElem).val().length==0) {
+		        $(inputElem).next('a.btn-green').addClass('hidden');
+		    } else {
+		        $(inputElem).next('a.btn-green').removeClass('hidden');
+		    }
+		}
+
+	</script>
+	<h:form prependId="false" id="remoteCommandForm">
+		<p:remoteCommand action="#{activityResultsBeanManager.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
+	</h:form>
+	
+	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanManager.decodedCredId}|context:/name:competence|id:#{activityResultsBeanManager.decodedCompId}|context:/name:activity|id:#{activityResultsBeanManager.decodedActId}|context:/name:target_activity|id:#{activityResultsBeanManager.decodedTargetActId}|context:/name:RESULTS////"/>
+	<p:growl id="growlMain" showDetail="true" globalOnly="true" />
+	
+    <div class="whiteBar">
+        <div class="container">
+            <activities:activityHeaderOptions
+				bean="#{activityResultsBeanManager}"
+				activity="#{activityResultsBeanManager.activity}"
+				learningContext="#{learningContext}"
+				canEdit="false"
+				isPreview="false"
+			/>
+        </div>
+    </div>
+
+    <div class="container">
+    	<ol class="breadcrumb">
+            <li>
+            	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanManager.credentialTitle}"
+            		outcome="/manage/credential"
+            		onclick="sendLogPageNavigation('/manage/credential.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanManager.decodedCredId).concat(&#34;/&#34;))}', 
+							'');">
+            		<f:param name="id" value="#{param['credId']}"></f:param>
+            	</h:link>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanManager.competenceTitle}"
+            		outcome="/manage/competence"
+            		onclick="sendLogPageNavigation('/manage/competence.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanManger.decodedCompId).concat(&#34;/&#34;))}', 
+							'');">
+            		<f:param name="compId" value="#{param['compId']}"></f:param>
+            		<f:param name="credId" value="#{param['credId']}"></f:param>
+            	</h:link>
+            </li>
+            <li>
+            	<h:link 
+            		value="#{activityResultsBeanManager.activity.title}"
+            		outcome="/manage/activity"
+            		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
+							'');">
+					<f:param name="actId" value="#{param['actId']}"></f:param>
+            		<f:param name="compId" value="#{param['compId']}"></f:param>
+            		<f:param name="credId" value="#{param['credId']}"></f:param>
+            	</h:link>
+            	
+            </li>
+            <li class="active">
+            	Responses
+            </li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+            	<h:panelGroup id="panelUploadAssignment">
+	                <h2>Activity Response</h2>
+	                <activities:activityResult
+	               	 	bean="#{activityResultsBeanManager}"
+	           			resultData="#{activityResultsBeanManager.currentResult}"
+	           			resultType="#{activityResultsBeanManager.activityResultType}"
+	           			learningContext="#{learningContext}"
+	           			role="MANAGER"
+	           			assignmentUploadModalId=""
+	           			growlToUpdate=":growlMain"
+	           			regionToUpdate=""
+	           			privateConvModalId="assessmentCommentsModal1"
+	           			toUpdateConvModal=":formPrivateConversation:panelModalPrivateConversation"
+	           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
+	           			assessmentGradeModalId="assessmentGradeModal1"
+	           			gradeLink="gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
+	           			toUpdateAssessmentGradeModal=":activityGradeModal:formGradeModal:panelGradeModal"
+	           		/>
+	           	</h:panelGroup>
+            </div>
+        </div>
+    </div>
+    
+    <h:form id="formPrivateConversation">
+    	<div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal1" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
+          <div class="modal-dialog modal-lg">
+              <h:panelGroup id="panelModalPrivateConversation" layout="block" styleClass="modal-content">
+              	<ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult}">
+                  <div class="modal-header alignLeft">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      	<span aria-hidden="true">&#215;</span>
+                      </button>
+                      <h2 class="modal-title">Comments</h2>
+                  </div>
+                  <div class="discussion">
+                      <div class="comments">
+                          <ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
+								<ul class="media-list">
+									<ui:repeat var="activityMessageData" value="#{activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
+										<li class="media">
+											<div class="media-left">
+												<utilcomp:userAvatar
+													avatar="#{activityMessageData.senderAvatarUrl}"
+													fullName="#{activityMessageData.senderFullName}" />
+											</div>
+											
+											<div class="media-body">
+												<ui:fragment rendered="#{activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
+													<div class="commentMain">
+														<span class="commentTime">
+															Edited: #{activityMessageData.dateUpdatedFormat}
+														</span>
+														
+														<h3 class="media-heading">
+															#{activityMessageData.senderFullName}
+															<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																<span>INSTRUCTOR</span>
+															</ui:fragment>
+														</h3>
+														
+														<p class="commentText">#{activityMessageData.content}</p>
+														
+														<div class="editComment hidden">
+															<p:inputTextarea name="name"
+																styleClass="contentEditableComment"
+																style="width:100%;" rows="1"
+																value="#{activityMessageData.content}"></p:inputTextarea>
+															<p:commandLink styleClass="btn btn-sm btn-green"
+																oncomplete="hideEditPrivateConversationComment(this);"
+																update=":formPrivateConversation:panelModalPrivateConversation"
+																actionListener="#{activityResultsBeanManager.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
+																type="button"
+																name="button">
+																Submit
+															</p:commandLink>
+															
+															<a href="javascript:void(0)"
+																class="btn btn-sm btn-green-stroke"
+																onclick="hideEditPrivateConversationComment(this)">Cancel</a>
+														</div>
+														
+														<div class="commentOptions">
+															<a href="javascript:void(0)" class="edit"
+																onclick="showEditComment(this)">
+																<span class="icon"></span>Edit
+															</a>
+														</div>
+													</div>
+												</ui:fragment>
+												
+												<ui:fragment rendered="#{not activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
+													<div class="commentMain">
+														<span class="commentTime">
+															Edited: #{activityMessageData.dateCreatedFormat}
+														</span>
+														<h3 class="media-heading">
+															#{activityMessageData.senderFullName}
+															<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																<span>INSTRUCTOR</span>
+															</ui:fragment>
+														</h3>
+														<p>#{activityMessageData.content}</p>
+													</div>
+													
+													<div class="media replyInput hidden">
+														<div class="media-left">
+															<utilcomp:userAvatar
+																avatar="#{activityMessageData.senderAvatarUrl}"
+																fullName="#{activityMessageData.senderFullName}" />
+														</div>
+														
+														<div class="media-body replyComment">
+															<div class="commentForm">
+																<textarea placeholder="Add Comment..." onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
+																<button type="button"
+																	class="btn btn-sm btn-green hidden"
+																	name="button">
+																	Submit
+																</button>
+															</div>
+														</div>
+													</div>
+												</ui:fragment>
+											</div>
+										</li>
+									</ui:repeat>
+								</ul>
+							</ui:fragment>
+                      </div>
+                      <div class="addComment">
+							<utilcomp:userAvatar
+								avatar="#{loggeduser.avatar}"
+								fullName="#{loggeduser.fullName}" />
+								
+							<div class="commentForm">
+								<p:inputTextarea styleClass="contentEditableComment"
+									style="width:100%;" rows="1"
+									value="#{activityResultsBeanManager.newCommentValue}"
+									placeholder="Add Comment..."
+									onkeyup="displaySubmitButtonPrivateConvModal(this)" />
+								
+								<p:commandLink
+									action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
+									type="button" styleClass="btn btn-sm btn-green hidden"
+									name="button"
+									update=":formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
+									Submit
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+									<f:param name="learningContext" value="#{learningContext}"/>
+									<f:param name="service" value="name:result_private_conversation_dialog|id:#{activityResultsBeanManager.currentResult.targetActivityId}"/>
+								</p:commandLink>
+								
+							</div>
+						</div>
+                      <div class="clear"></div>
+                  </div>
+                </ui:fragment>
+              </h:panelGroup>
+          </div>
+      </div>
+    </h:form>
+    
+    <activities:activityGradeModal
+    	id="activityGradeModal"
+   	 	bean="#{activityResultsBeanManager}"
+		assessment="#{not empty activityResultsBeanManager.currentResult ? activityResultsBeanManager.currentResult.assessment : null}"
+		toUpdate=":growlMain @(.gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId})"
+		minGrade="#{activityResultsBeanManager.activity.gradeOptions.minGrade}"
+		maxGrade="#{activityResultsBeanManager.activity.gradeOptions.maxGrade}"
+		learningContext="#{learningContext}"
+	/>
+    
+</ui:define>
+</ui:composition>

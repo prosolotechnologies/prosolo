@@ -123,14 +123,50 @@ public interface Activity1Manager extends AbstractManager {
 			long credId, long compId, long actId, long userId) 
 					throws DbConnectionException;
 	
+	/**
+	 * Returns activity data with results for all students that posted result for activity with id {@code actId} 
+	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
+	 * activity.
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param actId
+	 * @param targetActivityId
+	 * @param isInstructor
+	 * @param paginate
+	 * @param page
+	 * @param limit
+	 * @param filter
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
-			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
-					throws DbConnectionException;
+			long targetActivityId, boolean isInstructor, boolean paginate, int page, int limit, 
+			StudentAssessedFilter filter) throws DbConnectionException;
 	
 	Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
 			throws DbConnectionException ;
 	
-	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
+	/**
+	 * Returns results data for all students that posted result for activity with id {@code actId} 
+	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
+	 * activity.
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param actId
+	 * @param targetActivityId
+	 * @param userToExclude
+	 * @param isInstructor
+	 * @param returnAssessmentData
+	 * @param paginate
+	 * @param page
+	 * @param limit
+	 * @param filter
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, long targetActivityId,
 			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
 			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException;
 

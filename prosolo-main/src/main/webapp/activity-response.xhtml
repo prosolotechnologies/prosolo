@@ -23,6 +23,7 @@
 			<f:viewParam name="actId" value="#{activityResultsBeanUser.actId}" default="null" />
 			<f:viewParam name="compId" value="#{activityResultsBeanUser.compId}" default="null"/>
 			<f:viewParam name="credId" value="#{activityResultsBeanUser.credId}" default="null"/>
+			<f:viewParam name="comment" value="#{activityResultsBeanUser.commentId}" default="null"/>
 			<f:viewAction action="#{activityResultsBeanUser.initIndividualResponse()}" />
 		</f:metadata>
 	</ui:define>
@@ -32,6 +33,16 @@
     </ui:define>
     
 	<ui:define name="content">
+	<script>
+		$(function() {
+			if(#{not empty param['comment']}) {
+				if(#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.resultComments.initialized}) {
+					$('#commentsContainerDiv#{activityResultsBeanUser.competenceData.activityToShowWithDetails.resultData.targetActivityId}').collapse();
+				}
+				scrollTo('comment_' + #{util:decodeId(param['comment'])});
+			}	
+		});
+	</script>
 	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanUser.decodedCredId}|context:/name:competence|id:#{activityResultsBeanUser.decodedCompId}|context:/name:activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{activityResultsBeanUser.competenceData.activityToShowWithDetails.targetActivityId}|context:/name:RESULTS////"/>
 	<ui:param name="canEdit" value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.type == 'USER_CREATED' and activityResultsBeanUser.isCurrentUserCreator()}"></ui:param>
 	<p:growl id="growlMain" showDetail="true" globalOnly="true" />

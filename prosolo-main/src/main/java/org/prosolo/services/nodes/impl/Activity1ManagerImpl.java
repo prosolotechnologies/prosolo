@@ -1913,7 +1913,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					return null;
 				}
 				
-				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, userId, 
+				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, 0, userId, 
 						false, false, false, 0, 0, null));
 				
 				compData = new CompetenceData1(false);
@@ -1992,8 +1992,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
-			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
-			int page, int limit, StudentAssessedFilter filter)  throws DbConnectionException {
+			long targetActivityId, long userToExclude, boolean isInstructor, 
+			boolean returnAssessmentData, boolean paginate, int page, int limit, 
+			StudentAssessedFilter filter)  throws DbConnectionException {
 		try {
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
@@ -2053,6 +2054,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					query.append("AND ad.points IS NULL OR ad.points < 0 ");
 				}
 			}
+			
+			if(targetActivityId > 0) {
+				query.append("AND targetAct.id = :tActId ");
+			}
 				   		
 			query.append("GROUP BY targetAct.id, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id, u.name, u.lastname, u.avatar_url ");
@@ -2084,6 +2089,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			if (returnAssessmentData || filter != null) {
 				q.setBoolean("boolTrue", true);
+			}
+			if (targetActivityId > 0) {
+				q.setLong("tActId", targetActivityId);
 			}
 	
 			@SuppressWarnings("unchecked")
@@ -2196,9 +2204,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
-			boolean isInstructor, boolean paginate, int page, int limit, StudentAssessedFilter filter) 
-					throws DbConnectionException {
+	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, 
+			long actId, long targetActivityId, boolean isInstructor, boolean paginate, int page, 
+			int limit, StudentAssessedFilter filter) throws DbConnectionException {
 		try {			
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 			if (activity == null) {
@@ -2208,12 +2216,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			data.setTitle(activity.getTitle());
 			data.setType(activity.getType());
 			data.setActivityId(actId);
+			data.setDurationHours((int) (activity.getDuration() / 60));
+			data.setDurationMinutes((int) (activity.getDuration() % 60));
+			data.calculateDurationString();
 //			data.getGradeOptions().setMinGrade(activity.getGradingOptions().getMinGrade());
 //			data.getGradeOptions().setMaxGrade(activity.getGradingOptions().getMaxGrade());
 			data.setMaxPointsString(activity.getMaxPoints() == 0 ? "" : String.valueOf(activity.getMaxPoints()));
 			data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 			data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
-			data.setStudentResults(getStudentsResults(credId, compId, actId, 0, isInstructor, true,
+			data.setStudentResults(getStudentsResults(credId, compId, actId, targetActivityId, 0, isInstructor, true,
 					paginate, page, limit, filter));
 			
 			return data;

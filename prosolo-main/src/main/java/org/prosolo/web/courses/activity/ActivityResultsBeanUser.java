@@ -18,12 +18,12 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -40,7 +40,6 @@ public class ActivityResultsBeanUser implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private Activity1Manager activityManager;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private CommentBean commentBean;
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private CommentManager commentManager;
@@ -54,6 +53,7 @@ public class ActivityResultsBeanUser implements Serializable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
+	private String commentId;
 	
 	private CompetenceData1 competenceData;
 
@@ -149,6 +149,12 @@ public class ActivityResultsBeanUser implements Serializable {
 					competenceData.setCredentialTitle((String) credCompTitle[0]);
 					competenceData.setTitle((String) credCompTitle[0]);
 				}
+				if(commentId != null) {
+					competenceData.getActivityToShowWithDetails().getResultData()
+						.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+					initializeResultCommentsIfNotInitialized(
+							competenceData.getActivityToShowWithDetails().getResultData());
+				}
 			}
 		} else {
 			try {
@@ -176,13 +182,9 @@ public class ActivityResultsBeanUser implements Serializable {
 		competenceData.setCredentialId(decodedCredId);
 	}
 	
-	public void initializeResultCommentsIfNotInitialized(ActivityData activity) {
+	public void initializeResultCommentsIfNotInitialized(ActivityResultData res) {
 		try {
-			CommentsData cd = activity.getResultData().getResultComments();
-			if(!cd.isInitialized()) {
-				cd.setInstructor(false);
-				commentBean.loadComments(cd);
-			}
+			activityResultBean.initializeResultCommentsIfNotInitialized(res);
 		} catch(Exception e) {
 			logger.error(e);
 		}
@@ -339,6 +341,14 @@ public class ActivityResultsBeanUser implements Serializable {
 
 	public boolean isResultOwnerIsLookingThisPage() {
 		return resultOwnerIsLookingThisPage;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 	
 }
