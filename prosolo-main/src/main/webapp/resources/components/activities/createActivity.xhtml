@@ -252,6 +252,21 @@
 			                        </div>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
+			                    <div class="difficultyLevel">
+			                        <p>Difficulty level:</p>
+			                        <div class="selectRow">
+			                        	<h:selectOneMenu styleClass="selectpicker pickLevel"
+			                        		value="#{activityEditBean.activityData.difficulty}"
+			                        		onchange="updateStatusToDraft();">
+			                        		<f:selectItem itemValue="1"/>
+			                        		<f:selectItem itemValue="2"/>
+			                        		<f:selectItem itemValue="3"/>
+			                        		<f:selectItem itemValue="4"/>
+			                        		<f:selectItem itemValue="5"/>
+			                        	</h:selectOneMenu>
+			                        </div>
+			                        <script>$('.selectpicker').selectpicker('refresh');</script>
+			                    </div>
 			                    <h:panelGroup id="panelStatus">
 				                    <h:selectOneMenu id="selectStatus"
 					                	styleClass="selectpicker"

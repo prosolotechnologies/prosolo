@@ -59,6 +59,7 @@ public class Activity1 extends BaseEntity {
 	
 	private boolean visibleForUnenrolledStudents = false;
 	
+	private int difficulty;
 	private boolean autograde;
 	
 	public Activity1() {
@@ -182,6 +183,15 @@ public class Activity1 extends BaseEntity {
 		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 
+	@Column(columnDefinition = "int(11) DEFAULT 3")
+	public int getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(int difficulty) {
+		this.difficulty = difficulty;
+	}
+	
 	@Type(type = "true_false")
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isAutograde() {

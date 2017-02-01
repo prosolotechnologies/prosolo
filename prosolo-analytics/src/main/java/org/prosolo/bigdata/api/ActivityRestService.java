@@ -2,7 +2,6 @@ package org.prosolo.bigdata.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,13 +27,12 @@ public class ActivityRestService {
 	public Response getCompletedActivities(@PathParam("competence") long competenceId) {
 		try {
 			List<TargetActivity1> activities = ActivityDAOImpl.getInstance()
-					.getTargetActivities(competenceId);
+					.getTargetActivities(competenceId, true);
 			
 			List<ActivityJsonData> jsonActivities = new ArrayList<>();
 			for(TargetActivity1 ta : activities) {
 				long timeSpent = ta.getTimeSpent();
 				if(timeSpent != 0 || ta.isCompleted()) {
-					//TODO uncomment when fixed
 					long activityId = ta.getActivity().getId();
 					List<Long> usersTimes = ActivityDAOImpl.getInstance()
 								.getTimeSpentOnActivityForAllUsersSorted(activityId);
@@ -48,28 +46,9 @@ public class ActivityRestService {
 					jsonActivity.setCompleted(ta.isCompleted());
 					jsonActivity.setTimeNeeded(timeSpentGroup);
 					
-					//to be changed when complexity algorithm is implemented
-					int min = 1;
-					int max = 5;
-					
-					jsonActivity.setComplexity(ThreadLocalRandom.current().nextInt(min, max + 1));
+					jsonActivity.setComplexity(ta.getActivity().getDifficulty());
 					jsonActivities.add(jsonActivity);
 				} 
-//				//TODO comment all when fixed
-//				ActivityJsonData jsonActivity = new ActivityJsonData();
-//				jsonActivity.setId(ta.getId());
-//				jsonActivity.setName(ta.getTitle());
-//				jsonActivity.setCompleted(ta.isCompleted());
-//				
-//				//TODO return to time spent calculations when fixed
-//				//Random random = new Random();
-//				//int randomNumber = random.nextInt(maxTime - minTime + 1) + minTime;
-//				//to be changed when complexity algorithm is implemented
-//				int min = 1;
-//				int max = 5;
-//				jsonActivity.setTimeNeeded(ThreadLocalRandom.current().nextInt(min, max + 1));
-//				jsonActivity.setComplexity(ThreadLocalRandom.current().nextInt(min, max + 1));
-//				jsonActivities.add(jsonActivity);
 			}
 			
 //			final GsonBuilder builder = new GsonBuilder();
