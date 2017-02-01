@@ -573,13 +573,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     			CredentialUserGroup credGroup = null;
     			switch(user.getStatus()) {
     				case CREATED:
-    					userGroupUser = new UserGroupUser();
-    					User u = (User) persistence.currentManager().load(User.class, user.getUserId());
-    					userGroupUser.setUser(u);
-    					credGroup = getOrCreateDefaultCredentialUserGroup(credId, 
+    					saveUserToDefaultCredentialGroup(user.getUserId(), credId, 
     							groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege()));
-    					userGroupUser.setGroup(credGroup.getUserGroup());
-    					saveEntity(userGroupUser);
     					break;
     				case CHANGED:
     					userGroupUser = (UserGroupUser) persistence
@@ -602,6 +597,57 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while saving credential users");
+    	}
+    }
+	
+	private void saveUserToDefaultCredentialGroup(long userId, long credId, UserGroupPrivilege privilege) {
+		UserGroupUser userGroupUser = new UserGroupUser();
+		User u = (User) persistence.currentManager().load(User.class, userId);
+		userGroupUser.setUser(u);
+		CredentialUserGroup credGroup = getOrCreateDefaultCredentialUserGroup(credId, 
+				privilege);
+		userGroupUser.setGroup(credGroup.getUserGroup());
+		saveEntity(userGroupUser);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+    public boolean isUserInADefaultCredentialGroup(long userId, long credId) 
+    		throws DbConnectionException {
+		try {
+			String query = "SELECT user.id FROM CredentialUserGroup credGroup " +
+					   "INNER JOIN credGroup.userGroup userGroup " +
+					   "INNER JOIN userGroup.users user " +
+					   		"WITH user.id = :userId " +
+					   "WHERE credGroup.credential.id = :credId " +
+					   "AND userGroup.defaultGroup = :defaultGroup ";
+			@SuppressWarnings("unchecked")
+			List<Long> users = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credId)
+					.setBoolean("defaultGroup", true)
+					.list();
+			return users != null && !users.isEmpty();
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while checking if user is in a default credential group");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
+    		UserGroupPrivilege privilege) throws DbConnectionException {
+		try {
+			if(!isUserInADefaultCredentialGroup(userId, credId)) {
+				saveUserToDefaultCredentialGroup(userId, credId, privilege);
+			}
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while adding user to a default credential group");
     	}
     }
 	
