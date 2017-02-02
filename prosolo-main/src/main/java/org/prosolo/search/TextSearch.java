@@ -21,9 +21,12 @@ import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 
@@ -38,16 +41,16 @@ public interface TextSearch extends AbstractManager {
 			int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds);
 	
-	TextSearchResponse1<UserData> searchUsers1 (
-			String term, int page, int limit, boolean paginate, List<Long> excludeIds);
+//	TextSearchResponse1<UserData> searchUsers1 (
+//			String term, int page, int limit, boolean paginate, List<Long> excludeIds);
 
 	TextSearchResponse searchLearningGoals(
 			String searchString, int page, int limit, boolean loadOneMore,
 			Collection<LearningGoal> existingGoals);
 
-	TextSearchResponse searchCompetences(
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
+//	TextSearchResponse searchCompetences(
+//			String searchString, int page, int limit, boolean loadOneMore,
+//			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 	
 	TextSearchResponse searchActivities(
 			String searchString, int page, int limit, boolean loadOneMore,
@@ -99,17 +102,53 @@ public interface TextSearch extends AbstractManager {
 	
 	List<Long> getInstructorCourseIds (long userId);
 	
-	TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
+	/**
+	 * Returns competences that user with id specified by {@code userId} is allowed to see.
+	 * 
+	 * Conditions that should be met in order for competence to be returned:
+	 *  - competence is published and visible to all users or
+	 *  - competence is published and user has View privilege or
+	 *  - user is owner of a competence or
+	 *  - user has Edit privilege for competence
+	 *  
+	 * @param userId
+	 * @param role
+	 * @param searchString
+	 * @param page
+	 * @param limit
+	 * @param loadOneMore
+	 * @param toExclude
+	 * @param filterTags
+	 * @param sortTitleAsc
+	 * @return
+	 */
+	TextSearchResponse1<CompetenceData1> searchCompetences(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc);
 	
+	/**
+	 * Returns credentials that user with id specified by {@code userId} is allowed to see.
+	 * 
+	 * Conditions that should be met in order for credential to be returned:
+	 *  - credential is published and visible to all users or
+	 *  - credential is published and user has View privilege or
+	 *  - user is enrolled in a credential (currently learning or completed credential) or
+	 *  - user is owner of a credential or
+	 *  - user has Edit privilege for credential
+	 *  
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param userId
+	 * @param filter
+	 * @param sortOption
+	 * @param includeEnrolledCredentials
+	 * @return
+	 */
 	TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption);
-	
-	TextSearchResponse1<CredentialData> searchCredentialsForManager(
-			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption);
+			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege);
 	
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
@@ -124,10 +163,12 @@ public interface TextSearch extends AbstractManager {
 	 * @param limit
 	 * @param paginate
 	 * @param roleId pass 0 if All filter and role id otherwise
+	 * @param includeSystemUsers whether to include system users
+	 * @param excludeIds usersToExclude
 	 * @return
 	 */
-	TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId);
+	TextSearchResponse1<UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
@@ -135,6 +176,33 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
+
+	TextSearchResponse1<UserGroupData> searchUserGroups (
+			String searchString, int page, int limit);
+	
+	TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+			String searchString, long userId, int page, int limit);
+	
+	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
+	
+	/**
+	 * Returns combined top {@code limit} users and groups that are not currently assigned to
+	 * credential given by {@code credId}
+	 * @param credId
+	 * @param searchTerm
+	 * @param limit
+	 * @param usersToExclude
+	 * @return
+	 */
+	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
+	
+	TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
+			int limit, List<Long> usersToExclude);
+	
+	TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
 
 	/**
 	 * Searches through credential members by their name and last name, except for the excluded ones.

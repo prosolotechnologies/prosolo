@@ -29,7 +29,10 @@ public class ScheduledResourceVisibilityUpdateObserver implements EventObserver 
 
 	@Override
 	public EventType[] getSupportedTypes() {
-		return new EventType[]{EventType.SCHEDULED_PUBLIC};
+		return new EventType[]{
+				EventType.SCHEDULED_VISIBILITY_UPDATE,
+				EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE
+		};
 	}
 
 	@Override
@@ -39,6 +42,7 @@ public class ScheduledResourceVisibilityUpdateObserver implements EventObserver 
 		Resource resource = null;
 		Date date = null;
 		long resourceId = logEvent.getObjectId();
+		long actorId = logEvent.getActorId();
 		try {
 			if(Credential1.class.getSimpleName().equals(logEvent.getObjectType())) {
 				date = courseDAO.getScheduledVisibilityUpdateDate(resourceId);
@@ -50,25 +54,15 @@ public class ScheduledResourceVisibilityUpdateObserver implements EventObserver 
 			
 			//if sheduledPublishing is set to a date, create appropriate job
 			if(date != null) {
-				Date now = new Date();
-				//if date is in past
-				if(date.compareTo(now) <= 0) {
-					if(resource == Resource.CREDENTIAL) {
-			        	courseDAO.setPublicVisibilityForCredential(resourceId);
-			        } else if(resource == Resource.COMPETENCE) {
-			        	compDAO.setPublicVisibilityForCompetence(resourceId);
-			        }
-				} else {
-					//if job already exists, reschedule it
-					if(visibilityService.visibilityUpdateJobExists(resourceId, resource)) {
-						visibilityService.changeVisibilityUpdateTime(resourceId, resource, date);
-						logger.info(String.format("Rescheduling job for visibility update for " + resource.name() + " : %s", resourceId));
-					}
-					//job does not yet exist, create one
-					else {
-						visibilityService.updateVisibilityAtSpecificTime(resourceId, resource, date);
-						logger.info(String.format("Creating job for visibility update for " + resource.name() + " : %s", resourceId));
-					}
+				//if job already exists, reschedule it
+				if(visibilityService.visibilityUpdateJobExists(resourceId, resource)) {
+					visibilityService.changeVisibilityUpdateTime(resourceId, resource, date);
+					logger.info(String.format("Rescheduling job for visibility update for " + resource.name() + " : %s", resourceId));
+				}
+				//job does not yet exist, create one
+				else {
+					visibilityService.updateVisibilityAtSpecificTime(actorId, resourceId, resource, date);
+					logger.info(String.format("Creating job for visibility update for " + resource.name() + " : %s", resourceId));
 				}
 			}
 			//publish date is null, remove any scheduling jobs, if they exist

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.web.util.AvatarUtils;
 
+@Deprecated
 public class UserData implements Serializable {
 
 	private static final long serialVersionUID = -8175020115862390741L;

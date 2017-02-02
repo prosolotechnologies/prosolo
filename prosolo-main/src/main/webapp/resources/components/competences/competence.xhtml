@@ -21,8 +21,8 @@
 	
 	<composite:implementation>
 		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
-     	<ui:param name="canEdit" value="#{cc.attrs.role == 'MANAGER' and cc.attrs.bean.competenceData.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER' and cc.attrs.bean.competenceData.type == 'USER_CREATED' and cc.attrs.bean.isCurrentUserCreator()}"></ui:param>
+     	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' 
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.canEdit}"></ui:param>
      	
      	<c:choose>
 		    <c:when test="#{cc.attrs.bean.competenceData.enrolled}">
@@ -143,6 +143,7 @@
 			                    		isEdit="false"
 			                    		showMarkedIfCompleted="true"
 			                    		isPreview="#{isPreview}"
+			                    		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
 			                />
 		               </div>
 		               <post:comments 
@@ -151,6 +152,8 @@
 		               		commentsContainerDivId="commentsContainerDiv"
 		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
+		               		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
+		               		rendered="#{cc.attrs.bean.competenceData.enrolled or cc.attrs.role eq 'MANAGER'}"
 		               />
 		            </div>
 		            <div class="col-md-4">

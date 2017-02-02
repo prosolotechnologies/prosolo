@@ -35,11 +35,11 @@ public class CredentialIndexerImpl extends AbstractESIndexer implements
     }
 	
 	@Override
-	public void updateVisibilityToPublic(long credentialId) {
+	public void updateVisibility(long credentialId, boolean published) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
 			    .startObject()
-		        .field("visible", true)
+		        .field("published", published)
 		        .endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
 		} catch(Exception e) {

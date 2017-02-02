@@ -47,5 +47,8 @@ public class ElasticSearchConfig {
 	@Element(name = "recommendationdata-index")
 	public   String recommendationdataIndex;
 	
+	@Element(name = "userGroup-index")
+	public String userGroupIndex;
+	
 	
 }

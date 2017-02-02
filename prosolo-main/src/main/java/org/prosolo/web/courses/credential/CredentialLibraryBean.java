@@ -99,8 +99,9 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(searchTerm, paginationData.getPage() - 1, 
-				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
+		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(searchTerm, 
+				paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
+				searchFilter, sortOption, true, true);
 		paginationData.update((int) response.getHitsNumber());
 		credentials = response.getFoundNodes();
 	}
@@ -130,22 +131,20 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	 */
 	public void enrollInCredential(CredentialData cred) {
 		try {
-			if(!cred.isFirstTimeDraft()) {
-				String page = PageUtil.getPostParameter("page");
-				String lContext = PageUtil.getPostParameter("learningContext");
-				String service = PageUtil.getPostParameter("service");
-				LearningContextData context = new LearningContextData(page, lContext, service);
-				
-				credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
-				
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				try {
-					extContext.redirect(extContext.getRequestContextPath() + 
-							"/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			} 
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData context = new LearningContextData(page, lContext, service);
+			
+			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
+			
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
+			} catch (IOException e) {
+				logger.error(e);
+			}
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while enrolling in a credential");

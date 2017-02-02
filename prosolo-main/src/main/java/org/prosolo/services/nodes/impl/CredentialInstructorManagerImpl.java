@@ -151,7 +151,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			}
 			
 			queryBuilder.append(
-					"GROUP BY instructor.id " +
+					"GROUP BY instructor.id, instructor.maxNumberOfStudents, instructor.user.id " +
 					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
 					"OR count(student) < instructor.maxNumberOfStudents ");
 			
@@ -570,6 +570,32 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential instructors number");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getCredentialInstructorsUserIds(long credentialId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT instructor.id " +
+					"FROM CredentialInstructor credInstructor " +
+					"INNER JOIN credInstructor.user instructor " +
+					"WHERE credInstructor.credential.id = :credId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> result = persistence
+					.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.list();
+			
+			return result != null ? result : new ArrayList<>();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential instructors user ids");
 		}
 	}
 	

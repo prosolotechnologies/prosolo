@@ -73,17 +73,17 @@ public class CompetencesSearchBean implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	private void searchCompetences(String searchWord, List<Competence> competencesToExclude) {
-		TextSearchResponse searchResponse = textSearch.searchCompetences(
-			searchWord,
-			0,
-			Settings.getInstance().config.application.defaultSearchItemsNumber,
-			false,
-			ResourceUtilBean.convertToIdArray(competencesToExclude),
-			null,
-			SortingOption.ASC);
-		
-		foundCompetences = (Collection<Competence>) searchResponse.getFoundNodes();
-		this.setFoundCompetencesSize((int) searchResponse.getHitsNumber());
+//		TextSearchResponse searchResponse = textSearch.searchCompetences(
+//			searchWord,
+//			0,
+//			Settings.getInstance().config.application.defaultSearchItemsNumber,
+//			false,
+//			ResourceUtilBean.convertToIdArray(competencesToExclude),
+//			null,
+//			SortingOption.ASC);
+//		
+//		foundCompetences = (Collection<Competence>) searchResponse.getFoundNodes();
+//		this.setFoundCompetencesSize((int) searchResponse.getHitsNumber());
 
 	}
 

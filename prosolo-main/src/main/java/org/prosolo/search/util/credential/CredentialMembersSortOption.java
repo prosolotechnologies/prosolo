@@ -4,7 +4,7 @@ import org.prosolo.services.util.SortingOption;
 
 public enum CredentialMembersSortOption {
 
-	STUDENT_NAME("Alphabetically", new String[] {"name", "lastname"}, SortingOption.ASC),  
+	STUDENT_NAME("Alphabetically", new String[] {"lastname", "name"}, SortingOption.ASC),  
 	DATE("Recent", new String[] {"credentials.dateEnrolled"}, SortingOption.DESC);
 	
 	//ui label

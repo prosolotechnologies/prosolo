@@ -63,4 +63,6 @@ public interface CredentialInstructorManager {
 					throws DbConnectionException;
 	
 	long getCredentialInstructorsCount(long credentialId) throws DbConnectionException;
+	
+	List<Long> getCredentialInstructorsUserIds(long credentialId) throws DbConnectionException;
 }

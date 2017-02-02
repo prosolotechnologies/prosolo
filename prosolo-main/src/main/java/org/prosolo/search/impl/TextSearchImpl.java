@@ -22,8 +22,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 //import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.NestedQueryBuilder;
 //import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -46,12 +44,12 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -76,13 +74,16 @@ import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningResourceReturnResultType;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	private static final long serialVersionUID = -8919953696206394473L;
 	private static Logger logger = Logger.getLogger(TextSearchImpl.class);
 	
+	private static final int maxResults = 1000;
+	
 	@Autowired private DefaultManager defaultManager;
 	@Autowired private ESIndexer esIndexer;
 	@Inject private Competence1Manager compManager;
@@ -109,6 +112,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Inject private FollowResourceManager followResourceManager;
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserManager userManager;
+	@Inject private UserGroupManager userGroupManager;
 
 	@Override
 	@Transactional
@@ -147,6 +151,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFrom(start).setSize(limit)
+						.addSort("lastname", SortOrder.ASC)
 						.addSort("name", SortOrder.ASC);
 				//System.out.println(srb.toString());
 				sResponse = srb.execute().actionGet();
@@ -176,79 +181,79 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 	
-	@Override
-	@Transactional
-	public TextSearchResponse1<UserData> searchUsers1 (
-			String term, int page, int limit, boolean paginate, List<Long> excludeIds) {
-		
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
-		
-		try {
-			int start = 0;
-			int size = 1000;
-			if(paginate) {
-				start = setStart(page, limit);
-				size = limit;
-			}
-			
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("name").field("lastname");
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
-			bQueryBuilder.mustNot(termQuery("system", true));
-			
-			if (excludeIds != null) {
-				for (Long exUserId : excludeIds) {
-					bQueryBuilder.mustNot(termQuery("id", exUserId));
-				}
-			}
-			SearchResponse sResponse = null;
-			
-			String[] includes = {"id", "name", "lastname", "avatar"};
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFrom(start).setSize(size)
-					.addSort("name", SortOrder.ASC)
-					.setFetchSource(includes, null);
-			//System.out.println(srb.toString());
-			sResponse = srb.execute().actionGet();
-			
-			if (sResponse != null) {
-				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				
-				for(SearchHit sh : sResponse.getHits()) {
-					Map<String, Object> fields = sh.getSource();
-					User user = new User();
-					user.setId(Long.parseLong(fields.get("id") + ""));
-					user.setName((String) fields.get("name"));
-					user.setLastname((String) fields.get("lastname"));
-					user.setAvatarUrl((String) fields.get("avatar"));
-					UserData userData = new UserData(user);
-					
-					response.addFoundNode(userData);			
-				}
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
-		}
-		return response;
-	}
+//	@Override
+//	@Transactional
+//	public TextSearchResponse1<UserData> searchUsers1 (
+//			String term, int page, int limit, boolean paginate, List<Long> excludeIds) {
+//		
+//		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+//		
+//		try {
+//			int start = 0;
+//			int size = 1000;
+//			if(paginate) {
+//				start = setStart(page, limit);
+//				size = limit;
+//			}
+//			
+//			Client client = ElasticSearchFactory.getClient();
+//			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+//			
+//			QueryBuilder qb = QueryBuilders
+//					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
+//					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//					.field("name").field("lastname");
+//			
+//			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+//			bQueryBuilder.should(qb);
+//			bQueryBuilder.mustNot(termQuery("system", true));
+//			
+//			if (excludeIds != null) {
+//				for (Long exUserId : excludeIds) {
+//					bQueryBuilder.mustNot(termQuery("id", exUserId));
+//				}
+//			}
+//			SearchResponse sResponse = null;
+//			
+//			String[] includes = {"id", "name", "lastname", "avatar"};
+//			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
+//					.setTypes(ESIndexTypes.USER)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder)
+//					.setFrom(start).setSize(size)
+//					.addSort("name", SortOrder.ASC)
+//					.setFetchSource(includes, null);
+//			//System.out.println(srb.toString());
+//			sResponse = srb.execute().actionGet();
+//			
+//			if (sResponse != null) {
+//				response.setHitsNumber(sResponse.getHits().getTotalHits());
+//				
+//				for(SearchHit sh : sResponse.getHits()) {
+//					Map<String, Object> fields = sh.getSource();
+//					User user = new User();
+//					user.setId(Long.parseLong(fields.get("id") + ""));
+//					user.setName((String) fields.get("name"));
+//					user.setLastname((String) fields.get("lastname"));
+//					user.setAvatarUrl((String) fields.get("avatar"));
+//					UserData userData = new UserData(user);
+//					
+//					response.addFoundNode(userData);			
+//				}
+//			}
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//			logger.error(e1);
+//		}
+//		return response;
+//	}
 
 	@Override
 	@Transactional
-	public TextSearchResponse1<org.prosolo.web.administration.data.UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId) {
+	public TextSearchResponse1<UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds) {
 		
-		TextSearchResponse1<org.prosolo.web.administration.data.UserData> response = 
+		TextSearchResponse1<UserData> response = 
 				new TextSearchResponse1<>();
 		
 		try {
@@ -270,14 +275,25 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
 			
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+			
+			if (excludeIds != null) {
+				for (Long exUserId : excludeIds) {
+					bQueryBuilder.mustNot(termQuery("id", exUserId));
+				}
+			}
+			
 			SearchResponse sResponse = null;
 			
-			String[] includes = {"id", "name", "lastname", "avatar", "roles"};
+			String[] includes = {"id", "name", "lastname", "avatar", "roles", "position"};
 			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
 					.setTypes(ESIndexTypes.USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
+					.addSort("lastname", SortOrder.ASC)
 					.addSort("name", SortOrder.ASC)
 					.addAggregation(AggregationBuilders.terms("roles")
 							.field("roles.id"))
@@ -304,6 +320,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					user.setName((String) fields.get("name"));
 					user.setLastname((String) fields.get("lastname"));
 					user.setAvatarUrl((String) fields.get("avatar"));
+					user.setPosition((String) fields.get("position"));
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
@@ -316,8 +333,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							}
 						}
 					}
-					org.prosolo.web.administration.data.UserData userData = 
-							new org.prosolo.web.administration.data.UserData(user, userRoles);
+					UserData userData = new UserData(user, userRoles);
 					
 					response.addFoundNode(userData);			
 				}
@@ -443,42 +459,131 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		return response;
 	}
 
+//	@Override
+//	@Transactional
+//	public TextSearchResponse searchCompetences(
+//			String searchString, int page, int limit, boolean loadOneMore,
+//			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
+//		System.out.println("searchCompetences:"+page+" limit:"+limit);
+//		
+//		TextSearchResponse response = new TextSearchResponse();
+//		
+//		try {
+//			int start = setStart(page, limit);
+//			limit = setLimit(limit, loadOneMore);
+//			
+//			Client client = ElasticSearchFactory.getClient();
+//			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+//			
+//			QueryBuilder qb = QueryBuilders
+//					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+//					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//					.field("title");
+//	
+//			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+//			bQueryBuilder.should(qb);
+//			
+//	//		if (filterTags != null) {
+//	//			for (Annotation tag : filterTags) {
+//	//				bQueryBuilder.must(termQuery("tags.title", tag.getTitle()));
+//	//			}
+//	//		}
+//			if (filterTags != null) {
+//				for (Tag tag : filterTags) {
+//					QueryBuilder tagQB = QueryBuilders
+//							.queryStringQuery(tag.getTitle()).useDisMax(true)
+//							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//							.field("tags.title");
+//					bQueryBuilder.must(tagQB);
+//				}
+//			}
+//			
+//			if (toExclude != null) {
+//				for (int i = 0; i < toExclude.length; i++) {
+//					bQueryBuilder.mustNot(termQuery("id", toExclude[i]));
+//				}
+//			}
+//			
+//			SearchRequestBuilder searchResultBuilder = client
+//					.prepareSearch(ESIndexNames.INDEX_NODES)
+//					.setTypes(ESIndexTypes.COMPETENCE)
+//					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
+//			
+//			if (!sortTitleAsc.equals(SortingOption.NONE)) {
+//				switch (sortTitleAsc) {
+//					case ASC:
+//						searchResultBuilder.addSort("title", SortOrder.ASC);
+//						break;
+//					case DESC:
+//						searchResultBuilder.addSort("title", SortOrder.DESC);
+//						break;
+//					default:
+//						break;
+//				}
+//			}
+//			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
+//			SearchResponse sResponse = searchResultBuilder
+//					.execute().actionGet();
+//			
+//			if (sResponse != null) {
+//				response.setHitsNumber(sResponse.getHits().getTotalHits());
+//				
+//				for (SearchHit hit : sResponse.getHits()) {
+//					Long id = ((Integer) hit.getSource().get("id")).longValue();
+//					
+//					try {
+//						Competence competence = defaultManager.loadResource(Competence.class, id);
+//						competence.getMaker();
+//						
+//						if (competence != null) {
+//							response.addFoundNode(competence);
+//						}
+//					} catch (ResourceCouldNotBeLoadedException e) {
+//						logger.error("Competence was not found: " + id);
+//					}
+//				}
+//			}
+//		} catch (NoNodeAvailableException e1) {
+//			logger.error(e1);
+//		}
+//		return response;
+//	}
+	
+	//query for new competence
 	@Override
 	@Transactional
-	public TextSearchResponse searchCompetences(
+	public TextSearchResponse1<CompetenceData1> searchCompetences(long userId, Role role,
 			String searchString, int page, int limit, boolean loadOneMore,
 			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
-		
-		TextSearchResponse response = new TextSearchResponse();
+		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
 		
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
 			
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
 			
-			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-					.field("title");
-	
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
 			
-	//		if (filterTags != null) {
-	//			for (Annotation tag : filterTags) {
-	//				bQueryBuilder.must(termQuery("tags.title", tag.getTitle()));
-	//			}
-	//		}
+			if(searchString != null && !searchString.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("title");
+				
+				bQueryBuilder.filter(qb);
+			}
+		
 			if (filterTags != null) {
 				for (Tag tag : filterTags) {
 					QueryBuilder tagQB = QueryBuilders
 							.queryStringQuery(tag.getTitle()).useDisMax(true)
 							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 							.field("tags.title");
-					bQueryBuilder.must(tagQB);
+					bQueryBuilder.filter(tagQB);
 				}
 			}
 			
@@ -488,9 +593,29 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				}
 			}
 			
+			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
+			
+			//competence is published and: visible to all users or user has View privilege
+			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
+			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
+			BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
+			visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
+			visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
+			publishedAndVisibleFilter.filter(visibleFilter);
+			
+			boolFilter.should(publishedAndVisibleFilter);
+			
+			//user is owner of a competence
+			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
+			
+			//user has Edit privilege for competence
+			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+			
+			bQueryBuilder.filter(boolFilter);
+			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE)
+					.setTypes(ESIndexTypes.COMPETENCE1)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
 			
@@ -517,125 +642,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						Competence competence = defaultManager.loadResource(Competence.class, id);
-						competence.getMaker();
-						
-						if (competence != null) {
-							response.addFoundNode(competence);
-						}
-					} catch (ResourceCouldNotBeLoadedException e) {
-						logger.error("Competence was not found: " + id);
-					}
-				}
-			}
-		} catch (NoNodeAvailableException e1) {
-			logger.error(e1);
-		}
-		return response;
-	}
-	
-	//query for new competence
-	@Override
-	@Transactional
-	public TextSearchResponse1<CompetenceData1> searchCompetences1(long userId, Role role,
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
-		System.out.println("searchCompetences1:"+page+" limit:"+limit);
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
-		
-		try {
-			int start = setStart(page, limit);
-			limit = setLimit(limit, loadOneMore);
-			
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			
-			if(searchString != null && !searchString.isEmpty()) {
-				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title");
-				
-				bQueryBuilder.should(qb);
-			}
-		
-			if (filterTags != null) {
-				for (Tag tag : filterTags) {
-					QueryBuilder tagQB = QueryBuilders
-							.queryStringQuery(tag.getTitle()).useDisMax(true)
-							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-							.field("tags.title");
-					bQueryBuilder.must(tagQB);
-				}
-			}
-			
-			if (toExclude != null) {
-				for (int i = 0; i < toExclude.length; i++) {
-					bQueryBuilder.mustNot(termQuery("id", toExclude[i]));
-				}
-			}
-			
-			//BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-			
-			/*
-			 * include all published competences, draft competences that have draft version and first time
-			 * drafts
-			 */
-			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-			boolFilter.should(QueryBuilders.termQuery("published", true));
-			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
-			hasDraft.must(QueryBuilders.termQuery("published", false));
-			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
-			boolFilter.should(hasDraft);
-			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
-			if(role == Role.Manager) {
-				firstTimeDraft.must(QueryBuilders.termQuery(
-						"type", LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-			} else {
-				firstTimeDraft.must(QueryBuilders.termQuery("creatorId", userId));
-			}
-			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
-			boolFilter.should(firstTimeDraft);
-			
-			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
-					boolFilter);
-			
-			SearchRequestBuilder searchResultBuilder = client
-					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(filteredQueryBuilder).setFrom(start).setSize(limit);
-			
-			if (!sortTitleAsc.equals(SortingOption.NONE)) {
-				switch (sortTitleAsc) {
-					case ASC:
-						searchResultBuilder.addSort("title", SortOrder.ASC);
-						break;
-					case DESC:
-						searchResultBuilder.addSort("title", SortOrder.DESC);
-						break;
-					default:
-						break;
-				}
-			}
-			//System.out.println("SEARCH QUERY:"+searchResultBuilder.toString());
-			SearchResponse sResponse = searchResultBuilder
-					.execute().actionGet();
-			
-			if (sResponse != null) {
-				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				
-				for (SearchHit hit : sResponse.getHits()) {
-					Long id = ((Integer) hit.getSource().get("id")).longValue();
-					
-					try {
-						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, 
-								false, false, 0, LearningResourceReturnResultType.ANY, 
-								false);
+						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false, 
+								userId, UserGroupPrivilege.None, false);
 						
 						if (cd != null) {
 							response.addFoundNode(cd);
@@ -1263,8 +1271,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(1000);
 				
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -1339,8 +1347,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setFetchSource(includes, null)
 						.setFrom(0).setSize(1000);
 				
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -1424,7 +1432,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	public TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption) {
+			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege) {
 		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -1442,7 +1451,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.field("title").field("description");
 						//.field("tags.title").field("hashtags.title");
 				
-				bQueryBuilder.must(qb);
+				bQueryBuilder.filter(qb);
 			}
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
@@ -1454,11 +1463,11 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					QueryBuilder qb = QueryBuilders.nestedQuery(
 					        "bookmarkedBy",               
 					        QueryBuilders.boolQuery()          
-					             .must(termQuery("bookmarkedBy.id", userId))); 
-					bQueryBuilder.must(qb);
+					             .filter(termQuery("bookmarkedBy.id", userId))); 
+					bQueryBuilder.filter(qb);
 					break;
 				case FROM_CREATOR:
-					bQueryBuilder.must(termQuery("creatorId", userId));
+					bQueryBuilder.filter(termQuery("creatorId", userId));
 					break;
 				case BY_OTHER_STUDENTS:
 					bQueryBuilder.mustNot(termQuery("creatorId", userId));
@@ -1466,177 +1475,12 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					 * Because lowercased strings are always stored in index. Alternative
 					 * is to use match query that would analyze term passed.
 					 */
-					bQueryBuilder.must(termQuery("type", 
+					bQueryBuilder.filter(termQuery("type", 
 							LearningResourceType.USER_CREATED.toString().toLowerCase()));
 					break;
 				case UNIVERSITY:
-					bQueryBuilder.must(termQuery("type", 
+					bQueryBuilder.filter(termQuery("type", 
 							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-					break;
-				default:
-					break;
-			}
-			
-			/*
-			 * this is how query should look like in pseudo code
-			 */
-//			(creator != {loggedUserId} AND (published = true or published = false and hasDraft = true)) 
-//			OR (creator = {loggedUserId} AND ((isDraft = false AND published = false AND hasDraft = false) 
-//			                                                           OR (isDraft = true)) 
-//			                                                           OR published = true))
-			
-			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-			
-			/*
-			 * include all published credentials and draft credentials that have draft version
-			 * by other users
-			 */
-			BoolQueryBuilder publishedCredentialsByOthersFilter = QueryBuilders.boolQuery();
-			publishedCredentialsByOthersFilter.mustNot(QueryBuilders.termQuery("creatorId", userId));
-			BoolQueryBuilder publishedOrHasDraft = QueryBuilders.boolQuery();
-			publishedOrHasDraft.should(QueryBuilders.termQuery("published", true));
-			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
-			hasDraft.must(QueryBuilders.termQuery("published", false));
-			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
-			publishedOrHasDraft.should(hasDraft);
-			publishedCredentialsByOthersFilter.must(publishedOrHasDraft);
-			
-			boolFilter.should(publishedCredentialsByOthersFilter);
-			
-			/*
-			 * include all draft credentials created first time as draft (never been published),
-			 * draft versions of credentials instead of original versions and published credentials
-			 */
-			BoolQueryBuilder currentUsersCredentials = QueryBuilders.boolQuery();
-			currentUsersCredentials.must(QueryBuilders.termQuery("creatorId", userId));
-			BoolQueryBuilder correctlySelectedPublishedAndDraftVersions = QueryBuilders.boolQuery();
-			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
-			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
-			correctlySelectedPublishedAndDraftVersions.should(firstTimeDraft);
-			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("isDraft", true));
-			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("published", true));
-			currentUsersCredentials.must(correctlySelectedPublishedAndDraftVersions);
-			
-			boolFilter.should(currentUsersCredentials);
-			
-			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-					boolFilter);
-			
-			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
-			
-			String[] includes = {"id", "originalVersionId", "title", "description"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.CREDENTIAL)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(filteredQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			
-			searchRequestBuilder.setFrom(start).setSize(limit);
-			
-			//add sorting
-			SortOrder order = sortOption.getSortOrder() == 
-					org.prosolo.services.util.SortingOption.ASC ? SortOrder.ASC 
-					: SortOrder.DESC;
-			searchRequestBuilder.addSort(sortOption.getSortField(), order);
-			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
-			
-			if(sResponse != null) {
-				SearchHits searchHits = sResponse.getHits();
-				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				if(searchHits != null) {
-					for (SearchHit hit : sResponse.getHits()) {
-						/*
-						 * long field is parsed this way because ES is returning integer although field type
-						 * is specified as long in mapping file
-						 */
-						Long id = Long.parseLong(hit.getSource().get("id").toString());
-						Long originalCredId = Long.parseLong(hit.getSource()
-								.get("originalVersionId").toString());
-						try {
-							CredentialData cd = null;
-							long credId = 0;
-							if(originalCredId != null && originalCredId != 0) {
-								credId = originalCredId;
-							} else {
-								credId = id;
-							}
-							cd = credentialManager
-									.getCredentialDataWithProgressIfExists(credId, userId);
-							
-							if(cd != null) {
-								/*
-								 * if credential is created by some other user, this user should not 
-								 * be aware that credential is draft
-								 */
-							    if(cd.getCreator().getId() != userId) {
-							    	cd.setPublished(true);
-							    }
-							    
-							    /*
-							     * if draft version, set title and description from draft version
-							     */
-							    if(originalCredId > 0) {
-							    	cd.setTitle(hit.getSource().get("title").toString());
-							    	cd.setDescription(hit.getSource().get("description").toString());
-							    }
-							    
-								response.addFoundNode(cd);
-							}
-						} catch (DbConnectionException e) {
-							logger.error(e);
-						}
-					}
-				}
-			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
-		}
-		return response;
-	}
-	
-	@Override
-	public TextSearchResponse1<CredentialData> searchCredentialsForManager(
-			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption) {
-		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
-		try {
-			int start = 0;
-			start = setStart(page, limit);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL);
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			
-			if(searchTerm != null && !searchTerm.isEmpty()) {
-				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-						.field("title").field("description");
-						//.field("tags.title").field("hashtags.title");
-				
-				bQueryBuilder.must(qb);
-			}
-			
-			//bQueryBuilder.minimumNumberShouldMatch(1);
-			
-			switch(filter) {
-				case ALL:
-					break;
-				case BOOKMARKS:
-					QueryBuilder qb = QueryBuilders.nestedQuery(
-					        "bookmarkedBy",               
-					        QueryBuilders.boolQuery()          
-					             .must(termQuery("bookmarkedBy.id", userId))); 
-					bQueryBuilder.must(qb);
-					break;
-				case FROM_CREATOR:
-					bQueryBuilder.must(termQuery("creatorId", userId));
 					break;
 				case BY_STUDENTS:
 					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
@@ -1644,76 +1488,51 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					 * Because lowercased strings are always stored in index. Alternative
 					 * is to use match query that would analyze term passed.
 					 */
-					bQueryBuilder.must(termQuery("type", 
+					bQueryBuilder.filter(termQuery("type", 
 							LearningResourceType.USER_CREATED.toString().toLowerCase()));
 					break;
-				case UNIVERSITY:
-					bQueryBuilder.must(termQuery("type", 
-							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-					break;
 				case YOUR_CREDENTIALS:
-					bQueryBuilder.must(termQuery("instructors.id", userId));
+					bQueryBuilder.filter(termQuery("instructors.id", userId));
 				default:
 					break;
 			}
 			
-			/*
-			 * this is how query should look like in pseudo code
-			 */
-//			(type == {USER} AND (published = true or published = false and hasDraft = true)) 
-//			OR (type = {UNIVERSITY} AND ((isDraft = false AND published = false AND hasDraft = false) 
-//			                                                           OR (isDraft = true)) 
-//			                                                           OR published = true))
-			
 			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 			
-			/*
-			 * include all published credentials and draft credentials that have draft version
-			 * created by users
-			 */
-			BoolQueryBuilder publishedCredentialsByStudentsFilter = QueryBuilders.boolQuery();
-			publishedCredentialsByStudentsFilter.must(QueryBuilders.termQuery(
-					"type", LearningResourceType.USER_CREATED.toString().toLowerCase()));
-			BoolQueryBuilder publishedOrHasDraft = QueryBuilders.boolQuery();
-			publishedOrHasDraft.should(QueryBuilders.termQuery("published", true));
-			BoolQueryBuilder hasDraft = QueryBuilders.boolQuery();
-			hasDraft.must(QueryBuilders.termQuery("published", false));
-			hasDraft.must(QueryBuilders.termQuery("hasDraft", true));
-			publishedOrHasDraft.should(hasDraft);
-			publishedCredentialsByStudentsFilter.must(publishedOrHasDraft);
+			if(includeCredentialsWithViewPrivilege) {
+				//credential is published and: visible to all users or user has View privilege
+				BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
+				publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
+				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
+				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
+				visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
+				publishedAndVisibleFilter.filter(visibleFilter);
+				
+				boolFilter.should(publishedAndVisibleFilter);
+			}
 			
-			boolFilter.should(publishedCredentialsByStudentsFilter);
+			if(includeEnrolledCredentials) {
+				//user is enrolled in a credential (currently learning or completed credential)
+				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
+			}
 			
-			/*
-			 * include all draft credentials created first time as draft (never been published),
-			 * draft versions of credentials instead of original versions and published credentials
-			 * created by university
-			 */
-			BoolQueryBuilder currentUsersCredentials = QueryBuilders.boolQuery();
-			currentUsersCredentials.must(QueryBuilders.termQuery(
-					"type", LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-			BoolQueryBuilder correctlySelectedPublishedAndDraftVersions = QueryBuilders.boolQuery();
-			BoolQueryBuilder firstTimeDraft = QueryBuilders.boolQuery();
-			firstTimeDraft.must(QueryBuilders.termQuery("isDraft", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("published", false));
-			firstTimeDraft.must(QueryBuilders.termQuery("hasDraft", false));
-			correctlySelectedPublishedAndDraftVersions.should(firstTimeDraft);
-			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("isDraft", true));
-			correctlySelectedPublishedAndDraftVersions.should(QueryBuilders.termQuery("published", true));
-			currentUsersCredentials.must(correctlySelectedPublishedAndDraftVersions);
+			//user is owner of a credential
+			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
 			
-			boolFilter.should(currentUsersCredentials);
+			//user has Edit privilege for credential
+			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
 			
-			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-					boolFilter);
+			bQueryBuilder.filter(boolFilter);
+//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
+//					boolFilter);
 			
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
-			String[] includes = {"id", "originalVersionId", "title", "description"};
+			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(filteredQueryBuilder)
+					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
 			
 			
@@ -1737,34 +1556,21 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						 * is specified as long in mapping file
 						 */
 						Long id = Long.parseLong(hit.getSource().get("id").toString());
-						Long originalCredId = Long.parseLong(hit.getSource()
-								.get("originalVersionId").toString());
 						try {
 							CredentialData cd = null;
-							long credId = 0;
-							if(originalCredId != null && originalCredId != 0) {
-								credId = originalCredId;
+							/*
+							 * we should include user progress in this credential only
+							 * if includeEnrolledCredentials is true
+							 */
+							if(includeEnrolledCredentials) {
+								cd = credentialManager
+										.getCredentialDataWithProgressIfExists(id, userId);
 							} else {
-								credId = id;
+								cd = credentialManager
+										.getBasicCredentialData(id, userId);
 							}
-							cd = credentialManager
-									.getBasicCredentialData(credId, userId);
 							
 							if(cd != null) {
-								/*
-								 * if credential is user created manager should not 
-								 * be aware that credential is draft
-								 */
-								if(cd.getType() == LearningResourceType.USER_CREATED) {
-								    cd.setPublished(true);
-								}
-								/*
-							     * if credential draft version, set title and description from draft version
-							     */
-							    if(originalCredId > 0) {
-							    	cd.setTitle(hit.getSource().get("title").toString());
-							    	cd.setDescription(hit.getSource().get("description").toString());
-							    }
 								response.addFoundNode(cd);
 							}
 						} catch (DbConnectionException e) {
@@ -1821,16 +1627,17 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			credFilter.must(unassignedOrWithSpecifiedInstructorFilter);
 			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials",
 					credFilter);
-			
-			QueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder,
-					nestedCredFilter);
+		
+			BoolQueryBuilder qb = QueryBuilders.boolQuery();
+			qb.must(bQueryBuilder);
+			qb.filter(nestedCredFilter);
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-						.setQuery(filteredQueryBuilder)
+						.setQuery(qb)
 						.addAggregation(AggregationBuilders.nested("nestedAgg").path("credentials")
 								.subAggregation(
 										AggregationBuilders.filter("filtered")
@@ -1863,6 +1670,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						filterBuilder.must(QueryBuilders.termQuery("credentials.id", credId));
 						filterBuilder.must(QueryBuilders.termQuery("credentials.instructorId", 0));
 						break;
+					default:
+						break;
 				}
 				if(filterBuilder != null) {
 					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("credentials",
@@ -1870,8 +1679,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					searchRequestBuilder.setPostFilter(nestedFilter);
 				}
 				searchRequestBuilder.addSort("credentials.instructorId", SortOrder.DESC);
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				if(sResponse != null) {
@@ -2120,6 +1929,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
@@ -2128,6 +1938,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				
 				bQueryBuilder.must(qb);
 			}
+			bQueryBuilder.mustNot(termQuery("system", true));
 			
 			//bQueryBuilder.filter(termQuery("roles.id", userRoleId));
 			
@@ -2151,8 +1962,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 				searchRequestBuilder.setFrom(start).setSize(limit);	
 				
 				//add sorting
-				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+				searchRequestBuilder.addSort("name", SortOrder.ASC);
 				//System.out.println(searchRequestBuilder.toString());
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				
@@ -2191,6 +2002,425 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	}
 	
 	@Override
+	@Transactional
+	public TextSearchResponse1<UserGroupData> searchUserGroups (
+			String searchString, int page, int limit) {
+		
+		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		
+		try {
+			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
+	
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+			
+				for (SearchHit hit : sResponse.getHits()) {
+					logger.info("ID: " + hit.getSource().get("id"));
+					long id = Long.parseLong(hit.getSource().get("id").toString());
+					String name = (String) hit.getSource().get("name");
+					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+					UserGroupData group = new UserGroupData(id, name, userCount);
+					response.addFoundNode(group);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return response;
+	}
+	
+	@Override
+	@Transactional
+	public TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+			String searchString, long userId, int page, int limit) {
+		
+		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		
+		try {
+			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
+	
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+			
+				for (SearchHit hit : sResponse.getHits()) {
+					logger.info("ID: " + hit.getSource().get("id"));
+					long id = Long.parseLong(hit.getSource().get("id").toString());
+					String name = (String) hit.getSource().get("name");
+					boolean isUserInAGroup = userGroupManager.isUserInGroup(id, userId);
+					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+					UserGroupData group = new UserGroupData(id, name, userCount, isUserInAGroup);
+					response.addFoundNode(group);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return response;
+	}
+	
+	private SearchResponse getUserGroupsSearchResponse(String searchString, int page, int limit) {
+		int start = 0;
+		int size = maxResults;
+		if(limit > 0) {
+			start = setStart(page, limit);
+			size = limit;
+		}
+		
+		Client client = ElasticSearchFactory.getClient();
+		esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+		
+		QueryBuilder qb = QueryBuilders
+				.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
+				.field("name");
+		
+		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+		bQueryBuilder.should(qb);
+		
+		SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+				.setTypes(ESIndexTypes.USER_GROUP)
+				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+				.setQuery(bQueryBuilder)
+				.setFrom(start).setSize(size)
+				.addSort("name", SortOrder.ASC);
+		//System.out.println(srb.toString());
+		return srb.execute().actionGet();
+	}
+	
+	@Override
+	public TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
+		TextSearchResponse1<UserSelectionData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+			
+			searchRequestBuilder.setFrom(start).setSize(limit);	
+			
+			//add sorting
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			
+			if(sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+				
+				if(searchHits != null) {
+					for(SearchHit sh : searchHits) {
+						Map<String, Object> fields = sh.getSource();
+						User user = new User();
+						user.setId(Long.parseLong(fields.get("id") + ""));
+						user.setName((String) fields.get("name"));
+						user.setLastname((String) fields.get("lastname"));
+						user.setAvatarUrl((String) fields.get("avatar"));
+						user.setPosition((String) fields.get("position"));
+						UserData userData = new UserData(user);
+						
+						boolean isUserInGroup = userGroupManager.isUserInGroup(groupId, 
+								userData.getId());
+						UserSelectionData data = new UserSelectionData(userData, isUserInGroup);
+						
+						response.addFoundNode(data);			
+					}
+				}
+			}
+	
+		} catch (Exception e1) {
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		try {
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			SearchHit[] groupHits = getCredentialGroups(credId, searchTerm, limit, groupsToExclude);
+			
+			int userLength = userHits.length, groupLength = groupHits.length;
+			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
+			int userNumber = limit - groupNumber < userLength ? limit - groupNumber : userLength;
+			if(groupNumber + userNumber < limit) {
+				groupNumber = limit - userNumber < groupLength ? limit - userNumber : groupLength;
+			}
+			for(int i = 0; i < groupNumber; i++) {
+				SearchHit hit = groupHits[i];
+				long id = Long.parseLong(hit.getSource().get("id").toString());
+				String name = (String) hit.getSource().get("name");
+				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+			}
+			for(int i = 0; i < userNumber; i++) {
+				SearchHit hit = userHits[i];
+				response.addFoundNode(extractVisibilityUserResult(hit));
+			}
+//			if(userHits.length > 0 || groupHits.length > 0) {
+//				int userInd = 0, userEnd = userHits.length - 1, groupInd = 0, groupEnd = groupHits.length - 1, counter = 0;
+//				//all results count from both lists
+//				int resNumber = userEnd + 1 + groupEnd + 1;
+//				int finalResNumber = limit < resNumber ? limit : resNumber;
+//				while(counter < finalResNumber) {
+//					if(groupInd > groupEnd || (userInd <= userEnd && userHits[userInd].getScore() >= groupHits[groupInd].getScore())) {
+//						SearchHit hit = userHits[userInd++];
+//						response.addFoundNode(extractCredentialUserResult(hit));
+//					} else {
+//						SearchHit hit = groupHits[groupInd++];
+//						long id = Long.parseLong(hit.getSource().get("id").toString());
+//						String name = (String) hit.getSource().get("name");
+//						long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+//						response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+//					}
+//					counter++;
+//				}
+//			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private SearchHit[] getResourceVisibilityUsers(String searchTerm, int limit, 
+			List<Long> usersToExclude) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			//search users
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			bQueryBuilder.mustNot(termQuery("system", true));
+			
+			if (usersToExclude != null) {
+				for (Long exUserId : usersToExclude) {
+					bQueryBuilder.mustNot(termQuery("id", exUserId));
+				}
+			}
+			
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+			
+			searchRequestBuilder.setSize(limit);	
+			
+			//add sorting
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse userResponse = searchRequestBuilder.execute().actionGet();
+			SearchHit[] userHits = null;
+			if(userResponse != null) {
+				SearchHits hits = userResponse.getHits();
+				if(hits != null) {
+					userHits = hits.hits();
+				}
+			}
+			if(userHits == null) {
+				userHits = new SearchHit[0];
+			}
+			return userHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
+	}
+	
+	private SearchHit[] getCredentialGroups(long credId,
+			String searchTerm, int limit, List<Long> groupsToExclude) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name");
+			
+			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
+			bqBuilder.must(qb);
+			
+			bqBuilder.mustNot(QueryBuilders.termQuery("credentials.id", credId));
+			
+			if (groupsToExclude != null) {
+				for (Long g : groupsToExclude) {
+					bqBuilder.mustNot(termQuery("id", g));
+				}
+			}
+			
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+					.setTypes(ESIndexTypes.USER_GROUP)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bqBuilder)
+					.setSize(limit)
+					.addSort("name", SortOrder.ASC);
+	
+			SearchResponse groupResponse = srb.execute().actionGet();
+			SearchHit[] groupHits = null;
+			if(groupResponse != null) {
+				SearchHits hits = groupResponse.getHits();
+				if(hits != null) {
+					groupHits = hits.hits();
+				}
+			}
+			if(groupHits == null) {
+				groupHits = new SearchHit[0];
+			}
+			
+			return groupHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
+	}
+	
+	private ResourceVisibilityMember extractVisibilityUserResult(SearchHit hit) {
+		Map<String, Object> fields = hit.getSource();
+		User user = new User();
+		user.setId(Long.parseLong(fields.get("id") + ""));
+		user.setName((String) fields.get("name"));
+		user.setLastname((String) fields.get("lastname"));
+		user.setAvatarUrl((String) fields.get("avatar"));
+		user.setPosition((String) fields.get("position"));
+		return new ResourceVisibilityMember(0, user, null, false);
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm, 
+			int limit, List<Long> usersToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			
+		for(SearchHit h : userHits) {
+			response.addFoundNode(extractVisibilityUserResult(h));
+		}
+			
+		return response;
+	}
+	
+	@Override
+	public TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
+		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		try {
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			SearchHit[] groupHits = getCompetenceGroups(compId, searchTerm, limit, groupsToExclude);
+			
+			int userLength = userHits.length, groupLength = groupHits.length;
+			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
+			int userNumber = limit - groupNumber < userLength ? limit - groupNumber : userLength;
+			if(groupNumber + userNumber < limit) {
+				groupNumber = limit - userNumber < groupLength ? limit - userNumber : groupLength;
+			}
+			for(int i = 0; i < groupNumber; i++) {
+				SearchHit hit = groupHits[i];
+				long id = Long.parseLong(hit.getSource().get("id").toString());
+				String name = (String) hit.getSource().get("name");
+				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
+				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+			}
+			for(int i = 0; i < userNumber; i++) {
+				SearchHit hit = userHits[i];
+				response.addFoundNode(extractVisibilityUserResult(hit));
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return response;
+	}
+	
+	private SearchHit[] getCompetenceGroups(long compId,
+			String searchTerm, int limit, List<Long> groupsToExclude) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+			
+			QueryBuilder qb = QueryBuilders
+					.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.field("name");
+			
+			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
+			bqBuilder.must(qb);
+			
+			bqBuilder.mustNot(QueryBuilders.termQuery("competences.id", compId));
+			
+			if (groupsToExclude != null) {
+				for (Long g : groupsToExclude) {
+					bqBuilder.mustNot(termQuery("id", g));
+				}
+			}
+			
+			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+					.setTypes(ESIndexTypes.USER_GROUP)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bqBuilder)
+					.setSize(limit)
+					.addSort("name", SortOrder.ASC);
+	
+			SearchResponse groupResponse = srb.execute().actionGet();
+			SearchHit[] groupHits = null;
+			if(groupResponse != null) {
+				SearchHits hits = groupResponse.getHits();
+				if(hits != null) {
+					groupHits = hits.hits();
+				}
+			}
+			if(groupHits == null) {
+				groupHits = new SearchHit[0];
+			}
+			
+			return groupHits;
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			logger.error(e1);
+		}
+		return new SearchHit[0];
+	}
+	
+	@Override
 	public TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
 		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
@@ -2226,6 +2456,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bqb)
+						.addSort("lastname", SortOrder.ASC)
 						.addSort("name", SortOrder.ASC)
 						.setFetchSource(includes, null)
 						.setSize(3);	
@@ -2262,4 +2493,5 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 		}
 		return null;
 	}
+
 }

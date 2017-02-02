@@ -173,7 +173,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.paginationData.setPage(1);
 		searchTerm = "";
 		sortOption = CredentialMembersSortOption.DATE;
-		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getPage());
+		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
 		for (CredentialMembersSearchFilter f : searchFilters) {
 			if (f.getFilter() == CredentialMembersSearchFilterValue.All) {

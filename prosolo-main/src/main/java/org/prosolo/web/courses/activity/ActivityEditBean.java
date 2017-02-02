@@ -2,6 +2,7 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +15,10 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -32,7 +35,6 @@ import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -121,7 +123,9 @@ public class ActivityEditBean implements Serializable {
 	
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
-		actStatusArray = PublishedStatus.values();
+		actStatusArray = Arrays.stream(PublishedStatus.values()).filter(
+				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
+				.toArray(PublishedStatus[]::new);
 		resultTypes = ActivityResultType.values();
 	}
 
@@ -135,20 +139,24 @@ public class ActivityEditBean implements Serializable {
 	}
 
 	private void loadActivityData(long credId, long compId, long actId) {
-		PageSection section = PageUtil.getSectionForView();
-		if (PageSection.MANAGE.equals(section)) {
-			activityData = activityManager.getCurrentVersionOfActivityForManager(credId, compId, actId);
-		} else {
-			activityData = activityManager.getActivityDataForEdit(credId, compId, actId, 
-					loggedUser.getUserId());
-		}
-		
-		if(activityData == null) {
+		try {
+			activityData = activityManager.getActivityData(credId, compId, actId, 
+					loggedUser.getUserId(), true, UserGroupPrivilege.Edit);
+			
+			if(!activityData.isCanAccess()) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				logger.info("Loaded activity data for activity with id "+ id);
+			}
+		} catch(ResourceNotFoundException rnfe) {
+			logger.error(rnfe);
 			activityData = new ActivityData(false);
 			PageUtil.fireErrorMessage("Activity data can not be found");
 		}
-	
-		logger.info("Loaded activity data for activity with id "+ id);
 	}
 	
 	public ScoreCalculation[] getScoreCalculationTypes() {
@@ -206,7 +214,7 @@ public class ActivityEditBean implements Serializable {
 		activityData.setActivityType(type);
 		
 		//change status to draft
-		activityData.setStatus(PublishedStatus.DRAFT);
+		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeFile(ResourceLinkData link) {
@@ -215,7 +223,7 @@ public class ActivityEditBean implements Serializable {
 			activityData.getFiles().remove(link);
 		}
 		
-		activityData.setStatus(PublishedStatus.DRAFT);
+		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeLink(ResourceLinkData link) {
@@ -224,7 +232,7 @@ public class ActivityEditBean implements Serializable {
 			activityData.getLinks().remove(link);
 		}
 		
-		activityData.setStatus(PublishedStatus.DRAFT);
+		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeCaption(ResourceLinkData caption) {
@@ -233,7 +241,7 @@ public class ActivityEditBean implements Serializable {
 			activityData.getCaptions().remove(caption);
 		}
 		
-		activityData.setStatus(PublishedStatus.DRAFT);
+		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
@@ -264,7 +272,7 @@ public class ActivityEditBean implements Serializable {
 			activityData.getFiles().add(resLinkToAdd);
 			resLinkToAdd = null;
 			
-			activityData.setStatus(PublishedStatus.DRAFT);
+			activityData.setStatus(PublishedStatus.UNPUBLISH);
 		}
 	}
 	
@@ -273,7 +281,7 @@ public class ActivityEditBean implements Serializable {
 		activityData.getLinks().add(resLinkToAdd);
 		resLinkToAdd = null;
 		
-		activityData.setStatus(PublishedStatus.DRAFT);
+		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void addUploadedCaption() {
@@ -289,7 +297,7 @@ public class ActivityEditBean implements Serializable {
 			activityData.getCaptions().add(resLinkToAdd);
 			resLinkToAdd = null;
 			
-			activityData.setStatus(PublishedStatus.DRAFT);
+			activityData.setStatus(PublishedStatus.UNPUBLISH);
 		}
 	}
 	
@@ -310,11 +318,6 @@ public class ActivityEditBean implements Serializable {
 		} catch(Exception e) {
 			logger.error(e);
 		}
-	}
-	
-	public boolean isCreateUseCaseOrFirstTimeDraft() {
-		return activityData.getActivityId() == 0 || 
-				(!activityData.isPublished() && !activityData.isDraft());
 	}
 	
 	public void prepareAddingResourceLink() {
@@ -379,14 +382,14 @@ public class ActivityEditBean implements Serializable {
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
 					if (saveAsDraft) {
-						activityData.setStatus(PublishedStatus.DRAFT);
+						activityData.setStatus(PublishedStatus.UNPUBLISH);
 					}
-					activityManager.updateActivity(decodedId, activityData, 
+					activityManager.updateActivity(activityData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
 				if (saveAsDraft) {
-					activityData.setStatus(PublishedStatus.DRAFT);
+					activityData.setStatus(PublishedStatus.UNPUBLISH);
 				}
 				Activity1 act = activityManager.saveNewActivity(activityData, 
 						loggedUser.getUserId(), lcd);

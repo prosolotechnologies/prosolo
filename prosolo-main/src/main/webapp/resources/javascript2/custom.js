@@ -205,3 +205,9 @@ function replaceInlineUserLink(selector) {
 	});
 }
 
+function hideModal(dialogId) {
+	$('#'+dialogId).modal('hide');
+	$("body").removeAttr("class").removeAttr("style");
+	$("div.modal-backdrop.fade.in").remove();
+}
+

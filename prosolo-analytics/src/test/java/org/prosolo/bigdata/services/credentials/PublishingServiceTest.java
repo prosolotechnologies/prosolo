@@ -25,7 +25,7 @@ public class PublishingServiceTest {
 
         //publish time in a few minutes
         Date publishingDate=new Date(t + (1 * ONE_MINUTE_IN_MILLIS));
-        service.updateVisibilityAtSpecificTime(credentialId, Resource.CREDENTIAL, publishingDate);
+        service.updateVisibilityAtSpecificTime(2, credentialId, Resource.CREDENTIAL, publishingDate);
 
     }
     @Test
@@ -53,7 +53,7 @@ public class PublishingServiceTest {
         //publish time in a few minutes
         Date publishingDate=new Date(t + (1 * ONE_MINUTE_IN_MILLIS));
         System.out.println("PUBLISH DATE:"+publishingDate.toString()+" ms:"+publishingDate.getTime());
-        service.updateVisibilityAtSpecificTime(credentialId, Resource.CREDENTIAL, publishingDate);
+        service.updateVisibilityAtSpecificTime(2, credentialId, Resource.CREDENTIAL, publishingDate);
 
         try {
             Thread.sleep(10000);

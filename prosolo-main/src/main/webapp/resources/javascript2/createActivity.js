@@ -5,7 +5,7 @@ $(function () {
 var containerId;
 
 function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:selectStatus').val('DRAFT').change();
+	$('#' + containerId + '\\:formMain\\:selectStatus').val('UNPUBLISH').change();
 }
 
 function bindPasteEventForUpdatingStatus() {
@@ -24,7 +24,7 @@ function attachListenerForFetchingPageTitle() {
 
 function onStatusChange() {
 	var status = $('#' + containerId + '\\:formMain\\:selectStatus').val();
-	if(status === "DRAFT") {
+	if(status === "UNPUBLISH") {
 		$('#noteDraft').show();
 		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview Draft');
 	} else {

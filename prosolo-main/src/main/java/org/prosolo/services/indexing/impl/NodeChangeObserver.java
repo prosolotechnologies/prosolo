@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
@@ -43,15 +44,22 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ENROLL_COURSE,
 			EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR,
 			EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
-			EventType.INSTRUCTOR_ASSIGNED_TO_COURSE,
-			EventType.INSTRUCTOR_REMOVED_FROM_COURSE,
+			EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,
+			EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL,
 			EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR,
 			EventType.USER_ROLES_UPDATED,
 			EventType.COURSE_WITHDRAWN,
 			EventType.ACTIVATE_COURSE,
 			EventType.Bookmark,
 			EventType.RemoveBookmark,
-			EventType.ChangeProgress
+			EventType.ChangeProgress,
+			EventType.ADD_USER_TO_GROUP,
+			EventType.REMOVE_USER_FROM_GROUP,
+			EventType.RESOURCE_VISIBILITY_CHANGE,
+			EventType.USER_GROUP_ADDED_TO_RESOURCE,
+			EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
+			EventType.VISIBLE_TO_ALL_CHANGED,
+			EventType.STATUS_CHANGED
 		};
 	}
 
@@ -64,7 +72,8 @@ public class NodeChangeObserver extends EventObserver {
 			Credential1.class,
 			Competence1.class, 
 			CredentialBookmark.class,
-			TargetCredential1.class
+			TargetCredential1.class,
+			UserGroup.class
 		};
 	}
 

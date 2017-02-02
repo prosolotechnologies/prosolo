@@ -35,11 +35,11 @@ public class CompetenceIndexerImpl extends AbstractESIndexer implements
     }
 	
 	@Override
-	public void updateVisibilityToPublic(long compId) {
+	public void updateVisibility(long compId, boolean published) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
 			    .startObject()
-		        .field("visible", true)
+		        .field("published", published)
 		        .endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
 		} catch(Exception e) {

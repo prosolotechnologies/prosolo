@@ -50,8 +50,6 @@ public class ActivityDataFactory {
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
 		data.setPublished(activity.isPublished());
-		data.setDraft(activity.isDraft());
-		data.setHasDraft(activity.isHasDraft());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
@@ -60,6 +58,7 @@ public class ActivityDataFactory {
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
 		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -187,7 +186,6 @@ public class ActivityDataFactory {
 			act.setConsumerKey(extAct.getConsumerKey());
 			act.setAcceptGrades(extAct.isAcceptGrades());
 			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-			act.setVisibleForUnenrolledStudents(extAct.isVisibleForUnenrolledStudents());
 			act.setScoreCalculation(extAct.getScoreCalculation());
 		}
 	}
@@ -208,8 +206,6 @@ public class ActivityDataFactory {
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
 		act.setPublished(activity.isPublished());
-		act.setDraft(activity.isDraft());
-		act.setHasDraft(activity.isHasDraft());
 		act.setType(activity.getType());
 		
 		act.setActivityType(getActivityType(activity));
@@ -515,7 +511,6 @@ public class ActivityDataFactory {
 				extAct.setConsumerKey(activityData.getConsumerKey());
 				extAct.setAcceptGrades(activityData.isAcceptGrades());
 				extAct.setOpenInNewWindow(activityData.isOpenInNewWindow());
-				extAct.setVisibleForUnenrolledStudents(activityData.isVisibleForUnenrolledStudents());
 				extAct.setScoreCalculation(activityData.getScoreCalculation());
 				return extAct;
 			default: 
