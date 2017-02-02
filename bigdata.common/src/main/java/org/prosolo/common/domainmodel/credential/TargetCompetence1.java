@@ -108,7 +108,7 @@ public class TargetCompetence1 extends BaseEntity {
 		this.duration = duration;
 	}
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany
 	public Set<Tag> getTags() {
 		return tags;
 	}
