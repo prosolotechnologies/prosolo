@@ -474,22 +474,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				throw new IllegalArgumentException();
 			}
 			
-			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, loadLinks);
+			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, 
+					loadLinks, true);
 
 			if(res == null) {
 				throw new ResourceNotFoundException();
 			}
-			//we need user privilege for competence on which activity is dependend
+			//we need user privilege for competence on which activity is dependent
 			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, competenceId, 
 					userId);
 			/*
 			 * user can access activity:
-			 *  - when he has the right privilege and
-			 *  - when activity is published if user has View privilege
+			 *  - when he has the right privilege (but when he has the View privilege
+			 *  activity and competence have to be published)
 			 *  
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.View && !res.getActivity().isPublished()) {
+			if(canAccess && priv == UserGroupPrivilege.View && (!res.getActivity().isPublished()
+					|| !res.getCompetence().isPublished())) {
 				canAccess = false;
 			}
 			
@@ -510,7 +512,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
-			boolean loadLinks) {
+			boolean loadLinks, boolean loadCompetence) {
 		try {
 			/*
 			 * check if passed credential has specified competence
@@ -542,6 +544,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if(loadLinks) {
 				queryB.append("LEFT JOIN fetch act.links link " +
 							  "LEFT JOIN fetch act.files file ");
+			}
+			
+			if(loadCompetence) {
+				queryB.append("INNER JOIN fetch compAct.competence comp ");
 			}
 			
 			queryB.append("WHERE act.id = :actId " +
@@ -905,6 +911,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
+			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
@@ -934,7 +941,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				extAct.setConsumerKey(data.getConsumerKey());
 				extAct.setAcceptGrades(data.isAcceptGrades());
 				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
-				extAct.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 				extAct.setScoreCalculation(data.getScoreCalculation());
 			}
 		    
@@ -1035,8 +1041,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (activityWithDetails != null) {
 					compData = new CompetenceData1(false);
 					compData.setActivityToShowWithDetails(activityWithDetails);
+					//TODO we are calling this method twice so better solution should probably be found
+					UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
+							creatorId);
 					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId(), false);
+							activityWithDetails.getCompetenceId(), priv == UserGroupPrivilege.Edit);
 					compData.setActivities(activities);
 					return compData;
 			}

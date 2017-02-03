@@ -91,6 +91,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				/* student viewing all his assessments (credential-assessments.html)*/
 				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
+				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
 				
 				.addRule(Join.path("/manage").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))

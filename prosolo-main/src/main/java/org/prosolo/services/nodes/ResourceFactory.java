@@ -184,6 +184,8 @@ public interface ResourceFactory extends AbstractManager {
 			String position, List<Long> roles) throws DbConnectionException;
 	
 	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
+
+	UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword) throws DbConnectionException;
 	
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 

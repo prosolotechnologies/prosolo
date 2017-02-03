@@ -77,6 +77,7 @@ public class ActivityCloneFactory {
 			activity.setStudentCanSeeOtherResponses(original.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(original.isStudentCanEditResponse());
 			activity.setCreatedBy(original.getCreatedBy());
+			activity.setVisibleForUnenrolledStudents(original.isVisibleForUnenrolledStudents());
 			return defaultManager.saveEntity(activity);
 		} catch (Exception e) {
 			logger.error(e);
@@ -124,7 +125,6 @@ public class ActivityCloneFactory {
 			extAct.setConsumerKey(originalExtAct.getConsumerKey());
 			extAct.setAcceptGrades(originalExtAct.isAcceptGrades());
 			extAct.setOpenInNewWindow(originalExtAct.isOpenInNewWindow());
-			extAct.setVisibleForUnenrolledStudents(originalExtAct.isVisibleForUnenrolledStudents());
 			extAct.setScoreCalculation(originalExtAct.getScoreCalculation());
 			return extAct;
 		} else { 

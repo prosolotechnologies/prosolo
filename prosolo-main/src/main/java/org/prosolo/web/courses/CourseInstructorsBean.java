@@ -170,7 +170,7 @@ public class CourseInstructorsBean implements Serializable {
 			User instr = new User();
 			instr.setId(instructorForRemoval.getUserId());
 			try {
-				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_COURSE, loggedUserBean.getUserId(), 
+				eventFactory.generateEvent(EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, loggedUserBean.getUserId(), 
 						instr, course, appPage, context, service, null);
 				fireReassignEvents(instructorForRemoval, appPage, service, res, automatic);
 

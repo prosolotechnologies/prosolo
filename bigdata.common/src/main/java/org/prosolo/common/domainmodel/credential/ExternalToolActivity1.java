@@ -15,7 +15,6 @@ public class ExternalToolActivity1 extends Activity1 {
 	private String consumerKey;
 	private boolean acceptGrades;
 	private boolean openInNewWindow;
-	private boolean visibleForUnenrolledStudents = false;
 	private ScoreCalculation scoreCalculation;
 	
 	public ExternalToolActivity1() {
@@ -62,15 +61,6 @@ public class ExternalToolActivity1 extends Activity1 {
 
 	public void setOpenInNewWindow(boolean openInNewWindow) {
 		this.openInNewWindow = openInNewWindow;
-	}
-
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isVisibleForUnenrolledStudents() {
-		return visibleForUnenrolledStudents;
-	}
-
-	public void setVisibleForUnenrolledStudents(boolean visibleForUnenrolledStudents) {
-		this.visibleForUnenrolledStudents = visibleForUnenrolledStudents;
 	}
 
 	@Enumerated(EnumType.STRING)

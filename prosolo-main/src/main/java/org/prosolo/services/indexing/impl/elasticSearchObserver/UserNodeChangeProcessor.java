@@ -66,12 +66,14 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 				instructorId = event.getTarget().getId();
 			}
 			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), credId, instructorId);
-		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_COURSE) {
+		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL) {
 			String dateAssigned = params.get("dateAssigned");
 			userEntityESService.addInstructorToCredential(event.getTarget().getId(), event.getObject().getId(), dateAssigned);
-	    } else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_COURSE) {
+			credESService.addInstructorToCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+		} else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
 			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), event.getObject().getId());
-	    } else if(eventType == EventType.ChangeProgress) {
+			credESService.removeInstructorFromCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
 	    	Credential1 cr = tc.getCredential();

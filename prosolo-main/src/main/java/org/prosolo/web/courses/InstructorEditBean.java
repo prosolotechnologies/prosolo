@@ -311,7 +311,7 @@ public class InstructorEditBean implements Serializable {
 						instr.setId(instructor.getUserId());
 						
 						try {
-							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_COURSE, loggedUserBean.getUserId(), instr, course, page, lContext, service, null);
+							eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, loggedUserBean.getUserId(), instr, course, page, lContext, service, null);
 						} catch (EventException e) {
 								logger.error(e);
 						}

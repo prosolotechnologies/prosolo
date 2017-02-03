@@ -19,6 +19,8 @@ public class UserGroup extends BaseEntity {
 	
 	private List<UserGroupUser> users;
 	private String name;
+	private boolean joinUrlActive;
+	private String joinUrlPassword;
 	//group where users are put by default, it is not created manually and it is not visible to end users
 	private boolean defaultGroup;
 	
@@ -44,6 +46,23 @@ public class UserGroup extends BaseEntity {
 		this.name = name;
 	}
 	
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isJoinUrlActive() {
+		return joinUrlActive;
+	}
+
+	public void setJoinUrlActive(boolean joinUrlActive) {
+		this.joinUrlActive = joinUrlActive;
+	}
+	
+	public String getJoinUrlPassword() {
+		return joinUrlPassword;
+	}
+
+	public void setJoinUrlPassword(String joinUrlPassword) {
+		this.joinUrlPassword = joinUrlPassword;
+	}
+
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isDefaultGroup() {
 		return defaultGroup;
