@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
@@ -30,7 +31,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.settings.data.AccountData;
-import org.prosolo.web.unauthorized.PasswordReset;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -298,13 +298,10 @@ public void sendNewPassword() {
 			
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to "+user.getEmail());
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().redirect("reset/successful/" + URLEncoder.encode(userNewPass.getEmail(), "utf-8"));
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				FacesContext.getCurrentInstance().addMessage("Successfull", new FacesMessage("Password instructions have been sent to "+user.getEmail()));
 			} else {
 				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+				FacesContext.getCurrentInstance().addMessage("Error", new FacesMessage("Error sending password instruction"));
 			}
 		} else {
 			try {
