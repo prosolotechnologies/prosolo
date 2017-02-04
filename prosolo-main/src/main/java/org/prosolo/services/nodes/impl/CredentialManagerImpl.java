@@ -2742,7 +2742,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cd.setCredentialId(competence.getTargetCredential().getId());
 			cd.setCompetenceId(competence.getId());
 			cd.setTargetCompId(competence.getId());
-			cd.setTargetActivities(competence.getTargetActivities());
 			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
 			data.add(cd);
 		}

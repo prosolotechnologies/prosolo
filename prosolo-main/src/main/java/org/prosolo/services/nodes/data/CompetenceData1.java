@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -30,7 +29,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private ActivityData activityToShowWithDetails;
 	private boolean activitiesInitialized;
 	private List<ActivityData> activities;
-	private List<TargetActivity1> targetActivities;
 	private Set<Tag> tags;
 	private String tagsString;
 	private boolean studentAllowedToAddActivities;
@@ -398,14 +396,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
-	}
-
-	public List<TargetActivity1> getTargetActivities() {
-		return targetActivities;
-	}
-
-	public void setTargetActivities(List<TargetActivity1> targetActivities) {
-		this.targetActivities = targetActivities;
 	}
 
 }
