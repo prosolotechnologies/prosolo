@@ -15,6 +15,7 @@ import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.primefaces.context.RequestContext;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -260,7 +261,7 @@ public class UserEditBean implements Serializable {
 			if (authenticationService.checkPassword(user.getPassword(), accountData.getPassword())) {
 				savePasswordIfConditionsAreMetForAnotherUser();
 			} else {
-				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
+				PageUtil.fireErrorMessage("Old password is not correct.");
 			}
 		} else {
 			savePasswordIfConditionsAreMetForAnotherUser();
@@ -268,17 +269,16 @@ public class UserEditBean implements Serializable {
 	}
 	private void savePasswordIfConditionsAreMetForAnotherUser() {
 		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl",
-					"Password is too short. It has to contain more that 6 characters.");
+			PageUtil.fireErrorMessage("Password is too short. It has to contain more that 6 characters.");
 			return;
 		}
 		try {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
 			
-			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
+			PageUtil.fireSuccessfulInfoMessage("Password updated!");
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
+			PageUtil.fireErrorMessage("Error updating the password");
 		}
 	}
 
@@ -298,18 +298,11 @@ public void sendNewPassword() {
 			
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to "+user.getEmail());
-				FacesContext.getCurrentInstance().addMessage("Successfull", new FacesMessage("Password instructions have been sent to "+user.getEmail()));
 			} else {
 				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-				FacesContext.getCurrentInstance().addMessage("Error", new FacesMessage("Error sending password instruction"));
 			}
 		} else {
-			try {
-				PageUtil.fireErrorMessage("resetMessage", "Error", 
-						ResourceBundleUtil.getMessage("passwordreset.noUser", new Locale("en"), user.getEmail()));
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}  
+			PageUtil.fireErrorMessage("resetMessage", "User already registrated");
 		}
 	}
 }
