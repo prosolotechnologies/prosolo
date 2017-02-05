@@ -108,6 +108,12 @@
 		<function-signature>java.lang.String getInitials(java.lang.String)</function-signature>
 	</function>
 	
+	<function>
+		<function-name>cleanHTMLTags</function-name>
+		<function-class>org.prosolo.web.util.HTMLUtil</function-class>
+		<function-signature>java.lang.String cleanHTMLTags(java.lang.String)</function-signature>
+	</function>
+	
 	<!-- Components -->
 	
 	<tag>

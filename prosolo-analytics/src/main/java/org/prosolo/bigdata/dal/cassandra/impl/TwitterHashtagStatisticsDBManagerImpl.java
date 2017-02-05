@@ -69,21 +69,21 @@ public class TwitterHashtagStatisticsDBManagerImpl extends SimpleCassandraClient
 		return TwitterHashtagStatisticsDBManagerImplHolder.INSTANCE;
 	}
 	static {
-		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitter_hashtagdailycount WHERE date>=? AND date<=? AND hashtag=?;");
-		statements.put(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM twitter_hashtagdailycount WHERE date>=? AND date<=? ALLOW FILTERING;");
-		statements.put(UPDATE_TWITTER_HASHTAG_COUNT, "UPDATE twitter_hashtagdailycount SET count = count + 1 WHERE hashtag = ? AND date = ?;");
-		statements.put(INCREMENT_TWITTER_HASHTAG_USERS_COUNT, "UPDATE twitter_hashtaguserscount SET users = users + 1 WHERE hashtag = ?;");
-		statements.put(DECREMENT_TWITTER_HASHTAG_USERS_COUNT, "UPDATE twitter_hashtaguserscount SET users = users - 1 WHERE hashtag = ?;");
-		statements.put(UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE, "UPDATE twitter_hashtagweeklyaverage SET average = ? WHERE day = ? AND hashtag = ?;");
-		statements.put(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE, "SELECT * FROM twitter_hashtagweeklyaverage WHERE day=?;");
-		statements.put(DISABLE_TWITTER_HASHTAG, "INSERT INTO twitter_disabledhashtags (hashtag) values (?);");
-		statements.put(ENABLE_TWITTER_HASHTAG, "DELETE FROM twitter_disabledhashtags WHERE hashtag = ?;");
-		statements.put(FIND_ENABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM twitter_hashtagweeklyaverage WHERE day=?;");
-		statements.put(FIND_DISABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM twitter_disabledhashtags;");
-		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM twitter_hashtaguserscount WHERE hashtag=?;");
-		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNTS, "SELECT * FROM twitter_hashtaguserscount;");
-		statements.put(DELETE_TWITTER_HASHTAG_USERS_COUNTS, "DELETE FROM twitter_hashtaguserscount WHERE hashtag=?;");
-		statements.put(TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS, "SELECT DISTINCT day FROM twitter_hashtagweeklyaverage;");
+		statements.put(FIND_SPECIFIC_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM "+TablesNames.TWITTER_HASHTAG_DAILY_COUNT+" WHERE date>=? AND date<=? AND hashtag=?;");
+		statements.put(FIND_TWITTER_HASHTAG_COUNT_FOR_PERIOD, "SELECT * FROM "+TablesNames.TWITTER_HASHTAG_DAILY_COUNT+" WHERE date>=? AND date<=? ALLOW FILTERING;");
+		statements.put(UPDATE_TWITTER_HASHTAG_COUNT, "UPDATE "+TablesNames.TWITTER_HASHTAG_DAILY_COUNT+" SET count = count + 1 WHERE hashtag = ? AND date = ?;");
+		statements.put(INCREMENT_TWITTER_HASHTAG_USERS_COUNT, "UPDATE "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+" SET users = users + 1 WHERE hashtag = ?;");
+		statements.put(DECREMENT_TWITTER_HASHTAG_USERS_COUNT, "UPDATE "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+" SET users = users - 1 WHERE hashtag = ?;");
+		statements.put(UPDATE_TWITTER_HASHTAG_WEEKLY_AVERAGE, "UPDATE "+TablesNames.TWITTER_HASHTAG_WEEKLY_AVERAGE+" SET average = ? WHERE day = ? AND hashtag = ?;");
+		statements.put(FIND_TWITTER_HASHTAG_WEEKLY_AVERAGE, "SELECT * FROM  "+TablesNames.TWITTER_HASHTAG_WEEKLY_AVERAGE+" WHERE day=?;");
+		statements.put(DISABLE_TWITTER_HASHTAG, "INSERT INTO "+TablesNames.TWITTER_DISABLED_HASHTAGS+" (hashtag) values (?);");
+		statements.put(ENABLE_TWITTER_HASHTAG, "DELETE FROM "+TablesNames.TWITTER_DISABLED_HASHTAGS+" WHERE hashtag = ?;");
+		statements.put(FIND_ENABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM  "+TablesNames.TWITTER_HASHTAG_WEEKLY_AVERAGE+" WHERE day=?;");
+		statements.put(FIND_DISABLED_TWITTER_HASHTAGS, "SELECT hashtag FROM "+TablesNames.TWITTER_DISABLED_HASHTAGS+";");
+		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNT, "SELECT * FROM "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+" WHERE hashtag=?;");
+		statements.put(FIND_TWITTER_HASHTAG_USERS_COUNTS, "SELECT * FROM "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+";");
+		statements.put(DELETE_TWITTER_HASHTAG_USERS_COUNTS, "DELETE FROM "+TablesNames.TWITTER_HASHTAG_USERS_COUNT+" WHERE hashtag=?;");
+		statements.put(TWITTER_HASHTAG_WEEKLY_AVERAGE_DAYS, "SELECT DISTINCT day FROM  "+TablesNames.TWITTER_HASHTAG_WEEKLY_AVERAGE+";");
 	}
 	
 	private List<Row> query(BoundStatement statement) {

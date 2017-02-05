@@ -10,7 +10,7 @@ public interface ActivityDAO {
 
 	boolean updateTimeSpentOnActivities(Map<Long, Long> activitiesWithTimeSpent);
 	
-	List<TargetActivity1> getTargetActivities(long targetCompId) throws Exception;
+	List<TargetActivity1> getTargetActivities(long targetCompId, boolean loadActivity) throws Exception;
 	
 	List<Long> getTimeSpentOnActivityForAllUsersSorted(long activityId) throws Exception;
 	

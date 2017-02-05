@@ -14,10 +14,12 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -40,6 +42,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	private CredentialInstructorDataFactory credInstructorFactory;
 	@Inject
 	private AssessmentManager assessmentManager;
+	@Inject private UserGroupManager userGroupManager;
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -428,7 +431,12 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
 			instructor.setDateAssigned(new Date());
 			
-			return saveEntity(instructor);
+			saveEntity(instructor);
+			
+			//assign view privilege to newly added instructor
+			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
+					UserGroupPrivilege.View);
+			return instructor;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -372,6 +372,9 @@
 																					actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion(activityAssessment.encodedDiscussionId,activityAssessment.encodedTargetActivityId,competenceAssessment.competenceAssessmentEncodedId)}"
 																					type="button" styleClass="btn btn-green hidden"
 																					name="button">
+																					<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+																					<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_assessment|id:&#34;.concat(util:decodeId(activityAssessment.encodedDiscussionId)).concat(&#34;|context:/name:assessment_comments/&#34;))}"></f:param>
+																					<f:param name="service" value=""></f:param>
 																					Submit
 																				</p:commandLink>
 																			</div>
@@ -496,6 +499,7 @@
 			toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{cc.attrs.bean.currentAssessment.compAssessmentId}) :assessmentPreview:assessCredentialForm"
 			minGrade="#{not empty cc.attrs.bean.currentAssessment ? cc.attrs.bean.currentAssessment.grade.minGrade : 0}"
 			maxGrade="#{not empty cc.attrs.bean.currentAssessment ? cc.attrs.bean.currentAssessment.grade.maxGrade : 0}"
+			learningContext="#{cc.attrs.learningContext}"
 		/>
 	</composite:implementation>
 </ui:component>

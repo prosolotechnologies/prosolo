@@ -27,7 +27,7 @@ import org.reflections.Reflections;
 public class HibernateUtil {
     private static SessionFactory sessionFactory;
      
-    public static SessionFactory getSessionFactory() {
+    public static synchronized SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
         	Config config=CommonSettings.getInstance().config;
         	String host = config.mysqlConfig.host;

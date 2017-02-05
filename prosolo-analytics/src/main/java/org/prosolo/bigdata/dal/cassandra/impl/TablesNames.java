@@ -31,4 +31,21 @@ public class TablesNames {
     public static final String STUDENT_ASSIGN_EVENT = "student_assign_events";
     public static final String USER_COURSES="usercourses";
 
+    public static final String TARGET_COMPETENCE_ACTIVITIES="targetcompetenceactivities";
+
+    public static final String DASH_EVENT_DAILY_COUNT="dash_eventdailycount";
+    public static final String DASH_USER_EVENT_DAILY_COUNT = "dash_usereventdailycount";
+
+
+    public static final String MOST_ACTIVE_USERS_FOR_LEARNINGGOAL_BY_DATE ="mostactiveusersforlearninggoalbydate" ;
+
+    public static final String ACTIVITY_INTERACTION = "activityinteraction" ;
+    public static final String USER_LEARNINGGOAL_ACTIVITY = "userlearninggoalactivity";
+    public static final String USER_ACTIVITY = "useractivity";
+    public static final String FAILED_FEEDS = "failedfeeds";
+    public static final String DASH_INSTANCE_LOGGED_USERS_COUNT = "dash_instanceloggeduserscount";
+    public static final String TWITTER_HASHTAG_DAILY_COUNT = "twitter_hashtagdailycount";
+    public static final String TWITTER_HASHTAG_WEEKLY_AVERAGE = "twitter_hashtagweeklyaverage";
+    public static final String TWITTER_HASHTAG_USERS_COUNT = "twitter_hashtaguserscount";
+    public static final String TWITTER_DISABLED_HASHTAGS = "twitter_disabledhashtags";
 }

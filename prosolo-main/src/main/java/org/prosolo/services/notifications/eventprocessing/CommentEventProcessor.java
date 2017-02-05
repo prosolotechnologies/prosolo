@@ -173,7 +173,9 @@ public class CommentEventProcessor extends NotificationEventProcessor {
 					idEncoder.encodeId(credentialId) + "/" +
 					idEncoder.encodeId(competenceId) + "/" +
 					idEncoder.encodeId(activityId) + "/" +
-					"responses?comment=" +  idEncoder.encodeId(resource.getId());
+					"responses/" + 
+					idEncoder.encodeId(event.getTarget().getId()) + 
+					"?comment=" +  idEncoder.encodeId(resource.getId());
 			default:
 				break;
 		}
