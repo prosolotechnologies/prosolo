@@ -10,9 +10,11 @@ import java.util.Set;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
@@ -125,7 +127,6 @@ public class UserEditBean implements Serializable {
 	public void saveUser() {
 		if(this.user.getId() == 0) {
 			createNewUser();
-			sendNewPassword();
 		} else {
 			updateUser();
 		}
@@ -151,6 +152,8 @@ public class UserEditBean implements Serializable {
 					+ loggedUser.getUserId());
 			
 			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
+
+			sendNewPassword();
 			
 //			if (this.user.isSendEmail()) {
 //			emailSenderManager.sendEmailAboutNewAccount(user,
@@ -267,6 +270,7 @@ public class UserEditBean implements Serializable {
 			savePasswordIfConditionsAreMetForAnotherUser();
 		}
 	}
+	@SuppressWarnings("deprecation")
 	private void savePasswordIfConditionsAreMetForAnotherUser() {
 		if (accountData.getNewPassword().length() < 6) {
 			PageUtil.fireErrorMessage("Password is too short. It has to contain more that 6 characters.");
@@ -276,6 +280,7 @@ public class UserEditBean implements Serializable {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
 			
 			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+			
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");
@@ -290,6 +295,7 @@ public class UserEditBean implements Serializable {
 		return accountData;
 	}
 	
+@SuppressWarnings("deprecation")
 public void sendNewPassword() {
 		
 		User userNewPass = userManager.getUser(user.getEmail());
@@ -297,7 +303,7 @@ public void sendNewPassword() {
 			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
 			
 			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to "+user.getEmail());
+				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
 			} else {
 				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
 			}
