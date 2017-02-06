@@ -35,10 +35,13 @@ object UserProfileClusteringManager {
     println("INITIALIZE USER PROFILE CLUSTERING ")
     val sc=SparkContextLoader.getSC
     val credentialsIds=clusteringDAOManager.getAllCredentialsIds
+
     val credentialsIdsScala:Seq[java.lang.Long]=credentialsIds.asScala.toSeq
+    println("ALL CREDENTIALS:"+credentialsIdsScala.mkString(","))
     val credentialsRDD:RDD[Long]=sc.parallelize(credentialsIdsScala.map { Long2long})
     credentialsRDD.foreachPartition {
       credentials => {
+        println("FOREACH PARTITION:::"+credentials.mkString(","))
         credentials.foreach { credentialid => {
           println("RUNNING USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialid)
          // println("TEMPORARY DISABLED")

@@ -95,6 +95,11 @@
 			<artifactId>bigdata.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.prosolo</groupId>
+			<artifactId>spark-jobs</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 
 		<!-- RabbitMQ dependencies -->
