@@ -105,16 +105,20 @@
 								<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
 									value="Roles" outcome="/admin/roles" />
 							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('twitter','mainmenu');"
-									value="Twitter" outcome="/admin/users" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('other','mainmenu');"
-									value="Other" outcome="/admin/users" />
-							</li>
+							<ui:remove>
+								<li role="presentation"
+									class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
+									<h:link onclick="sendLogPageNavigation('twitter','mainmenu');"
+										value="Twitter" outcome="/admin/users" />
+								</li>
+							</ui:remove>
+							<ui:remove>
+								<li role="presentation"
+									class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
+									<h:link onclick="sendLogPageNavigation('other','mainmenu');"
+										value="Other" outcome="/admin/users" />
+								</li>
+							</ui:remove>
 						</ul>
 					</nav>
 				</div>
