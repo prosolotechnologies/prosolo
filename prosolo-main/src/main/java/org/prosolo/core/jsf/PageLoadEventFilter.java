@@ -64,23 +64,27 @@ public class PageLoadEventFilter implements Filter {
 			}
 			if(page != null) {
 				logger.info("OPENED PAGE: " + page);
-				String ipAddress = request.getHeader("X-FORWARDED-FOR");
-				if (ipAddress != null) {
-					// get first IP from comma separated list
-			        ipAddress = ipAddress.replaceFirst(",.*", "");  
-			    } else {
-					ipAddress = request.getRemoteAddr();
-				}
-				logger.info("IP address: " + ipAddress);
-				Map<String, String> params = new HashMap<>();
-				params.put("ip", ipAddress);
-				try {
-					eventFactory.generateEvent(EventType.PAGE_OPENED, userId, 
-							null, null, uri, null,
-							null, params);
-				} catch (EventException e) {
-					logger.error("Error while generating page open event " + e);
-				}
+			} else {
+				logger.warn("Page is not mapped in ApplicationPage enum");
+			}
+			String ipAddress = request.getHeader("X-FORWARDED-FOR");
+			if (ipAddress != null) {
+				// get first IP from comma separated list
+		        ipAddress = ipAddress.replaceFirst(",.*", "");  
+		    } else {
+				ipAddress = request.getRemoteAddr();
+			}
+			logger.info("IP address: " + ipAddress);
+			Map<String, String> params = new HashMap<>();
+			params.put("ip", ipAddress);
+			params.put("uri", uri);
+			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
+			try {
+				eventFactory.generateEvent(EventType.PAGE_OPENED, userId, 
+						null, null, uri, null,
+						null, params);
+			} catch (EventException e) {
+				logger.error("Error while generating page open event " + e);
 			}
 		}
 		
