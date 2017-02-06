@@ -167,11 +167,11 @@ public class CompetenceEditBean implements Serializable {
 	 */
 	
 	public void preview() {
-		saveCompetenceData(true, true);
+		saveCompetenceData(true);
 	}
 	
 	public void saveAndNavigateToCreateActivity() {
-		boolean saved = saveCompetenceData(true, false);
+		boolean saved = saveCompetenceData(false);
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -194,7 +194,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		boolean saved = saveCompetenceData(false, !addToCredential);
+		boolean saved = saveCompetenceData(!addToCredential);
 		if(saved && addToCredential) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -211,7 +211,7 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public boolean saveCompetenceData(boolean saveAsDraft, boolean reloadData) {
+	public boolean saveCompetenceData(boolean reloadData) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -224,16 +224,10 @@ public class CompetenceEditBean implements Serializable {
 			if(competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if(competenceData.hasObjectChanged()) {
-					if(saveAsDraft) {
-						competenceData.setStatus(PublishedStatus.UNPUBLISH);
-					}
 					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
-				if(saveAsDraft) {
-					competenceData.setStatus(PublishedStatus.UNPUBLISH);
-				}
 				long credentialId = addToCredential ? decodedCredId : 0;
 				//competenceData.setDuration(4);
 				Competence1 comp = compManager.saveNewCompetence(competenceData, 
@@ -323,16 +317,10 @@ public class CompetenceEditBean implements Serializable {
 		bad2.setOrder(bad2.getOrder() - 1);
 		bad2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(activities, i, k);
-		
-		//when activity order changes update status to draft
-		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity() {
 		removeActivity(activityForRemovalIndex);
-		
-		//when activity is removed update status to draft
-		competenceData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeActivity(int index) {

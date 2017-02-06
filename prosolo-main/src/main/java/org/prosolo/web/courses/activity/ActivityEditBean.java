@@ -212,9 +212,6 @@ public class ActivityEditBean implements Serializable {
 //			 activityData.setLink(null);
 //		}
 		activityData.setActivityType(type);
-		
-		//change status to draft
-		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeFile(ResourceLinkData link) {
@@ -222,8 +219,6 @@ public class ActivityEditBean implements Serializable {
 		if(link.getStatus() != ObjectStatus.REMOVED) {
 			activityData.getFiles().remove(link);
 		}
-		
-		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeLink(ResourceLinkData link) {
@@ -231,8 +226,6 @@ public class ActivityEditBean implements Serializable {
 		if(link.getStatus() != ObjectStatus.REMOVED) {
 			activityData.getLinks().remove(link);
 		}
-		
-		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeCaption(ResourceLinkData caption) {
@@ -240,8 +233,6 @@ public class ActivityEditBean implements Serializable {
 		if(caption.getStatus() != ObjectStatus.REMOVED) {
 			activityData.getCaptions().remove(caption);
 		}
-		
-		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
@@ -271,8 +262,6 @@ public class ActivityEditBean implements Serializable {
 		} else {
 			activityData.getFiles().add(resLinkToAdd);
 			resLinkToAdd = null;
-			
-			activityData.setStatus(PublishedStatus.UNPUBLISH);
 		}
 	}
 	
@@ -280,8 +269,6 @@ public class ActivityEditBean implements Serializable {
 		resLinkToAdd.setUrl(StringUtil.encodeUrl(resLinkToAdd.getUrl()));
 		activityData.getLinks().add(resLinkToAdd);
 		resLinkToAdd = null;
-		
-		activityData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void addUploadedCaption() {
@@ -296,8 +283,6 @@ public class ActivityEditBean implements Serializable {
 		} else {
 			activityData.getCaptions().add(resLinkToAdd);
 			resLinkToAdd = null;
-			
-			activityData.setStatus(PublishedStatus.UNPUBLISH);
 		}
 	}
 	
@@ -334,12 +319,12 @@ public class ActivityEditBean implements Serializable {
 	 */
 	
 	public void preview() {
-		saveActivityData(true, true);
+		saveActivityData(true);
 	}
 	
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;
-		boolean saved = saveActivityData(false, !isNew);
+		boolean saved = saveActivityData(!isNew);
 		
 		if (saved && isNew) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -361,7 +346,7 @@ public class ActivityEditBean implements Serializable {
 		}
 	}
 	
-	public boolean saveActivityData(boolean saveAsDraft, boolean reloadData) {
+	public boolean saveActivityData(boolean reloadData) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -381,16 +366,10 @@ public class ActivityEditBean implements Serializable {
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					if (saveAsDraft) {
-						activityData.setStatus(PublishedStatus.UNPUBLISH);
-					}
 					activityManager.updateActivity(activityData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
-				if (saveAsDraft) {
-					activityData.setStatus(PublishedStatus.UNPUBLISH);
-				}
 				Activity1 act = activityManager.saveNewActivity(activityData, 
 						loggedUser.getUserId(), lcd);
 				decodedId = act.getId();

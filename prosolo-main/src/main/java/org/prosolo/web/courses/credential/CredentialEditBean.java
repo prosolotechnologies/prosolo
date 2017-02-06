@@ -197,7 +197,7 @@ public class CredentialEditBean implements Serializable {
 	 */
 	
 	public void saveAndNavigateToCreateCompetence() {
-		boolean saved = saveCredentialData(true, false);
+		boolean saved = saveCredentialData(false);
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -215,14 +215,14 @@ public class CredentialEditBean implements Serializable {
 	}
 
 	public void preview() {
-		saveCredentialData(true, true);
+		saveCredentialData(true);
 	}
 	
 	public void save() {
-		saveCredentialData(false, true);
+		saveCredentialData(true);
 	}
 	
-	public boolean saveCredentialData(boolean saveAsDraft, boolean reloadData) {
+	public boolean saveCredentialData(boolean reloadData) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -236,17 +236,10 @@ public class CredentialEditBean implements Serializable {
 			if(credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
-					if(saveAsDraft) {
-						credentialData.setStatus(PublishedStatus.UNPUBLISH);
-					}
 					credentialManager.updateCredential(credentialData, 
 							loggedUser.getUserId(), lcd);
 				}
 			} else {
-				if(saveAsDraft) {
-					credentialData.setStatus(PublishedStatus.UNPUBLISH);
-				}
-				
 				Credential1 cred = credentialManager.saveNewCredential(credentialData,
 						loggedUser.getUserId(), lcd);
 				credentialData.setId(cred.getId());
@@ -396,8 +389,6 @@ public class CredentialEditBean implements Serializable {
 		compsToExcludeFromSearch.add(compToEdit.getCompetenceId());
 		currentNumberOfComps ++;
 		compSearchResults = new ArrayList<>();
-		//change status because competence is added
-		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	private CompetenceData1 getCompetenceIfPreviouslyRemoved(CompetenceData1 compData) {
@@ -429,16 +420,10 @@ public class CredentialEditBean implements Serializable {
 		cd2.setOrder(cd2.getOrder() - 1);
 		cd2.statusChangeTransitionBasedOnOrderChange();
 		Collections.swap(competences, i, k);
-		
-		//set status to draft because order changed
-		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeComp() {
 		removeComp(competenceForRemovalIndex);
-		
-		//set status to draft because competence is removed
-		credentialData.setStatus(PublishedStatus.UNPUBLISH);
 	}
 	
 	public void removeComp(int index) {
