@@ -2,12 +2,9 @@ package org.prosolo.web.administration;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
@@ -67,15 +64,12 @@ public class UserEditBean implements Serializable {
 	
 	private UserData user;
 	private SelectItem[] allRoles;
-	private String password;
 
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
 			decodedId = idEncoder.decodeId(id);
-			String password = getPassword();
 			user = new UserData();
-			user.setPassword(password);
 			user.setId(decodedId);
 			accountData = new AccountData();
 		} catch(Exception e) {
@@ -99,8 +93,6 @@ public class UserEditBean implements Serializable {
 						}
 					}
 					accountData = new AccountData();
-					String email = userManager.getUserEmail(decodedId);
-					accountData.setEmail(email);
 				} else {
 					this.user = new UserData();
 					PageUtil.fireErrorMessage("User cannot be found");
@@ -272,21 +264,7 @@ public class UserEditBean implements Serializable {
 		this.allRoles = allRoles;
 	}
 	
-	
-	@SuppressWarnings("deprecation")
 	public void savePassChangeForAnotherUser() {
-		if(getPassword() != null && !getPassword().isEmpty()) {
-			if (authenticationService.checkPassword(getPassword(), accountData.getPassword())) {
-				savePasswordIfConditionsAreMetForAnotherUser();
-			} else {
-				PageUtil.fireErrorMessage("Old password is not correct.");
-			}
-		} else {
-			savePasswordIfConditionsAreMetForAnotherUser();
-		}
-	}
-	@SuppressWarnings("deprecation")
-	private void savePasswordIfConditionsAreMetForAnotherUser() {
 		if (accountData.getNewPassword().length() < 6) {
 			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
 			return;
@@ -306,15 +284,6 @@ public class UserEditBean implements Serializable {
 
 	public AccountData getAccountData() {
 		return accountData;
-	}
-	
-	public String getPassword(){
-		try {
-			password = userManager.getPassword(decodedId);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			PageUtil.fireErrorMessage("errorMessage", "Error getting password information");
-		}
-		return password;
 	}
 @SuppressWarnings("deprecation")
 public void sendNewPassword() {
