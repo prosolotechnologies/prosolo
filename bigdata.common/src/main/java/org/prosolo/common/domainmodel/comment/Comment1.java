@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.comment;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -28,6 +30,8 @@ public class Comment1 extends BaseEntity {
 	
 	private User user;
 	private boolean isInstructor;
+	//true if comment is posted from manage section
+	private boolean isManagerComment;
 	
 	//date from baseentity not saving hours, minutes
 	private Date postDate;
@@ -102,6 +106,16 @@ public class Comment1 extends BaseEntity {
 
 	public void setPostDate(Date postDate) {
 		this.postDate = postDate;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isManagerComment() {
+		return isManagerComment;
+	}
+
+	public void setManagerComment(boolean isManagerComment) {
+		this.isManagerComment = isManagerComment;
 	}
 	
 }
