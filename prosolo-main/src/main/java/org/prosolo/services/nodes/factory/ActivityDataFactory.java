@@ -263,8 +263,17 @@ public class ActivityDataFactory {
 	}
 
 
+	/**
+	 * 
+	 * @param targetActivity
+	 * @param links
+	 * @param files
+	 * @param shouldTrackChanges
+	 * @param isManager did request come from manage section
+	 * @return
+	 */
 	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges) {
+			Set<ResourceLink> files, boolean shouldTrackChanges, boolean isManager) {
 		if (targetActivity == null) {
 			return null;
 		}
@@ -280,7 +289,7 @@ public class ActivityDataFactory {
 		data.setCompleted(targetActivity.isCompleted());
 		data.setEnrolled(true);
 		data.setType(targetActivity.getLearningResourceType());
-		data.setResultData(getActivityResultData(targetActivity));
+		data.setResultData(getActivityResultData(targetActivity, isManager));
 		data.setCreatorId(targetActivity.getCreatedBy().getId());
 		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
 		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
@@ -334,7 +343,7 @@ public class ActivityDataFactory {
 		return data;
 	}
 	
-	private ActivityResultData getActivityResultData(TargetActivity1 activity) {
+	private ActivityResultData getActivityResultData(TargetActivity1 activity, boolean isManager) {
 		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
 		ActivityResultData ard = new ActivityResultData(false);
 		ard.setTargetActivityId(activity.getId());
@@ -346,12 +355,12 @@ public class ActivityDataFactory {
 		}
 		ard.setResultPostDate(activity.getResultPostDate());
 		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
-				activity.getResultPostDate(), null, 0, false);
+				activity.getResultPostDate(), null, 0, false, isManager);
 	}
 	
 	public ActivityResultData getActivityResultData(long targetActivityId, 
 			org.prosolo.common.domainmodel.credential.ActivityResultType resType, String result, 
-			Date postDate, User user, int commentsNumber, boolean isInstructor) {
+			Date postDate, User user, int commentsNumber, boolean isInstructor, boolean isManager) {
 		ActivityResultData ard = new ActivityResultData(false);
 		ard.setResultType(getResultType(resType));
 		ard.setResult(result);
@@ -365,7 +374,7 @@ public class ActivityDataFactory {
 		}
 		ard.setTargetActivityId(targetActivityId);
 		CommentsData commData = new CommentsData(CommentedResourceType.ActivityResult, 
-				targetActivityId, isInstructor);
+				targetActivityId, isInstructor, isManager);
 		commData.setNumberOfComments(commentsNumber);
 		ard.setResultComments(commData);
 		return ard;

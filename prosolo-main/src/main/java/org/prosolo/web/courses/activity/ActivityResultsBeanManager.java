@@ -108,7 +108,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
 								decodedCredId, decodedCompId, decodedActId, 0, hasInstructorCapability,
-								paginate, paginationData.getPage() - 1, paginationData.getLimit(), null);
+								true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), 
+								null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
 					loadAdditionalData(ard);
 				}
@@ -154,7 +155,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
 								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
-								hasInstructorCapability, false, 0, 
+								hasInstructorCapability, true, false, 0, 
 								0, null);
 				if(activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
 					currentResult = activity.getStudentResults().get(0);
@@ -212,7 +213,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				List<ActivityResultData> results = activityManager
 						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
-								hasInstructorCapability, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
+								hasInstructorCapability, true, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
 				}
@@ -301,7 +302,12 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	//assessment begin
 	public void loadActivityDiscussionById(long targetActivityId, boolean loadDiscussion, boolean loadComments) {
-		ActivityResultData result = activityManager.getActivityResultData(targetActivityId, loadComments, loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), loggedUserBean.getUserId());
+		ActivityResultData result = activityManager.getActivityResultData(
+				targetActivityId, 
+				loadComments, 
+				loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), 
+				true, 
+				loggedUserBean.getUserId());
 		
 //		if (result != null && loadDiscussion) {
 			loadActivityDiscussion(result);

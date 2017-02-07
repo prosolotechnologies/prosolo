@@ -184,6 +184,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		
 		newComment.setCreator(creator);
 		newComment.setInstructor(commentsData.isInstructor());
+		newComment.setManagerComment(commentsData.isManagerComment());
 		
 		String page = PageUtil.getPostParameter("page");
 		String lContext = PageUtil.getPostParameter("learningContext");

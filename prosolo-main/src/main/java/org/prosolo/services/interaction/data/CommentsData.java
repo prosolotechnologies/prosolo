@@ -17,6 +17,7 @@ public class CommentsData implements Serializable {
 	
 	private boolean initialized;
 	private boolean isInstructor;
+	private boolean isManagerComment;
 	private List<CommentData> comments;
 	private CommentedResourceType resourceType;
 	private long resourceId;
@@ -35,10 +36,12 @@ public class CommentsData implements Serializable {
 				" with id " + resourceId + " is created");
 	}
 	
-	public CommentsData(CommentedResourceType resourceType, long resourceId, boolean isInstructor) {
+	public CommentsData(CommentedResourceType resourceType, long resourceId, boolean isInstructor,
+			boolean isManagerComment) {
 		this.resourceType = resourceType;
 		this.resourceId = resourceId;
 		this.isInstructor = isInstructor;
+		this.isManagerComment = isManagerComment;
 		logger.info("Comment options for resource " + resourceType.toString() + 
 				" with id " + resourceId + " is created");
 	}
@@ -149,6 +152,14 @@ public class CommentsData implements Serializable {
 
 	public void setCommentId(long commentId) {
 		this.commentId = commentId;
+	}
+
+	public boolean isManagerComment() {
+		return isManagerComment;
+	}
+
+	public void setManagerComment(boolean isManagerComment) {
+		this.isManagerComment = isManagerComment;
 	}
 	
 }
