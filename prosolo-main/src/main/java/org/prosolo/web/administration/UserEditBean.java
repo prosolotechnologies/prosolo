@@ -67,7 +67,22 @@ public class UserEditBean implements Serializable {
 	
 	private UserData user;
 	private SelectItem[] allRoles;
+	private String password;
 
+	public void initPassword() {
+		logger.debug("initializing");
+		try {
+			decodedId = idEncoder.decodeId(id);
+			String password = getPassword();
+			user = new UserData();
+			user.setPassword(password);
+			user.setId(decodedId);
+			accountData = new AccountData();
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while loading page");
+		}
+	}
 	public void init() {
 		logger.debug("initializing");
 		try {
@@ -101,7 +116,7 @@ public class UserEditBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
 	}
-	
+
 	private void prepareRoles() {
 		try {
 			List<Role> roles = roleManager.getAllRoles();
@@ -260,8 +275,8 @@ public class UserEditBean implements Serializable {
 	
 	@SuppressWarnings("deprecation")
 	public void savePassChangeForAnotherUser() {
-		if(user.getPassword() != null && !user.getPassword().isEmpty()) {
-			if (authenticationService.checkPassword(user.getPassword(), accountData.getPassword())) {
+		if(getPassword() != null && !getPassword().isEmpty()) {
+			if (authenticationService.checkPassword(getPassword(), accountData.getPassword())) {
 				savePasswordIfConditionsAreMetForAnotherUser();
 			} else {
 				PageUtil.fireErrorMessage("Old password is not correct.");
@@ -273,14 +288,13 @@ public class UserEditBean implements Serializable {
 	@SuppressWarnings("deprecation")
 	private void savePasswordIfConditionsAreMetForAnotherUser() {
 		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more that 6 characters.");
+			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
 			return;
 		}
 		try {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			
+			setPassword(accountData.getNewPassword());
 			PageUtil.fireSuccessfulInfoMessage("Password updated!");
-			
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error updating the password");
@@ -295,6 +309,17 @@ public class UserEditBean implements Serializable {
 		return accountData;
 	}
 	
+	public String getPassword(){
+		try {
+			password = userManager.getPassword(decodedId);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			PageUtil.fireErrorMessage("errorMessage", "Error getting password information");
+		}
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 @SuppressWarnings("deprecation")
 public void sendNewPassword() {
 		

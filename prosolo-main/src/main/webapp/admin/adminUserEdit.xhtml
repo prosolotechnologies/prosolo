@@ -17,17 +17,18 @@
 			<f:viewAction action="#{userEditBean.init()}" />
 		</f:metadata>
 	</ui:define>
+	<ui:define name="navLinks">
+		<ul class="nav nav-tabs headerSubmenu">
+			<li role="presentation" class="active"><h:link
+					outcome="/admin/adminUserEdit">
+					<f:param name="id" value="#{userEditBean.id}" />Personal Info</h:link></li>
+			<li role="presentation"><h:link
+					outcome="/admin/adminUserEditPassword">
+					<f:param name="id" value="#{userEditBean.id}" />Change Password</h:link></li>
+		</ul>
+	</ui:define>
 	<ui:define name="content">
-		<header>
-			<div class="container" style="background: #4a3b5a">
-				<ul class="nav nav-tabs headerSubmenu">
-					<li><h:link outcome="/admin/adminUserEdit">
-							<f:param name="id" value="#{userEditBean.id}" />Personal Info</h:link></li>
-					<li><h:link outcome="/admin/adminUserEditPassword">
-							<f:param name="id" value="#{userEditBean.id}" />Change Password</h:link></li>
-				</ul>
-			</div>
-		</header>
+	
 		<div class="whiteBar"></div>
 
 		<div class="container">
