@@ -293,7 +293,6 @@ public class UserEditBean implements Serializable {
 		}
 		try {
 			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			setPassword(accountData.getNewPassword());
 			PageUtil.fireSuccessfulInfoMessage("Password updated!");
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
@@ -316,9 +315,6 @@ public class UserEditBean implements Serializable {
 			PageUtil.fireErrorMessage("errorMessage", "Error getting password information");
 		}
 		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
 	}
 @SuppressWarnings("deprecation")
 public void sendNewPassword() {
