@@ -9,7 +9,8 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -20,12 +21,14 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
-		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-datetimepicker.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		
 	    <div class="whiteBar">
 	
@@ -40,7 +43,7 @@
 		            <li>
 		            	<h:link 
 		            		value="#{competenceEditBean.credTitle}"
-		            		outcome="credential">
+		            		outcome="create-credential">
 		            		<f:param name="id" value="#{param['credId']}"></f:param>
 		            	</h:link>
 		            </li>
@@ -128,10 +131,15 @@
 			                                <div class="formLine">
 			                                    <label>About competence</label>
 			                                    <div class="formLineRight">
-			                                        <h:inputTextarea 
+			                                        <h:inputTextarea
+			                                        	id="description"
 			                                        	styleClass="pasteable"
 			                                        	value="#{competenceEditBean.competenceData.description}"
-			                                        	onkeyup="updateStatusToDraft();"></h:inputTextarea>
+			                                        	onkeyup="updateStatusToDraft();" />
+			                                        	
+			                                        <script>
+			                                    		initTinyMCE('#createCompetence\\:formMain\\:description');
+			                                    	</script>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -184,7 +192,18 @@
 			                </div>
 			            </div>
 			            <div class="col-md-4">
-			            
+							<h:panelGroup layout="block" rendered="#{!competenceEditBean.createUseCase}" styleClass="whiteBox publishBox visibilityBox">
+			                    <h2>Visibility</h2>
+			                    <div class="clear"></div>
+			                    <p:commandLink 
+			                    	styleClass="btn btn-green-stroke" 
+			                    	pt:data-toggle="modal" 
+			                    	action="#{competenceEditBean.initVisibilityManageData()}"
+			                    	update=":#{cc.clientId}:resourceVisibilityModal:formManageVisibility:panelManageVisibility"
+			                    	oncomplete="$('#manageVisibility').modal('show');">
+			                    	Manage Visibility
+			                    </p:commandLink>
+			                </h:panelGroup>			            
 			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
 			                    Your competence is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
@@ -194,13 +213,15 @@
 			            		id="compSideBar"
 			            		publishValues="#{competenceEditBean.compStatusArray}" 
 			            		publishValue="#{competenceEditBean.competenceData.status}"
-			            		visibilityValues="#{competenceEditBean.visibilityTypes}"
-								visibilityValue="#{competenceEditBean.competenceData.visibility}"
-								scheduledDateValue="#{competenceEditBean.competenceData.scheduledPublicDateValue}"
 			            		saveAction="#{competenceEditBean.save}"
+			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 			            		previewAction="#{competenceEditBean.preview}"
-			            		linkPreviewClass="hiddenLinkPreview"/>
+			            		linkPreviewClass="hiddenLinkPreview"
+			            		resource="COMPETENCE"
+			            		role="#{cc.attrs.role}"
+			            		resourceLowerCase="competence"
+								childResourcePlural="activities"/>
 			            		
 			            	<h:link
 								style="display: none;"
@@ -260,6 +281,14 @@
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 				modalDeleteTitle="Competence"
 				modalDeleteText="competence"/>
+				
+			<dialogs:resourceVisibility
+				id="resourceVisibilityModal"
+				bean="#{competenceVisibilityBean}"
+				resource="Competence"
+				toUpdate=":#{cc.clientId}:formMain:growlMain"
+				learningContext="#{cc.attrs.learningContext}"
+			/>
 			
 		</div>
 	</composite:implementation>

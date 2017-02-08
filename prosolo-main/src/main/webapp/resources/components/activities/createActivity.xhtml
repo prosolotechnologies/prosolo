@@ -20,6 +20,8 @@
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 	    
 	    <div class="whiteBar">
 	    </div>
@@ -39,15 +41,15 @@
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
-				            		outcome="credential">
+				            		outcome="create-credential">
 				            		<f:param name="id" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <li>
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}" />
+				            		outcome="create-competence">
+				            		<f:param name="id" value="#{param['compId']}" />
 				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
@@ -67,8 +69,8 @@
 			    			<li>
 				            	<h:link 
 				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="competence">
-				            		<f:param name="compId" value="#{param['compId']}" />
+				            		outcome="create-competence">
+				            		<f:param name="id" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
@@ -111,10 +113,14 @@
 			                                <div class="formLine">
 			                                    <label>Description</label>
 			                                    <div class="formLineRight">
-			                                    	<h:inputTextarea
+			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.description}"
 			                                    		onkeyup="updateStatusToDraft();" />
+			                                    		
+			                                    	<script>
+			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
+			                                    	</script>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -124,7 +130,7 @@
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{activityEditBean.isCreateUseCase()}">
 			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
 			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
 			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -147,7 +153,7 @@
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{!activityEditBean.isCreateUseCaseOrFirstTimeDraft()}">
+			                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
 			                                         <ul class="addedItems">
 			                                             <li>
 			                                                 #{activityEditBean.activityData.activityType.label}
@@ -186,7 +192,7 @@
 			                    <h2>Publish</h2>
 			                    <p:commandLink
 			                    	id="linkPreview"
-									value="Preview #{activityEditBean.activityData.status eq 'DRAFT' ? 'Draft' : ''}"
+									value="Preview #{activityEditBean.activityData.status eq 'UNPUBLISH' ? 'Draft' : ''}"
 									styleClass="linkPreview"
 									action="#{activityEditBean.preview()}"
 									update=":#{cc.clientId}:formMain"
@@ -246,6 +252,21 @@
 			                        </div>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
+			                    <div class="difficultyLevel">
+			                        <p>Difficulty level:</p>
+			                        <div class="selectRow">
+			                        	<h:selectOneMenu styleClass="selectpicker pickLevel"
+			                        		value="#{activityEditBean.activityData.difficulty}"
+			                        		onchange="updateStatusToDraft();">
+			                        		<f:selectItem itemValue="1"/>
+			                        		<f:selectItem itemValue="2"/>
+			                        		<f:selectItem itemValue="3"/>
+			                        		<f:selectItem itemValue="4"/>
+			                        		<f:selectItem itemValue="5"/>
+			                        	</h:selectOneMenu>
+			                        </div>
+			                        <script>$('.selectpicker').selectpicker('refresh');</script>
+			                    </div>
 			                    <h:panelGroup id="panelStatus">
 				                    <h:selectOneMenu id="selectStatus"
 					                	styleClass="selectpicker"
@@ -260,12 +281,12 @@
 			                    <div class="publishRow">
 			                    	<p:commandLink 
 					              	  	styleClass="btn btn-green"
-					              	  	onclick="if ($('.fieldsText').length>0)$('.fieldsText textarea').val(tinyMCE.activeEditor.getContent());"
+					              	  	onclick="copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:description');copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
-					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-					              	  		Save changes
+					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+				              	  		Save changes
 					              	</p:commandLink>
 			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
 			                        

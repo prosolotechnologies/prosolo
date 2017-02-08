@@ -23,6 +23,21 @@ public class PageUtil {
 		return contextParameters.get(parameterName);
 	}
 	
+	public static String getGetParameter(String parameterName) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		return params.get(parameterName);
+	}
+	
+	public static int getGetParameterAsInteger(String parameterName) {
+		String param = getGetParameter(parameterName);
+		
+		try {
+			return Integer.parseInt(param);
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+	
 	public static void fireSuccessfulInfoMessage(String description) {
 		fireSuccessfulInfoMessage(null, description);
 	}
@@ -74,8 +89,12 @@ public class PageUtil {
 	}
 
 	public static void redirectToLoginPage() {
+		redirect("login?faces-redirect=true");
+	}
+	
+	public static void redirect(String url) {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect("login?faces-redirect=true");
+			FacesContext.getCurrentInstance().getExternalContext().redirect(url);
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -121,5 +140,13 @@ public class PageUtil {
 		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		
 		return (String) request.getAttribute("javax.servlet.forward.request_uri");
+	}
+
+	public static void showNotFoundPage() {
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+		} catch (IOException e) {
+			logger.error(e);
+		}
 	}
 }

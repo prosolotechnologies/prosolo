@@ -4,5 +4,5 @@ public enum CommentReplyFetchMode {
 
 	FetchReplies,
 	FetchNumberOfReplies,
-	None;
+	//None;
 }

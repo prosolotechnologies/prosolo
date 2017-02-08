@@ -14,7 +14,7 @@ public interface AnnouncementManager {
 	
 	public void readAnnouncement(Long announcementId, Long userId);
 	
-	public List<AnnouncementData> getAllAnnouncementsForCredential(Long credentialId,int page, int numberPerPage) throws ResourceCouldNotBeLoadedException;
+	public List<AnnouncementData> getAllAnnouncementsForCredential(Long credentialId, int page, int limit) throws ResourceCouldNotBeLoadedException;
 
 	public int numberOfAnnouncementsForCredential(Long credentialId);
 	

@@ -9,11 +9,14 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.NodeEntityESService;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.indexing.UserGroupESService;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +30,10 @@ public class NodeChangeProcessorFactory {
 	private CredentialESService credentialESService;
 	@Inject
 	private CompetenceESService competenceESService;
+	@Inject
+	private UserGroupESService userGroupESService;
+	@Inject
+	private UserGroupManager userGroupManager;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -39,7 +46,7 @@ public class NodeChangeProcessorFactory {
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
-						 EventUserRole.Subject);
+						 credentialESService, EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
@@ -47,14 +54,19 @@ public class NodeChangeProcessorFactory {
 			case ChangeVisibility:
 			case STUDENT_ASSIGNED_TO_INSTRUCTOR:
 			case STUDENT_UNASSIGNED_FROM_INSTRUCTOR:
-			case INSTRUCTOR_ASSIGNED_TO_COURSE:
+			case INSTRUCTOR_ASSIGNED_TO_CREDENTIAL:
 			case STUDENT_REASSIGNED_TO_INSTRUCTOR:
 			case USER_ROLES_UPDATED:
-			case INSTRUCTOR_REMOVED_FROM_COURSE:
+			case INSTRUCTOR_REMOVED_FROM_CREDENTIAL:
+			case RESOURCE_VISIBILITY_CHANGE:
+			case VISIBLE_TO_ALL_CHANGED:
+			case STATUS_CHANGED:
 				if (node instanceof User) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Object);
+					return new UserNodeChangeProcessor(event, session, userEntityESService, 
+							credentialESService, EventUserRole.Object);
 				} else if (node instanceof TargetLearningGoal) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, EventUserRole.Subject);
+					return new UserNodeChangeProcessor(event, session, userEntityESService, 
+							credentialESService, EventUserRole.Subject);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {
@@ -71,8 +83,10 @@ public class NodeChangeProcessorFactory {
 						operation = NodeOperation.Update;
 					}
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
-				}
-				else {
+				} else if(node instanceof UserGroup) {
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
+							credentialESService, userGroupManager, competenceESService);
+				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
 				
@@ -84,6 +98,9 @@ public class NodeChangeProcessorFactory {
 				} else if(node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
 							NodeOperation.Delete, session);
+				} else if(node instanceof UserGroup) {
+					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
+							credentialESService, userGroupManager, competenceESService);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -99,6 +116,12 @@ public class NodeChangeProcessorFactory {
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
 			case Unfollow:
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Delete);
+			case ADD_USER_TO_GROUP:
+			case REMOVE_USER_FROM_GROUP:
+			case USER_GROUP_ADDED_TO_RESOURCE:
+			case USER_GROUP_REMOVED_FROM_RESOURCE:
+				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
+						userGroupManager, competenceESService);
 			default:
 				return null;
 		}

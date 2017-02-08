@@ -64,6 +64,10 @@ public class ActivityAssessment extends BaseEntity {
 	public void setParticipants(List<ActivityDiscussionParticipant> participants) {
 		this.participants = participants;
 	}
+	
+	public void addParticipant(ActivityDiscussionParticipant participant) {
+		this.participants.add(participant);
+	}
 
 	@OneToMany(mappedBy = "discussion")
 	public List<ActivityDiscussionMessage> getMessages() {

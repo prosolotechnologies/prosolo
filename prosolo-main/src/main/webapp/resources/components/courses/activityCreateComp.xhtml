@@ -25,22 +25,13 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
-		<script>
-		tinymce.init({
-			theme: "modern",
-		    skin: 'light',
-		    height : "200",
-			selector:'.fieldsText textarea',
-			font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
-	    	plugins: 'link media code image',
-			menubar:false,
-		    statusbar: false,
-		    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
-		});
-		</script>
-	
 		<div id="#{cc.clientId}">
+		<script>
+        	$(function() {
+        		disableAutogradeIfAcceptGradesChecked('#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');
+        		disableAcceptGradesIfAutogradeChecked('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');
+        	});
+        </script>
 		<!-- video activity start -->
 	    <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'VIDEO'}" styleClass="fieldsVideo">
            <div class="formLine">
@@ -110,19 +101,24 @@
           <div class="formLine">
               <label>Text</label>
               <div class="formLineRight">
-              	  <h:inputTextarea 
-              	  	id="inputTextActText"
-              	  	value="#{cc.attrs.activity.text}"
-              	  	styleClass="textareaBig pasteable"/>
-				   <h:panelGroup 
-	                   	layout="block" 
-	                   	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
-	                   	styleClass="alert alert-danger" 
-	                   	pt:role="alert">
-	                       <h:message for="inputTextActText"></h:message>
-	               </h:panelGroup>
-              </div>
-          </div>
+				<h:inputTextarea 
+					id="inputTextActText"
+					value="#{cc.attrs.activity.text}"
+					styleClass="textareaBig pasteable"/>
+              	  	
+				<h:panelGroup 
+					layout="block" 
+					rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
+					styleClass="alert alert-danger" 
+					pt:role="alert">
+					<h:message for="inputTextActText" />
+				</h:panelGroup>
+	               
+				<script>
+					initTinyMCE('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');
+				</script>
+			</div>
+		  </div>
      	</h:panelGroup>
      	
      	 <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}" styleClass="fieldsSlideshare">
@@ -262,6 +258,15 @@
 				<label>Other</label>
 				<div class="formLineRight">
 					<div class="checkbox checkLine">
+                		<h:selectBooleanCheckbox id="checkAutograding1"
+                    		value="#{cc.attrs.activity.autograde}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <h:outputLabel for="checkAutograding1">
+                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
+                        </h:outputLabel>
+	                </div>
+					<div class="checkbox checkLine">
 						<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
                     		value="#{cc.attrs.activity.studentCanSeeOtherResponses}"
                     		onchange="updateStatusToDraft();">
@@ -281,6 +286,13 @@
 						</label>
 						<div class="infoIcon">info</div>
 					</div>
+					<div class="checkbox checkLine">
+                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
+                    		onchange="updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students</label>
+                    </div>
 				</div>
 			</div>
 		</h:panelGroup>
@@ -360,6 +372,15 @@
             <div class="formLine">
                 <label>Other</label>
                 <div class="formLineRight">
+                	<div class="checkbox checkLine">
+                		<h:selectBooleanCheckbox id="checkAutograding"
+                    		value="#{cc.attrs.activity.autograde}"
+                    		onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel'); updateStatusToDraft();">
+                    	</h:selectBooleanCheckbox>
+                        <h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
+                        	Autograding - When a student marks activity as completed, he will be given maximum number of points.
+                        </h:outputLabel>
+	                </div>
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
                     		value="#{cc.attrs.activity.openInNewWindow}"
@@ -370,17 +391,19 @@
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
-                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel');updateStatusToDraft();">
+                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel'); updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkAcceptGrades">Accept grades</label>
+                        <h:outputLabel for="checkAcceptGrades" id="checkAcceptGradesLabel">
+                        	Accept grades
+                        </h:outputLabel>
                     </div>
                    
                     <div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled1"
                     		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
                     		onchange="updateStatusToDraft();">
                     	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students too</label>
+                        <label for="#{cc.clientId}:checkVisibleToUnenrolled1">This activity should be available to unenrolled students</label>
                     </div>
                     
                     <div id="scoreCalcPanel" style="#{cc.attrs.activity.acceptGrades ? '' : 'display:none;'}">

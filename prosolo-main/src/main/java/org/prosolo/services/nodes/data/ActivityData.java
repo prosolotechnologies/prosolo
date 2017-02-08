@@ -32,8 +32,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int durationMinutes;
 	private String durationString;
 	private boolean published;
-	private boolean draft;
-	private boolean hasDraft;
 	private PublishedStatus status;
 	private long creatorId;
 	
@@ -73,7 +71,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean studentCanSeeOtherResponses;
 	private boolean studentCanEditResponse;
 	
+	private boolean canEdit;
+	private boolean canAccess;
+	private boolean autograde;
+	
+	private int difficulty;
+	
 	public ActivityData(boolean listenChanges) {
+		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
@@ -144,7 +149,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	//setting activity status based on published flag
 	public void setActivityStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.DRAFT;
+		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on course status
@@ -292,22 +297,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setEnrolled(boolean enrolled) {
 		this.enrolled = enrolled;
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
 	}
 
 	public long getCompetenceId() {
@@ -562,6 +551,14 @@ public class ActivityData extends StandardObservable implements Serializable {
 		return changedAttributes.containsKey("activityType");
 	}
 	
+	public boolean isDifficultyChanged() {
+		return changedAttributes.containsKey("difficulty");
+	}
+	
+	public boolean isAutogradeChanged() {
+		return changedAttributes.containsKey("autograde");
+	}
+	
 	//special methods to retrieve duration before update
 	public Optional<Integer> getDurationHoursBeforeUpdate() {
 		Integer dur = (Integer) changedAttributes.get("durationHours");
@@ -621,6 +618,40 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setStudentCanEditResponse(boolean studentCanEditResponse) {
 		observeAttributeChange("studentCanEditResponse", this.studentCanEditResponse, studentCanEditResponse);
 		this.studentCanEditResponse = studentCanEditResponse;
+	}
+	
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
+	}
+	
+	public boolean isCanAccess() {
+		return canAccess;
+	}
+
+	public void setCanAccess(boolean canAccess) {
+		this.canAccess = canAccess;
+	}
+
+	public int getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(int difficulty) {
+		observeAttributeChange("difficulty", this.difficulty, difficulty);
+		this.difficulty = difficulty;
+	}
+	
+	public boolean isAutograde() {
+		return autograde;
+	}
+
+	public void setAutograde(boolean autograde) {
+		observeAttributeChange("autograde", this.autograde, autograde);
+		this.autograde = autograde;
 	}
 	
 }

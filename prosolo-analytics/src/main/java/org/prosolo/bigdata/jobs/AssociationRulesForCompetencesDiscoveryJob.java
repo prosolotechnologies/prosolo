@@ -23,6 +23,7 @@ public class AssociationRulesForCompetencesDiscoveryJob implements Job {
 		logger.info("executed job for association rules discovery");
 		CompetenceActivitiesAssociationRules analyzer=new CompetenceActivitiesAssociationRules();
 		analyzer.analyzeCompetenceActivitesAssociationRules();
+		logger.info("job for association rules discovery. JOB FINISHED");
 		//CompetenceActivitiesAssociationRulesAnalyzer analyzer = new CompetenceActivitiesAssociationRulesAnalyzer();
 		//analyzer.analyzeCompetenceActivitesAssociationRules();
 

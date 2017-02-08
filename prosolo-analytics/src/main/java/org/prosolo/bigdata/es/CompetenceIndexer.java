@@ -2,6 +2,6 @@ package org.prosolo.bigdata.es;
 
 public interface CompetenceIndexer {
 
-	void updateVisibilityToPublic(long compId);
+	void updateVisibility(long compId, boolean published);
 
 }

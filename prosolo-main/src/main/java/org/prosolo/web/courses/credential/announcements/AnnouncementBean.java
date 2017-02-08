@@ -1,5 +1,6 @@
 package org.prosolo.web.courses.credential.announcements;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,18 +16,19 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.courses.util.pagination.Paginable;
-import org.prosolo.web.courses.util.pagination.PaginationLink;
-import org.prosolo.web.courses.util.pagination.Paginator;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.Paginable;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -65,27 +67,35 @@ public class AnnouncementBean implements Serializable, Paginable {
 	private String newAnnouncementText;
 	private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ALL_STUDENTS;
 
-	//pagination related data
-	private int page = 1;
-	private int limit = 10;
-	private int numberOfPages;
-	private List<PaginationLink> paginationLinks;
-	private int totalNumberOfAnnouncements = 0;
+	private PaginationData paginationData = new PaginationData();
+	
+	private ResourceAccessData access;
 
 	public void init() {
 		resetNewAnnouncementValues();
 		
 		if (StringUtils.isNotBlank(credentialId)) {
 			try {
-				credentialAnnouncements = announcementManager
-						.getAllAnnouncementsForCredential(idEncoder.decodeId(credentialId), page - 1, limit);
-				totalNumberOfAnnouncements = announcementManager.numberOfAnnouncementsForCredential(
-						idEncoder.decodeId(credentialId));
-				CredentialData basicCredentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
-				credentialTitle = basicCredentialData.getTitle();
-				credentialMandatoryFlow = basicCredentialData.isMandatoryFlow();
-				credentialDurationString = basicCredentialData.getDurationString();
-				generatePagination();
+				long credId = idEncoder.decodeId(credentialId);
+				access = credManager.getCredentialAccessRights(credId, 
+						loggedUser.getUserId(), UserGroupPrivilege.View);
+				if(!access.isCanAccess()) {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch(
+								"/accessDenied.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else {
+					credentialAnnouncements = announcementManager
+							.getAllAnnouncementsForCredential(credId, paginationData.getPage() - 1, paginationData.getLimit());
+					paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+							idEncoder.decodeId(credentialId)));
+					CredentialData basicCredentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
+					credentialTitle = basicCredentialData.getTitle();
+					credentialMandatoryFlow = basicCredentialData.isMandatoryFlow();
+					credentialDurationString = basicCredentialData.getDurationString();
+				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Could not initialize list of announcements", e);
 				PageUtil.fireErrorMessage("Could not initialize list of announcements");
@@ -153,6 +163,10 @@ public class AnnouncementBean implements Serializable, Paginable {
 			
 		});
 	}
+	
+	public boolean canEdit() {
+		return access != null && access.isCanEdit();
+	}
 
 	public LoggedUserBean getLoggedUser() {
 		return loggedUser;
@@ -210,57 +224,17 @@ public class AnnouncementBean implements Serializable, Paginable {
 		this.newAnnouncementText = newAnnouncementText;
 	}
 
-	private void generatePagination() {
-		Paginator paginator = new Paginator(totalNumberOfAnnouncements, limit, page, 1, "...");
-		numberOfPages = paginator.getNumberOfPages();
-		paginationLinks = paginator.generatePaginationLinks();
-	}
-
-	@Override
-	public boolean isCurrentPageFirst() {
-		return page == 1 || numberOfPages == 0;
-	}
-
-	@Override
-	public boolean isCurrentPageLast() {
-		return page == numberOfPages || numberOfPages == 0;
-	}
-
 	@Override
 	public void changePage(int page) {
-		if (this.page != page) {
-			this.page = page;
+		if (paginationData.getPage() != page) {
+			paginationData.setPage(page);
 			init();
 		}
 
 	}
 
-	@Override
-	public void goToPreviousPage() {
-		changePage(page - 1);
-	}
-
-	@Override
-	public void goToNextPage() {
-		changePage(page + 1);
-	}
-
-	@Override
-	public boolean isResultSetEmpty() {
-		return totalNumberOfAnnouncements == 0;
-	}
-	
-	@Override
-	public boolean shouldBeDisplayed() {
-		return numberOfPages > 1;
-	}
-
-	public List<PaginationLink> getPaginationLinks() {
-		return paginationLinks;
-	}
-
-	public void setPaginationLinks(List<PaginationLink> paginationLinks) {
-		this.paginationLinks = paginationLinks;
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public CredentialManager getCredManager() {

@@ -14,10 +14,12 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
@@ -40,6 +42,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	private CredentialInstructorDataFactory credInstructorFactory;
 	@Inject
 	private AssessmentManager assessmentManager;
+	@Inject private UserGroupManager userGroupManager;
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -151,7 +154,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			}
 			
 			queryBuilder.append(
-					"GROUP BY instructor.id " +
+					"GROUP BY instructor.id, instructor.maxNumberOfStudents, instructor.user.id " +
 					"HAVING instructor.maxNumberOfStudents = :unlimitedNo " +
 					"OR count(student) < instructor.maxNumberOfStudents ");
 			
@@ -162,11 +165,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					.createQuery(queryBuilder.toString())
 					.setLong("credId", credentialId)
 					.setInteger("unlimitedNo", 0);
-			
-			if(instructorToExcludeId > 0) {
+
+			if (instructorToExcludeId > 0) {
 				q.setLong("excludeId", instructorToExcludeId);
 			}
-			//q.setFetchSize(numberOfInstructorsToReturn);
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = q.list();
@@ -429,7 +431,12 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
 			instructor.setDateAssigned(new Date());
 			
-			return saveEntity(instructor);
+			saveEntity(instructor);
+			
+			//assign view privilege to newly added instructor
+			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
+					UserGroupPrivilege.View);
+			return instructor;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -571,6 +578,32 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading credential instructors number");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getCredentialInstructorsUserIds(long credentialId) 
+			throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT instructor.id " +
+					"FROM CredentialInstructor credInstructor " +
+					"INNER JOIN credInstructor.user instructor " +
+					"WHERE credInstructor.credential.id = :credId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> result = persistence
+					.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.list();
+			
+			return result != null ? result : new ArrayList<>();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential instructors user ids");
 		}
 	}
 	

@@ -19,6 +19,7 @@ public abstract class EmailContentGenerator {
 	
 	static final String templateHTMLRoot = "org/prosolo/web/email/html/";
 	static final String templateTextRoot = "org/prosolo/web/email/text/";
+	static final String headerImageURL = "http://public.prosolo.ca/email-header.jpg";
 	
 	public abstract String getTemplateName();
 
@@ -48,7 +49,7 @@ public abstract class EmailContentGenerator {
 	}
 	
 	public String getHeaderImageURL() {
-		return "https://s3.amazonaws.com/prosolo.nikola/db8b27c2eb8d208ee013d99c3c673609/email-header.jpg";
+		return headerImageURL;
 	}
 	
 	public String getYear() {

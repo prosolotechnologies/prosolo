@@ -1,7 +1,6 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,10 +14,10 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -35,25 +34,12 @@ public class Competence1 extends BaseEntity {
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
 	private LearningResourceType type;
-	private Competence1 draftVersion;
 	private List<TargetCompetence1> targetCompetences;
-	/** 
-	 * means that this credential instance is just a draft
-	 * version of some other credential
-	 */
-	private boolean draft;
-	/**
-	 * tells if credential has draft version of
-	 * credential which means that credential was
-	 * published once but is changed and has draft
-	 * version
-	 */
-	private boolean hasDraft;
 	
 	private List<CredentialCompetence1> credentialCompetence;
 	
-	private boolean visible;
-	private Date scheduledPublicDate;
+	//all existing users have View privilege
+	private boolean visibleToAll;
 	
 	public Competence1() {
 		tags = new HashSet<>();
@@ -123,31 +109,6 @@ public class Competence1 extends BaseEntity {
 		this.credentialCompetence = credentialCompetence;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY)
-	public Competence1 getDraftVersion() {
-		return draftVersion;
-	}
-
-	public void setDraftVersion(Competence1 draftVersion) {
-		this.draftVersion = draftVersion;
-	}
-
-	public boolean isDraft() {
-		return draft;
-	}
-
-	public void setDraft(boolean draft) {
-		this.draft = draft;
-	}
-
-	public boolean isHasDraft() {
-		return hasDraft;
-	}
-
-	public void setHasDraft(boolean hasDraft) {
-		this.hasDraft = hasDraft;
-	}
-
 	@OneToMany(mappedBy = "competence")
 	public List<TargetCompetence1> getTargetCompetences() {
 		return targetCompetences;
@@ -166,21 +127,14 @@ public class Competence1 extends BaseEntity {
 		this.type = type;
 	}
 	
-	@Column(name="scheduled_public_date")
-	public Date getScheduledPublicDate() {
-		return scheduledPublicDate;
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isVisibleToAll() {
+		return visibleToAll;
 	}
 
-	public void setScheduledPublicDate(Date scheduledPublicDate) {
-		this.scheduledPublicDate = scheduledPublicDate;
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setVisibleToAll(boolean visibleToAll) {
+		this.visibleToAll = visibleToAll;
 	}
 	
 }

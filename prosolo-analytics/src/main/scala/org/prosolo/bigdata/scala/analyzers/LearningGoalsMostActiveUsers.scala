@@ -27,14 +27,18 @@ class LearningGoalsMostActiveUsers {
 
   def analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch:Long)={
     //val dbManager = new AnalyticalEventDBManagerImpl;
-    println("analyzeLearningGoalsMostActiveUsersForDay")
+    println("*****************************analyzeLearningGoalsMostActiveUsersForDay")
     val sc=SparkContextLoader.getSC
     val activitiesCounters = AnalyticalEventDBManagerImpl.getInstance().findUserLearningGoalActivitiesByDate(daysSinceEpoch);
    val activitiesCountersRDD:RDD[UserLearningGoalActivitiesCount]= sc.parallelize(activitiesCounters.asScala)
+    println("Activities counters:")
+    activitiesCountersRDD.take(100).foreach(println)
     val actCountersByLearningGoals:RDD[(Long,Iterable[UserLearningGoalActivitiesCount])]=activitiesCountersRDD.groupBy{
       counter:UserLearningGoalActivitiesCount=>
         counter.getLearningGoalId
     }
+    println("***************************actCountersByLearningGoals:")
+    actCountersByLearningGoals.take(100).foreach(println)
 
     val actCountersByLearningGoalsSorted:RDD[(Long,ArrayBuffer[UserLearningGoalActivitiesCount])] =actCountersByLearningGoals.mapValues{
        counters: Iterable[UserLearningGoalActivitiesCount] =>
@@ -50,10 +54,13 @@ class LearningGoalsMostActiveUsers {
          sortedList.slice(0, lastindex).foreach{el=>shortList+=el}
          shortList
     }
+    println("*******************actCountersByLearningGoalsSorted:")
+    actCountersByLearningGoalsSorted.take(100).foreach(println)
 
     actCountersByLearningGoalsSorted.foreach{
       case (learningGoalId:Long,counters:ArrayBuffer[UserLearningGoalActivitiesCount])
       =>
+        println("Learning goal:"+learningGoalId+" counters:"+counters.mkString(","))
         val data=new JsonObject
         data.add("date", new JsonPrimitive(daysSinceEpoch))
         data.add("learninggoalid", new JsonPrimitive(learningGoalId))
@@ -71,8 +78,8 @@ class LearningGoalsMostActiveUsers {
 
   }
   def analyzeLearningGoalsMostActiveUsersForWeek(): Unit ={
-    println("NOT IMPLEMENTED YET")
-
+    println("analyzeLearningGoalsMostActiveUsersForWeek")
+    println("NOT FINISHED...")
     val indexer = new RecommendationDataIndexerImpl
     val daysSinceEpoch=DateUtil.getDaysSinceEpoch()
     val daysToAnalyze=daysSinceEpoch-7 to daysSinceEpoch
@@ -83,6 +90,7 @@ class LearningGoalsMostActiveUsers {
       val mostActiveUsersList:mutable.Buffer[MostActiveUsersForLearningGoal]=AnalyticalEventDBManagerImpl.getInstance().findMostActiveUsersForGoalsByDate(date).asScala
         (date,mostActiveUsersList)
     }
+    mostActiveUsersByDateRDD.take(100).foreach(println)
     val mostActiveUsersByDateRDDGrouped=mostActiveUsersByDateRDD.groupByKey()
     val mostActiveUsersMergedRDD:RDD[ArrayBuffer[MostActiveUsersForLearningGoal]]=mostActiveUsersByDateRDDGrouped.map{
     case(date:Long, list:Iterable[mutable.Buffer[MostActiveUsersForLearningGoal]])=>

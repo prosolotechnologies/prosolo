@@ -47,6 +47,7 @@ object UserProfileInteractionsManager{
          }
        }
      }*/
+    println("FINISHED ANALYZER FOR USER PROFILE INTERACTIONS MANAGER JOB")
   }
   case class SocialInteractionCount(credential:Long, source:Long, target:Long, count:Int)
   def runStudentInteractionsGeneralOverviewAnalysis(credentialId: Long) = {
@@ -94,7 +95,7 @@ object UserProfileInteractionsManager{
 
 
 
-   // println("CALCULATED PERCENTAGE OF INTERACTIONS:" + calculatedpercentage.collect.mkString(", "))
+     println("CALCULATED PERCENTAGE OF INTERACTIONS:" + calculatedpercentage.collect.mkString(", "))
 
   }
   case class StudentInteractionsInCourse(course:Long, student:Long, interactions:List[String])

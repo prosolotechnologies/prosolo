@@ -119,32 +119,32 @@ public class CourseCompetencesBean implements Serializable {
 		}
 	}
 	
-	public void searchCompetences() {
-		compSearchResults = new ArrayList<>();
-		if(compSearchTerm != null && !compSearchTerm.isEmpty()) {
-			int size = compsToExcludeFromSearch.size();
-			long [] toExclude = new long[size];
-			for(int i = 0; i < size; i++) {
-				toExclude[i] = compsToExcludeFromSearch.get(i);
-			}
-			TextSearchResponse searchResponse = textSearch.searchCompetences(
-					compSearchTerm,
-					0, 
-					1000,
-					false,
-					toExclude,
-					null,
-					SortingOption.ASC);
-			
-			@SuppressWarnings("unchecked")
-			List<Competence> comps = (List<Competence>) searchResponse.getFoundNodes();
-			if(comps != null) {
-				for(Competence c : comps) {
-					compSearchResults.add(new CompetenceData(c));
-				}
-			}
-		} 
-	}
+//	public void searchCompetences() {
+//		compSearchResults = new ArrayList<>();
+//		if(compSearchTerm != null && !compSearchTerm.isEmpty()) {
+//			int size = compsToExcludeFromSearch.size();
+//			long [] toExclude = new long[size];
+//			for(int i = 0; i < size; i++) {
+//				toExclude[i] = compsToExcludeFromSearch.get(i);
+//			}
+//			TextSearchResponse searchResponse = textSearch.searchCompetences(
+//					compSearchTerm,
+//					0, 
+//					1000,
+//					false,
+//					toExclude,
+//					null,
+//					SortingOption.ASC);
+//			
+//			@SuppressWarnings("unchecked")
+//			List<Competence> comps = (List<Competence>) searchResponse.getFoundNodes();
+//			if(comps != null) {
+//				for(Competence c : comps) {
+//					compSearchResults.add(new CompetenceData(c));
+//				}
+//			}
+//		} 
+//	}
 	
 	public void addComp(CompetenceData compData) {
 		compData.setOrder(competences.size() + 1);

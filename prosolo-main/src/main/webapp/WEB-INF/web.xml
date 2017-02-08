@@ -163,9 +163,11 @@
         <exception-type>java.lang.Throwable</exception-type>
         <location>/login.xhtml</location>
     </error-page>
+    <!-- 
     <session-config>
         <session-timeout>10</session-timeout>
     </session-config>
+     -->
     <!-- In Production change javax.faces.FACELETS_REFRESH_PERIOD to -1 and javax.faces.PROJECT_STAGE to 'Production' -->
     <!-- In Development change javax.faces.FACELETS_REFRESH_PERIOD to 1 and javax.faces.PROJECT_STAGE to 'Development' -->
     <context-param>

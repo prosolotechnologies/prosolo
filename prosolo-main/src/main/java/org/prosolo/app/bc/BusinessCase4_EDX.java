@@ -8,9 +8,13 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -22,11 +26,13 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.MessagingManager;
@@ -123,17 +129,39 @@ public class BusinessCase4_EDX extends BusinessCase {
 		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
 		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
 		
+		// allow users to be added to indexes
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			logger.error(e);
+		}
+		
 		// Adding roles to the users
 		
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-
-		userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
-		userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
-		userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
-		userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
-
-		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+		try {
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userNickPowell);
+			
+			userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userPhillAmstrong);
+			
+			userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userAnnaHallowell);
+			
+			userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userTimothyRivera);
+			
+			userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userErikaAmes);
+			
+			userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+			userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userKarenWhite);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userKarenWhite);
+		} catch (EventException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 
 		/*
@@ -172,7 +200,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					5,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
 			
@@ -185,7 +213,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Example datasets used in the videos",
 					"https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
 			
@@ -198,7 +226,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					3,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"CCK11 dataset for social network analysis",
 					"https://s3.amazonaws.com/prosoloedx2/files/3d9a5e10d63678812f87b21ed593659a/CCK11%20dataset%20for%20social%20network%20analysis.pdf");
 			
@@ -211,7 +239,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					8,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-measures-used-in-social-network-analysis");
 			
@@ -224,7 +252,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					0,
 					6,
-					ActivityResultType.FILE_UPLOAD,
+					ActivityResultType.TEXT,
 					"Slides",
 					"http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
 			
@@ -257,7 +285,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp1cred1.getId(),
 					1,
 					0,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			
 			publishCredential(cred1, cred1.getCreatedBy());
@@ -308,7 +336,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					15,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -319,7 +347,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					17,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -330,7 +358,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					11,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -341,7 +369,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					9,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -352,7 +380,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					comp2cred1.getId(),
 					0,
 					10,
-					ActivityResultType.FILE_UPLOAD);
+					ActivityResultType.TEXT);
 			
 			createActivity(
 					userNickPowell, 
@@ -665,9 +693,26 @@ public class BusinessCase4_EDX extends BusinessCase {
 		/* 
 		 * Adding instructors
 		 */
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+		
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+	
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userPhillAmstrong, cred1, null, null, null, params);
+			
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userKarenWhite, cred1, null, null, null, params);
+			
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userErikaAmes, cred1, null, null, null, params);
+			
+		} catch (EventException e) {
+				logger.error(e);
+		}
 		
 		ServiceLocator.getInstance().getService(DefaultManager.class).flush();
 		/*
@@ -804,18 +849,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(CredentialManager.class);
 		
-		CredentialData credentialData = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
+				true, creator.getId(), UserGroupPrivilege.Edit);
 		
 		if (credentialData == null) {
-			CredentialData credentialData1 = credentialManager.getCurrentVersionOfCredentialForManager(cred.getId(), false, true);
+			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
+					true, creator.getId(), UserGroupPrivilege.Edit);
 			System.out.println(credentialData1);
 		}
 		
 		if (credentialData != null) {
 			credentialData.setPublished(true);
 			
-			credentialManager.updateCredential(cred.getId(), credentialData, creator.getId(),
-					org.prosolo.services.nodes.data.Role.Manager, null);
+			credentialManager.updateCredential(credentialData, creator.getId(), null);
+			
+			try {
+				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
+			} catch (EventException e) {
+				e.printStackTrace();
+			}
 		} else {
 			logger.error("Could not load credential " + cred.getId());
 		}
@@ -851,6 +903,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		actData.setDescription(description);
 		actData.setPublished(true);
 		actData.setActivityType(type);
+		actData.setStudentCanSeeOtherResponses(true);
 		
 		switch (type) {
 		case VIDEO:

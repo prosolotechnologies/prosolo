@@ -37,5 +37,6 @@ public class WebApplication extends Application {
 		singletons.add(new SocialInteractionStatisticsService());
 		singletons.add(new LearningActivityService());
 		singletons.add(new UserProfileService());
+		singletons.add(new ActivityRestService());
 	}
 }

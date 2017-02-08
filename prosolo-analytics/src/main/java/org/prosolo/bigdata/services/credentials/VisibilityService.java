@@ -12,7 +12,7 @@ import org.quartz.SchedulerException;
  */
 public interface VisibilityService {
 
-	void updateVisibilityAtSpecificTime(long resourceId, Resource resource, Date startDate);
+	void updateVisibilityAtSpecificTime(long actorId, long resourceId, Resource resource, Date startDate);
 	
 	void changeVisibilityUpdateTime(long resourceId, Resource resource, Date startDate);
 	

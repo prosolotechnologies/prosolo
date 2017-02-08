@@ -14,8 +14,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id"
-				value="#{announcementBean.credentialId}" default="null" />
+			<f:viewParam name="id" value="#{announcementBean.credentialId}" default="null" />
+			<f:viewParam name="p" value="#{announcementBean.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{announcementBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -89,8 +89,19 @@
 							Here you can publish an announcement to all credential
 							participants.<br />
 							<br />
-							<a href="#" class="btn btn-green" data-toggle="modal"
-								data-target="#newAnnouncementModal">New Announcement</a>
+							<ui:fragment rendered="#{announcementBean.canEdit()}">
+								<a href="javascript:void(0);" class="btn btn-green" data-toggle="modal"
+									data-target="#newAnnouncementModal">New Announcement</a>
+							</ui:fragment>
+							<ui:fragment rendered="#{not announcementBean.canEdit()}">
+								<a href="javascript:void(0);" 
+									disabled="true"
+									class="btn btn-green"
+									data-toggle="tooltip"
+									title="You are not allowed to publish announcements for this credential">
+									New Announcement
+								</a>
+							</ui:fragment>
 						</p>
 						<div class="clear"></div>
 						
@@ -190,7 +201,7 @@
 			<utilcomp:pagination
 				id="pagination" 
 				bean="#{announcementBean}"
-				links="#{announcementBean.paginationLinks}"
+				updateUrl="true"
 				toUpdate=":containerDiv" />
 		</h:panelGroup>
 	</ui:define>

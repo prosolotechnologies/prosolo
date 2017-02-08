@@ -25,6 +25,7 @@ import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
 import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
+import org.prosolo.services.nodes.observers.assessments.ActivityAssessmentAutogradeObserver;
 import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
 import org.prosolo.services.nodes.observers.learningResources.LearningResourceChangeObserver;
 import org.prosolo.services.notifications.NotificationObserver;
@@ -66,6 +67,7 @@ public class CentralEventDispatcher {
 	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
 	@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
 	@Inject private CredentialLastActionObserver credentialLastActionObserver;
+	@Inject private ActivityAssessmentAutogradeObserver autogradeObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -89,6 +91,7 @@ public class CentralEventDispatcher {
 			//observers.add(activityStartObserver);
 			observers.add(learningResourceChangeObserver);
 			observers.add(credentialLastActionObserver);
+			observers.add(autogradeObserver);
 		}
 		return observers;
 	}

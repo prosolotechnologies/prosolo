@@ -23,6 +23,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
+			<f:viewParam name="p" value="#{studentAssessmentBean.paginationData.pageString}" default="1" />
 			<f:viewAction action="#{studentAssessmentBean.init()}" />
 		</f:metadata>
 	</ui:define>
