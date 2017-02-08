@@ -17,12 +17,12 @@
 		<jersey2.version>2.23</jersey2.version>
 		<jaxrs.version>2.0.1</jaxrs.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>1.6.1</spark.version>
+		<spark.version>2.0.2</spark.version>
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
-	    <spark-cassandra-connector.version>1.5.0</spark-cassandra-connector.version>
+	    <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
 	</properties>
 	<repositories>
 		<!-- boilerpipe repo -->
@@ -648,7 +648,7 @@
 				<version>${jetty.version}</version>
 				<configuration>
 					<stopKey>stop</stopKey>
-					<stopPort>8083</stopPort>
+					<stopPort>8081</stopPort>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webAppConfig>
 						<parentLoaderPriority>true</parentLoaderPriority>

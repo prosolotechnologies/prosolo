@@ -40,7 +40,6 @@ object UserProfileInteractionsSparkJob {
   def runStudentInteractionsGeneralOverviewAnalysis(credentialId: Long,dbName:String) = {
     println("a1.. dbName:"+dbName+" credentialId:"+credentialId)
     val socialInteractionsbypeers_table =sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT).where("course=?",credentialId)
-    println("SIZE:"+socialInteractionsbypeers_table.toArray.size)
     val socialInteractionsCountDataRDD =socialInteractionsbypeers_table.map(row=> {
       new Tuple3(row.getLong("source"), row.getLong("target"), row.getLong("count")) })
 

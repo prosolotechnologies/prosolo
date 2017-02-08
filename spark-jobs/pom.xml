@@ -12,9 +12,9 @@
     <artifactId>spark-jobs</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <spark.version>1.6.1</spark.version>
+        <spark.version>2.0.2</spark.version>
         <scala.version>2.11.6</scala.version>
-        <spark-cassandra-connector.version>1.5.0</spark-cassandra-connector.version>
+        <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
     </properties>
 <dependencies>
     <dependency>
@@ -100,7 +100,7 @@
 
 </dependencies>
     <build>
-        <finalName>scala-jobs</finalName>
+        <finalName>spark-jobs</finalName>
         <directory>target</directory>
         <outputDirectory>target/classes</outputDirectory>
         <testOutputDirectory>target/test-classes</testOutputDirectory>

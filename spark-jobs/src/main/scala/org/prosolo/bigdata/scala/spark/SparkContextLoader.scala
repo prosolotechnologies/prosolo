@@ -54,13 +54,14 @@ println("Initializing SparkContextLoader")
   sparkConf.set("spark.ui.port","4041")
   println("MODE:"+mode)
   if(mode=="standalone"){
-    val jars:java.util.List[_ <: ConfigObject]=SparkApplicationConfig.conf.getObjectList("spark.jars")
-    val l=jars.asScala.toArray
+   /* val jars:java.util.List[_ <: ConfigObject]=SparkApplicationConfig.conf.getObjectList("spark.jars")
+    val l=jars.asScala.toSeq
     val jarArray=Array
-    val sparkJars=l.map(item=>{
-      item.toString
-    })
-    sparkConf.setJars(sparkJars)
+    val sparkJars:Seq[java.lang.String]=l.map(item=>{
+      val path:java.lang.String=item.toString
+      path
+    })*/
+    sparkConf.setJars(List(SparkApplicationConfig.conf.getString("spark.oneJar")))
     println("ADDED JARS")
   }
   addESConfig(sparkConf)
