@@ -17,8 +17,6 @@
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.11.6" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.3" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.scalatest:scalatest_2.11:3.0.0-M7" level="project" />
-    <orderEntry type="library" name="Maven: org.scalactic:scalactic_2.11:3.0.0-M7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-core_2.11:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro-mapred:hadoop2:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avro:avro-ipc:1.7.7" level="project" />

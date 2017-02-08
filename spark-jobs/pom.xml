@@ -27,11 +27,11 @@
         <artifactId>scala-compiler</artifactId>
         <version>${scala.version}</version>
     </dependency>
-    <dependency>
+    <!--dependency>
         <groupId>org.scalatest</groupId>
         <artifactId>scalatest_2.11</artifactId>
         <version>3.0.0-M7</version>
-    </dependency>
+    </dependency-->
     <!-- Spark dependencies -->
     <dependency>
         <groupId>org.apache.spark</groupId>
@@ -225,6 +225,23 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>spark-jobs-one-jar</finalName>
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -648,7 +648,7 @@
 				<version>${jetty.version}</version>
 				<configuration>
 					<stopKey>stop</stopKey>
-					<stopPort>8081</stopPort>
+					<stopPort>8083</stopPort>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webAppConfig>
 						<parentLoaderPriority>true</parentLoaderPriority>

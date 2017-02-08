@@ -52,6 +52,7 @@ println("Initializing SparkContextLoader")
   sparkConf.set("spark.cassandra.connection.host", dbHost)
   sparkConf.set("spark.cassandra.connection.port", dbPort)
   sparkConf.set("spark.ui.port","4041")
+  println("MODE:"+mode)
   if(mode=="standalone"){
     val jars:java.util.List[_ <: ConfigObject]=SparkApplicationConfig.conf.getObjectList("spark.jars")
     val l=jars.asScala.toArray
@@ -60,6 +61,7 @@ println("Initializing SparkContextLoader")
       item.toString
     })
     sparkConf.setJars(sparkJars)
+    println("ADDED JARS")
   }
   addESConfig(sparkConf)
       println("SPARK CONFIG:"+sparkConf.toDebugString)
@@ -93,7 +95,7 @@ val mode="local"
   sparkConf.set("spark.ui.port","4041")
   addESConfig(sparkConf)
   */
-  println("SPARK CONFIG 2:"+sparkConf.toDebugString)
+
 
   @transient  val sc = new SparkContext(sparkConf)
 

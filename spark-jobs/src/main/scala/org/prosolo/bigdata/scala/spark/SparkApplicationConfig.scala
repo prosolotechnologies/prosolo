@@ -8,7 +8,8 @@ import com.typesafe.config._
   * zoran 05/02/17
   */
 object SparkApplicationConfig {
-  val env = if (System.getenv("spark-standalone") == null) "local" else System.getenv("spark-standalone")
+  println("SPARK SYSTEM ENV:"+System.getenv("spark-mode"))
+  val env = if (System.getenv("spark-mode") == null) "local" else System.getenv("spark-mode")
 
   val conf = ConfigFactory.load().getConfig(env)
   println("ENV:"+env)
