@@ -90,11 +90,13 @@
 
 					<nav>
 						<ul class="nav nav-pills">
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('dashboard','mainmenu');"
-									value="Dashboard" outcome="/admin/dashboard" />
-							</li>
+							<ui:remove>
+								<li role="presentation"
+									class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
+									<h:link onclick="sendLogPageNavigation('dashboard','mainmenu');"
+										value="Dashboard" outcome="/admin/dashboard" />
+								</li>
+							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'users' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('users','mainmenu');"
