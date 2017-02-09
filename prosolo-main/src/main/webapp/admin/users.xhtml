@@ -28,7 +28,7 @@
         <div class="container">
             <div class="whiteBarContent">
                 <div class="whiteBarLeft">
-                    <h:link outcome="/admin/userEdit" styleClass="btn btn-green btn-sm item">New User</h:link>
+                    <h:link outcome="/admin/adminUserNew" styleClass="btn btn-green btn-sm item">New User</h:link>
 					<p:commandLink value="Reindex ElasticSearch"
 						pt:role="button"
 						styleClass="btn btn-green btn-sm item" 
@@ -92,7 +92,7 @@
                 	<ui:repeat var="user" value="#{adminUsers.users}">
 	                    <li>
 	                        <div class="peopleListLeft">
-	                        	<h:link outcome="/admin/userEdit">
+	                        	<h:link outcome="/admin/adminUserEdit">
 			                   		<utilcomp:userAvatar
 										avatar="#{user.avatarUrl}"
 										fullName="#{user.fullName}"	
@@ -104,7 +104,7 @@
 	                            
 	                            <div>
 	                                <h2>
-	                                	<h:link outcome="/admin/userEdit">
+	                                	<h:link outcome="/admin/adminUserEdit">
 					                   		#{user.fullName}    
 								    		<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
 			                    		</h:link>
@@ -117,7 +117,7 @@
 	                                #{user.rolesCSV}
 	                            </div>
 	                            <div class="userEditOpt">
-	                                <h:link outcome="/admin/userEdit" styleClass="btn btn-green-stroke">
+	                                <h:link outcome="/admin/adminUserEdit" styleClass="btn btn-green-stroke">
 		                                 <f:param name="id" value="#{util:encodeId(user.id)}"/>
 		                               	 Edit
 	                                </h:link>

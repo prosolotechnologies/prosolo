@@ -10,6 +10,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hslf.record.Sound;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
@@ -41,7 +42,7 @@ public class PasswordReset implements Serializable {
 			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, email, CommonSettings.getInstance().config.appConfig.domain + "recovery");
 			
 			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have ben sent to "+email);
+				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have been sent to "+email);
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().redirect("reset/successful/" + URLEncoder.encode(email, "utf-8"));
 				} catch (IOException e) {
@@ -58,8 +59,7 @@ public class PasswordReset implements Serializable {
 				logger.error(e);
 			}  
 		}
-	}
-	
+	}	
 	/*
 	 *  GETTERS / SETTERS
 	 */
