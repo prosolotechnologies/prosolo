@@ -62,7 +62,7 @@ public class NotificationEventProcessorFactory {
 		case Dislike:
 			if (event.getObject() instanceof Comment1) {
 				return new CommentLikeEventProcessor(event, session, notificationManager, 
-						notificationsSettingsManager, activityManager, idEncoder, 
+						notificationsSettingsManager, idEncoder, 
 						contextJsonParserService);
 			} else if (event.getObject() instanceof SocialActivity1) {
 				return new SocialActivityLikeEventProcessor(event, session, notificationManager, 
