@@ -8,7 +8,10 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -126,17 +129,39 @@ public class BusinessCase4_EDX extends BusinessCase {
 		User userIdaFritz = 		createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
 		User userRachelWiggins = 	createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
 		
+		// allow users to be added to indexes
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			logger.error(e);
+		}
+		
 		// Adding roles to the users
 		
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
-		userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
-
-		userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
-		userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
-		userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
-		userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
-
-		userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+		try {
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
+			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userNickPowell);
+			
+			userPhillAmstrong = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userPhillAmstrong);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userPhillAmstrong);
+			
+			userAnnaHallowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userAnnaHallowell);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userAnnaHallowell);
+			
+			userTimothyRivera = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userTimothyRivera);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userTimothyRivera);
+			
+			userErikaAmes = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userErikaAmes);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userErikaAmes);
+			
+			userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userKarenWhite);
+			userKarenWhite = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleInstructor, userKarenWhite);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, userNickPowell.getId(), userKarenWhite);
+		} catch (EventException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 
 		/*
@@ -668,9 +693,26 @@ public class BusinessCase4_EDX extends BusinessCase {
 		/* 
 		 * Adding instructors
 		 */
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
-		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+		
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+	
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userPhillAmstrong, cred1, null, null, null, params);
+			
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userKarenWhite, cred1, null, null, null, params);
+			
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
+					userNickPowell.getId(), userErikaAmes, cred1, null, null, null, params);
+			
+		} catch (EventException e) {
+				logger.error(e);
+		}
 		
 		ServiceLocator.getInstance().getService(DefaultManager.class).flush();
 		/*

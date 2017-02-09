@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
@@ -107,5 +108,23 @@ public interface UserGroupManager extends AbstractManager {
 	
 	void saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users) throws DbConnectionException;
+	
+	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
+	
+	/**
+	 * Adds user to a default credential user group according to the privilege specified by
+	 * {@code privilege} parameter.
+	 * 
+	 * If user is already a member of a DEFAULT credential group with ANY privilege, he is not
+	 * added again.
+	 * If there is no default credential user group, it is created.
+	 * 
+	 * @param userId
+	 * @param credId
+	 * @param privilege
+	 * @throws DbConnectionException
+	 */
+	void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
+    		UserGroupPrivilege privilege) throws DbConnectionException;
 
 }

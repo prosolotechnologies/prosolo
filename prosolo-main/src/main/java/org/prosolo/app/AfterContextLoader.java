@@ -14,6 +14,7 @@ import org.prosolo.app.bc.BusinessCase3_Statistics;
 import org.prosolo.app.bc.BusinessCase4_EDX;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -24,6 +25,7 @@ import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -162,6 +164,13 @@ public class AfterContextLoader implements ServletContextListener {
 							null,
 							null,
 							true);
+			
+			// allow user to be added to indexes in the previous method
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.error(e);
+			}
 	
 			String roleAdminTitle = "Admin";
 			
@@ -171,6 +180,8 @@ public class AfterContextLoader implements ServletContextListener {
 					.assignRoleToUser(
 							adminRole, 
 							adminUser);
+			
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit_Profile, adminUser.getId(), adminUser);
 	
 //			// instantiate badges
 //			ServiceLocator.getInstance().getService(BadgeManager.class)

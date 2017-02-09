@@ -69,9 +69,10 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	public boolean shouldIncludeSearchFilter(CredentialSearchFilter f) {
 		boolean isInstructor = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 		boolean canCreateContent = loggedUserBean.hasCapability("MANAGE.CONTENT.EDIT");
-		return f != CredentialSearchFilter.BY_OTHER_STUDENTS &&
-				 (f != CredentialSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
-				 (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
+		return f != CredentialSearchFilter.ENROLLED && 
+			   f != CredentialSearchFilter.BY_OTHER_STUDENTS &&
+			   (f != CredentialSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
+			   (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
 	}
 	
 	public void searchCredentials(boolean userSearch) {
@@ -105,7 +106,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	public void getCredentialSearchResults() {
 		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(
 				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
-				loggedUserBean.getUserId(), searchFilter, sortOption, false, false);
+				loggedUserBean.getUserId(), searchFilter, sortOption, false, true);
 		credentials = response.getFoundNodes();
 		this.paginationData.update((int) response.getHitsNumber());
 	}

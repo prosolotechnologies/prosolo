@@ -47,8 +47,9 @@
             	<ui:fragment rendered="#{cc.attrs.disabled}">
                 	<a id="linkTriggerFileUpload" href="javascript:void(0);" class="btn btn-green-stroke btn-sm" disabled="disabled" data-toggle="tooltip" title="#{cc.attrs.disabledReason}">Choose from Computer</a>
             	</ui:fragment>
+            	
+            	<div id="loaderContainerFileUpload" style="margin-top: 10px;" />
             </div>
-            <div id="loaderContainerFileUpload"/>
             
             <script>
 			 $('.dropFileDiv').on(

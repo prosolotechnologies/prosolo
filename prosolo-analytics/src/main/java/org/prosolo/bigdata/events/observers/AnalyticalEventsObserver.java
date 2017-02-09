@@ -59,7 +59,6 @@ public class AnalyticalEventsObserver implements EventObserver {
 	public void handleEvent(DefaultEvent event) {
 		if (event instanceof AnalyticsEvent) {
 			AnalyticsEvent analyticsEvent = (AnalyticsEvent) event;
-			//Gson g = new Gson();
 			if (analyticsEvent.getDataType().equals(DataType.COUNTER)) {
 				AnalyticalEventDBManagerImpl.getInstance().updateAnalyticsEventCounter(analyticsEvent);
 			} else if (analyticsEvent.getDataType().equals(DataType.RECORD)) {

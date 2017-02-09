@@ -36,7 +36,7 @@ public class TwitterHashtagStatisticsJob implements Job {
 		for (String hashtag : invalidCounts) {
 			TwitterHashtagStatisticsDBManagerImpl.getInstance().deleteTwitterHashtagUsersCount(hashtag);
 		}
-		System.out.println("Twitter Hashtag Statistics Job finished...");
+		System.out.println("Twitter Hashtag Statistics JOB FINISHED");
 	}
 
 }

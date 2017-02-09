@@ -27,6 +27,8 @@
 		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		
 	    <div class="whiteBar">
 	
@@ -41,7 +43,7 @@
 		            <li>
 		            	<h:link 
 		            		value="#{competenceEditBean.credTitle}"
-		            		outcome="credential">
+		            		outcome="create-credential">
 		            		<f:param name="id" value="#{param['credId']}"></f:param>
 		            	</h:link>
 		            </li>
@@ -129,10 +131,15 @@
 			                                <div class="formLine">
 			                                    <label>About competence</label>
 			                                    <div class="formLineRight">
-			                                        <h:inputTextarea 
+			                                        <h:inputTextarea
+			                                        	id="description"
 			                                        	styleClass="pasteable"
 			                                        	value="#{competenceEditBean.competenceData.description}"
-			                                        	onkeyup="updateStatusToDraft();"></h:inputTextarea>
+			                                        	onkeyup="updateStatusToDraft();" />
+			                                        	
+			                                        <script>
+			                                    		initTinyMCE('#createCompetence\\:formMain\\:description');
+			                                    	</script>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -207,6 +214,7 @@
 			            		publishValues="#{competenceEditBean.compStatusArray}" 
 			            		publishValue="#{competenceEditBean.competenceData.status}"
 			            		saveAction="#{competenceEditBean.save}"
+			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
 			            		previewAction="#{competenceEditBean.preview}"
 			            		linkPreviewClass="hiddenLinkPreview"

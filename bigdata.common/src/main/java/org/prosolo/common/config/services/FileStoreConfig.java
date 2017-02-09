@@ -18,7 +18,7 @@ public class FileStoreConfig {
 	public String getFilePath(){
 		String path= fileStoreServiceUrl + "/" +fileStoreBucketName + "/";
 		if(virtualHostingUrl!=null && virtualHostingUrl.length()>0){
-			path= virtualHostingUrl+  "/";
+			path= virtualHostingUrl+ "/";
 		}
 		return path;
 	}

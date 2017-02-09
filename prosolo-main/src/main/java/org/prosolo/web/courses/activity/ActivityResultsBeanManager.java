@@ -20,7 +20,9 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -59,6 +61,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private EventFactory eventFactory;
+	@Inject private ActivityResultBean actResultBean;
 
 	private String actId;
 	private long decodedActId;
@@ -66,6 +69,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
+	private String targetActId;
+	private long decodedTargetActId;
+	private String commentId;
 	
 	private ActivityData activity;
 	private String credentialTitle;
@@ -101,7 +107,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, hasInstructorCapability,
+								decodedCredId, decodedCompId, decodedActId, 0, hasInstructorCapability,
 								paginate, paginationData.getPage() - 1, paginationData.getLimit(), null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
 					loadAdditionalData(ard);
@@ -118,6 +124,61 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					}
 				} else {
 					loadCompetenceAndCredentialTitle();
+				}
+			} catch(Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while loading activity results");
+			}
+		} else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				logger.error(ioe);
+			}
+		}
+	}
+	
+	public void initIndividualResponse() {
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
+		decodedTargetActId = idEncoder.decodeId(targetActId);
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
+			/*
+			 * check if user has instructor capability and if has, we should mark his comments as
+			 * instructor comments
+			 */
+			hasInstructorCapability = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+			try {
+				activity = activityManager
+						.getActivityDataWithStudentResultsForManager(
+								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
+								hasInstructorCapability, false, 0, 
+								0, null);
+				if(activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
+					currentResult = activity.getStudentResults().get(0);
+					loadAdditionalData(currentResult);
+					if(commentId != null) {
+						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+						initializeResultCommentsIfNotInitialized(currentResult);
+					}
+					
+					if(activity == null || currentResult == null) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						loadCompetenceAndCredentialTitle();
+					}
+				} else {
+					try {
+						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+					} catch (IOException e) {
+						logger.error(e);
+					}
 				}
 			} catch(Exception e) {
 				logger.error(e);
@@ -150,7 +211,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					updatePaginationData(countStudentResults(saFilter));
 				}
 				List<ActivityResultData> results = activityManager
-						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 
+						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
 								hasInstructorCapability, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
@@ -174,6 +235,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		decodedCredId = idEncoder.decodeId(credId);
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		credentialTitle = credManager.getCredentialTitle(decodedCredId);
+	}
+	
+	public void initializeResultCommentsIfNotInitialized(ActivityResultData result) {
+		try {
+			actResultBean.initializeResultCommentsIfNotInitialized(result);
+		} catch(Exception e) {
+			logger.error(e);
+		}
 	}
 	
 	public void filterChanged(StudentAssessedFilterState filter) {
@@ -271,7 +340,12 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void addCommentToActivityDiscussion() {
 		long actualDiscussionId;
 		if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
-			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), currentResult.getAssessment().getCompAssessmentId());
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
+			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
+					currentResult.getAssessment().getCompAssessmentId(), lcd);
 			
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -287,10 +361,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void updateGrade() {
 		try {
 			long compAssessmentId = currentResult.getAssessment().getCompAssessmentId();
-			
+			LearningContextData lcd = new LearningContextData();
+			lcd.setPage(PageUtil.getPostParameter("page"));
+			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+			lcd.setService(PageUtil.getPostParameter("service"));
 			if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
 				long actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
-						compAssessmentId);
+						compAssessmentId, lcd);
 				
 				// set discussionId in the appropriate ActivityAssessmentData
 				String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
@@ -299,7 +376,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			} else {
 				assessmentManager.updateGradeForActivityAssessment(
 						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade().getValue());
+						currentResult.getAssessment().getGrade().getValue(), 
+						loggedUserBean.getUserId(), lcd);
 			}
 			
 			long credAssessmentId = currentResult.getAssessment().getCredAssessmentId();
@@ -317,7 +395,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	private long createDiscussion(long targetActivityId, long competenceAssessmentId) {
+	private long createDiscussion(long targetActivityId, long competenceAssessmentId, 
+			LearningContextData context) {
 		try {
 			// creating a set as there might be duplicates with ids
 			Set<Long> participantIds = new HashSet<>();
@@ -337,8 +416,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 					new ArrayList<Long>(participantIds),
 					loggedUserBean.getUserId(), true,  
-					currentResult.getAssessment().getGrade().getValue()).getId();
-		} catch (ResourceCouldNotBeLoadedException e) {
+					currentResult.getAssessment().getGrade().getValue(), context).getId();
+		} catch (ResourceCouldNotBeLoadedException | EventException e) {
+			logger.error(e);
 			return -1;
 		}
 	}
@@ -559,6 +639,30 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	public void setFilters(List<StudentAssessedFilterState> filters) {
 		this.filters = filters;
+	}
+
+	public String getTargetActId() {
+		return targetActId;
+	}
+
+	public void setTargetActId(String targetActId) {
+		this.targetActId = targetActId;
+	}
+
+	public long getDecodedTargetActId() {
+		return decodedTargetActId;
+	}
+
+	public void setDecodedTargetActId(long decodedTargetActId) {
+		this.decodedTargetActId = decodedTargetActId;
+	}
+
+	public String getCommentId() {
+		return commentId;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
 	}
 	
 }

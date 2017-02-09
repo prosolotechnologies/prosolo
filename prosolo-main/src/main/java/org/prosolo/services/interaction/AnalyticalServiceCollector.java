@@ -22,8 +22,8 @@ public interface AnalyticalServiceCollector {
 	void createTargetCompetenceActivitiesData(long competenceId,
 			long targetCompetenceId, List<TargetActivity> tActivities);
 
-	void increaseUserActivityForLearningGoalLog(long userid, long learningGoal,
-			long daysSinceEpoch);
+	void increaseUserActivityForCredentialLog(long userid, long learningGoal,
+                                              long daysSinceEpoch);
 
 	void sendUpdateHashtagsMessage(Map<String, String> parameters, long goalId,
 			long userId);

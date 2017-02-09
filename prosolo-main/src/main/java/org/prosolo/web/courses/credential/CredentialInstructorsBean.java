@@ -24,6 +24,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.InstructorSortOption;
@@ -34,6 +35,7 @@ import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -94,6 +96,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	private long instructorRoleId;
 	//list of ids of instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
+	
+	private ResourceAccessData access;
 
 	public void init() {
 		sortOptions = InstructorSortOption.values();
@@ -106,10 +110,21 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 				String title = credManager.getCredentialTitleForCredentialWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if(title != null) {
-					credentialTitle = title;	
-					//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
-					searchCredentialInstructors();
-					studentAssignBean.init(decodedId, context);
+					access = credManager.getCredentialAccessRights(decodedId, 
+							loggedUserBean.getUserId(), UserGroupPrivilege.View);
+					if(!access.isCanAccess()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch(
+									"/accessDenied.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						credentialTitle = title;	
+						//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
+						searchCredentialInstructors();
+						studentAssignBean.init(decodedId, context);
+					}
 				} else {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -355,6 +370,10 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			this.paginationData.setPage(page);
 			searchCredentialInstructors();
 		}
+	}
+	
+	public boolean canEdit() {
+		return access != null && access.isCanEdit();
 	}
 
 	/*

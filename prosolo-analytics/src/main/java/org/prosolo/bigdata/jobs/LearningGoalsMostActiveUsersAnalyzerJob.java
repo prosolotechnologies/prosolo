@@ -25,6 +25,7 @@ public class LearningGoalsMostActiveUsersAnalyzerJob implements Job {
 		final long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
 		 analyzer.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
 		analyzer.analyzeLearningGoalsMostActiveUsersForWeek();
+		logger.info("LearningGoalsMostActiveUsersAnalyzerJob JOB FINISHED");
 
 	}
 
