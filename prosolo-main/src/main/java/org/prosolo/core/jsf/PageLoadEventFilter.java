@@ -62,9 +62,7 @@ public class PageLoadEventFilter implements Filter {
 					userId = loggedUserBean.getUserId();
 				}
 			}
-			if(page != null) {
-				logger.info("OPENED PAGE: " + page);
-			} else {
+			if(page == null) {
 				logger.warn("Page is not mapped in ApplicationPage enum");
 			}
 			String ipAddress = request.getHeader("X-FORWARDED-FOR");
