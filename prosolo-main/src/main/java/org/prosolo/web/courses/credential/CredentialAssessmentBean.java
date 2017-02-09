@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
@@ -181,15 +183,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	private void notifyAssessmentApprovedAsync(long decodedAssessmentId, String page, String lContext, String service,
 			long assessedStudentId, long credentialId) {
 		taskExecutor.execute(() -> {
-			User assessor = new User();
-			assessor.setId(assessedStudentId);
+			User student = new User();
+			student.setId(assessedStudentId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(decodedAssessmentId);
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), assessment, assessor,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), 
+						assessment, student, page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}
@@ -341,12 +343,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			
-			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
-			for (Long userId : participantIds) {
-				if (userId != loggedUserBean.getUserId()) {
-					notifyAssessmentCommentAsync(decodedAssessmentId, page, lContext, service, userId, fullAssessmentData.getCredentialId());
-				}
-			}
+			notifyAssessmentCommentAsync(decodedAssessmentId,  
+					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
+					page, lContext, service, fullAssessmentData.getCredentialId());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
@@ -364,22 +363,19 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	}
 
-	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext, String service,
-			long recepientId, long credentialId) {
+	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId, 
+			long assessmentCommentId, String page, String lContext, String service, long credentialId) {
 		taskExecutor.execute(() -> {
-			User recipient = new User();
-			recipient.setId(recepientId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
+			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
+			adm.setId(assessmentCommentId);
+			ActivityAssessment aa = new ActivityAssessment();
+			aa.setId(actAssessmentId);
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
-			// in order to construct a link, we will need info if the
-			// notification recipient is assessor (to prepend "manage")
-			parameters.put("isRecepientAssessor",
-					((Boolean) (fullAssessmentData.getAssessorId() == recepientId)).toString());
+			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), assessment, recipient,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), 
+						adm, aa, page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

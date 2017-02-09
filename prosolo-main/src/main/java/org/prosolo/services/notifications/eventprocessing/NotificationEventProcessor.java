@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public abstract class NotificationEventProcessor {
@@ -36,24 +37,29 @@ public abstract class NotificationEventProcessor {
 
 	public List<Notification1> getNotificationList() {
 		List<Notification1> notifications = new ArrayList<>();
-		List<Long> receivers = getReceiverIds();
+		List<NotificationReceiverData> receivers = getReceiversData();
 		
-		for(long receiver : receivers) {
-			long sender = getSenderId();
-			if(isConditionMet(sender, receiver)) {
-				String section = getUrlSection(receiver);
-				NotificationType notificationType = getNotificationType();
+		long sender = getSenderId();
+		NotificationType notificationType = getNotificationType();
+		long objectId = getObjectId();
+		ResourceType resType = getObjectType();
+		long targetId = getTargetId();
+		ResourceType targetType = getTargetType();
+		for(NotificationReceiverData receiver : receivers) {
+			if(isConditionMet(sender, receiver.getReceiverId())) {
+//				String section = getUrlSection(receiver);
 				Notification1 notification = notificationManager.createNotification(
 						sender, 
-						receiver,
+						receiver.getReceiverId(),
 						notificationType, 
 						event.getDateCreated(),
-						getObjectId(),
-						getObjectType(),
-						getTargetId(),
-						getTargetType(),
-						section + getNotificationLink(),
-						shouldUserBeNotifiedByEmail(receiver, notificationType),
+						objectId,
+						resType,
+						targetId,
+						targetType,
+						receiver.getNotificationLink(),
+						shouldUserBeNotifiedByEmail(receiver.getReceiverId(), notificationType),
+						receiver.isObjectOwner(),
 						session);
 				
 				notifications.add(notification);
@@ -80,20 +86,10 @@ public abstract class NotificationEventProcessor {
 		}
 		return false;
 	}
-	
-	/**
-	 * When it is important to include section when forming url based on user role, method should be 
-	 * overriden in concrete event processor. 
-	 * @param userId
-	 * @return
-	 */
-	protected String getUrlSection(long userId) {
-		return "";
-	}
 
 	abstract boolean isConditionMet(long sender, long receiver);
 
-	abstract List<Long> getReceiverIds();
+	abstract List<NotificationReceiverData> getReceiversData();
 	
 	abstract long getSenderId();
 	
@@ -110,7 +106,5 @@ public abstract class NotificationEventProcessor {
 	public long getTargetId() {
 		return 0;
 	}
-	
-	abstract String getNotificationLink();
 	
 }

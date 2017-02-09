@@ -33,6 +33,10 @@ public class Notification1 extends BaseEntity {
 	 */
 	private ResourceType objectType;
 	private long objectId;
+	/*
+	 * indicates if user is owner of object of this notification.
+	 */
+	private boolean objectOwner;
 	private ResourceType targetType;
 	private long targetId;
 	private boolean notifyByEmail;
@@ -128,6 +132,16 @@ public class Notification1 extends BaseEntity {
 
 	public void setTargetId(long targetId) {
 		this.targetId = targetId;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isObjectOwner() {
+		return objectOwner;
+	}
+
+	public void setObjectOwner(boolean objectOwner) {
+		this.objectOwner = objectOwner;
 	}
 	
 }

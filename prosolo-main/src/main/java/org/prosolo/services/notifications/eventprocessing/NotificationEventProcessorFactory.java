@@ -11,8 +11,8 @@ import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class NotificationEventProcessorFactory {
 	@Autowired 
 	private FollowResourceManager followResourceManager;
 	@Inject
-	private RoleManager roleManager;
+	private AssessmentManager assessmentManager;
 	@Inject
 	private CredentialManager credentialManager;
 	@Inject
@@ -49,8 +49,9 @@ public class NotificationEventProcessorFactory {
 		 */
 		case Comment:
 		case Comment_Reply:
-			return new CommentEventProcessor(event, session, notificationManager,
-					notificationsSettingsManager, idEncoder, activityManager, commentManager, roleManager, contextJsonParserService);
+			return new CommentPostEventProcessor(event, session, notificationManager,
+					notificationsSettingsManager, idEncoder, commentManager, 
+					contextJsonParserService);
 		/*
 		 * Someone liked or disliked a resource. We need to determine whether it
 		 * was generated on the Status Wall (liked/disliked a SocialActivity
@@ -60,24 +61,28 @@ public class NotificationEventProcessorFactory {
 		case Like:
 		case Dislike:
 			if (event.getObject() instanceof Comment1) {
-				return new CommentLikeEventProcessor(event, session, notificationManager, notificationsSettingsManager,
-						activityManager, idEncoder);
+				return new CommentLikeEventProcessor(event, session, notificationManager, 
+						notificationsSettingsManager, activityManager, idEncoder, 
+						contextJsonParserService);
 			} else if (event.getObject() instanceof SocialActivity1) {
-				return new SocialActivityLikeEventProcessor(event, session, notificationManager, notificationsSettingsManager,
-						activityManager, idEncoder);
+				return new SocialActivityLikeEventProcessor(event, session, notificationManager, 
+						notificationsSettingsManager, activityManager, idEncoder);
 			}
 		case Follow:
-			return new FollowUserEventProcessor(event, session, notificationManager, notificationsSettingsManager,
-					idEncoder, followResourceManager);
+			return new FollowUserEventProcessor(event, session, notificationManager, 
+					notificationsSettingsManager, idEncoder, followResourceManager);
 		case AssessmentComment:
-			return new AssessmentCommentEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-					roleManager);
+			return new AssessmentCommentEventProcessor(event, session, notificationManager, 
+					notificationsSettingsManager, idEncoder, assessmentManager);
 		case AssessmentApproved:
-			return new AssessmentApprovedEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+			return new AssessmentApprovedEventProcessor(event, session, notificationManager, 
+					notificationsSettingsManager, idEncoder);
 		case AssessmentRequested:
-			return new AssessmentRequestEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+			return new AssessmentRequestEventProcessor(event, session, notificationManager, 
+					notificationsSettingsManager, idEncoder);
 		case AnnouncementPublished:
-			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager);
+			return new AnnouncementPublishedEventProcessor(event, session, notificationManager, 
+					notificationsSettingsManager, idEncoder, credentialManager);
 		default:
 			return null;
 		}

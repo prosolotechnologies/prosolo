@@ -308,7 +308,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	public Notification1 createNotification(long actorId, 
 			long receiverId, NotificationType type, Date date, 
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
-			boolean notifyByEmail, Session session) throws DbConnectionException {
+			boolean notifyByEmail, boolean isObjectOwner, Session session) throws DbConnectionException {
 		try {
 			User actor = (User) session.load(User.class, actorId);
 			User receiver = (User) session.load(User.class, receiverId);
@@ -324,6 +324,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			notification.setTargetId(targetId);
 			notification.setTargetType(targetType);
 			notification.setLink(link);
+			notification.setObjectOwner(isObjectOwner);
 			session.save(notification);
 			
 			return notification;

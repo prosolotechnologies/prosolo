@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -32,6 +33,7 @@ import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.interaction.data.CommentSortField;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.util.SortingOption;
 import org.springframework.stereotype.Service;
@@ -433,28 +435,42 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getIdsOfUsersThatCommentedResource(CommentedResourceType resourceType, long resourceId, 
-			List<Long> usersToExclude) throws DbConnectionException {
+	public List<Long> getIdsOfUsersThatCommentedResource(CommentedResourceType resourceType, 
+			long resourceId, Role role, List<Long> usersToExclude) 
+					throws NullPointerException, DbConnectionException {
 		try {
-			String query = "SELECT distinct comment.user.id FROM Comment1 comment " +
-						   "WHERE comment.resourceType = :resType " +
-						   "AND comment.commentedResourceId = :resourceId " +
-						   "AND comment.user.id NOT IN (:usersToExclude)";
+			if(role == null) {
+				throw new NullPointerException("Role can not be null");
+			}
+			StringBuilder query = new StringBuilder(
+					"SELECT distinct comment.user.id FROM Comment1 comment " +
+					"WHERE comment.resourceType = :resType " +
+					"AND comment.commentedResourceId = :resourceId " +
+					"AND comment.managerComment = :managerComment ");
+			if(usersToExclude != null && !usersToExclude.isEmpty()) {
+					query.append("AND comment.user.id NOT IN (:usersToExclude)");
+			}
 			
-			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager()
-					.createQuery(query)
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
 					.setParameter("resType", resourceType)
 					.setLong("resourceId", resourceId)
-					.setParameterList("usersToExclude", usersToExclude)
-					.list();
+					.setBoolean("managerComment", role == Role.Manager ? true : false);
+			if(usersToExclude != null && !usersToExclude.isEmpty()) {
+				q.setParameterList("usersToExclude", usersToExclude);
+			}		
+					
+			@SuppressWarnings("unchecked")
+			List<Long> res =q.list();
 			
 			if(res == null) {
 				return new ArrayList<>();
 			}
 	
 			return res;
-			
+		
+		} catch(NullPointerException npe) {
+			throw npe;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -483,8 +499,6 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 						.uniqueResult();
 				return id;
 			default:
-				//TODO when comments are implemented for socialactivity this method should be changed
-				//because socialactivity maybe won't have createdBy relationship
 				String creatorFieldName = getCreatorFieldNameForResourceType(resourceType);
 				String query1 = 
 						"SELECT res." + creatorFieldName + ".id " + 
@@ -515,6 +529,44 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 				return "createdBy";
 			default:
 				return null;
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Role getCommentedResourceCreatorRole(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException {
+		try {
+			switch (resourceType) {
+			case Competence:
+				String query = 
+					"SELECT comp.type " + 
+					"FROM Competence1 comp " +
+					"WHERE comp.id = :compId";
+		
+				LearningResourceType type = (LearningResourceType) persistence.currentManager()
+						.createQuery(query)
+						.setLong("compId", resourceId)
+						.uniqueResult();
+				return type == LearningResourceType.UNIVERSITY_CREATED ? Role.Manager : Role.User;
+			case Activity:
+				String query2 = 
+					"SELECT act.type " + 
+					"FROM Activity1 act " +
+					"WHERE act.id = :actId";
+		
+				LearningResourceType actType = (LearningResourceType) persistence.currentManager()
+						.createQuery(query2)
+						.setLong("actId", resourceId)
+						.uniqueResult();
+				return actType == LearningResourceType.UNIVERSITY_CREATED ? Role.Manager : Role.User;
+			default:
+				return Role.User;
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user role");
 		}
 	}
 	

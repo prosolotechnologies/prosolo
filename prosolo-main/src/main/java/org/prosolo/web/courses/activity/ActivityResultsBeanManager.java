@@ -17,9 +17,9 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
@@ -439,14 +439,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			
-			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
-			for (Long userId : participantIds) {
-				if (userId != loggedUserBean.getUserId()) {
-					notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(), page, 
-							lContext, service, userId, decodedCredId);
-				}
-			}
-			
+			notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(),
+					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()), 
+					page, lContext, service, decodedCredId);
 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
@@ -454,21 +449,21 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext, 
-			String service, long recepientId, long credentialId) {
+	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId,
+			long assessmentCommentId, String page, String lContext, 
+			String service, long credentialId) {
 		taskExecutor.execute(() -> {
-			User recipient = new User();
-			recipient.setId(recepientId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
+			//User recipient = new User();
+			//recipient.setId(recepientId);
+			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
+			adm.setId(assessmentCommentId);
+			ActivityAssessment aa = new ActivityAssessment();
+			aa.setId(actAssessmentId);
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
-			// in order to construct a link, we will need info if the
-			// notification recipient is assessor (to prepend "manage")
-			parameters.put("isRecepientAssessor",
-					((Boolean) (currentResult.getAssessment().getAssessorId() == recepientId)).toString());
+			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), assessment, recipient,
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), adm, aa,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
