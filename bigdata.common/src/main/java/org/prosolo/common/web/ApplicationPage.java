@@ -4,7 +4,7 @@ public enum ApplicationPage {
 
 	LOGIN("/login.xhtml"),
 	INDEX("/index.xhtml"), 
-	LEARN("/learn.xhtml"), 
+	//LEARN("/learn.xhtml"), 
 	//PLAN("/plan.xhtml"), 
 	//BROWSE_CREDENTIALS("/courseBrowse.xhtml"),
 	//COURSE("/course.xhtml"),

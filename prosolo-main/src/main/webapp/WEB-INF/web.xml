@@ -114,7 +114,7 @@
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 	</filter-mapping>
-    
+	
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
@@ -277,4 +277,18 @@
         <dispatcher>INCLUDE</dispatcher>
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
+    
+    <filter>
+        <filter-name>pageLoadEventFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+    	<filter-name>pageLoadEventFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+    	<dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    
 </web-app>
