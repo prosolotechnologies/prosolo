@@ -14,6 +14,7 @@ public class CommentData {
 	private String comment;
 	private UserData creator;
 	private boolean isInstructor;
+	private boolean isManagerComment;
 	private int likeCount;
 	private List<UserData> likedBy;
 	private boolean likedByCurrentUser;
@@ -134,6 +135,14 @@ public class CommentData {
 
 	public void setNumberOfReplies(int numberOfReplies) {
 		this.numberOfReplies = numberOfReplies;
+	}
+
+	public boolean isManagerComment() {
+		return isManagerComment;
+	}
+
+	public void setManagerComment(boolean isManagerComment) {
+		this.isManagerComment = isManagerComment;
 	}
 	
 }

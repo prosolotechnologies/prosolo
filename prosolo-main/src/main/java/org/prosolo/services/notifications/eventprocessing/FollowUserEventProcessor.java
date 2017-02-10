@@ -11,10 +11,12 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class FollowUserEventProcessor extends NotificationEventProcessor {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(FollowUserEventProcessor.class);
 
 	private FollowResourceManager followResourceManager;
@@ -32,15 +34,12 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 	}
 
 	@Override
-	List<Long> getReceiverIds() {
-		List<Long> users = new ArrayList<>();
-		try {
-			users.add(event.getObject().getId());
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		}
-		return users;
+	List<NotificationReceiverData> getReceiversData() {
+		List<NotificationReceiverData> receivers = new ArrayList<>();
+		String link = getNotificationLink();
+		long receiverId = event.getObject().getId();
+		receivers.add(new NotificationReceiverData(receiverId, link, false));
+		return receivers;
 	}
 
 	@Override
@@ -63,9 +62,8 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 		return 0;
 	}
 
-	@Override
-	String getNotificationLink() {
-//		return "/profile?id=" + idEncoder.encodeId(getSenderId());
+	
+	private String getNotificationLink() {
 		return "/profile/" + idEncoder.encodeId(getSenderId());
 	}
 

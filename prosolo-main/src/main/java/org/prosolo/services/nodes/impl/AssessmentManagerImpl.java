@@ -597,10 +597,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Long getAssessorIdForActivityDiscussion(long activityDiscussionId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT credAssessment.assessor.id  FROM ActivityAssessment ad " +
+			String query = "SELECT credAssessment.assessor.id FROM ActivityAssessment ad " +
 						   "INNER JOIN ad.assessment compAssessment " +
 						   "INNER JOIN compAssessment.credentialAssessment credAssessment " +
-						   "WHERE discussion.id = :discussionId";
+						   "WHERE ad.id = :discussionId";
 			
 			Long res = (Long) persistence.currentManager()
 					.createQuery(query)
@@ -1033,6 +1033,32 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving activity assessment");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId) 
+			throws DbConnectionException {
+		try {
+			String query = "SELECT credAssessment.assessedStudent.id FROM ActivityAssessment aas " +
+						   "INNER JOIN aas.assessment compAssessment " +
+						   "INNER JOIN compAssessment.credentialAssessment credAssessment " +
+						   "WHERE aas.id = :actAssessmentId";
+			
+			Long res = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("actAssessmentId", activityAssessmentId)
+					.uniqueResult();
+			
+			if(res == null) {
+				return 0L;
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving assessed student id");
 		}
 	}
 }

@@ -42,7 +42,8 @@ public class NotificationDataFactory {
 		n.setTargetTitle(targetTitle != null ? targetTitle : "");
 
 		if (locale != null) {
-			n.setPredicate(getNotificationPredicate(n.getNotificationType(), n.getObjectType(), locale));
+			n.setPredicate(getNotificationPredicate(n.getNotificationType(), n.getObjectType(),
+					notification.isObjectOwner(), locale));
 			n.setRelationToTarget(getRelationToTarget(n.getNotificationType(), n.getTargetType(), locale));
 		}
 		
@@ -51,11 +52,20 @@ public class NotificationDataFactory {
 		return n;
 	}
 	
-	public String getNotificationPredicate(NotificationType notificationType, ResourceType objectType, Locale locale) {
+	public String getNotificationPredicate(NotificationType notificationType, ResourceType objectType, 
+			boolean isObjectOwner, Locale locale) {
 		String predicate = "";
 		try {
+			/*
+			 * if actor is object owner for this notification and notification type is one of
+			 * specified two types only then we retrieve personal predicate. In other cases where
+			 * actor may be object owner, predicates are personal by default because notification 
+			 * by its definition imposes that.
+			 */
+			boolean personal = isObjectOwner && (notificationType == NotificationType.Comment
+					|| notificationType == NotificationType.Assessment_Comment);
 			predicate += ResourceBundleUtil.getMessage(
-					"notification.type." + notificationType.name(), 
+					"notification.type." + notificationType.name() + (personal ? ".personal" : ""),
 					locale);
 			
 			if (objectType != null) {

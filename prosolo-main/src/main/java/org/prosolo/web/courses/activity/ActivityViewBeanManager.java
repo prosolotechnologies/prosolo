@@ -93,7 +93,7 @@ public class ActivityViewBeanManager implements Serializable {
 						boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 						commentsData = new CommentsData(CommentedResourceType.Activity, 
 								competenceData.getActivityToShowWithDetails().getActivityId(), 
-								hasInstructorCapability);
+								hasInstructorCapability, true);
 						commentsData.setCommentId(idEncoder.decodeId(commentId));
 						commentBean.loadComments(commentsData);
 		//					commentBean.init(CommentedResourceType.Activity, 

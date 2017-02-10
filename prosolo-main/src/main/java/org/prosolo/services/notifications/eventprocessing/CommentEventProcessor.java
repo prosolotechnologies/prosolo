@@ -1,6 +1,5 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,80 +12,48 @@ import org.prosolo.common.event.context.ContextName;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
-import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
 
-public class CommentEventProcessor extends NotificationEventProcessor {
+public abstract class CommentEventProcessor extends NotificationEventProcessor {
 
 	private static Logger logger = Logger.getLogger(CommentEventProcessor.class);
 	
 	private Comment1 resource;
-	private ResourceType objectType;
-	private Activity1Manager activityManager;
-	private CommentManager commentManager;
-	private RoleManager roleManager;
+	private ResourceType commentedResourceType;
 	private ContextJsonParserService contextJsonParserService;
 	
 	public CommentEventProcessor(Event event, Session session,
 			NotificationManager notificationManager, 
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			Activity1Manager activityManager, CommentManager commentManager, RoleManager roleManager, ContextJsonParserService contextJsonParserService) {
+			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, 
+			ContextJsonParserService contextJsonParserService) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.activityManager = activityManager;
-		this.commentManager = commentManager;
-		this.roleManager = roleManager;
 		this.contextJsonParserService = contextJsonParserService;
 		setResource();
-		setObjectType();
+		setCommentedResourceType();
 	}
 
-	private void setObjectType() {
+	private void setCommentedResourceType() {
 		switch(resource.getResourceType()) {
 			case Activity:
-				objectType = ResourceType.Activity;
+				commentedResourceType = ResourceType.Activity;
 				break;
 			case Competence:
-				objectType = ResourceType.Competence;	
+				commentedResourceType = ResourceType.Competence;	
 				break;
 			case SocialActivity:
-				objectType = ResourceType.SocialActivity;	
+				commentedResourceType = ResourceType.SocialActivity;	
 				break;
 			case ActivityResult:
-				objectType = ResourceType.ActivityResult;	
+				commentedResourceType = ResourceType.ActivityResult;	
 				break;
 		}
 	}
 
 	protected void setResource() {
-		this.resource = (Comment1) session.merge(event.getObject());
-	}
-	
-	@Override
-	List<Long> getReceiverIds() {
-		List<Long> users = null;
-		
-		try {
-			Long resCreatorId = commentManager.getCommentedResourceCreatorId(resource.getResourceType(), 
-					resource.getCommentedResourceId());
-			if (resCreatorId != null) {
-				List<Long> usersToExclude = new ArrayList<>();
-				usersToExclude.add(resCreatorId);
-				
-				users = commentManager.getIdsOfUsersThatCommentedResource(resource.getResourceType(),
-						resource.getCommentedResourceId(), usersToExclude);
-				users.add(resCreatorId);
-			}
-		} catch(Exception e) {
-			logger.error(e);
-			return null;
-		}
-		
-		return users;
+		this.resource = (Comment1) session.load(event.getObject().getClass(), event.getObject().getId());
 	}
 
 	@Override
@@ -98,56 +65,53 @@ public class CommentEventProcessor extends NotificationEventProcessor {
 	boolean isConditionMet(long sender, long receiver) {
 		if (receiver != 0 && sender != receiver) {
 			return true;
-		} else {
-//			logger.error("Commenting on the resource of a type: " + 
-//					((Comment1) resource).getObject().getClass() + " is not captured.");
-			return false;
-		}
+		} 
+		return false;
 	}
+	
+	@Override
+	abstract List<NotificationReceiverData> getReceiversData();
 
 	@Override
-	NotificationType getNotificationType() {
-		return NotificationType.Comment;
-	}
+	abstract NotificationType getNotificationType();
 
 	@Override
-	ResourceType getObjectType() {
-		return objectType;
-	}
+	abstract ResourceType getObjectType();
 
 	@Override
-	long getObjectId() {
-		return resource.getCommentedResourceId();
-	}
+	abstract long getObjectId();
 
-	@Override
-	String getNotificationLink() {
-		switch(objectType) {
+	protected final String getNotificationLink() {
+		LearningContext learningContext = null;
+		Context competenceContext = null;
+		switch(commentedResourceType) {
 			case Activity:
-				Long compId = activityManager.getCompetenceIdForActivity(getObjectId());
-				if (compId != null) {
+				learningContext = contextJsonParserService.
+					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
+				competenceContext = learningContext.getSubContextWithName(ContextName.COMPETENCE);
+				long compId = competenceContext != null ? competenceContext.getId() : 0;
+				if (compId > 0) {
 					return "/competences/" +
 							idEncoder.encodeId(compId) + "/" +
-							idEncoder.encodeId(getObjectId())+
+							idEncoder.encodeId(resource.getCommentedResourceId())+
 							"?comment=" +  idEncoder.encodeId(resource.getId());
 				}
 				break;
 			case Competence:
 				return "/competences/" +
-					idEncoder.encodeId(getObjectId()) +
-					"?comment=" +  idEncoder.encodeId(resource.getId());
+						idEncoder.encodeId(resource.getCommentedResourceId()) +
+						"?comment=" +  idEncoder.encodeId(resource.getId());
 			case SocialActivity:
 				return "/posts/" +
-					idEncoder.encodeId(getObjectId()) +
+					idEncoder.encodeId(resource.getCommentedResourceId()) +
 					"?comment=" +  idEncoder.encodeId(resource.getId());
 			case ActivityResult:
-				
-				LearningContext learningContext = contextJsonParserService.
+				learningContext = contextJsonParserService.
 					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
 			
 				long idsRead = 0;	// counting if we have read all the ids
 				Context credentialContext = learningContext.getSubContextWithName(ContextName.CREDENTIAL);
-				Context competenceContext = learningContext.getSubContextWithName(ContextName.COMPETENCE);
+				competenceContext = learningContext.getSubContextWithName(ContextName.COMPETENCE);
 				Context activityContext = learningContext.getSubContextWithName(ContextName.ACTIVITY);
 				
 				long credentialId = 0;
@@ -174,24 +138,20 @@ public class CommentEventProcessor extends NotificationEventProcessor {
 					idEncoder.encodeId(competenceId) + "/" +
 					idEncoder.encodeId(activityId) + "/" +
 					"responses/" + 
-					idEncoder.encodeId(event.getTarget().getId()) + 
+					idEncoder.encodeId(resource.getCommentedResourceId()) + 
 					"?comment=" +  idEncoder.encodeId(resource.getId());
 			default:
 				break;
 		}
 		return null;
 	}
-	
-	@Override
-	protected String getUrlSection(long userId) {
-		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
-		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(userId, roles);
-		if (hasManagerOrInstructorRole) {
-			return "/manage";
-		}
-		return "";
+
+	protected Comment1 getResource() {
+		return resource;
 	}
 
+	public ResourceType getCommentedResourceType() {
+		return commentedResourceType;
+	}
+	
 }

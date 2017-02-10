@@ -9,22 +9,22 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
 
 public class AssessmentCommentEventProcessor extends NotificationEventProcessor {
 	
 	private static Logger logger = Logger.getLogger(AssessmentCommentEventProcessor.class);
 	
-	private RoleManager roleManager;
+	private AssessmentManager assessmentManager;
 
 	public AssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
 			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			RoleManager roleManager) {
+			AssessmentManager assessmentManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.roleManager = roleManager;
+		this.assessmentManager = assessmentManager;
 	}
 
 	@Override
@@ -33,15 +33,31 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 	}
 
 	@Override
-	List<Long> getReceiverIds() {
-		List<Long> users = new ArrayList<>();
+	List<NotificationReceiverData> getReceiversData() {
+		List<NotificationReceiverData> receivers = new ArrayList<>();
+		long assessmentId = event.getTarget().getId();
+		String link = getNotificationLink();
+		List<Long> participantIds = null;
+		long assessedStudentId = 0;
 		try {
-			users.add(event.getTarget().getId());
+			participantIds = assessmentManager.getParticipantIds(assessmentId);
+			assessedStudentId = assessmentManager.getAssessedStudentIdForActivityAssessment(
+					assessmentId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
+			return new ArrayList<>();
 		}
-		return users;
+		for(long id : participantIds) {
+			/*
+			 * this is because out of all regular users, only assessed student
+			 * can participate in assessment discussion. All other users are managers.
+			 */
+			String prefix = id == assessedStudentId ? "" : "/manage";
+			boolean isObjectOwner = id == assessedStudentId;
+			receivers.add(new NotificationReceiverData(id, prefix + link, isObjectOwner));
+		}
+		return receivers;
 	}
 
 	@Override
@@ -56,54 +72,19 @@ public class AssessmentCommentEventProcessor extends NotificationEventProcessor 
 
 	@Override
 	ResourceType getObjectType() {
-		return ResourceType.CredentialAssessment;
+		return ResourceType.Credential;
 	}
 
 	@Override
 	long getObjectId() {
-		return event.getObject().getId();
+		return Long.parseLong(event.getParameters().get("credentialId"));
 	}
 
-	@Override
-	String getNotificationLink() {
+	private String getNotificationLink() {
 		return "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
-				idEncoder.encodeId(event.getObject().getId());
-		//boolean isRecieverAssessor = Boolean.parseBoolean(event.getParameters().get("isRecepientAssessor"));
-//		if (isRecieverAssessor) {
-//			//this notification will be read by assessor, prefix url with "manage"
-////			return "/manage/credential-assessment.xhtml?id=" +
-////				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-////				"&assessmentId=" +
-////				idEncoder.encodeId(event.getObject().getId());
-//			return "/manage/credentials/" +
-//				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-//				"/assessments/" +
-//				idEncoder.encodeId(event.getObject().getId());
-//		}
-//		else {
-////			return "credential-assessment.xhtml?id=" +
-////					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-////					"&assessmentId=" +
-////					idEncoder.encodeId(event.getObject().getId());
-//			return "/credentials/" +
-//					idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-//					"/assessments/" +
-//					idEncoder.encodeId(event.getObject().getId());
-//		}
-	}
-	
-	@Override
-	protected String getUrlSection(long userId) {
-		List<String> roles = new ArrayList<>();
-		roles.add(RoleNames.MANAGER);
-		roles.add(RoleNames.INSTRUCTOR);
-		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(userId, roles);
-		if (hasManagerOrInstructorRole) {
-			return "/manage";
-		}
-		return "";
+				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialAssessmentId")));
 	}
 
 }

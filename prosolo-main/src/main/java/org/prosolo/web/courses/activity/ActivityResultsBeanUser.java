@@ -70,7 +70,8 @@ public class ActivityResultsBeanUser implements Serializable {
 			try {
 				competenceData = activityManager
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId());
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(),
+								false);
 				if (competenceData == null) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
@@ -129,7 +130,8 @@ public class ActivityResultsBeanUser implements Serializable {
 		decodedCredId = idEncoder.decodeId(credId);
 		
 		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
-			ActivityData activityWithDetails = activityManager.getActivityDataForUserToView(decodedTargetActId, loggedUser.getUserId());
+			ActivityData activityWithDetails = activityManager.getActivityDataForUserToView(
+					decodedTargetActId, loggedUser.getUserId(), false);
 
 			if (activityWithDetails == null) {
 				try {
@@ -200,6 +202,14 @@ public class ActivityResultsBeanUser implements Serializable {
 	
 	public boolean isCurrentUserCreator() {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
+	}
+	
+	public String getResultOwnerFullName() {
+		return competenceData.getActivityToShowWithDetails().getResultData().getUser().getFullName();
+	}
+	
+	public long getTargetActivityId() {
+		return decodedTargetActId;
 	}
 
 	/*

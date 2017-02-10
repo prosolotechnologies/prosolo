@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class AssessmentApprovedEventProcessor extends NotificationEventProcessor {
@@ -27,15 +28,16 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 	}
 
 	@Override
-	List<Long> getReceiverIds() {
-		List<Long> users = new ArrayList<>();
+	List<NotificationReceiverData> getReceiversData() {
+		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
-			users.add(event.getTarget().getId());
+			receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(), false));
+			return receivers;
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
+			return new ArrayList<>();
 		}
-		return users;
 	}
 
 	@Override
@@ -50,20 +52,15 @@ public class AssessmentApprovedEventProcessor extends NotificationEventProcessor
 
 	@Override
 	ResourceType getObjectType() {
-		return ResourceType.CredentialAssessment;
+		return ResourceType.Credential;
 	}
 
 	@Override
 	long getObjectId() {
-		return event.getObject().getId();
+		return Long.parseLong(event.getParameters().get("credentialId"));
 	}
 
-	@Override
-	String getNotificationLink() {
-//		return "credential-assessment.xhtml?id=" +
-//				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
-//				"&assessmentId=" +
-//				idEncoder.encodeId(event.getTarget().getId());
+	private String getNotificationLink() {
 		return "/credentials/" +
 				idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId"))) +
 				"/assessments/" +
