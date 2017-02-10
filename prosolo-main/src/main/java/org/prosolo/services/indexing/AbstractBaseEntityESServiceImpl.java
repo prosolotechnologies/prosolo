@@ -15,19 +15,17 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptService.ScriptType;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 
@@ -140,13 +138,13 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	public void partialUpdateByScript(String indexName, String indexType, String docId,
 			String script, Map<String, Object> scriptParams) {
 		try {
-			UpdateRequest updateRequest = new UpdateRequest(indexName, indexType, docId)
-			        .script(script);
+			UpdateRequest updateRequest = new UpdateRequest(indexName, indexType, docId);
 			if(scriptParams != null) {
 //				for(Entry<String, Object> param : scriptParams.entrySet()) {
 //					updateRequest.addScriptParam(param.getKey(), param.getValue());
 //				}
-				updateRequest.scriptParams(scriptParams);
+				updateRequest.script(new Script(script, ScriptType.INLINE, null, scriptParams));
+				//updateRequest.scriptParams(scriptParams);
 				updateRequest.retryOnConflict(5);
 			}
 			ElasticSearchFactory.getClient().update(updateRequest).get();

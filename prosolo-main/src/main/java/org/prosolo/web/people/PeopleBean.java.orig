@@ -1,7 +1,6 @@
 package org.prosolo.web.people;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,10 +8,8 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.pagination.Paginable;
@@ -38,14 +35,21 @@ public class PeopleBean implements Paginable, Serializable {
 	@Inject
 	private PeopleActionBean peopleActionBean;
 	@Inject
-	private FollowResourceManager followResourceManager;
-	@Inject
 	private TextSearch textSearch;
 
 	private List<UserData> followingUsers;
 
+<<<<<<< HEAD
+	private int usersNumber;
+	private final int limit = 5;
+	private int page = 1;
+	private int numberOfPages;
+	private List<PaginationLink> paginationLinks;
+	
 	private String searchTerm = "";
+=======
 	private PaginationData paginationData = new PaginationData(5);
+>>>>>>> develop
 
 	public void init() {
 		initFollowingUsers();
@@ -53,7 +57,23 @@ public class PeopleBean implements Paginable, Serializable {
 
 	private void initFollowingUsers() {
 		try {
-//			searchPeopleUserFollows();
+<<<<<<< HEAD
+//			followingUsers = new ArrayList<UserData>();
+//			usersNumber = followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId());
+//
+//			List<User> followingUsersList = usersNumber > 0
+//					? followResourceManager.getFollowingUsers(loggedUser.getUserId(), page - 1, limit)
+//					: new ArrayList<User>();
+//
+//			if (followingUsersList != null && !followingUsersList.isEmpty()) {
+//				for (User user : followingUsersList) {
+//					UserData userData = new UserData(user);
+//					followingUsers.add(userData);
+//				}
+//			}
+			searchPeopleUserFollows();
+			generatePagination();
+=======
 			followingUsers = new ArrayList<UserData>();
 			paginationData.update(followResourceManager.getNumberOfFollowingUsers(loggedUser.getUserId()));
 
@@ -63,10 +83,11 @@ public class PeopleBean implements Paginable, Serializable {
 
 			if (followingUsersList != null && !followingUsersList.isEmpty()) {
 				for (User user : followingUsersList) {
-					UserData userData = new UserData(user);
+					UserData userData = UserDataFactory.createUserData(user);
 					followingUsers.add(userData);
 				}
 			}
+>>>>>>> develop
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -105,7 +126,7 @@ public class PeopleBean implements Paginable, Serializable {
 	}
 	
 	public void resetAndSearch() {
-		paginationData.setPage(1);
+		this.page = 1;
 		searchPeopleUserFollows();
 	}
 	
@@ -116,6 +137,7 @@ public class PeopleBean implements Paginable, Serializable {
 			}
 
 			fetchFollowingUsers();
+			generatePagination();
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -125,10 +147,10 @@ public class PeopleBean implements Paginable, Serializable {
 	public void fetchFollowingUsers() {
 		TextSearchResponse1<UserData> searchResponse = textSearch.searchPeopleUserFollows(
 				searchTerm, 
-				paginationData.getPage() - 1, paginationData.getLimit(), 
+				page - 1, limit, 
 				loggedUser.getUserId());
 
-		paginationData.setNumberOfResults((int) searchResponse.getHitsNumber());
+		usersNumber = (int) searchResponse.getHitsNumber();
 		followingUsers = searchResponse.getFoundNodes();
 	}
 

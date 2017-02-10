@@ -1,7 +1,6 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
 
