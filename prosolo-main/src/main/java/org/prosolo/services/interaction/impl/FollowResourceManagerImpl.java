@@ -246,7 +246,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				"LEFT JOIN fEnt.user user "+
 				"JOIN fEnt.followedUser fUser " + 
 				"WHERE user.id = :userId " +
-				"ORDER BY fUser.name, fUser.lastname";
+				"ORDER BY fUser.lastname, fUser.name";
 			
 			Query q = persistence.currentManager().createQuery(query)
 					.setLong("userId", userId);

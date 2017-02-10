@@ -2023,8 +2023,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
-			bQueryBuilder.must(termQuery("followers.id", userId));
+			bQueryBuilder.filter(qb);
+			bQueryBuilder.filter(termQuery("followers.id", userId));
 			
 			SearchResponse sResponse = null;
 			
@@ -2034,6 +2034,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
+					.addSort("lastname", SortOrder.ASC)
 					.addSort("name", SortOrder.ASC)
 					.setFetchSource(includes, null);
 			//System.out.println(srb.toString());
