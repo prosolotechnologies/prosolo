@@ -195,6 +195,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
+	public long getTargetActivityId() {
+		return decodedTargetActId;
+	}
+	
+	public String getResultOwnerFullName() {
+		return currentResult.getUser().getFullName();
+	}
+	
 	private int countStudentResults(StudentAssessedFilter filter) {
 		return (activityManager.countStudentsResults(decodedCredId, decodedCompId, 
 				decodedActId, filter)).intValue();

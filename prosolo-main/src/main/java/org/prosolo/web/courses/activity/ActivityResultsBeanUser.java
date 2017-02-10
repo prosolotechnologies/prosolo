@@ -203,6 +203,14 @@ public class ActivityResultsBeanUser implements Serializable {
 	public boolean isCurrentUserCreator() {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
+	
+	public String getResultOwnerFullName() {
+		return competenceData.getActivityToShowWithDetails().getResultData().getUser().getFullName();
+	}
+	
+	public long getTargetActivityId() {
+		return decodedTargetActId;
+	}
 
 	/*
 	 * ACTIONS

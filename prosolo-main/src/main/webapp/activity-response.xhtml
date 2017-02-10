@@ -102,8 +102,21 @@
             	</h:link>
             	
             </li>
+            <li>
+            	<h:link
+            		outcome="/activity-responses"
+            		onclick="sendLogPageNavigation('/activity-responses.xhtml', 
+							'#{facesContext.viewRoot.viewId}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanUser.targetActivityId).concat(&#34;/&#34;))}', 
+							'');">
+            		<f:param name="credId" value="#{param['credId']}" />
+	            	<f:param name="compId" value="#{param['compId']}" />
+	            	<f:param name="actId" value="#{param['actId']}" />
+            		Responses
+            	</h:link>
+            </li>
             <li class="active">
-            	Responses
+            	#{activityResultsBeanUser.resultOwnerFullName}
             </li>
         </ol>
     </div>
