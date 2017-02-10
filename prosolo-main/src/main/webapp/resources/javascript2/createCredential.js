@@ -1,5 +1,5 @@
 $(function () {
-	attachListenersForUpdatingStatus();
+	//attachListenersForUpdatingStatus();
 	
 	//setInitialValues();
 });
@@ -15,23 +15,23 @@ $(function () {
 //}
 var containerId;
 
-function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val('UNPUBLISH').change();
-}
-
-function attachListenersForUpdatingStatus() {
-	$("#" + containerId + "\\:formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
-		updateStatusToDraft();
-	});
-	
-	$("#formMain\\:inputHashtags").on('itemAdded itemRemoved', function(event) {
-		updateStatusToDraft();
-	});
-	
-	$('.pasteable').on('paste', function() {
-		updateStatusToDraft();
-	});
-}
+//function updateStatusToDraft() {
+//	$('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val('UNPUBLISH').change();
+//}
+//
+//function attachListenersForUpdatingStatus() {
+//	$("#" + containerId + "\\:formMain\\:inputKeywords").on('itemAdded itemRemoved', function(event) {
+//		updateStatusToDraft();
+//	});
+//	
+//	$("#formMain\\:inputHashtags").on('itemAdded itemRemoved', function(event) {
+//		updateStatusToDraft();
+//	});
+//	
+//	$('.pasteable').on('paste', function() {
+//		updateStatusToDraft();
+//	});
+//}
 
 function showOrHideMandatoryArrows() {
 	if($('#' + containerId + '\\:formMain\\:credSidebar\\:checkMandatory').is(':checked')) {

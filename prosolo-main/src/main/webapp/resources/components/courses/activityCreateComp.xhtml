@@ -41,7 +41,6 @@
                	   		id="inputVideoUrl"
                	   		styleClass="pasteable"
                	   		value="#{cc.attrs.activity.link}"
-               	   		onkeyup="updateStatusToDraft();"
                	   		validator="youtubeValidator"
                	   		required="true"
 						requiredMessage="Video URL is required"/>
@@ -129,7 +128,6 @@
 	                   		id="inputSlideshareUrl"
 	                   		styleClass="pasteable"
 	                   		value="#{cc.attrs.activity.link}"
-	                   		onkeyup="updateStatusToDraft();"
 	                   		validator="slideshareValidator"
 	                   		required="true"
 	        				requiredMessage="Slideshare URL is required"/>
@@ -232,8 +230,7 @@
 				<div class="formLineRight">
 					<h:selectOneMenu 
 						styleClass="selectpicker"
-						value="#{cc.attrs.activity.resultData.resultType}"
-						onchange="updateStatusToDraft();">
+						value="#{cc.attrs.activity.resultData.resultType}">
 						<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
 							itemValue="#{resType}" itemLabel="#{resType.label}" />
 					</h:selectOneMenu>
@@ -247,8 +244,7 @@
 						id="maxPoints"
 						value="#{cc.attrs.activity.maxPointsString}"
                      	placeholder="e.g. 10"
-                     	converterMessage="Only numbers are allowed"
-                     	onkeyup="updateStatusToDraft();">
+                     	converterMessage="Only numbers are allowed">
                      	<f:convertNumber integerOnly="true"/>
                    	</h:inputText>
                    	<h:message for="maxPoints" style="color:red" />
@@ -259,8 +255,7 @@
 				<div class="formLineRight">
 					<div class="checkbox checkLine">
                 		<h:selectBooleanCheckbox id="checkAutograding1"
-                    		value="#{cc.attrs.activity.autograde}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.autograde}">
                     	</h:selectBooleanCheckbox>
                         <h:outputLabel for="checkAutograding1">
                         	Autograding - When a student marks activity as completed, he will be given maximum number of points.
@@ -268,8 +263,7 @@
 	                </div>
 					<div class="checkbox checkLine">
 						<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
-                    		value="#{cc.attrs.activity.studentCanSeeOtherResponses}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.studentCanSeeOtherResponses}">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkStudentCanSeeOtherResponses">
 							After submission, student can see other responses
@@ -278,8 +272,7 @@
 					</div>
 					<div class="checkbox checkLine">
 						<h:selectBooleanCheckbox id="checkStudentCanEditResponse"
-                    		value="#{cc.attrs.activity.studentCanEditResponse}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.studentCanEditResponse}">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkStudentCanEditResponse">
 							After submission, student can edit their response
@@ -288,8 +281,7 @@
 					</div>
 					<div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
-                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students</label>
                     </div>
@@ -312,7 +304,6 @@
                      	id="inputLaunchUrl"
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.launchUrl}"
-                     	onkeyup="updateStatusToDraft();"
                      	validator="urlValidator"
                      	required="true"
         				requiredMessage="Launch URL is required"/>
@@ -332,7 +323,6 @@
                      	id="inputSecret"
                      	styleClass="pasteable"
                      	value="#{cc.attrs.activity.sharedSecret}"
-                     	onkeyup="updateStatusToDraft();"
                      	required="true"
         				requiredMessage="Shared secret is required"/>
    				     <h:panelGroup 
@@ -349,8 +339,7 @@
                 <div class="formLineRight">
                      <h:inputText 
                      	styleClass="pasteable"
-                     	value="#{cc.attrs.activity.consumerKey}"
-                     	onkeyup="updateStatusToDraft();"/>
+                     	value="#{cc.attrs.activity.consumerKey}"/>
                 </div>
             </div>
             
@@ -361,8 +350,7 @@
 						id="maxPointsExt"
 						value="#{cc.attrs.activity.maxPointsString}"
                      	placeholder="e.g. 10"
-                     	converterMessage="Only numbers are allowed"
-                     	onkeyup="updateStatusToDraft();">
+                     	converterMessage="Only numbers are allowed">
                      	<f:convertNumber integerOnly="true"/>
                    	</h:inputText>
                    	<h:message for="maxPoints" style="color:red" />
@@ -375,7 +363,7 @@
                 	<div class="checkbox checkLine">
                 		<h:selectBooleanCheckbox id="checkAutograding"
                     		value="#{cc.attrs.activity.autograde}"
-                    		onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel'); updateStatusToDraft();">
+                    		onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');">
                     	</h:selectBooleanCheckbox>
                         <h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
                         	Autograding - When a student marks activity as completed, he will be given maximum number of points.
@@ -383,15 +371,14 @@
 	                </div>
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
-                    		value="#{cc.attrs.activity.openInNewWindow}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.openInNewWindow}">
                     	</h:selectBooleanCheckbox>
                         <h:outputLabel for="checkOpenInNewWindow">Open in new window</h:outputLabel>
                     </div>
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkAcceptGrades"
                     		value="#{cc.attrs.activity.acceptGrades}"
-                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel'); updateStatusToDraft();">
+                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');">
                     	</h:selectBooleanCheckbox>
                         <h:outputLabel for="checkAcceptGrades" id="checkAcceptGradesLabel">
                         	Accept grades
@@ -400,8 +387,7 @@
                    
                     <div class="checkbox checkLine">
                     	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled1"
-                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}"
-                    		onchange="updateStatusToDraft();">
+                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
                     	</h:selectBooleanCheckbox>
                         <label for="#{cc.clientId}:checkVisibleToUnenrolled1">This activity should be available to unenrolled students</label>
                     </div>
@@ -411,8 +397,7 @@
 	                    <div class="formLineRight">
 	                    	<h:selectOneMenu 
 								id="selectScoreCalcType" styleClass="selectpicker" 
-								value="#{cc.attrs.activity.scoreCalculation}"
-								onchange="updateStatusToDraft();">
+								value="#{cc.attrs.activity.scoreCalculation}">
 								<f:selectItems value="#{cc.attrs.bean.scoreCalculationTypes}" var="scoreCalc"
 									itemValue="#{scoreCalc}" itemLabel="#{scoreCalc.label}" />
 							</h:selectOneMenu>

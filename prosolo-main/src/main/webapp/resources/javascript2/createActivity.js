@@ -1,18 +1,18 @@
 $(function () {
-	bindPasteEventForUpdatingStatus();
+	//bindPasteEventForUpdatingStatus();
 });
 
 var containerId;
 
-function updateStatusToDraft() {
-	$('#' + containerId + '\\:formMain\\:selectStatus').val('UNPUBLISH').change();
-}
+//function updateStatusToDraft() {
+//	$('#' + containerId + '\\:formMain\\:selectStatus').val('UNPUBLISH').change();
+//}
 
-function bindPasteEventForUpdatingStatus() {
-	$('.pasteable').on('paste', function() {
-		updateStatusToDraft();
-	});
-}
+//function bindPasteEventForUpdatingStatus() {
+//	$('.pasteable').on('paste', function() {
+//		updateStatusToDraft();
+//	});
+//}
 
 function attachListenerForFetchingPageTitle() {
 	$(document).on('paste', document.getElementById('formModalAddUrl:inputUrl'),function(e){
