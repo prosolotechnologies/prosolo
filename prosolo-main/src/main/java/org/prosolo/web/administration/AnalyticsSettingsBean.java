@@ -24,8 +24,8 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name="analyticsSettingsBean")
-@Component("analyticsSettingsBean")
+@ManagedBean(name="otherSettingsBean")
+@Component("otherSettingsBean")
 @Scope("view")
 public class AnalyticsSettingsBean implements Serializable {
 
@@ -84,7 +84,16 @@ public class AnalyticsSettingsBean implements Serializable {
 	}
 	
 	public void prepareSymptomEdit(SymptomData symptom) {
-		symptomForEdit = symptom;
+		this.symptomForEdit = symptom;
+	}
+	
+	public SymptomData getSymptom(long id){
+		for(SymptomData sd : symptoms){
+			if(sd.getId()==id){
+				return sd;
+			}
+		}
+		return null;
 	}
 	
 	public void prepareSuggestionEdit(SuggestionData suggestion){
@@ -187,6 +196,7 @@ public class AnalyticsSettingsBean implements Serializable {
 			}
 
 			if (!valid) {
+				PageUtil.fireErrorMessage("Name already exist!");
 				FacesMessage message = new FacesMessage("The name: '" + value.toString() + "' is taken!");
 				throw new ValidatorException(message);
 			}
