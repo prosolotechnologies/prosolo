@@ -27,11 +27,11 @@ import org.springframework.stereotype.Component;
 @ManagedBean(name="otherSettingsBean")
 @Component("otherSettingsBean")
 @Scope("view")
-public class AnalyticsSettingsBean implements Serializable {
+public class OtherSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = -747140356305370777L;
 	
-	protected static Logger logger = Logger.getLogger(AnalyticsSettingsBean.class);
+	protected static Logger logger = Logger.getLogger(OtherSettingsBean.class);
 	
 	@Inject
 	private SymptomManager symptomManager;
@@ -254,11 +254,6 @@ public class AnalyticsSettingsBean implements Serializable {
 		}
 	}
 
-//	public void prepareSymptomEdit(RowEditEvent event) {
-//		SymptomData sd = (SymptomData) event.getObject();
-//		prepareSymptomEdit(sd);
-//	}
-
 	public void onSymptomEdit(RowEditEvent event) {
 		SymptomData sd = (SymptomData) event.getObject();
 		try {
@@ -270,11 +265,6 @@ public class AnalyticsSettingsBean implements Serializable {
 		}
 		setSymptomForEdit(null);
 	}
-
-//	public void prepareSuggestionEdit(RowEditEvent event) {
-//		SuggestionData sd = (SuggestionData) event.getObject();
-//		prepareSuggestionEdit(sd);
-//	}
 
 	public void onSuggestionEdit(RowEditEvent event) {
 		SuggestionData sd = (SuggestionData) event.getObject();
