@@ -64,38 +64,23 @@
 												update=":formEditSymptom:panelSymptomContent"
 												oncomplete="$('#editSymptomModal').modal('show');">
 					                    	Rename
-					                     </p:commandLink> <a href="#" class="linkRed"
-											data-toggle="modal" data-target="#deleteSymptom1">Delete</a>
-											<div class="modal fade" id="deleteSymptom1" tabindex="-1"
-												role="dialog" aria-labelledby="delSymptom1">
-												<div class="modal-dialog" role="document">
-													<div class="modal-content">
-														<div class="modal-header">
-															<button type="button" class="close" data-dismiss="modal"
-																aria-label="Close">
-																<span aria-hidden="true">&#215;</span>
-															</button>
-															<h2 class="modal-title" id="delSymptom1">Delete
-																Symptom?</h2>
-														</div>
-														<div class="modal-body">
-															<p>
-																Are you sure you want to delete
-																<h:outputText type="text" value="#{symptom.description}">
-																</h:outputText>
-																symptom? <BR /> <BR /> <small>Note: Action can
-																	NOT be un-done!</small>
-															</p>
-														</div>
-														<div class="modal-footer">
-															<p:commandLink value="Delete" styleClass="btn btn-red"
-																action="#{otherSettingsBean.deleteSymptom(symptom)}"
-																update=":symptomForm"></p:commandLink>
-															<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-														</div>
-													</div>
-												</div>
-											</div></td>
+					                     </p:commandLink> 
+					                     <p:commandLink 
+		                              	 	rendered="#{!otherSettingsBean.isSymptomUsed(symptom.id)}"
+		                                	styleClass="linkRed"
+		                                	pt:data-toggle="modal"
+		                                	action="#{otherSettingsBean.prepareSymptomEdit(symptom)}"
+		                                	update=":deleteSymptomModal"
+		                                	oncomplete="$('#deleteModal').modal('show');">
+		                                	Delete
+		                                </p:commandLink>
+		                                <ui:fragment rendered="#{otherSettingsBean.isSymptomUsed(symptom.id)}">
+		                                	<a href="javascript:void(0);" class="linkRed" data-toggle="tooltip" 
+		                                		title="This symptom is used, so it cannot be deleted">
+		                                		Delete
+		                                	</a>
+		                            	</ui:fragment>
+											</td>
 									</tr>
 								</ui:repeat>
 
