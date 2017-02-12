@@ -20,6 +20,7 @@
 	</ui:define>
 
 	<ui:define name="content">
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 
 		<div class="whiteBar"></div>
 
@@ -60,6 +61,7 @@
 												styleClass="btn btn-green-stroke btn-sm"
 												pt:data-toggle="modal"
 												action="#{otherSettingsBean.prepareSymptomEdit(symptom)}"
+												update=":formEditSymptom:panelSymptomContent"
 												oncomplete="$('#editSymptomModal').modal('show');">
 					                    	Rename
 					                     </p:commandLink> <a href="#" class="linkRed"
@@ -194,7 +196,7 @@
 							</div>
 							<div class="modal-body alignLeft">
 								<h:inputText id="inputSymptomName"
-									value="#{symptomForEdit.description}" required="true"
+									value="#{otherSettingsBean.symptomForEdit.description}" required="true"
 									requiredMessage="Name is required"></h:inputText>
 								<h:panelGroup layout="block"
 									rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}"
@@ -205,7 +207,7 @@
 							<div class="modal-footer alignLeft">
 								<p:commandLink styleClass="btn btn-green" value="Save"
 									oncomplete="if (args &amp;&amp; !args.validationFailed)
-									$('#editSymptomModal').modal('hide');"	
+									$('#editSymptomModal').modal('hide');"
 									action="#{otherSettingsBean.updateSymptom()}"
 									update=":formEditSymptom:panelSymptomContent :symptomForm">
 								</p:commandLink>
@@ -217,9 +219,10 @@
 			</div>
 		</h:form>
 		<courses:deleteModalDialog id="deleteSymptomModal"
-			deleteActionMethodName="delete" deleteAction="#{otherSettingsBean.deleteSymptom()}"
-			toUpdate=":symptomForm"
+			deleteActionMethodName="delete"
+			deleteAction="#{otherSettingsBean.deleteSymptom()}"
+			toUpdate=":symptomForm :growlMain" 
 			modalDeleteTitle="symptom"
-			modalDeleteText="symptom '#{symptomForEdit.description}'" />
+			modalDeleteText="symptom '#{otherSettingsBean.symptomForEdit.description}'" />
 	</ui:define>
 </ui:composition>
