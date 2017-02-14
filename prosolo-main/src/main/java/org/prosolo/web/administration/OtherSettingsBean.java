@@ -97,7 +97,7 @@ public class OtherSettingsBean implements Serializable {
 	}
 	
 	public void prepareSuggestionEdit(SuggestionData suggestion){
-		suggestionForEdit = suggestion;
+		this.suggestionForEdit = suggestion;
 	}
 	
 	public void saveSymptom() {
@@ -254,31 +254,6 @@ public class OtherSettingsBean implements Serializable {
 		}
 	}
 
-	public void onSymptomEdit(RowEditEvent event) {
-		SymptomData sd = (SymptomData) event.getObject();
-		try {
-			saveSymptom(sd.getId(), sd.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Symptom successfully updated");
-		} catch (DbConnectionException e) {
-			sd.setDescription(symptomForEdit.getDescription());
-			PageUtil.fireErrorMessage("Error while updating symptom");
-		}
-		setSymptomForEdit(null);
-	}
-
-	public void onSuggestionEdit(RowEditEvent event) {
-		SuggestionData sd = (SuggestionData) event.getObject();
-		try {
-			saveSuggestion(sd.getId(), sd.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Suggestion successfully updated");
-		} catch (DbConnectionException e) {
-			sd.setDescription(suggestionForEdit.getDescription());
-			PageUtil.fireErrorMessage("Error while updating suggestion");
-		}
-		setSuggestionForEdit(null);
-	}
-	 
-	
 	//GETTERS AND SETTERS
 	
 	public List<SymptomData> getSymptoms() {

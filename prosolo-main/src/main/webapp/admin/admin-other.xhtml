@@ -132,11 +132,11 @@
 												rendered="#{!otherSettingsBean.isSuggestionUsed(suggestion.id)}"
 												styleClass="linkRed" pt:data-toggle="modal"
 												action="#{otherSettingsBean.prepareSuggestionEdit(suggestion)}"
-												update=":deleteSuggestionModal"
-												oncomplete="$('#deleteSuggestionModal').modal('show');">
+												update=":formDeleteSuggestionModal:panelDeleteSuggestionContent"
+												oncomplete="$('#deleteSuggestion').modal('show');">
 		                                	Delete
 		                                </p:commandLink> <ui:fragment
-												rendered="#{otherSettingsBean.prepareSuggestionEdit(suggestion)}">
+												rendered="#{otherSettingsBean.isSuggestionUsed(suggestion.id)}">
 												<a href="javascript:void(0);" class="linkRed"
 													data-toggle="tooltip"
 													title="This suggestion is used, so it cannot be deleted">
@@ -234,10 +234,43 @@
 				</div>
 			</div>
 		</h:form>
-		<courses:deleteModalDialog id="deleteSuggestionModal"
-			deleteActionMethodName="delete"
-			deleteAction="#{otherSettingsBean.deleteSuggestion()}"
-			toUpdate=":suggestionForm :growlMain" modalDeleteTitle="suggestion"
-			modalDeleteText="suggestion '#{otherSettingsBean.suggestionForEdit.description}'" />
+		<h:form id="formDeleteSuggestionModal">
+			<div class="modal fade" id="deleteSuggestion" tabindex="-1"
+				role="dialog" aria-labelledby="delSuggestion">
+				<div class="modal-dialog" role="document">
+					<h:panelGroup layout="block" id="panelDeleteSuggestionContent"
+						styleClass="modal-content">
+						<ui:fragment>
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">Delete Suggestion?</h2>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete suggestion
+									#{otherSettingsBean.suggestionForEdit.description}? <BR/>
+									<BR/>
+									<small>Note: Action can NOT be un-done!</small>
+								</p>
+
+							</div>
+							<div class="modal-footer">
+								<p:commandLink styleClass="btn btn-red" value="Delete"
+									oncomplete="if (args &amp;&amp; !args.validationFailed)
+									$('#deleteSuggestion').modal('hide');"
+									action="#{otherSettingsBean.deleteSuggestion()}"
+									update=":formDeleteSuggestionModal:panelDeleteSuggestionContent :growlMain :suggestionForm">
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+
+						</ui:fragment>
+					</h:panelGroup>
+				</div>
+			</div>
+		</h:form>
 	</ui:define>
 </ui:composition>
