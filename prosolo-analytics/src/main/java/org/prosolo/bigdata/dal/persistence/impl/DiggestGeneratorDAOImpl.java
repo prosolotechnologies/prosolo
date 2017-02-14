@@ -1,5 +1,6 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -7,8 +8,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -398,5 +401,82 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			.setFirstResult((page - 1) * limit)
 			.list();
 		return feedEntries;
+	}
+	
+	@Override
+	public List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingTags(
+			List<String> hashtags, LocalDateTime from, LocalDateTime to, int limit, int page, 
+			Session session) {
+		if (hashtags == null || hashtags.isEmpty()) {
+			return new ArrayList<>();
+		}
+		
+		String query = 
+			"SELECT DISTINCT post " +
+			"FROM TwitterPostSocialActivity1 post " +
+			"LEFT JOIN post.hashtags hashtag " + 
+			"WHERE hashtag.title IN (:hashtags) " +
+			"AND post.dateCreated BETWEEN :from AND :to " + 
+			"ORDER BY post.dateCreated DESC ";
+		Query q = session.createQuery(query)
+				.setParameterList("hashtags", hashtags)
+				.setTimestamp("from", DateUtil.toDate(from))
+				.setTimestamp("to", DateUtil.toDate(to)); 
+		if(page > 0) {
+			q.setFirstResult((page - 1) * limit);
+		}
+		if(limit > 0) {
+			q.setMaxResults(limit + 1);
+		}
+		@SuppressWarnings("unchecked")
+		List<TwitterPostSocialActivity1> result = q.list();
+		return result;
+	}
+	
+	@Override
+	public long countTwitterPostSocialActivitiesContainingTags(
+			List<String> hashtags, LocalDateTime from, LocalDateTime to, Session session) {
+		if (hashtags == null || hashtags.isEmpty()) {
+			return 0;
+		}
+		
+		String query = 
+			"SELECT COUNT(DISTINCT post.id) " +
+			"FROM TwitterPostSocialActivity1 post " +
+			"LEFT JOIN post.hashtags hashtag " + 
+			"WHERE hashtag.title IN (:hashtags) " +
+			"AND post.dateCreated BETWEEN :from AND :to";
+		
+		Date fromDate = DateUtil.toDate(from);
+		Date toDate = DateUtil.toDate(to);
+		Long no = (Long) session.createQuery(query)
+				.setParameterList("hashtags", hashtags)
+				.setTimestamp("from", fromDate)
+				.setTimestamp("to", toDate)
+				.uniqueResult();
+		
+		return no != null ? no : 0;
+	}
+	
+	@Override
+	public void incrementNumberOfUsersThatGotEmailForCredentialFeedDigest(
+			List<Long> credIds, LocalDateTime from, LocalDateTime to, Session session) {
+		if (credIds == null || credIds.isEmpty() || from == null || to == null) {
+			throw new IllegalStateException();
+		}
+		
+		String query = 
+			"UPDATE CredentialTwitterHashtagsFeedsDigest digest " +
+			"SET digest.numberOfUsersThatGotEmail = digest.numberOfUsersThatGotEmail + 1 " +
+			"WHERE digest.credential.id IN (:credIds) " +
+			"AND digest.from = :from " +
+			"AND digest.to = :to";
+		int no = session.createQuery(query)
+				.setParameterList("credIds", credIds)
+				.setTimestamp("from", DateUtil.toDate(from))
+				.setTimestamp("to", DateUtil.toDate(to))
+				.executeUpdate();
+		
+		logger.info("Number of credential feed digest counter increments " + no);
 	}
 }

@@ -17,7 +17,7 @@ import org.quartz.SchedulerException;
 
 public class ScheduledResourceVisibilityUpdateObserver implements EventObserver {
 	
-	private CourseDAOImpl courseDAO = new CourseDAOImpl();
+	private CourseDAOImpl courseDAO = new CourseDAOImpl(true);
 	private CompetenceDAOImpl compDAO = new CompetenceDAOImpl();
 	private VisibilityService visibilityService = new ResourceVisibilityServiceImpl();
 	private static Logger logger = Logger.getLogger(ScheduledResourceVisibilityUpdateObserver.class);

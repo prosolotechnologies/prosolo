@@ -4,15 +4,19 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
  
  
 
@@ -331,6 +335,82 @@ public class DateUtil {
 	    return dfFr.format(date);
 	}
 	
+	//java 8 date time
+	
+	public static Date toDate(LocalDateTime ldt) {
+		ZoneId zone = ZoneId.systemDefault();
+		return toDate(ldt, zone);
+	}
+	
+	public static Date toDate(LocalDateTime ldt, ZoneId zone) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return Date.from(ldt.atZone(zone).toInstant());
+	}
+	
+	public static LocalDateTime toLocalDateTime(Date date) {
+		ZoneId zone = ZoneId.systemDefault();
+		return toLocalDateTime(date, zone);
+	}
+	
+	public static LocalDateTime toLocalDateTime(Date date, ZoneId zone) {
+		if(date == null) {
+			throw new NullPointerException();
+		}
+		return date.toInstant().atZone(zone).toLocalDateTime();
+	}
+	
+	public static LocalDateTime yesterday(LocalDateTime ldt) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return ldt.minusDays(1);
+	}
+	
+	public static LocalDateTime weekAgo(LocalDateTime ldt) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return ldt.minusWeeks(1);
+	}
+	
+	public static LocalDateTime getWeekAgoDayStartDateTime(LocalDateTime ldt) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return getDayBeginningDateTime(ldt.minusWeeks(1));
+	}
+	
+	public static LocalDateTime getYesterdayEndDateTime(LocalDateTime ldt) {
+		return getDayEndingDateTime(yesterday(ldt));
+	}
+	
+	public static LocalDateTime getYesterdayBeginningDateTime(LocalDateTime ldt) {
+		return getDayBeginningDateTime(yesterday(ldt));
+	}
+	
+	public static LocalDateTime getDayBeginningDateTime(LocalDateTime ldt) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return ldt.toLocalDate().atStartOfDay();
+	}
+	
+	public static LocalDateTime getDayEndingDateTime(LocalDateTime ldt) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return ldt.with(LocalTime.MAX);
+	}
+	
+	public static boolean isDayOfWeek(LocalDateTime ldt, DayOfWeek day) {
+		if(ldt == null || day == null) {
+			throw new NullPointerException();
+		}
+		return ldt.getDayOfWeek() == day;
+	}
+	
 	public static void main(String[] args) {
 		Calendar cal = new GregorianCalendar();
 		
@@ -341,5 +421,20 @@ public class DateUtil {
 		Date date = new GregorianCalendar(2016, 0, 15).getTime();
 		System.out.println(parseDateWithShortMonthName(date));
 		
+		Date now = new Date();
+		System.out.println("Date " + now);
+		LocalDateTime ldt = LocalDateTime.now();
+		System.out.println("Local date " + ldt);
+		System.out.println("Yesterday local date " +yesterday(ldt));
+		System.out.println("Week ago local date " + weekAgo(ldt));
+		System.out.println("Local date to date " + toDate(ldt));
+		System.out.println("Date to local date " + toLocalDateTime(now));
+		System.out.println("Day beginning " + getDayBeginningDateTime(ldt));
+		System.out.println("Day ending " + getDayEndingDateTime(ldt));
+		System.out.println("Yesterday beginning " + getYesterdayBeginningDateTime(ldt));
+		System.out.println("Yesterday ending " + getYesterdayEndDateTime(ldt));
+		System.out.println("Week ago start " + getWeekAgoDayStartDateTime(ldt));
+		System.out.println("Is monday " + isDayOfWeek(ldt, DayOfWeek.MONDAY));
+		System.out.println("Is friday " + isDayOfWeek(ldt, DayOfWeek.FRIDAY));
 	}
 }

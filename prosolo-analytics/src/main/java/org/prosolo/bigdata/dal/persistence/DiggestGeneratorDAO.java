@@ -1,11 +1,14 @@
 package org.prosolo.bigdata.dal.persistence;
 
  
+import java.time.LocalDateTime;
 //import java.util.Collection;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
@@ -59,6 +62,16 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 
 	List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId,
 			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
+	
+	List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingTags(
+			List<String> hashtags, LocalDateTime from, LocalDateTime to, int limit, int page,
+			Session session);
+	
+	long countTwitterPostSocialActivitiesContainingTags(
+			List<String> hashtags, LocalDateTime from, LocalDateTime to, Session session);
+	
+	void incrementNumberOfUsersThatGotEmailForCredentialFeedDigest(
+			List<Long> credIds, LocalDateTime from, LocalDateTime to, Session session);
 
 	//FeedsPreferences getFeedsPreferences(long userId, Session session);
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.feeds.CourseRSSFeedsDigest;
-import org.prosolo.common.domainmodel.feeds.CourseTwitterHashtagsFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.CredentialTwitterHashtagsFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
 import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
@@ -36,7 +36,7 @@ public class FeedsUtil {
 			case mytweets:
 				return SubscribedTwitterHashtagsFeedsDigest.class.getSimpleName();
 			case coursetweets:
-				return CourseTwitterHashtagsFeedsDigest.class.getSimpleName();
+				return CredentialTwitterHashtagsFeedsDigest.class.getSimpleName();
 		}
 		return SubscribedRSSFeedsDigest.class.getSimpleName();
 	}
@@ -50,7 +50,7 @@ public class FeedsUtil {
 			return FilterOption.coursefeeds;
 		} else if (className.equals(SubscribedTwitterHashtagsFeedsDigest.class.getSimpleName())) {
 			return FilterOption.mytweets;
-		} else if (className.equals(CourseTwitterHashtagsFeedsDigest.class.getSimpleName())) {
+		} else if (className.equals(CredentialTwitterHashtagsFeedsDigest.class.getSimpleName())) {
 			return FilterOption.coursetweets;
 		}
 		return FilterOption.myfeeds;
