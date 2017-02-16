@@ -75,10 +75,12 @@ public class CredentialViewBeanUser implements Serializable {
 	private List<UserData> peersForAssessment;
 	private String peerSearchTerm;
 	private List<Long> peersToExcludeFromSearch;
-
+	private int numberOfTags;
+	
 	public void init() {	
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
+			numberOfTags = credentialManager.getTagsForCredentialCompetences(decodedId).size();
 			try {
 				if("preview".equals(mode)) {
 					credentialData = credentialManager.getCredentialData(decodedId, false, true, 
@@ -403,5 +405,11 @@ public class CredentialViewBeanUser implements Serializable {
 	public List<UserData> getPeersForAssessment() {
 		return peersForAssessment;
 	}
+
+	public int getNumberOfTags() {
+		return numberOfTags;
+	}
+	
+	
 	
 }
