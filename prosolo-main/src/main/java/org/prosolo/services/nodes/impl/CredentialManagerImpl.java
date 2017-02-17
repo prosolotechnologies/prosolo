@@ -2773,6 +2773,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
 			ad.calculateDurationString();
 			ad.setCompetenceId(tActivity.getTargetCompetence().getId());
+			ad.setActivityId(tActivity.getId());
 			data.add(ad);
 		}
 		return data;
