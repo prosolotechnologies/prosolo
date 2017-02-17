@@ -63,11 +63,11 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 	List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId,
 			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
 	
-	List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingTags(
+	List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingHashtags(
 			List<String> hashtags, LocalDateTime from, LocalDateTime to, int limit, int page,
 			Session session);
 	
-	long countTwitterPostSocialActivitiesContainingTags(
+	long countTwitterPostSocialActivitiesContainingHashtags(
 			List<String> hashtags, LocalDateTime from, LocalDateTime to, Session session);
 	
 	void incrementNumberOfUsersThatGotEmailForCredentialFeedDigest(

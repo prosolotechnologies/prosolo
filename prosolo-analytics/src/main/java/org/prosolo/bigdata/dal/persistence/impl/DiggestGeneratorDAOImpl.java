@@ -404,7 +404,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	}
 	
 	@Override
-	public List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingTags(
+	public List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingHashtags(
 			List<String> hashtags, LocalDateTime from, LocalDateTime to, int limit, int page, 
 			Session session) {
 		if (hashtags == null || hashtags.isEmpty()) {
@@ -434,7 +434,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	}
 	
 	@Override
-	public long countTwitterPostSocialActivitiesContainingTags(
+	public long countTwitterPostSocialActivitiesContainingHashtags(
 			List<String> hashtags, LocalDateTime from, LocalDateTime to, Session session) {
 		if (hashtags == null || hashtags.isEmpty()) {
 			return 0;

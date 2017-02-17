@@ -332,7 +332,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 			logger.info("Aggregating course hashtags tweets for the credential " + credId);
 			if (hashtags != null && !hashtags.isEmpty()) {
 				long numberOfPosts =  diggestGeneratorDAO
-						.countTwitterPostSocialActivitiesContainingTags(hashtags, from, to, session);
+						.countTwitterPostSocialActivitiesContainingHashtags(hashtags, from, to, session);
 					
 				if (numberOfPosts > 0) {
 					CredentialTwitterHashtagsFeedsDigest credTwitterDigest = 
@@ -576,7 +576,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					List<String> hashtags = courseDAO.getCredentialHashtags(
 							credId, session);
 					List<TwitterPostSocialActivity1> entries =  diggestGeneratorDAO
-							.getTwitterPostSocialActivitiesContainingTags(
+							.getTwitterPostSocialActivitiesContainingHashtags(
 									hashtags, from, to, limit, 1, session);
 					if(entries != null && !entries.isEmpty()) {
 						//there are posts for this credential so we add its id to the list
