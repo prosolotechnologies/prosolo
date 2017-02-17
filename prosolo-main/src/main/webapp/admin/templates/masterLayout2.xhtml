@@ -18,7 +18,8 @@
 		<meta charset="utf-8"></meta>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<link rel="icon" href="#{request.contextPath}/favicon.ico"
+			type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
 
@@ -53,35 +54,35 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access')}">
+					<c:if
+						test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access')}">
 						<div class="dropdown roleChanger">
-							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
-							<ul class="dropdown-menu dropdown-menu-left bullet pull-left" aria-labelledby="dropdownRoleMenu">
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.user.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+							<a data-toggle="dropdown" aria-haspopup="true"
+								aria-expanded="true">role changer</a>
+							<ul class="dropdown-menu dropdown-menu-left bullet pull-left"
+								aria-labelledby="dropdownRoleMenu">
+								<li><h:link
+										rendered="#{loggeduser.hasCapability('basic.user.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
 										outcome="/index">
 										<span></span>Student
-									</h:link>
-								</li>
-								<li>
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
-										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
+									</h:link></li>
+								<li><h:link
+										rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
 										outcome="/manage/credentialLibrary">
 										<span></span>Manage
-									</h:link>
-								</li>
-								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
-										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
+									</h:link></li>
+								<li class="selected"><h:link
+										rendered="#{loggeduser.hasCapability('basic.admin.access')}"
+										onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
 										outcome="/admin/users">
 										<span></span>Admin
-									</h:link>
-								</li>
+									</h:link></li>
 							</ul>
 						</div>
 					</c:if>
-					
+
 					<h:link id="logo"
 						onclick="sendLogPageNavigation('index','mainmenu');"
 						outcome="/admin/users">
@@ -93,7 +94,8 @@
 							<ui:remove>
 								<li role="presentation"
 									class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
-									<h:link onclick="sendLogPageNavigation('dashboard','mainmenu');"
+									<h:link
+										onclick="sendLogPageNavigation('dashboard','mainmenu');"
 										value="Dashboard" outcome="/admin/dashboard" />
 								</li>
 							</ui:remove>
@@ -114,43 +116,38 @@
 										value="Twitter" outcome="/admin/users" />
 								</li>
 							</ui:remove>
-							<ui:remove>
-								<li role="presentation"
-									class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
-									<h:link onclick="sendLogPageNavigation('other','mainmenu');"
-										value="Other" outcome="/admin/users" />
-								</li>
-							</ui:remove>
+							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('other','mainmenu');"
+									value="Other" outcome="/admin/other" />
+							</li>
 						</ul>
 					</nav>
 				</div>
 				<div class="headerTopRight">
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" 
-							process="@this"
-							update=":messagesLink :notificationsIcon :notificationsContainer" 
-							widgetVar="messagesPoll" 
-							autoStart="true" />
+						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
+							update=":messagesLink :notificationsIcon :notificationsContainer"
+							widgetVar="messagesPoll" autoStart="true" />
 					</h:form>
-					
-					<h:link id="messagesLink" class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
+
+					<h:link id="messagesLink"
+						class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
 						onclick="sendLogPageNavigation('messages','mainmenu');"
 						outcome="/admin/messages">
 						Messages
-						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
-							unreadDot
-						</span>
+						<span
+							class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+							unreadDot </span>
 					</h:link>
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="notificationsIcon"
-							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}" 
-							pt:data-toggle="dropdown" 
-							pt:aria-haspopup="true" 
+							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}"
+							pt:data-toggle="dropdown" pt:aria-haspopup="true"
 							pt:aria-expanded="true"
 							action="#{topNotificationsBean1.markNotificationsAsRead}"
-							process="@this"
-							update="notificationLoop @this">
+							process="@this" update="notificationLoop @this">
 							
 							Notifications
 							
@@ -159,13 +156,15 @@
 									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
-					
-						<h:panelGroup layout="block" id="notificationsContainer" 
+
+						<h:panelGroup layout="block" id="notificationsContainer"
 							class="dropdown-menu bullet pull-center"
 							aria-labelledby="dropdownMenuNotifications">
-							
-							<ui:repeat id="notificationLoop" var="notificationData" value="#{topNotificationsBean1.notificationDatas}">
-								<li class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+
+							<ui:repeat id="notificationLoop" var="notificationData"
+								value="#{topNotificationsBean1.notificationDatas}">
+								<li
+									class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
 										(notificationData.notificationType eq 'Comment') ? 'notifComment':
 										(notificationData.notificationType eq 'AnnouncementPublished') ? 'notifAnnouncement' :
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
@@ -173,7 +172,8 @@
 										(notificationData.notificationType eq 'Assessment_Requested' or 
 											notificationData.notificationType eq 'Assessment_Approved' or 
 											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
-									<h:outputLink value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
+									<h:outputLink
+										value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
 										<h3>#{notificationData.actor.fullName}</h3> 
 										#{notificationData.predicate}
@@ -182,36 +182,29 @@
 									</h:outputLink>
 								</li>
 							</ui:repeat>
-							
-							<li class="linkAllNotifications">
-								<h:link value="View all"
+
+							<li class="linkAllNotifications"><h:link value="View all"
 									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/notifications" />
-							</li>
+									outcome="/notifications" /></li>
 						</h:panelGroup>
 					</div>
 
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
-							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-								<utilcomp:userAvatar
-									avatar="#{loggeduser.avatar}"
-									fullName="#{loggeduser.fullName}" />
-									
+							<a data-toggle="dropdown" aria-haspopup="true"
+								aria-expanded="true"> <utilcomp:userAvatar
+									avatar="#{loggeduser.avatar}" fullName="#{loggeduser.fullName}" />
+
 								<span class="arrowDown">arrowDown</span>
 							</a>
 
-							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
-								<li>
-									<h:link value="Account Settings" 
+							<ul class="dropdown-menu dropdown-menu-right bullet pull-right"
+								aria-labelledby="dropdownMenu1">
+								<li><h:link value="Account Settings"
 										onclick="sendLogPageNavigation('settings','mainmenu');"
-										outcome="/admin/settings" />
-								</li>
-								<li>
-									<h:commandLink id="userLogout" 
-										value="Sign Out" 
-										action="#{loggeduser.userLogout()}" />
-								</li>
+										outcome="/admin/settings" /></li>
+								<li><h:commandLink id="userLogout" value="Sign Out"
+										action="#{loggeduser.userLogout()}" /></li>
 							</ul>
 						</div>
 					</h:form>
