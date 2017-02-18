@@ -85,6 +85,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private List<UserData> peersForAssessment;
 	private String peerSearchTerm;
 	private List<Long> peersToExcludeFromSearch;
+	
 	private int numberOfTags;
 	private CredentialData enrolledStudent;
 
