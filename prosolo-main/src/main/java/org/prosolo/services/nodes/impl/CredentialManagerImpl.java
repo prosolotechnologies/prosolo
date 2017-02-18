@@ -415,6 +415,20 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getFullTargetCredentialOrCredentialDataForPreview(long credentialId, long userId)
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+		CredentialData credData = null;
+		try {
+			credData = getTargetCredentialData(credentialId, userId, true);
+			return credData;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
 
 	@Transactional(readOnly = true)
 	private CredentialData getTargetCredentialData(long credentialId, long userId, 

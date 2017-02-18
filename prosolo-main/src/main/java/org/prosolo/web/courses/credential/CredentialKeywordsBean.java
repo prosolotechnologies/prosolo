@@ -1,9 +1,11 @@
 package org.prosolo.web.courses.credential;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -11,10 +13,13 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.nodes.AnnotationUtil;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +35,9 @@ public class CredentialKeywordsBean {
 	@Inject
 	private UrlIdEncoder idEncoder;
 
+	@Autowired
+	private LoggedUserBean loggedUser;
+
 	private String id;
 	private List<TagCountData> tags;
 	private List<TagCountData> selectedKeywords;
@@ -38,15 +46,27 @@ public class CredentialKeywordsBean {
 	private List<ActivityData> activities;
 	private String chosenKeywordsString;
 	private List<CompetenceData1> filteredCompetences;
+	private CredentialData enrolledStudent;
 
 	public void init() {
-		selectedKeywords = new ArrayList<>();
-		filteredCompetences = new ArrayList<>();
-		tags = credentialManager.getTagsForCredentialCompetences(idEncoder.decodeId(id));
-		competences = credentialManager.getTargetCompetencesForKeywordSearch(idEncoder.decodeId(id));
-		activities = credentialManager.getTargetActivityForKeywordSearch(idEncoder.decodeId(id));
-		filterCompetences();
-		logger.info("init");
+		enrolledStudent = credentialManager.getFullTargetCredentialOrCredentialDataForPreview(idEncoder.decodeId(id), loggedUser.getSessionData().getUserId());
+		if (enrolledStudent != null) {
+			selectedKeywords = new ArrayList<>();
+			filteredCompetences = new ArrayList<>();
+			tags = credentialManager.getTagsForCredentialCompetences(idEncoder.decodeId(id));
+			competences = credentialManager.getTargetCompetencesForKeywordSearch(idEncoder.decodeId(id));
+			activities = credentialManager.getTargetActivityForKeywordSearch(idEncoder.decodeId(id));
+			filterCompetences();
+			logger.info("init");
+		} else {
+			try {
+				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				logger.error(ioe);
+			}
+		}
+
 	}
 
 	public List<CompetenceData1> getFilteredCompetences() {

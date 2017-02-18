@@ -413,4 +413,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getCredentialAccessRights(long credId, long userId, 
 			UserGroupPrivilege neededPrivilege) throws DbConnectionException;
+
+	CredentialData getFullTargetCredentialOrCredentialDataForPreview(long credentialId, long userId)
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 }
