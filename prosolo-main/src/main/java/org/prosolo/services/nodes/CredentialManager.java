@@ -416,4 +416,6 @@ public interface CredentialManager extends AbstractManager {
 
 	CredentialData getFullTargetCredentialOrCredentialDataForPreview(long credentialId, long userId)
 			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+
+	int getNumberOfTags(long credentialId) throws DbConnectionException;
 }

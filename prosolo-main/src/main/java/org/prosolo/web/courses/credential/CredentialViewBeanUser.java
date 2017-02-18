@@ -49,66 +49,80 @@ public class CredentialViewBeanUser implements Serializable {
 	private static final long serialVersionUID = 2225577288550403383L;
 
 	private static Logger logger = Logger.getLogger(CredentialViewBeanUser.class);
+
+	@Inject
+	private LoggedUserBean loggedUser;
+	@Inject
+	private CredentialManager credentialManager;
+	@Inject
+	private Activity1Manager activityManager;
+	@Inject
+	private UrlIdEncoder idEncoder;
+	@Inject
+	private AssessmentManager assessmentManager;
+	@Autowired
+	@Qualifier("taskExecutor")
+	private ThreadPoolTaskExecutor taskExecutor;
+	@Autowired
+	private EventFactory eventFactory;
+	@Autowired
+	private TextSearch textSearch;
 	
-	@Inject private LoggedUserBean loggedUser;
-	@Inject private CredentialManager credentialManager;
-	@Inject private Activity1Manager activityManager;
-	@Inject private UrlIdEncoder idEncoder;
-	@Inject private AssessmentManager assessmentManager;
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Autowired private EventFactory eventFactory;
-	@Autowired private TextSearch textSearch;
 
 	private String id;
 	private long decodedId;
 	private String mode;
 	private boolean justEnrolled;
-	
+
 	private long numberOfUsersLearningCred;
-	
+
 	private CredentialData credentialData;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
 	private boolean noRandomAssessor = false;
-	
+
 	// used for search in the Ask for Assessment modal
 	private List<UserData> peersForAssessment;
 	private String peerSearchTerm;
 	private List<Long> peersToExcludeFromSearch;
 	private int numberOfTags;
-	
-	public void init() {	
+	private CredentialData enrolledStudent;
+
+	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
-			numberOfTags = credentialManager.getTagsForCredentialCompetences(decodedId).size();
+			enrolledStudent = credentialManager.getFullTargetCredentialOrCredentialDataForPreview(
+					idEncoder.decodeId(id), loggedUser.getSessionData().getUserId());
+			if (enrolledStudent != null) {
+				numberOfTags = credentialManager.getNumberOfTags(decodedId);
+			}
 			try {
-				if("preview".equals(mode)) {
-					credentialData = credentialManager.getCredentialData(decodedId, false, true, 
-							loggedUser.getUserId(), UserGroupPrivilege.Edit);
+				if ("preview".equals(mode)) {
+					credentialData = credentialManager.getCredentialData(decodedId, false, true, loggedUser.getUserId(),
+							UserGroupPrivilege.Edit);
 					ResourceCreator rc = new ResourceCreator();
 					rc.setFullName(loggedUser.getFullName());
 					rc.setAvatarUrl(loggedUser.getAvatar());
 					credentialData.setCreator(rc);
 				} else {
-					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId, 
+					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId,
 							loggedUser.getUserId());
-					if(justEnrolled) {
-						PageUtil.fireSuccessfulInfoMessage("You have enrolled in the credential " + 
-								credentialData.getTitle());
+					if (justEnrolled) {
+						PageUtil.fireSuccessfulInfoMessage(
+								"You have enrolled in the credential " + credentialData.getTitle());
 					}
 				}
-		
-				if(credentialData.isEnrolled()) {
-					numberOfUsersLearningCred = credentialManager
-							.getNumberOfUsersLearningCredential(decodedId);
+
+				if (credentialData.isEnrolled()) {
+					numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
 				}
-			} catch(ResourceNotFoundException rnfe) {
+			} catch (ResourceNotFoundException rnfe) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();
 				PageUtil.fireErrorMessage("Error while retrieving credential data");
@@ -122,66 +136,63 @@ public class CredentialViewBeanUser implements Serializable {
 			}
 		}
 	}
-	
+
 	public boolean isCurrentUserCreator() {
-		return credentialData == null || credentialData.getCreator() == null ? false : 
-			credentialData.getCreator().getId() == loggedUser.getUserId();
+		return credentialData == null || credentialData.getCreator() == null ? false
+				: credentialData.getCreator().getId() == loggedUser.getUserId();
 	}
-	
- 	public String getLabelForCredential() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
- 	}
- 	
+
+	public String getLabelForCredential() {
+		if (isPreview()) {
+			return "(Preview)";
+		} else if (isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
+			return "(Unpublished)";
+		} else {
+			return "";
+		}
+	}
+
 	public boolean isPreview() {
 		return "preview".equals(mode);
 	}
-	
+
 	/*
 	 * ACTIONS
 	 */
-	
+
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
-		if(!cd.isActivitiesInitialized()) {
+		if (!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
-			if(cd.isEnrolled()) {
+			if (cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), 
-						isPreview());
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
 			}
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
 	}
-	
+
 	public void enrollInCredential() {
 		try {
 			LearningContextData lcd = new LearningContextData();
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			CredentialData cd = credentialManager.enrollInCredential(decodedId, 
-					loggedUser.getUserId(), lcd);
+			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
 			credentialData = cd;
-			numberOfUsersLearningCred = credentialManager
-					.getNumberOfUsersLearningCredential(decodedId);
-		} catch(DbConnectionException e) {
+			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
-	
+
 	public boolean hasMoreCompetences(int index) {
 		return credentialData.getCompetences().size() != index + 1;
 	}
-	
+
 	/*
 	 * Ask for Assessment modal
 	 */
@@ -191,41 +202,43 @@ public class CredentialViewBeanUser implements Serializable {
 		peersForAssessment = null;
 		peerSearchTerm = null;
 	}
-	
+
 	public void chooseRandomPeerForAssessor() {
 		resetAskForAssessmentModal();
-		
+
 		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
-		
+
 		if (randomPeer != null) {
 			assessmentRequestData.setAssessorId(randomPeer.getId());
 			assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
 			assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
 			noRandomAssessor = false;
 		} else {
-			noRandomAssessor = true;;
+			noRandomAssessor = true;
+			;
 		}
 	}
-	
+
 	public void searchCredentialPeers() {
 		if (peerSearchTerm == null && peerSearchTerm.isEmpty()) {
 			peersForAssessment = null;
 		} else {
 			try {
 				if (peersToExcludeFromSearch == null) {
-					peersToExcludeFromSearch = credentialManager.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
+					peersToExcludeFromSearch = credentialManager
+							.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
-				
-				TextSearchResponse1<UserData> result = textSearch
-						.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
+
+				TextSearchResponse1<UserData> result = textSearch.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3,
+						decodedId, peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				logger.error(e);
 			}
 		}
 	}
-	
+
 	public void setupAssessmentRequestRecepient() {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String id = params.get("assessmentRecipient");
@@ -233,17 +246,18 @@ public class CredentialViewBeanUser implements Serializable {
 			assessmentRequestData.setAssessorId(Long.valueOf(id));
 		}
 	}
-	
+
 	public void setAssessor(UserData assessorData) {
 		assessmentRequestData.setAssessorId(assessorData.getId());
 		assessmentRequestData.setAssessorFullName(assessorData.getFullName());
 		assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
-		
+
 		noRandomAssessor = false;
 	}
-	
+
 	public void submitAssessment() {
-		//at this point, assessor should be set either from credential data or user-submitted peer id
+		// at this point, assessor should be set either from credential data or
+		// user-submitted peer id
 		if (assessmentRequestData.isAssessorSet()) {
 			populateAssessmentRequestFields();
 			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
@@ -256,39 +270,39 @@ public class CredentialViewBeanUser implements Serializable {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext, service);
+			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
+					service);
 
 			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
-			
+
 			if (peersToExcludeFromSearch != null) {
 				peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
 			}
-		}
-		else {
-			logger.error("Student "+ loggedUser.getFullName() + " tried to submit assessment request for credential : " 
+		} else {
+			logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
 					+ credentialData.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
 		resetAskForAssessmentModal();
 	}
 
-	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext, String service) {
+	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
+			String service) {
 		taskExecutor.execute(() -> {
 			User assessor = new User();
 			assessor.setId(assessorId);
 			CredentialAssessment assessment = new CredentialAssessment();
 			assessment.setId(assessmentId);
-			Map<String,String> parameters = new HashMap<>();
-			parameters.put("credentialId", decodedId+""); 
+			Map<String, String> parameters = new HashMap<>();
+			parameters.put("credentialId", decodedId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), 
-						assessment, assessor, 
+				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), assessment, assessor,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}
 		});
-		
+
 	}
 
 	private void populateAssessmentRequestFields() {
@@ -297,27 +311,27 @@ public class CredentialViewBeanUser implements Serializable {
 		assessmentRequestData.setCredentialId(credentialData.getId());
 		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
-	
+
 	public boolean userHasAssessmentForCredential() {
-		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUserId(), 
+		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUserId(),
 				decodedId);
-		if(assessmentCount > 0) {
-			logger.debug("We found "+assessmentCount+" assessments for user "
-						+ loggedUser.getUserId() + "for credential"+decodedId);
+		if (assessmentCount > 0) {
+			logger.debug("We found " + assessmentCount + " assessments for user " + loggedUser.getUserId()
+					+ "for credential" + decodedId);
 			return true;
 		}
 		return false;
 	}
-	
+
 	public String getAssessmentIdForUser() {
-		return idEncoder.encodeId(assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), 
-				credentialData.getTargetCredId()));
+		return idEncoder.encodeId(
+				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
 	}
-	
+
 	/*
 	 * GETTERS / SETTERS
 	 */
-	
+
 	public String getId() {
 		return id;
 	}
@@ -409,7 +423,5 @@ public class CredentialViewBeanUser implements Serializable {
 	public int getNumberOfTags() {
 		return numberOfTags;
 	}
-	
-	
-	
+
 }

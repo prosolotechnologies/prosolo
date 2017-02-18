@@ -2731,6 +2731,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 		return tags;
 	}
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfTags(long credentialId) throws DbConnectionException {
+
+		return getTagsForCredentialCompetences(credentialId).size();
+	}
 
 	@Override
 	@Transactional(readOnly = true)
