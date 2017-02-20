@@ -12,9 +12,10 @@
     <artifactId>spark-jobs</artifactId>
     <packaging>jar</packaging>
     <properties>
-        <spark.version>2.0.2</spark.version>
+        <spark.version>2.1.0</spark.version>
         <scala.version>2.11.6</scala.version>
         <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
+        <!--cassandra-java-driver.version>3.0.0</cassandra-java-driver.version-->
     </properties>
 <dependencies>
     <dependency>
@@ -81,17 +82,17 @@
         <version>${spark-cassandra-connector.version}</version>
     </dependency>
 
-    <dependency>
+    <!--dependency>
         <groupId>com.datastax.cassandra</groupId>
         <artifactId>cassandra-driver-core</artifactId>
-        <version>3.1.0</version>
+        <version>${cassandra-java-driver.version}</version>
         <exclusions>
             <exclusion>
                 <artifactId>guava</artifactId>
                 <groupId>com.google.guava</groupId>
             </exclusion>
         </exclusions>
-    </dependency>
+    </dependency-->
     <dependency>
         <groupId>com.typesafe.play</groupId>
         <artifactId>play-json_2.11</artifactId>
@@ -241,6 +242,17 @@
                         <configuration>
                             <finalName>spark-jobs-one-jar</finalName>
                             <minimizeJar>true</minimizeJar>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>org/datanucleus/**</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>

@@ -17,12 +17,13 @@
 		<jersey2.version>2.23</jersey2.version>
 		<jaxrs.version>2.0.1</jaxrs.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>2.0.2</spark.version>
+		<spark.version>2.1.0</spark.version>
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
 	    <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
+		<cassandra-java-driver.version>3.0.0</cassandra-java-driver.version>
 	</properties>
 	<repositories>
 		<!-- boilerpipe repo -->
@@ -481,33 +482,31 @@
 			<groupId>com.datastax.spark</groupId>
 			<artifactId>spark-cassandra-connector_2.11</artifactId>
 			<version>${spark-cassandra-connector.version}</version>
-			<!--exclusions>
-			<-exclusion>
+			<exclusions>
+			<!--exclusion>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-handler</artifactId>
-			</exclusion>
-			</exclusions-->
+			</exclusion-->
+			</exclusions>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-core</artifactId>
-			<version>3.1.0</version>
-			<!--classifier>shaded</classifier-->
-			<!-- Because the shaded JAR uses the original POM, you still need
-                 to exclude this dependency explicitly: -->
+			<version>${cassandra-java-driver.version}</version>
+
 			<exclusions>
-				<!--exclusion>
+				<exclusion>
 					<groupId>io.netty</groupId>
 					<artifactId>*</artifactId>
-				</exclusion-->
+				</exclusion>
 				<exclusion>
 					<artifactId>guava</artifactId>
 					<groupId>com.google.guava</groupId>
 				</exclusion>
 			</exclusions>
-			<!--version>2.1.4</version-->
-		</dependency>
+			<version>2.1.4</version>
+		</dependency-->
 		<!--dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport-native-epoll</artifactId>
