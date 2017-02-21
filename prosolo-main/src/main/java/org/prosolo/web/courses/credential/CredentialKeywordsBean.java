@@ -73,7 +73,6 @@ public class CredentialKeywordsBean {
 	private String chosenKeywordsString;
 	private List<CompetenceData1> filteredCompetences;
 	private CredentialData enrolledStudent;
-	private CredentialData credentialData;
 	private long numberOfUsersLearningCred;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
@@ -85,15 +84,13 @@ public class CredentialKeywordsBean {
 
 	public void init() {
 		enrolledStudent = credentialManager.getTargetCredentialData(idEncoder.decodeId(id),
-				loggedUser.getSessionData().getUserId(), true);
+				loggedUser.getSessionData().getUserId(), false);
 		if (enrolledStudent != null) {
-			credentialData = credentialManager.getCredentialData(idEncoder.decodeId(id), false, true,
-					loggedUser.getUserId(), UserGroupPrivilege.Edit);
 			selectedKeywords = new ArrayList<>();
 			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsForCredentialCompetences(credentialData.getTargetCredId());
-			competences = credentialManager.getTargetCompetencesForKeywordSearch(credentialData.getTargetCredId());
-			activities = credentialManager.getTargetActivityForKeywordSearch(credentialData.getTargetCredId());
+			tags = credentialManager.getTagsForCredentialCompetences(enrolledStudent.getTargetCredId());
+			competences = credentialManager.getTargetCompetencesForKeywordSearch(enrolledStudent.getTargetCredId());
+			activities = credentialManager.getTargetActivityForKeywordSearch(enrolledStudent.getTargetCredId());
 			filterCompetences();
 			logger.info("init");
 		} else {
@@ -135,8 +132,12 @@ public class CredentialKeywordsBean {
 		return id;
 	}
 
-	public CredentialData getCredentialData() {
-		return credentialData;
+	public CredentialData getEnrolledStudent() {
+		return enrolledStudent;
+	}
+
+	public void setEnrolledStudent(CredentialData enrolledStudent) {
+		this.enrolledStudent = enrolledStudent;
 	}
 
 	public long getNumberOfUsersLearningCred() {
@@ -291,7 +292,7 @@ public class CredentialKeywordsBean {
 
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(
-				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
+				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), enrolledStudent.getTargetCredId()));
 	}
 
 	public void searchCredentialPeers() {
@@ -301,7 +302,7 @@ public class CredentialKeywordsBean {
 			try {
 				if (peersToExcludeFromSearch == null) {
 					peersToExcludeFromSearch = credentialManager
-							.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
+							.getAssessorIdsForUserAndCredential(enrolledStudent.getId(), loggedUser.getUserId());
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
@@ -317,7 +318,7 @@ public class CredentialKeywordsBean {
 	public void chooseRandomPeerForAssessor() {
 		resetAskForAssessmentModal();
 
-		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
+		UserData randomPeer = credentialManager.chooseRandomPeer(enrolledStudent.getId(), loggedUser.getUserId());
 
 		if (randomPeer != null) {
 			assessmentRequestData.setAssessorId(randomPeer.getId());
@@ -372,16 +373,16 @@ public class CredentialKeywordsBean {
 			}
 		} else {
 			logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
-					+ credentialData.getId() + ", but credential has no assessor/instructor set!");
+					+ enrolledStudent.getId() + ", but credential has no assessor/instructor set!");
 			PageUtil.fireErrorMessage("No assessor set");
 		}
 		resetAskForAssessmentModal();
 	}
 	private void populateAssessmentRequestFields() {
-		assessmentRequestData.setCredentialTitle(credentialData.getTitle());
+		assessmentRequestData.setCredentialTitle(enrolledStudent.getTitle());
 		assessmentRequestData.setStudentId(loggedUser.getUserId());
-		assessmentRequestData.setCredentialId(credentialData.getId());
-		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
+		assessmentRequestData.setCredentialId(enrolledStudent.getId());
+		assessmentRequestData.setTargetCredentialId(enrolledStudent.getTargetCredId());
 	}
 	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
 			String service) {
