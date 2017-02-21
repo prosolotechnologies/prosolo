@@ -495,7 +495,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new IllegalArgumentException();
 			}
 			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
-			
 			if(cred == null) {
 				throw new ResourceNotFoundException();
 			}
@@ -517,9 +516,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
 			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred,
 					cred.getTags(), cred.getHashtags(), true);
+			TargetCredential1 targetCred = getTargetCredential(credentialId, userId, loadCreatorData, false);
 			credData.setCanEdit(priv == UserGroupPrivilege.Edit);
 			credData.setCanAccess(canAccess);
-			
+			credData.setTargetCredId(targetCred.getId());
 			if(loadCompetences) {
 				/*
 				 * if edit privilege is needed for use case, we should include information
