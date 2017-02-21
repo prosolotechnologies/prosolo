@@ -84,16 +84,16 @@ public class CredentialKeywordsBean {
 	private boolean noRandomAssessor = false;
 
 	public void init() {
-		enrolledStudent = credentialManager.getFullTargetCredentialOrCredentialDataForPreview(idEncoder.decodeId(id),
-				loggedUser.getSessionData().getUserId());
+		enrolledStudent = credentialManager.getTargetCredentialData(idEncoder.decodeId(id),
+				loggedUser.getSessionData().getUserId(), true);
 		if (enrolledStudent != null) {
 			credentialData = credentialManager.getCredentialData(idEncoder.decodeId(id), false, true,
 					loggedUser.getUserId(), UserGroupPrivilege.Edit);
 			selectedKeywords = new ArrayList<>();
 			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsForCredentialCompetences(idEncoder.decodeId(id));
-			competences = credentialManager.getTargetCompetencesForKeywordSearch(idEncoder.decodeId(id));
-			activities = credentialManager.getTargetActivityForKeywordSearch(idEncoder.decodeId(id));
+			tags = credentialManager.getTagsForCredentialCompetences(credentialData.getTargetCredId());
+			competences = credentialManager.getTargetCompetencesForKeywordSearch(credentialData.getTargetCredId());
+			activities = credentialManager.getTargetActivityForKeywordSearch(credentialData.getTargetCredId());
 			filterCompetences();
 			logger.info("init");
 		} else {
@@ -275,23 +275,6 @@ public class CredentialKeywordsBean {
 				filterCompetences();
 				break;
 			}
-		}
-	}
-
-	public void enrollInCredential() {
-		try {
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
-			lcd.setLearningContext(PageUtil.getPostParameter("context"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			CredentialData cd = credentialManager.enrollInCredential(idEncoder.decodeId(id), loggedUser.getUserId(),
-					lcd);
-			credentialData = cd;
-			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(idEncoder.decodeId(id));
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
-			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
 

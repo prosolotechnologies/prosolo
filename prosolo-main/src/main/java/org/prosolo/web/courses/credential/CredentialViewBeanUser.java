@@ -92,11 +92,8 @@ public class CredentialViewBeanUser implements Serializable {
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
-			enrolledStudent = credentialManager.getFullTargetCredentialOrCredentialDataForPreview(
-					idEncoder.decodeId(id), loggedUser.getSessionData().getUserId());
-			if (enrolledStudent != null) {
-				numberOfTags = credentialManager.getNumberOfTags(decodedId);
-			}
+			enrolledStudent = credentialManager.getTargetCredentialData(
+					idEncoder.decodeId(id), loggedUser.getSessionData().getUserId(), true);
 			try {
 				if ("preview".equals(mode)) {
 					credentialData = credentialManager.getCredentialData(decodedId, false, true, loggedUser.getUserId(),
@@ -116,6 +113,7 @@ public class CredentialViewBeanUser implements Serializable {
 
 				if (credentialData.isEnrolled()) {
 					numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
+					numberOfTags = credentialManager.getNumberOfTags(credentialData.getTargetCredId());
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				try {
