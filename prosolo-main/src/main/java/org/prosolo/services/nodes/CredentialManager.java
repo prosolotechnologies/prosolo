@@ -413,4 +413,9 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getCredentialAccessRights(long credId, long userId, 
 			UserGroupPrivilege neededPrivilege) throws DbConnectionException;
+
+	int getNumberOfTags(long credentialId) throws DbConnectionException;
+
+	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+			throws DbConnectionException;
 }

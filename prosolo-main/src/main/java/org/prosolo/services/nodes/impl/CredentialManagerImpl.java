@@ -416,8 +416,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
 	@Transactional(readOnly = true)
-	private CredentialData getTargetCredentialData(long credentialId, long userId, 
+	public CredentialData getTargetCredentialData(long credentialId, long userId, 
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
@@ -494,7 +495,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new IllegalArgumentException();
 			}
 			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
-			
 			if(cred == null) {
 				throw new ResourceNotFoundException();
 			}
@@ -518,7 +518,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cred.getTags(), cred.getHashtags(), true);
 			credData.setCanEdit(priv == UserGroupPrivilege.Edit);
 			credData.setCanAccess(canAccess);
-			
 			if(loadCompetences) {
 				/*
 				 * if edit privilege is needed for use case, we should include information
@@ -2717,6 +2716,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 		return tags;
 	}
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfTags(long credentialId) throws DbConnectionException {
+
+		return getTagsForCredentialCompetences(credentialId).size();
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -2741,7 +2746,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cd.setDuration(competence.getDuration());
 			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
 			cd.setCredentialId(competence.getTargetCredential().getId());
-			cd.setCompetenceId(competence.getId());
+			cd.setCompetenceId(competence.getCompetence().getId());
 			cd.setTargetCompId(competence.getId());
 			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
 			data.add(cd);
@@ -2772,7 +2777,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			ad.setDurationHours((int) (tActivity.getDuration() / 60));
 			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
 			ad.calculateDurationString();
-			ad.setCompetenceId(tActivity.getTargetCompetence().getId());
+			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
+			ad.setActivityId(tActivity.getActivity().getId());
 			data.add(ad);
 		}
 		return data;
