@@ -2746,7 +2746,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cd.setDuration(competence.getDuration());
 			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
 			cd.setCredentialId(competence.getTargetCredential().getId());
-			cd.setCompetenceId(competence.getId());
+			cd.setCompetenceId(competence.getCompetence().getId());
 			cd.setTargetCompId(competence.getId());
 			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
 			data.add(cd);
@@ -2777,8 +2777,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			ad.setDurationHours((int) (tActivity.getDuration() / 60));
 			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
 			ad.calculateDurationString();
-			ad.setCompetenceId(tActivity.getTargetCompetence().getId());
-			ad.setActivityId(tActivity.getId());
+			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
+			ad.setActivityId(tActivity.getActivity().getId());
 			data.add(ad);
 		}
 		return data;
