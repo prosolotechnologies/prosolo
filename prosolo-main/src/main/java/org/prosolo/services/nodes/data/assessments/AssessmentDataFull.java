@@ -36,39 +36,40 @@ public class AssessmentDataFull {
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
 			long userId, DateFormat dateFormat) {
-		
-		AssessmentDataFull data = new AssessmentDataFull();
-		data.setMessage(assessment.getMessage());
-		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
-		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
-		if(assessment.getAssessor() != null) {
-			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
-			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
-			data.setAssessorId(assessment.getAssessor().getId());
-		}
-		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
-		data.setTitle(assessment.getTargetCredential().getTitle());
-		data.setApproved(assessment.isApproved());
-		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
-		data.setEncodedId(encoder.encodeId(assessment.getId()));
-		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
-		data.setDuration(assessment.getTargetCredential().getDuration());
-		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-		data.setDefaultAssessment(assessment.isDefaultAssessment());
-		data.setPoints(assessment.getPoints());
-		
-		int maxPoints = 0;
-		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
-		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
-			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
-			maxPoints += compData.getMaxPoints();
-			compDatas.add(compData);
-		}
-		data.setMaxPoints(maxPoints);
-		data.setCompetenceAssessmentData(compDatas);
-		data.setInitials(getInitialsFromName(data.getStudentFullName()));
-		return data;
+		//TODO cred-redesign-07
+//		AssessmentDataFull data = new AssessmentDataFull();
+//		data.setMessage(assessment.getMessage());
+//		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
+//		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
+//		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
+//		if(assessment.getAssessor() != null) {
+//			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+//			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+//			data.setAssessorId(assessment.getAssessor().getId());
+//		}
+//		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
+//		data.setTitle(assessment.getTargetCredential().getTitle());
+//		data.setApproved(assessment.isApproved());
+//		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
+//		data.setEncodedId(encoder.encodeId(assessment.getId()));
+//		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
+//		data.setDuration(assessment.getTargetCredential().getDuration());
+//		data.setTargetCredentialId(assessment.getTargetCredential().getId());
+//		data.setDefaultAssessment(assessment.isDefaultAssessment());
+//		data.setPoints(assessment.getPoints());
+//		
+//		int maxPoints = 0;
+//		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
+//		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
+//			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
+//			maxPoints += compData.getMaxPoints();
+//			compDatas.add(compData);
+//		}
+//		data.setMaxPoints(maxPoints);
+//		data.setCompetenceAssessmentData(compDatas);
+//		data.setInitials(getInitialsFromName(data.getStudentFullName()));
+//		return data;
+		return null;
 	}
 
 	private static String getInitialsFromName(String fullname) {

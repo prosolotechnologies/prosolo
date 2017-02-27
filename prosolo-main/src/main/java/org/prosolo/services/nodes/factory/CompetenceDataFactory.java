@@ -68,38 +68,40 @@ public class CompetenceDataFactory {
 	
 	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 competence, 
 			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
-		CompetenceData1 comp = new CompetenceData1(false);
-		comp.setCompetenceId(competence.getCompetence().getId());
-		comp.setOrder(competence.getOrder());
-		comp.setTitle(competence.getTitle());
-		comp.setDescription(competence.getDescription());
-		comp.setDuration(competence.getDuration());
-		comp.setType(competence.getType());
-		comp.setTargetCompId(competence.getId());
-		comp.setEnrolled(true);
-		comp.setProgress(competence.getProgress());
-		comp.setNextActivityToLearnId(competence.getNextActivityToLearnId());
-		if(user != null) {
-			ResourceCreator creator = new ResourceCreator(user.getId(), 
-					getFullName(user.getName(), user.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
-					user.getPosition());
-			comp.setCreator(creator);
-		}
-		if(tags != null) {
-			comp.setTags(tags);
-			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
-		}
-		
-		if(cred != null) {
-			comp.setCredentialId(cred.getId());
-			comp.setCredentialTitle(cred.getTitle());
-		}
-		if(shouldTrackChanges) {
-			comp.startObservingChanges();
-		}
-		
-		return comp;
+		//TODO cred-redesign-07
+//		CompetenceData1 comp = new CompetenceData1(false);
+//		comp.setCompetenceId(competence.getCompetence().getId());
+//		comp.setOrder(competence.getOrder());
+//		comp.setTitle(competence.getTitle());
+//		comp.setDescription(competence.getDescription());
+//		comp.setDuration(competence.getDuration());
+//		comp.setType(competence.getType());
+//		comp.setTargetCompId(competence.getId());
+//		comp.setEnrolled(true);
+//		comp.setProgress(competence.getProgress());
+//		comp.setNextActivityToLearnId(competence.getNextActivityToLearnId());
+//		if(user != null) {
+//			ResourceCreator creator = new ResourceCreator(user.getId(), 
+//					getFullName(user.getName(), user.getLastname()),
+//					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
+//					user.getPosition());
+//			comp.setCreator(creator);
+//		}
+//		if(tags != null) {
+//			comp.setTags(tags);
+//			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+//		}
+//		
+//		if(cred != null) {
+//			comp.setCredentialId(cred.getId());
+//			comp.setCredentialTitle(cred.getTitle());
+//		}
+//		if(shouldTrackChanges) {
+//			comp.startObservingChanges();
+//		}
+//		
+//		return comp;
+		return null;
 	}
 	
 	private String getFullName(String name, String lastName) {

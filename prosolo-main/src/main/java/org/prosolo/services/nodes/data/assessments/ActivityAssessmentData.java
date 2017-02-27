@@ -52,61 +52,63 @@ public class ActivityAssessmentData {
 	
 	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
 			UrlIdEncoder encoder, long userId) {
-		ActivityAssessmentData data = new ActivityAssessmentData();
-		populateTypeSpecificData(data, targetActivity.getActivity());
-		populateIds(data,targetActivity,compAssessment);
-		//populateDownloadResourceLink(targetActivity,data);
-		data.setResultType(targetActivity.getResultType());
-		data.setResult(targetActivity.getResult());
-		data.setTitle(targetActivity.getTitle());
-		data.setCompleted(targetActivity.isCompleted());
-		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
-//		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
-//		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
-		data.getGrade().setMinGrade(0);
-		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
-		data.setCompAssessmentId(compAssessment.getId());
-		data.setCredAssessmentId(compAssessment.getCredentialAssessment().getId());
-		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
-		
-		if (activityDiscussion != null) {
-			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
-			
-			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
-			
-			if (currentParticipant != null) {
-				data.setParticipantInDiscussion(true);
-				data.setAllRead(currentParticipant.isRead());
-			} else {
-				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-				data.setAllRead(false);
-				data.setParticipantInDiscussion(false);
-			}
-			
-			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
-			
-			if (CollectionUtils.isNotEmpty(messages)) {
-				data.setActivityDiscussionMessageData(new ArrayList<>());
-				data.setNumberOfMessages(activityDiscussion.getMessages().size());
-				for (ActivityDiscussionMessage activityMessage : messages) {
-					ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
-							compAssessment, encoder);
-					data.getActivityDiscussionMessageData().add(messageData);
-				}
-			}
-//			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
-			data.getGrade().setValue(activityDiscussion.getPoints());
-			if(data.getGrade().getValue() < 0) {
-				data.getGrade().setValue(0);
-			} else {
-				data.getGrade().setAssessed(true);
-			}
-		}
-		//there are no discussions/messages for this activity, set it as 'all read'
-		else {
-			data.setParticipantInDiscussion(false);
-		}
-		return data;
+		//TODO cred-redesign-07
+//		ActivityAssessmentData data = new ActivityAssessmentData();
+//		populateTypeSpecificData(data, targetActivity.getActivity());
+//		populateIds(data,targetActivity,compAssessment);
+//		//populateDownloadResourceLink(targetActivity,data);
+//		data.setResultType(targetActivity.getResultType());
+//		data.setResult(targetActivity.getResult());
+//		data.setTitle(targetActivity.getTitle());
+//		data.setCompleted(targetActivity.isCompleted());
+//		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
+////		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
+////		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+//		data.getGrade().setMinGrade(0);
+//		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
+//		data.setCompAssessmentId(compAssessment.getId());
+//		data.setCredAssessmentId(compAssessment.getCredentialAssessment().getId());
+//		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
+//		
+//		if (activityDiscussion != null) {
+//			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
+//			
+//			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+//			
+//			if (currentParticipant != null) {
+//				data.setParticipantInDiscussion(true);
+//				data.setAllRead(currentParticipant.isRead());
+//			} else {
+//				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+//				data.setAllRead(false);
+//				data.setParticipantInDiscussion(false);
+//			}
+//			
+//			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+//			
+//			if (CollectionUtils.isNotEmpty(messages)) {
+//				data.setActivityDiscussionMessageData(new ArrayList<>());
+//				data.setNumberOfMessages(activityDiscussion.getMessages().size());
+//				for (ActivityDiscussionMessage activityMessage : messages) {
+//					ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+//							compAssessment, encoder);
+//					data.getActivityDiscussionMessageData().add(messageData);
+//				}
+//			}
+////			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
+//			data.getGrade().setValue(activityDiscussion.getPoints());
+//			if(data.getGrade().getValue() < 0) {
+//				data.getGrade().setValue(0);
+//			} else {
+//				data.getGrade().setAssessed(true);
+//			}
+//		}
+//		//there are no discussions/messages for this activity, set it as 'all read'
+//		else {
+//			data.setParticipantInDiscussion(false);
+//		}
+//		return data;
+		return null;
 	}
 
 	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {

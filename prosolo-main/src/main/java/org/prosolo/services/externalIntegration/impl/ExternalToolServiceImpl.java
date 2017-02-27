@@ -16,8 +16,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -140,8 +140,8 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				Transaction transaction = null;
 				try {
 					transaction = session.beginTransaction();
-					ExternalToolTargetActivity1 ta = (ExternalToolTargetActivity1) session.get(
-							ExternalToolTargetActivity1.class, targetActivityId);
+					TargetActivity1 ta = (TargetActivity1) session.get(
+							TargetActivity1.class, targetActivityId);
 					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
 							ExternalToolActivity1.class, activityId);
 					
@@ -149,7 +149,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						int maxPoints = act.getMaxPoints();
 						int scaledGrade = (int) Math.round(score * maxPoints);
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
-						int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
+						int calculatedScore = calculateScoreBasedOnCalculationType(ta, act.getScoreCalculation(),
 							scaledGrade);
 						if(calculatedScore >= 0) {
 							int prevScore = ta.getCommonScore();
@@ -190,13 +190,13 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		return response;
 	}
 	
-	private int calculateScoreBasedOnCalculationType(ExternalToolTargetActivity1 ta, int newScore) {
+	private int calculateScoreBasedOnCalculationType(TargetActivity1 ta, ScoreCalculation scoreCalculation, 
+			int newScore) {
 		int previousScore = ta.getCommonScore();
 		int numberOfAttempts = ta.getNumberOfAttempts();
 		if(numberOfAttempts == 0) {
 			return newScore;
 		}
-		ScoreCalculation scoreCalculation = ta.getScoreCalculation();
 		if(scoreCalculation == null) {
 			return -1;
 		}

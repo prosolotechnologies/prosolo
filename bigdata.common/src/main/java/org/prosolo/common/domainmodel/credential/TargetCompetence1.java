@@ -2,55 +2,38 @@ package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"competence", "user"})})
 public class TargetCompetence1 extends BaseEntity {
 
 	private static final long serialVersionUID = -841797705769618698L;
 
 	private int progress;
-	private TargetCredential1 targetCredential;
 	private Competence1 competence;
+	private User user;
 	private List<TargetActivity1> targetActivities;
 	private boolean hiddenFromProfile;
-    private LearningResourceType type;
-	
-	private long duration;
-	private Set<Tag> tags;
-	private boolean studentAllowedToAddActivities;
-	
-	private int order;
-	//is competence added by student
-	private boolean added;
-	
-	private User createdBy;
 	
 	private Date dateCompleted;
 	
 	private long nextActivityToLearnId;
 	
 	public TargetCompetence1() {
-		tags = new HashSet<>();
 		targetActivities = new ArrayList<>();
 	}
 
@@ -60,16 +43,6 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setProgress(int progress) {
 		this.progress = progress;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
-	public TargetCredential1 getTargetCredential() {
-		return targetCredential;
-	}
-
-	public void setTargetCredential(TargetCredential1 targetCredential) {
-		this.targetCredential = targetCredential;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -99,57 +72,6 @@ public class TargetCompetence1 extends BaseEntity {
 	public void setHiddenFromProfile(boolean hiddenFromProfile) {
 		this.hiddenFromProfile = hiddenFromProfile;
 	}
-
-	public long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
-
-	@ManyToMany
-	public Set<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
-	}
-
-	public boolean isStudentAllowedToAddActivities() {
-		return studentAllowedToAddActivities;
-	}
-
-	public void setStudentAllowedToAddActivities(boolean studentAllowedToAddActivities) {
-		this.studentAllowedToAddActivities = studentAllowedToAddActivities;
-	}
-
-	@Column(name = "compOrder")
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public boolean isAdded() {
-		return added;
-	}
-
-	public void setAdded(boolean added) {
-		this.added = added;
-	}
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	public User getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}
 	
 	public Date getDateCompleted() {
 		return dateCompleted;
@@ -166,13 +88,15 @@ public class TargetCompetence1 extends BaseEntity {
 	public void setNextActivityToLearnId(long nextActivityToLearnId) {
 		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
-	
-	@Enumerated(EnumType.STRING)
-	public LearningResourceType getType() {
-		return type;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public User getUser() {
+		return user;
 	}
 
-	public void setType(LearningResourceType type) {
-		this.type = type;
+	public void setUser(User user) {
+		this.user = user;
 	}
+	
 }

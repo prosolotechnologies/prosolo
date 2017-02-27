@@ -51,7 +51,6 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", cred.getId());
-			builder.field("published", cred.isPublished());
 			builder.field("title", cred.getTitle());
 			builder.field("description", cred.getDescription());
 			Date date = cred.getDateCreated();

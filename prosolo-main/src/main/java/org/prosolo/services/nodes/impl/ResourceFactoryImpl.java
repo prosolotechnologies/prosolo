@@ -896,37 +896,39 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		boolean compOrderMandatory, boolean published, long duration, 
     		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
-			 Credential1 cred = new Credential1();
-		     cred.setCreatedBy(loadResource(User.class, creatorId));
-		     cred.setType(type);
-		     cred.setTitle(title);
-		     cred.setDescription(description);
-		     cred.setDateCreated(new Date());
-		     cred.setCompetenceOrderMandatory(compOrderMandatory);
-		     cred.setPublished(published);
-		     cred.setDuration(duration);
-		     //cred.setVisible(visible);
-		     cred.setScheduledPublishDate(scheduledDate);
-		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-		     cred.setManuallyAssignStudents(manuallyAssign);
-		     
-		     saveEntity(cred);
-		     
-		     if(comps != null) {
-				for(CompetenceData1 cd : comps) {
-					CredentialCompetence1 cc = new CredentialCompetence1();
-					cc.setOrder(cd.getOrder());
-					cc.setCredential(cred);
-					Competence1 comp = (Competence1) persistence.currentManager().load(
-							Competence1.class, cd.getCompetenceId());
-					cc.setCompetence(comp);
-					saveEntity(cc);
-				}
-			 }
-		
-		     logger.info("New credential is created with id " + cred.getId());
-		     return cred;
+    		 //TODO cred-redesign-07
+//			 Credential1 cred = new Credential1();
+//		     cred.setCreatedBy(loadResource(User.class, creatorId));
+//		     cred.setType(type);
+//		     cred.setTitle(title);
+//		     cred.setDescription(description);
+//		     cred.setDateCreated(new Date());
+//		     cred.setCompetenceOrderMandatory(compOrderMandatory);
+//		     cred.setPublished(published);
+//		     cred.setDuration(duration);
+//		     //cred.setVisible(visible);
+//		     cred.setScheduledPublishDate(scheduledDate);
+//		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
+//		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
+//		     cred.setManuallyAssignStudents(manuallyAssign);
+//		     
+//		     saveEntity(cred);
+//		     
+//		     if(comps != null) {
+//				for(CompetenceData1 cd : comps) {
+//					CredentialCompetence1 cc = new CredentialCompetence1();
+//					cc.setOrder(cd.getOrder());
+//					cc.setCredential(cred);
+//					Competence1 comp = (Competence1) persistence.currentManager().load(
+//							Competence1.class, cd.getCompetenceId());
+//					cc.setCompetence(comp);
+//					saveEntity(cc);
+//				}
+//			 }
+//		
+//		     logger.info("New credential is created with id " + cred.getId());
+//		     return cred;
+    		 return null;
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);

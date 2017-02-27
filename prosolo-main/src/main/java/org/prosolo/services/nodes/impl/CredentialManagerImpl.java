@@ -422,25 +422,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
-
-			if (res != null) {
-				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
-						res, res.getTags(), res.getHashtags(), true);
-				
-				//retrieve privilege to be able to tell if user can edit credential
-				UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
-				credData.setCanEdit(priv == UserGroupPrivilege.Edit);
-				//target credential can always be accessed
-				credData.setCanAccess(true);
-				
-				if(credData != null && loadCompetences) {
-					List<CompetenceData1> targetCompData = compManager
-							.getTargetCompetencesData(res.getId(), false);
-					credData.setCompetences(targetCompData);
-				}
-				return credData;
-			}
+			//TODO cred-redesign-07
+//			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
+//
+//			if (res != null) {
+//				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
+//						res, res.getTags(), res.getHashtags(), true);
+//				
+//				//retrieve privilege to be able to tell if user can edit credential
+//				UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
+//				credData.setCanEdit(priv == UserGroupPrivilege.Edit);
+//				//target credential can always be accessed
+//				credData.setCanAccess(true);
+//				
+//				if(credData != null && loadCompetences) {
+//					List<CompetenceData1> targetCompData = compManager
+//							.getTargetCompetencesData(res.getId(), false);
+//					credData.setCompetences(targetCompData);
+//				}
+//				return credData;
+//			}
+//			return null;
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -491,53 +493,55 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences, long userId, UserGroupPrivilege privilege) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
-			if(privilege == null) {
-				throw new IllegalArgumentException();
-			}
-			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
-			if(cred == null) {
-				throw new ResourceNotFoundException();
-			}
-			
-			UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
-			
-			/*
-			 * user can access credential:
-			 *  - when he has the right privilege and
-			 *  - when credential is published if user has View privilege
-			 */
-			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			
-			//user can't access credential with View privilege if credential is not published
-			if(canAccess && priv == UserGroupPrivilege.View && !cred.isPublished()) {
-				canAccess = false;
-			}
-			
-			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
-			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred,
-					cred.getTags(), cred.getHashtags(), true);
-			credData.setCanEdit(priv == UserGroupPrivilege.Edit);
-			credData.setCanAccess(canAccess);
-			if(loadCompetences) {
-				/*
-				 * if edit privilege is needed for use case, we should include information
-				 * wheter user can edit competences.
-				 */
-				boolean includeCanEdit = privilege == UserGroupPrivilege.Edit;
-				/*
-				 * we should include not published competences if Edit privilege is needed
-				 * for this use case and user has Edit privilege, or if None privilege is needed
-				 */
-				boolean includeNotPublished = privilege == UserGroupPrivilege.Edit 
-						&& priv == UserGroupPrivilege.Edit 
-						|| privilege == UserGroupPrivilege.None;
-				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, includeNotPublished, includeCanEdit, 
-						userId);
-				credData.setCompetences(compsData);
-			}
-	
-			return credData;
+			//TODO cred-redesign-07
+//			if(privilege == null) {
+//				throw new IllegalArgumentException();
+//			}
+//			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
+//			if(cred == null) {
+//				throw new ResourceNotFoundException();
+//			}
+//			
+//			UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
+//			
+//			/*
+//			 * user can access credential:
+//			 *  - when he has the right privilege and
+//			 *  - when credential is published if user has View privilege
+//			 */
+//			boolean canAccess = privilege.isPrivilegeIncluded(priv);
+//			
+//			//user can't access credential with View privilege if credential is not published
+//			if(canAccess && priv == UserGroupPrivilege.View && !cred.isPublished()) {
+//				canAccess = false;
+//			}
+//			
+//			User createdBy = loadCreatorData ? cred.getCreatedBy() : null;
+//			CredentialData credData = credentialFactory.getCredentialData(createdBy, cred,
+//					cred.getTags(), cred.getHashtags(), true);
+//			credData.setCanEdit(priv == UserGroupPrivilege.Edit);
+//			credData.setCanAccess(canAccess);
+//			if(loadCompetences) {
+//				/*
+//				 * if edit privilege is needed for use case, we should include information
+//				 * wheter user can edit competences.
+//				 */
+//				boolean includeCanEdit = privilege == UserGroupPrivilege.Edit;
+//				/*
+//				 * we should include not published competences if Edit privilege is needed
+//				 * for this use case and user has Edit privilege, or if None privilege is needed
+//				 */
+//				boolean includeNotPublished = privilege == UserGroupPrivilege.Edit 
+//						&& priv == UserGroupPrivilege.Edit 
+//						|| privilege == UserGroupPrivilege.None;
+//				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
+//						credentialId, false, false , false, includeNotPublished, includeCanEdit, 
+//						userId);
+//				credData.setCompetences(compsData);
+//			}
+//	
+//			return credData;
+			return null;
 		} catch (ResourceNotFoundException rfe) {
 			throw rfe;
 		} catch(IllegalArgumentException iae) {
@@ -784,83 +788,85 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Credential1> updateCredentialData(CredentialData data, long creatorId) {
-		Result<Credential1> res = new Result<>();
-		Credential1 credToUpdate = (Credential1) persistence.currentManager()
-				.load(Credential1.class, data.getId());
-		
-		credToUpdate.setTitle(data.getTitle());
-		credToUpdate.setDescription(data.getDescription());
-		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
-		credToUpdate.setPublished(data.isPublished());
-		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
-		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
-		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
-		//credToUpdate.setVisible(data.isCredVisible());
-		credToUpdate.setScheduledPublishDate(data.getScheduledPublishDate());
-		
-    	if(data.isTagsStringChanged()) {
-    		credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
-    				data.getTagsString())));		     
-    	}
-    	if(data.isHashtagsStringChanged()) {
-    		credToUpdate.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
-    				data.getHashtagsString())));
-    	}
-	   
-		List<CompetenceData1> comps = data.getCompetences();
-	    if(comps != null) {
-	    	/*
-			 * List of competence ids so we can call method that will publish all draft
-			 * competences
-			 */
-			List<Long> compIds = new ArrayList<>();
-    		Iterator<CompetenceData1> compIterator = comps.iterator();
-    		while(compIterator.hasNext()) {
-    			CompetenceData1 cd = compIterator.next();
-	    		switch(cd.getObjectStatus()) {
-	    			case CREATED:
-	    				CredentialCompetence1 cc1 = new CredentialCompetence1();
-	    				cc1.setOrder(cd.getOrder());
-	    				cc1.setCredential(credToUpdate);
-	    				Competence1 comp = (Competence1) persistence.currentManager().load(
-	    						Competence1.class, cd.getCompetenceId());
-	    				cc1.setCompetence(comp);
-	    				saveEntity(cc1);
-	    				compIds.add(cd.getCompetenceId());
-	    				//if competence is added to credential
-	    				User user = new User();
-	    				user.setId(creatorId);
-	    				Competence1 competence = new Competence1();
-	    				competence.setId(comp.getId());
-	    				res.addEvent(generateEvent(EventType.Attach, user, competence, credToUpdate));
-	    				break;
-	    			case CHANGED:
-	    				CredentialCompetence1 cc2 = (CredentialCompetence1) persistence.currentManager().load(
-			    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
-	    				cc2.setOrder(cd.getOrder());
-	    				compIds.add(cd.getCompetenceId());
-	    				break;
-	    			case REMOVED:
-	    				CredentialCompetence1 cc3 = (CredentialCompetence1) persistence.currentManager().load(
-			    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
-	    				delete(cc3);
-	    				break;
-	    			case UP_TO_DATE:
-	    				compIds.add(cd.getCompetenceId());
-	    				break;
-	    		}
-	    	}
-	    	
-	    	if(data.isPublished()) {
-    			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
-	    		List<EventData> events = compManager.publishCompetences(data.getId(), compIds, creatorId);
-	    		res.addEvents(events);
-    		}
-	    }
-	    persistence.currentManager().flush();
-	    credToUpdate.setDuration(getRecalculatedDuration(data.getId()));
-	    res.setResult(credToUpdate);
-	    return res;
+		//TODO cred-redesign-07
+//		Result<Credential1> res = new Result<>();
+//		Credential1 credToUpdate = (Credential1) persistence.currentManager()
+//				.load(Credential1.class, data.getId());
+//		
+//		credToUpdate.setTitle(data.getTitle());
+//		credToUpdate.setDescription(data.getDescription());
+//		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
+//		credToUpdate.setPublished(data.isPublished());
+//		credToUpdate.setStudentsCanAddCompetences(data.isStudentsCanAddCompetences());
+//		credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
+//		credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
+//		//credToUpdate.setVisible(data.isCredVisible());
+//		credToUpdate.setScheduledPublishDate(data.getScheduledPublishDate());
+//		
+//    	if(data.isTagsStringChanged()) {
+//    		credToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+//    				data.getTagsString())));		     
+//    	}
+//    	if(data.isHashtagsStringChanged()) {
+//    		credToUpdate.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+//    				data.getHashtagsString())));
+//    	}
+//	   
+//		List<CompetenceData1> comps = data.getCompetences();
+//	    if(comps != null) {
+//	    	/*
+//			 * List of competence ids so we can call method that will publish all draft
+//			 * competences
+//			 */
+//			List<Long> compIds = new ArrayList<>();
+//    		Iterator<CompetenceData1> compIterator = comps.iterator();
+//    		while(compIterator.hasNext()) {
+//    			CompetenceData1 cd = compIterator.next();
+//	    		switch(cd.getObjectStatus()) {
+//	    			case CREATED:
+//	    				CredentialCompetence1 cc1 = new CredentialCompetence1();
+//	    				cc1.setOrder(cd.getOrder());
+//	    				cc1.setCredential(credToUpdate);
+//	    				Competence1 comp = (Competence1) persistence.currentManager().load(
+//	    						Competence1.class, cd.getCompetenceId());
+//	    				cc1.setCompetence(comp);
+//	    				saveEntity(cc1);
+//	    				compIds.add(cd.getCompetenceId());
+//	    				//if competence is added to credential
+//	    				User user = new User();
+//	    				user.setId(creatorId);
+//	    				Competence1 competence = new Competence1();
+//	    				competence.setId(comp.getId());
+//	    				res.addEvent(generateEvent(EventType.Attach, user, competence, credToUpdate));
+//	    				break;
+//	    			case CHANGED:
+//	    				CredentialCompetence1 cc2 = (CredentialCompetence1) persistence.currentManager().load(
+//			    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
+//	    				cc2.setOrder(cd.getOrder());
+//	    				compIds.add(cd.getCompetenceId());
+//	    				break;
+//	    			case REMOVED:
+//	    				CredentialCompetence1 cc3 = (CredentialCompetence1) persistence.currentManager().load(
+//			    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
+//	    				delete(cc3);
+//	    				break;
+//	    			case UP_TO_DATE:
+//	    				compIds.add(cd.getCompetenceId());
+//	    				break;
+//	    		}
+//	    	}
+//	    	
+//	    	if(data.isPublished()) {
+//    			//compManager.publishDraftCompetencesWithoutDraftVersion(compIds);
+//	    		List<EventData> events = compManager.publishCompetences(data.getId(), compIds, creatorId);
+//	    		res.addEvents(events);
+//    		}
+//	    }
+//	    persistence.currentManager().flush();
+//	    credToUpdate.setDuration(getRecalculatedDuration(data.getId()));
+//	    res.setResult(credToUpdate);
+//	    return res;
+		return null;
 	}
 	
 	@Transactional(readOnly = true)
@@ -914,99 +920,101 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			long instructorThatForcedEnrollId, LearningContextData context, Class[] observersToExclude) 
 			throws DbConnectionException {
 		try {
-			Result<CredentialData> result = new Result<>();
-			
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			
-			Credential1 cred = getCredential(credentialId, false, 0);
-			TargetCredential1 targetCred = createTargetCredential(cred, user);
-			long instructorId = 0;
-			String page = null;
-			String lContext = null;
-			String service = null;
-			if(context != null) {
-				page = context.getPage();
-				lContext = context.getLearningContext();
-				service = context.getService();
-			}
-			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
-					!cred.isManuallyAssignStudents()) {
-				List<TargetCredential1> targetCredIds = new ArrayList<>();
-				targetCredIds.add(targetCred);
-				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
-						credentialId, targetCredIds, 0, false);
-				List<StudentInstructorPair> assigned = res.getAssigned();
-				if(assigned.size() == 1) {
-					StudentInstructorPair pair = assigned.get(0);
-					//we need user id, not instructor id
-					instructorId = pair.getInstructor().getUser().getId();
-					
-					User target = new User();
-					target.setId(instructorId);
-					User object = new User();
-					object.setId(userId);
-					Map<String, String> params = new HashMap<>();
-					params.put("credId", credentialId + "");
-					if(instructorThatForcedEnrollId > 0) {
-						params.put("forcedEnroll", "true");
-						params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-					}
-					result.addFiredEvent(eventFactory.generateEvent(
-							EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-							userId, object, target, 
-							page, lContext, service, 
-							observersToExclude, params));
-//					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-//							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
-				}
-	    	}
-			
-			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
-				//create default assessment for user
-				assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
-			}
-			
-			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
-					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
-			
-			List<TargetCompetence1> comps = targetCred.getTargetCompetences();
-			if(comps != null) {
-				for(TargetCompetence1 tc : comps) {
-					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
-							null, true);
-					cd.getCompetences().add(compData);
-				}
-			}
-			
-			/*
-			 * Loaded user instance is not used because that would lead to select query
-			 * when trying to get name of a user while capturing ENROLL_COURSE event.
-			 */
-			User actor = new User();
-			actor.setId(userId);
-			Map<String, String> params = new HashMap<>();
-			params.put("instructorId", instructorId + "");
-			String dateString = null;
-			Date date = targetCred.getDateCreated();
-			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateString = df.format(date);
-			}
-			params.put("dateEnrolled", dateString);
-			if(instructorThatForcedEnrollId > 0) {
-				params.put("forcedEnroll", "true");
-				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-			}
-			result.addFiredEvent(eventFactory.generateEvent(
-					EventType.ENROLL_COURSE, 
-					actor.getId(), cred, null, 
-					page, lContext, service, 
-					observersToExclude, params));
-//			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-//					page, lContext, service, params);
-			
-			result.setResult(cd);
-			return result;
+			//TODO cred-redesign-07
+//			Result<CredentialData> result = new Result<>();
+//			
+//			User user = (User) persistence.currentManager().load(User.class, userId);
+//			
+//			Credential1 cred = getCredential(credentialId, false, 0);
+//			TargetCredential1 targetCred = createTargetCredential(cred, user);
+//			long instructorId = 0;
+//			String page = null;
+//			String lContext = null;
+//			String service = null;
+//			if(context != null) {
+//				page = context.getPage();
+//				lContext = context.getLearningContext();
+//				service = context.getService();
+//			}
+//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
+//					!cred.isManuallyAssignStudents()) {
+//				List<TargetCredential1> targetCredIds = new ArrayList<>();
+//				targetCredIds.add(targetCred);
+//				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
+//						credentialId, targetCredIds, 0, false);
+//				List<StudentInstructorPair> assigned = res.getAssigned();
+//				if(assigned.size() == 1) {
+//					StudentInstructorPair pair = assigned.get(0);
+//					//we need user id, not instructor id
+//					instructorId = pair.getInstructor().getUser().getId();
+//					
+//					User target = new User();
+//					target.setId(instructorId);
+//					User object = new User();
+//					object.setId(userId);
+//					Map<String, String> params = new HashMap<>();
+//					params.put("credId", credentialId + "");
+//					if(instructorThatForcedEnrollId > 0) {
+//						params.put("forcedEnroll", "true");
+//						params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
+//					}
+//					result.addFiredEvent(eventFactory.generateEvent(
+//							EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+//							userId, object, target, 
+//							page, lContext, service, 
+//							observersToExclude, params));
+////					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
+////							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
+//				}
+//	    	}
+//			
+//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+//				//create default assessment for user
+//				assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+//			}
+//			
+//			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
+//					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
+//			
+//			List<TargetCompetence1> comps = targetCred.getTargetCompetences();
+//			if(comps != null) {
+//				for(TargetCompetence1 tc : comps) {
+//					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
+//							null, true);
+//					cd.getCompetences().add(compData);
+//				}
+//			}
+//			
+//			/*
+//			 * Loaded user instance is not used because that would lead to select query
+//			 * when trying to get name of a user while capturing ENROLL_COURSE event.
+//			 */
+//			User actor = new User();
+//			actor.setId(userId);
+//			Map<String, String> params = new HashMap<>();
+//			params.put("instructorId", instructorId + "");
+//			String dateString = null;
+//			Date date = targetCred.getDateCreated();
+//			if(date != null) {
+//				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//				dateString = df.format(date);
+//			}
+//			params.put("dateEnrolled", dateString);
+//			if(instructorThatForcedEnrollId > 0) {
+//				params.put("forcedEnroll", "true");
+//				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
+//			}
+//			result.addFiredEvent(eventFactory.generateEvent(
+//					EventType.ENROLL_COURSE, 
+//					actor.getId(), cred, null, 
+//					page, lContext, service, 
+//					observersToExclude, params));
+////			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
+////					page, lContext, service, params);
+//			
+//			result.setResult(cd);
+//			return result;
+			return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1031,53 +1039,55 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
-		TargetCredential1 targetCred = new TargetCredential1();
-		targetCred.setTitle(cred.getTitle());
-		targetCred.setDescription(cred.getDescription());
-		targetCred.setCredential(cred);
-		targetCred.setUser(user);
-		Date now = new Date();
-		targetCred.setDateCreated(now);
-		targetCred.setDateStarted(now);
-		targetCred.setLastAction(now);
-		targetCred.setCredentialType(cred.getType());
-
-		if(cred.getTags() != null) {
-			Set<Tag> tags = new HashSet<>();
-			for(Tag tag : cred.getTags()) {
-				tags.add(tag);
-			}
-			targetCred.setTags(tags);
-		}
-		
-		if(cred.getHashtags() != null) {
-			Set<Tag> hashtags = new HashSet<>();
-			for(Tag tag : cred.getHashtags()) {
-				hashtags.add(tag);
-			}
-			targetCred.setHashtags(hashtags);
-		}
-		
-		targetCred.setDuration(cred.getDuration());
-		targetCred.setStudentsCanAddCompetences(cred.isStudentsCanAddCompetences());
-		targetCred.setCompetenceOrderMandatory(cred.isCompetenceOrderMandatory());
-		targetCred.setCreatedBy(cred.getCreatedBy());
-		saveEntity(targetCred);
-		
-		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
-				targetCred);
-		targetCred.setTargetCompetences(targetComps);
-		
-		/*
-		 * set first competence and first activity in first competence as next to learn
-		 */
-		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
-		
-		if (!targetComps.isEmpty() && !targetComps.get(0).getTargetActivities().isEmpty()) {
-			targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
-					.get(0).getActivity().getId());
-		}
-		return targetCred;
+		//TODO cred-redesign-07
+//		TargetCredential1 targetCred = new TargetCredential1();
+//		targetCred.setTitle(cred.getTitle());
+//		targetCred.setDescription(cred.getDescription());
+//		targetCred.setCredential(cred);
+//		targetCred.setUser(user);
+//		Date now = new Date();
+//		targetCred.setDateCreated(now);
+//		targetCred.setDateStarted(now);
+//		targetCred.setLastAction(now);
+//		targetCred.setCredentialType(cred.getType());
+//
+//		if(cred.getTags() != null) {
+//			Set<Tag> tags = new HashSet<>();
+//			for(Tag tag : cred.getTags()) {
+//				tags.add(tag);
+//			}
+//			targetCred.setTags(tags);
+//		}
+//		
+//		if(cred.getHashtags() != null) {
+//			Set<Tag> hashtags = new HashSet<>();
+//			for(Tag tag : cred.getHashtags()) {
+//				hashtags.add(tag);
+//			}
+//			targetCred.setHashtags(hashtags);
+//		}
+//		
+//		targetCred.setDuration(cred.getDuration());
+//		targetCred.setStudentsCanAddCompetences(cred.isStudentsCanAddCompetences());
+//		targetCred.setCompetenceOrderMandatory(cred.isCompetenceOrderMandatory());
+//		targetCred.setCreatedBy(cred.getCreatedBy());
+//		saveEntity(targetCred);
+//		
+//		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
+//				targetCred);
+//		targetCred.setTargetCompetences(targetComps);
+//		
+//		/*
+//		 * set first competence and first activity in first competence as next to learn
+//		 */
+//		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
+//		
+//		if (!targetComps.isEmpty() && !targetComps.get(0).getTargetActivities().isEmpty()) {
+//			targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
+//					.get(0).getActivity().getId());
+//		}
+//		return targetCred;
+		return null;
 	}
 	
 	@Override
@@ -1358,15 +1368,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private void updateTargetCredentialTagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
-					credentialId, true);
-			List<Tag> tags = getCredentialTags(credentialId);
-			for(TargetCredential1 tc : targetCredentials) {
-				tc.getTags().clear();
-				for(Tag tag : tags) {
-					tc.getTags().add(tag);
-				}
-			}
+			//TODO cred-redesign-07
+//			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
+//					credentialId, true);
+//			List<Tag> tags = getCredentialTags(credentialId);
+//			for(TargetCredential1 tc : targetCredentials) {
+//				tc.getTags().clear();
+//				for(Tag tag : tags) {
+//					tc.getTags().add(tag);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1378,15 +1389,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private void updateTargetCredentialHashtagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
-					credentialId, true);
-			List<Tag> hashtags = getCredentialHashtags(credentialId);
-			for(TargetCredential1 tc : targetCredentials) {
-				tc.getHashtags().clear();
-				for(Tag hashtag : hashtags) {
-					tc.getHashtags().add(hashtag);
-				}
-			}
+			//TODO cred-redesign-07
+//			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
+//					credentialId, true);
+//			List<Tag> hashtags = getCredentialHashtags(credentialId);
+//			for(TargetCredential1 tc : targetCredentials) {
+//				tc.getHashtags().clear();
+//				for(Tag hashtag : hashtags) {
+//					tc.getHashtags().add(hashtag);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2726,62 +2738,64 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
-
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetComp " +
-				"FROM TargetCompetence1 targetComp " + 
-				"LEFT JOIN FETCH targetComp.tags tag "+
-				"WHERE targetComp.targetCredential.id = :credId " +
-				"ORDER BY targetComp.title");
-		
-		@SuppressWarnings("unchecked")
-		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", credentialId)
-				.list();
-		List<CompetenceData1> data = new ArrayList<>();
-		for(TargetCompetence1 competence : competences){
-			CompetenceData1 cd = new CompetenceData1(false);
-			cd.setTitle(competence.getTitle());
-			cd.setDuration(competence.getDuration());
-			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
-			cd.setCredentialId(competence.getTargetCredential().getId());
-			cd.setCompetenceId(competence.getCompetence().getId());
-			cd.setTargetCompId(competence.getId());
-			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
-			data.add(cd);
-		}
-		return data;
+		//TODO cred-redesign-07
+//		StringBuilder queryBuilder = new StringBuilder(
+//				"SELECT DISTINCT targetComp " +
+//				"FROM TargetCompetence1 targetComp " + 
+//				"LEFT JOIN FETCH targetComp.tags tag "+
+//				"WHERE targetComp.targetCredential.id = :credId " +
+//				"ORDER BY targetComp.title");
+//		
+//		@SuppressWarnings("unchecked")
+//		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
+//				.createQuery(queryBuilder.toString())
+//				.setLong("credId", credentialId)
+//				.list();
+//		List<CompetenceData1> data = new ArrayList<>();
+//		for(TargetCompetence1 competence : competences){
+//			CompetenceData1 cd = new CompetenceData1(false);
+//			cd.setTitle(competence.getTitle());
+//			cd.setDuration(competence.getDuration());
+//			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
+//			cd.setCredentialId(competence.getTargetCredential().getId());
+//			cd.setCompetenceId(competence.getCompetence().getId());
+//			cd.setTargetCompId(competence.getId());
+//			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
+//			data.add(cd);
+//		}
+//		return data;
+		return null;
 	}
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException {
-
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetAct " +
-				"FROM TargetCompetence1 targetComp " + 
-				"JOIN targetComp.targetActivities targetAct "+
-				"WHERE targetComp.targetCredential.id = :credId " +
-				"ORDER BY targetAct.title");
-		
-		@SuppressWarnings("unchecked")
-		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", credentialId)
-				.list();
-		List<ActivityData> data = new ArrayList<>();
-		for(TargetActivity1 tActivity : activities){
-			ActivityData ad = new ActivityData(false);
-			ad.setTitle(tActivity.getTitle());
-			ad.setTargetActivityId(tActivity.getId());
-			ad.setDurationHours((int) (tActivity.getDuration() / 60));
-			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
-			ad.calculateDurationString();
-			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
-			ad.setActivityId(tActivity.getActivity().getId());
-			data.add(ad);
-		}
-		return data;
+		//TODO cred-redesign-07
+//		StringBuilder queryBuilder = new StringBuilder(
+//				"SELECT DISTINCT targetAct " +
+//				"FROM TargetCompetence1 targetComp " + 
+//				"JOIN targetComp.targetActivities targetAct "+
+//				"WHERE targetComp.targetCredential.id = :credId " +
+//				"ORDER BY targetAct.title");
+//		
+//		@SuppressWarnings("unchecked")
+//		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
+//				.createQuery(queryBuilder.toString())
+//				.setLong("credId", credentialId)
+//				.list();
+//		List<ActivityData> data = new ArrayList<>();
+//		for(TargetActivity1 tActivity : activities){
+//			ActivityData ad = new ActivityData(false);
+//			ad.setTitle(tActivity.getTitle());
+//			ad.setTargetActivityId(tActivity.getId());
+//			ad.setDurationHours((int) (tActivity.getDuration() / 60));
+//			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
+//			ad.calculateDurationString();
+//			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
+//			ad.setActivityId(tActivity.getActivity().getId());
+//			data.add(ad);
+//		}
+//		return data;
+		return null;
 	}
 	
 	@Override

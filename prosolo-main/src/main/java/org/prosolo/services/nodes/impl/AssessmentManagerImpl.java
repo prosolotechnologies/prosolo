@@ -198,69 +198,71 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String message, String credentialTitle, boolean defaultAssessment, 
 			LearningContextData context) {
 		try {
-			User student = (User) persistence.currentManager().load(User.class, studentId);
-			User assessor = null;
-			if(assessorId > 0) {
-				assessor = (User) persistence.currentManager().load(User.class, assessorId);
-			}
-			CredentialAssessment assessment = new CredentialAssessment();
-			Date creationDate = new Date();
-			assessment.setMessage(message);
-			assessment.setDateCreated(creationDate);
-			assessment.setApproved(false);
-			assessment.setAssessedStudent(student);
-			if(assessor != null) {
-				assessment.setAssessor(assessor);
-			}
-			assessment.setTitle(credentialTitle);
-			assessment.setTargetCredential(targetCredential);
-			assessment.setDefaultAssessment(defaultAssessment);
-			saveEntity(assessment);
-			// create CompetenceAssessment for every competence
-			//List<CompetenceAssessment> competenceAssessments = new ArrayList<>();
-			int credPoints = 0;
-			for (TargetCompetence1 targetCompetence : targetCredential.getTargetCompetences()) {
-				CompetenceAssessment compAssessment = new CompetenceAssessment();
-				compAssessment.setApproved(false);
-				compAssessment.setDateCreated(creationDate);
-				compAssessment.setCredentialAssessment(assessment);
-				compAssessment.setTitle(targetCompetence.getTitle());
-				compAssessment.setTargetCompetence(targetCompetence);
-				compAssessment.setDefaultAssessment(defaultAssessment);
-				saveEntity(compAssessment);
-				//create activity assessments for activities that have automatic score
-				int compPoints = 0;
-				for(TargetActivity1 ta : targetCompetence.getTargetActivities()) {
-					/*
-					 * if common score is set or activity is completed and autograde is true
-					 * we create activity assessment with appropriate grade
-					 */
-					if(ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
-						List<Long> participantIds = new ArrayList<>();
-						participantIds.add(studentId);
-						if(assessorId > 0) {
-							participantIds.add(assessorId);
-						}
-						int grade = ta.isCompleted() && ta.getActivity().isAutograde() 
-								? ta.getActivity().getMaxPoints()
-								: ta.getCommonScore();
-						createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0, 
-								defaultAssessment, grade, context);
-						compPoints += grade;
-					}
-				}
-				if(compPoints > 0) {
-					compAssessment.setPoints(compPoints);
-					credPoints += compPoints;
-				}
-				//competenceAssessments.add(compAssessment);
-			}
-			if(credPoints > 0) {
-				assessment.setPoints(credPoints);
-			}
-			//assessment.setCompetenceAssessments(competenceAssessments);
-			//saveEntity(assessment);
-			return assessment.getId();
+			//TODO cred-redesign-07
+//			User student = (User) persistence.currentManager().load(User.class, studentId);
+//			User assessor = null;
+//			if(assessorId > 0) {
+//				assessor = (User) persistence.currentManager().load(User.class, assessorId);
+//			}
+//			CredentialAssessment assessment = new CredentialAssessment();
+//			Date creationDate = new Date();
+//			assessment.setMessage(message);
+//			assessment.setDateCreated(creationDate);
+//			assessment.setApproved(false);
+//			assessment.setAssessedStudent(student);
+//			if(assessor != null) {
+//				assessment.setAssessor(assessor);
+//			}
+//			assessment.setTitle(credentialTitle);
+//			assessment.setTargetCredential(targetCredential);
+//			assessment.setDefaultAssessment(defaultAssessment);
+//			saveEntity(assessment);
+//			// create CompetenceAssessment for every competence
+//			//List<CompetenceAssessment> competenceAssessments = new ArrayList<>();
+//			int credPoints = 0;
+//			for (TargetCompetence1 targetCompetence : targetCredential.getTargetCompetences()) {
+//				CompetenceAssessment compAssessment = new CompetenceAssessment();
+//				compAssessment.setApproved(false);
+//				compAssessment.setDateCreated(creationDate);
+//				compAssessment.setCredentialAssessment(assessment);
+//				compAssessment.setTitle(targetCompetence.getTitle());
+//				compAssessment.setTargetCompetence(targetCompetence);
+//				compAssessment.setDefaultAssessment(defaultAssessment);
+//				saveEntity(compAssessment);
+//				//create activity assessments for activities that have automatic score
+//				int compPoints = 0;
+//				for(TargetActivity1 ta : targetCompetence.getTargetActivities()) {
+//					/*
+//					 * if common score is set or activity is completed and autograde is true
+//					 * we create activity assessment with appropriate grade
+//					 */
+//					if(ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
+//						List<Long> participantIds = new ArrayList<>();
+//						participantIds.add(studentId);
+//						if(assessorId > 0) {
+//							participantIds.add(assessorId);
+//						}
+//						int grade = ta.isCompleted() && ta.getActivity().isAutograde() 
+//								? ta.getActivity().getMaxPoints()
+//								: ta.getCommonScore();
+//						createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0, 
+//								defaultAssessment, grade, context);
+//						compPoints += grade;
+//					}
+//				}
+//				if(compPoints > 0) {
+//					compAssessment.setPoints(compPoints);
+//					credPoints += compPoints;
+//				}
+//				//competenceAssessments.add(compAssessment);
+//			}
+//			if(credPoints > 0) {
+//				assessment.setPoints(credPoints);
+//			}
+//			//assessment.setCompetenceAssessments(competenceAssessments);
+//			//saveEntity(assessment);
+//			return assessment.getId();
+			return 0;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

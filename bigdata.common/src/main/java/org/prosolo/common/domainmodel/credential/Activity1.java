@@ -13,7 +13,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -29,11 +28,7 @@ public class Activity1 extends BaseEntity {
 	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
-	/**
-	 * @deprecated since v0.5
-	 */
-	@Deprecated
-	private boolean uploadAssignment;
+	
 	private ActivityResultType resultType;
 	private LearningResourceType type;
 	private int maxPoints;
@@ -50,12 +45,6 @@ public class Activity1 extends BaseEntity {
 	private boolean studentCanEditResponse;
 	
 	private User createdBy;
-	
-	/**
-	 * Deprecated since 0.5. Should be removed as 'maxPoints' is introduced and that field is sufficient.
-	 */
-	@Deprecated
-	private GradingOptions gradingOptions;
 	
 	private boolean visibleForUnenrolledStudents = false;
 	
@@ -109,14 +98,6 @@ public class Activity1 extends BaseEntity {
 		this.files = files;
 	}
 
-	public boolean isUploadAssignment() {
-		return uploadAssignment;
-	}
-
-	public void setUploadAssignment(boolean uploadAssignment) {
-		this.uploadAssignment = uploadAssignment;
-	}
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	public User getCreatedBy() {
 		return createdBy;
@@ -142,15 +123,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setResultType(ActivityResultType resultType) {
 		this.resultType = resultType;
-	}
-
-	@OneToOne
-	public GradingOptions getGradingOptions() {
-		return gradingOptions;
-	}
-
-	public void setGradingOptions(GradingOptions gradingOptions) {
-		this.gradingOptions = gradingOptions;
 	}
 
 	@Type(type = "true_false")

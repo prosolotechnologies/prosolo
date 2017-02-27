@@ -217,7 +217,7 @@ public class SocialActivityDataFactory {
 					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(credObjectId.longValue(), 
 					credObjectDuration.longValue(), credObjectTitle, credObjectDescription, 
-					LearningResourceType.valueOf(credObjectType), credObjectActorName, 
+					LearningResourceType.UNIVERSITY_CREATED, credObjectActorName, 
 					credObjectActorLastname);
 		} else if(dType.equals(CredentialCompleteSocialActivity.class.getSimpleName())) {
 			//credential complete
@@ -354,9 +354,9 @@ public class SocialActivityDataFactory {
 			obj = objectFactory.getObjectData(0, null, 
 					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(cred.getId(), 
-					cred.getDuration(), cred.getTitle(), cred.getDescription(), 
-					cred.getType(), cred.getCreatedBy().getName(), 
-					cred.getCreatedBy().getName());
+					cred.getDuration(), cred.getTitle(), cred.getDescription(),
+					LearningResourceType.UNIVERSITY_CREATED,
+					cred.getCreatedBy().getName(), cred.getCreatedBy().getName());
 		} else if(act instanceof CredentialCompleteSocialActivity) {
 			//credential complete
 			CredentialCompleteSocialActivity ccAct = (CredentialCompleteSocialActivity) act;
@@ -366,7 +366,8 @@ public class SocialActivityDataFactory {
 					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(cred.getId(), 
 					cred.getDuration(), cred.getTitle(), cred.getDescription(), 
-					cred.getType(), cred.getCreatedBy().getName(), 
+					LearningResourceType.UNIVERSITY_CREATED,
+					cred.getCreatedBy().getName(), 
 					cred.getCreatedBy().getName());
 		} else if(act instanceof CompetenceCompleteSocialActivity) {
 			//competence complete
@@ -379,7 +380,7 @@ public class SocialActivityDataFactory {
 			ap = richContentFactory.getAttachmentPreviewForCompetence(comp.getId(), 
 					comp.getDuration(), comp.getTitle(), comp.getDescription(), 
 					comp.getType(), comp.getCreatedBy().getName(), 
-					comp.getCreatedBy().getName(), tComp.getTargetCredential().getCredential().getId());
+					comp.getCreatedBy().getName(), 0);
 		} else if(act instanceof CompetenceCommentSocialActivity) {
 			//competence comment
 			CompetenceCommentSocialActivity ccAct = (CompetenceCommentSocialActivity) act;
@@ -422,7 +423,7 @@ public class SocialActivityDataFactory {
 					activity.getType(), actType, activity.getCreatedBy().getName(), 
 					activity.getCreatedBy().getLastname(), 
 					tAct.getTargetCompetence().getCompetence().getId(), 
-					tAct.getTargetCompetence().getTargetCredential().getCredential().getId());
+					0);
 		}
 		
 		sad.setPredicate(ResourceBundleUtil.getActionName(sad.getType().name(), locale));

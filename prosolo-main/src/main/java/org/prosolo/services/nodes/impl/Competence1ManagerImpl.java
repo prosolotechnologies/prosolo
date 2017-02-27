@@ -232,40 +232,42 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
-			//TODO add activity loading, maybe boolean flags loadCreator, loadActivities
-			TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
-					TargetCredential1.class, targetCredentialId);
-			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT targetComp " +
-				       	   "FROM TargetCompetence1 targetComp " + 
-				       	   "INNER JOIN fetch targetComp.createdBy user ");
-			if(loadTags) {
-				builder.append("LEFT JOIN fetch comp.tags tags ");
-			}
-			builder.append("WHERE targetComp.targetCredential = :targetCred " +
-				       	   "ORDER BY targetComp.order");
-//			String query = "SELECT targetComp " +
-//					       "FROM TargetCompetence1 targetComp " + 
-//					       "INNER JOIN fetch targetComp.createdBy user " +
-//					       "LEFT JOIN fetch comp.tags tags " +
-//					       "WHERE targetComp.targetCredential = :targetCred " +
-//					       "ORDER BY targetComp.order";
-
-			@SuppressWarnings("unchecked")
-			List<TargetCompetence1> res = persistence.currentManager()
-				.createQuery(builder.toString())
-				.setEntity("targetCred", targetCred)
-				.list();
-
-			if (res != null) {
-				for (TargetCompetence1 targetComp : res) {
-					Set<Tag> tags = loadTags ? targetComp.getTags() : null;
-					CompetenceData1 compData = competenceFactory.getCompetenceData(
-							targetComp.getCreatedBy(), targetComp, tags, null, true);
-					result.add(compData);
-				}
-			}
-			return result;
+			//TODO cred-redesign-07
+//			//TODO add activity loading, maybe boolean flags loadCreator, loadActivities
+//			TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
+//					TargetCredential1.class, targetCredentialId);
+//			StringBuilder builder = new StringBuilder();
+//			builder.append("SELECT targetComp " +
+//				       	   "FROM TargetCompetence1 targetComp " + 
+//				       	   "INNER JOIN fetch targetComp.createdBy user ");
+//			if(loadTags) {
+//				builder.append("LEFT JOIN fetch comp.tags tags ");
+//			}
+//			builder.append("WHERE targetComp.targetCredential = :targetCred " +
+//				       	   "ORDER BY targetComp.order");
+////			String query = "SELECT targetComp " +
+////					       "FROM TargetCompetence1 targetComp " + 
+////					       "INNER JOIN fetch targetComp.createdBy user " +
+////					       "LEFT JOIN fetch comp.tags tags " +
+////					       "WHERE targetComp.targetCredential = :targetCred " +
+////					       "ORDER BY targetComp.order";
+//
+//			@SuppressWarnings("unchecked")
+//			List<TargetCompetence1> res = persistence.currentManager()
+//				.createQuery(builder.toString())
+//				.setEntity("targetCred", targetCred)
+//				.list();
+//
+//			if (res != null) {
+//				for (TargetCompetence1 targetComp : res) {
+//					Set<Tag> tags = loadTags ? targetComp.getTags() : null;
+//					CompetenceData1 compData = competenceFactory.getCompetenceData(
+//							targetComp.getCreatedBy(), targetComp, tags, null, true);
+//					result.add(compData);
+//				}
+//			}
+//			return result;
+			return null;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -296,38 +298,40 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
 			CredentialCompetence1 cc) {
-		TargetCompetence1 targetComp = new TargetCompetence1();
-		Competence1 comp = cc.getCompetence();
-		targetComp.setTitle(comp.getTitle());
-		targetComp.setDescription(comp.getDescription());
-		targetComp.setTargetCredential(targetCred);
-		targetComp.setCompetence(comp);
-		targetComp.setDuration(comp.getDuration());
-		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
-		targetComp.setOrder(cc.getOrder());
-		targetComp.setCreatedBy(comp.getCreatedBy());
-		targetComp.setType(comp.getType());
-		
-		if(comp.getTags() != null) {
-			Set<Tag> tags = new HashSet<>();
-			for(Tag tag : comp.getTags()) {
-				tags.add(tag);
-			}
-			targetComp.setTags(tags);
-		}
-		saveEntity(targetComp);
-		
-		List<TargetActivity1> targetActivities = activityManager.createTargetActivities(
-				comp.getId(), targetComp);
-		targetComp.setTargetActivities(targetActivities);
-		
-		/*
-		 * set first activity as next to learn
-		 */
-		if (!targetActivities.isEmpty()) {
-			targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
-		}
-		return targetComp;
+		//TODO cred-redesign-07
+//		TargetCompetence1 targetComp = new TargetCompetence1();
+//		Competence1 comp = cc.getCompetence();
+//		targetComp.setTitle(comp.getTitle());
+//		targetComp.setDescription(comp.getDescription());
+//		targetComp.setTargetCredential(targetCred);
+//		targetComp.setCompetence(comp);
+//		targetComp.setDuration(comp.getDuration());
+//		targetComp.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
+//		targetComp.setOrder(cc.getOrder());
+//		targetComp.setCreatedBy(comp.getCreatedBy());
+//		targetComp.setType(comp.getType());
+//		
+//		if(comp.getTags() != null) {
+//			Set<Tag> tags = new HashSet<>();
+//			for(Tag tag : comp.getTags()) {
+//				tags.add(tag);
+//			}
+//			targetComp.setTags(tags);
+//		}
+//		saveEntity(targetComp);
+//		
+//		List<TargetActivity1> targetActivities = activityManager.createTargetActivities(
+//				comp.getId(), targetComp);
+//		targetComp.setTargetActivities(targetActivities);
+//		
+//		/*
+//		 * set first activity as next to learn
+//		 */
+//		if (!targetActivities.isEmpty()) {
+//			targetComp.setNextActivityToLearnId(targetActivities.get(0).getActivity().getId());
+//		}
+//		return targetComp;
+		return null;
 	}
 	
 	@Override
@@ -932,14 +936,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private void updateTargetCompetencesTags(long compId) 
 			throws DbConnectionException {
 		try {
-			List<TargetCompetence1> targetComps = getTargetCompetencesForCompetence(compId, true);
-			List<Tag> tags = getCompetenceTags(compId);
-			for(TargetCompetence1 tc : targetComps) {
-				tc.getTags().clear();
-				for(Tag tag : tags) {
-					tc.getTags().add(tag);
-				}
-			}
+			//TODO cred-redesign-07
+//			List<TargetCompetence1> targetComps = getTargetCompetencesForCompetence(compId, true);
+//			List<Tag> tags = getCompetenceTags(compId);
+//			for(TargetCompetence1 tc : targetComps) {
+//				tc.getTags().clear();
+//				for(Tag tag : tags) {
+//					tc.getTags().add(tag);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1333,41 +1338,43 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId, 
 			boolean loadActivities, boolean loadCredentialTitle) throws DbConnectionException {
 		CompetenceData1 compData = null;
-		try {		
-			String query = "SELECT targetComp " +
-					   "FROM TargetCompetence1 targetComp " +
-					   "INNER JOIN targetComp.targetCredential targetCred " +
-					   		"WITH targetCred.credential.id = :credId " +
-					   		"AND targetCred.user.id = :userId " +
-				   	   "INNER JOIN fetch targetComp.createdBy user " + 
-					   "LEFT JOIN fetch targetComp.tags tags " +
-				   	   "WHERE targetComp.competence.id = :compId";
-
-
-			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.uniqueResult();
-
-			if (res != null) {
-				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
-						res.getTags(), null, true);
-				
-				//retrieve user privilege to be able to tell if user can edit this competence
-				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, compId, userId);
-				compData.setCanEdit(priv == UserGroupPrivilege.Edit);
-				//target competence can always be accessed
-				compData.setCanAccess(true);
-				
-				if(compData != null && loadActivities) {
-					List<ActivityData> activities = activityManager
-							.getTargetActivitiesData(compData.getTargetCompId());
-					compData.setActivities(activities);
-				}
-				return compData;
-			}
+		try {
+			//TODO cred-redesign-07
+//			String query = "SELECT targetComp " +
+//					   "FROM TargetCompetence1 targetComp " +
+//					   "INNER JOIN targetComp.targetCredential targetCred " +
+//					   		"WITH targetCred.credential.id = :credId " +
+//					   		"AND targetCred.user.id = :userId " +
+//				   	   "INNER JOIN fetch targetComp.createdBy user " + 
+//					   "LEFT JOIN fetch targetComp.tags tags " +
+//				   	   "WHERE targetComp.competence.id = :compId";
+//
+//
+//			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
+//					.createQuery(query)
+//					.setLong("userId", userId)
+//					.setLong("credId", credId)
+//					.setLong("compId", compId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
+//						res.getTags(), null, true);
+//				
+//				//retrieve user privilege to be able to tell if user can edit this competence
+//				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, compId, userId);
+//				compData.setCanEdit(priv == UserGroupPrivilege.Edit);
+//				//target competence can always be accessed
+//				compData.setCanAccess(true);
+//				
+//				if(compData != null && loadActivities) {
+//					List<ActivityData> activities = activityManager
+//							.getTargetActivitiesData(compData.getTargetCompId());
+//					compData.setActivities(activities);
+//				}
+//				return compData;
+//			}
+//			return null;
 			return null;
 		} catch (Exception e) {
 			logger.error(e);

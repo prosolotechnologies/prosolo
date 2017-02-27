@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,10 +37,15 @@ public class Competence1 extends BaseEntity {
 	private LearningResourceType type;
 	private List<TargetCompetence1> targetCompetences;
 	
-	private List<CredentialCompetence1> credentialCompetence;
+	private List<CredentialCompetence1> credentialCompetences;
 	
 	//all existing users have View privilege
 	private boolean visibleToAll;
+	
+	//if competence is original version this will be null
+	private Competence1 originalVersion;
+	private Date datePublished;
+	private boolean canBeEdited;
 	
 	public Competence1() {
 		tags = new HashSet<>();
@@ -99,15 +105,6 @@ public class Competence1 extends BaseEntity {
 	public void setPublished(boolean published) {
 		this.published = published;
 	}
-	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "competence")
-	public List<CredentialCompetence1> getCredentialCompetence() {
-		return credentialCompetence;
-	}
-
-	public void setCredentialCompetence(List<CredentialCompetence1> credentialCompetence) {
-		this.credentialCompetence = credentialCompetence;
-	}
 
 	@OneToMany(mappedBy = "competence")
 	public List<TargetCompetence1> getTargetCompetences() {
@@ -137,4 +134,39 @@ public class Competence1 extends BaseEntity {
 		this.visibleToAll = visibleToAll;
 	}
 	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "competence")
+	public List<CredentialCompetence1> getCredentialCompetences() {
+		return credentialCompetences;
+	}
+
+	public void setCredentialCompetences(List<CredentialCompetence1> credentialCompetences) {
+		this.credentialCompetences = credentialCompetences;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Competence1 getOriginalVersion() {
+		return originalVersion;
+	}
+
+	public void setOriginalVersion(Competence1 originalVersion) {
+		this.originalVersion = originalVersion;
+	}
+
+	public Date getDatePublished() {
+		return datePublished;
+	}
+
+	public void setDatePublished(Date datePublished) {
+		this.datePublished = datePublished;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isCanBeEdited() {
+		return canBeEdited;
+	}
+
+	public void setCanBeEdited(boolean canBeEdited) {
+		this.canBeEdited = canBeEdited;
+	}
 }

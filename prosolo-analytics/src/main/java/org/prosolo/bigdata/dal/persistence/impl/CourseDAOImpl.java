@@ -83,18 +83,19 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	@Override
 	public void changeVisibilityForCredential(long credentialId, long userId) throws DbConnectionException {
 		try {
-			Credential1 cred = (Credential1) session.load(Credential1.class, credentialId);
-			if(cred.isPublished()) {
-				cred.setPublished(false);
-			} else {
-				cred.setPublished(true);
-				new CompetenceDAOImpl().publishCompetences(credentialId, userId);
-				session.flush();
-				cred.setDuration(getRecalculatedDuration(credentialId));
-			}
-			cred.setScheduledPublishDate(null);
-			
-			CredentialIndexerImpl.getInstance().updateVisibility(credentialId, cred.isPublished());
+			//TODO cred-redesign-07
+//			Credential1 cred = (Credential1) session.load(Credential1.class, credentialId);
+//			if(cred.isPublished()) {
+//				cred.setPublished(false);
+//			} else {
+//				cred.setPublished(true);
+//				new CompetenceDAOImpl().publishCompetences(credentialId, userId);
+//				session.flush();
+//				cred.setDuration(getRecalculatedDuration(credentialId));
+//			}
+//			cred.setScheduledPublishDate(null);
+//			
+//			CredentialIndexerImpl.getInstance().updateVisibility(credentialId, cred.isPublished());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

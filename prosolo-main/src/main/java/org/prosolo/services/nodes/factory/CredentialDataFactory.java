@@ -20,105 +20,109 @@ public class CredentialDataFactory {
 
 	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
 			Set<Tag> hashtags, boolean shouldTrackChanges) {
-		if(credential == null) {
-			return null;
-		}
-		CredentialData cred = new CredentialData(false);
-		cred.setId(credential.getId());
-		cred.setTitle(credential.getTitle());
-		cred.setDescription(credential.getDescription());
-		if(tags != null) {
-			cred.setTags(credential.getTags());
-			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
-		}
-		if(hashtags != null) {
-			cred.setHashtags(credential.getHashtags());
-			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
-		}
-		cred.setType(credential.getType());
-		cred.setPublished(credential.isPublished());
-		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
-		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		//cred.setDraft(credential.isDraft());
-		//cred.setHasDraft(credential.isHasDraft());
-		cred.setDuration(credential.getDuration());
-		cred.calculateDurationString();
-		if(createdBy != null) {
-			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
-					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
-					createdBy.getPosition());
-			cred.setCreator(creator);
-		}
-		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
-		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
-		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
-
-		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
-		if(credential.getScheduledPublishDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-			String formattedDate = sdf.format(credential.getScheduledPublishDate());
-			cred.setScheduledPublishDateValue(formattedDate);
-		}
-		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
-				credential.getScheduledPublishDate()));
-		//cred.setVisible(credential.isVisible());
-		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
-		
-		if(shouldTrackChanges) {
-			cred.startObservingChanges();
-		}
-		return cred;
+		//TODO cred-redesign-07
+//		if(credential == null) {
+//			return null;
+//		}
+//		CredentialData cred = new CredentialData(false);
+//		cred.setId(credential.getId());
+//		cred.setTitle(credential.getTitle());
+//		cred.setDescription(credential.getDescription());
+//		if(tags != null) {
+//			cred.setTags(credential.getTags());
+//			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
+//		}
+//		if(hashtags != null) {
+//			cred.setHashtags(credential.getHashtags());
+//			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
+//		}
+//		cred.setType(credential.getType());
+//		cred.setPublished(credential.isPublished());
+//		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
+//		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
+//		//cred.setDraft(credential.isDraft());
+//		//cred.setHasDraft(credential.isHasDraft());
+//		cred.setDuration(credential.getDuration());
+//		cred.calculateDurationString();
+//		if(createdBy != null) {
+//			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
+//					getFullName(createdBy.getName(), createdBy.getLastname()),
+//					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+//					createdBy.getPosition());
+//			cred.setCreator(creator);
+//		}
+//		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
+//		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
+//		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
+//
+//		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
+//		if(credential.getScheduledPublishDate() != null) {
+//			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+//			String formattedDate = sdf.format(credential.getScheduledPublishDate());
+//			cred.setScheduledPublishDateValue(formattedDate);
+//		}
+//		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
+//				credential.getScheduledPublishDate()));
+//		//cred.setVisible(credential.isVisible());
+//		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
+//		
+//		if(shouldTrackChanges) {
+//			cred.startObservingChanges();
+//		}
+//		return cred;
+		return null;
 	}
 	
 	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
-		if(credential == null) {
-			return null;
-		}
-		CredentialData cred = new CredentialData(false);
-		cred.setId(credential.getCredential().getId());
-		cred.setTitle(credential.getTitle());
-		cred.setDescription(credential.getDescription());
-		if(tags != null) {
-			cred.setTags(credential.getTags());
-			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
-		}
-		if(hashtags != null) {
-			cred.setHashtags(credential.getHashtags());
-			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
-		}
-		cred.setType(credential.getCredentialType());
-		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		cred.setDuration(credential.getDuration());
-		cred.calculateDurationString();
-		if(createdBy != null) {
-			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
-					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
-					createdBy.getPosition());
-			cred.setCreator(creator);
-		}
-		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
-		cred.setEnrolled(true);
-		cred.setTargetCredId(credential.getId());
-		cred.setProgress(credential.getProgress());
-		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
-		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
-		if(credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
-			cred.setInstructorPresent(true);
-			cred.setInstructorId(credential.getInstructor().getUser().getId());
-			cred.setInstructorAvatarUrl(
-					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
-					ImageFormat.size120x120));
-			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
-					+ " " 
-					+ credential.getInstructor().getUser().getLastname());
-		}
-		if(shouldTrackChanges) {
-			cred.startObservingChanges();
-		}
-		return cred;
+		//TODO cred-redesign-07
+//		if(credential == null) {
+//			return null;
+//		}
+//		CredentialData cred = new CredentialData(false);
+//		cred.setId(credential.getCredential().getId());
+//		cred.setTitle(credential.getTitle());
+//		cred.setDescription(credential.getDescription());
+//		if(tags != null) {
+//			cred.setTags(credential.getTags());
+//			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
+//		}
+//		if(hashtags != null) {
+//			cred.setHashtags(credential.getHashtags());
+//			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
+//		}
+//		cred.setType(credential.getCredentialType());
+//		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
+//		cred.setDuration(credential.getDuration());
+//		cred.calculateDurationString();
+//		if(createdBy != null) {
+//			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
+//					getFullName(createdBy.getName(), createdBy.getLastname()),
+//					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+//					createdBy.getPosition());
+//			cred.setCreator(creator);
+//		}
+//		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
+//		cred.setEnrolled(true);
+//		cred.setTargetCredId(credential.getId());
+//		cred.setProgress(credential.getProgress());
+//		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+//		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
+//		if(credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
+//			cred.setInstructorPresent(true);
+//			cred.setInstructorId(credential.getInstructor().getUser().getId());
+//			cred.setInstructorAvatarUrl(
+//					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
+//					ImageFormat.size120x120));
+//			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
+//					+ " " 
+//					+ credential.getInstructor().getUser().getLastname());
+//		}
+//		if(shouldTrackChanges) {
+//			cred.startObservingChanges();
+//		}
+//		return cred;
+		return null;
 	}
 	
 	/**

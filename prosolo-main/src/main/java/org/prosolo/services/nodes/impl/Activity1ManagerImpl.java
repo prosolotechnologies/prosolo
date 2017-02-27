@@ -2,10 +2,8 @@ package org.prosolo.services.nodes.impl;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +21,12 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
-import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -42,9 +37,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
-import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.interaction.data.CommentReplyFetchMode;
-import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -66,7 +58,6 @@ import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -323,88 +314,90 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
 			CompetenceActivity1 compActivity) throws DbConnectionException {
 		try {
-			Activity1 act = compActivity.getActivity();
-			TargetActivity1 targetAct = null;
-			if(act instanceof TextActivity1) {
-				TextActivity1 ta = (TextActivity1) act;
-				TextTargetActivity1 tta = new TextTargetActivity1();
-				tta.setText(ta.getText());
-				targetAct = tta;
-			} else if(act instanceof UrlActivity1) {
-				UrlActivity1 urlAct = (UrlActivity1) act;
-				UrlTargetActivity1 urlTargetActivity = new UrlTargetActivity1();
-				switch(urlAct.getUrlType()) {
-					case Video:
-						urlTargetActivity.setType(UrlActivityType.Video);
-						Set<ResourceLink> captions = new HashSet<>();
-			    		if(urlAct.getCaptions() != null) {		
-			    			for(ResourceLink rl : urlAct.getCaptions()) {
-			    				ResourceLink link = new ResourceLink();
-			    				link.setLinkName(rl.getLinkName());
-			    				link.setUrl(rl.getUrl());
-			    				saveEntity(link);
-			    				captions.add(link);
-			    			}
-			    			urlTargetActivity.setCaptions(captions);
-			    		}
-						break;
-					case Slides:
-						urlTargetActivity.setType(UrlActivityType.Slides);
-						break;
-				}
-				urlTargetActivity.setUrl(urlAct.getUrl());
-				urlTargetActivity.setLinkName(urlAct.getLinkName());
-				targetAct = urlTargetActivity;
-			} else if(act instanceof ExternalToolActivity1) {
-				ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
-				ExternalToolTargetActivity1 extTargetAct = new ExternalToolTargetActivity1();
-				extTargetAct.setLaunchUrl(extAct.getLaunchUrl());
-				extTargetAct.setSharedSecret(extAct.getSharedSecret());
-				extTargetAct.setConsumerKey(extAct.getConsumerKey());
-				extTargetAct.setOpenInNewWindow(extAct.isOpenInNewWindow());
-				extTargetAct.setScoreCalculation(extAct.getScoreCalculation());
-				targetAct = extTargetAct;
-			}
-			
-			targetAct.setTargetCompetence(targetComp);
-			targetAct.setTitle(act.getTitle());
-			targetAct.setDescription(act.getDescription());
-			targetAct.setActivity(act);
-			targetAct.setOrder(compActivity.getOrder());
-			targetAct.setDuration(act.getDuration());
-			targetAct.setResultType(act.getResultType());
-			//targetAct.setUploadAssignment(act.isUploadAssignment());
-			targetAct.setCreatedBy(act.getCreatedBy());
-			targetAct.setLearningResourceType(act.getType());
-			
-			if(act.getLinks() != null) {
-    			Set<ResourceLink> activityLinks = new HashSet<>();
-    			for(ResourceLink rl : act.getLinks()) {
-    				ResourceLink link = new ResourceLink();
-    				link.setLinkName(rl.getLinkName());
-    				link.setUrl(rl.getUrl());
-    				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
-    					link.setIdParameterName(rl.getIdParameterName());
-    				}
-    				saveEntity(link);
-    				activityLinks.add(link);
-    			}
-    			targetAct.setLinks(activityLinks);
-    		}
-    		
-    		Set<ResourceLink> activityFiles = new HashSet<>();
-    		if(act.getFiles() != null) {		
-    			for(ResourceLink rl : act.getFiles()) {
-    				ResourceLink link = new ResourceLink();
-    				link.setLinkName(rl.getLinkName());
-    				link.setUrl(rl.getUrl());
-    				saveEntity(link);
-    				activityFiles.add(link);
-    			}
-    			targetAct.setFiles(activityFiles);
-    		}
-			
-			return saveEntity(targetAct);
+			//TODO cred-redesign-07
+//			Activity1 act = compActivity.getActivity();
+//			TargetActivity1 targetAct = null;
+//			if(act instanceof TextActivity1) {
+//				TextActivity1 ta = (TextActivity1) act;
+//				TextTargetActivity1 tta = new TextTargetActivity1();
+//				tta.setText(ta.getText());
+//				targetAct = tta;
+//			} else if(act instanceof UrlActivity1) {
+//				UrlActivity1 urlAct = (UrlActivity1) act;
+//				UrlTargetActivity1 urlTargetActivity = new UrlTargetActivity1();
+//				switch(urlAct.getUrlType()) {
+//					case Video:
+//						urlTargetActivity.setType(UrlActivityType.Video);
+//						Set<ResourceLink> captions = new HashSet<>();
+//			    		if(urlAct.getCaptions() != null) {		
+//			    			for(ResourceLink rl : urlAct.getCaptions()) {
+//			    				ResourceLink link = new ResourceLink();
+//			    				link.setLinkName(rl.getLinkName());
+//			    				link.setUrl(rl.getUrl());
+//			    				saveEntity(link);
+//			    				captions.add(link);
+//			    			}
+//			    			urlTargetActivity.setCaptions(captions);
+//			    		}
+//						break;
+//					case Slides:
+//						urlTargetActivity.setType(UrlActivityType.Slides);
+//						break;
+//				}
+//				urlTargetActivity.setUrl(urlAct.getUrl());
+//				urlTargetActivity.setLinkName(urlAct.getLinkName());
+//				targetAct = urlTargetActivity;
+//			} else if(act instanceof ExternalToolActivity1) {
+//				ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
+//				ExternalToolTargetActivity1 extTargetAct = new ExternalToolTargetActivity1();
+//				extTargetAct.setLaunchUrl(extAct.getLaunchUrl());
+//				extTargetAct.setSharedSecret(extAct.getSharedSecret());
+//				extTargetAct.setConsumerKey(extAct.getConsumerKey());
+//				extTargetAct.setOpenInNewWindow(extAct.isOpenInNewWindow());
+//				extTargetAct.setScoreCalculation(extAct.getScoreCalculation());
+//				targetAct = extTargetAct;
+//			}
+//			
+//			targetAct.setTargetCompetence(targetComp);
+//			targetAct.setTitle(act.getTitle());
+//			targetAct.setDescription(act.getDescription());
+//			targetAct.setActivity(act);
+//			targetAct.setOrder(compActivity.getOrder());
+//			targetAct.setDuration(act.getDuration());
+//			targetAct.setResultType(act.getResultType());
+//			//targetAct.setUploadAssignment(act.isUploadAssignment());
+//			targetAct.setCreatedBy(act.getCreatedBy());
+//			targetAct.setLearningResourceType(act.getType());
+//			
+//			if(act.getLinks() != null) {
+//    			Set<ResourceLink> activityLinks = new HashSet<>();
+//    			for(ResourceLink rl : act.getLinks()) {
+//    				ResourceLink link = new ResourceLink();
+//    				link.setLinkName(rl.getLinkName());
+//    				link.setUrl(rl.getUrl());
+//    				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+//    					link.setIdParameterName(rl.getIdParameterName());
+//    				}
+//    				saveEntity(link);
+//    				activityLinks.add(link);
+//    			}
+//    			targetAct.setLinks(activityLinks);
+//    		}
+//    		
+//    		Set<ResourceLink> activityFiles = new HashSet<>();
+//    		if(act.getFiles() != null) {		
+//    			for(ResourceLink rl : act.getFiles()) {
+//    				ResourceLink link = new ResourceLink();
+//    				link.setLinkName(rl.getLinkName());
+//    				link.setUrl(rl.getUrl());
+//    				saveEntity(link);
+//    				activityFiles.add(link);
+//    			}
+//    			targetAct.setFiles(activityFiles);
+//    		}
+//			
+//			return saveEntity(targetAct);
+			return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1262,42 +1255,44 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean isManager) 
 			throws DbConnectionException {
-		try {		
-			StringBuilder query = new StringBuilder("SELECT targetAct " +
-					   "FROM TargetActivity1 targetAct " +
-					   "INNER JOIN targetAct.targetCompetence targetComp " +
-					   		"WITH targetComp.competence.id = :compId " +
-					   "INNER JOIN targetComp.targetCredential targetCred " +
-					   		"WITH targetCred.credential.id = :credId " +
-					   		"AND targetCred.user.id = :userId ");
-			if(loadResourceLinks) {
-				query.append("LEFT JOIN fetch targetAct.links link " + 
-							 "LEFT JOIN fetch targetAct.files files ");
-			}
-			query.append("WHERE targetAct.activity.id = :actId");
-
-			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
-					.createQuery(query.toString())
-					.setLong("userId", userId)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.setLong("actId", actId)
-					.uniqueResult();
-
-			if (res != null) {
-				Set<ResourceLink> links = loadResourceLinks ? res.getLinks() : null;
-				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
-				ActivityData activity = activityFactory.getActivityData(res, links, 
-						files, true, isManager);
-				
-				//retrieve user privilege to be able to tell if user can edit this activity
-				UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
-						userId);
-				activity.setCanEdit(priv == UserGroupPrivilege.Edit);
-				//target activity can always be accessed
-				activity.setCanAccess(true);
-				return activity;
-			}
+		try {	
+			//TODO cred-redesign-07
+//			StringBuilder query = new StringBuilder("SELECT targetAct " +
+//					   "FROM TargetActivity1 targetAct " +
+//					   "INNER JOIN targetAct.targetCompetence targetComp " +
+//					   		"WITH targetComp.competence.id = :compId " +
+//					   "INNER JOIN targetComp.targetCredential targetCred " +
+//					   		"WITH targetCred.credential.id = :credId " +
+//					   		"AND targetCred.user.id = :userId ");
+//			if(loadResourceLinks) {
+//				query.append("LEFT JOIN fetch targetAct.links link " + 
+//							 "LEFT JOIN fetch targetAct.files files ");
+//			}
+//			query.append("WHERE targetAct.activity.id = :actId");
+//
+//			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
+//					.createQuery(query.toString())
+//					.setLong("userId", userId)
+//					.setLong("credId", credId)
+//					.setLong("compId", compId)
+//					.setLong("actId", actId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				Set<ResourceLink> links = loadResourceLinks ? res.getLinks() : null;
+//				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
+//				ActivityData activity = activityFactory.getActivityData(res, links, 
+//						files, true, isManager);
+//				
+//				//retrieve user privilege to be able to tell if user can edit this activity
+//				UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
+//						userId);
+//				activity.setCanEdit(priv == UserGroupPrivilege.Edit);
+//				//target activity can always be accessed
+//				activity.setCanAccess(true);
+//				return activity;
+//			}
+//			return null;
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -1458,21 +1453,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private void updateTargetActivityLinks(long actId) 
 			throws DbConnectionException {
 		try {
-			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
-			List<ResourceLink> links = getActivityLinks(actId);
-			for(TargetActivity1 ta : targetActivities) {
-				ta.getLinks().clear();
-				for(ResourceLink rl : links) {
-					ResourceLink rl1 = new ResourceLink();
-					rl1.setUrl(rl.getUrl());
-					rl1.setLinkName(rl.getLinkName());
-					if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
-						rl1.setIdParameterName(rl.getIdParameterName());
-    				}
-					saveEntity(rl1);
-					ta.getLinks().add(rl1);
-				}
-			}
+			//TODO cred-redesign-07
+//			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
+//			List<ResourceLink> links = getActivityLinks(actId);
+//			for(TargetActivity1 ta : targetActivities) {
+//				ta.getLinks().clear();
+//				for(ResourceLink rl : links) {
+//					ResourceLink rl1 = new ResourceLink();
+//					rl1.setUrl(rl.getUrl());
+//					rl1.setLinkName(rl.getLinkName());
+//					if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
+//						rl1.setIdParameterName(rl.getIdParameterName());
+//    				}
+//					saveEntity(rl1);
+//					ta.getLinks().add(rl1);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1484,18 +1480,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private void updateTargetActivityFiles(long actId) 
 			throws DbConnectionException {
 		try {
-			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
-			List<ResourceLink> files = getActivityFiles(actId);
-			for(TargetActivity1 ta : targetActivities) {
-				ta.getFiles().clear();
-				for(ResourceLink rl : files) {
-					ResourceLink rl1 = new ResourceLink();
-					rl1.setUrl(rl.getUrl());
-					rl1.setLinkName(rl.getLinkName());
-					saveEntity(rl1);
-					ta.getFiles().add(rl1);
-				}
-			}
+			//TODO cred-redesign-07
+//			List<TargetActivity1> targetActivities = getTargetActivitiesForActivity(actId, true);
+//			List<ResourceLink> files = getActivityFiles(actId);
+//			for(TargetActivity1 ta : targetActivities) {
+//				ta.getFiles().clear();
+//				for(ResourceLink rl : files) {
+//					ResourceLink rl1 = new ResourceLink();
+//					rl1.setUrl(rl.getUrl());
+//					rl1.setLinkName(rl.getLinkName());
+//					saveEntity(rl1);
+//					ta.getFiles().add(rl1);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1559,53 +1556,54 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private void updateTargetActivityBasicDataForUncompletedCredentials(long actId, 
 			Class<? extends Activity1> activityClass) 
 			throws DbConnectionException {
-		try {			
-			Activity1 act = (Activity1) persistence.currentManager().load(activityClass, 
-					actId);
-			List<Long> ids = getTargetActivityIdsForUncompletedCredentials(actId);
-			
-			if(!ids.isEmpty()) {
-				StringBuilder builder = new StringBuilder();
-				builder.append("UPDATE TargetActivity1 act SET " +
-						       "act.title = :title, " +
-						       "act.description = :description, " +
-						       "act.duration = :duration, " +
-						       "act.uploadAssignment = :uploadAssignment ");
-				if(activityClass == TextActivity1.class) {
-					builder.append(",act.text = :text ");
-				} else if(activityClass == UrlActivity1.class) {
-					builder.append(",act.url = :url ");
-				} else if(activityClass == ExternalToolActivity1.class) {
-					builder.append(",act.launchUrl = :launchUrl " +
-							       ",act.sharedSecret = :sharedSecret " +
-							       ",act.consumerKey = :consumerKey " +
-								   ",act.openInNewWindow = :openInNewWindow ");
-				}
-				builder.append("WHERE act.id IN (:actIds)");				    
-	
-				Query q = persistence.currentManager()
-					.createQuery(builder.toString())
-					.setString("title", act.getTitle())
-					.setString("description", act.getDescription())
-					.setBoolean("uploadAssignment", act.isUploadAssignment())
-					.setLong("duration", act.getDuration())
-					.setParameterList("actIds", ids);
-				if(activityClass == TextActivity1.class) {
-					TextActivity1 ta = (TextActivity1) act;
-					q.setString("text", ta.getText());
-				} else if(activityClass == UrlActivity1.class) {
-					UrlActivity1 urlAct = (UrlActivity1) act;
-					q.setString("url", urlAct.getUrl());
-				} else if(activityClass == ExternalToolActivity1.class) {
-					ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
-					q.setString("launchUrl", extAct.getLaunchUrl())
-					 .setString("sharedSecret", extAct.getSharedSecret())
-					 .setString("consumerKey", extAct.getConsumerKey())
-					 .setBoolean("openInNewWindow", extAct.isOpenInNewWindow());
-				}
-					
-				q.executeUpdate();
-			}
+		try {	
+			//TODO cred-redesign-07
+//			Activity1 act = (Activity1) persistence.currentManager().load(activityClass, 
+//					actId);
+//			List<Long> ids = getTargetActivityIdsForUncompletedCredentials(actId);
+//			
+//			if(!ids.isEmpty()) {
+//				StringBuilder builder = new StringBuilder();
+//				builder.append("UPDATE TargetActivity1 act SET " +
+//						       "act.title = :title, " +
+//						       "act.description = :description, " +
+//						       "act.duration = :duration, " +
+//						       "act.uploadAssignment = :uploadAssignment ");
+//				if(activityClass == TextActivity1.class) {
+//					builder.append(",act.text = :text ");
+//				} else if(activityClass == UrlActivity1.class) {
+//					builder.append(",act.url = :url ");
+//				} else if(activityClass == ExternalToolActivity1.class) {
+//					builder.append(",act.launchUrl = :launchUrl " +
+//							       ",act.sharedSecret = :sharedSecret " +
+//							       ",act.consumerKey = :consumerKey " +
+//								   ",act.openInNewWindow = :openInNewWindow ");
+//				}
+//				builder.append("WHERE act.id IN (:actIds)");				    
+//	
+//				Query q = persistence.currentManager()
+//					.createQuery(builder.toString())
+//					.setString("title", act.getTitle())
+//					.setString("description", act.getDescription())
+//					.setBoolean("uploadAssignment", act.isUploadAssignment())
+//					.setLong("duration", act.getDuration())
+//					.setParameterList("actIds", ids);
+//				if(activityClass == TextActivity1.class) {
+//					TextActivity1 ta = (TextActivity1) act;
+//					q.setString("text", ta.getText());
+//				} else if(activityClass == UrlActivity1.class) {
+//					UrlActivity1 urlAct = (UrlActivity1) act;
+//					q.setString("url", urlAct.getUrl());
+//				} else if(activityClass == ExternalToolActivity1.class) {
+//					ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
+//					q.setString("launchUrl", extAct.getLaunchUrl())
+//					 .setString("sharedSecret", extAct.getSharedSecret())
+//					 .setString("consumerKey", extAct.getConsumerKey())
+//					 .setBoolean("openInNewWindow", extAct.isOpenInNewWindow());
+//				}
+//					
+//				q.executeUpdate();
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2254,47 +2252,49 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional (readOnly = true)
 	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
 			boolean instructor, boolean isManager, long loggedUserId) {
-		String query = 
-			"SELECT targetAct, targetCred.user " +
-			"FROM TargetActivity1 targetAct " +
-			"INNER JOIN targetAct.targetCompetence targetComp " + 
-			"INNER JOIN targetComp.targetCredential targetCred " + 
-			"WHERE targetAct.id = :targetActivityId";
-		
-		Object[] result = (Object[]) persistence.currentManager()
-			.createQuery(query.toString())
-			.setLong("targetActivityId", targetActivityId)
-			.uniqueResult();
-		
-		if (result != null) {
-			TargetActivity1 targetActivity = (TargetActivity1) result[0];
-			User user = (User) result[1];
-			
-			ActivityResultData activityResult = activityFactory.getActivityResultData(
-					targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
-					targetActivity.getResultPostDate(), user, 0, false, isManager);
-			
-			if (loadComments) {
-				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
-						targetActivityId, 
-						instructor, false);
-				
-				List<CommentData> comments = commentManager.getComments(
-						commentsData.getResourceType(), 
-						commentsData.getResourceId(), false, 0, 
-						CommentBean.getCommentSortData(commentsData), 
-						CommentReplyFetchMode.FetchReplies, 
-						loggedUserId);
-				
-				Collections.reverse(comments);
-				
-				commentsData.setComments(comments);
-				
-				activityResult.setResultComments(commentsData);
-			}
-			
-			return activityResult;
-		} 
+		//TODO cred-redesign-07
+//		String query = 
+//			"SELECT targetAct, targetCred.user " +
+//			"FROM TargetActivity1 targetAct " +
+//			"INNER JOIN targetAct.targetCompetence targetComp " + 
+//			"INNER JOIN targetComp.targetCredential targetCred " + 
+//			"WHERE targetAct.id = :targetActivityId";
+//		
+//		Object[] result = (Object[]) persistence.currentManager()
+//			.createQuery(query.toString())
+//			.setLong("targetActivityId", targetActivityId)
+//			.uniqueResult();
+//		
+//		if (result != null) {
+//			TargetActivity1 targetActivity = (TargetActivity1) result[0];
+//			User user = (User) result[1];
+//			
+//			ActivityResultData activityResult = activityFactory.getActivityResultData(
+//					targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
+//					targetActivity.getResultPostDate(), user, 0, false, isManager);
+//			
+//			if (loadComments) {
+//				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
+//						targetActivityId, 
+//						instructor, false);
+//				
+//				List<CommentData> comments = commentManager.getComments(
+//						commentsData.getResourceType(), 
+//						commentsData.getResourceId(), false, 0, 
+//						CommentBean.getCommentSortData(commentsData), 
+//						CommentReplyFetchMode.FetchReplies, 
+//						loggedUserId);
+//				
+//				Collections.reverse(comments);
+//				
+//				commentsData.setComments(comments);
+//				
+//				activityResult.setResultComments(commentsData);
+//			}
+//			
+//			return activityResult;
+//		} 
+//		return null;
 		return null;
 	}
 	

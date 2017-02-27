@@ -10,14 +10,11 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
-import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.SlideShareUtils;
@@ -274,88 +271,92 @@ public class ActivityDataFactory {
 	 */
 	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
 			Set<ResourceLink> files, boolean shouldTrackChanges, boolean isManager) {
-		if (targetActivity == null) {
-			return null;
-		}
-		ActivityData data = new ActivityData(false);
-		data.setActivityId(targetActivity.getActivity().getId());
-		data.setTargetActivityId(targetActivity.getId());
-		data.setOrder(targetActivity.getOrder());
-		data.setTitle(targetActivity.getTitle());
-		data.setDescription(targetActivity.getDescription());
-		data.setDurationHours((int) (targetActivity.getDuration() / 60));
-		data.setDurationMinutes((int) (targetActivity.getDuration() % 60));
-		data.calculateDurationString();
-		data.setCompleted(targetActivity.isCompleted());
-		data.setEnrolled(true);
-		data.setType(targetActivity.getLearningResourceType());
-		data.setResultData(getActivityResultData(targetActivity, isManager));
-		data.setCreatorId(targetActivity.getCreatedBy().getId());
-		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
-		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
-		data.setStudentCanSeeOtherResponses(targetActivity.getActivity().isStudentCanSeeOtherResponses());
-		
-		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
-		
-		if (shouldTrackChanges) {
-			data.startObservingChanges();
-		}
-		
-		if (links != null) {
-			List<ResourceLinkData> activityLinks = new ArrayList<>();
-			for (ResourceLink rl : links) {
-				ResourceLinkData rlData = new ResourceLinkData();
-				rlData.setId(rl.getId());
-				rlData.setLinkName(rl.getLinkName());
-				rlData.setUrl(rl.getUrl());
-				rlData.setIdParamName(rl.getIdParameterName());
-				rlData.setStatus(ObjectStatus.UP_TO_DATE);
-				activityLinks.add(rlData);
-			}
-			data.setLinks(activityLinks);
-		}
-		
-		if (files != null) {
-			List<ResourceLinkData> activityFiles = new ArrayList<>();
-			for (ResourceLink rl : files) {
-				ResourceLinkData rlData = new ResourceLinkData();
-				rlData.setId(rl.getId());
-				rlData.setLinkName(rl.getLinkName());
-				rlData.setUrl(rl.getUrl());
-				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-				rlData.setStatus(ObjectStatus.UP_TO_DATE);
-				activityFiles.add(rlData);
-			}
-			data.setFiles(activityFiles);
-		}
-		
-		//or add targetCompetenceId to activitydata
-		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
-		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
-		populateTypeSpecificData(data, targetActivity);
-
-		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
-		
-		if (shouldTrackChanges) {
-			data.startObservingChanges();
-		}
-		
-		return data;
+		//TODO cred-redesign-07
+//		if (targetActivity == null) {
+//			return null;
+//		}
+//		ActivityData data = new ActivityData(false);
+//		data.setActivityId(targetActivity.getActivity().getId());
+//		data.setTargetActivityId(targetActivity.getId());
+//		data.setOrder(targetActivity.getOrder());
+//		data.setTitle(targetActivity.getTitle());
+//		data.setDescription(targetActivity.getDescription());
+//		data.setDurationHours((int) (targetActivity.getDuration() / 60));
+//		data.setDurationMinutes((int) (targetActivity.getDuration() % 60));
+//		data.calculateDurationString();
+//		data.setCompleted(targetActivity.isCompleted());
+//		data.setEnrolled(true);
+//		data.setType(targetActivity.getLearningResourceType());
+//		data.setResultData(getActivityResultData(targetActivity, isManager));
+//		data.setCreatorId(targetActivity.getCreatedBy().getId());
+//		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
+//		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
+//		data.setStudentCanSeeOtherResponses(targetActivity.getActivity().isStudentCanSeeOtherResponses());
+//		
+//		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
+//		
+//		if (shouldTrackChanges) {
+//			data.startObservingChanges();
+//		}
+//		
+//		if (links != null) {
+//			List<ResourceLinkData> activityLinks = new ArrayList<>();
+//			for (ResourceLink rl : links) {
+//				ResourceLinkData rlData = new ResourceLinkData();
+//				rlData.setId(rl.getId());
+//				rlData.setLinkName(rl.getLinkName());
+//				rlData.setUrl(rl.getUrl());
+//				rlData.setIdParamName(rl.getIdParameterName());
+//				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+//				activityLinks.add(rlData);
+//			}
+//			data.setLinks(activityLinks);
+//		}
+//		
+//		if (files != null) {
+//			List<ResourceLinkData> activityFiles = new ArrayList<>();
+//			for (ResourceLink rl : files) {
+//				ResourceLinkData rlData = new ResourceLinkData();
+//				rlData.setId(rl.getId());
+//				rlData.setLinkName(rl.getLinkName());
+//				rlData.setUrl(rl.getUrl());
+//				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+//				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+//				activityFiles.add(rlData);
+//			}
+//			data.setFiles(activityFiles);
+//		}
+//		
+//		//or add targetCompetenceId to activitydata
+//		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
+//		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
+//		populateTypeSpecificData(data, targetActivity);
+//
+//		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
+//		
+//		if (shouldTrackChanges) {
+//			data.startObservingChanges();
+//		}
+//		
+//		return data;
+		return null;
 	}
 	
 	private ActivityResultData getActivityResultData(TargetActivity1 activity, boolean isManager) {
+		//TODO cred-redesign-07
 		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
-		ActivityResultData ard = new ActivityResultData(false);
-		ard.setTargetActivityId(activity.getId());
-		ard.setResultType(getResultType(activity.getResultType()));
-		ard.setResult(activity.getResult());
-		if(ard.getResult() != null && !ard.getResult().isEmpty() 
-				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
-			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
-		}
-		ard.setResultPostDate(activity.getResultPostDate());
-		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
-				activity.getResultPostDate(), null, 0, false, isManager);
+//		ActivityResultData ard = new ActivityResultData(false);
+//		ard.setTargetActivityId(activity.getId());
+//		ard.setResultType(getResultType(activity.getResultType()));
+//		ard.setResult(activity.getResult());
+//		if(ard.getResult() != null && !ard.getResult().isEmpty() 
+//				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
+//			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
+//		}
+//		ard.setResultPostDate(activity.getResultPostDate());
+//		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
+//				activity.getResultPostDate(), null, 0, false, isManager);
+		return null;
 	}
 	
 	public ActivityResultData getActivityResultData(long targetActivityId, 
@@ -381,98 +382,103 @@ public class ActivityDataFactory {
 	}
 
 	private void populateTypeSpecificData(ActivityData act, TargetActivity1 activity) {
-		if(activity instanceof TextTargetActivity1) {
-			TextTargetActivity1 ta = (TextTargetActivity1) activity;
-			act.setActivityType(ActivityType.TEXT);
-			act.setText(ta.getText());
-		} else if(activity instanceof UrlTargetActivity1) {
-			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-			switch(urlAct.getType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					try {
-						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-					if(urlAct.getCaptions() != null) {
-						List<ResourceLinkData> captions = new ArrayList<>();
-						for(ResourceLink rl : urlAct.getCaptions()) {
-							ResourceLinkData rlData = new ResourceLinkData();
-							rlData.setId(rl.getId());
-							rlData.setLinkName(rl.getLinkName());
-							rlData.setUrl(rl.getUrl());
-							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-							rlData.setStatus(ObjectStatus.UP_TO_DATE);
-							captions.add(rlData);
-						}
-						act.setCaptions(captions);
-					}
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), 
-							null).getEmbedLink());
-					break;
-			}
-			act.setLink(urlAct.getUrl());
-			act.setLinkName(urlAct.getLinkName());
-		} else if(activity instanceof ExternalToolTargetActivity1) {
-			ExternalToolTargetActivity1 extAct = (ExternalToolTargetActivity1) activity;
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-			act.setLaunchUrl(extAct.getLaunchUrl());
-			act.setSharedSecret(extAct.getSharedSecret());
-			act.setConsumerKey(extAct.getConsumerKey());
-			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-		}
+		//TODO cred-redesign-07
+//		if(activity instanceof TextTargetActivity1) {
+//			TextTargetActivity1 ta = (TextTargetActivity1) activity;
+//			act.setActivityType(ActivityType.TEXT);
+//			act.setText(ta.getText());
+//		} else if(activity instanceof UrlTargetActivity1) {
+//			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
+//			switch(urlAct.getType()) {
+//				case Video:
+//					act.setActivityType(ActivityType.VIDEO);
+//					try {
+//						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
+//					} catch(Exception e) {
+//						e.printStackTrace();
+//					}
+//					if(urlAct.getCaptions() != null) {
+//						List<ResourceLinkData> captions = new ArrayList<>();
+//						for(ResourceLink rl : urlAct.getCaptions()) {
+//							ResourceLinkData rlData = new ResourceLinkData();
+//							rlData.setId(rl.getId());
+//							rlData.setLinkName(rl.getLinkName());
+//							rlData.setUrl(rl.getUrl());
+//							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+//							rlData.setStatus(ObjectStatus.UP_TO_DATE);
+//							captions.add(rlData);
+//						}
+//						act.setCaptions(captions);
+//					}
+//					break;
+//				case Slides:
+//					act.setActivityType(ActivityType.SLIDESHARE);
+//					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), 
+//							null).getEmbedLink());
+//					break;
+//			}
+//			act.setLink(urlAct.getUrl());
+//			act.setLinkName(urlAct.getLinkName());
+//		} else if(activity instanceof ExternalToolTargetActivity1) {
+//			ExternalToolTargetActivity1 extAct = (ExternalToolTargetActivity1) activity;
+//			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+//			act.setLaunchUrl(extAct.getLaunchUrl());
+//			act.setSharedSecret(extAct.getSharedSecret());
+//			act.setConsumerKey(extAct.getConsumerKey());
+//			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
+//		}
 	}
 	
 	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
-		if(activity == null) {
-			return null;
-		}
-		ActivityData act = new ActivityData(false);
-		act.setActivityId(activity.getActivity().getId());
-		act.setTargetActivityId(activity.getId());
-		act.setTitle(activity.getTitle());
-		act.setCompleted(activity.isCompleted());
-		act.setEnrolled(true);
-		act.setDurationHours((int) (activity.getDuration() / 60));
-		act.setDurationMinutes((int) (activity.getDuration() % 60));
-		act.calculateDurationString();
-		
-		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-		
-		if(shouldTrackChanges) {
-			act.startObservingChanges();
-		}
-		
-		act.setActivityType(determineActivityType(activity));
-
-		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-		
-		if(shouldTrackChanges) {
-			act.startObservingChanges();
-		}
-		
-		return act;
+		//TODO cred-redesign-07
+//		if(activity == null) {
+//			return null;
+//		}
+//		ActivityData act = new ActivityData(false);
+//		act.setActivityId(activity.getActivity().getId());
+//		act.setTargetActivityId(activity.getId());
+//		act.setTitle(activity.getTitle());
+//		act.setCompleted(activity.isCompleted());
+//		act.setEnrolled(true);
+//		act.setDurationHours((int) (activity.getDuration() / 60));
+//		act.setDurationMinutes((int) (activity.getDuration() % 60));
+//		act.calculateDurationString();
+//		
+//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+//		
+//		if(shouldTrackChanges) {
+//			act.startObservingChanges();
+//		}
+//		
+//		act.setActivityType(determineActivityType(activity));
+//
+//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+//		
+//		if(shouldTrackChanges) {
+//			act.startObservingChanges();
+//		}
+//		
+//		return act;
+		return null;
 	}
 
 	private ActivityType determineActivityType(TargetActivity1 activity) {
-		if(activity instanceof TextTargetActivity1) {
-			return ActivityType.TEXT;
-		} else if(activity instanceof UrlTargetActivity1) {
-			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-			switch(urlAct.getType()) {
-				case Video:
-					return ActivityType.VIDEO;
-				case Slides:
-					return ActivityType.SLIDESHARE;
-			}
-		} else if(activity instanceof ExternalToolTargetActivity1) {
-			return ActivityType.EXTERNAL_TOOL;
-		}
-		
+		//TODO cred-redesign-07
+//		if(activity instanceof TextTargetActivity1) {
+//			return ActivityType.TEXT;
+//		} else if(activity instanceof UrlTargetActivity1) {
+//			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
+//			switch(urlAct.getType()) {
+//				case Video:
+//					return ActivityType.VIDEO;
+//				case Slides:
+//					return ActivityType.SLIDESHARE;
+//			}
+//		} else if(activity instanceof ExternalToolTargetActivity1) {
+//			return ActivityType.EXTERNAL_TOOL;
+//		}
+//		
+//		return null;
 		return null;
 	}
 

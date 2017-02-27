@@ -56,8 +56,8 @@ public class RichContentDataFactory {
 	}
 	
 	public AttachmentPreview1 getAttachmentPreviewForCredential(long id, long duration,
-			String title, String description, LearningResourceType type, 
-			String creatorName, String creatorLastname) {
+			String title, String description, LearningResourceType type, String creatorName, 
+			String creatorLastname) {
 		AttachmentPreview1 ap = getAttachmentPreviewForLearningResource(id, duration, title, description, 
 				type, creatorName, creatorLastname, MediaType1.Credential);
 		String page = ObjectToPageMapper.getViewPageForObjectType(ResourceType.Credential);
