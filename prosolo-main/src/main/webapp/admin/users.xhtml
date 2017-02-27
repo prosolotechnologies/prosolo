@@ -130,15 +130,6 @@
 	                                	oncomplete="$('#loginAs').modal('show');">
 	                                	Login as...
 	                                </p:commandLink>
-	                                
-	                                <p:commandLink 
-	                                	styleClass="linkRed"
-	                                	pt:data-toggle="modal"
-	                                	action="#{adminUsers.setUserToDelete(user)}"
-	                                	update=":deleteUserModal"
-	                                	oncomplete="$('#deleteModal').modal('show');">
-	                                	Delete
-	                                </p:commandLink>
 	                            </div>
 	                        </div>
 	                    </li>
@@ -182,12 +173,5 @@
              </div>
          </div>
 	</h:form>
-
-	<courses:deleteModalDialog id="deleteUserModal"
-   			deleteActionMethodName="delete"     	
-          	deleteAction="#{adminUsers.delete}"
-          	toUpdate=":panelUsers :growlMain" 
-          	modalDeleteTitle="user"
-          	modalDeleteText="#{adminUsers.userToDelete.fullName}"/>
   </ui:define>
 </ui:composition>

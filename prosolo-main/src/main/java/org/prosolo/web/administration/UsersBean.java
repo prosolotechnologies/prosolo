@@ -48,9 +48,7 @@ public class UsersBean implements Serializable, Paginable {
 	
 	private String roleId;
 	
-	private List<UserData> users;
-	
-	
+	private List<UserData> users;	
 	private UserData userToDelete;
 
 	// used for search

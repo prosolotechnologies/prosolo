@@ -28,7 +28,10 @@
 		</ul>
 	</ui:define>
 	<ui:define name="content">
-	
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script src="awesomplete.js" async="true"></script>
+		<link rel="stylesheet" href="awesomplete.css" />
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 		<div class="whiteBar"></div>
 
 		<div class="container">
@@ -40,9 +43,9 @@
 							<h:outputText
 								value="#{userEditBean.user.name} #{userEditBean.user.lastName} - Personal Info" />
 						</H2>
-						<h:form id="formMain">
-							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-							<div class="formWrapper">
+
+						<div class="formWrapper">
+							<h:form id="formMain">
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
@@ -108,20 +111,67 @@
 										</h:panelGroup>
 									</div>
 								</div>
-								<div class="formLine">
-									<label>&#160;</label>
-									<div class="formLineRight">
-										<p:commandLink styleClass="btn btn-green"
-											action="#{userEditBean.saveUser()}" update=":formMain">
+							</h:form>
+							<div class="formLine">
+								<label>&#160;</label>
+								<div class="formLineRight adminUserEditButtons">
+									<p:commandLink styleClass="btn btn-green"
+										action="#{userEditBean.saveUser()}" update=":formMain">
 	                                	Save Changes
 	                                </p:commandLink>
-									</div>
+									<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+										action="#{userEditBean.setUserToDelete(user)}"
+										update=":formDelete"
+										oncomplete="$('#deleteUser').modal('show');">
+	                                	Delete
+	                                </p:commandLink>
 								</div>
 							</div>
-						</h:form>
+
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<h:form id="formDelete">
+			<div class="modal fade deleteUserModal" id="deleteUser" tabindex="-1"
+				role="dialog" aria-labelledby="delUser">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header alignLeft">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&#215;</span>
+							</button>
+							<h2 class="modal-title">Delete user?</h2>
+						</div>
+						<div class="modal-body alignLeft">
+							<p>Are you sure you want to delete #{userEditBean.user.name}
+								#{userEditBean.user.lastName}?</p>
+							<p>Transfer content ownership to:</p>
+							<div class="inputWrapper">
+								<input type="text" placeholder="Type name..."
+									class="awesomplete" list = "userlist" />
+								<ul class="dropdown-menu searchResultsDrop"
+									style="display: block;">
+									<ui:repeat var="user" value="#{userEditBean.users}">
+										<datalist id="userlist">
+											<span class="letterAvatar letterAvatar32 img-circle">#{user.avatarUrl}</span>
+											<option><h3>#{user.fullName}</h3>
+											</option>
+
+										</datalist>
+									</ui:repeat>
+								</ul>
+							</div>
+						</div>
+						<div class="modal-footer alignLeft">
+							<a href="#" class="btn btn-red">Delete</a> <a href="#"
+								class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
 	</ui:define>
 </ui:composition>
