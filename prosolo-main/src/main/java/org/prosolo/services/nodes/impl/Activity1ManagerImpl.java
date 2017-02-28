@@ -81,6 +81,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
@@ -117,6 +118,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
@@ -143,6 +145,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	//Currently, there can only be one competence with specific activity
 	private void deleteAllCompetenceActivitiesForActivity(long actId) {
 		Activity1 act = (Activity1) persistence.currentManager()
@@ -179,6 +182,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		
 	}
 
+	@Deprecated
 	private void shiftOrderOfActivitiesUp(long id, int order) {
 		List<CompetenceActivity1> activitiesAfterDeleted = getAllCompetenceActivitiesAfterSpecified(
 				id, order);
@@ -188,6 +192,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	private List<CompetenceActivity1> getAllCompetenceActivitiesAfterSpecified(long compId, int order) {
 		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
 		String query = "SELECT compAct " +
@@ -210,6 +215,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return res;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getCompetenceActivitiesData(long competenceId, 
@@ -233,6 +239,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceActivity1> getCompetenceActivities(long competenceId, 
@@ -288,6 +295,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false) 
 	public List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
@@ -310,6 +318,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
 			CompetenceActivity1 compActivity) throws DbConnectionException {
@@ -405,6 +414,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getTargetActivitiesData(long targetCompId) 
@@ -427,6 +437,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetActivity1> getTargetActivities(long targetCompId) 
@@ -457,6 +468,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	@Override
 	public ActivityData getActivityData(long credId, long competenceId, 
@@ -504,6 +516,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadCompetence) {
 		try {
@@ -720,6 +733,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Activity1 updateActivity(ActivityData data, long userId,
@@ -755,6 +769,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	private void fireActivityEditEvent(Class<? extends Activity1> actClass, 
 			ActivityData data, User user, Activity1 act, String page, 
 			String context, String service) throws EventException {
@@ -796,6 +811,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	    eventFactory.generateEvent(EventType.Edit, user.getId(), act, null, page, context, service, params);
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Activity1 updateActivityData(ActivityData data, long userId) {
@@ -829,6 +845,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		
 	}
 	
+	@Deprecated
 	private void updateActivityType(long activityId, ActivityType activityType) {
 		Activity1 act = activityFactory.getObjectForActivityType(activityType);
 		boolean isUrlActivity = act instanceof UrlActivity1;
@@ -850,6 +867,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		q.executeUpdate();
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private Activity1 updateActivityData(Activity1 actToUpdate, 
 			Class<? extends Activity1> activityClass, ActivityData data) {
@@ -947,6 +965,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	private long getActivityDurationBeforeUpdate(ActivityData data) {
 		long oldDuration = 0;
 		if(data.isDurationHoursChanged() || data.isDurationMinutesChanged()) {
@@ -971,6 +990,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return oldDuration;
 	}
 	
+	@Deprecated
 	private void updateCompDuration(long actId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
     	Operation op = null;
@@ -989,6 +1009,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @param resLinksData
 	 * @param resLinks
 	 */
+	@Deprecated
 	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks) {
 		if (resLinksData != null) {
 			for (ResourceLinkData rl : resLinksData) {
@@ -1024,6 +1045,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
@@ -1056,6 +1078,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void saveResponse(long targetActId, String path, Date postDate, long userId, 
@@ -1091,6 +1114,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTextResponse(long targetActId, String path, long userId, 
@@ -1122,6 +1146,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void completeActivity(long targetActId, long targetCompId, long credId, long userId,
@@ -1156,6 +1181,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
@@ -1192,6 +1218,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
@@ -1251,6 +1278,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean isManager) 
@@ -1301,6 +1329,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
@@ -1331,6 +1360,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
@@ -1357,6 +1387,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private void recalculateTargetCompetencesAndCredentialsDuration(long actId) {
 		try {
@@ -1449,6 +1480,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetActivityLinks(long actId) 
 			throws DbConnectionException {
@@ -1476,6 +1508,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetActivityFiles(long actId) 
 			throws DbConnectionException {
@@ -1500,6 +1533,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<ResourceLink> getActivityLinks(long actId) 
 			throws DbConnectionException {
@@ -1526,6 +1560,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<ResourceLink> getActivityFiles(long actId) 
 			throws DbConnectionException {
@@ -1552,6 +1587,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetActivityBasicDataForUncompletedCredentials(long actId, 
 			Class<? extends Activity1> activityClass) 
@@ -1611,6 +1647,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<Long> getTargetActivityIdsForUncompletedCredentials(long actId) {
 		try {	
@@ -1641,6 +1678,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<TargetActivity1> getTargetActivitiesForActivity(long actId, 
 			boolean justUncompleted) 
@@ -1678,6 +1716,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public Long getCompetenceIdForActivity(long actId) throws DbConnectionException {
@@ -1700,6 +1739,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> publishActivitiesFromCompetences(long credId, long userId, 
@@ -1718,6 +1758,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
@@ -1738,6 +1779,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @param activities
 	 * @throws DbConnectionException
 	 */
+	@Deprecated
 	@Transactional(readOnly = false)
 	private List<EventData> publishDraftActivitiesFromList(long credId, long userId, 
 			List<CompetenceActivity1> activities) throws DbConnectionException {
@@ -1768,6 +1810,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return events;
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<CompetenceActivity1> getDraftActivitiesFromCompetences(List<Long> compIds) {
 		String query = "SELECT cAct FROM CompetenceActivity1 cAct " +
@@ -1788,6 +1831,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return activities;
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<CompetenceActivity1> getDraftActivitiesFromList(List<Long> actIds) {
 		if(actIds == null || actIds.isEmpty()) {
@@ -1906,6 +1950,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
@@ -1944,6 +1989,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
@@ -2001,6 +2047,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
@@ -2173,6 +2220,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	@Deprecated
 	private List<ResultCommentInfo> getCommentsOnOtherResults(long userId, long targetActivityId) {
 		String query = 
 				"SELECT targetAct.id, user.name, user.lastname, COUNT(DISTINCT com.id) AS noOfComments, MIN(com.post_date) AS firstCommentDate " +
@@ -2214,6 +2262,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return result;
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, 
@@ -2248,6 +2297,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
@@ -2298,6 +2348,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return null;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId,

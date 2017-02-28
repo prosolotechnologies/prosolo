@@ -76,6 +76,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject
 	private UserGroupManager userGroupManager;
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
@@ -131,6 +132,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} 
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 deleteCompetence(CompetenceData1 data, long userId) 
@@ -154,6 +156,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	private void deleteAllCredentialCompetencesForCompetence(long compId) {
 		Competence1 comp = (Competence1) persistence.currentManager()
 				.load(Competence1.class, compId);
@@ -179,6 +182,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		
 	}
 	
+	@Deprecated
 	private List<CredentialCompetence1> getAllCredentialCompetencesForCompetence(long compId) {
 		Competence1 comp = (Competence1) persistence.currentManager()
 				.load(Competence1.class, compId);
@@ -195,6 +199,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return res != null ? res : new ArrayList<>();
 	}
 
+	@Deprecated
 	private void shiftOrderOfCompetencesUp(long id, int order) {
 		List<CredentialCompetence1> compsAfterDeleted = getAllCredentialCompetencesAfterSpecified(
 				id, order);
@@ -204,6 +209,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Deprecated
 	private List<CredentialCompetence1> getAllCredentialCompetencesAfterSpecified(long credId, int order) {
 		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
 		String query = "SELECT credComp " +
@@ -226,6 +232,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return res;
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
@@ -275,6 +282,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
@@ -295,6 +303,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetCompetence1 createTargetCompetence(TargetCredential1 targetCred, 
 			CredentialCompetence1 cc) {
@@ -334,6 +343,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return null;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
@@ -401,6 +411,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param userId
 	 * @return
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
 			long userId) {
@@ -452,6 +463,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return res;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 updateCompetence(CompetenceData1 data, long userId, 
@@ -492,6 +504,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Deprecated
 	private void fireCompEditEvent(CompetenceData1 data, long userId, 
 			Competence1 updatedComp, String page, String context, String service) 
 					throws EventException {
@@ -506,6 +519,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    eventFactory.generateEvent(EventType.Edit, userId, updatedComp, null, page, context, service, params);
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) {
@@ -586,6 +600,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    return compToUpdate;
 	}
 	
+	@Deprecated
 	private void updateCredDuration(long compId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
     	Operation op = null;
@@ -636,6 +651,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		
 //	}
 
+	@Deprecated
 	private void deleteCompetenceActivities(long compId) throws DbConnectionException {
 		try {
 			String query = "DELETE CompetenceActivity1 compAct " +
@@ -653,6 +669,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -695,6 +712,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
@@ -798,6 +816,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId) 
@@ -805,6 +824,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return getCompetenceTags(compId, persistence.currentManager());
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId, Session session) 
@@ -831,7 +851,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence tags");
 		}
 	}
-			
+		
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetCompetenceBasicDataForUncompletedCredentials(long compId) 
 			throws DbConnectionException {
@@ -863,6 +884,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<Long> getTargetCompetenceIdsForUncompletedCredentials(long compId) {
 		try {	
@@ -892,6 +914,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) 
@@ -932,6 +955,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetCompetencesTags(long compId) 
 			throws DbConnectionException {
@@ -952,6 +976,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker) 
@@ -1067,6 +1092,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
@@ -1137,6 +1163,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		return draftComp;
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateDurationForCompetenceWithActivity(long actId, long duration, Operation op) 
@@ -1167,6 +1194,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	private Optional<Long> getCompetenceIdForActivity(long actId) {
 		String query = "SELECT comp.id FROM CompetenceActivity1 cAct " +
 				"INNER JOIN cAct.competence comp " +
@@ -1180,6 +1208,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return res == null ? Optional.empty() : Optional.of(res);
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException {
@@ -1200,6 +1229,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getCompetenceTitle(long id) throws DbConnectionException {
@@ -1221,6 +1251,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getTargetCompetenceTitle(long targetCompId) throws DbConnectionException {
@@ -1242,6 +1273,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateProgressForTargetCompetenceWithActivity(long targetActId) 
@@ -1297,6 +1329,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
@@ -1334,6 +1367,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 * @throws DbConnectionException
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId, 
 			boolean loadActivities, boolean loadCredentialTitle) throws DbConnectionException {
@@ -1383,6 +1417,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
@@ -1450,6 +1485,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param role
 	 * @return
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private List<Competence1> getDraftCompetencesFromList(List<Long> compIds, long userId) {
 		StringBuilder queryB = new StringBuilder("SELECT comp FROM Competence1 comp " +
@@ -1510,6 +1546,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		return originalComp;
 //	}
 	
+	@Deprecated
 	@SuppressWarnings({ "unchecked"})
 	@Transactional
 	@Override
@@ -1550,6 +1587,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return result;
 	}
 
+	@Deprecated
 	@SuppressWarnings({ "unchecked"})
 	@Transactional
 	@Override
@@ -1590,6 +1628,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return result;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Competence1> getAllCompetences(Session session) 
@@ -1695,6 +1734,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //		}
 //	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	@Override
 	public UserGroupPrivilege getUserPrivilegeForCompetence(long credId, long compId, long userId) 
@@ -1740,6 +1780,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isVisibleToAll(long compId) throws DbConnectionException {
@@ -1762,6 +1803,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
@@ -1781,6 +1823,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Deprecated
 	private long getRecalculatedDuration(long compId) {
 		String query = "SELECT sum(a.duration) FROM CompetenceActivity1 ca " +
 					   "INNER JOIN ca.activity a " +

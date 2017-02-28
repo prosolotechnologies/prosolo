@@ -108,6 +108,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private UserGroupManager userGroupManager;
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
@@ -158,6 +159,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} 
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Credential1 deleteCredential(long credId, long userId) throws DbConnectionException {
@@ -206,6 +208,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataWithProgressIfExists(long credentialId, long userId) 
@@ -312,6 +315,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
@@ -398,6 +402,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
@@ -416,6 +421,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId, 
@@ -451,6 +457,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
@@ -487,6 +494,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res;
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialData(long credentialId, boolean loadCreatorData,
@@ -567,6 +575,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @return
 	 * @throws DbConnectionException
 	 */
+	@Deprecated
 	@Transactional(readOnly = true)
 	private Credential1 getCredential(long credentialId, boolean loadCreatorData, long userId) 
 			throws DbConnectionException {
@@ -681,6 +690,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Credential1 updateCredential(CredentialData data, long userId,
@@ -757,6 +767,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	private long getRecalculatedDuration(long credId) {
 		String query = "SELECT sum(c.duration) FROM CredentialCompetence1 cc " +
 					   "INNER JOIN cc.competence c " +
@@ -771,6 +782,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res != null ? res : 0;
 	}
 	
+	@Deprecated
 	private void fireEditEvent(CredentialData data, long userId, 
 			Credential1 cred, long originalVersionId, String page, String context,
 			String service) throws EventException {   
@@ -785,6 +797,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    eventFactory.generateEvent(EventType.Edit, userId, cred, null, page, context, service, params);
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Credential1> updateCredentialData(CredentialData data, long creatorId) {
@@ -869,6 +882,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return null;
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	public long getCredentialDuration(long credId) throws DbConnectionException {  
 		try {
@@ -889,6 +903,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void deleteCredentialCompetences(long credId) {
 		try {
@@ -907,6 +922,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
@@ -914,6 +930,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return enrollInCredential(credentialId, userId, 0, context, null).getResult();
 	}
 	
+	@Deprecated
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional(readOnly = false)
 	private Result<CredentialData> enrollInCredential(long credentialId, long userId, 
@@ -1022,6 +1039,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
@@ -1037,6 +1055,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
 		//TODO cred-redesign-07
@@ -1090,6 +1109,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return null;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
@@ -1128,6 +1148,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 	}
 	
+	@Deprecated
 	private EventData generateEvent(EventType attach, User user, Competence1 comp, Credential1 cred) {
 		EventData event = new EventData();
 		event.setEventType(EventType.Attach);
@@ -1184,6 +1205,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return draftCred;
 //	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
@@ -1229,6 +1251,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId) 
@@ -1237,6 +1260,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId, Session session) 
@@ -1264,6 +1288,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId) 
@@ -1271,6 +1296,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getCredentialHashtags(credentialId, persistence.currentManager());
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId, Session session) 
@@ -1297,7 +1323,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential hashtags");
 		}
 	}
-			
+		
+	@Deprecated
 	//TODO this method should be removed because all changes will be propagated
 	@Transactional(readOnly = false)
 	private void updateBasicDataForNotCompletedTargetCredentials(long credentialId) 
@@ -1327,6 +1354,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = true)
 	@Override
 	public List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
@@ -1364,6 +1392,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetCredentialTagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
@@ -1385,6 +1414,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Transactional(readOnly = false)
 	private void updateTargetCredentialHashtagsForUncompletedCredentials(long credentialId) 
 			throws DbConnectionException {
@@ -1407,6 +1437,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	
+	@Deprecated
 	//TODO this method should be removed/changed because all changes will be propagated
 	@Override
 	@Transactional(readOnly = false)
@@ -1426,12 +1457,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId) throws DbConnectionException {
 		return getBookmarkedByIds(credId, persistence.currentManager());
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId, Session session) 
@@ -1459,6 +1492,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void bookmarkCredential(long credId, long userId, LearningContextData context) 
@@ -1486,6 +1520,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialBookmark bookmarkCredential(long credId, long userId) 
@@ -1504,6 +1539,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void deleteCredentialBookmark(long credId, long userId, LearningContextData context) 
@@ -1531,6 +1567,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public long deleteCredentialBookmark(long credId, long userId) 
@@ -1561,6 +1598,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
@@ -1586,6 +1624,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCredentialDuration(long id, long duration) throws DbConnectionException {
@@ -1606,6 +1645,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Deprecated
 	private List<Long> getIdsOfCredentialsWithCompetence(long compId) {
 		try {
 			String query = "SELECT cred.id " +
@@ -1631,6 +1671,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	public void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException {
 		try {	
 			String query1 = "SELECT cred.id " +
@@ -1671,6 +1712,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
@@ -1810,12 +1852,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
 		return getCredentialTitleForCredentialWithType(id, null);
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException {
@@ -1847,6 +1891,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //					loadCompetences, Role.Manager);
 //	}
 
+	@Deprecated
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	@Transactional (readOnly = true)
@@ -1875,6 +1920,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return result;
 	}
 	
+	@Deprecated
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional (readOnly = true)
@@ -1904,6 +1950,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return result;
 	}
 
+	@Deprecated
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	@Transactional (readOnly = true)
@@ -1933,6 +1980,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return result;
 	}
 
+	@Deprecated
 	@Override
 	@Transactional (readOnly = false)
 	public void updateHiddenTargetCredentialFromProfile(long credId, boolean hiddenFromProfile)
@@ -1954,6 +2002,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
@@ -1986,6 +2035,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) 
@@ -1993,6 +2043,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getTargetCredentialsProgressAndInstructorInfoForUser(userId, persistence.currentManager());
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
@@ -2032,6 +2083,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException {
@@ -2056,6 +2108,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) 
@@ -2081,6 +2134,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException {
@@ -2104,6 +2158,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForCredential(long credId) throws DbConnectionException {
@@ -2128,6 +2183,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	//TODO check with Nikola why 30 is hardcoded
 	@Override
 	@Transactional(readOnly = true)
@@ -2154,6 +2210,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) 
@@ -2182,6 +2239,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
@@ -2212,6 +2270,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void removeFeed(long credId, long feedSourceId) throws DbConnectionException {
@@ -2226,6 +2285,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	//returns true if new blog is added to the course, false if it already exists
 	@Override
 	@Transactional(readOnly = false)
@@ -2255,6 +2315,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	private Credential1 getCredentialWithBlogs(long credId) {
 		String query = "SELECT cred " +
 				   "FROM Credential1 cred " +
@@ -2269,6 +2330,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return cred;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
@@ -2306,6 +2368,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public Object[] getCredentialAndCompetenceTitle(long credId, long compId) 
@@ -2334,6 +2397,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional
 	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
@@ -2388,6 +2452,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCredentialLastAction(long userId, long credentialId) 
@@ -2413,6 +2478,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
@@ -2446,6 +2512,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public long getNumberOfUsersLearningCredential(long credId) 
@@ -2468,6 +2535,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
@@ -2517,6 +2585,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
@@ -2552,6 +2621,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
@@ -2594,6 +2664,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
@@ -2702,6 +2773,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return ev;
 //	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {
@@ -2728,6 +2800,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		
 		return tags;
 	}
+	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public int getNumberOfTags(long credentialId) throws DbConnectionException {
@@ -2735,6 +2809,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getTagsForCredentialCompetences(credentialId).size();
 	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
@@ -2766,6 +2841,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return data;
 		return null;
 	}
+	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException {
@@ -2798,6 +2875,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return null;
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
@@ -2840,6 +2918,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Credential1> getAllCredentials(Session session) throws DbConnectionException {
@@ -2866,6 +2945,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
@@ -2885,6 +2965,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isVisibleToAll(long credId) throws DbConnectionException {
@@ -2907,6 +2988,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
@@ -2941,6 +3023,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public ResourceAccessData getCredentialAccessRights(long credId, long userId, 
