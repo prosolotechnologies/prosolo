@@ -64,7 +64,7 @@ public class CredentialFeedsBean implements Serializable {
 		if (decodedId > 0) {
 			try {
 				access = credentialManager.getCredentialAccessRights(decodedId, 
-						loggedUserBean.getUserId(), UserGroupPrivilege.View);
+						loggedUserBean.getUserId(), UserGroupPrivilege.Learn);
 				if(!access.isCanAccess()) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch(

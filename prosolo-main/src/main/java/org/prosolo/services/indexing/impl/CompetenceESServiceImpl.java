@@ -63,7 +63,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			List<CompetenceUserGroup> editGroups = compGroups.stream().filter(
 					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
 			List<CompetenceUserGroup> viewGroups = compGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
 			builder.startArray("usersWithEditPrivilege");
 			for(CompetenceUserGroup g : editGroups) {
 				for(UserGroupUser user : g.getUserGroup().getUsers()) {
@@ -162,7 +162,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			List<CompetenceUserGroup> editGroups = compGroups.stream().filter(
 					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
 			List<CompetenceUserGroup> viewGroups = compGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
 			builder.startArray("usersWithEditPrivilege");
 			for(CompetenceUserGroup g : editGroups) {
 				for(UserGroupUser user : g.getUserGroup().getUsers()) {

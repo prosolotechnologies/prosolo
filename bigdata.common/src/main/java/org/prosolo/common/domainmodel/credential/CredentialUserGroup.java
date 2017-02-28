@@ -21,7 +21,7 @@ public class CredentialUserGroup extends BaseEntity {
 	
 	private Credential1 credential;
 	private UserGroup userGroup;
-	private UserGroupPrivilege privilege = UserGroupPrivilege.View;
+	private UserGroupPrivilege privilege = UserGroupPrivilege.Learn;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	public Credential1 getCredential() {

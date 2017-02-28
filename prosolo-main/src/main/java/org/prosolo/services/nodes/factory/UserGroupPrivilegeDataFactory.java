@@ -15,7 +15,7 @@ public class UserGroupPrivilegeDataFactory {
 			case Edit:
 				return UserGroupPrivilege.Edit;
 			case View:
-				return UserGroupPrivilege.View;
+				return UserGroupPrivilege.Learn;
 		}
 		return UserGroupPrivilege.None;
 	}

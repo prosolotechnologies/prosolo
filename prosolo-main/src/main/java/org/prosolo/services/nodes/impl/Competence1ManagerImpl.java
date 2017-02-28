@@ -356,7 +356,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 *  - when competence is published if user has View privilege
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.View && !comp.isPublished()) {
+			if(canAccess && priv == UserGroupPrivilege.Learn && !comp.isPublished()) {
 				canAccess = false;
 			}
 			
@@ -1309,7 +1309,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
 				//compData = getCompetenceDataForUser(credId, compId, true, true, true, userId, true);
 				compData = getCompetenceData(credId, compId, true, true, true, userId, 
-						UserGroupPrivilege.View, false);
+						UserGroupPrivilege.Learn, false);
 			}
 				
 			return compData;
@@ -1717,7 +1717,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setLong("userId", userId)
 					.setLong("compId", compId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.View)
+					.setParameter("viewPriv", UserGroupPrivilege.Learn)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -1732,7 +1732,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			boolean visibleToAll = (boolean) res[2];
 			return owner == userId 
 				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

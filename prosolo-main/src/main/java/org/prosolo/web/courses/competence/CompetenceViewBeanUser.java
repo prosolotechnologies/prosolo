@@ -72,7 +72,7 @@ public class CompetenceViewBeanUser implements Serializable {
 						competenceData.setCreator(rc);
 					} else {
 						competenceData = competenceManager.getCompetenceData(0, decodedCompId, true, 
-								true, true, loggedUser.getUserId(), UserGroupPrivilege.View, false);
+								true, true, loggedUser.getUserId(), UserGroupPrivilege.Learn, false);
 					}
 				}
 				

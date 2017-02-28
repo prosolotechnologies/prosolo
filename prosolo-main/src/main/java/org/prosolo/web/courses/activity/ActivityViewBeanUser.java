@@ -122,7 +122,7 @@ public class ActivityViewBeanUser implements Serializable {
 				if ("preview".equals(mode)) {
 					priv = UserGroupPrivilege.Edit;
 				} else {
-					priv = UserGroupPrivilege.View;
+					priv = UserGroupPrivilege.Learn;
 				}
 				if (decodedCredId > 0) {
 					competenceData = activityManager

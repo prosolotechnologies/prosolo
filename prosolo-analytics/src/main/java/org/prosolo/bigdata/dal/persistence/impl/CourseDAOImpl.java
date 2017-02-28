@@ -138,7 +138,7 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 					.setLong("userId", userId)
 					.setLong("credId", credId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.View)
+					.setParameter("viewPriv", UserGroupPrivilege.Learn)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -153,7 +153,7 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 			boolean visibleToAll = (boolean) res[2];
 			return owner == userId 
 				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

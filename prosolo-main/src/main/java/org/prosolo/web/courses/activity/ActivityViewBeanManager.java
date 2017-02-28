@@ -66,7 +66,7 @@ public class ActivityViewBeanManager implements Serializable {
 				if("preview".equals(mode)) {
 					priv = UserGroupPrivilege.Edit;
 				} else {
-					priv = UserGroupPrivilege.View;
+					priv = UserGroupPrivilege.Learn;
 				}
 				competenceData = activityManager
 						.getCompetenceActivitiesWithSpecifiedActivityInFocus(

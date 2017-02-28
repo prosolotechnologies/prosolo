@@ -62,7 +62,7 @@ public class CompetenceViewBeanManager implements Serializable {
 				} else {
 					competenceData = competenceManager
 							.getCompetenceData(decodedCredId, decodedCompId, true, true, true, 
-									loggedUser.getUserId(), UserGroupPrivilege.View, false);
+									loggedUser.getUserId(), UserGroupPrivilege.Learn, false);
 				}
 				
 				/*

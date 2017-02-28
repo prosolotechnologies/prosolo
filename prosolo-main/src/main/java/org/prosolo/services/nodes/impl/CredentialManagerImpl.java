@@ -406,7 +406,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
-				credData = getCredentialData(credentialId, true, true, userId, UserGroupPrivilege.View);
+				credData = getCredentialData(credentialId, true, true, userId, UserGroupPrivilege.Learn);
 			}
 			return credData;
 		} catch (Exception e) {
@@ -2817,7 +2817,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("userId", userId)
 					.setLong("credId", credId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.View)
+					.setParameter("viewPriv", UserGroupPrivilege.Learn)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -2832,7 +2832,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean visibleToAll = (boolean) res[2];
 			return owner == userId 
 				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

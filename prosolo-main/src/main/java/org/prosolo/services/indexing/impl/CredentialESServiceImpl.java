@@ -104,7 +104,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
 					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
 			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
 			builder.startArray("usersWithEditPrivilege");
 			for(CredentialUserGroup g : editGroups) {
 				for(UserGroupUser user : g.getUserGroup().getUsers()) {
@@ -298,7 +298,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
 					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
 			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.View).collect(Collectors.toList());
+					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
 			builder.startArray("usersWithEditPrivilege");
 			for(CredentialUserGroup g : editGroups) {
 				for(UserGroupUser user : g.getUserGroup().getUsers()) {

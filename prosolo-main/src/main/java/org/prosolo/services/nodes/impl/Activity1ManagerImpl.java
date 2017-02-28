@@ -483,7 +483,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 *  
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.View && (!res.getActivity().isPublished()
+			if(canAccess && priv == UserGroupPrivilege.Learn && (!res.getActivity().isPublished()
 					|| !res.getCompetence().isPublished())) {
 				canAccess = false;
 			}

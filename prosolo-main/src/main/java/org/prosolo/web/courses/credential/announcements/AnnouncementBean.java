@@ -78,7 +78,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 			try {
 				long credId = idEncoder.decodeId(credentialId);
 				access = credManager.getCredentialAccessRights(credId, 
-						loggedUser.getUserId(), UserGroupPrivilege.View);
+						loggedUser.getUserId(), UserGroupPrivilege.Learn);
 				if(!access.isCanAccess()) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch(

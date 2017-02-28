@@ -111,7 +111,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if(title != null) {
 					access = credManager.getCredentialAccessRights(decodedId, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.View);
+							loggedUserBean.getUserId(), UserGroupPrivilege.Learn);
 					if(!access.isCanAccess()) {
 						try {
 							FacesContext.getCurrentInstance().getExternalContext().dispatch(

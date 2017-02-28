@@ -54,7 +54,7 @@ public class CredentialViewBeanManager implements Serializable {
 				} else {
 					credentialData = credentialManager
 							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
-									UserGroupPrivilege.View);
+									UserGroupPrivilege.Learn);
 				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {

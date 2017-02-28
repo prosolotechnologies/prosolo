@@ -435,7 +435,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			
 			//assign view privilege to newly added instructor
 			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
-					UserGroupPrivilege.View);
+					UserGroupPrivilege.Learn);
 			return instructor;
 		} catch(Exception e) {
 			logger.error(e);
