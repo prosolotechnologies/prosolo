@@ -9,6 +9,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
+
 @Entity
 public class UrlActivity1 extends Activity1 {
 
@@ -22,6 +24,11 @@ public class UrlActivity1 extends Activity1 {
 	
 	public UrlActivity1() {
 		captions = new HashSet<>();
+	}
+	
+	@Override
+	public void accept(ActivityVisitor visitor) {
+		visitor.visit(this);
 	}
 
 	public String getUrl() {
