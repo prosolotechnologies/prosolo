@@ -326,7 +326,7 @@ public class ActivityEditBean implements Serializable {
 	}
 	
 	public boolean isCreateUseCase() {
-		return activityData.getActivityId() == 0;
+		return activityData != null ? activityData.getActivityId() == 0 : false;
 	}
 	
 	/*
