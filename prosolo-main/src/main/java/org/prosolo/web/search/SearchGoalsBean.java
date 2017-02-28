@@ -95,40 +95,40 @@ public class SearchGoalsBean implements Serializable{
 	}
 
 	public void fetchGoals(String searchQuery, Collection<LearningGoal> goalsToExclude, int limit, boolean loadOneMore) {
-		 TextSearchResponse searchResponse = textSearch.searchLearningGoals(
-			searchQuery,
-			this.page, 
-			limit,
-			loadOneMore,
-			goalsToExclude);
-		 
-		@SuppressWarnings("unchecked")
-		List<LearningGoal> foundGoals = (List<LearningGoal>) searchResponse.getFoundNodes();
-		this.goalsSize = (int) searchResponse.getHitsNumber();
-		
-		// if there is more than limit, set moreToLoad to true
-		if (loadOneMore && foundGoals.size() == limit+1) {
-			foundGoals = foundGoals.subList(0, foundGoals.size()-1);
-			moreToLoad = true;
-		} else {
-			moreToLoad = false;
-		}
-		
-		goals.addAll(convertToGoalData(foundGoals, loggedUser.getUserId()));
-		
-		if(foundGoals != null && !foundGoals.isEmpty()) {
-			Map<Long, List<Long>> counts = learningGoalManager.getCollaboratorsOfLearningGoals(foundGoals);
-			
-			if (counts != null) {
-				for (LearningGoalData courseData : this.goals) {
-					List<Long> memberIds = counts.get(courseData.getId());
-					
-					if (memberIds != null) {
-						courseData.setMemberIds(memberIds);
-					}
-				}
-			}
-		}
+//		 TextSearchResponse searchResponse = textSearch.searchLearningGoals(
+//			searchQuery,
+//			this.page, 
+//			limit,
+//			loadOneMore,
+//			goalsToExclude);
+//		 
+//		@SuppressWarnings("unchecked")
+//		List<LearningGoal> foundGoals = (List<LearningGoal>) searchResponse.getFoundNodes();
+//		this.goalsSize = (int) searchResponse.getHitsNumber();
+//		
+//		// if there is more than limit, set moreToLoad to true
+//		if (loadOneMore && foundGoals.size() == limit+1) {
+//			foundGoals = foundGoals.subList(0, foundGoals.size()-1);
+//			moreToLoad = true;
+//		} else {
+//			moreToLoad = false;
+//		}
+//		
+//		goals.addAll(convertToGoalData(foundGoals, loggedUser.getUserId()));
+//		
+//		if(foundGoals != null && !foundGoals.isEmpty()) {
+//			Map<Long, List<Long>> counts = learningGoalManager.getCollaboratorsOfLearningGoals(foundGoals);
+//			
+//			if (counts != null) {
+//				for (LearningGoalData courseData : this.goals) {
+//					List<Long> memberIds = counts.get(courseData.getId());
+//					
+//					if (memberIds != null) {
+//						courseData.setMemberIds(memberIds);
+//					}
+//				}
+//			}
+//		}
 	}
 
 	public boolean hasMoreLearningGoals() {

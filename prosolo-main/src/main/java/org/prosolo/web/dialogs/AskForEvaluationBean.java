@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.omnifaces.util.Ajax;
@@ -25,7 +26,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
@@ -58,7 +59,7 @@ public class AskForEvaluationBean implements Serializable {
 	@Autowired private UserManager userManager;
 	@Autowired private EvaluationManager evaluationManager;
 	@Autowired private RoleManager roleManager;
-	@Autowired private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceSettingsBean resourceSettings;
 	@Autowired private LoggingNavigationBean actionLogger;
@@ -192,7 +193,7 @@ public class AskForEvaluationBean implements Serializable {
 		}
 		userSearchResults.clear();
 		
-		TextSearchResponse usersResponse = textSearch.searchUsers(keyword, 0, 4, false, totalListToExclude);
+		TextSearchResponse usersResponse = userTextSearch.searchUsers(keyword, 0, 4, false, totalListToExclude);
 		
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();

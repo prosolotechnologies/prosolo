@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -30,7 +30,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 
 	protected static Logger logger = Logger.getLogger(ManageGroupsBean.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private GroupUsersBean groupUsersBean;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
@@ -144,7 +144,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	public void loadGroups() {
 		this.groups = new ArrayList<UserGroupData>();
 		try {
-			TextSearchResponse1<UserGroupData> res = textSearch.searchUserGroups(searchTerm, 
+			TextSearchResponse1<UserGroupData> res = userGroupTextSearch.searchUserGroups(searchTerm, 
 					paginationData.getPage() - 1, paginationData.getLimit());
 			this.paginationData.update((int) res.getHitsNumber());
 			groups = res.getFoundNodes();

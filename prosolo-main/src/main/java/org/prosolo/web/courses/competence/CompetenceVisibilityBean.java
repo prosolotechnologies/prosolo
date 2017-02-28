@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -33,7 +33,7 @@ public class CompetenceVisibilityBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(CompetenceVisibilityBean.class);
 	
-	@Inject private TextSearch textSearch;
+	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
@@ -79,10 +79,10 @@ public class CompetenceVisibilityBean implements Serializable {
 		}
 		TextSearchResponse1<ResourceVisibilityMember> res = null;
 		if(manageSection) {
-			res = textSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(), 
+			res = userGroupTextSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(), 
 					getUsersToExclude(), getGroupsToExclude());
 		} else {
-			res = textSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
+			res = userGroupTextSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
 		}
 		
 		setSearchMembers(res.getFoundNodes());

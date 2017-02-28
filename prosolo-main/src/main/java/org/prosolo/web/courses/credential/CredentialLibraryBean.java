@@ -17,7 +17,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
@@ -42,7 +42,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	private static Logger logger = Logger.getLogger(CredentialLibraryBean.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private CredentialTextSearch credentialTextSearch;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
@@ -99,7 +99,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(searchTerm, 
+		TextSearchResponse1<CredentialData> response = credentialTextSearch.searchCredentials(searchTerm, 
 				paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
 				searchFilter, sortOption, true, true);
 		paginationData.update((int) response.getHitsNumber());

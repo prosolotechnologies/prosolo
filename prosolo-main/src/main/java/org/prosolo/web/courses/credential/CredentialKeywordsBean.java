@@ -11,14 +11,12 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -55,8 +53,7 @@ public class CredentialKeywordsBean {
 
 	@Autowired
 	private LoggedUserBean loggedUser;
-	@Autowired
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Autowired
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -166,14 +163,6 @@ public class CredentialKeywordsBean {
 
 	public List<TagCountData> getSelectedKeywords() {
 		return selectedKeywords;
-	}
-
-	public TextSearch getTextSearch() {
-		return textSearch;
-	}
-
-	public void setTextSearch(TextSearch textSearch) {
-		this.textSearch = textSearch;
 	}
 
 	public AssessmentRequestData getAssessmentRequestData() {
@@ -306,8 +295,8 @@ public class CredentialKeywordsBean {
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
-				TextSearchResponse1<UserData> result = textSearch.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3,
-						idEncoder.decodeId(id), peersToExcludeFromSearch);
+				TextSearchResponse1<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+						peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
