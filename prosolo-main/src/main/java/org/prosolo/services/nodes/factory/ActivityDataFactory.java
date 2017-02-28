@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.SlideShareUtils;
@@ -141,52 +142,59 @@ public class ActivityDataFactory {
 	}
 	
 	private void populateTypeSpecificData(ActivityData act, Activity1 activity) {
-		if(activity instanceof TextActivity1) {
-			TextActivity1 ta = (TextActivity1) activity;
-			act.setActivityType(ActivityType.TEXT);
-			act.setText(ta.getText());
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					try {
-						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-					if(urlAct.getCaptions() != null) {
-						List<ResourceLinkData> captions = new ArrayList<>();
-						for(ResourceLink rl : urlAct.getCaptions()) {
-							ResourceLinkData rlData = new ResourceLinkData();
-							rlData.setId(rl.getId());
-							rlData.setLinkName(rl.getLinkName());
-							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-							rlData.setUrl(rl.getUrl());
-							rlData.setStatus(ObjectStatus.UP_TO_DATE);
-							captions.add(rlData);
-						}
-						act.setCaptions(captions);
-					}
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), null)
-							.getEmbedLink());
-					break;
+		activity.accept(new ActivityVisitor() {
+			
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				act.setActivityType(ActivityType.EXTERNAL_TOOL);
+				act.setLaunchUrl(activity.getLaunchUrl());
+				act.setSharedSecret(activity.getSharedSecret());
+				act.setConsumerKey(activity.getConsumerKey());
+				act.setAcceptGrades(activity.isAcceptGrades());
+				act.setOpenInNewWindow(activity.isOpenInNewWindow());
+				act.setScoreCalculation(activity.getScoreCalculation());
 			}
-			act.setLink(urlAct.getUrl());
-			act.setLinkName(urlAct.getLinkName());
-		} else if(activity instanceof ExternalToolActivity1) {
-			ExternalToolActivity1 extAct = (ExternalToolActivity1) activity;
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-			act.setLaunchUrl(extAct.getLaunchUrl());
-			act.setSharedSecret(extAct.getSharedSecret());
-			act.setConsumerKey(extAct.getConsumerKey());
-			act.setAcceptGrades(extAct.isAcceptGrades());
-			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-			act.setScoreCalculation(extAct.getScoreCalculation());
-		}
+			
+			@Override
+			public void visit(UrlActivity1 activity) {
+				switch(activity.getUrlType()) {
+					case Video:
+						act.setActivityType(ActivityType.VIDEO);
+						try {
+							act.setEmbedId(URLUtil.getYoutubeEmbedId(activity.getUrl()));
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+						if(activity.getCaptions() != null) {
+							List<ResourceLinkData> captions = new ArrayList<>();
+							for(ResourceLink rl : activity.getCaptions()) {
+								ResourceLinkData rlData = new ResourceLinkData();
+								rlData.setId(rl.getId());
+								rlData.setLinkName(rl.getLinkName());
+								rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+								rlData.setUrl(rl.getUrl());
+								rlData.setStatus(ObjectStatus.UP_TO_DATE);
+								captions.add(rlData);
+							}
+							act.setCaptions(captions);
+						}
+						break;
+					case Slides:
+						act.setActivityType(ActivityType.SLIDESHARE);
+						act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
+								.getEmbedLink());
+						break;
+				}
+				act.setLink(activity.getUrl());
+				act.setLinkName(activity.getLinkName());
+			}
+			
+			@Override
+			public void visit(TextActivity1 activity) {
+				act.setActivityType(ActivityType.TEXT);
+				act.setText(activity.getText());
+			}
+		});
 	}
 	
 	public ActivityData getBasicActivityData(CompetenceActivity1 competenceActivity, 
@@ -219,22 +227,47 @@ public class ActivityDataFactory {
 		return act;
 	}
 
+	/**
+	 * 
+	 * @param activity
+	 * @return
+	 * @throws NullPointerException if {@code activity} is null
+	 */
 	public ActivityType getActivityType(Activity1 activity) {
-		if(activity instanceof TextActivity1) {
-			return ActivityType.TEXT;
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					return ActivityType.VIDEO;
-				case Slides:
-					return ActivityType.SLIDESHARE;
-			}
-		} else if(activity instanceof ExternalToolActivity1) {
-			return ActivityType.EXTERNAL_TOOL;
+		if(activity == null) {
+			throw new NullPointerException();
 		}
 		
-		return null;
+		class ActivityTypeVisitor implements ActivityVisitor {
+			
+			private ActivityType type;
+			
+			@Override
+			public void visit(TextActivity1 activity) {
+				type = ActivityType.TEXT;
+			}
+
+			@Override
+			public void visit(UrlActivity1 activity) {
+				switch(activity.getUrlType()) {
+					case Video:
+						type = ActivityType.VIDEO;
+						break;
+					case Slides:
+						type = ActivityType.SLIDESHARE;
+						break;
+				}
+			}
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				type = ActivityType.EXTERNAL_TOOL;
+			}
+		}
+		
+		ActivityTypeVisitor typeVisitor = new ActivityTypeVisitor();
+		activity.accept(typeVisitor);
+		return typeVisitor.type;
 	}
 	
 	/**
@@ -330,7 +363,7 @@ public class ActivityDataFactory {
 //		//or add targetCompetenceId to activitydata
 //		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
 //		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
-//		populateTypeSpecificData(data, targetActivity);
+//		populateTypeSpecificData(data, targetActivity.getActivity());
 //
 //		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 //		
@@ -379,54 +412,6 @@ public class ActivityDataFactory {
 		commData.setNumberOfComments(commentsNumber);
 		ard.setResultComments(commData);
 		return ard;
-	}
-
-	private void populateTypeSpecificData(ActivityData act, TargetActivity1 activity) {
-		//TODO cred-redesign-07
-//		if(activity instanceof TextTargetActivity1) {
-//			TextTargetActivity1 ta = (TextTargetActivity1) activity;
-//			act.setActivityType(ActivityType.TEXT);
-//			act.setText(ta.getText());
-//		} else if(activity instanceof UrlTargetActivity1) {
-//			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-//			switch(urlAct.getType()) {
-//				case Video:
-//					act.setActivityType(ActivityType.VIDEO);
-//					try {
-//						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
-//					} catch(Exception e) {
-//						e.printStackTrace();
-//					}
-//					if(urlAct.getCaptions() != null) {
-//						List<ResourceLinkData> captions = new ArrayList<>();
-//						for(ResourceLink rl : urlAct.getCaptions()) {
-//							ResourceLinkData rlData = new ResourceLinkData();
-//							rlData.setId(rl.getId());
-//							rlData.setLinkName(rl.getLinkName());
-//							rlData.setUrl(rl.getUrl());
-//							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-//							rlData.setStatus(ObjectStatus.UP_TO_DATE);
-//							captions.add(rlData);
-//						}
-//						act.setCaptions(captions);
-//					}
-//					break;
-//				case Slides:
-//					act.setActivityType(ActivityType.SLIDESHARE);
-//					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), 
-//							null).getEmbedLink());
-//					break;
-//			}
-//			act.setLink(urlAct.getUrl());
-//			act.setLinkName(urlAct.getLinkName());
-//		} else if(activity instanceof ExternalToolTargetActivity1) {
-//			ExternalToolTargetActivity1 extAct = (ExternalToolTargetActivity1) activity;
-//			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-//			act.setLaunchUrl(extAct.getLaunchUrl());
-//			act.setSharedSecret(extAct.getSharedSecret());
-//			act.setConsumerKey(extAct.getConsumerKey());
-//			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-//		}
 	}
 	
 	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {

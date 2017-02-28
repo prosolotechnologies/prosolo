@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -54,6 +55,18 @@ public class Activity1 extends BaseEntity {
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
+	}
+	
+	/**
+	 * This method allows visitor to visit activity object. This pattern is used so activity hierarchy
+	 * can be handled the right way when using Hibernate.
+	 * 
+	 * All Activity1 subclasses should override this method.
+	 * 
+	 * @param visitor
+	 */
+	public void accept(ActivityVisitor visitor) {
+		
 	}
 
 	public long getDuration() {
