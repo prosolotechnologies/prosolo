@@ -19,7 +19,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
@@ -53,8 +53,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	@Inject
 	private UrlIdEncoder idEncoder;
-	@Inject
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject 
 	private CredentialInstructorManager credInstructorManager;
 	@Inject
@@ -167,7 +166,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialMembers() {
-		TextSearchResponse1<StudentData> searchResponse = textSearch.searchCredentialMembers(
+		TextSearchResponse1<StudentData> searchResponse = userTextSearch.searchCredentialMembers(
 				searchTerm, 
 				instructorAssignFilter.getFilter(), 
 				this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
@@ -207,7 +206,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 	
 	public void loadCredentialInstructors() {
-		TextSearchResponse1<InstructorData> searchResponse = textSearch.searchInstructors(
+		TextSearchResponse1<InstructorData> searchResponse = userTextSearch.searchInstructors(
 				instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
 		
 		if (searchResponse != null) {

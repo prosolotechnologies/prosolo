@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
@@ -41,7 +41,7 @@ public class UsersBean implements Serializable, Paginable {
 
 	@Autowired private UserManager userManager;
 	@Autowired private UserEntityESService userEntityESService;
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private AuthenticationService authService;
 	@Inject private LoggedUserBean loggedUserBean;
@@ -138,8 +138,9 @@ public class UsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
 		try {
-			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), true, null);
+			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), 
+					true, null);
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
 			filters = roleFilters != null ? roleFilters : new ArrayList<>();

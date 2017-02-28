@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
@@ -48,7 +48,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 
 	private static Logger logger = Logger.getLogger(StudentAssignBean.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
@@ -132,7 +132,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public void searchStudents() {
-		TextSearchResponse1<StudentData> result = textSearch
+		TextSearchResponse1<StudentData> result = userTextSearch
 				.searchUnassignedAndStudentsAssignedToInstructor(studentSearchTerm, credId, 
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
 						paginationData.getPage() - 1, paginationData.getLimit());

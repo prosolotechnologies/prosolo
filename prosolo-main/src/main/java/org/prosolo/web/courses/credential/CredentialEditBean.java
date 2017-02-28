@@ -25,7 +25,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -63,7 +63,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private CredentialManager credentialManager;
 	@Inject private CredentialCloneFactory credentialCloneFactory;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private TextSearch textSearch;
+	@Inject private CompetenceTextSearch compTextSearch;
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private ContextJsonParserService contextParser;
@@ -343,7 +343,7 @@ public class CredentialEditBean implements Serializable {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
 			Role role = manageSection ? Role.Manager : Role.User;
-			TextSearchResponse1<CompetenceData1> searchResponse = textSearch.searchCompetences(
+			TextSearchResponse1<CompetenceData1> searchResponse = compTextSearch.searchCompetences(
 					loggedUser.getUserId(),
 					role,
 					compSearchTerm,

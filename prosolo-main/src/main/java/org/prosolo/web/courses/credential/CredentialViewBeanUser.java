@@ -20,7 +20,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -65,8 +65,7 @@ public class CredentialViewBeanUser implements Serializable {
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired
 	private EventFactory eventFactory;
-	@Autowired
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	
 
 	private String id;
@@ -87,7 +86,6 @@ public class CredentialViewBeanUser implements Serializable {
 	private List<Long> peersToExcludeFromSearch;
 	
 	private int numberOfTags;
-	private CredentialData enrolledStudent;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
@@ -227,8 +225,8 @@ public class CredentialViewBeanUser implements Serializable {
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
-				TextSearchResponse1<UserData> result = textSearch.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3,
-						decodedId, peersToExcludeFromSearch);
+				TextSearchResponse1<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+						peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
