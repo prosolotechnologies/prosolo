@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.competence;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,21 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.CredentialTextSearch;
+import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.credential.LearningResourceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -33,22 +33,21 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "credentialLibraryBean")
-@Component("credentialLibraryBean")
+@Component("competenceLibraryBean")
 @Scope("view")
-public class CredentialLibraryBean implements Serializable, Paginable {
+public class CompetenceLibraryBean implements Serializable, Paginable {
 
-	private static final long serialVersionUID = 5019552987111259682L;
+	private static final long serialVersionUID = -759648446829569092L;
 
-	private static Logger logger = Logger.getLogger(CredentialLibraryBean.class);
+	private static Logger logger = Logger.getLogger(CompetenceLibraryBean.class);
 
-	@Inject private CredentialTextSearch credentialTextSearch;
+	@Inject private CompetenceTextSearch textSearch;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private CredentialManager credentialManager;
-	@Inject private UrlIdEncoder idEncoder;
 	@Inject private LoggingService loggingService;
+	@Inject private Competence1Manager compManager;
+	@Inject private UrlIdEncoder idEncoder;
 
-	private List<CredentialData> credentials;
+	private List<CompetenceData1> competences;
 	
 	//search
 	private String searchTerm = "";
@@ -58,6 +57,9 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	
 	private LearningResourceSortOption[] sortOptions;
 	private LearningResourceSearchFilter[] searchFilters;
+	
+	private final LearningResourceSearchConfig config = LearningResourceSearchConfig.of(
+			true, true, false, true);
 
 	private String context = "name:library";
 
@@ -67,12 +69,12 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 				f -> f != LearningResourceSearchFilter.BY_STUDENTS &&
 					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
 				.toArray(LearningResourceSearchFilter[]::new);
-		searchCredentials(false);
+		searchCompetences(false);
 	}
 
-	public void searchCredentials(boolean userSearch) {
+	public void searchCompetences(boolean userSearch) {
 		try {
-			getCredentialSearchResults();
+			getCompetenceSearchResults();
 			
 			if(userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
@@ -81,7 +83,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 				params.put("query", searchTerm);
 				try {
 					loggingService.logServiceUse(loggedUserBean.getUserId(), 
-							ComponentName.SEARCH_CREDENTIALS, 
+							ComponentName.SEARCH_COMPETENCES, 
 							params, loggedUserBean.getIpAddress(), lcd);
 				} catch(Exception e) {
 					logger.error(e);
@@ -95,59 +97,63 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	public void resetAndSearch() {
 		paginationData.setPage(1);
-		searchCredentials(true);
+		searchCompetences(true);
 	}
 
-	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = credentialTextSearch.searchCredentials(searchTerm, 
-				paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption, true, true);
+	public void getCompetenceSearchResults() {
+		TextSearchResponse1<CompetenceData1> response = textSearch.searchCompetences(
+				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
+				searchFilter, sortOption, config);
+	
 		paginationData.update((int) response.getHitsNumber());
-		credentials = response.getFoundNodes();
+		competences = response.getFoundNodes();
 	}
 	
 	public void applySearchFilter(LearningResourceSearchFilter filter) {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
-		searchCredentials(true);
+		searchCompetences(true);
 	}
 	
 	public void applySortOption(LearningResourceSortOption sortOption) {
 		this.sortOption = sortOption;
 		paginationData.setPage(1);
-		searchCredentials(true);
+		searchCompetences(true);
 	}
 	
 	@Override
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			searchCredentials(true);
+			searchCompetences(true);
 		}
+	}
+	
+	@Override
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 	
 	/*
 	 * ACTIONS
 	 */
-	public void enrollInCredential(CredentialData cred) {
+	
+	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData context = new LearningContextData(page, lContext, service);
+			LearningContextData context = PageUtil.extractLearningContextData();
 			
-			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), context);
 			
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				extContext.redirect(extContext.getRequestContextPath() + 
-						"/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
+						"/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 			} catch (IOException e) {
 				logger.error(e);
 			}
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling in a credential");
+			PageUtil.fireErrorMessage("Error while enrolling in a competence");
 		}
 	}
 
@@ -171,17 +177,20 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 		this.sortOption = sortOption;
 	}
 
-	@Override
-	public PaginationData getPaginationData() {
-		return paginationData;
+	public List<CompetenceData1> getCompetences() {
+		return competences;
 	}
 
-	public void setCredentials(List<CredentialData> credentials) {
-		this.credentials = credentials;
+	public void setCompetences(List<CompetenceData1> competences) {
+		this.competences = competences;
 	}
 
-	public List<CredentialData> getCredentials() {
-		return credentials;
+	public LearningResourceSearchFilter getSearchFilter() {
+		return searchFilter;
+	}
+
+	public void setSearchFilter(LearningResourceSearchFilter searchFilter) {
+		this.searchFilter = searchFilter;
 	}
 
 	public LearningResourceSortOption[] getSortOptions() {
@@ -200,12 +209,5 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 		this.searchFilters = searchFilters;
 	}
 
-	public LearningResourceSearchFilter getSearchFilter() {
-		return searchFilter;
-	}
-
-	public void setSearchFilter(LearningResourceSearchFilter searchFilter) {
-		this.searchFilter = searchFilter;
-	}
 	
 }

@@ -18,8 +18,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.CredentialSearchFilter;
-import org.prosolo.search.util.credential.CredentialSortOption;
+import org.prosolo.search.util.credential.LearningResourceSearchFilter;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
@@ -49,30 +49,30 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	//search
 	private String searchTerm = "";
-	private CredentialSearchFilter searchFilter = CredentialSearchFilter.ALL;
-	private CredentialSortOption sortOption = CredentialSortOption.ALPHABETICALLY;
+	private LearningResourceSearchFilter searchFilter = LearningResourceSearchFilter.ALL;
+	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData = new PaginationData();
 	
-	private CredentialSortOption[] sortOptions;
-	private CredentialSearchFilter[] searchFilters;
+	private LearningResourceSortOption[] sortOptions;
+	private LearningResourceSearchFilter[] searchFilters;
 
 	private String context = "name:library";
 
 	public void init() {
-		sortOptions = CredentialSortOption.values();
-		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(
+		sortOptions = LearningResourceSortOption.values();
+		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
 				f -> shouldIncludeSearchFilter(f))
-				.toArray(CredentialSearchFilter[]::new);
+				.toArray(LearningResourceSearchFilter[]::new);
 		searchCredentials(false);
 	}
 	
-	public boolean shouldIncludeSearchFilter(CredentialSearchFilter f) {
+	public boolean shouldIncludeSearchFilter(LearningResourceSearchFilter f) {
 		boolean isInstructor = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 		boolean canCreateContent = loggedUserBean.hasCapability("MANAGE.CONTENT.EDIT");
-		return f != CredentialSearchFilter.ENROLLED && 
-			   f != CredentialSearchFilter.BY_OTHER_STUDENTS &&
-			   (f != CredentialSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
-			   (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
+		return f != LearningResourceSearchFilter.ENROLLED && 
+			   f != LearningResourceSearchFilter.BY_OTHER_STUDENTS &&
+			   (f != LearningResourceSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
+			   (f != LearningResourceSearchFilter.FROM_CREATOR || canCreateContent);
 	}
 	
 	public void searchCredentials(boolean userSearch) {
@@ -111,13 +111,13 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		this.paginationData.update((int) response.getHitsNumber());
 	}
 	
-	public void applySearchFilter(CredentialSearchFilter filter) {
+	public void applySearchFilter(LearningResourceSearchFilter filter) {
 		this.searchFilter = filter;
 		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
-	public void applySortOption(CredentialSortOption sortOption) {
+	public void applySortOption(LearningResourceSortOption sortOption) {
 		this.sortOption = sortOption;
 		this.paginationData.setPage(1);
 		searchCredentials(true);
@@ -166,11 +166,11 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public CredentialSortOption getSortOption() {
+	public LearningResourceSortOption getSortOption() {
 		return sortOption;
 	}
 
-	public void setSortOption(CredentialSortOption sortOption) {
+	public void setSortOption(LearningResourceSortOption sortOption) {
 		this.sortOption = sortOption;
 	}
 
@@ -186,27 +186,27 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		return credentials;
 	}
 
-	public CredentialSortOption[] getSortOptions() {
+	public LearningResourceSortOption[] getSortOptions() {
 		return sortOptions;
 	}
 
-	public void setSortOptions(CredentialSortOption[] sortOptions) {
+	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
 		this.sortOptions = sortOptions;
 	}
 
-	public CredentialSearchFilter[] getSearchFilters() {
+	public LearningResourceSearchFilter[] getSearchFilters() {
 		return searchFilters;
 	}
 
-	public void setSearchFilters(CredentialSearchFilter[] searchFilters) {
+	public void setSearchFilters(LearningResourceSearchFilter[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
 
-	public CredentialSearchFilter getSearchFilter() {
+	public LearningResourceSearchFilter getSearchFilter() {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(CredentialSearchFilter searchFilter) {
+	public void setSearchFilter(LearningResourceSearchFilter searchFilter) {
 		this.searchFilter = searchFilter;
 	}
 	

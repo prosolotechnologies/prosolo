@@ -301,95 +301,84 @@ public class ActivityDataFactory {
 	 * @param shouldTrackChanges
 	 * @param isManager did request come from manage section
 	 * @return
+	 * @throws NullPointerException if {@code targetActivity} or {@code targetActivity.getActivity()} is null
+	 * 
 	 */
 	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges, boolean isManager) {
-		//TODO cred-redesign-07
-//		if (targetActivity == null) {
-//			return null;
-//		}
-//		ActivityData data = new ActivityData(false);
-//		data.setActivityId(targetActivity.getActivity().getId());
-//		data.setTargetActivityId(targetActivity.getId());
-//		data.setOrder(targetActivity.getOrder());
-//		data.setTitle(targetActivity.getTitle());
-//		data.setDescription(targetActivity.getDescription());
-//		data.setDurationHours((int) (targetActivity.getDuration() / 60));
-//		data.setDurationMinutes((int) (targetActivity.getDuration() % 60));
-//		data.calculateDurationString();
-//		data.setCompleted(targetActivity.isCompleted());
-//		data.setEnrolled(true);
-//		data.setType(targetActivity.getLearningResourceType());
-//		data.setResultData(getActivityResultData(targetActivity, isManager));
-//		data.setCreatorId(targetActivity.getCreatedBy().getId());
-//		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
-//		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
-//		data.setStudentCanSeeOtherResponses(targetActivity.getActivity().isStudentCanSeeOtherResponses());
-//		
-//		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if (shouldTrackChanges) {
-//			data.startObservingChanges();
-//		}
-//		
-//		if (links != null) {
-//			List<ResourceLinkData> activityLinks = new ArrayList<>();
-//			for (ResourceLink rl : links) {
-//				ResourceLinkData rlData = new ResourceLinkData();
-//				rlData.setId(rl.getId());
-//				rlData.setLinkName(rl.getLinkName());
-//				rlData.setUrl(rl.getUrl());
-//				rlData.setIdParamName(rl.getIdParameterName());
-//				rlData.setStatus(ObjectStatus.UP_TO_DATE);
-//				activityLinks.add(rlData);
-//			}
-//			data.setLinks(activityLinks);
-//		}
-//		
-//		if (files != null) {
-//			List<ResourceLinkData> activityFiles = new ArrayList<>();
-//			for (ResourceLink rl : files) {
-//				ResourceLinkData rlData = new ResourceLinkData();
-//				rlData.setId(rl.getId());
-//				rlData.setLinkName(rl.getLinkName());
-//				rlData.setUrl(rl.getUrl());
-//				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-//				rlData.setStatus(ObjectStatus.UP_TO_DATE);
-//				activityFiles.add(rlData);
-//			}
-//			data.setFiles(activityFiles);
-//		}
-//		
-//		//or add targetCompetenceId to activitydata
-//		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
-//		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
-//		populateTypeSpecificData(data, targetActivity.getActivity());
-//
-//		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if (shouldTrackChanges) {
-//			data.startObservingChanges();
-//		}
-//		
-//		return data;
-		return null;
+			Set<ResourceLink> files, boolean shouldTrackChanges, int order, boolean isManager) {
+		if (targetActivity == null || targetActivity.getActivity() == null) {
+			throw new NullPointerException();
+		}
+		Activity1 activity = targetActivity.getActivity();
+		ActivityData data = new ActivityData(false);
+		data.setActivityId(activity.getId());
+		data.setTargetActivityId(targetActivity.getId());
+		data.setOrder(order);
+		data.setTitle(activity.getTitle());
+		data.setDescription(activity.getDescription());
+		data.setDurationHours((int) (activity.getDuration() / 60));
+		data.setDurationMinutes((int) (activity.getDuration() % 60));
+		data.calculateDurationString();
+		data.setCompleted(targetActivity.isCompleted());
+		data.setEnrolled(true);
+		data.setType(activity.getType());
+		data.setResultData(getActivityResultData(targetActivity, isManager));
+		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
+		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
+		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
+		
+		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if (shouldTrackChanges) {
+			data.startObservingChanges();
+		}
+		
+		if (links != null) {
+			List<ResourceLinkData> activityLinks = new ArrayList<>();
+			for (ResourceLink rl : links) {
+				ResourceLinkData rlData = new ResourceLinkData();
+				rlData.setId(rl.getId());
+				rlData.setLinkName(rl.getLinkName());
+				rlData.setUrl(rl.getUrl());
+				rlData.setIdParamName(rl.getIdParameterName());
+				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+				activityLinks.add(rlData);
+			}
+			data.setLinks(activityLinks);
+		}
+		
+		if (files != null) {
+			List<ResourceLinkData> activityFiles = new ArrayList<>();
+			for (ResourceLink rl : files) {
+				ResourceLinkData rlData = new ResourceLinkData();
+				rlData.setId(rl.getId());
+				rlData.setLinkName(rl.getLinkName());
+				rlData.setUrl(rl.getUrl());
+				rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+				rlData.setStatus(ObjectStatus.UP_TO_DATE);
+				activityFiles.add(rlData);
+			}
+			data.setFiles(activityFiles);
+		}
+		
+		//or add targetCompetenceId to activitydata
+		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
+		data.setCompetenceName(targetActivity.getTargetCompetence().getCompetence().getTitle());
+		populateTypeSpecificData(data, targetActivity.getActivity());
+
+		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if (shouldTrackChanges) {
+			data.startObservingChanges();
+		}
+		
+		return data;
 	}
 	
 	private ActivityResultData getActivityResultData(TargetActivity1 activity, boolean isManager) {
-		//TODO cred-redesign-07
-		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
-//		ActivityResultData ard = new ActivityResultData(false);
-//		ard.setTargetActivityId(activity.getId());
-//		ard.setResultType(getResultType(activity.getResultType()));
-//		ard.setResult(activity.getResult());
-//		if(ard.getResult() != null && !ard.getResult().isEmpty() 
-//				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
-//			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
-//		}
-//		ard.setResultPostDate(activity.getResultPostDate());
-//		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
-//				activity.getResultPostDate(), null, 0, false, isManager);
-		return null;
+		return getActivityResultData(activity.getId(), activity.getActivity().getResultType(), activity.getResult(), 
+				activity.getResultPostDate(), null, 0, false, isManager);
 	}
 	
 	public ActivityResultData getActivityResultData(long targetActivityId, 
@@ -444,26 +433,6 @@ public class ActivityDataFactory {
 //		}
 //		
 //		return act;
-		return null;
-	}
-
-	private ActivityType determineActivityType(TargetActivity1 activity) {
-		//TODO cred-redesign-07
-//		if(activity instanceof TextTargetActivity1) {
-//			return ActivityType.TEXT;
-//		} else if(activity instanceof UrlTargetActivity1) {
-//			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-//			switch(urlAct.getType()) {
-//				case Video:
-//					return ActivityType.VIDEO;
-//				case Slides:
-//					return ActivityType.SLIDESHARE;
-//			}
-//		} else if(activity instanceof ExternalToolTargetActivity1) {
-//			return ActivityType.EXTERNAL_TOOL;
-//		}
-//		
-//		return null;
 		return null;
 	}
 

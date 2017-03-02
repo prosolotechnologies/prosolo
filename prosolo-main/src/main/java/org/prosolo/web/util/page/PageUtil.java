@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.util.ResourceBundleUtil;
 
@@ -148,5 +149,13 @@ public class PageUtil {
 		} catch (IOException e) {
 			logger.error(e);
 		}
+	}
+	
+	public static LearningContextData extractLearningContextData() {
+		String page = getPostParameter("page");
+		String lContext = getPostParameter("learningContext");
+		String service = getPostParameter("service");
+		LearningContextData context = new LearningContextData(page, lContext, service);
+		return context;
 	}
 }

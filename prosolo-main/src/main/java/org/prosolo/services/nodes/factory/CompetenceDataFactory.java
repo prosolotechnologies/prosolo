@@ -50,6 +50,9 @@ public class CompetenceDataFactory {
 //		comp.setVisible(competence.isVisible());
 //		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
+		comp.setDatePublished(competence.getDatePublished());
+		comp.setCanBeEdited(competence.isCanBeEdited());
+		
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
@@ -66,46 +69,64 @@ public class CompetenceDataFactory {
 		return getCompetenceData(user, cc, tags, shouldTrackChanges);
 	}
 	
-	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 competence, 
+	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 tc, 
 			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
-		//TODO cred-redesign-07
-//		CompetenceData1 comp = new CompetenceData1(false);
-//		comp.setCompetenceId(competence.getCompetence().getId());
-//		comp.setOrder(competence.getOrder());
-//		comp.setTitle(competence.getTitle());
-//		comp.setDescription(competence.getDescription());
-//		comp.setDuration(competence.getDuration());
-//		comp.setType(competence.getType());
-//		comp.setTargetCompId(competence.getId());
-//		comp.setEnrolled(true);
-//		comp.setProgress(competence.getProgress());
-//		comp.setNextActivityToLearnId(competence.getNextActivityToLearnId());
-//		if(user != null) {
-//			ResourceCreator creator = new ResourceCreator(user.getId(), 
-//					getFullName(user.getName(), user.getLastname()),
-//					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
-//					user.getPosition());
-//			comp.setCreator(creator);
-//		}
-//		if(tags != null) {
-//			comp.setTags(tags);
-//			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
-//		}
-//		
-//		if(cred != null) {
-//			comp.setCredentialId(cred.getId());
-//			comp.setCredentialTitle(cred.getTitle());
-//		}
-//		if(shouldTrackChanges) {
-//			comp.startObservingChanges();
-//		}
-//		
-//		return comp;
-		return null;
+		Competence1 competence = tc.getCompetence();
+		CompetenceData1 comp = new CompetenceData1(false);
+		comp.setCompetenceId(competence.getId());
+		comp.setTitle(competence.getTitle());
+		comp.setDescription(competence.getDescription());
+		comp.setDuration(competence.getDuration());
+		comp.setType(competence.getType());
+		comp.setTargetCompId(tc.getId());
+		comp.setEnrolled(true);
+		comp.setProgress(tc.getProgress());
+		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
+		if(user != null) {
+			ResourceCreator creator = new ResourceCreator(user.getId(), 
+					getFullName(user.getName(), user.getLastname()),
+					AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120),
+					user.getPosition());
+			comp.setCreator(creator);
+		}
+		if(tags != null) {
+			comp.setTags(tags);
+			comp.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+		}
+		
+		if(cred != null) {
+			comp.setCredentialId(cred.getId());
+			comp.setCredentialTitle(cred.getTitle());
+		}
+		if(shouldTrackChanges) {
+			comp.startObservingChanges();
+		}
+		
+		return comp;
 	}
 	
 	private String getFullName(String name, String lastName) {
 		return name + (lastName != null ? " " + lastName : "");
+	}
+	
+	/**
+	 * If you want to create data object based on data from competence object and additionally set
+	 * progress for that data this method should be called.
+	 * @param createdBy
+	 * @param competence
+	 * @param tags
+	 * @param progress
+	 * @param nextActToLearnId
+	 * @param shouldTrackChanges
+	 * @return
+	 */
+	public CompetenceData1 getCompetenceDataWithProgress(User createdBy, Competence1 competence,
+			Set<Tag> tags, int progress, long nextActToLearnId, boolean shouldTrackChanges) {
+		CompetenceData1 comp = getCompetenceData(createdBy, competence, tags, shouldTrackChanges);
+		comp.setProgress(progress);
+		comp.setNextActivityToLearnId(nextActToLearnId);
+		comp.setEnrolled(true);
+		return comp;
 	}
 	
 }

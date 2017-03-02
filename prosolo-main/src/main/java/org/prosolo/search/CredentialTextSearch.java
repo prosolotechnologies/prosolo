@@ -1,8 +1,8 @@
 package org.prosolo.search;
 
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.CredentialSearchFilter;
-import org.prosolo.search.util.credential.CredentialSortOption;
+import org.prosolo.search.util.credential.LearningResourceSearchFilter;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 
@@ -34,7 +34,7 @@ public interface CredentialTextSearch extends AbstractManager {
 	 */
 	TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege);
 
 }

@@ -40,5 +40,13 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	void updateCompetenceUsersWithPrivileges(long compId, Session session);
 	
 	void updateStatus(long compId, boolean published);
+	
+	void addBookmarkToCompetenceIndex(long compId, long userId);
+	
+	void removeBookmarkFromCompetenceIndex(long compId, long userId);
+	
+	void addStudentToCompetenceIndex(long compId, long userId);
+	
+	void removeStudentFromCompetenceIndex(long compId, long userId);
 
 }

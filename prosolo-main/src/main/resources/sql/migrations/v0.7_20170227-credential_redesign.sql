@@ -67,6 +67,7 @@ ALTER TABLE `target_activity1`
 	DROP FOREIGN KEY `FK_7sb8h5hca0bkw3smwl4e2pq3r`;
 	
 ALTER TABLE `target_activity1`
+	DROP COLUMN `dtype`,
 	DROP COLUMN `act_order`,
 	DROP COLUMN `duration`,
 	DROP COLUMN `result_type`,

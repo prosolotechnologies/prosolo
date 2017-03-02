@@ -44,6 +44,7 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.Attach,
 			EventType.Edit_Profile,
 			EventType.ENROLL_COURSE,
+			EventType.ENROLL_COMPETENCE,
 			EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR,
 			EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
 			EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,

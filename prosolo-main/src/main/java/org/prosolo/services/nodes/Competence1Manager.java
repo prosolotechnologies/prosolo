@@ -9,6 +9,7 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
@@ -225,4 +226,48 @@ public interface Competence1Manager {
 	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
     				throws DbConnectionException;
+	
+	/**
+	 * Returns competence data without tags and activities and with user progress set if exists 
+	 * and bookmark from current user.
+	 * 
+	 * @param compId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceDataWithProgressIfExists(long compId, long userId) 
+			throws DbConnectionException;
+	
+	/**
+	 * Returns competence data without tags and activities and with bookmark from current user.
+	 * 
+	 * @param compId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getBasicCompetenceData(long compId, long userId) 
+			throws DbConnectionException;
+	
+	void bookmarkCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException;
+	
+	void deleteCompetenceBookmark(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException;
+	
+	List<CompetenceBookmark> getBookmarkedByIds(long compId, Session session) 
+			throws DbConnectionException;
+	
+	List<CompetenceBookmark> getBookmarkedByIds(long compId) throws DbConnectionException;
+	
+	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
+			boolean justUncompleted) throws DbConnectionException;
+	
+	TargetCompetence1 enrollInCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException;
+	
+	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, 
+			LearningContextData context) throws DbConnectionException;
+	
 }

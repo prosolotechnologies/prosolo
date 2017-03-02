@@ -1,6 +1,9 @@
 package org.prosolo.services.indexing.impl;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,9 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
 import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
@@ -46,6 +51,11 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("published", comp.isPublished());
 			builder.field("title", comp.getTitle());
 			builder.field("description", comp.getDescription());
+			Date date = comp.getDateCreated();
+			if(date != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				builder.field("dateCreated", df.format(date));
+			}
 			
 			builder.startArray("tags");
 			List<Tag> tags = compManager.getCompetenceTags(comp.getId(), session);
@@ -80,6 +90,26 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.field("id", user.getUser().getId());
 					builder.endObject();
 				}
+			}
+			builder.endArray();
+			
+			builder.startArray("bookmarkedBy");
+			List<CompetenceBookmark> bookmarks = compManager.getBookmarkedByIds(
+					comp.getId(), session);
+			for(CompetenceBookmark cb : bookmarks) {
+				builder.startObject();
+				builder.field("id", cb.getUser().getId());
+				builder.endObject();
+			}
+			builder.endArray();
+			
+			List<TargetCompetence1> targetComps = compManager.getTargetCompetencesForCompetence(
+					comp.getId(), false);
+			builder.startArray("students");
+			for(TargetCompetence1 tc : targetComps) {
+				builder.startObject();
+				builder.field("id", tc.getUser().getId());
+				builder.endObject();
 			}
 			builder.endArray();
 			
@@ -126,7 +156,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId + "");
+			param.put("id", userId);
 			params.put("user", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
@@ -198,6 +228,68 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		        .field("published", published)
 		        .endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addBookmarkToCompetenceIndex(long compId, long userId) {
+		String script = "if (ctx._source[\"bookmarkedBy\"] == null) { " +
+				"ctx._source.bookmarkedBy = bookmark " +
+				"} else { " +
+				"ctx._source.bookmarkedBy += bookmark " +
+				"}";
+		updateCompetenceBookmarks(compId, userId, script);
+	}
+	
+	@Override
+	public void removeBookmarkFromCompetenceIndex(long compId, long userId) {
+		String script = "ctx._source.bookmarkedBy -= bookmark";
+		updateCompetenceBookmarks(compId, userId, script);
+	}
+	
+	private void updateCompetenceBookmarks(long compId, long userId, String script) {
+		try {
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", userId);
+			params.put("bookmark", param);
+			
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+					compId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addStudentToCompetenceIndex(long compId, long userId) {
+		String script = "if (ctx._source[\"students\"] == null) { " +
+				"ctx._source.students = student " +
+				"} else { " +
+				"ctx._source.students += student " +
+				"}";
+		updateCompetenceStudents(compId, userId, script);
+	}
+	
+	@Override
+	public void removeStudentFromCompetenceIndex(long compId, long userId) {
+		String script = "ctx._source.students -= student";
+		updateCompetenceStudents(compId, userId, script);
+	}
+	
+	private void updateCompetenceStudents(long compId, long userId, String script) {
+		try {
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", userId);
+			params.put("student", param);
+			
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

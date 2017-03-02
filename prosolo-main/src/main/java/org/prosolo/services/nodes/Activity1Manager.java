@@ -31,7 +31,7 @@ public interface Activity1Manager extends AbstractManager {
 	List<ActivityData> getCompetenceActivitiesData(long competenceId, boolean includeNotPublished)
 			throws DbConnectionException;
 	
-	List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
+	List<TargetActivity1> createTargetActivities(TargetCompetence1 targetComp) 
 			throws DbConnectionException;
 	
 	List<ActivityData> getTargetActivitiesData(long targetCompId) 

@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -54,6 +55,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean canEdit;
 	private boolean canAccess;
 	
+	private boolean bookmarkedByCurrentUser;
+	
+	private Date datePublished;
+	private boolean canBeEdited;
+	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.UNPUBLISH;
 		activities = new ArrayList<>();
@@ -72,6 +78,24 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			}
 		}
 		return changed;
+	}
+	
+	public void addActivity(ActivityData activity) {
+		if(activity != null) {
+			activities.add(activity);
+		}
+	}
+	
+	public boolean isUniversityCreated() {
+		return type == LearningResourceType.UNIVERSITY_CREATED;
+	}
+	
+	public boolean isUserCreated() {
+		return type == LearningResourceType.USER_CREATED;
+	}
+	
+	public boolean isCompleted() {
+		return progress == 100;
 	}
 	
 	private void setCompetenceTypeFromString() {
@@ -396,6 +420,30 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
+	}
+
+	public boolean isBookmarkedByCurrentUser() {
+		return bookmarkedByCurrentUser;
+	}
+
+	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
+		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
+	}
+
+	public Date getDatePublished() {
+		return datePublished;
+	}
+
+	public void setDatePublished(Date datePublished) {
+		this.datePublished = datePublished;
+	}
+
+	public boolean isCanBeEdited() {
+		return canBeEdited;
+	}
+
+	public void setCanBeEdited(boolean canBeEdited) {
+		this.canBeEdited = canBeEdited;
 	}
 
 }
