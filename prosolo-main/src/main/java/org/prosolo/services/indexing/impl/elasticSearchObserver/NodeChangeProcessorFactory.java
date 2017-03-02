@@ -42,11 +42,12 @@ public class NodeChangeProcessorFactory {
 			case Registered:
 			case Edit_Profile:
 			case ENROLL_COURSE:
+			case ENROLL_COMPETENCE:
 			case COURSE_WITHDRAWN:
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
-						 credentialESService, EventUserRole.Subject);
+						 credentialESService, competenceESService, EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
@@ -63,10 +64,10 @@ public class NodeChangeProcessorFactory {
 			case STATUS_CHANGED:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
-							credentialESService, EventUserRole.Object);
+							credentialESService, competenceESService, EventUserRole.Object);
 				} else if (node instanceof TargetLearningGoal) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
-							credentialESService, EventUserRole.Subject);
+							credentialESService, competenceESService, EventUserRole.Subject);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {
@@ -109,9 +110,11 @@ public class NodeChangeProcessorFactory {
 				//} 
 				return null;
 			case Bookmark:
-				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
+				return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, 
+						NodeOperation.Save);
 			case RemoveBookmark:
-				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
+				return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, 
+						NodeOperation.Delete);
 			case Follow:
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
 			case Unfollow:

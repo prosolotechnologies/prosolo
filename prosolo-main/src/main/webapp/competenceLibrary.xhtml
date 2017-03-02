@@ -10,16 +10,16 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<ui:define name="windowTitle">
-		Library - Credentials
+		Library - Competencies
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="p" value="#{credentialLibraryBean.paginationData.pageString}" default="1" />
-			<f:viewAction action="#{credentialLibraryBean.init()}" />
+			<f:viewParam name="p" value="#{competenceLibraryBean.paginationData.pageString}" default="1" />
+			<f:viewAction action="#{competenceLibraryBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
@@ -29,21 +29,21 @@
     
     <ui:define name="navLinks">
 		<ul class="nav nav-tabs headerSubmenu">
-			<li role="presentation" class="active">
-				<a href="javascript:void(0);">Credentials</a>
-			</li>
 			<li role="presentation">
-				<h:link outcome="competenceLibrary">
-					Competencies
+				<h:link outcome="credentialLibrary">
+					Credentials
 				</h:link>
+			</li>
+			<li role="presentation" class="active">
+				<a href="javascript:void(0)">Competencies</a>
 			</li>
 		</ul>
     </ui:define>
     
 	<ui:define name="content">
-		<courses:credentialLibrary
-			id="credentialLibrary"
-			bean="#{credentialLibraryBean}"
+		<competences:competenceLibrary
+			id="competenceLibrary"
+			bean="#{competenceLibraryBean}"
 			role="USER"
 		/>
 	</ui:define>

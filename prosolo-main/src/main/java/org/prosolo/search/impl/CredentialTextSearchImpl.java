@@ -23,8 +23,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.search.CredentialTextSearch;
-import org.prosolo.search.util.credential.CredentialSearchFilter;
-import org.prosolo.search.util.credential.CredentialSortOption;
+import org.prosolo.search.util.credential.LearningResourceSearchFilter;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
@@ -60,7 +60,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public TextSearchResponse1<CredentialData> searchCredentials(
 			String searchTerm, int page, int limit, long userId, 
-			CredentialSearchFilter filter, CredentialSortOption sortOption, 
+			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege) {
 		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
 		try {
@@ -88,11 +88,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				case ALL:
 					break;
 				case BOOKMARKS:
-					QueryBuilder qb = QueryBuilders.nestedQuery(
-					        "bookmarkedBy",               
-					        QueryBuilders.boolQuery()          
-					             .filter(termQuery("bookmarkedBy.id", userId))); 
-					bQueryBuilder.filter(qb);
+					bQueryBuilder.filter(termQuery("bookmarkedBy.id", userId));
 					break;
 				case FROM_CREATOR:
 					bQueryBuilder.filter(termQuery("creatorId", userId));

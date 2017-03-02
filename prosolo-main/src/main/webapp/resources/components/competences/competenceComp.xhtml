@@ -9,58 +9,61 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<composite:interface>
-		<composite:attribute name="credential" required="true" />
+		<composite:attribute name="competence" required="true" />
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="role" default="USER" />
 		<composite:attribute name="learningContext" />
 		<composite:attribute name="service" default=""/>
+		<composite:attribute name="toUpdate" default=""/>
 	</composite:interface>
 	
 	<composite:implementation>
 		<div class="col-md-6">
             <article class="whiteBox summaryCard">
                 <h2>
-                	<h:link outcome="credential">
-                		<f:param name="id" value="#{util:encodeId(cc.attrs.credential.id)}"/>
-                		#{cc.attrs.credential.title} <span>#{cc.attrs.credential.published ? '' : '(Unpublished)'}</span>
+                	<h:link outcome="competence">
+                		<f:param name="compId" value="#{util:encodeId(cc.attrs.competence.competenceId)}"/>
+                		#{cc.attrs.competence.title} <span>#{cc.attrs.competence.published ? '' : '(Unpublished)'}</span>
                 	</h:link>
                 </h2>
                 <div class="clear"></div>
-                <p class="cardDescription">#{util:cleanHTMLTags(cc.attrs.credential.description)}</p>
+                <p class="cardDescription">#{util:cleanHTMLTags(cc.attrs.competence.description)}</p>
                 <div class="metaBox">
                     <div class="metaLeft">
                     	<c:if test="#{cc.attrs.role == 'USER'}">
-                    		<courses:credentialLearningProgress
-                    			credential="#{cc.attrs.credential}"
+                    		<competences:competenceLearningProgress
+                    			competence="#{cc.attrs.competence}"
                     			bean="#{cc.attrs.bean}"
                     			learningContext="#{cc.attrs.learningContext}"
+                    			toUpdate="#{cc.attrs.toUpdate}"
                     		/>
                     	</c:if>
                     </div>
                     <div class="metaRight">
-                    	<ui:fragment rendered="#{cc.attrs.credential.userCreated}">
+                    	<ui:fragment rendered="#{cc.attrs.competence.userCreated}">
                     		<a href="" class="madeByUser" data-toggle="tooltip"
-    						title="Made by #{cc.attrs.credential.creator.name}">made by user</a>
+    						title="Made by #{cc.attrs.competence.creator.name}">made by user</a>
                     	</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.credential.universityCreated}">
+						<ui:fragment rendered="#{cc.attrs.competence.universityCreated}">
                     		<a href="" class="madeByUniversity" data-toggle="tooltip"
             					title="Made by University">made by university</a>
                     	</ui:fragment>
-                        <div class="duration">#{cc.attrs.credential.durationString}</div>
+                        <div class="duration">#{cc.attrs.competence.durationString}</div>
                     </div>
                 </div>
                 <p:commandLink
                 	value="bookmark"
-                	styleClass="bookmarkStar #{cc.attrs.credential.bookmarkedByCurrentUser ? 'active' : ''}"
+                	styleClass="bookmarkStar #{cc.attrs.competence.bookmarkedByCurrentUser ? 'active' : ''}"
                 	pt:data-toggle="tooltip"
                 	pt:title="Bookmark"
-                	action="#{bookmarkBean.bookmarkCredential(cc.attrs.credential)}"
+                	action="#{bookmarkBean.bookmarkCompetence(cc.attrs.competence)}"
                 	update="@this">
                 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                    <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:credential|id:'.concat(cc.attrs.credential.id))}"/>
+                    <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}"/>
                 </p:commandLink>
             </article>
         </div>

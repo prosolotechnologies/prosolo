@@ -213,7 +213,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId + "");
+			param.put("id", userId);
 			params.put("bookmark", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
@@ -246,7 +246,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId + "");
+			param.put("id", userId);
 			params.put("user", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
@@ -277,7 +277,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId + "");
+			param.put("id", userId);
 			params.put("student", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
@@ -361,7 +361,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", userId + "");
+			param.put("id", userId);
 			params.put("instructor", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 

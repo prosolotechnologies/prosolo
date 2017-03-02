@@ -47,6 +47,8 @@ public class Competence1 extends BaseEntity {
 	private Date datePublished;
 	private boolean canBeEdited;
 	
+	private List<CompetenceBookmark> bookmarks;
+	
 	public Competence1() {
 		tags = new HashSet<>();
 		activities = new ArrayList<>();
@@ -168,5 +170,14 @@ public class Competence1 extends BaseEntity {
 
 	public void setCanBeEdited(boolean canBeEdited) {
 		this.canBeEdited = canBeEdited;
+	}
+	
+	@OneToMany(mappedBy = "competence")
+	public List<CompetenceBookmark> getBookmarks() {
+		return bookmarks;
+	}
+
+	public void setBookmarks(List<CompetenceBookmark> bookmarks) {
+		this.bookmarks = bookmarks;
 	}
 }

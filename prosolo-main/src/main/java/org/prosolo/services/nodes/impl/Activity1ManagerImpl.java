@@ -239,7 +239,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceActivity1> getCompetenceActivities(long competenceId, 
@@ -263,14 +262,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			
 			builder.append("ORDER BY compAct.order");
-			
-//			String query = "SELECT distinct compAct " +
-//					       "FROM CompetenceActivity1 compAct " + 
-//					       "INNER JOIN fetch compAct.activity act " +
-//					       "LEFT JOIN fetch act.links " +
-//					       "LEFT JOIN fetch act.files " +
-//					       "WHERE compAct.competence = :comp " +					       
-//					       "ORDER BY compAct.order";
 
 			Query query = persistence.currentManager()
 				.createQuery(builder.toString())
@@ -295,18 +286,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = false) 
-	public List<TargetActivity1> createTargetActivities(long compId, TargetCompetence1 targetComp) 
+	public List<TargetActivity1> createTargetActivities(TargetCompetence1 targetComp) 
 			throws DbConnectionException {
 		try {
 			//we should not create target activities for unpublished activities
-			List<CompetenceActivity1> compActivities = getCompetenceActivities(compId, true, false);
+			List<CompetenceActivity1> compActivities = getCompetenceActivities(
+					targetComp.getCompetence().getId(), true, false);
 			List<TargetActivity1> targetActivities = new ArrayList<>();
 			if(compActivities != null) {
 				for(CompetenceActivity1 act : compActivities) {
-					TargetActivity1 ta = createTargetActivity(targetComp, act);
+					TargetActivity1 ta = createTargetActivity(targetComp, act.getActivity());
 					targetActivities.add(ta);
 				}
 			}
@@ -318,95 +309,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
-			CompetenceActivity1 compActivity) throws DbConnectionException {
+			Activity1 activity) throws DbConnectionException {
 		try {
-			//TODO cred-redesign-07
-//			Activity1 act = compActivity.getActivity();
-//			TargetActivity1 targetAct = null;
-//			if(act instanceof TextActivity1) {
-//				TextActivity1 ta = (TextActivity1) act;
-//				TextTargetActivity1 tta = new TextTargetActivity1();
-//				tta.setText(ta.getText());
-//				targetAct = tta;
-//			} else if(act instanceof UrlActivity1) {
-//				UrlActivity1 urlAct = (UrlActivity1) act;
-//				UrlTargetActivity1 urlTargetActivity = new UrlTargetActivity1();
-//				switch(urlAct.getUrlType()) {
-//					case Video:
-//						urlTargetActivity.setType(UrlActivityType.Video);
-//						Set<ResourceLink> captions = new HashSet<>();
-//			    		if(urlAct.getCaptions() != null) {		
-//			    			for(ResourceLink rl : urlAct.getCaptions()) {
-//			    				ResourceLink link = new ResourceLink();
-//			    				link.setLinkName(rl.getLinkName());
-//			    				link.setUrl(rl.getUrl());
-//			    				saveEntity(link);
-//			    				captions.add(link);
-//			    			}
-//			    			urlTargetActivity.setCaptions(captions);
-//			    		}
-//						break;
-//					case Slides:
-//						urlTargetActivity.setType(UrlActivityType.Slides);
-//						break;
-//				}
-//				urlTargetActivity.setUrl(urlAct.getUrl());
-//				urlTargetActivity.setLinkName(urlAct.getLinkName());
-//				targetAct = urlTargetActivity;
-//			} else if(act instanceof ExternalToolActivity1) {
-//				ExternalToolActivity1 extAct = (ExternalToolActivity1) act;
-//				ExternalToolTargetActivity1 extTargetAct = new ExternalToolTargetActivity1();
-//				extTargetAct.setLaunchUrl(extAct.getLaunchUrl());
-//				extTargetAct.setSharedSecret(extAct.getSharedSecret());
-//				extTargetAct.setConsumerKey(extAct.getConsumerKey());
-//				extTargetAct.setOpenInNewWindow(extAct.isOpenInNewWindow());
-//				extTargetAct.setScoreCalculation(extAct.getScoreCalculation());
-//				targetAct = extTargetAct;
-//			}
-//			
-//			targetAct.setTargetCompetence(targetComp);
-//			targetAct.setTitle(act.getTitle());
-//			targetAct.setDescription(act.getDescription());
-//			targetAct.setActivity(act);
-//			targetAct.setOrder(compActivity.getOrder());
-//			targetAct.setDuration(act.getDuration());
-//			targetAct.setResultType(act.getResultType());
-//			//targetAct.setUploadAssignment(act.isUploadAssignment());
-//			targetAct.setCreatedBy(act.getCreatedBy());
-//			targetAct.setLearningResourceType(act.getType());
-//			
-//			if(act.getLinks() != null) {
-//    			Set<ResourceLink> activityLinks = new HashSet<>();
-//    			for(ResourceLink rl : act.getLinks()) {
-//    				ResourceLink link = new ResourceLink();
-//    				link.setLinkName(rl.getLinkName());
-//    				link.setUrl(rl.getUrl());
-//    				if (rl.getIdParameterName() != null && !rl.getIdParameterName().isEmpty()) {
-//    					link.setIdParameterName(rl.getIdParameterName());
-//    				}
-//    				saveEntity(link);
-//    				activityLinks.add(link);
-//    			}
-//    			targetAct.setLinks(activityLinks);
-//    		}
-//    		
-//    		Set<ResourceLink> activityFiles = new HashSet<>();
-//    		if(act.getFiles() != null) {		
-//    			for(ResourceLink rl : act.getFiles()) {
-//    				ResourceLink link = new ResourceLink();
-//    				link.setLinkName(rl.getLinkName());
-//    				link.setUrl(rl.getUrl());
-//    				saveEntity(link);
-//    				activityFiles.add(link);
-//    			}
-//    			targetAct.setFiles(activityFiles);
-//    		}
-//			
-//			return saveEntity(targetAct);
-			return null;
+			TargetActivity1 targetAct = new TargetActivity1();
+			targetAct.setDateCreated(new Date());
+			targetAct.setTargetCompetence(targetComp);
+			targetAct.setActivity(activity);
+    		
+			return saveEntity(targetAct);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2372,7 +2284,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				// check whether userToViewId is owner of TargetActivity 
 				if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
 					ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
-							null, false, isManager);
+							null, false, 0, isManager);
 					
 					UserData ud = new UserData(user.getId(), user.getFullName(), 
 							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);

@@ -5,12 +5,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.ChangeProgressEvent;
 import org.prosolo.services.event.Event;
+import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
 
@@ -23,14 +25,16 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private Session session;
 	private UserEntityESService userEntityESService;
 	private CredentialESService credESService;
+	private CompetenceESService compESService;
 	private EventUserRole userRole;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			CredentialESService credESService, EventUserRole userRole) {
+			CredentialESService credESService, CompetenceESService compESService, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;
 		this.credESService = credESService;
+		this.compESService = compESService;
 		this.userRole = userRole;
 	}
 	
@@ -51,6 +55,9 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					dateEnrolledString);
 			//add student to credential index
 			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
+		} else if(eventType == EventType.ENROLL_COMPETENCE) {
+			Competence1 comp = (Competence1) event.getObject();
+			compESService.addStudentToCompetenceIndex(comp.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
