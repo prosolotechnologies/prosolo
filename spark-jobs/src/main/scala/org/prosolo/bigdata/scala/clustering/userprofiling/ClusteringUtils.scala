@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.hadoop.fs.FileSystem
 
 /**
   * Created by Zoran on 06/12/15.

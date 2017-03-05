@@ -26,17 +26,7 @@ object UserProfileInteractionsManager{
   def runAnalyser() = {
     println("RUN ANALYZER")
     val credentialsIds = clusteringDAOManager.getAllCredentialsIds
-
-     UserProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)
-
-   // UserProfileInteractionsSparkJob.runSparkJob(credentialsRDD, dbName, sc)
-    /*credentialsRDD.foreach { credentialid =>
-      println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)
-      runStudentInteractionsGeneralOverviewAnalysis(credentialid)
-      runStudentInteractionsByTypeOverviewAnalysis(credentialid)
-      println("FINISHED ANALYZER FOR credential:"+credentialid)
-    }*/
-
+    UserProfileInteractionsSparkJob.runSparkJob(credentialsIds,dbName)
     println("FINISHED ANALYZER FOR USER PROFILE INTERACTIONS MANAGER JOB")
   }
 
