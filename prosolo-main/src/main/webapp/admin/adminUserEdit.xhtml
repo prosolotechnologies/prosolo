@@ -29,8 +29,6 @@
 	</ui:define>
 	<ui:define name="content">
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-		<script src="awesomplete.js" async="true"></script>
-		<link rel="stylesheet" href="awesomplete.css" />
 		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 		<div class="whiteBar"></div>
 
@@ -120,7 +118,7 @@
 	                                	Save Changes
 	                                </p:commandLink>
 									<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-										action="#{userEditBean.setUserToDelete(user)}"
+										action="#{userEditBean.setUserToDelete()}"
 										update=":formDelete"
 										oncomplete="$('#deleteUser').modal('show');">
 	                                	Delete
@@ -150,19 +148,49 @@
 								#{userEditBean.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
-								<input type="text" placeholder="Type name..."
-									class="awesomplete" list = "userlist" />
-								<ul class="dropdown-menu searchResultsDrop"
-									style="display: block;">
-									<ui:repeat var="user" value="#{userEditBean.users}">
-										<datalist id="userlist">
-											<span class="letterAvatar letterAvatar32 img-circle">#{user.avatarUrl}</span>
-											<option><h3>#{user.fullName}</h3>
-											</option>
+								<h:panelGroup layuot="block" id="selectNewOwner"
+									class="assessmentModalMetaRight">
+									<h:panelGroup
+										rendered="#{userEditBean.newOwner.userSet}">
+										<utilcomp:userAvatar
+											avatar="#{userEditBean.newOwner.avatarUrl}"
+											fullName="#{userEditBean.newOwner.fullName}" />
+										<h3>#{userEditBean.newOwner.fullName}</h3>
+									</h:panelGroup>
 
-										</datalist>
-									</ui:repeat>
-								</ul>
+									<h:inputText
+										rendered="#{not userEditBean.newOwner.userSet}"
+										onkeyup="searchListener(execSearchUsers);"
+										value="#{userEditBean.searchTerm}"
+										id="newName" placeholder="Type name..."
+										name="newName" autocomplete="off" />
+
+									<p:remoteCommand name="execSearchUsers"
+										process="newName"
+										action="#{userEditBean.resetAndSearch()}"
+										update="usersListPanel" />
+
+									<h:panelGroup id="usersListPanel">
+										<h:panelGroup
+											rendered="#{not userEditBean.newOwner.userSet and userEditBean.users != null and userEditBean.users.size() > 0}">
+											<ul id="usersList" class="dropdown-menu searchResultsDrop"
+												style="display: block;">
+												<ui:repeat
+													value="#{userEditBean.users}"
+													var="user" varStatus="iterator">
+													<li><p:commandLink style="cursor: pointer;"
+															id="userlink-#{user.id}"
+															action="#{userEditBean.setNewOwner(user)}"
+															update=":formDelete:selectNewOwner">
+															<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																fullName="#{user.fullName}" />
+															<h3>#{user.fullName}</h3>
+														</p:commandLink></li>
+												</ui:repeat>
+											</ul>
+										</h:panelGroup>
+									</h:panelGroup>
+								</h:panelGroup>
 							</div>
 						</div>
 						<div class="modal-footer alignLeft">

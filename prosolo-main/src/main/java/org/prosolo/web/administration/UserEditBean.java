@@ -1,6 +1,7 @@
 package org.prosolo.web.administration;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +16,9 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.TextSearch;
+import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
@@ -27,6 +31,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -50,7 +55,9 @@ public class UserEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
-
+	
+	@Autowired 
+	private TextSearch textSearch;
 	@Autowired
 	private AuthenticationService authenticationService;
 	@Autowired 
@@ -64,8 +71,14 @@ public class UserEditBean implements Serializable {
 	private UserData userToDelete;
 
 	private UserData user;
+	private org.prosolo.services.nodes.data.UserData newOwner;
 	private SelectItem[] allRoles;
-
+	private List<org.prosolo.services.nodes.data.UserData> users;
+	private String searchTerm;
+	private RoleFilter filter;
+	private PaginationData paginationData = new PaginationData();
+	private List<Long> userToExcludeFromSearch;
+	
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
@@ -255,8 +268,24 @@ public class UserEditBean implements Serializable {
 		return userToDelete;
 	}
 
-	public void setUserToDelete(UserData userToDelete) {
-		this.userToDelete = userToDelete;
+	public void setUserToDelete() {
+		this.userToDelete = user;
+	}
+	
+	public RoleFilter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(RoleFilter filter) {
+		this.filter = filter;
+	}
+
+	public org.prosolo.services.nodes.data.UserData getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(org.prosolo.services.nodes.data.UserData newOwner) {
+		this.newOwner = newOwner;
 	}
 
 	public void savePassChangeForAnotherUser() {
@@ -281,6 +310,31 @@ public class UserEditBean implements Serializable {
 		return accountData;
 	}
 
+	public List<org.prosolo.services.nodes.data.UserData> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<org.prosolo.services.nodes.data.UserData> users) {
+		this.users = users;
+	}
+
+	
+	public TextSearch getTextSearch() {
+		return textSearch;
+	}
+
+	public void setTextSearch(TextSearch textSearch) {
+		this.textSearch = textSearch;
+	}
+
+	public String getSearchTerm() {
+		return searchTerm;
+	}
+
+	public void setSearchTerm(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
+
 	@SuppressWarnings("deprecation")
 	public void sendNewPassword() {
 
@@ -301,19 +355,39 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void delete() {
-		if (userToDelete != null) {
-			try {
-				User user = userManager.loadResource(User.class, this.userToDelete.getId());
-				user.setDeleted(true);
-				userManager.saveEntity(user);
-				userEntityESService.deleteNodeFromES(user);
+//		if (userToDelete != null) {
+//			try {
+//				User user = userManager.loadResource(User.class, this.userToDelete.getId());
+//				user.setDeleted(true);
+//				userManager.saveEntity(user);
+//				userEntityESService.deleteNodeFromES(user);
 //				users.remove(userToDelete);
-				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
-				userToDelete = null;
-			} catch (Exception ex) {
-				logger.error(ex);
-				PageUtil.fireErrorMessage("Error while trying to delete user");
+//				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
+//				userToDelete = null;
+//			} catch (Exception ex) {
+//				logger.error(ex);
+//				PageUtil.fireErrorMessage("Error while trying to delete user");
+//			}
+//		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void loadUsers() {
+		this.users = new ArrayList<org.prosolo.services.nodes.data.UserData>();
+		if (searchTerm == null && searchTerm.isEmpty()) {
+			users = null;
+		} else {
+			try {
+				TextSearchResponse1<org.prosolo.services.nodes.data.UserData> result= textSearch.searchNewOwner(searchTerm, 3,user.getId());
+				users = result.getFoundNodes();
+			} catch (Exception e) {
+				logger.error(e);
 			}
 		}
+	}
+	
+	public void resetAndSearch() {
+		this.paginationData.setPage(1);
+		loadUsers();
 	}
 }

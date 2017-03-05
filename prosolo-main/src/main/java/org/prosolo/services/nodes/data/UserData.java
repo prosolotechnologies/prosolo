@@ -21,6 +21,7 @@ public class UserData implements Serializable {
 	private String position;
 	private String email;
 	private boolean followedByCurrentUser;
+	private boolean userSet;
 	private UserType type = UserType.REGULAR_USER;
 	private List<RoleData> roles = new ArrayList<>();
 	
@@ -80,6 +81,7 @@ public class UserData implements Serializable {
 	}
 
 	public void setId(long id) {
+		userSet = true;
 		this.id = id;
 	}
 
@@ -139,6 +141,14 @@ public class UserData implements Serializable {
 		this.roles = roles;
 	}
 	
+	public boolean isUserSet() {
+		return userSet;
+	}
+
+	public void setUserSet(boolean userSet) {
+		this.userSet = userSet;
+	}
+
 	public String getRolesCSV() {
 		String rolesString = "";
 		if(roles != null) {

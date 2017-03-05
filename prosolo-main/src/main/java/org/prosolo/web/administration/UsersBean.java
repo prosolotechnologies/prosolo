@@ -53,7 +53,7 @@ public class UsersBean implements Serializable, Paginable {
 
 	// used for search
 	private String searchTerm = "";
-	;
+	
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 	

@@ -10,6 +10,8 @@ import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -211,6 +213,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while updating user password");
 		}
 		return newPassEncrypted;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public boolean updateUser(List<Credential1> credentials, List<Activity1> activities, long id) {			
+		try {
+			String query = 
+					"UPDATE User user " +
+					"SET user.password = :newPassEncrypted, user.passwordLength = :newPassEncryptedLength " +
+					"WHERE user.id = " +id ;
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating user password");
+		}
+		return true;
 	}
 	
 	@Override
