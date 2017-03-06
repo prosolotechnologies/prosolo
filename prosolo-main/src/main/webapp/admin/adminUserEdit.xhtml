@@ -28,7 +28,19 @@
 		</ul>
 	</ui:define>
 	<ui:define name="content">
+		<link rel="stylesheet" type="text/css" media="all"
+			href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<script
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script>
+			try {
+				Typekit.load({
+					async : true
+				});
+			} catch (e) {
+			}
+		</script>
 		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 		<div class="whiteBar"></div>
 
@@ -148,25 +160,20 @@
 								#{userEditBean.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
-								<h:panelGroup layuot="block" id="selectNewOwner"
-									class="assessmentModalMetaRight">
-									<h:panelGroup
-										rendered="#{userEditBean.newOwner.userSet}">
+								<h:panelGroup layuot="block" id="selectNewOwner">
+									<h:panelGroup rendered="#{userEditBean.newOwner.userSet}">
 										<utilcomp:userAvatar
 											avatar="#{userEditBean.newOwner.avatarUrl}"
 											fullName="#{userEditBean.newOwner.fullName}" />
 										<h3>#{userEditBean.newOwner.fullName}</h3>
 									</h:panelGroup>
 
-									<h:inputText
-										rendered="#{not userEditBean.newOwner.userSet}"
+									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
 										onkeyup="searchListener(execSearchUsers);"
-										value="#{userEditBean.searchTerm}"
-										id="newName" placeholder="Type name..."
-										name="newName" autocomplete="off" />
+										value="#{userEditBean.searchTerm}" id="newName"
+										placeholder="Type name..." name="newName" autocomplete="off" />
 
-									<p:remoteCommand name="execSearchUsers"
-										process="newName"
+									<p:remoteCommand name="execSearchUsers" process="newName"
 										action="#{userEditBean.resetAndSearch()}"
 										update="usersListPanel" />
 
@@ -175,13 +182,12 @@
 											rendered="#{not userEditBean.newOwner.userSet and userEditBean.users != null and userEditBean.users.size() > 0}">
 											<ul id="usersList" class="dropdown-menu searchResultsDrop"
 												style="display: block;">
-												<ui:repeat
-													value="#{userEditBean.users}"
-													var="user" varStatus="iterator">
+												<ui:repeat value="#{userEditBean.users}" var="user"
+													varStatus="iterator">
 													<li><p:commandLink style="cursor: pointer;"
 															id="userlink-#{user.id}"
 															action="#{userEditBean.setNewOwner(user)}"
-															update=":formDelete:selectNewOwner">
+															update=":formDelete:selectNewOwner :formDelete:formDeleteBtn">
 															<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 																fullName="#{user.fullName}" />
 															<h3>#{user.fullName}</h3>
@@ -193,9 +199,18 @@
 								</h:panelGroup>
 							</div>
 						</div>
+						<BR />
 						<div class="modal-footer alignLeft">
-							<a href="#" class="btn btn-red">Delete</a> <a href="#"
-								class="btn btn-default" data-dismiss="modal">Cancel</a>
+							<h:panelGroup id = "formDeleteBtn">
+								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
+									action="#{userEditBean.delete()}"
+									rendered="#{userEditBean.newOwner.userSet}"
+									update=":formMain" 
+									oncomplete="$('#deleteUser').modal('hide');">
+	                                	Delete
+	                                </p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</h:panelGroup>
 						</div>
 					</div>
 				</div>

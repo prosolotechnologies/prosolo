@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
@@ -71,7 +73,7 @@ public class UserEditBean implements Serializable {
 	private UserData userToDelete;
 
 	private UserData user;
-	private org.prosolo.services.nodes.data.UserData newOwner;
+	private org.prosolo.services.nodes.data.UserData newOwner = new org.prosolo.services.nodes.data.UserData();
 	private SelectItem[] allRoles;
 	private List<org.prosolo.services.nodes.data.UserData> users;
 	private String searchTerm;
@@ -269,6 +271,9 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void setUserToDelete() {
+		newOwner.setUserSet(false);
+		searchTerm= "";
+		users=null;
 		this.userToDelete = user;
 	}
 	
@@ -284,8 +289,10 @@ public class UserEditBean implements Serializable {
 		return newOwner;
 	}
 
-	public void setNewOwner(org.prosolo.services.nodes.data.UserData newOwner) {
-		this.newOwner = newOwner;
+	public void setNewOwner(org.prosolo.services.nodes.data.UserData userData) {
+		newOwner.setId(userData.getId());
+		newOwner.setAvatarUrl(userData.getAvatarUrl());
+		newOwner.setFullName(userData.getFullName());
 	}
 
 	public void savePassChangeForAnotherUser() {
@@ -355,20 +362,22 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void delete() {
-//		if (userToDelete != null) {
-//			try {
-//				User user = userManager.loadResource(User.class, this.userToDelete.getId());
-//				user.setDeleted(true);
-//				userManager.saveEntity(user);
-//				userEntityESService.deleteNodeFromES(user);
-//				users.remove(userToDelete);
-//				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
-//				userToDelete = null;
-//			} catch (Exception ex) {
-//				logger.error(ex);
-//				PageUtil.fireErrorMessage("Error while trying to delete user");
-//			}
-//		}
+		if (userToDelete != null) {
+			try {
+				User user = userManager.loadResource(User.class, this.userToDelete.getId());
+				user.setDeleted(true);
+				userManager.saveEntity(user);
+				userEntityESService.deleteNodeFromES(user);
+				users.remove(userToDelete);
+				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
+				userToDelete = null;
+				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+				extContext.redirect("/admin");
+			} catch (Exception ex) {
+				logger.error(ex);
+				PageUtil.fireErrorMessage("Error while trying to delete user");
+			}
+		}
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -387,7 +396,6 @@ public class UserEditBean implements Serializable {
 	}
 	
 	public void resetAndSearch() {
-		this.paginationData.setPage(1);
 		loadUsers();
 	}
 }
