@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import java.io.{BufferedWriter, FileWriter, PrintWriter}
-import java.util.Date
 
 import org.apache.mahout.clustering.Cluster
 import org.apache.mahout.clustering.canopy.CanopyDriver
@@ -14,21 +13,19 @@ import org.apache.mahout.common.distance.{CosineDistanceMeasure, EuclideanDistan
 import org.apache.mahout.math.{DenseVector, NamedVector, VectorWritable}
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.{SequenceFile, Text}
-import org.apache.spark.rdd.RDD
 import org.joda.time.DateTime
-import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
 import org.prosolo.bigdata.utils.DateUtil
 
 import scala.collection.mutable.Iterable
-
-//import org.prosolo.bigdata.scala.clustering.
 import scala.IndexedSeq
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable._
 import com.datastax.spark.connector._
+import com.datastax.driver.core.Row
 
 
 
@@ -39,17 +36,10 @@ import com.datastax.spark.connector._
   * Zoran 22/11/15
   */
 class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:Int)  {
- // val dbManager = new UserObservationsDBManagerImpl()
  val sc=SparkContextLoader.getSC
-//val courseId:Long=0//we are still not taking account of this value. It should be fixed in Cassandra DAO
-
-  //map feature id to FeatureQuartile
   val featuresQuartiles: mutable.Map[Int, FeatureQuartiles] = new HashMap[Int, FeatureQuartiles]
   val matchedClusterProfiles: Map[Long, ClusterName.Value] = new HashMap[Long, ClusterName.Value]()
-  //val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[GenerateUserProfileClusters].getName)
- // val numClusters = jobProperties.jobProperties.getProperty("numberOfClusters").toInt;
- // val numFeatures =jobProperties.jobProperties.getProperty("numberOfFeatures").toInt;
-
+  val profilesDAO=new ProfilesDAO(dbName)
 
 
   def getMatchedClusterProfile(clusterId:Long):String={
@@ -70,9 +60,8 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @param endDate
     */
   def performKMeansClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long):Iterable[Tuple5[Long,String,Long,Long,String]] = {
-    //outputResults("ALGORITHM:"+ClusteringUtils.algorithmType.toString)
+    println("perform kmeans clustering for:"+courseId)
     val clustersDir = "clustersdir/"+courseId
-    //val clustersDir = "clustersdir/"+courseId
     val vectorsDir = clustersDir + "/users"
     val outputDir: String = clustersDir + "/output"
     val output = new Path(outputDir)
@@ -84,26 +73,16 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
       day=>
       DateUtil.getDaysSinceEpoch(day)
     }
-
- //   val usersFeatures: Predef.Map[Long, Array[Double]] = startDateSinceEpoch.to(endDateSinceEpoch)
     val usersFeatures: Predef.Map[Long, Array[Double]] = daysSinceEpoch
       .flatMap{date=>mapUserObservationsForDateToRows(date,courseId)}
-      .groupBy { row: CassandraRow => row.getLong(1) }
+      .groupBy { row: Row => row.getLong(1) }
       .transform((userid, userRows) => transformUserFeaturesForPeriod(userid, userRows))
     extractFeatureQuartilesValues(usersFeatures)
     evaluateFeaturesQuartiles()
     val usersQuartilesFeatures: Predef.Map[Long, Array[Double]] =  usersFeatures.transform((userid, userFeatures)=>transformUserFeaturesToFeatureQuartiles(userid, userFeatures))
     prepareSequenceFile(usersQuartilesFeatures, datapath)
-    //runClustering()
-
   if(runClustering(courseClusterConfiguration)){
-    println("WORKING HERE")
      val usercourseprofiles:Iterable[Tuple5[Long,String,Long,Long,String]] =readAndProcessClusters(usersQuartilesFeatures, daysSinceEpoch,  courseId,output, outputDir)
-
-   // usercourseprofiles.saveToCassandra(dbName,TablesNames.ACTIVITY_INTERACTION)
-  //  usercourseprofiles.saveToCassandra(dbName,TablesNames.ACTIVITY_INTERACTION)
-    //outputResults("******************************************************************************************")
-
     usercourseprofiles
   }else {
     val usercourseprofiles:Iterable[Tuple5[Long,String,Long,Long,String]] =new  mutable.ListBuffer[Tuple5[Long,String,Long,Long,String]]()
@@ -120,11 +99,15 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @param date
     * @return
     */
-  def mapUserObservationsForDateToRows(date: Long, courseId:Long):List[CassandraRow] = {
-     val rows=sc.cassandraTable(dbName, TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE)
+  def mapUserObservationsForDateToRows(date: Long, courseId:Long):List[Row] = {
+    /* val rows=sc.cassandraTable(dbName, TablesNames.PROFILE_USERPROFILE_ACTIONS_OBSERVATIONS_BYDATE)
       .select("date","userid","attach","progress","comment","creating","evaluation","join","like","login" ,"posting","content_access","message","search")
       .where("date="+date+" and course="+courseId)
-     rows.collect().toList
+    println("kmeans-2.1:"+rows.collect().size)
+     rows.collect().toList*/
+
+    val rows=profilesDAO.findUserProfileObservationsByDate(date,courseId)
+    rows
 
   }
 
@@ -136,11 +119,13 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @return
     */
   def transformUserFeaturesToFeatureQuartiles(userid:Long, userFeatures: Array[Double]): Array[Double]={
+    println("transform")
   val quartilesFeaturesArray: Array[Double] = new Array[Double](numFeatures)
   for(i<-0 to numFeatures - 1){
     val quartile:FeatureQuartiles=featuresQuartiles.getOrElseUpdate(i,new FeatureQuartiles())
     quartilesFeaturesArray(i)=quartile.getQuartileForFeatureValue(userFeatures(i))
   }
+    println("kmeans-2.2")
   quartilesFeaturesArray
 }
   /**
@@ -150,7 +135,7 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @param userRows
     * @return
     */
-  def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[CassandraRow]) = {
+  def transformUserFeaturesForPeriod(userid: Long, userRows: IndexedSeq[Row]) = {
     val featuresArray: Array[Double] = new Array[Double](numFeatures)
     for (userRow <- userRows) {
       for (i <- 0 to numFeatures - 1) {
@@ -211,14 +196,6 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     val clustersIn = new Path(courseClusterConfiguration.output, "random-seeds")
     var success=true;
     RandomSeedGenerator.buildRandom(ClusteringUtils.conf, courseClusterConfiguration.datapath, clustersIn, numClusters, measure)
-    /*NEW*/
-   //val conf = new Configuration()
-    //val clustersDir = "clustersdir"
-   // val vectorsDir = clustersDir + "/users"
-    //val samples = new Path(vectorsDir + "/part-00000")
-    //val output = new Path("output")
-   // val clustersIn2 = new Path(output, "random-seeds")
-   // RandomSeedGenerator.buildRandom(conf, samples, clustersIn, 3, measure)
 println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
     ////end
     val convergenceDelta = 0.01
@@ -308,14 +285,6 @@ println("BUILD RANDOM FINISHED for course:"+courseClusterConfiguration.courseId)
         val sequence = userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(",")
-        println("THIS IS DISABLED TEMPORARY")
-/*
-        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByProfile(courseId, clusterProfile, endDateSinceEpoch, userid, sequence);
-        INSERT INTO "+TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE+"(course,  profile,date, userid, sequence) VALUES (?, ?, ?,?,?);";
-
-        UserObservationsDBManagerImpl.getInstance().insertUserQuartileFeaturesByDate(courseId, endDateSinceEpoch, userid, clusterProfile, sequence);
-        "INSERT INTO " + TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE + "(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?);";
-        */
         println("course:" + courseId + " cluster-name:" + clusterProfile + " userid:" + userid + " date:" + endDateSinceEpoch + " sequence:" + userQuartilesSequence.map {
           feature => FeatureQuartiles.matchQuartileValueToQuartileName(feature)
         }.mkString(","))

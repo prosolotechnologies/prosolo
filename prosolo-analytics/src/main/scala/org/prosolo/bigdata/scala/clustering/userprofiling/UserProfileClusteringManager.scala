@@ -25,17 +25,15 @@ object UserProfileClusteringManager {
 
   val endDate: Date=new Date
   val DAY_IN_MS:Long=1000*60*60*24
-  val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[GenerateUserProfileClusters].getName)
-  println("JOB PROPERTIES:"+jobProperties.jobProperties.toString)
-  val periodToCalculate=jobProperties.jobProperties.getProperty("periodToCalculate").toInt;
+  val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[GenerateUserProfileClusters].getName).jobProperties
+  println("JOB PROPERTIES:"+jobProperties.toString)
+  val periodToCalculate=jobProperties.getProperty("periodToCalculate").toInt;
   println("PERIOD TO CALCULATE:"+periodToCalculate)
 
 
-  val numClusters=jobProperties.jobProperties.getProperty("numberOfClusters").toInt;
-  val numFeatures=jobProperties.jobProperties.getProperty("numberOfFeatures").toInt;
+  val numClusters=jobProperties.getProperty("numberOfClusters").toInt;
+  val numFeatures=jobProperties.getProperty("numberOfFeatures").toInt;
   val startDate:Date=new Date(endDate.getTime-(periodToCalculate*DAY_IN_MS))
-//  val start=new DateTime(startDate)
-  //val end=new DateTime(endDate)
   val days:IndexedSeq[DateTime]=(0 until periodToCalculate).map(new DateTime(startDate).plusDays(_))
   println("NUMBER OF DAYS:"+days.length+" DAYS:"+days.mkString(","))
   val clusteringDAOManager=new ClusteringDAOImpl
