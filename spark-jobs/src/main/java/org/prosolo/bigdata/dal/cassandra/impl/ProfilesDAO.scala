@@ -4,6 +4,7 @@ import com.datastax.driver.core.Row
 
 import scala.collection.mutable
 import com.datastax.spark.connector.types.TypeConverter
+import org.prosolo.bigdata.scala.clustering.userprofiling.ClusterName
 
 import scala.collection.JavaConversions._
 /**
@@ -33,6 +34,18 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
       }
     }
   }
+  def findUserQuartileFeaturesByProfile(courseId:java.lang.Long, clusterName:ClusterName.Value):List[Row] = {
+    DBManager.connector.withSessionDo {
+      session =>
+        val rs = session.execute(s"SELECT * FROM $keyspace."+  TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE + " WHERE course=? and profile=? ",courseId ,clusterName.toString)
+
+        val rows= rs.all().map {
+          case row =>
+            row
+        }
+        rows.toList
+    }
+  }
   def insertUserQuartileFeaturesByDate(userProfile:Iterable[(Long,String,Long,Long,String)]): Unit ={
     val bydatequery = s"INSERT INTO $keyspace." + TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE + "(course,  date, userid,profile, sequence) VALUES (?, ?, ?,?,?) ";
     DBManager.connector.withSessionDo {
@@ -45,17 +58,22 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
       }
     }
   }
-  def findUserQuartileFeaturesByDate(courseId:Long, endDateSinceEpoch:Long):Option[(String,Long)] = {
+  def findUserQuartileFeaturesByDate(courseId:Long, endDateSinceEpoch:Long):List[(String,Long)] = {
     DBManager.connector.withSessionDo {
       session =>
         val rs = session.execute(s"SELECT * FROM $keyspace."+  TablesNames.PROFILE_USERQUARTILE_FEATURES_BYDATE + " WHERE course=" + courseId + " AND date=" + endDateSinceEpoch)
-        Option(rs.one()) match {
+        val rows= rs.all().map {
+          case row =>
+            (row.getString("sequence"), row.getLong("userid"))
+        }
+        rows.toList
+       /* Option(rs.one()) match {
           case Some(row) if !row.isNull(0) ⇒ {
             println("ROW TEST SEQUENCE:" + row.getString("sequence"))
             Some(row.getString("sequence"), row.getLong("userid"))
           }
           case _ ⇒ None
-        }
+        }*/
     }
   }
   def findUserProfileObservationsByDate(date: java.lang.Long, courseId:java.lang.Long):List[Row] ={
@@ -69,7 +87,7 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
         }
         rows.toList
       }
-
   }
+
 
 }

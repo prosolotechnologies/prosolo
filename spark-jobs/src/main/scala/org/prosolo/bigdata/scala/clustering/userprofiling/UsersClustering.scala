@@ -119,13 +119,11 @@ class UsersClustering (val dbName:String, val numClusters:Int, val numFeatures:I
     * @return
     */
   def transformUserFeaturesToFeatureQuartiles(userid:Long, userFeatures: Array[Double]): Array[Double]={
-    println("transform")
   val quartilesFeaturesArray: Array[Double] = new Array[Double](numFeatures)
   for(i<-0 to numFeatures - 1){
     val quartile:FeatureQuartiles=featuresQuartiles.getOrElseUpdate(i,new FeatureQuartiles())
     quartilesFeaturesArray(i)=quartile.getQuartileForFeatureValue(userFeatures(i))
   }
-    println("kmeans-2.2")
   quartilesFeaturesArray
 }
   /**

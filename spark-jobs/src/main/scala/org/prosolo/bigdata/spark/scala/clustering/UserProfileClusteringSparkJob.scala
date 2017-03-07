@@ -49,6 +49,7 @@ object UserProfileClusteringSparkJob {
 
 
         })
+        println("FOREACH PARTITION KT-2")
         credentials._2.foreach {
           credentialid =>
             println("RUNNING HMM USER PROFILE CLUSTERING FOR CREDENTIAL:" + credentialid)

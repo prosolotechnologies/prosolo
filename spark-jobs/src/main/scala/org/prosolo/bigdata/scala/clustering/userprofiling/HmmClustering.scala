@@ -1,17 +1,21 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
 import java.util
+
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import be.ac.ulg.montefiore.run.jahmm.{Hmm, ObservationDiscrete, OpdfDiscreteFactory}
 import org.prosolo.bigdata.clustering.QuartileName
-import org.prosolo.bigdata.dal.cassandra.impl.{ ProfilesDAO, TablesNames}
+import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
+
 import scala.collection.mutable.{HashMap, Map}
 import com.datastax.spark.connector._
 import org.joda.time.DateTime
 import java.util.List
+
+import com.datastax.driver.core.Row
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -44,23 +48,27 @@ class HmmClustering (val dbName:String) extends Serializable {
     ClusterName.values.foreach{clusterName=>
       val initFactory:OpdfDiscreteFactory[QuartileName]  = new OpdfDiscreteFactory[QuartileName](classOf[QuartileName])
       val sequences:List[List[ObservationDiscrete[QuartileName]]]=getClusterCourseSequences(clusterName, courseId)
+      println("InitializeHMM model for:"+courseId)
       val initHmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactory)
       val mBwl:BaumWelchLearner=new BaumWelchLearner
     if(sequences.size>0){
+      println("Learning for:"+courseId)
       val learntHmm:Hmm[ObservationDiscrete[QuartileName]]=mBwl.learn(initHmm, sequences)
-      learntHmmModels.put(clusterName,learntHmm)    }
+      learntHmmModels.put(clusterName,learntHmm)
+    }
       println("INITIALIZED MODEL FOR:"+courseId)
     }
   }
 
   def getClusterCourseSequences(clusterName:ClusterName.Value, courseId:Long):List[List[ObservationDiscrete[QuartileName]]]={
     println("GET CLUSTER COURSE SEQUENCES:"+courseId+" clusterName:"+clusterName.toString+" dbName:"+dbName)
-    val results=sc.cassandraTable(dbName, TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE).where("course=?",courseId).where("profile=?",clusterName.toString)
+    val results:List[Row]=profilesDAO.findUserQuartileFeaturesByProfile(courseId,clusterName)
+   /* val results=sc.cassandraTable(dbName, TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE).where("course=?",courseId).where("profile=?",clusterName.toString)*/
      val seq:List[List[ObservationDiscrete[QuartileName]]]= results.map{
       row=>
         val sequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
          sequence
-    }.collect().toList
+    }.toList
     seq
   }
 
@@ -78,9 +86,10 @@ class HmmClustering (val dbName:String) extends Serializable {
       println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+" end date:"+endDateSinceEpoch+" size:"+results.size)
       val bestClusters=results.map{
         row=>
-          println("ROW TEST SEQUENCE:"+row._1)
-          val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row._1.split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
           val userid=row._2;
+          println("ROW TEST SEQUENCE:"+row._1+" user:"+userid)
+          val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row._1.split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
+
           println("*****************************************")
           println("CHECKING ROW WITH TEST SEQUENCE:"+testSequence.toString)
 
