@@ -42,13 +42,13 @@ object UserProfileInteractionsSparkJob {
     val socialInteractionsbypeers_table =sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT).where("course=?",credentialId)
     val socialInteractionsCountDataRDD =socialInteractionsbypeers_table.map(row=> {
       new Tuple3(row.getLong("source"), row.getLong("target"), row.getLong("count")) })
-    socialInteractionsCountDataRDD.collect.foreach(println)
+   // socialInteractionsCountDataRDD.collect.foreach(println)
   val mapOut = socialInteractionsCountDataRDD.map(t => {(t._1, ("OUT", t._2, t._3))}).groupByKey() //groups by studentid -> interactions TO to other students and count
     val mapIn = socialInteractionsCountDataRDD.map(t => (t._2, ("IN", t._1, t._3))).groupByKey() //groups by studentid -> interactions FROM other students and count
     val interUnions = mapOut.union(mapIn).reduceByKey(_ ++ _)
-    mapOut.collect.foreach(println)
-    mapIn.collect.foreach(println)
-    interUnions.collect.foreach(println)
+   // mapOut.collect.foreach(println)
+   // mapIn.collect.foreach(println)
+  //  interUnions.collect.foreach(println)
     val calculatedpercentage = interUnions.map(studinteractions => {
       val total = studinteractions._2.foldLeft(0l)((s: Long, t: Tuple3[String, Long, Long]) => s + t._3)
       val newtuple = studinteractions._2.map(t => {
