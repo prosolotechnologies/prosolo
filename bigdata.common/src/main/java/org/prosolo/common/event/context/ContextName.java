@@ -68,7 +68,9 @@ public enum ContextName {
 	ASSESSMENT_COMMENTS(""),
 	ASK_FOR_ASSESSMENT_DIALOG(""),
 	EXTERNAL_ACTIVITY_GRADE("TargetActivity1"),
-	AUTOGRADE("TargetActivity1");
+	AUTOGRADE("TargetActivity1"),
+	ARCHIVE_DIALOG(""),
+	DUPLICATE_DIALOG("");
 	
     private String objectType; 
     

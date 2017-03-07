@@ -34,6 +34,7 @@ public class Competence1 extends BaseEntity {
 	private Set<Tag> tags;
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
+	private boolean archived;
 	private LearningResourceType type;
 	private List<TargetCompetence1> targetCompetences;
 	
@@ -45,7 +46,7 @@ public class Competence1 extends BaseEntity {
 	//if competence is original version this will be null
 	private Competence1 originalVersion;
 	private Date datePublished;
-	private boolean canBeEdited;
+	private boolean canBeEdited = true;
 	
 	private List<CompetenceBookmark> bookmarks;
 	
@@ -180,4 +181,15 @@ public class Competence1 extends BaseEntity {
 	public void setBookmarks(List<CompetenceBookmark> bookmarks) {
 		this.bookmarks = bookmarks;
 	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
 }

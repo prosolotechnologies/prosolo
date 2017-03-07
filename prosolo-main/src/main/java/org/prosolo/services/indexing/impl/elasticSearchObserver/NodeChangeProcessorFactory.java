@@ -90,7 +90,6 @@ public class NodeChangeProcessorFactory {
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
-				
 			case Delete:
 			case Delete_Draft:
 				if(node instanceof Credential1) {
@@ -125,9 +124,16 @@ public class NodeChangeProcessorFactory {
 			case USER_GROUP_REMOVED_FROM_RESOURCE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
 						userGroupManager, competenceESService);
+			case ARCHIVE:
+				if(node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Archive, session);
+				}
+				break;
 			default:
 				return null;
 		}
+		return null;
 	}
 	
 }

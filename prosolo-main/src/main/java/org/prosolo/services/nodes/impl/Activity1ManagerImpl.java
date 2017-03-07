@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -2459,5 +2461,145 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
+	
+	/**
+	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
+	 * 
+	 * @param original
+	 * @return newly created {@link CompetenceActivity1} instance
+	 */
+	@Transactional (readOnly = false)
+	@Override
+	public Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
+			LearningContextData context) throws DbConnectionException {
+		try {
+			Result<Activity1> res = clone(original.getActivity(), userId, context);
+			
+			CompetenceActivity1 competenceActivity = new CompetenceActivity1();
+			competenceActivity.setActivity(res.getResult());
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+			competenceActivity.setCompetence(comp);
+			competenceActivity.setOrder(original.getOrder());
+			saveEntity(competenceActivity);
+			Result<CompetenceActivity1> r = new Result<>();
+			r.setResult(competenceActivity);
+			r.addEvents(res.getEvents());
+			return r;
+		} catch(DbConnectionException dce) {
+			throw dce;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while cloning competence activity");
+		}
+	}
+
+	/**
+	 * Creates a new {@link Activity1} instance that is a clone of the given instance.
+	 * 
+	 * @param original the original activity to be cloned
+	 * @return newly created activity
+	 */
+	@Transactional (readOnly = false)
+	private Result<Activity1> clone(Activity1 original, long userId, LearningContextData context) {
+		try {
+			Activity1 activity = cloneActivityBasedOnType(original);
+			
+			activity.setDateCreated(new Date());
+			activity.setTitle(original.getTitle());
+			activity.setDescription(original.getDescription());
+			activity.setDuration(original.getDuration());
+			activity.setLinks(cloneLinks(original.getLinks()));
+			activity.setFiles(cloneLinks(original.getFiles()));
+			activity.setPublished(false);
+			activity.setResultType(original.getResultType());
+			activity.setType(original.getType());
+			activity.setMaxPoints(original.getMaxPoints());
+			activity.setStudentCanSeeOtherResponses(original.isStudentCanSeeOtherResponses());
+			activity.setStudentCanEditResponse(original.isStudentCanEditResponse());
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			activity.setCreatedBy(user);
+			activity.setVisibleForUnenrolledStudents(original.isVisibleForUnenrolledStudents());
+			activity.setDifficulty(original.getDifficulty());
+			activity.setAutograde(original.isAutograde());
+			saveEntity(activity);
+			Result<Activity1> res = new Result<>();
+			res.setResult(activity);
+			EventData ev = new EventData();
+			ev.setEventType(EventType.Create);
+			ev.setActorId(userId);
+			if(context != null) {
+				ev.setPage(context.getPage());
+				ev.setContext(context.getLearningContext());
+				ev.setService(context.getService());
+			}
+			Activity1 act = new Activity1();
+			act.setId(activity.getId());
+			ev.setObject(act);
+			
+			res.addEvent(ev);
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while cloning activity");
+		}
+	}
+
+	private Set<ResourceLink> cloneLinks(Set<ResourceLink> links) {
+		Set<ResourceLink> cloneLinks = new HashSet<ResourceLink>();
+		
+		for (ResourceLink link : links) {
+			ResourceLink linkClone = new ResourceLink();
+			linkClone.setLinkName(link.getLinkName());
+			linkClone.setUrl(link.getUrl());
+			saveEntity(linkClone);
+			
+			cloneLinks.add(linkClone);
+		}
+		
+		return cloneLinks;
+	}
+
+	private Activity1 cloneActivityBasedOnType(Activity1 original) {
+		class ActivityCloneVisitor implements ActivityVisitor {
+			private Activity1 act;
+			
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				ExternalToolActivity1 extAct = new ExternalToolActivity1();
+				extAct.setLaunchUrl(activity.getLaunchUrl());
+				extAct.setSharedSecret(activity.getSharedSecret());
+				extAct.setConsumerKey(activity.getConsumerKey());
+				extAct.setAcceptGrades(activity.isAcceptGrades());
+				extAct.setOpenInNewWindow(activity.isOpenInNewWindow());
+				extAct.setScoreCalculation(activity.getScoreCalculation());
+				act = extAct;
+			}
+			
+			@Override
+			public void visit(UrlActivity1 activity) {
+				UrlActivity1 originalUrlAct = (UrlActivity1) original;
+
+				UrlActivity1 urlAct = new UrlActivity1();
+				urlAct.setUrlType(originalUrlAct.getUrlType());
+				urlAct.setUrl(originalUrlAct.getUrl());
+				urlAct.setLinkName(originalUrlAct.getLinkName());
+				urlAct.setCaptions(cloneLinks(activity.getCaptions()));
+				act = urlAct;
+			}
+			
+			@Override
+			public void visit(TextActivity1 activity) {
+				TextActivity1 ta = new TextActivity1();
+				ta.setText(activity.getText());
+				act = ta;
+			}
+		}
+		
+		ActivityCloneVisitor visitor = new ActivityCloneVisitor();
+		original.accept(visitor);
+		return visitor.act;
+	}
 	
 }

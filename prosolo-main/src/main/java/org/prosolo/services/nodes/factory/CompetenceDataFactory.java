@@ -33,6 +33,7 @@ public class CompetenceDataFactory {
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
 		comp.setPublished(competence.isPublished());
+		comp.setArchived(competence.isArchived());
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
 		comp.setCompStatus();

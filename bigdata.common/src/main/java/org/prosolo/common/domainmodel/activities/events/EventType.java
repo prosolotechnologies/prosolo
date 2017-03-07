@@ -134,7 +134,9 @@ public enum EventType {
 	REMOVE_INSTRUCTOR_FROM_CREDENTIAL,
 	GRADE_ADDED,
 	
-	PAGE_OPENED;
+	PAGE_OPENED,
+	
+	ARCHIVE;
 	
 	private String customText;
 	

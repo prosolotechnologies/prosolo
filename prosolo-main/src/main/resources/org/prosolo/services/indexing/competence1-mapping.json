@@ -9,6 +9,10 @@
 				"store": false,
 				"type": "boolean"
 			},
+			"archived":{
+				"store": false,
+				"type": "boolean"
+			},
 			"title":{
 				"store": false,
 				"type":"string",
@@ -24,6 +28,11 @@
 				"type":"string"
 			},
 			"dateCreated":{
+				"store": false,
+				"type":"date",
+				"format":"yyyy/MM/dd HH:mm:ss"
+			},
+			"datePublished":{
 				"store": false,
 				"type":"date",
 				"format":"yyyy/MM/dd HH:mm:ss"

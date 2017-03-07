@@ -15,7 +15,10 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.util.credential.CompetenceSearchFilter;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
@@ -269,5 +272,27 @@ public interface Competence1Manager {
 	
 	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, 
 			LearningContextData context) throws DbConnectionException;
+	
+	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
+	
+	void archiveCompetence(long compId, long userId, LearningContextData context) throws DbConnectionException;
+	
+	/**
+	 * Returns number of competences for which user specified with {@code userId} has privilege specified by {@code priv}
+	 * @param searchFilter
+	 * @param userId
+	 * @param priv
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws NullPointerException
+	 */
+	long countNumberOfCompetences(CompetenceSearchFilter searchFilter, long userId, UserGroupPrivilege priv) 
+			throws DbConnectionException, NullPointerException;
+	
+	List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
+			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+	
+	long duplicateCompetence(long compId, long userId, LearningContextData context) throws DbConnectionException,
+			EventException;
 	
 }

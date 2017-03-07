@@ -48,5 +48,7 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	void addStudentToCompetenceIndex(long compId, long userId);
 	
 	void removeStudentFromCompetenceIndex(long compId, long userId);
+	
+	void archiveCompetence(long compId);
 
 }

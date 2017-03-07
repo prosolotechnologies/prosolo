@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -203,4 +204,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @return
 	 */
 	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
+	
+	Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
+			LearningContextData context) throws DbConnectionException;
 }

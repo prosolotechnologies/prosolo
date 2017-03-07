@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.credential.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -47,5 +48,9 @@ public interface CompetenceTextSearch extends AbstractManager {
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			LearningResourceSearchConfig config);
+	
+	TextSearchResponse1<CompetenceData1> searchCompetencesForManager(
+			String searchTerm, int page, int limit, long userId, CompetenceSearchFilter filter, 
+			LearningResourceSortOption sortOption);
 
 }
