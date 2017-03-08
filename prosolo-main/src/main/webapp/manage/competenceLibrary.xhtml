@@ -139,7 +139,7 @@
 			                        <div class="manageCompetencesListLeft">
 			                            <h2>
 			                            	<h:link outcome="/manage/create-competence">
-			                            		#{comp.title}<span>#{comp.published ? '' : '(Draft)'}</span>
+			                            		#{comp.title}<span>#{comp.published or comp.archived ? '' : ' (Draft)'}</span>
 			                            		<f:param name="id" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            	</h:link>
 			                            </h2>
@@ -169,11 +169,12 @@
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            	<f:param name="mode" value="preview"></f:param>
 			                            </h:link>
-			                            <p:commandLink
+			                            <p:commandLink rendered="#{not comp.archived}"
 					                  	  	value="Archive"
 					                  	  	styleClass="linkRed"
 					                  	  	process="@this"
 					                  	  	action="#{competenceLibraryBeanManager.prepareForArchive(comp)}"
+					                  	  	update=":archiveDialog"
 					                  	  	oncomplete="$('#archiveModal').modal('show');">
 					                  	</p:commandLink>
 			                        </div>
@@ -193,13 +194,16 @@
 	
 	    </div>
 	    
-	    <dialogs:archiveResource      
+	    <dialogs:archiveResource
+	    		id="archiveDialog"
+	    		competence="#{competenceLibraryBeanManager.selectedComp}"      
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
 				title="Competence" 
 				resourceType="competence"
-				resourceTypePlural="competences"/>
+				resourceTypePlural="competences"
+				learningContext="name:library"/>
 				
 	 	<compDialogs:duplicateCompetence   
 	 			id="duplicateDialog"   
