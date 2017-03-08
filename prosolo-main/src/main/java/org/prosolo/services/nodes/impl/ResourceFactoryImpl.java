@@ -52,7 +52,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -1335,5 +1334,55 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 		return activityDiscussion;
     }
+    
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public Result<Competence1> duplicateCompetence(long compId, long userId) 
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			
+			Competence1 competence = new Competence1();
+			
+			competence.setTitle("Copy of " + comp.getTitle());
+			competence.setDescription(comp.getDescription());
+			competence.setDateCreated(new Date());
+			competence.setTags(new HashSet<Tag>(comp.getTags()));
+			competence.setCreatedBy(user);
+			competence.setDuration(comp.getDuration());
+			competence.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
+			competence.setType(comp.getType());
+			competence.setOriginalVersion(comp);
+			competence.setCanBeEdited(true);
+			competence.setArchived(false);
+			competence.setPublished(false);
+			saveEntity(competence);
+			
+			Result<Competence1> res = new Result<>();
+			res.setResult(competence);
+			EventData ev = new EventData();
+			ev.setEventType(EventType.Create);
+			ev.setActorId(userId);
+			Competence1 c = new Competence1();
+			c.setId(competence.getId());
+			ev.setObject(c);
+			res.addEvent(ev);
+			
+			List<CompetenceActivity1> activities = comp.getActivities();
+			
+			for (CompetenceActivity1 compActivity : activities) {
+				Result<CompetenceActivity1> actRes = activityManager.cloneActivity(compActivity, competence.getId(), 
+						userId, null);
+				competence.getActivities().add(actRes.getResult());
+				res.addEvents(actRes.getEvents());
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while creating competence duplicate");
+		}
+	}
     
 }

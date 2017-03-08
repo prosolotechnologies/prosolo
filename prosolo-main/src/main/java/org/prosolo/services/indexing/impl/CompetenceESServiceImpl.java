@@ -1,6 +1,5 @@
 package org.prosolo.services.indexing.impl;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,6 +26,7 @@ import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;
@@ -39,16 +39,19 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Inject
 	private Competence1Manager compManager;
+	@Inject private DefaultManager defaultManager;
 	@Inject
 	private UserGroupManager userGroupManager;
 	
 	@Override
 	@Transactional
-	public void saveCompetenceNode(Competence1 comp, Session session) {
+	public void saveCompetenceNode(Competence1 competence, Session session) {
 	 	try {
+	 		Competence1 comp = defaultManager.loadResource(Competence1.class, competence.getId());
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", comp.getId());
 			builder.field("published", comp.isPublished());
+			builder.field("archived", comp.isArchived());
 			builder.field("title", comp.getTitle());
 			builder.field("description", comp.getDescription());
 			Date date = comp.getDateCreated();
@@ -56,7 +59,11 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 				builder.field("dateCreated", df.format(date));
 			}
-			
+			Date datePublished = comp.getDatePublished();
+			if(datePublished != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				builder.field("datePublished", df.format(datePublished));
+			}
 			builder.startArray("tags");
 			List<Tag> tags = compManager.getCompetenceTags(comp.getId(), session);
 			for(Tag tag : tags){
@@ -117,7 +124,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			System.out.println("JSON: " + builder.prettyPrint().string());
 			String indexType = getIndexTypeForNode(comp);
 			indexNode(builder, String.valueOf(comp.getId()), ESIndexNames.INDEX_NODES, indexType);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
@@ -290,6 +297,20 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
 					compId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void archiveCompetence(long compId) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+			    .startObject()
+		        .field("archived", true)
+		        .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

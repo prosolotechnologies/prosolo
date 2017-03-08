@@ -54,6 +54,8 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 			competenceESService.saveCompetenceNode(comp, session);
 		} else if(operation == NodeOperation.Delete) {
 			competenceESService.deleteNodeFromES(comp);
+		} else if(operation == NodeOperation.Archive) {
+			competenceESService.archiveCompetence(comp.getId());
 		}
 	}
 

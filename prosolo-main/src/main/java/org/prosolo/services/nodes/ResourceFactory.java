@@ -193,5 +193,7 @@ public interface ResourceFactory extends AbstractManager {
 	ActivityAssessment createActivityAssessment(long targetActivityId, long competenceAssessmentId, 
 			List<Long> participantIds, long senderId, boolean isDefault, Integer grade, 
 			Session session) throws ResourceCouldNotBeLoadedException;
+	
+	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
 
 }

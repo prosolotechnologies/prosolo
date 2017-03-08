@@ -32,6 +32,8 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.util.credential.CompetenceSearchFilter;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -1806,6 +1808,60 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Transactional(readOnly = true)
+	private List<Long> getCompetencesIdsWithSpecifiedPrivilegeForUser(long userId, UserGroupPrivilege priv) 
+			throws DbConnectionException {
+		try {
+			if(priv == null) {
+				throw new NullPointerException("Privilege can not be null");
+			}
+			if(priv == UserGroupPrivilege.None) {
+				throw new IllegalStateException("Privilege is not valid");
+			}
+			StringBuilder query = new StringBuilder(
+					"SELECT comp.id " +
+					"FROM CompetenceUserGroup compUserGroup " +
+					"INNER JOIN compUserGroup.userGroup userGroup " +
+					"RIGHT JOIN compUserGroup.competence comp " +
+					"INNER JOIN userGroup.users user " +
+						"WITH user.user.id = :userId " +
+					"WHERE compUserGroup.privilege = :priv ");
+			
+			switch(priv) {
+				case Edit:
+					query.append("OR comp.createdBy.id = :userId");
+					break;
+				case Learn:
+					query.append("OR comp.visibleToAll = :boolTrue");
+					break;
+				default:
+					break;
+			}
+			
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("userId", userId)
+					.setParameter("priv", priv);
+			
+			if(priv == UserGroupPrivilege.Learn) {
+				q.setBoolean("boolTrue", true);
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<Long> ids = q.list();
+			
+			return ids;
+		} catch(NullPointerException npe) {
+			throw npe;
+		} catch(IllegalStateException ise) {
+			throw ise;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while trying to retrieve competences ids");
+		}
+	}
+	
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
@@ -2003,18 +2059,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			long id = bookmark.getId();
 			
 			delete(bookmark);
-			/* 
-			 * To avoid SQL query when for example user name is accessed.
-			 * This way, only id will be accessible.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+			
 			CompetenceBookmark cb = new CompetenceBookmark();
 			cb.setId(id);
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 			
-			eventFactory.generateEvent(EventType.RemoveBookmark, actor.getId(), context, cb, competence, null);
+			eventFactory.generateEvent(EventType.RemoveBookmark, userId, context, cb, competence, null);
 			
 		} catch(Exception e) {
 			logger.error(e);
@@ -2085,6 +2136,207 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading user competences");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(tc.id) " +
+						   "FROM TargetCompetence1 tc " +
+						   "WHERE tc.competence.id = :compId";
+			
+			Long count = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.uniqueResult();
+			
+			return count != null ? count : 0;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while counting number of users learning competence");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void archiveCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+			comp.setArchived(true);
+			
+			Competence1 competence = new Competence1();
+			competence.setId(compId);
+			eventFactory.generateEvent(EventType.ARCHIVE, userId, context, competence, null, null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while archiving competence");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public long countNumberOfCompetences(CompetenceSearchFilter searchFilter, long userId, UserGroupPrivilege priv) 
+				throws DbConnectionException, NullPointerException {
+		try {
+			if(searchFilter == null) {
+				throw new NullPointerException("Search filter cannot be null");
+			}
+			
+			List<Long> ids = getCompetencesIdsWithSpecifiedPrivilegeForUser(userId, priv);
+			
+			//if user doesn't have needed privilege for any of the competences we return 0
+			if(ids.isEmpty()) {
+				return 0;
+			}
+			
+			StringBuilder query = new StringBuilder(
+						"SELECT COUNT(c.id) " +
+						"FROM Competence1 c " +
+						"WHERE c.id IN (:ids) ");
+			
+			switch(searchFilter) {
+				case ACTIVE:
+					query.append("AND c.archived = :boolFalse");
+					break;
+				case DRAFT:
+					query.append("AND c.archived = :boolFalse " +
+								 "AND c.published = :boolFalse");
+					break;
+				case PUBLISHED:
+					query.append("AND c.archived = :boolFalse " +
+							 	 "AND c.published = :boolTrue");
+					break;
+				case ARCHIVED:
+					query.append("AND c.archived = :boolTrue");
+					break;
+			}
+			
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
+					.setParameterList("ids", ids);
+			
+			switch(searchFilter) {
+				case ACTIVE:
+				case DRAFT:
+					q.setBoolean("boolFalse", false);
+					break;
+				case PUBLISHED:
+					q.setBoolean("boolFalse", false);
+					q.setBoolean("boolTrue", true);
+					break;
+				case ARCHIVED:
+					q.setBoolean("boolTrue", true);
+					break;
+			}
+			
+			Long count = (Long) q.uniqueResult();
+			
+			return count != null ? count : 0;
+		} catch(NullPointerException npe) {
+			throw npe;
+		} catch(IllegalStateException ise) {
+			throw ise;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while counting number of competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CompetenceData1> searchCompetencesForManager(CompetenceSearchFilter searchFilter, int limit, int page, 
+			LearningResourceSortOption sortOption, long userId) 
+				throws DbConnectionException, NullPointerException {
+		try {
+			if(searchFilter == null || sortOption == null) {
+				throw new NullPointerException("Invalid argument values");
+			}
+			
+			List<Long> ids = getCompetencesIdsWithSpecifiedPrivilegeForUser(userId, UserGroupPrivilege.Edit);
+			
+			//if user doesn't have needed privileges for any of the competences, empty list is returned
+			if(ids.isEmpty()) {
+				return new ArrayList<>();
+			}
+			
+			StringBuilder query = new StringBuilder(
+						"SELECT c " +
+						"FROM Competence1 c " +
+						"WHERE c.id IN (:ids) ");
+			
+			switch(searchFilter) {
+				case ACTIVE:
+					query.append("AND c.archived = :boolFalse ");
+					break;
+				case DRAFT:
+					query.append("AND c.archived = :boolFalse " +
+								 "AND c.published = :boolFalse ");
+					break;
+				case PUBLISHED:
+					query.append("AND c.archived = :boolFalse " +
+							 	 "AND c.published = :boolTrue ");
+					break;
+				case ARCHIVED:
+					query.append("AND c.archived = :boolTrue ");
+					break;
+			}
+			
+			query.append("ORDER BY c." + sortOption.getSortFieldDB() + " " + sortOption.getSortOrder());
+			
+			Query q = persistence.currentManager()
+						.createQuery(query.toString())
+						.setParameterList("ids", ids);
+					
+			switch(searchFilter) {
+				case ACTIVE:
+				case DRAFT:
+					q.setBoolean("boolFalse", false);
+					break;
+				case PUBLISHED:
+					q.setBoolean("boolFalse", false);
+					q.setBoolean("boolTrue", true);
+					break;
+				case ARCHIVED:
+					q.setBoolean("boolTrue", true);
+					break;
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<Competence1> comps = q.list();
+			
+			List<CompetenceData1> res = new ArrayList<>();
+			for(Competence1 c : comps) {
+				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, false);
+				cd.setNumberOfStudents(countNumberOfStudentsLearningCompetence(cd.getCompetenceId()));
+				res.add(cd);
+			}
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public long duplicateCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException, EventException {
+		Result<Competence1> res = resourceFactory.duplicateCompetence(compId, userId);
+		for(EventData ev : res.getEvents()) {
+			if(context != null) {
+				ev.setPage(context.getPage());
+				ev.setContext(context.getLearningContext());
+				ev.setService(context.getService());
+			}
+			eventFactory.generateEvent(ev);
+		}
+		return res.getResult().getId();
 	}
 	
 }

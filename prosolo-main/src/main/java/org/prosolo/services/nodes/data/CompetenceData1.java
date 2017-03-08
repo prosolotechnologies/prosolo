@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -48,6 +49,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private ObjectStatus objectStatus;
 	
 	private boolean published;
+	private boolean archived;
 	
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
@@ -59,6 +61,8 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	private Date datePublished;
 	private boolean canBeEdited;
+	
+	private long numberOfStudents;
 	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.UNPUBLISH;
@@ -78,6 +82,18 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			}
 		}
 		return changed;
+	}
+	
+	public String getFormattedDatePublished() {
+		String date = DateUtil.formatDate(datePublished, "MMM dd, yyyy");
+		return date != null ? date : "-";
+	}
+	
+	public boolean isScheduledPublish() {
+		if(datePublished != null && datePublished.after(new Date())) {
+			return true;
+		}
+		return false;
 	}
 	
 	public void addActivity(ActivityData activity) {
@@ -444,6 +460,22 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setCanBeEdited(boolean canBeEdited) {
 		this.canBeEdited = canBeEdited;
+	}
+
+	public long getNumberOfStudents() {
+		return numberOfStudents;
+	}
+
+	public void setNumberOfStudents(long numberOfStudents) {
+		this.numberOfStudents = numberOfStudents;
+	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
 	}
 
 }
