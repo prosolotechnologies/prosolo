@@ -22,6 +22,7 @@
 		<f:metadata>
 			<f:viewParam name="id" value="#{studentProfileBean.id}"
 				default="null" />
+			<f:viewParam name="cred" default="null"/>
 			<f:viewAction action="#{studentProfileBean.initStudent()}" />
 		</f:metadata>
 	</ui:define>
@@ -84,7 +85,10 @@
         <div class="container">
             <div class="whiteBarContent">
                 <div class="whiteBarLeft">
-                
+                  <h:link outcome="/manage/credential-students" styleClass="btn btn-sm btnBack item" rendered="#{not empty param['cred']}">
+                  	<span></span>Back to Credential
+                  	<f:param name="id" value="#{param['cred']}"></f:param>
+                  </h:link>
                   <h:form id="formMessage">
                     <communications:sendMessageDialog
                     	receiverId="#{studentProfileBean.student.id}"
