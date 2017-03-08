@@ -801,7 +801,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating user competences");
+			throw new DbConnectionException("Error while updating creator of competences");
 		}
 	}
 
@@ -811,18 +811,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException {
 		try {	
 				String query = "UPDATE TargetCompetence1 targetComp " +
-						       "SET targetComp.createdBy = :userId, " +
+						       "SET targetComp.createdBy = :userId " +
 						       "WHERE targetComp.id = :compId";					    
 	
 				persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", targetCompetence1.getCreatedBy().getId())
-					.setLong("credId", targetCompetence1.getId())
+					.setLong("compId", targetCompetence1.getId())
 					.executeUpdate();
 		}catch(Exception e){
 		logger.error(e);
 		e.printStackTrace();
-		throw new DbConnectionException("Error while updating user competences");
+		throw new DbConnectionException("Error while updating creator of target competences");
 		}
 	}
 	
@@ -832,7 +832,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException {
 		try {	
 				String query = "UPDATE Competence1 comp " +
-						       "SET comp.createdBy = :userId, " +
+						       "SET comp.createdBy = :userId " +
 						       "WHERE comp.id = :compId";					    
 	
 				persistence.currentManager()
@@ -843,7 +843,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}catch(Exception e){
 		logger.error(e);
 		e.printStackTrace();
-		throw new DbConnectionException("Error while updating user competences");
+		throw new DbConnectionException("Error while updating creator of competences");
 		}
 	}
 
@@ -1700,7 +1700,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
+			throw new DbConnectionException("Error while loading competences");
 		}
 	}
 
@@ -1719,7 +1719,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
+			throw new DbConnectionException("Error while loading target competences");
 		}
 	}
 

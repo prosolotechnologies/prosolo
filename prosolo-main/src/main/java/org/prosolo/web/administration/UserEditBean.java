@@ -415,29 +415,30 @@ public class UserEditBean implements Serializable {
 		loadUsers();
 	}
 	public void assignNewOwner(UserData deletedUser){
+		User createdBy = new User(newOwner.getId());
 		for(TargetCredential1 targetCredential1 : credentialManager.getTargetCredentialsForOwner(deletedUser.getId())){
-			targetCredential1.getCreatedBy().setId(newOwner.getId());
+			targetCredential1.setCreatedBy(createdBy);
 			credentialManager.updateTargetCredentialCreator(targetCredential1);
 		}
 		for(Credential1 credential1 : credentialManager.getCredentialsForOwner(deletedUser.getId())){
-			credential1.getCreatedBy().setId(newOwner.getId());
+			credential1.setCreatedBy(createdBy);
 			credentialManager.updateCredentialCreator(credential1);
 		}
-		for(TargetCompetence1 targetCompetence1 : competence1Manager.getTargetCompetencesForOwner(deletedUser.getId())){
-			targetCompetence1.getCreatedBy().setId(newOwner.getId());
-			competence1Manager.updateTargetCompetenceCreator(targetCompetence1);
-		}
 		for(Competence1 competence1 : competence1Manager.getCompetencesForOwner(deletedUser.getId())){
-			competence1.getCreatedBy().setId(newOwner.getId());
+			competence1.setCreatedBy(createdBy);
 			competence1Manager.updateCompetenceCreator(competence1);
 		}
-		for(TargetActivity1 targetActivity1 : activity1Manager.getTargetActivitiesForOwner(deletedUser.getId())){
-			targetActivity1.getCreatedBy().setId(newOwner.getId());
-			activity1Manager.updateTargetActivityCreator(targetActivity1);
+		for(TargetCompetence1 targetCompetence1 : competence1Manager.getTargetCompetencesForOwner(deletedUser.getId())){
+			targetCompetence1.setCreatedBy(createdBy);
+			competence1Manager.updateTargetCompetenceCreator(targetCompetence1);
 		}
 		for(Activity1 activity1 : activity1Manager.getActivitiesForOwner(deletedUser.getId())){
-			activity1.getCreatedBy().setId(newOwner.getId());
+			activity1.setCreatedBy(createdBy);
 			activity1Manager.updateActivityCreator(activity1);
+		}
+		for(TargetActivity1 targetActivity1 : activity1Manager.getTargetActivitiesForOwner(deletedUser.getId())){
+			targetActivity1.setCreatedBy(createdBy);
+			activity1Manager.updateTargetActivityCreator(targetActivity1);
 		}
 	}
 }

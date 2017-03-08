@@ -2516,7 +2516,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
+			throw new DbConnectionException("Error while loading target activities");
 		}
 	}
 	@Override
@@ -2524,8 +2524,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void updateTargetActivityCreator(TargetActivity1 targetActivity1) 
 			throws DbConnectionException {
 		try {	
-				String query = "UPDATE TargetActivity1 act" +
-						       "SET act.createdBy = :userId, " +
+				String query = "UPDATE TargetActivity1 act " +
+						       "SET act.createdBy = :userId " +
 						       "WHERE act.id = :actId";					    
 	
 				persistence.currentManager()
@@ -2536,7 +2536,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}catch(Exception e){
 		logger.error(e);
 		e.printStackTrace();
-		throw new DbConnectionException("Error while updating user competences");
+		throw new DbConnectionException("Error while updating creator of target activities");
 		}
 	}
 	@Override
@@ -2559,7 +2559,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
+			throw new DbConnectionException("Error while loading activities");
 		}
 	}
 	@Override
@@ -2567,8 +2567,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void updateActivityCreator(Activity1 activity1) 
 			throws DbConnectionException {
 		try {	
-				String query = "UPDATE Activity1 act" +
-						       "SET act.createdBy = :userId, " +
+				String query = "UPDATE Activity1 act " +
+						       "SET act.createdBy = :userId " +
 						       "WHERE act.id = :actId";					    
 	
 				persistence.currentManager()
@@ -2577,9 +2577,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.setLong("actId", activity1.getId())
 					.executeUpdate();
 		}catch(Exception e){
-		logger.error(e);
-		e.printStackTrace();
-		throw new DbConnectionException("Error while updating user competences");
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of activities");
 		}
 	}
 }
