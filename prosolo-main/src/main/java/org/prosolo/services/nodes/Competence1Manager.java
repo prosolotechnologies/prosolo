@@ -225,4 +225,12 @@ public interface Competence1Manager {
 	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
     				throws DbConnectionException;
+
+	List<Competence1> getCompetencesForOwner(long ownerId) throws DbConnectionException;
+
+	List<TargetCompetence1> getTargetCompetencesForOwner(long ownerId) throws DbConnectionException;
+	
+	public void updateTargetCompetenceCreator(TargetCompetence1 targetCompetence1) throws DbConnectionException;
+
+	void updateCompetenceCreator(Competence1 competence1) throws DbConnectionException;
 }

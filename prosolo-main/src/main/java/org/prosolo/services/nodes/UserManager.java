@@ -56,6 +56,4 @@ public interface UserManager extends AbstractManager {
 	
 	String getUserEmail(long id) throws DbConnectionException;
 
-	boolean updateUser(List<Credential1> credentials, List<Activity1> activities, long id);
-
 }

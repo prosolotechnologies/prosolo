@@ -2496,5 +2496,90 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
+	@Override
+	@Transactional
+	public List<TargetActivity1> getTargetActivitiesForOwner(long ownerId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT act " +
+					"FROM TargetActivity1 act " +
+					"WHERE act.createdBy.id = :ownerId";
+			
+				@SuppressWarnings("unchecked")
+				List<TargetActivity1> acts = persistence.currentManager().createQuery(query).
+						setLong("ownerId", ownerId).
+						list();
+				if(acts == null) {
+					return new ArrayList<>();
+				}
+				return acts;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading target credentials");
+		}
+	}
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetActivityCreator(TargetActivity1 targetActivity1) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE TargetActivity1 act" +
+						       "SET act.createdBy = :userId, " +
+						       "WHERE act.id = :actId";					    
 	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", targetActivity1.getCreatedBy().getId())
+					.setLong("actId", targetActivity1.getId())
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating user competences");
+		}
+	}
+	@Override
+	@Transactional
+	public List<Activity1> getActivitiesForOwner(long ownerId) throws DbConnectionException {
+		try {
+			String query = 
+					"SELECT act " +
+					"FROM Activity1 act " +
+					"WHERE act.createdBy.id = :ownerId";
+			
+				@SuppressWarnings("unchecked")
+				List<Activity1> acts = persistence.currentManager().createQuery(query).
+						setLong("ownerId", ownerId).
+						list();
+				if(acts == null) {
+					return new ArrayList<>();
+				}
+				return acts;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading target credentials");
+		}
+	}
+	@Override
+	@Transactional(readOnly = false)
+	public void updateActivityCreator(Activity1 activity1) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Activity1 act" +
+						       "SET act.createdBy = :userId, " +
+						       "WHERE act.id = :actId";					    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", activity1.getCreatedBy().getId())
+					.setLong("actId", activity1.getId())
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating user competences");
+		}
+	}
 }

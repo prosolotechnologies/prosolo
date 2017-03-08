@@ -213,27 +213,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while updating user password");
 		}
 		return newPassEncrypted;
-	}
-	
-	@Override
-	@Transactional (readOnly = false)
-	public boolean updateUser(List<Credential1> credentials, List<Activity1> activities, long id) {			
-		try {
-			String query = 
-					"UPDATE User user " +
-					"SET user.password = :newPassEncrypted, user.passwordLength = :newPassEncryptedLength " +
-					"WHERE user.id = " +id ;
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating user password");
-		}
-		return true;
-	}
-	
+	}	
 	@Override
 	@Transactional (readOnly = false)
 	public User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException {

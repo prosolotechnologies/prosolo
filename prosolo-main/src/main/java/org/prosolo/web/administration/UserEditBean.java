@@ -15,6 +15,12 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -25,6 +31,9 @@ import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
@@ -49,6 +58,12 @@ public class UserEditBean implements Serializable {
 
 	@Inject
 	private UserManager userManager;
+	@Inject
+	private CredentialManager credentialManager;
+	@Inject
+	private Activity1Manager activity1Manager;
+	@Inject
+	private Competence1Manager competence1Manager;
 	@Inject
 	private LoggedUserBean loggedUser;
 	@Inject
@@ -369,6 +384,7 @@ public class UserEditBean implements Serializable {
 				userManager.saveEntity(user);
 				userEntityESService.deleteNodeFromES(user);
 				users.remove(userToDelete);
+				assignNewOwner(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
 				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -397,5 +413,31 @@ public class UserEditBean implements Serializable {
 	
 	public void resetAndSearch() {
 		loadUsers();
+	}
+	public void assignNewOwner(UserData deletedUser){
+		for(TargetCredential1 targetCredential1 : credentialManager.getTargetCredentialsForOwner(deletedUser.getId())){
+			targetCredential1.getCreatedBy().setId(newOwner.getId());
+			credentialManager.updateTargetCredentialCreator(targetCredential1);
+		}
+		for(Credential1 credential1 : credentialManager.getCredentialsForOwner(deletedUser.getId())){
+			credential1.getCreatedBy().setId(newOwner.getId());
+			credentialManager.updateCredentialCreator(credential1);
+		}
+		for(TargetCompetence1 targetCompetence1 : competence1Manager.getTargetCompetencesForOwner(deletedUser.getId())){
+			targetCompetence1.getCreatedBy().setId(newOwner.getId());
+			competence1Manager.updateTargetCompetenceCreator(targetCompetence1);
+		}
+		for(Competence1 competence1 : competence1Manager.getCompetencesForOwner(deletedUser.getId())){
+			competence1.getCreatedBy().setId(newOwner.getId());
+			competence1Manager.updateCompetenceCreator(competence1);
+		}
+		for(TargetActivity1 targetActivity1 : activity1Manager.getTargetActivitiesForOwner(deletedUser.getId())){
+			targetActivity1.getCreatedBy().setId(newOwner.getId());
+			activity1Manager.updateTargetActivityCreator(targetActivity1);
+		}
+		for(Activity1 activity1 : activity1Manager.getActivitiesForOwner(deletedUser.getId())){
+			activity1.getCreatedBy().setId(newOwner.getId());
+			activity1Manager.updateActivityCreator(activity1);
+		}
 	}
 }
