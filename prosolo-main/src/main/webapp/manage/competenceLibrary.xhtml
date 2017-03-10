@@ -148,7 +148,16 @@
 			                                    Published#{comp.scheduledPublish ? ' Scheduled for' : ''}: <span>#{comp.formattedDatePublished}</span>
 			                                </div>
 			                                <div class="studentsNum">
-			                                    Students: <span>#{comp.numberOfStudents gt 0 ? comp.numberOfStudents : '-'}</span>
+			                                    Students: 
+			                                    <ui:fragment rendered="#{comp.numberOfStudents eq 0}">
+			                                    	<span>-</span>
+			                                    </ui:fragment>
+			                                    <ui:fragment rendered="#{comp.numberOfStudents gt 0}">
+			                                    	<h:link outcome="/manage/competence-students">
+			                                    		#{comp.numberOfStudents}
+			                                    		<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
+			                                    	</h:link>
+			                                    </ui:fragment>
 			                                </div>
 			                            </div>
 			                        </div>

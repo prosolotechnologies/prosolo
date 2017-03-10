@@ -131,6 +131,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/competences").to("/manage/competences.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}").to("/manage/competence.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence.xhtml"))
+				.addRule(Join.path("/manage/competences/{id}/students").to("/manage/competence-students.xhtml"))
 				
 				//.addRule(Join.path("/manage/credentials/{courseId}/instructors/{id}/reassignStudents").to("/manage/credential-instructors-reassign.xhtml"))
 				//.addRule(Join.path("/manage/credentials/{courseId}/instructors/{id}/edit").to("/manage/credential-instructors-add.xhtml"))
@@ -146,6 +147,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses").to("/manage/activity-responses.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credId}/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}/{actId}").to("/manage/activity.xhtml"))
+				
 				//manage library
 				.addRule(Join.path("/manage/library").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))

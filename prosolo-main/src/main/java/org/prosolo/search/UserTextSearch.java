@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
+import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
@@ -92,4 +94,23 @@ public interface UserTextSearch extends AbstractManager {
 	 */
 	TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
+	
+	/**
+	 * Returns list of students currently learning competence specified by {@code compId}.
+	 * 
+	 * Call {@link TextSearchResponse1#getAdditionalInfo()} to get search filters: 
+	 * under key 'filters' all filters can be retrieved with type {@code CompetenceStudentsSearchFilter[]},
+	 * under key 'selectedFilter' applied filter can be retrieved with type {@code CompetenceStudentsSearchFilter}.
+	 * 
+	 * @param searchTerm
+	 * @param compId
+	 * @param filter
+	 * @param sortOption
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	TextSearchResponse1<StudentData> searchCompetenceStudents (
+			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
+			CompetenceStudentsSortOption sortOption, int page, int limit);
 }

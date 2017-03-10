@@ -11,16 +11,18 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.util.credential.CompetenceSearchFilter;
+import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
@@ -294,5 +296,13 @@ public interface Competence1Manager {
 	
 	long duplicateCompetence(long compId, long userId, LearningContextData context) throws DbConnectionException,
 			EventException;
+	
+	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
+	
+	ResourceAccessData getCompetenceAccessRights(long compId, long userId, UserGroupPrivilege neededPrivilege) 
+			throws DbConnectionException;
+	
+	List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
+			throws DbConnectionException;
 	
 }

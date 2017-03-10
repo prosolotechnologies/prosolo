@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -57,6 +58,11 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {
 			Competence1 comp = (Competence1) event.getObject();
+			String date = params.get("dateEnrolled");
+			userEntityESService.addCompetenceToUserIndex(
+					comp.getId(), 
+					event.getActorId(),  
+					date);
 			compESService.addStudentToCompetenceIndex(comp.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
@@ -82,11 +88,26 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			credESService.removeInstructorFromCredentialIndex(event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
-	    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
-	    	Credential1 cr = tc.getCredential();
-	    	
-			if (cr != null) {
-		    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
+	    	BaseEntity object = cpe.getObject();
+	    	if(object instanceof TargetCredential1) {
+		    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
+		    	Credential1 cr = tc.getCredential();
+		    	
+				if (cr != null) {
+			    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
+		    	}
+	    	} else if(object instanceof TargetCompetence1) {
+	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
+		    	Competence1 c = tc.getCompetence();
+		    	
+				if (c != null) {
+					String dateCompleted = null;
+					if(params != null) {
+						dateCompleted = params.get("dateCompleted");
+					}
+			    	userEntityESService.updateCompetenceProgress(cpe.getActorId(), c.getId(), cpe.getNewProgressValue(),
+			    			dateCompleted);
+		    	}
 	    	}
 	    } else if(eventType == EventType.Edit_Profile) {
 	    	BaseEntity obj = event.getObject();

@@ -1,5 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,13 +28,14 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.util.credential.CompetenceSearchFilter;
+import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
@@ -47,8 +50,10 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -339,8 +344,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public TargetCompetence1 enrollInCompetence(long compId, long userId, LearningContextData context) 
 			throws DbConnectionException {
 		try {
+			Date now = new Date();
 			TargetCompetence1 targetComp = new TargetCompetence1();
-			targetComp.setDateCreated(new Date());
+			targetComp.setDateCreated(now);
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
 			targetComp.setCompetence(comp);
 			User user = (User) persistence.currentManager().load(User.class, userId);
@@ -360,7 +366,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, null);
+			Map<String, String> params = new HashMap<>();
+			String dateEnrolledString = null;
+			DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			dateEnrolledString = df.format(now);
+			params.put("dateEnrolled", dateEnrolledString);
+			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, params);
 			
 			return targetComp;
 		} catch(Exception e) {
@@ -2337,6 +2348,80 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			eventFactory.generateEvent(ev);
 		}
 		return res.getResult().getId();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) 
+			throws DbConnectionException {
+		try {
+			StringBuilder queryBuilder = new StringBuilder(
+				   "SELECT c.title " +
+				   "FROM Competence1 c " +
+				   "WHERE c.id = :compId ");
+			
+			if(type != null) {
+				queryBuilder.append("AND c.type = :type");
+			}
+			
+			Query q = persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("compId", id);
+			
+			if(type != null) {
+				q.setParameter("type", type);
+			}
+			
+			String title = (String) q.uniqueResult();
+			
+			return title;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence title");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ResourceAccessData getCompetenceAccessRights(long compId, long userId, 
+			UserGroupPrivilege neededPrivilege) throws DbConnectionException {
+		try {
+			UserGroupPrivilege priv = getUserPrivilegeForCompetence(0, compId, userId);
+			return new ResourceAccessData(
+					neededPrivilege.isPrivilegeIncluded(priv), 
+					priv == UserGroupPrivilege.Edit
+			);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competence access rights for user: " + userId
+					+ " and competence: " + compId);
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
+			throws DbConnectionException {  
+		try {
+			List<CredentialData> data = new ArrayList<>();
+			String query = "SELECT tc " +
+					   "FROM TargetCompetence1 tc " + 
+					   "WHERE tc.user.id = :userId";
+			
+			@SuppressWarnings("unchecked")
+			List<TargetCompetence1> res = session
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+			
+			return res;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user competences");
+		}
 	}
 	
 }

@@ -1,0 +1,187 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
+
+	<ui:define name="windowTitle">
+		Competence - #{competenceStudentsBean.competenceTitle} - Students
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{competenceStudentsBean.id}" default="null" />
+			<f:viewAction action="#{competenceStudentsBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+    <ui:define name="resourceTitle">
+    	<h:panelGroup id="panelTitle">
+	    	<h1>#{competenceStudentsBean.competenceTitle}</h1>
+	    </h:panelGroup>
+    </ui:define>
+    
+    <ui:define name="navLinks">
+	    <ul class="nav nav-tabs headerSubmenu">
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/create-competence">
+	       			Edit
+	       			<f:param name="id" value="#{param['id']}"/>
+	       		</h:link>
+	       	</li>
+	       	<li role="presentation" class="active"><a href="javascript:void(0);">Students</a></li>
+	   	</ul>
+	</ui:define>
+	
+	<ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+        
+	    <div class="whiteBar">
+	    	<h:form id="formSearch">
+		        <div class="container">
+		            <div class="whiteBarContent">
+		                <div class="whiteBarLeft">
+		                    <div class="searchBox">
+		                        <p:remoteCommand 
+									name="execSearchStudents" 
+									process="inputStudentSearch"
+									update=":panelStudents :pagination :formSearch:panelSearchFilters"
+									action="#{competenceStudentsBean.resetAndSearch()}" />
+															
+								<h:inputText id="inputStudentSearch"
+									type="search"
+									styleClass="studentSearchField"
+									placeholder="Search by name"
+									value="#{competenceStudentsBean.searchTerm}"
+									onclick="$(this).select();"
+									onkeyup="searchListener(execSearchStudents);"/>
+		                    </div>
+		                </div>
+		                <div class="whiteBarRight">
+		                	<h:panelGroup id="panelSort" layout="block" styleClass="dropdown sortDrop item">
+								<span>Sort:</span>
+								<h:link 
+									id="linkSortOption" 
+									pt:data-toggle="dropdown" 
+									pt:aria-haspopup="true" 
+									pt:aria-expanded="true">
+									#{competenceStudentsBean.sortOption.label}
+									<span class="arrowDown">arrowDown</span>
+								</h:link>
+								
+								<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+									<ui:repeat var="sortOption" value="#{competenceStudentsBean.sortOptions}">
+										<li>
+											<p:commandLink 
+												process="@this"
+												value="#{sortOption.label}"
+												action="#{competenceStudentsBean.applySortOption(sortOption)}"
+												update=":panelStudents :pagination :formSearch:linkSortOption :formSearch:panelSearchFilters" />
+										</li>
+									</ui:repeat>      
+								</ul>
+							</h:panelGroup>
+							<h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
+								<span>Show:</span>
+								<h:link 
+									id="linkSearchFilter"
+									pt:data-toggle="dropdown" 
+									pt:aria-haspopup="true" 
+									pt:aria-expanded="true">
+									#{competenceStudentsBean.searchFilter.filter.label} (#{competenceStudentsBean.searchFilter.numberOfResults})
+									<span class="arrowDown">arrowDown</span>
+								</h:link>
+								
+								<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+									<ui:repeat var="searchFilter" value="#{competenceStudentsBean.searchFilters}">
+										<li>
+											<p:commandLink 
+												process="@this"
+												value="#{searchFilter.filter.label} (#{searchFilter.numberOfResults})"
+												action="#{competenceStudentsBean.applySearchFilter(searchFilter)}"
+												update=":panelStudents :pagination :formSearch:panelSearchFilters" />
+										</li>
+									</ui:repeat> 
+								</ul>
+							</h:panelGroup>
+		                </div>
+		            </div>
+		        </div>
+	        </h:form>
+	    </div>
+	
+	    <div class="container">
+	        <ol class="breadcrumb">
+	            <li><a href="#">Competences</a></li>
+	            <li class="active">#{competenceStudentsBean.competenceTitle}</li>
+	        </ol>
+	    </div>
+	
+	    <div class="container">
+	        <div class="row">
+	            <h:panelGroup layout="block" id="panelStudents" styleClass="col-md-12">
+	                <ui:fragment rendered="#{empty competenceStudentsBean.students}" >
+		                <div class="noContentMessage">
+		                    <p>
+		                        No one has started this competence yet.
+		                    </p>
+		                </div>
+		            </ui:fragment>
+	                <ul class="whiteBox peopleList">
+	                	<ui:repeat var="student" value="#{competenceStudentsBean.students}">
+		                    <li>
+		                       <div class="peopleListLeft">
+									<h:link	outcome="studentProfile">
+										<utilcomp:userAvatar
+											avatar="#{student.user.avatarUrl}"
+											fullName="#{student.user.fullName}"	
+											width="64"
+											height="64" />
+										<f:param name="id" value="#{util:encodeId(student.user.id)}" />
+									</h:link>
+									
+									<div>
+										<h2>
+											<h:link outcome="studentProfile">
+												#{student.user.fullName}
+												<f:param name="id" value="#{util:encodeId(student.user.id)}" />
+											</h:link>
+										</h2>
+										<span>#{student.user.position}</span>
+									</div>
+								</div>
+		                        <div class="peopleListRight">
+		                            <div class="progressBar">
+										<span>#{student.progress}%</span>
+										<div class="progress">
+											<div class="progress-bar" role="progressbar" aria-valuenow="#{student.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{student.progress}%;">
+											</div>
+										</div>
+									</div>
+		                            <div class="status">
+		                                Started: <span>#{student.formattedEnrollDate}</span> &#160;&#160;&#160;Completed: <span>#{student.formattedCompletionDate}</span>
+		                            </div>
+		                        </div>
+		                    </li>
+		                </ui:repeat>
+	                </ul>
+	            </h:panelGroup>
+	        </div>
+	
+	        <utilcomp:pagination
+				id="pagination" 
+				bean="#{competenceStudentsBean}"
+				updateUrl="true"
+				toUpdate=":panelStudents" />
+	    </div>
+	    
+	</ui:define>
+</ui:composition>

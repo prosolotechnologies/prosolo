@@ -2,6 +2,8 @@ package org.prosolo.search.impl;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +46,9 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.util.competences.CompetenceStudentsSearchFilter;
+import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
+import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
@@ -479,7 +484,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 										}
 									}
 									student.setInstructor(instructor);
-									student.setCredProgress(Integer.parseInt(
+									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
 											.getDefaultCredentialAssessmentId(credId, user.getId());
@@ -879,7 +884,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							long totalInnerHits = innerHits.getTotalHits();
 							if(totalInnerHits == 1) {
 								Map<String, Object> credential = innerHits.getAt(0).getSource();
-								student.setCredProgress(Integer.parseInt(
+								student.setProgress(Integer.parseInt(
 										credential.get("progress") + ""));
 								long instId = Long.parseLong(credential.get("instructorId") + "");
 								if(instId != 0) {
@@ -1042,7 +1047,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 								Map<String, Object> credential = innerHits.getAt(0).getSource();
 								
 								if(credential != null) {
-									student.setCredProgress(Integer.parseInt(
+									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
@@ -1371,6 +1376,205 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				spee.printStackTrace();
 				logger.error(spee);
 			}
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
+	}
+	
+	@Override
+	public TextSearchResponse1<StudentData> searchCompetenceStudents (
+			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
+			CompetenceStudentsSortOption sortOption, int page, int limit) {
+		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+		
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if(searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+				
+				bQueryBuilder.must(qb);
+			}
+			
+			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
+			nestedFB.must(QueryBuilders.termQuery("competences.id", compId));
+			NestedQueryBuilder nestedFilter1 = QueryBuilders.nestedQuery("competences",
+					nestedFB);
+
+			bQueryBuilder.filter(nestedFilter1);
+			
+			BoolQueryBuilder studentsLearningCompAggrFilter = QueryBuilders.boolQuery();
+			studentsLearningCompAggrFilter.filter(QueryBuilders.termQuery("competences.id", compId));
+			BoolQueryBuilder studentsCompletedCompAggrFilter = QueryBuilders.boolQuery();
+			studentsCompletedCompAggrFilter.filter(QueryBuilders.termQuery("competences.progress", 100));
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bQueryBuilder)
+						.addAggregation(AggregationBuilders.nested("nestedAgg").path("competences")
+								.subAggregation(AggregationBuilders.filter("filtered")
+										.filter(studentsLearningCompAggrFilter)
+										.subAggregation(AggregationBuilders.filter("completed")
+												.filter(studentsCompletedCompAggrFilter))))
+						.setFetchSource(includes, null);
+				
+				/*
+				 * set search filter as a post filter so it does not influence
+				 * aggregation results
+				 */
+				if(filter == CompetenceStudentsSearchFilterValue.COMPLETED) {
+					BoolQueryBuilder completedFilter = QueryBuilders.boolQuery();
+					completedFilter.must(QueryBuilders.termQuery("competences.progress", 100));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * competences for users matched by query
+					 */
+					completedFilter.must(QueryBuilders.termQuery("competences.id", compId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("competences",
+							completedFilter).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+				} else if(filter == CompetenceStudentsSearchFilterValue.UNCOMPLETED) {
+					BoolQueryBuilder uncompletedFilter = QueryBuilders.boolQuery();
+					uncompletedFilter.mustNot(QueryBuilders.termQuery("competences.progress", 100));
+					/*
+					 * need to add this condition again or post filter will be applied on other 
+					 * competences for users matched by query
+					 */
+					uncompletedFilter.must(QueryBuilders.termQuery("competences.id", compId));
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("competences",
+							uncompletedFilter).innerHit(new QueryInnerHitBuilder());
+					searchRequestBuilder.setPostFilter(nestedFilter);
+			    } else {
+					nestedFilter1.innerHit(new QueryInnerHitBuilder());
+				}
+				
+				searchRequestBuilder.setFrom(start).setSize(limit);	
+				
+				//add sorting
+				SortOrder sortOrder = sortOption.getSortOrder() == 
+						org.prosolo.services.util.SortingOption.ASC ? 
+						SortOrder.ASC : SortOrder.DESC;
+				for(String field : sortOption.getSortFields()) {
+					String nestedDoc = null;
+					int dotIndex = field.indexOf(".");
+					if(dotIndex != -1) {
+						nestedDoc = field.substring(0, dotIndex);
+					}
+					if(nestedDoc != null) {
+						BoolQueryBuilder compFilter = QueryBuilders.boolQuery();
+						compFilter.must(QueryBuilders.termQuery(nestedDoc + ".id", compId));
+						//searchRequestBuilder.addSort(field, sortOrder).setQuery(credFilter);
+						FieldSortBuilder sortB = SortBuilders.fieldSort(field).order(sortOrder).setNestedPath(
+								nestedDoc).setNestedFilter(compFilter);
+						searchRequestBuilder.addSort(sortB);
+					} else {
+						searchRequestBuilder.addSort(field, sortOrder);
+					}
+				}
+				//System.out.println(searchRequestBuilder.toString());
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+				
+				if(sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+					
+					if(searchHits != null) {
+						for(SearchHit sh : searchHits) {
+							StudentData student = new StudentData();
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+							student.setUser(userData);
+							
+							SearchHits innerHits = sh.getInnerHits().get("competences");
+							long totalInnerHits = innerHits.getTotalHits();
+							if(totalInnerHits == 1) {
+								Map<String, Object> competence = innerHits.getAt(0).getSource();
+								
+								if(competence != null) {
+									student.setProgress(Integer.parseInt(
+											competence.get("progress").toString()));
+									String dateEnrolledString = (String) competence.get("dateEnrolled");
+									DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+									if(dateEnrolledString != null && !dateEnrolledString.isEmpty()) {
+										try {
+											student.setDateEnrolled(df.parse(dateEnrolledString));
+										} catch(Exception e) {
+											logger.error(e);
+										}
+									}
+									String dateCompletedString = (String) competence.get("dateCompleted");
+									if(dateCompletedString != null && !dateCompletedString.isEmpty()) {
+										try {
+											student.setDateCompleted(df.parse(dateCompletedString));
+										} catch(Exception e) {
+											logger.error(e);
+										}
+									}
+									response.addFoundNode(student);
+								}
+							}				
+						}
+						
+						Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+						//filter with number of students learning competence
+						Filter filtered  = nestedAgg.getAggregations().get("filtered");
+						//filter with number of students completed learning competence
+						Filter completed = filtered.getAggregations().get("completed");
+						
+						CompetenceStudentsSearchFilter[] filters = new CompetenceStudentsSearchFilter[3];
+						long allStudentsNumber = filtered.getDocCount();
+						long completedNumber = completed.getDocCount();
+						filters[0] = new CompetenceStudentsSearchFilter(
+								CompetenceStudentsSearchFilterValue.ALL, allStudentsNumber);
+						filters[1] = new CompetenceStudentsSearchFilter(
+								CompetenceStudentsSearchFilterValue.COMPLETED, completedNumber);
+						filters[2] = new CompetenceStudentsSearchFilter(
+								CompetenceStudentsSearchFilterValue.UNCOMPLETED, allStudentsNumber - completedNumber);
+						
+						CompetenceStudentsSearchFilter selected = null;
+						switch(filter) {
+							case ALL:
+								selected = filters[0];
+								break;
+							case COMPLETED:
+								selected = filters[1];
+								break;
+							case UNCOMPLETED:
+								selected = filters[2];
+								break;
+							default:
+								selected = filters[0];
+								break;
+						}
+						Map<String, Object> additionalInfo = new HashMap<>();
+						additionalInfo.put("filters", filters);
+						additionalInfo.put("selectedFilter", selected);
+						response.setAdditionalInfo(additionalInfo);
+						
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+	
 		} catch (NoNodeAvailableException e1) {
 			logger.error(e1);
 		}
