@@ -15,12 +15,14 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -45,6 +47,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private FollowResourceManager followResourceManager;
 	@Inject
 	private RoleManager roleManager;
+	@Inject private Competence1Manager compManager;
 	
 	@Override
 	@Transactional
@@ -105,6 +108,27 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				for (User foloweee : folowees) {
 					builder.startObject();
 					builder.field("id", foloweee.getId());
+					builder.endObject();
+				}
+				builder.endArray();
+				
+				List<TargetCompetence1> comps = compManager.getTargetCompetencesForUser(user.getId(), session);
+				builder.startArray("competences");
+				
+				for (TargetCompetence1 tc : comps) {
+					builder.startObject();
+					builder.field("id", tc.getCompetence().getId());
+					builder.field("progress", tc.getProgress());
+					
+					Date dateEnrolled = tc.getDateCreated();
+					String dateEnrolledString = null;
+					if(dateEnrolled != null) {
+						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+						dateEnrolledString = df.format(dateEnrolled);
+					}
+					builder.field("dateEnrolled", dateEnrolledString);
+					Date dateCompleted = null;
+					builder.field("dateCompleted", dateCompleted);
 					builder.endObject();
 				}
 				builder.endArray();
@@ -300,6 +324,48 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					followedUserId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void addCompetenceToUserIndex(long compId, long userId, String dateEnrolled) {
+		try {
+			String script = "if (ctx._source[\"competences\"] == null) { " +
+					"ctx._source.competences = comp " +
+					"} else { " +
+					"ctx._source.competences += comp " +
+					"}";
+			
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", compId);
+			param.put("progress", 0);
+			param.put("dateEnrolled", dateEnrolled);
+			param.put("dateCompleted", null);
+			params.put("comp", param);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void updateCompetenceProgress(long userId, long compId, int progress, String completionDate) {
+		try {
+			String script = "ctx._source.competences.findAll {it.id == compId } " +
+					".each {it.progress = progress; it.dateCompleted = date }";
+			
+			Map<String, Object> params = new HashMap<>();
+			params.put("compId", compId);
+			params.put("progress", progress);
+			params.put("date", completionDate);
+			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
+					userId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

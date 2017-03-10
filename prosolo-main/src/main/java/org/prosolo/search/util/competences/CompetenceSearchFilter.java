@@ -1,4 +1,4 @@
-package org.prosolo.search.util.credential;
+package org.prosolo.search.util.competences;
 
 public enum CompetenceSearchFilter {
 

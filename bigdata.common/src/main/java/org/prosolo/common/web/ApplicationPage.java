@@ -63,7 +63,10 @@ public enum ApplicationPage {
 	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
 	PEOPLE("/people.xhtml"),
 	RESULTS("/activity-results.xhtml"),
-	MANAGER_RESULTS("/manage/activity-results.xhtml");
+	MANAGER_RESULTS("/manage/activity-results.xhtml"),
+	USER_COMPETENCE_LIBRARY("/competenceLibrary.xhtml"),
+	MANAGER_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
+	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml");
 	
     private String uri; 
     

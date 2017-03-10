@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -79,6 +80,7 @@ public class NodeChangeObserver extends EventObserver {
 			Competence1.class, 
 			CredentialBookmark.class,
 			TargetCredential1.class,
+			TargetCompetence1.class,
 			UserGroup.class
 		};
 	}

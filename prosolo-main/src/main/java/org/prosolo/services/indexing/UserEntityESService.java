@@ -40,20 +40,8 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	void removeFollowerIndex(long followedUserId, long followerId);
 	
 	
-//	/**
-//	 * For particular user adds user that followed him.
-//	 * 
-//	 * @param userId
-//	 * @param followerId
-//	 */
-//	void addFollowerForUser(long followerId, long userId);
-//	
-//	/**
-//	 * For particular user removes user that unfollowed him.
-//	 * 
-//	 * @param userId
-//	 * @param followerId
-//	 */
-//	void removeFollowerForUser(long followerId, long userId);
+	void addCompetenceToUserIndex(long compId, long userId, String dateEnrolled);
+	
+	void updateCompetenceProgress(long userId, long compId, int progress, String completionDate);
 
 }

@@ -5,8 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,6 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -38,7 +35,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -53,8 +49,8 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -64,13 +60,11 @@ import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.instructor.StudentAssignData;
-import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1781,19 +1775,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				int finalCredProgress = (cumulativeCredProgress + finalCompProgress) 
 						/ numberOfCompetencesInCredential;
 				
-
-				String updateCredQuery = "UPDATE TargetCredential1 targetCred SET " +
-										 "targetCred.progress = :progress, " +
-										 "targetCred.nextCompetenceToLearnId = :nextCompToLearnId, " +
-										 "targetCred.nextActivityToLearnId = :nextActToLearnId " +
-										 "WHERE targetCred.id = :targetCredId";
-				persistence.currentManager()
-					.createQuery(updateCredQuery)
+				Date now = new Date();
+				
+				StringBuilder updateCredQuery = new StringBuilder(
+						"UPDATE TargetCredential1 targetCred SET " +
+						"targetCred.progress = :progress, " +
+						"targetCred.nextCompetenceToLearnId = :nextCompToLearnId, " +
+						"targetCred.nextActivityToLearnId = :nextActToLearnId ");
+				
+				if(finalCredProgress == 100) {
+					updateCredQuery.append(", targetCred.dateFinished = :dateCompleted ");
+				}
+				updateCredQuery.append("WHERE targetCred.id = :targetCredId");
+				Query q1 = persistence.currentManager()
+					.createQuery(updateCredQuery.toString())
 					.setInteger("progress", finalCredProgress)
 					.setLong("nextCompToLearnId", nextCompToLearnId)
 					.setLong("nextActToLearnId", nextActToLearnId)
-					.setLong("targetCredId", targetCredId)
-					.executeUpdate();
+					.setLong("targetCredId", targetCredId);
+				
+				if(finalCredProgress == 100) {
+					q1.setDate("dateCompleted", now);
+				}
+				
+				q1.executeUpdate();
 				
 				/*
 				 * Update competence progress and id of next activity to learn.
@@ -1805,17 +1810,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		 				 	   "targetComp.progress = :progress ");
 				if(finalCompProgress != 100) {
 					builder.append(", targetComp.nextActivityToLearnId = :nextActToLearnId ");
+				} else {
+					builder.append(", targetComp.dateCompleted = :dateCompleted ");
 				}
 				builder.append("WHERE targetComp.id = :targetCompId");
 				
-				Query q = persistence.currentManager()
+				Query q2 = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setInteger("progress", finalCompProgress)
 					.setLong("targetCompId", targetCompId);
 				if(finalCompProgress != 100) {
-					q.setLong("nextActToLearnId", nextActToLearnInACompetenceId);
+					q2.setLong("nextActToLearnId", nextActToLearnInACompetenceId);
+				} else {
+					q2.setDate("dateCompleted", now);
 				}
-				q.executeUpdate();
+				q2.executeUpdate();
 				
 				User user = new User();
 				user.setId(userId);
@@ -1833,13 +1842,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
 							lcPage, lcContext, lcService, null);
 				}
+				
+				TargetCompetence1 tComp = new TargetCompetence1();
+				tComp.setId(targetCompId);
+				Competence1 competence = new Competence1();
+				competence.setId(changedCompId);
+				tComp.setCompetence(competence);
+				Map<String, String> params = new HashMap<>();
+				String dateCompletedStr = null;
+				if(now != null) {
+					DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+					dateCompletedStr = df.format(now);
+				}
+				params.put("dateCompleted", dateCompletedStr);
+				eventFactory.generateChangeProgressEvent(user.getId(), tComp, finalCompProgress, 
+						lcPage, lcContext, lcService, params);
 				if(finalCompProgress == 100) {
-					TargetCompetence1 tComp = new TargetCompetence1();
-					tComp.setId(targetCompId);
-					Competence1 competence = new Competence1();
-					competence.setId(changedCompId);
-					tComp.setCompetence(competence);
-					
 					eventFactory.generateEvent(EventType.Completion, user.getId(), tComp, null,
 							lcPage, lcContext, lcService, null);
 				}
@@ -2566,7 +2584,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 								tc.getInstructor(), tc.getInstructor().getUser(), 
 								0, false));
 					}
-					sd.setCredProgress(tc.getProgress());
+					sd.setProgress(tc.getProgress());
 					Optional<Long> credAssessmentId = assessmentManager
 							.getDefaultCredentialAssessmentId(credId, sd.getUser().getId());
 					if(credAssessmentId.isPresent()) {
