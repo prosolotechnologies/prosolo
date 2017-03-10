@@ -6,7 +6,6 @@ package org.prosolo.web.courses.competence;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -15,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilter;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
@@ -63,6 +62,14 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 
 	public void init() {
 		sortOptions = CompetenceStudentsSortOption.values();
+		CompetenceStudentsSearchFilterValue[] values = CompetenceStudentsSearchFilterValue.values();
+		int size = values.length;
+		searchFilters = new CompetenceStudentsSearchFilter[size];
+		for(int i = 0; i < size; i++) {
+			CompetenceStudentsSearchFilter filter = new CompetenceStudentsSearchFilter(
+					values[i], 0);
+			searchFilters[i] = filter;
+		}
 		searchFilter = new CompetenceStudentsSearchFilter(CompetenceStudentsSearchFilterValue.ALL, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
@@ -84,16 +91,6 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 					} else {
 						competenceTitle = title;
 						searchCompetenceStudents();
-						if(searchFilters == null) {
-							CompetenceStudentsSearchFilterValue[] values = CompetenceStudentsSearchFilterValue.values();
-							int size = values.length;
-							searchFilters = new CompetenceStudentsSearchFilter[size];
-							for(int i = 0; i < size; i++) {
-								CompetenceStudentsSearchFilter filter = new CompetenceStudentsSearchFilter(
-										values[i], 0);
-								searchFilters[i] = filter;
-							}
-						}
 					}
 				} else {
 					try {
@@ -133,22 +130,22 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	}
 
 	public void getCompetenceStudents() {
-		TextSearchResponse1<StudentData> searchResponse = userTextSearch.searchCompetenceStudents(
-				searchTerm, 
-				decodedId, 
-				searchFilter.getFilter(), 
-				sortOption, 
-				paginationData.getPage() - 1, 
-				paginationData.getLimit());
+		TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchResponse = 
+				userTextSearch.searchCompetenceStudents(
+					searchTerm, 
+					decodedId, 
+					searchFilter.getFilter(), 
+					sortOption, 
+					paginationData.getPage() - 1, 
+					paginationData.getLimit());
 
 		this.paginationData.update((int) searchResponse.getHitsNumber());
 		students = searchResponse.getFoundNodes();
 		
-		Map<String, Object> additional = searchResponse.getAdditionalInfo();
-		if (additional != null) {
-			searchFilters = (CompetenceStudentsSearchFilter[]) additional.get("filters");
-			searchFilter = (CompetenceStudentsSearchFilter) additional.get("selectedFilter");
+		for(CompetenceStudentsSearchFilter filter : searchFilters) {
+			filter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(filter.getFilter()));
 		}
+		searchFilter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(searchFilter.getFilter()));
 	}
 	
 	public void applySearchFilter(CompetenceStudentsSearchFilter filter) {

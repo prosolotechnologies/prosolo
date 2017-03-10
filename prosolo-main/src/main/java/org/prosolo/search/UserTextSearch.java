@@ -3,6 +3,7 @@ package org.prosolo.search;
 import java.util.Collection;
 import java.util.List;
 
+import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
@@ -110,7 +111,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param limit
 	 * @return
 	 */
-	TextSearchResponse1<StudentData> searchCompetenceStudents (
+	TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchCompetenceStudents (
 			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 }

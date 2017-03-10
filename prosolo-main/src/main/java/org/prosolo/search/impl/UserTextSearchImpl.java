@@ -46,7 +46,6 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.util.competences.CompetenceStudentsSearchFilter;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -1383,10 +1382,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchCompetenceStudents (
+	public TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchCompetenceStudents (
 			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
 			CompetenceStudentsSortOption sortOption, int page, int limit) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> response = new TextSearchFilteredResponse<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1537,35 +1536,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						//filter with number of students completed learning competence
 						Filter completed = filtered.getAggregations().get("completed");
 						
-						CompetenceStudentsSearchFilter[] filters = new CompetenceStudentsSearchFilter[3];
 						long allStudentsNumber = filtered.getDocCount();
 						long completedNumber = completed.getDocCount();
-						filters[0] = new CompetenceStudentsSearchFilter(
-								CompetenceStudentsSearchFilterValue.ALL, allStudentsNumber);
-						filters[1] = new CompetenceStudentsSearchFilter(
-								CompetenceStudentsSearchFilterValue.COMPLETED, completedNumber);
-						filters[2] = new CompetenceStudentsSearchFilter(
-								CompetenceStudentsSearchFilterValue.UNCOMPLETED, allStudentsNumber - completedNumber);
-						
-						CompetenceStudentsSearchFilter selected = null;
-						switch(filter) {
-							case ALL:
-								selected = filters[0];
-								break;
-							case COMPLETED:
-								selected = filters[1];
-								break;
-							case UNCOMPLETED:
-								selected = filters[2];
-								break;
-							default:
-								selected = filters[0];
-								break;
-						}
-						Map<String, Object> additionalInfo = new HashMap<>();
-						additionalInfo.put("filters", filters);
-						additionalInfo.put("selectedFilter", selected);
-						response.setAdditionalInfo(additionalInfo);
+						response.putFilter(CompetenceStudentsSearchFilterValue.ALL, allStudentsNumber);
+						response.putFilter(CompetenceStudentsSearchFilterValue.COMPLETED, completedNumber);
+						response.putFilter(CompetenceStudentsSearchFilterValue.UNCOMPLETED, 
+								allStudentsNumber - completedNumber);
 						
 						return response;
 					}
