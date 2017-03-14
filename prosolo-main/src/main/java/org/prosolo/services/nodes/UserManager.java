@@ -55,5 +55,11 @@ public interface UserManager extends AbstractManager {
 	User getUserWithRoles(long id) throws DbConnectionException;
 	
 	String getUserEmail(long id) throws DbConnectionException;
+	
+	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException;
+
+	void updateTargetCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 
 }

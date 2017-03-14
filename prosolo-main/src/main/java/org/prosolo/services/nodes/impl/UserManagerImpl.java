@@ -11,7 +11,10 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -20,9 +23,11 @@ import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.web.administration.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +42,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Autowired private UserEntityESService userEntityESService;
 	 
 	@Override
 	@Transactional (readOnly = true)
@@ -351,5 +357,145 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user password");
 		}
+	}
+
+	@Override
+	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException {
+			User user;
+			try {
+				user = loadResource(User.class, oldCreatorId);
+				user.setDeleted(true);
+				saveEntity(user);
+				assignNewOwner(newCreatorId, oldCreatorId);
+				userEntityESService.deleteNodeFromES(user);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				e.printStackTrace();
+			}
+	}
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCompetenceCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE TargetCompetence1 targetComp SET" +
+								"targetComp.createdBy = :newCreatorId " +
+								"WHERE targetComp.createdBy = :oldCreatorId";					    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of target competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Competence1 comp SET " +
+						"comp.createdBy = :newCreatorId " +
+						"WHERE comp.createdBy = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void updateTargetCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetCredential1 cred SET " +
+				     		"cred.createdBy = :newCreatorId " +
+				     		"WHERE cred.createdBy = :oldCreatorId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE Credential1 cred SET " +
+							"cred.createdBy = :newCreatorId " +
+							"WHERE cred.createdBy = :oldCreatorId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void updateActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Activity1 act " +
+								"SET act.createdBy.id = :newCreatorId " +
+								"WHERE act.createdBy.id = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of activities");
+		}
+	}
+	@Transactional(readOnly = false)
+	public void updateTargetActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE TargetActivity1 act " +
+						       "SET act.createdBy.id = :newCreatorId " +
+						       "WHERE act.createdBy.id = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of target activities");
+		}
+	}
+	private void assignNewOwner(long newCreatorId, long oldCreatorId){
+		updateTargetCredentialCreator(newCreatorId, oldCreatorId);
+		updateCredentialCreator(newCreatorId, oldCreatorId);
+		updateCompetenceCreator(newCreatorId, oldCreatorId);
+		updateTargetCompetenceCreator(newCreatorId, oldCreatorId);
+		updateActivityCreator(newCreatorId, oldCreatorId);
+		updateTargetActivityCreator(newCreatorId, oldCreatorId);
 	}
 }

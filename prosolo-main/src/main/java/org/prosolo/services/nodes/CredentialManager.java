@@ -288,8 +288,6 @@ public interface CredentialManager extends AbstractManager {
 
 	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
-	List<TargetCredential1> getTargetCredentialsForOwner(long ownerId) throws DbConnectionException;
-	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
 	
 	List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) throws DbConnectionException;
@@ -421,9 +419,4 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
 			throws DbConnectionException;
 
-	List<Credential1> getCredentialsForOwner(long ownerId) throws DbConnectionException;
-
-	void updateTargetCredentialCreator(TargetCredential1 targetCredential1) throws DbConnectionException;
-
-	void updateCredentialCreator(Credential1 credential1) throws DbConnectionException;
 }

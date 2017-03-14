@@ -805,47 +805,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = false)
-	public void updateTargetCompetenceCreator(TargetCompetence1 targetCompetence1) 
-			throws DbConnectionException {
-		try {	
-				String query = "UPDATE TargetCompetence1 targetComp " +
-						       "SET targetComp.createdBy = :userId " +
-						       "WHERE targetComp.id = :compId";					    
-	
-				persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", targetCompetence1.getCreatedBy().getId())
-					.setLong("compId", targetCompetence1.getId())
-					.executeUpdate();
-		}catch(Exception e){
-		logger.error(e);
-		e.printStackTrace();
-		throw new DbConnectionException("Error while updating creator of target competences");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = false)
-	public void updateCompetenceCreator(Competence1 competence1) 
-			throws DbConnectionException {
-		try {	
-				String query = "UPDATE Competence1 comp " +
-						       "SET comp.createdBy = :userId " +
-						       "WHERE comp.id = :compId";					    
-	
-				persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", competence1.getCreatedBy().getId())
-					.setLong("compId", competence1.getId())
-					.executeUpdate();
-		}catch(Exception e){
-		logger.error(e);
-		e.printStackTrace();
-		throw new DbConnectionException("Error while updating creator of competences");
-		}
-	}
+
 
 	@Transactional(readOnly = true)
 	private List<Long> getTargetCompetenceIdsForUncompletedCredentials(long compId) {

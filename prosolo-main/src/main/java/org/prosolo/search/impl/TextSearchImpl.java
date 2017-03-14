@@ -2559,7 +2559,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	
 	@Override
 	public TextSearchResponse1<UserData> searchNewOwner(
-			String searchTerm, long limit, Long excludedId) {
+			String searchTerm, int limit, Long excludedId) {
 		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
@@ -2589,7 +2589,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						.addSort("lastname", SortOrder.ASC)
 						.addSort("name", SortOrder.ASC)
 						.setFetchSource(includes, null)
-						.setSize(3);	
+						.setSize(limit);	
 				
 				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 				

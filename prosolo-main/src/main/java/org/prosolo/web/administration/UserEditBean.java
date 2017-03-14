@@ -30,7 +30,6 @@ import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -77,8 +76,6 @@ public class UserEditBean implements Serializable {
 	private TextSearch textSearch;
 	@Autowired
 	private AuthenticationService authenticationService;
-	@Autowired 
-	private UserEntityESService userEntityESService;
 
 	private UIInput passwordInput;
 
@@ -379,12 +376,8 @@ public class UserEditBean implements Serializable {
 	public void delete() {
 		if (userToDelete != null) {
 			try {
-				User user = userManager.loadResource(User.class, this.userToDelete.getId());
-				user.setDeleted(true);
-				userManager.saveEntity(user);
-				userEntityESService.deleteNodeFromES(user);
+				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());;
 				users.remove(userToDelete);
-				assignNewOwner(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
 				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -403,7 +396,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<org.prosolo.services.nodes.data.UserData> result= textSearch.searchNewOwner(searchTerm, 3,user.getId());
+				TextSearchResponse1<org.prosolo.services.nodes.data.UserData> result= textSearch.searchNewOwner(searchTerm, 3 ,user.getId());
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -414,31 +407,5 @@ public class UserEditBean implements Serializable {
 	public void resetAndSearch() {
 		loadUsers();
 	}
-	public void assignNewOwner(UserData deletedUser){
-		User createdBy = new User(newOwner.getId());
-		for(TargetCredential1 targetCredential1 : credentialManager.getTargetCredentialsForOwner(deletedUser.getId())){
-			targetCredential1.setCreatedBy(createdBy);
-			credentialManager.updateTargetCredentialCreator(targetCredential1);
-		}
-		for(Credential1 credential1 : credentialManager.getCredentialsForOwner(deletedUser.getId())){
-			credential1.setCreatedBy(createdBy);
-			credentialManager.updateCredentialCreator(credential1);
-		}
-		for(Competence1 competence1 : competence1Manager.getCompetencesForOwner(deletedUser.getId())){
-			competence1.setCreatedBy(createdBy);
-			competence1Manager.updateCompetenceCreator(competence1);
-		}
-		for(TargetCompetence1 targetCompetence1 : competence1Manager.getTargetCompetencesForOwner(deletedUser.getId())){
-			targetCompetence1.setCreatedBy(createdBy);
-			competence1Manager.updateTargetCompetenceCreator(targetCompetence1);
-		}
-		for(Activity1 activity1 : activity1Manager.getActivitiesForOwner(deletedUser.getId())){
-			activity1.setCreatedBy(createdBy);
-			activity1Manager.updateActivityCreator(activity1);
-		}
-		for(TargetActivity1 targetActivity1 : activity1Manager.getTargetActivitiesForOwner(deletedUser.getId())){
-			targetActivity1.setCreatedBy(createdBy);
-			activity1Manager.updateTargetActivityCreator(targetActivity1);
-		}
-	}
+
 }

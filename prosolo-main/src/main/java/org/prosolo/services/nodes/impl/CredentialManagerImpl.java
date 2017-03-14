@@ -1594,44 +1594,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = false)
-	public void updateTargetCredentialCreator(TargetCredential1 targetCredential1) throws DbConnectionException {
-		try {
-			String query = "UPDATE TargetCredential1 cred SET " +
-						   "cred.createdBy = :userId " +
-						   "WHERE cred.id = :credId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", targetCredential1.getCreatedBy().getId())
-				.setLong("credId", targetCredential1.getId())
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential duration");
-		}
-	}
-	@Override
-	@Transactional(readOnly = false)
-	public void updateCredentialCreator(Credential1 credential1) throws DbConnectionException {
-		try {
-			String query = "UPDATE Credential1 cred SET " +
-						   "cred.createdBy = :userId " +
-						   "WHERE cred.id = :credId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", credential1.getCreatedBy().getId())
-				.setLong("credId", credential1.getId())
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential duration");
-		}
-	}
 	private List<Long> getIdsOfCredentialsWithCompetence(long compId) {
 		try {
 			String query = "SELECT cred.id " +
@@ -2979,51 +2941,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential access rights for user: " + userId);
-		}
-	}
-
-	@Override
-	public List<TargetCredential1> getTargetCredentialsForOwner(long ownerId) throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT cred " +
-					"FROM TargetCredential1 cred " +
-					"WHERE cred.createdBy.id = :ownerId";
-			
-				@SuppressWarnings("unchecked")
-				List<TargetCredential1> creds = persistence.currentManager().createQuery(query).
-						setLong("ownerId", ownerId).
-						list();
-				if(creds == null) {
-					return new ArrayList<>();
-				}
-				return creds;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
-		}
-	}
-	@Override
-	public List<Credential1> getCredentialsForOwner(long ownerId) throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT cred " +
-					"FROM Credential1 cred " +
-					"WHERE cred.createdBy.id = :ownerId";
-			
-				@SuppressWarnings("unchecked")
-				List<Credential1> creds = persistence.currentManager().createQuery(query).
-						setLong("ownerId", ownerId).
-						list();
-				if(creds == null) {
-					return new ArrayList<>();
-				}
-				return creds;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
 		}
 	}
 }
