@@ -12,21 +12,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
-import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +35,6 @@ public class UsersBean implements Serializable, Paginable {
 
 	protected static Logger logger = Logger.getLogger(UsersBean.class);
 
-	@Autowired private UserManager userManager;
-	@Autowired private UserEntityESService userEntityESService;
 	@Inject private TextSearch textSearch;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private AuthenticationService authService;
@@ -112,24 +106,6 @@ public class UsersBean implements Serializable, Paginable {
 	@Override
 	public PaginationData getPaginationData() {
 		return paginationData;
-	}
-	
-	public void delete() {
-		if (userToDelete != null) {
-			try {
-				User user = userManager.loadResource(User.class, this.userToDelete.getId());
-				user.setDeleted(true);
-				userManager.saveEntity(user);
-				
-				userEntityESService.deleteNodeFromES(user);
-				users.remove(userToDelete);
-				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName()+" is deleted.");
-				userToDelete = null;
-			} catch (Exception ex) {
-				logger.error(ex);
-				PageUtil.fireErrorMessage("Error while trying to delete user");
-			}
-		}
 	}
 
 	@SuppressWarnings("unchecked")
