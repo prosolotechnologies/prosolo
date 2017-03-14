@@ -1,0 +1,58 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="competence" required="true"/>
+	    <composite:attribute name="restoreActionMethodName" required="true"/>
+		<composite:attribute name="restoreAction" required="true" method-signature="void #{cc.attrs.restoreActionMethodName}()"/>
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="title" required="true"/>
+		<composite:attribute name="resourceType" required="true"/>
+		<composite:attribute name="resourceTypePlural" required="true"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+	    <h:form id="formRestoreModal">  
+       	  <div class="modal fade" id="restoreModal" tabindex="-1" role="dialog" aria-labelledby="restore">
+               <div class="modal-dialog" role="document">
+                   <div class="modal-content">
+                       <div class="modal-header">
+                           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                           <h2 class="modal-title" id="deleteCredential">Restore #{cc.attrs.title}?</h2>
+                       </div>
+                       <div class="modal-body">
+                           <p>Are you sure you want to restore this #{cc.attrs.resourceType}?</p><br></br><br></br>
+                       </div>
+                       <div class="modal-footer">
+                       	  <p:commandLink
+                       	  		value="Restore"
+                       	  		styleClass="btn btn-green"
+                       	  		process="@this"
+                        	  	action="#{cc.attrs.restoreAction}"
+        	  					update="#{cc.attrs.toUpdate}"
+        	  					oncomplete="$('#restoreModal').modal('hide');">
+        	  					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+        	  					<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}" />
+        	  					<f:param name="service" value="#{util:addSubService(cc.attrs.service, 'name:restore_dialog')}" />
+       	  				  </p:commandLink>
+                          <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                       </div>
+                   </div>
+               </div>
+          </div>
+       </h:form>  
+       </div>     
+	</composite:implementation>
+</ui:component>

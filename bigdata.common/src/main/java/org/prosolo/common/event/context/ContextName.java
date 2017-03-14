@@ -70,7 +70,8 @@ public enum ContextName {
 	EXTERNAL_ACTIVITY_GRADE("TargetActivity1"),
 	AUTOGRADE("TargetActivity1"),
 	ARCHIVE_DIALOG(""),
-	DUPLICATE_DIALOG("");
+	DUPLICATE_DIALOG(""),
+	RESTORE_DIALOG("");
 	
     private String objectType; 
     

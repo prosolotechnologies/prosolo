@@ -2424,4 +2424,23 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	@Override
+	@Transactional(readOnly = false)
+	public void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+			comp.setArchived(false);
+			comp.setPublished(false);
+			
+			Competence1 competence = new Competence1();
+			competence.setId(compId);
+			eventFactory.generateEvent(EventType.RESTORE, userId, context, competence, null, null);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while archiving competence");
+		}
+	}
+	
 }

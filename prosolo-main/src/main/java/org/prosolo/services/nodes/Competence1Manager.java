@@ -305,4 +305,7 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
 			throws DbConnectionException;
 	
+	void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
+			throws DbConnectionException;
+	
 }

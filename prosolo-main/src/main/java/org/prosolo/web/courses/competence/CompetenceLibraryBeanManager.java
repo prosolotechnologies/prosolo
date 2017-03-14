@@ -97,11 +97,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 		searchCompetences(true);
 	}
 
-	public void prepareForArchive(CompetenceData1 comp) {
-		this.selectedComp = comp;
-	}
-	
-	public void prepareForDuplicate(CompetenceData1 comp) {
+	public void prepareComp(CompetenceData1 comp) {
 		this.selectedComp = comp;
 	}
 
@@ -162,6 +158,35 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 							loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
 					competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
 							paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+					PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+				} catch(DbConnectionException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error while refreshing data");
+				}
+			}
+		}
+	}
+	
+	public void restore() {
+		if(selectedComp != null) {
+			LearningContextData ctx = PageUtil.extractLearningContextData();
+			boolean success = false;
+			try {
+				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				success = true;
+				searchTerm = null;
+				paginationData.setPage(1);
+			} catch(DbConnectionException e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while trying to archive competence");
+			}
+			if(success) {
+				try {
+					paginationData.update((int) compManager.countNumberOfCompetences(searchFilter, 
+							loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
+					competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
+							paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+					PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
 				} catch(DbConnectionException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Error while refreshing data");

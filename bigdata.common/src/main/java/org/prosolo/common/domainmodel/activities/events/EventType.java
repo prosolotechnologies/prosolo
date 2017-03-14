@@ -136,7 +136,8 @@ public enum EventType {
 	
 	PAGE_OPENED,
 	
-	ARCHIVE;
+	ARCHIVE,
+	RESTORE;
 	
 	private String customText;
 	
