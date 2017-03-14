@@ -316,5 +316,20 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void restoreCompetence(long compId) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+			    .startObject()
+		        .field("archived", false)
+		        .field("published", false)
+		        .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 
 }

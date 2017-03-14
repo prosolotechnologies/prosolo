@@ -130,6 +130,12 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Archive, session);
 				}
 				break;
+			case RESTORE:
+				if(node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Restore, session);
+				}
+				break;
 			default:
 				return null;
 		}

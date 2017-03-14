@@ -168,7 +168,7 @@
 			                            </h:link>
 			                            <p:commandLink 
 			                            	styleClass="btn btn-sm btn-green-stroke"
-			                            	action="#{competenceLibraryBeanManager.prepareForDuplicate(comp)}"
+			                            	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
 			                            	update=":duplicateDialog"
 			                            	oncomplete="$('#duplicateComp').modal('show');">
 			                            	Duplicate
@@ -182,9 +182,16 @@
 					                  	  	value="Archive"
 					                  	  	styleClass="linkRed"
 					                  	  	process="@this"
-					                  	  	action="#{competenceLibraryBeanManager.prepareForArchive(comp)}"
+					                  	  	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
 					                  	  	update=":archiveDialog"
 					                  	  	oncomplete="$('#archiveModal').modal('show');">
+					                  	</p:commandLink>
+					                  	<p:commandLink rendered="#{comp.archived}"
+					                  	  	value="Restore"
+					                  	  	process="@this"
+					                  	  	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
+					                  	  	update=":restoreDialog"
+					                  	  	oncomplete="$('#restoreModal').modal('show');">
 					                  	</p:commandLink>
 			                        </div>
 			                    </li>
@@ -209,9 +216,20 @@
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="Competence" 
-				resourceType="competence"
-				resourceTypePlural="competences"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
+				learningContext="name:library"/>
+				
+		<dialogs:restoreResource
+	    		id="restoreDialog"
+	    		competence="#{competenceLibraryBeanManager.selectedComp}"      
+				restoreActionMethodName="restore"  	
+				restoreAction="#{competenceLibraryBeanManager.restore}"
+				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
 				learningContext="name:library"/>
 				
 	 	<compDialogs:duplicateCompetence   
