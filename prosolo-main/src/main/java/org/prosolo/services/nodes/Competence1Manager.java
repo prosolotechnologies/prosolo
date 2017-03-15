@@ -226,7 +226,7 @@ public interface Competence1Manager {
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
     				throws DbConnectionException;
 
-	List<Competence1> getCompetencesForOwner(long ownerId) throws DbConnectionException;
+	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 
-	List<TargetCompetence1> getTargetCompetencesForOwner(long ownerId) throws DbConnectionException;
+	void updateTargetCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 }

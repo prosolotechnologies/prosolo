@@ -1644,42 +1644,45 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 		return res != null ? res : 0;
 	}
-
 	@Override
-	public List<Competence1> getCompetencesForOwner(long ownerId) throws DbConnectionException {
-		try {
-			String query = "SELECT comp " + "FROM Competence1 comp " + "WHERE comp.createdBy.id = :ownerId";
-
-			@SuppressWarnings("unchecked")
-			List<Competence1> competences = persistence.currentManager().createQuery(query).setLong("ownerId", ownerId)
-					.list();
-			if (competences == null) {
-				return new ArrayList<>();
-			}
-			return competences;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competences");
+	@Transactional(readOnly = false)
+	public void updateTargetCompetenceCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE TargetCompetence1 targetComp SET " +
+								"targetComp.createdBy = :newCreatorId " +
+								"WHERE targetComp.createdBy = :oldCreatorId";					    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of target competences");
 		}
 	}
-
+	
 	@Override
-	public List<TargetCompetence1> getTargetCompetencesForOwner(long ownerId) throws DbConnectionException {
-		try {
-			String query = "SELECT comp " + "FROM TargetCompetence1 comp " + "WHERE comp.createdBy.id = :ownerId";
-
-			@SuppressWarnings("unchecked")
-			List<TargetCompetence1> comps = persistence.currentManager().createQuery(query).setLong("ownerId", ownerId)
-					.list();
-			if (comps == null) {
-				return new ArrayList<>();
-			}
-			return comps;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target competences");
+	@Transactional(readOnly = false)
+	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Competence1 comp SET " +
+						"comp.createdBy = :newCreatorId " +
+						"WHERE comp.createdBy = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of competences");
 		}
 	}
 

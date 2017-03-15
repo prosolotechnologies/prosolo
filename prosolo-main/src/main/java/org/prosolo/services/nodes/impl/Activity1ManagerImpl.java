@@ -2496,4 +2496,45 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Activity1 act " +
+								"SET act.createdBy.id = :newCreatorId " +
+								"WHERE act.createdBy.id = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of activities");
+		}
+	}
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE TargetActivity1 act " +
+						       "SET act.createdBy.id = :newCreatorId " +
+						       "WHERE act.createdBy.id = :oldCreatorId";				    
+	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+		logger.error(e);
+		e.printStackTrace();
+		throw new DbConnectionException("Error while updating creator of target activities");
+		}
+	}
 }

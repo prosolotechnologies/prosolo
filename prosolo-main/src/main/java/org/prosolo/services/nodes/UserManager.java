@@ -58,8 +58,4 @@ public interface UserManager extends AbstractManager {
 	
 	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException;
 
-	void updateTargetCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
-
-	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
-
 }

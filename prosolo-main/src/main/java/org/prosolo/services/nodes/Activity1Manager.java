@@ -203,4 +203,8 @@ public interface Activity1Manager extends AbstractManager {
 	 * @return
 	 */
 	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
+
+	void updateTargetActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	void updateActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 }

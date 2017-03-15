@@ -205,7 +205,7 @@
 								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
 									action="#{userEditBean.delete()}"
 									rendered="#{userEditBean.newOwner.userSet}"
-									update=":formMain" 
+									update=":formMain :growlMain" 
 									oncomplete="$('#deleteUser').modal('hide');">
 	                                	Delete
 	                                </p:commandLink>
