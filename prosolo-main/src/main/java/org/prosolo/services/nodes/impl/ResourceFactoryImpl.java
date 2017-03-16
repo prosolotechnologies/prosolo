@@ -1354,7 +1354,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			competence.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
 			competence.setType(comp.getType());
 			competence.setOriginalVersion(comp);
-			competence.setCanBeEdited(true);
 			competence.setArchived(false);
 			competence.setPublished(false);
 			saveEntity(competence);

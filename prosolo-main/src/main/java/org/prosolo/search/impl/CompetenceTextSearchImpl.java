@@ -348,7 +348,8 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
-					LearningResourceSearchConfig.of(false, false, false, true), userId));
+					LearningResourceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
+						userId));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
@@ -428,11 +429,24 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		}
 		
 		if(config.shouldIncludeResourcesWithEditPrivilege()) {
+			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
 			//user is owner of a competence
-			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
+			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
 			
 			//user has Edit privilege for competence
-			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+			
+			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
+			editorAndTypeFilter.filter(editorFilter);
+			/*
+			 * for edit privilege resource type should be included in condition
+			 * for example: if competence is user created and user has edit privilege for that competence
+			 * but university created type is set in config object, user should not see this competence
+			 */
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()
+					.toLowerCase()));
+			
+			boolFilter.should(editorAndTypeFilter);
 		}
 		
 		return boolFilter;

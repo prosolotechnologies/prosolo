@@ -82,6 +82,9 @@
 			    <div class="container">
 			        <div class="row">
 			            <div class="col-md-8">
+			            	<h:panelGroup layout="block" rendered="#{competenceEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
+			            		Competency is published... Only limited edits allowed.
+			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
 			                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
@@ -156,7 +159,7 @@
 			                                    <label>Other</label>
 			                                    <div class="formLineRight">                           
 			                                        <div class="checkbox checkLine">
-														<h:selectBooleanCheckbox 
+														<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
 															id="selectAllowStudentsToAddActivities"
 															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
 														</h:selectBooleanCheckbox>

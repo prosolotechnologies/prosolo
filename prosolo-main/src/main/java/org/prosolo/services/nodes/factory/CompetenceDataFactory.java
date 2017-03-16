@@ -52,7 +52,6 @@ public class CompetenceDataFactory {
 //		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
 		comp.setDatePublished(competence.getDatePublished());
-		comp.setCanBeEdited(competence.isCanBeEdited());
 		
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		

@@ -104,7 +104,7 @@ public class CredentialViewBeanManager implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = activityManager
-					.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
+					.getCompetenceActivitiesData(cd.getCompetenceId());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}

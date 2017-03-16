@@ -157,7 +157,7 @@ public class CredentialEditBean implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
-			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), true);
+			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}

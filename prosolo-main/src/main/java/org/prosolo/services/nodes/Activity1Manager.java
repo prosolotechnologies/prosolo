@@ -26,11 +26,9 @@ public interface Activity1Manager extends AbstractManager {
 	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
-	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
-			throws DbConnectionException;
+	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) throws DbConnectionException;
 
-	List<ActivityData> getCompetenceActivitiesData(long competenceId, boolean includeNotPublished)
-			throws DbConnectionException;
+	List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException;
 	
 	List<TargetActivity1> createTargetActivities(TargetCompetence1 targetComp) 
 			throws DbConnectionException;
@@ -56,8 +54,8 @@ public interface Activity1Manager extends AbstractManager {
 //	 */
 //	void publishDraftActivitiesWithoutDraftVersion(List<Long> actIds) throws DbConnectionException;
 	
-	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks,
-			boolean includeNotPublished) throws DbConnectionException;
+	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
+			throws DbConnectionException;
 	
 	Activity1 updateActivity(ActivityData data, long userId, 
 			LearningContextData context) throws DbConnectionException;

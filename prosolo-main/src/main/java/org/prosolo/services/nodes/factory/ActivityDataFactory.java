@@ -47,11 +47,9 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
-		data.setPublished(activity.isPublished());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
-		data.setActivityStatus();
 		data.getResultData().setResultType(getResultType(activity.getResultType()));
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
@@ -212,7 +210,6 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
-		act.setPublished(activity.isPublished());
 		act.setType(activity.getType());
 		act.setAutograde(activity.isAutograde());
 		
@@ -441,7 +438,6 @@ public class ActivityDataFactory {
 		activity.setTitle(data.getTitle());
 		activity.setDescription(data.getDescription());
 		activity.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
-		activity.setPublished(data.isPublished());
 		activity.setResultType(getResultType(data.getResultData().getResultType()));
 		activity.setDateCreated(data.getDateCreated());
 		activity.setType(data.getType());

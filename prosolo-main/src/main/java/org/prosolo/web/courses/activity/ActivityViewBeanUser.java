@@ -283,14 +283,15 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 	
 	public String getLabelForActivity() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
- 				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
+// 		if(isPreview()) {
+// 			return "(Preview)";
+// 		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
+// 				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
+// 			return "(Unpublished)";
+// 		} else {
+// 			return "";
+// 		}
+		return null;
  	}
 	
 	public boolean isPreview() {

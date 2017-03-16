@@ -112,6 +112,16 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
+	/**
+	 * if this method returns true only limited edits are allowed
+	 * 
+	 * @return
+	 */
+	public boolean isLimitedEdit() {
+		return true;
+		//return competenceData.isPublished();
+	}
+	
 	public void initVisibilityManageData() {
 		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
 	}

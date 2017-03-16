@@ -148,15 +148,17 @@ public class ActivityViewBeanManager implements Serializable {
 	}
 	
 	public String getLabelForActivity() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
- 				competenceData.getActivityToShowWithDetails().getType() 
- 					== LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
+		//TODO cred-redesign-07
+// 		if(isPreview()) {
+// 			return "(Preview)";
+// 		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
+// 				competenceData.getActivityToShowWithDetails().getType() 
+// 					== LearningResourceType.UNIVERSITY_CREATED) {
+// 			return "(Unpublished)";
+// 		} else {
+// 			return "";
+// 		}
+		return null;
  	}
 	
 	public boolean isPreview() {

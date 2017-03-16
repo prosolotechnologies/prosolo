@@ -417,15 +417,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compData.setCanAccess(canAccess);
 			
 			if(loadActivities) {
-				/*
-				 * we should include not published activities if Edit privilege is needed
-				 * for this use case and user has Edit privilege, or if None privilege is needed
-				 */
-				boolean includeNotPublished = privilege == UserGroupPrivilege.Edit 
-						&& priv == UserGroupPrivilege.Edit 
-						|| privilege == UserGroupPrivilege.None;
-				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId,
-						includeNotPublished);
+				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
 				compData.setActivities(activities);
 			}
 			
@@ -736,7 +728,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				
 				if(loadActivities) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
-							credComp.getCompetence().getId(), includeNotPublished);
+							credComp.getCompetence().getId());
 					compData.setActivities(activities);
 				}
 				
@@ -1146,10 +1138,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			ca.setOrder(comp.getActivities().size() + 1);
 			saveEntity(ca);
 			/* 
-			 * If duration of added activity is greater than 0 and activity is published
-			 * update competence duration
+			 * If duration of added activity is greater than 0 update competence duration
 			*/
-			if(act.getDuration() > 0 && act.isPublished()) {
+			if(act.getDuration() > 0) {
 				comp.setDuration(comp.getDuration() + act.getDuration());
 				credentialManager.updateDurationForCredentialsWithCompetence(compId, 
 						act.getDuration(), Operation.Add);
@@ -2405,7 +2396,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
 			throws DbConnectionException {  
 		try {
-			List<CredentialData> data = new ArrayList<>();
 			String query = "SELECT tc " +
 					   "FROM TargetCompetence1 tc " + 
 					   "WHERE tc.user.id = :userId";

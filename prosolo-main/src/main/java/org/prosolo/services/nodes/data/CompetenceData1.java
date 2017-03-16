@@ -60,7 +60,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean bookmarkedByCurrentUser;
 	
 	private Date datePublished;
-	private boolean canBeEdited;
 	
 	private long numberOfStudents;
 	
@@ -452,14 +451,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setDatePublished(Date datePublished) {
 		this.datePublished = datePublished;
-	}
-
-	public boolean isCanBeEdited() {
-		return canBeEdited;
-	}
-
-	public void setCanBeEdited(boolean canBeEdited) {
-		this.canBeEdited = canBeEdited;
 	}
 
 	public long getNumberOfStudents() {

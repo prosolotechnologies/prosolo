@@ -31,8 +31,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int durationHours;
 	private int durationMinutes;
 	private String durationString;
-	private boolean published;
-	private PublishedStatus status;
 	private long creatorId;
 	
 	private List<ResourceLinkData> links;
@@ -78,7 +76,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int difficulty;
 	
 	public ActivityData(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
@@ -145,16 +142,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	public void statusRemoveTransition() {
 		setObjectStatus(ObjectStatusTransitions.removeTransition(getObjectStatus()));
-	}
-	
-	//setting activity status based on published flag
-	public void setActivityStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
-	}
-	
-	//setting published flag based on course status
-	private void setPublished() {
-		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
 	}
 	
 	public void statusBackFromRemovedTransition() {
@@ -263,24 +250,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setDurationString(String durationString) {
 		this.durationString = durationString;
-	}
-
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		observeAttributeChange("published", this.published, published);
-		this.published = published;
-	}
-
-	public PublishedStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(PublishedStatus status) {
-		this.status = status;
-		setPublished();
 	}
 
 	public long getTargetActivityId() {
@@ -489,10 +458,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public boolean isDescriptionChanged() {
 		return changedAttributes.containsKey("description");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
 	}
 	
 	public boolean isObjectStatusChanged() {

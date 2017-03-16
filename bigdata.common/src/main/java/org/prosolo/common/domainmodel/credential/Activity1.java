@@ -26,7 +26,6 @@ public class Activity1 extends BaseEntity {
 	private static final long serialVersionUID = 15293664172196082L;
 	
 	private long duration;
-	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
 	
@@ -75,14 +74,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
-	}
-
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		this.published = published;
 	}
 	
 	public int getMaxPoints() {

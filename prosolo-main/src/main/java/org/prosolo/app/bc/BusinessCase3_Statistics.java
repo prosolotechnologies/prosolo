@@ -892,7 +892,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links) {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
-		actData.setPublished(true);
 		actData.setActivityType(ActivityType.TEXT);
 		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		actData.setCompetenceId(compId);

@@ -46,7 +46,6 @@ public class Competence1 extends BaseEntity {
 	//if competence is original version this will be null
 	private Competence1 originalVersion;
 	private Date datePublished;
-	private boolean canBeEdited = true;
 	
 	private List<CompetenceBookmark> bookmarks;
 	
@@ -161,16 +160,6 @@ public class Competence1 extends BaseEntity {
 
 	public void setDatePublished(Date datePublished) {
 		this.datePublished = datePublished;
-	}
-
-	@Type(type = "true_false")
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isCanBeEdited() {
-		return canBeEdited;
-	}
-
-	public void setCanBeEdited(boolean canBeEdited) {
-		this.canBeEdited = canBeEdited;
 	}
 	
 	@OneToMany(mappedBy = "competence")

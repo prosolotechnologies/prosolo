@@ -64,9 +64,6 @@ import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 @Service("org.prosolo.services.nodes.Activity1Manager")
 public class Activity1ManagerImpl extends AbstractManagerImpl implements Activity1Manager {
 
@@ -174,11 +171,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 		}
 		
-		/*
-		 * We should update competences duration only if activity was published. If it
-		 * was not published, its duration was not even added to duration of a competence.
-		 */
-		if(duration != 0 && act.isPublished()) {
+		if(duration != 0) {
 			compManager.updateDurationForCompetenceWithActivity(actId, duration, Operation.Subtract);
 		}
 		
@@ -220,12 +213,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityData> getCompetenceActivitiesData(long competenceId, 
-			boolean includeNotPublished) throws DbConnectionException {
+	public List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException {
 		List<ActivityData> result = new ArrayList<>();
 		try {
-			List<CompetenceActivity1> res = getCompetenceActivities(competenceId, false, 
-					includeNotPublished);
+			List<CompetenceActivity1> res = getCompetenceActivities(competenceId, false);
 
 			if (res != null) {
 				for (CompetenceActivity1 act : res) {
@@ -244,7 +235,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceActivity1> getCompetenceActivities(long competenceId, 
-			boolean loadResourceLinks, boolean includeNotPublished) throws DbConnectionException {
+			boolean loadResourceLinks) throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
@@ -257,21 +248,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					       	   "LEFT JOIN fetch act.files ");
 			}
 			
-			builder.append("WHERE compAct.competence = :comp ");
-			
-			if(!includeNotPublished) {
-				builder.append("AND act.published = :published ");
-			}
-			
-			builder.append("ORDER BY compAct.order");
+			builder.append("WHERE compAct.competence = :comp " +
+						   "ORDER BY compAct.order");
 
 			Query query = persistence.currentManager()
 				.createQuery(builder.toString())
 				.setEntity("comp", comp);
-			
-			if(!includeNotPublished) {
-				query.setBoolean("published", true);
-			}
 			
 			@SuppressWarnings("unchecked")
 			List<CompetenceActivity1> res = query.list();
@@ -295,7 +277,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			//we should not create target activities for unpublished activities
 			List<CompetenceActivity1> compActivities = getCompetenceActivities(
-					targetComp.getCompetence().getId(), true, false);
+					targetComp.getCompetence().getId(), true);
 			List<TargetActivity1> targetActivities = new ArrayList<>();
 			if(compActivities != null) {
 				for(CompetenceActivity1 act : compActivities) {
@@ -409,8 +391,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			 *  
 			 */
 			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.Learn && (!res.getActivity().isPublished()
-					|| !res.getCompetence().isPublished())) {
+			if(canAccess && priv == UserGroupPrivilege.Learn && !res.getCompetence().isPublished()) {
 				canAccess = false;
 			}
 			
@@ -702,27 +683,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				break;
 			}
 		}
-	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-	    		actClass, 
-	    		data.isPublished(), 
-	    		data.isPublishedChanged(), 
-	    		data.isTitleChanged(), 
-	    		data.isDescriptionChanged(), 
-	    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
-	    		linksChanged, 
-	    		filesChanged, 
-	    		data.isUploadAssignmentChanged(), 
-	    		data.isTextChanged(), 
-	    		data.isLinkChanged(), 
-	    		data.isLaunchUrlChanged(), 
-	    		data.isConsumerKeyChanged(), 
-	    		data.isSharedSecretChanged(),
-	    		data.isOpenInNewWindowChanged());
-	    Gson gson = new GsonBuilder().create();
-	    String jsonChangeTracker = gson.toJson(changeTracker);
-	    params.put("changes", jsonChangeTracker);
-	   
-	    eventFactory.generateEvent(EventType.Edit, user.getId(), act, null, page, context, service, params);
+		//TODO cred-redesign-07
+//	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+//	    		actClass, 
+//	    		data.isPublished(), 
+//	    		data.isPublishedChanged(), 
+//	    		data.isTitleChanged(), 
+//	    		data.isDescriptionChanged(), 
+//	    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
+//	    		linksChanged, 
+//	    		filesChanged, 
+//	    		data.isUploadAssignmentChanged(), 
+//	    		data.isTextChanged(), 
+//	    		data.isLinkChanged(), 
+//	    		data.isLaunchUrlChanged(), 
+//	    		data.isConsumerKeyChanged(), 
+//	    		data.isSharedSecretChanged(),
+//	    		data.isOpenInNewWindowChanged());
+//	    Gson gson = new GsonBuilder().create();
+//	    String jsonChangeTracker = gson.toJson(changeTracker);
+//	    params.put("changes", jsonChangeTracker);
+//	   
+//	    eventFactory.generateEvent(EventType.Edit, user.getId(), act, null, page, context, service, params);
 	}
 	
 	@Deprecated
@@ -786,42 +768,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	private Activity1 updateActivityData(Activity1 actToUpdate, 
 			Class<? extends Activity1> activityClass, ActivityData data) {
 		try {
-			long oldDuration = 0;
-			long newDuration = 0;
-			/*
-			 * if activity is published and was published before, we calculate old duration, and 
-			 * new changed duration
-			 */
-			if(data.isPublished() && !data.isPublishedChanged()) {
-				oldDuration = getActivityDurationBeforeUpdate(data);
-				newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			}
-			/*
-			 * if activity is published and was unpublished before, old duration is 0 because
-			 * it was not added to competence duration, and we calculate current activity
-			 * duration as new duration. 
-			 */
-			else if(data.isPublished() && data.isPublishedChanged()) {
-				oldDuration = 0;
-				newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
-			} 
-			/*
-			 * if activity is unpublished and was published before, we calculate old duration, and 
-			 * new duration is 0 because we don't want to add duration of unpublished activity to 
-			 * competence duration.
-			 */
-			else if(!data.isPublished() && data.isPublishedChanged()) {
-				oldDuration = getActivityDurationBeforeUpdate(data);
-				newDuration = 0;
-			} 
-			/*
-			 * if activity is unpublished and was unpublished before, competence duration should
-			 * not be changed
-			 */
-			else if(!data.isPublished() && !data.isPublishedChanged()) {
-				oldDuration = 0;
-				newDuration = 0;
-			}
+			long oldDuration = getActivityDurationBeforeUpdate(data);;
+			long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
 			
 			if(oldDuration != newDuration) {
 				updateCompDuration(actToUpdate.getId(), newDuration, oldDuration);
@@ -831,7 +779,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setTitle(data.getTitle());
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
-			actToUpdate.setPublished(data.isPublished());
 			actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
@@ -972,11 +919,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (activityWithDetails != null) {
 					compData = new CompetenceData1(false);
 					compData.setActivityToShowWithDetails(activityWithDetails);
-					//TODO we are calling this method twice so better solution should probably be found
-					UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
-							creatorId);
+					
 					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId(), priv == UserGroupPrivilege.Edit);
+							activityWithDetails.getCompetenceId());
 					compData.setActivities(activities);
 					return compData;
 			}
@@ -1697,31 +1642,33 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = false)
 	private List<EventData> publishDraftActivitiesFromList(long credId, long userId, 
 			List<CompetenceActivity1> activities) throws DbConnectionException {
-		List<EventData> events = new ArrayList<>();
-		for(CompetenceActivity1 a : activities) {
-			//check if user can edit this activity
-			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, 
-					a.getCompetence().getId(), userId);
-			if(priv == UserGroupPrivilege.Edit) {
-				Activity1 act = a.getActivity();
-				act.setPublished(true);
-				EventData ev = new EventData();
-				ev.setActorId(userId);
-				ev.setEventType(EventType.Edit);
-				ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-						Activity1.class, true, true, false, false, false, false, 
-						false, false, false, false, false, false, false, false);
-			    Gson gson = new GsonBuilder().create();
-			    String jsonChangeTracker = gson.toJson(changeTracker);
-			    Map<String, String> params = new HashMap<>();
-			    params.put("changes", jsonChangeTracker);
-			    ev.setParameters(params);
-			    ev.setObject(act);
-				events.add(ev);
-			}
-			
-		}
-		return events;
+		//TODO cred-redesign-07
+//		List<EventData> events = new ArrayList<>();
+//		for(CompetenceActivity1 a : activities) {
+//			//check if user can edit this activity
+//			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, 
+//					a.getCompetence().getId(), userId);
+//			if(priv == UserGroupPrivilege.Edit) {
+//				Activity1 act = a.getActivity();
+//				act.setPublished(true);
+//				EventData ev = new EventData();
+//				ev.setActorId(userId);
+//				ev.setEventType(EventType.Edit);
+//				ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+//						Activity1.class, true, true, false, false, false, false, 
+//						false, false, false, false, false, false, false, false);
+//			    Gson gson = new GsonBuilder().create();
+//			    String jsonChangeTracker = gson.toJson(changeTracker);
+//			    Map<String, String> params = new HashMap<>();
+//			    params.put("changes", jsonChangeTracker);
+//			    ev.setParameters(params);
+//			    ev.setObject(act);
+//				events.add(ev);
+//			}
+//			
+//		}
+//		return events;
+		return null;
 	}
 	
 	@Deprecated
@@ -2511,7 +2458,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setDuration(original.getDuration());
 			activity.setLinks(cloneLinks(original.getLinks()));
 			activity.setFiles(cloneLinks(original.getFiles()));
-			activity.setPublished(false);
 			activity.setResultType(original.getResultType());
 			activity.setType(original.getType());
 			activity.setMaxPoints(original.getMaxPoints());

@@ -901,7 +901,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setDescription(description);
-		actData.setPublished(true);
 		actData.setActivityType(type);
 		actData.setStudentCanSeeOtherResponses(true);
 		

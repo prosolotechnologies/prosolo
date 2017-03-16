@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -59,7 +60,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	private LearningResourceSearchFilter[] searchFilters;
 	
 	private final LearningResourceSearchConfig config = LearningResourceSearchConfig.of(
-			true, true, false, true);
+			true, true, false, true, LearningResourceType.USER_CREATED);
 
 	private String context = "name:library";
 
