@@ -15,33 +15,22 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
-import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.administration.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
-import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -58,12 +47,6 @@ public class UserEditBean implements Serializable {
 	@Inject
 	private UserManager userManager;
 	@Inject
-	private CredentialManager credentialManager;
-	@Inject
-	private Activity1Manager activity1Manager;
-	@Inject
-	private Competence1Manager competence1Manager;
-	@Inject
 	private LoggedUserBean loggedUser;
 	@Inject
 	private UrlIdEncoder idEncoder;
@@ -74,8 +57,6 @@ public class UserEditBean implements Serializable {
 	
 	@Autowired 
 	private TextSearch textSearch;
-	@Autowired
-	private AuthenticationService authenticationService;
 
 	private UIInput passwordInput;
 
@@ -85,13 +66,11 @@ public class UserEditBean implements Serializable {
 	private UserData userToDelete;
 
 	private UserData user;
-	private org.prosolo.services.nodes.data.UserData newOwner = new org.prosolo.services.nodes.data.UserData();
+	private UserData newOwner = new UserData();
 	private SelectItem[] allRoles;
-	private List<org.prosolo.services.nodes.data.UserData> users;
+	private List<UserData> users;
 	private String searchTerm;
 	private RoleFilter filter;
-	private PaginationData paginationData = new PaginationData();
-	private List<Long> userToExcludeFromSearch;
 	
 	public void initPassword() {
 		logger.debug("initializing");
@@ -200,11 +179,11 @@ public class UserEditBean implements Serializable {
 	private void updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null && !this.user.getPassword().isEmpty();
-			User user = userManager.updateUser(this.user.getId(), this.user.getName(), this.user.getLastName(),
+			User updatedUser = userManager.updateUser(this.user.getId(), this.user.getName(), this.user.getLastName(),
 					this.user.getEmail(), true, shouldChangePassword, this.user.getPassword(), this.user.getPosition(),
 					this.user.getRoleIds(), loggedUser.getUserId());
 
-			logger.debug("User (" + user.getId() + ") updated by the user " + loggedUser.getUserId());
+			logger.debug("User (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
 			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
 		} catch (DbConnectionException e) {
@@ -297,11 +276,11 @@ public class UserEditBean implements Serializable {
 		this.filter = filter;
 	}
 
-	public org.prosolo.services.nodes.data.UserData getNewOwner() {
+	public UserData getNewOwner() {
 		return newOwner;
 	}
 
-	public void setNewOwner(org.prosolo.services.nodes.data.UserData userData) {
+	public void setNewOwner(UserData userData) {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
 		newOwner.setFullName(userData.getFullName());
@@ -329,15 +308,14 @@ public class UserEditBean implements Serializable {
 		return accountData;
 	}
 
-	public List<org.prosolo.services.nodes.data.UserData> getUsers() {
+	public List<UserData> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<org.prosolo.services.nodes.data.UserData> users) {
+	public void setUsers(List<UserData> users) {
 		this.users = users;
 	}
 
-	
 	public TextSearch getTextSearch() {
 		return textSearch;
 	}
@@ -354,7 +332,6 @@ public class UserEditBean implements Serializable {
 		this.searchTerm = searchTerm;
 	}
 
-	@SuppressWarnings("deprecation")
 	public void sendNewPassword() {
 
 		User userNewPass = userManager.getUser(user.getEmail());
@@ -389,14 +366,13 @@ public class UserEditBean implements Serializable {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void loadUsers() {
-		this.users = new ArrayList<org.prosolo.services.nodes.data.UserData>();
+		this.users = new ArrayList<UserData>();
 		if (searchTerm == null && searchTerm.isEmpty()) {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<org.prosolo.services.nodes.data.UserData> result= textSearch.searchNewOwner(searchTerm, 3 ,user.getId());
+				TextSearchResponse1<UserData> result= textSearch.searchNewOwner(searchTerm, 3 ,user.getId());
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -407,5 +383,4 @@ public class UserEditBean implements Serializable {
 	public void resetAndSearch() {
 		loadUsers();
 	}
-
-}
+} 
