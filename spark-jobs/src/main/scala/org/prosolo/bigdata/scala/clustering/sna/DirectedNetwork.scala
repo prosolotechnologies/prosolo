@@ -1,11 +1,10 @@
 package org.prosolo.bigdata.scala.clustering.sna
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{ArrayBuffer, HashMap}
 import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer
 import edu.uci.ics.jung.graph.DirectedSparseGraph
 import edu.uci.ics.jung.graph.util.EdgeType
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable.{ArrayBuffer, HashMap}
 
 /**
   * Created by zoran on 20/12/15.

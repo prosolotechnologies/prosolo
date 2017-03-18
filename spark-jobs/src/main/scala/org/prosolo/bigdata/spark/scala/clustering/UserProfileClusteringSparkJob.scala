@@ -8,9 +8,7 @@ import org.joda.time.DateTime
 import scala.collection.JavaConverters._
 import org.prosolo.bigdata.scala.clustering.userprofiling.{HmmClustering, UsersClustering}
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
-import com.datastax.spark.connector._
-import com.datastax.spark.connector.cql.CassandraConnector
-import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
+import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
 
 import scala.collection.mutable.Iterable
 

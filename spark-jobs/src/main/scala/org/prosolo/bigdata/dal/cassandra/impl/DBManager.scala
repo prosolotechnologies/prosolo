@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.spark.connector.cql.{CassandraConnector, Schema}
-import org.apache.spark.SparkConf
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 
 /**

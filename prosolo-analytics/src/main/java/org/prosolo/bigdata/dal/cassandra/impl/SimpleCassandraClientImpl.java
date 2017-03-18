@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.prosolo.bigdata.dal.cassandra.impl.TableNames;
 
 /**
  * @author Zoran Jeremic Apr 3, 2015
@@ -41,13 +42,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 	private Map<TableNames, Long> currenttimestamps;
 	protected final static Logger logger = Logger
 			.getLogger(SimpleCassandraClientImpl.class.getName());
-	public enum TableNames{
-		INSIDE_CLUSTER_INTERACTIONS,
-		OUTSIDE_CLUSTER_INTERACTIONS,
-		STUDENT_CLUSTER,
-		TOFROM_INTERACTIONS,
-		STUDENT_ASSIGN_EVENTS
-	}
+
 	public enum Statements {
 		UPDATE_CURRENT_TIMESTAMPS,
 		FIND_CURRENT_TIMESTAMPS,

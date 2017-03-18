@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.driver.core.ProtocolVersion
-import com.datastax.spark.connector.cql.TableDef
 
 /**
   * Created by zoran on 04/03/17.

@@ -18,7 +18,9 @@ public class GenerateSNAClusters  implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.info("STARTING GENERATION OF SNA CLUSTERS EXECUTED JOB");
         SNAclusterManager$ snAclusterManager= SNAclusterManager$.MODULE$;
-        snAclusterManager.identifyClusters();
+        snAclusterManager.runClustering();
+
+
         logger.info("GENERATION OF SNA CLUSTERS JOB FINISHED");
     }
 }

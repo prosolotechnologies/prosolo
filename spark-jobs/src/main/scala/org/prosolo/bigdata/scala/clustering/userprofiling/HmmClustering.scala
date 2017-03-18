@@ -5,13 +5,12 @@ import java.util
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
 import be.ac.ulg.montefiore.run.jahmm.{Hmm, ObservationDiscrete, OpdfDiscreteFactory}
 import org.prosolo.bigdata.clustering.QuartileName
-import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO, TablesNames}
+import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO}
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
 
 import scala.collection.mutable.{HashMap, Map}
-import com.datastax.spark.connector._
 import org.joda.time.DateTime
 import java.util.List
 
@@ -63,8 +62,7 @@ class HmmClustering (val dbName:String) extends Serializable {
   def getClusterCourseSequences(clusterName:ClusterName.Value, courseId:Long):List[List[ObservationDiscrete[QuartileName]]]={
     println("GET CLUSTER COURSE SEQUENCES:"+courseId+" clusterName:"+clusterName.toString+" dbName:"+dbName)
     val results:List[Row]=profilesDAO.findUserQuartileFeaturesByProfile(courseId,clusterName)
-   /* val results=sc.cassandraTable(dbName, TablesNames.PROFILE_USERQUARTILE_FEATURES_BYPROFILE).where("course=?",courseId).where("profile=?",clusterName.toString)*/
-     val seq:List[List[ObservationDiscrete[QuartileName]]]= results.map{
+      val seq:List[List[ObservationDiscrete[QuartileName]]]= results.map{
       row=>
         val sequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
          sequence
