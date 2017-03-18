@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -36,6 +38,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.annotation.TagManager;
@@ -50,6 +53,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -59,13 +63,14 @@ import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -411,8 +416,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
 	@Transactional(readOnly = true)
-	private CredentialData getTargetCredentialData(long credentialId, long userId, 
+	public CredentialData getTargetCredentialData(long credentialId, long userId, 
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
@@ -489,7 +495,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new IllegalArgumentException();
 			}
 			Credential1 cred = getCredential(credentialId, loadCreatorData, userId);
-			
 			if(cred == null) {
 				throw new ResourceNotFoundException();
 			}
@@ -513,7 +518,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cred.getTags(), cred.getHashtags(), true);
 			credData.setCanEdit(priv == UserGroupPrivilege.Edit);
 			credData.setCanAccess(canAccess);
-			
 			if(loadCompetences) {
 				/*
 				 * if edit privilege is needed for use case, we should include information
@@ -2609,7 +2613,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
-	
 //	public void publishCredential(Credential1 cred, long creatorId, Role role) {
 //		try {
 //			if(cred.isHasDraft()) {
@@ -2686,6 +2689,100 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		ev.setObject(updatedCred);
 //		return ev;
 //	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {
+
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT DISTINCT tag, COUNT(tag) " +
+				"FROM TargetCompetence1 targetComp " + 
+				"LEFT JOIN targetComp.tags tag " +
+				"WHERE targetComp.targetCredential.id = :credId "+
+				"GROUP BY tag");
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> res = (List<Object[]>) persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("credId", credentialId)
+				.list();
+		List<TagCountData> tags = new LinkedList<>();
+		for (Object[] objects : res) {
+			Tag tag = (Tag) objects[0];
+			long count = (long) objects[1];
+			TagCountData tagCountData = new TagCountData(tag.getTitle(), count);
+			tags.add(tagCountData);
+		}
+		
+		return tags;
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public int getNumberOfTags(long credentialId) throws DbConnectionException {
+
+		return getTagsForCredentialCompetences(credentialId).size();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
+
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT DISTINCT targetComp " +
+				"FROM TargetCompetence1 targetComp " + 
+				"LEFT JOIN FETCH targetComp.tags tag "+
+				"WHERE targetComp.targetCredential.id = :credId " +
+				"ORDER BY targetComp.title");
+		
+		@SuppressWarnings("unchecked")
+		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("credId", credentialId)
+				.list();
+		List<CompetenceData1> data = new ArrayList<>();
+		for(TargetCompetence1 competence : competences){
+			CompetenceData1 cd = new CompetenceData1(false);
+			cd.setTitle(competence.getTitle());
+			cd.setDuration(competence.getDuration());
+			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
+			cd.setCredentialId(competence.getTargetCredential().getId());
+			cd.setCompetenceId(competence.getCompetence().getId());
+			cd.setTargetCompId(competence.getId());
+			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
+			data.add(cd);
+		}
+		return data;
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException {
+
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT DISTINCT targetAct " +
+				"FROM TargetCompetence1 targetComp " + 
+				"JOIN targetComp.targetActivities targetAct "+
+				"WHERE targetComp.targetCredential.id = :credId " +
+				"ORDER BY targetAct.title");
+		
+		@SuppressWarnings("unchecked")
+		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("credId", credentialId)
+				.list();
+		List<ActivityData> data = new ArrayList<>();
+		for(TargetActivity1 tActivity : activities){
+			ActivityData ad = new ActivityData(false);
+			ad.setTitle(tActivity.getTitle());
+			ad.setTargetActivityId(tActivity.getId());
+			ad.setDurationHours((int) (tActivity.getDuration() / 60));
+			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
+			ad.calculateDurationString();
+			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
+			ad.setActivityId(tActivity.getActivity().getId());
+			data.add(ad);
+		}
+		return data;
+	}
 	
 	@Override
 	@Transactional(readOnly = true)

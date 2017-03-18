@@ -19,7 +19,7 @@ public class TimeUtil {
 		Map<String, Integer> durationMap = getHoursAndMinutes(timeInMinutes);
 		int hours = durationMap.get("hours");
 		int minutes = durationMap.get("minutes");
-		String duration = hours != 0 ? hours + " hours " : "";
+		String duration = hours != 0 ? hours  + (hours == 1 ? " hour " : " hours ") : "";
 		if(duration.isEmpty()) {
 			duration = minutes + " minutes";
 		} else if(minutes != 0) {

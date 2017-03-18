@@ -21,6 +21,7 @@ import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.SmartTransactionObject;
 
 @Service("org.prosolo.services.email.EmailSender")
 public class EmailSender {
@@ -35,13 +36,13 @@ public class EmailSender {
 		    
 	    // Port we will connect to on the Amazon SES SMTP endpoint. We are choosing port 25 because we will use
 	    // STARTTLS to encrypt the connection.
-	    final int PORT = 25;
+//	    final int PORT = 25;
 		    
 		    
 	    // Create a Properties object to contain connection configuration information.
     	Properties props = System.getProperties();
     	props.put("mail.transport.protocol", "smtp");
-    	props.put("mail.smtp.port", PORT); 
+    	props.put("mail.smtp.port", smtpConfig.port); 
     	props.put("mail.smtp.auth", "true");
     	props.put("mail.smtp.starttls.enable", "true");
     	props.put("mail.smtp.starttls.required", "true");

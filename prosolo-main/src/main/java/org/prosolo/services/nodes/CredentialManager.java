@@ -18,13 +18,16 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -354,8 +357,10 @@ public interface CredentialManager extends AbstractManager {
 	 * @return array of two strings where first element is credential title and the second element is competence title.
 	 * @throws DbConnectionException
 	 */
+	
 	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
-
+	
+	
 	/**
 	 * Returns list of ids of all assessors that this particular user has asked
 	 * for assessment for the credential with the given id
@@ -366,6 +371,32 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
 	
+	/**
+	 * Returns list of CompetenceData for given credentials.
+	 * 
+	 * @param credId
+	 * @return list of simple data types from TargetCompetence
+	 * @throws DbConnectionException
+	 */
+	List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
+
+	/**
+	 * Returns titles of a tag and number of tag occurrences for given credential
+	 * 
+	 * @param credId
+	 * @return array of two elements where first element is tag title and the second element is competence title.
+	 * @throws DbConnectionException
+	 */
+	List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException;
+
+	/**
+	 * Returns list of ActivityData for given credentials.
+	 * 
+	 * @param credId
+	 * @return list of simple data types from TargetActivity(title, id, duration and competenceId)
+	 * @throws DbConnectionException
+	 */
+	List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException;
 	/**
 	 * Returns list of ids of all users that currently do not have instructor assigned for credential
 	 * with {@code credId} id, except users which ids are contained in {@code usersToExclude} list.
@@ -382,4 +413,9 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getCredentialAccessRights(long credId, long userId, 
 			UserGroupPrivilege neededPrivilege) throws DbConnectionException;
+
+	int getNumberOfTags(long credentialId) throws DbConnectionException;
+
+	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+			throws DbConnectionException;
 }

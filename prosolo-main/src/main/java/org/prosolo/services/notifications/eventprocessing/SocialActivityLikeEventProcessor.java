@@ -8,11 +8,11 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public class SocialActivityLikeEventProcessor extends NotificationEventProcessor {
@@ -32,21 +32,19 @@ public class SocialActivityLikeEventProcessor extends NotificationEventProcessor
 
 	protected void setResource() {
 		this.socialActivity = (SocialActivity1) session.load(event.getObject().getClass(), event.getObject().getId());
-		this.socialActivity = HibernateUtil.initializeAndUnproxy(this.socialActivity);
 	}
 	
 	@Override
-	List<Long> getReceiverIds() {
-		List<Long> users = new ArrayList<>();
+	List<NotificationReceiverData> getReceiversData() {
+		List<NotificationReceiverData> receivers = new ArrayList<>();
 		try {
 			Long resCreatorId = socialActivity.getActor().getId();
-			
-			users.add(resCreatorId);
+			receivers.add(new NotificationReceiverData(resCreatorId, getNotificationLink(), false));
+			return receivers;
 		} catch(Exception e) {
 			logger.error(e);
+			return new ArrayList<>();
 		}
-		
-		return users;
 	}
 
 	@Override
@@ -79,8 +77,7 @@ public class SocialActivityLikeEventProcessor extends NotificationEventProcessor
 		return socialActivity.getId();
 	}
 
-	@Override
-	String getNotificationLink() {
+	private String getNotificationLink() {
 		return "/posts/" +
 				idEncoder.encodeId(socialActivity.getId());
 	}

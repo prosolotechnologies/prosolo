@@ -23,6 +23,22 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	
 	void updateBasicUserData(User user, Session session);
 	
+	/**
+	 * Adds new follower to the index of the followed user.
+	 * 
+	 * @param followedUserId
+	 * @param followerId
+	 */
+	void addFollowerIndex(long followedUserId, long followerId);
+	
+	/**
+	 * Removes follower from the index of the followed user.
+	 * 
+	 * @param followedUserId
+	 * @param followerId
+	 */
+	void removeFollowerIndex(long followedUserId, long followerId);
+	
 	
 //	/**
 //	 * For particular user adds user that followed him.

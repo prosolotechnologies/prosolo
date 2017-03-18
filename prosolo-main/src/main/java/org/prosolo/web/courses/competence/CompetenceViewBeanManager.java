@@ -71,7 +71,7 @@ public class CompetenceViewBeanManager implements Serializable {
 				 */
 				boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), hasInstructorCapability);
+						competenceData.getCompetenceId(), hasInstructorCapability, true);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),

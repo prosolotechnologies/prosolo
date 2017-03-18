@@ -1166,12 +1166,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId, UserGroupPrivilege privilege) 
+			long actId, long userId, UserGroupPrivilege privilege, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
-					compId, actId, userId);
+					compId, actId, userId, isManager);
 			if (compData == null) {
 				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
 						userId, privilege);
@@ -1189,13 +1189,24 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	/**
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param actId
+	 * @param userId
+	 * @param isManager did request come from manage section
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
-			long credId, long compId, long actId, long userId) 
+			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, true);
+			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
+					true, isManager);
 
 			if (activityWithDetails != null) {
 //				String query1 = "SELECT targetComp.title, targetCred.title, targetComp.createdBy.id " +
@@ -1242,12 +1253,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @param compId
 	 * @param actId
 	 * @param userId
+	 * @param loadResourceLinks
+	 * @param isManager did request come from manage section
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	@Transactional(readOnly = true)
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
-			boolean loadResourceLinks) 
+			boolean loadResourceLinks, boolean isManager) 
 			throws DbConnectionException {
 		try {		
 			StringBuilder query = new StringBuilder("SELECT targetAct " +
@@ -1275,7 +1288,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				Set<ResourceLink> links = loadResourceLinks ? res.getLinks() : null;
 				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
 				ActivityData activity = activityFactory.getActivityData(res, links, 
-						files, true);
+						files, true, isManager);
 				
 				//retrieve user privilege to be able to tell if user can edit this activity
 				UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
@@ -1898,11 +1911,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-			long credId, long compId, long actId, long userId) 
+			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, false);
+			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, 
+					userId, false, isManager);
 			
 			if (activityWithDetails != null) {
 				/*
@@ -1914,7 +1928,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 				
 				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, 0, userId, 
-						false, false, false, 0, 0, null));
+						false, false, false, false, 0, 0, null));
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
@@ -1992,7 +2006,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
-			long targetActivityId, long userToExclude, boolean isInstructor, 
+			long targetActivityId, long userToExclude, boolean isInstructor, boolean isManager,
 			boolean returnAssessmentData, boolean paginate, int page, int limit, 
 			StudentAssessedFilter filter)  throws DbConnectionException {
 		try {
@@ -2117,7 +2131,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					int commentsNo = ((BigInteger) row[8]).intValue();
 					
 					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
-							date, user, commentsNo, isInstructor);
+							date, user, commentsNo, isInstructor, isManager);
 					
 					ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId));
 					results.add(ard); 
@@ -2205,8 +2219,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Override
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, 
-			long actId, long targetActivityId, boolean isInstructor, boolean paginate, int page, 
-			int limit, StudentAssessedFilter filter) throws DbConnectionException {
+			long actId, long targetActivityId, boolean isInstructor, boolean isManager, 
+			boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+					throws DbConnectionException {
 		try {			
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 			if (activity == null) {
@@ -2224,8 +2239,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			data.setMaxPointsString(activity.getMaxPoints() == 0 ? "" : String.valueOf(activity.getMaxPoints()));
 			data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 			data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
-			data.setStudentResults(getStudentsResults(credId, compId, actId, targetActivityId, 0, isInstructor, true,
-					paginate, page, limit, filter));
+			data.setStudentResults(getStudentsResults(credId, compId, actId, targetActivityId, 0, 
+					isInstructor, isManager, true, paginate, page, limit, filter));
 			
 			return data;
 		} catch (Exception e) {
@@ -2237,7 +2252,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional (readOnly = true)
-	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId) {
+	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
+			boolean instructor, boolean isManager, long loggedUserId) {
 		String query = 
 			"SELECT targetAct, targetCred.user " +
 			"FROM TargetActivity1 targetAct " +
@@ -2254,13 +2270,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			TargetActivity1 targetActivity = (TargetActivity1) result[0];
 			User user = (User) result[1];
 			
-			ActivityResultData activityResult = activityFactory.getActivityResultData(targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
-					targetActivity.getResultPostDate(), user, 0, false);
+			ActivityResultData activityResult = activityFactory.getActivityResultData(
+					targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
+					targetActivity.getResultPostDate(), user, 0, false, isManager);
 			
 			if (loadComments) {
 				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
 						targetActivityId, 
-						instructor);
+						instructor, false);
 				
 				List<CommentData> comments = commentManager.getComments(
 						commentsData.getResourceType(), 
@@ -2283,7 +2300,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional (readOnly = true)
-	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId) {
+	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId,
+			boolean isManager) {
 		String query = 
 				"SELECT targetAct, targetCred.user " +
 				"FROM TargetActivity1 targetAct " +
@@ -2303,7 +2321,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				// check whether userToViewId is owner of TargetActivity 
 				if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
 					ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
-							null, false);
+							null, false, isManager);
 					
 					UserData ud = new UserData(user.getId(), user.getFullName(), 
 							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);

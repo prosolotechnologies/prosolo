@@ -17,9 +17,9 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
+import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
@@ -108,7 +108,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
 								decodedCredId, decodedCompId, decodedActId, 0, hasInstructorCapability,
-								paginate, paginationData.getPage() - 1, paginationData.getLimit(), null);
+								true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), 
+								null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
 					loadAdditionalData(ard);
 				}
@@ -154,7 +155,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
 								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
-								hasInstructorCapability, false, 0, 
+								hasInstructorCapability, true, false, 0, 
 								0, null);
 				if(activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
 					currentResult = activity.getStudentResults().get(0);
@@ -194,6 +195,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
+	public long getTargetActivityId() {
+		return decodedTargetActId;
+	}
+	
+	public String getResultOwnerFullName() {
+		return currentResult.getUser().getFullName();
+	}
+	
 	private int countStudentResults(StudentAssessedFilter filter) {
 		return (activityManager.countStudentsResults(decodedCredId, decodedCompId, 
 				decodedActId, filter)).intValue();
@@ -212,7 +221,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				List<ActivityResultData> results = activityManager
 						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
-								hasInstructorCapability, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
+								hasInstructorCapability, true, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
 				}
@@ -301,7 +310,12 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	//assessment begin
 	public void loadActivityDiscussionById(long targetActivityId, boolean loadDiscussion, boolean loadComments) {
-		ActivityResultData result = activityManager.getActivityResultData(targetActivityId, loadComments, loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), loggedUserBean.getUserId());
+		ActivityResultData result = activityManager.getActivityResultData(
+				targetActivityId, 
+				loadComments, 
+				loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), 
+				true, 
+				loggedUserBean.getUserId());
 		
 //		if (result != null && loadDiscussion) {
 			loadActivityDiscussion(result);
@@ -433,14 +447,9 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			
-			List<Long> participantIds = assessmentManager.getParticipantIds(activityAssessmentId);
-			for (Long userId : participantIds) {
-				if (userId != loggedUserBean.getUserId()) {
-					notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(), page, 
-							lContext, service, userId, decodedCredId);
-				}
-			}
-			
+			notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(),
+					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()), 
+					page, lContext, service, decodedCredId);
 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
@@ -448,21 +457,21 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	private void notifyAssessmentCommentAsync(long decodedAssessmentId, String page, String lContext, 
-			String service, long recepientId, long credentialId) {
+	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId,
+			long assessmentCommentId, String page, String lContext, 
+			String service, long credentialId) {
 		taskExecutor.execute(() -> {
-			User recipient = new User();
-			recipient.setId(recepientId);
-			CredentialAssessment assessment = new CredentialAssessment();
-			assessment.setId(decodedAssessmentId);
+			//User recipient = new User();
+			//recipient.setId(recepientId);
+			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
+			adm.setId(assessmentCommentId);
+			ActivityAssessment aa = new ActivityAssessment();
+			aa.setId(actAssessmentId);
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
-			// in order to construct a link, we will need info if the
-			// notification recipient is assessor (to prepend "manage")
-			parameters.put("isRecepientAssessor",
-					((Boolean) (currentResult.getAssessment().getAssessorId() == recepientId)).toString());
+			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), assessment, recipient,
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), adm, aa,
 						page, lContext, service, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);

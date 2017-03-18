@@ -6,9 +6,11 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.web.administration.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
@@ -36,7 +38,7 @@ public class AccountSettingsBean implements Serializable {
 
 	private AccountData accountData;
 	private String currentPassword;
-
+	private UserData userData;
 	@Autowired
 	private AuthenticationService authenticationService;
 
@@ -48,7 +50,6 @@ public class AccountSettingsBean implements Serializable {
 		String email = loggedUser.getSessionData().getEmail();
 		accountData.setEmail(email);
 	}
-
 	/*
 	 * ACTIONS
 	 */
@@ -97,5 +98,5 @@ public class AccountSettingsBean implements Serializable {
 	public void setCurrentPassword(String currentPassword) {
 		this.currentPassword = currentPassword;
 	}
-
+	
 }

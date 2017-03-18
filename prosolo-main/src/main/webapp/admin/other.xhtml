@@ -1,0 +1,276 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<ui:define name="windowTitle">
+	ProSolo - Admin | Other
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{otherSettingsBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+
+		<div class="whiteBar"></div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h2>Symptoms</h2>
+						<div class="addSymtomForm">
+							<h:form id="newSymptomForm">
+								<p:growl id="symptomGrowl" showDetail="true" globalOnly="true"
+									sticky="true" />
+
+								<h:inputText id="newSymptomDesc" placeholder="Symptom name..."
+									value="#{otherSettingsBean.newSymptom.description}"
+									required="true" requiredMessage="Name is required"
+									validator="#{otherSettingsBean.validateNewSymptomName}" />
+
+								<p:commandLink pt:role="button" styleClass="btn btn-green"
+									process="newSymptomDesc"
+									actionListener="#{otherSettingsBean.saveSymptom()}" value="Add"
+									update="@form :symptomForm :newSymptomForm">
+								</p:commandLink>
+							</h:form>
+						</div>
+						<h:form id="symptomForm">
+							<table class="tableSymptoms">
+								<tr>
+									<th class="col1">Name</th>
+									<th class="col2">&#160;</th>
+								</tr>
+								<ui:repeat var="symptom" value="#{otherSettingsBean.symptoms}"
+									varStatus="symptomStatus">
+									<tr class="#{symptomStatus.index % 2 eq 1 ? 'rowGrey' : ''}">
+										<td class="col1"><h:outputText styleClass="name"
+												value="#{symptom.description}" /></td>
+										<td class="col2"><p:commandLink
+												styleClass="btn btn-green-stroke btn-sm"
+												pt:data-toggle="modal"
+												action="#{otherSettingsBean.prepareSymptomEdit(symptom)}"
+												update=":formEditSymptom:panelSymptomContent"
+												oncomplete="$('#editSymptomModal').modal('show');">
+					                    	Rename
+					                     </p:commandLink> <p:commandLink
+												rendered="#{!otherSettingsBean.isSymptomUsed(symptom.id)}"
+												styleClass="linkRed" pt:data-toggle="modal"
+												action="#{otherSettingsBean.prepareSymptomEdit(symptom)}"
+												update=":deleteSymptomModal"
+												oncomplete="$('#deleteModal').modal('show');">
+		                                	Delete
+		                                </p:commandLink> <ui:fragment
+												rendered="#{otherSettingsBean.isSymptomUsed(symptom.id)}">
+												<a href="javascript:void(0);" class="linkRed"
+													data-toggle="tooltip"
+													title="This symptom is used, so it cannot be deleted">
+													Delete </a>
+											</ui:fragment></td>
+									</tr>
+								</ui:repeat>
+
+							</table>
+						</h:form>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h2>Suggestions</h2>
+						<div class="addSuggestionForm">
+							<h:form id="newSuggestionForm">
+								<p:growl id="suggestionGrowl" showDetail="true"
+									globalOnly="true" sticky="true" />
+
+								<h:inputText id="newSuggestionDesc"
+									placeholder="Suggestion name..."
+									value="#{otherSettingsBean.newSuggestion.description}"
+									required="true" requiredMessage="Name is required"
+									validator="#{otherSettingsBean.validateNewSuggestionName}" />
+
+								<p:commandLink pt:role="button" styleClass="btn btn-green"
+									process="newSuggestionDesc"
+									actionListener="#{otherSettingsBean.saveSuggestion()}"
+									value="Add" update="@form :suggestionForm :newSuggestionForm">
+								</p:commandLink>
+							</h:form>
+						</div>
+						<h:form id="suggestionForm">
+							<table class="tableSymptoms">
+								<tr>
+									<th class="col1">Name</th>
+									<th class="col2">&#160;</th>
+								</tr>
+								<ui:repeat var="suggestion"
+									value="#{otherSettingsBean.suggestions}"
+									varStatus="suggestionStatus">
+									<tr class="#{suggestionStatus.index % 2 eq 1 ? 'rowGrey' : ''}">
+										<td class="col1"><h:outputText styleClass="name"
+												value="#{suggestion.description}" /></td>
+										<td class="col2"><p:commandLink
+												styleClass="btn btn-green-stroke btn-sm"
+												pt:data-toggle="modal"
+												action="#{otherSettingsBean.prepareSuggestionEdit(suggestion)}"
+												update=":formEditSuggestion:panelSuggestionContent"
+												oncomplete="$('#editSuggestionModal').modal('show');">
+					                    	Rename
+					                     </p:commandLink> <p:commandLink
+												rendered="#{!otherSettingsBean.isSuggestionUsed(suggestion.id)}"
+												styleClass="linkRed" pt:data-toggle="modal"
+												action="#{otherSettingsBean.prepareSuggestionEdit(suggestion)}"
+												update=":formDeleteSuggestionModal:panelDeleteSuggestionContent"
+												oncomplete="$('#deleteSuggestion').modal('show');">
+		                                	Delete
+		                                </p:commandLink> <ui:fragment
+												rendered="#{otherSettingsBean.isSuggestionUsed(suggestion.id)}">
+												<a href="javascript:void(0);" class="linkRed"
+													data-toggle="tooltip"
+													title="This suggestion is used, so it cannot be deleted">
+													Delete </a>
+											</ui:fragment></td>
+									</tr>
+								</ui:repeat>
+
+							</table>
+						</h:form>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<h:form id="formEditSymptom">
+			<div class="modal fade newFeedModal" id="editSymptomModal"
+				tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+				<div class="modal-dialog">
+					<h:panelGroup layout="block" id="panelSymptomContent"
+						styleClass="modal-content">
+						<ui:fragment>
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">Rename Symptom</h2>
+							</div>
+							<div class="modal-body alignLeft">
+								<h:inputText id="inputSymptomName"
+									value="#{otherSettingsBean.symptomForEdit.description}"
+									required="true" requiredMessage="Name is required"></h:inputText>
+								<h:panelGroup layout="block"
+									rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}"
+									styleClass="alert alert-danger" pt:role="alert">
+									<h:message for="inputSymptomName"></h:message>
+								</h:panelGroup>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink styleClass="btn btn-green" value="Save"
+									oncomplete="if (args &amp;&amp; !args.validationFailed)
+									$('#editSymptomModal').modal('hide');"
+									action="#{otherSettingsBean.updateSymptom()}"
+									update=":formEditSymptom:panelSymptomContent :symptomForm">
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+						</ui:fragment>
+					</h:panelGroup>
+				</div>
+			</div>
+		</h:form>
+		<courses:deleteModalDialog id="deleteSymptomModal"
+			deleteActionMethodName="delete"
+			deleteAction="#{otherSettingsBean.deleteSymptom()}"
+			toUpdate=":symptomForm :growlMain" modalDeleteTitle="symptom"
+			modalDeleteText="symptom '#{otherSettingsBean.symptomForEdit.description}'" />
+		<h:form id="formEditSuggestion">
+			<div class="modal fade newFeedModal" id="editSuggestionModal"
+				tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+				<div class="modal-dialog">
+					<h:panelGroup layout="block" id="panelSuggestionContent"
+						styleClass="modal-content">
+						<ui:fragment>
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">Rename Suggestion</h2>
+							</div>
+							<div class="modal-body alignLeft">
+								<h:inputText id="inputSuggestionName"
+									value="#{otherSettingsBean.suggestionForEdit.description}"
+									required="true" requiredMessage="Name is required"></h:inputText>
+								<h:panelGroup layout="block"
+									rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}"
+									styleClass="alert alert-danger" pt:role="alert">
+									<h:message for="inputSuggestionName"></h:message>
+								</h:panelGroup>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink styleClass="btn btn-green" value="Save"
+									oncomplete="if (args &amp;&amp; !args.validationFailed)
+									$('#editSuggestionModal').modal('hide');"
+									action="#{otherSettingsBean.updateSuggestion()}"
+									update=":formEditSuggestion:panelSuggestionContent :suggestionForm">
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+						</ui:fragment>
+					</h:panelGroup>
+				</div>
+			</div>
+		</h:form>
+		<h:form id="formDeleteSuggestionModal">
+			<div class="modal fade" id="deleteSuggestion" tabindex="-1"
+				role="dialog" aria-labelledby="delSuggestion">
+				<div class="modal-dialog" role="document">
+					<h:panelGroup layout="block" id="panelDeleteSuggestionContent"
+						styleClass="modal-content">
+						<ui:fragment>
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&#215;</span>
+								</button>
+								<h2 class="modal-title">Delete Suggestion?</h2>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete suggestion
+									#{otherSettingsBean.suggestionForEdit.description}? <BR/>
+									<BR/>
+									<small>Note: Action can NOT be un-done!</small>
+								</p>
+
+							</div>
+							<div class="modal-footer">
+								<p:commandLink styleClass="btn btn-red" value="Delete"
+									oncomplete="if (args &amp;&amp; !args.validationFailed)
+									$('#deleteSuggestion').modal('hide');"
+									action="#{otherSettingsBean.deleteSuggestion()}"
+									update=":formDeleteSuggestionModal:panelDeleteSuggestionContent :growlMain :suggestionForm">
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+
+						</ui:fragment>
+					</h:panelGroup>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

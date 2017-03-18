@@ -1108,6 +1108,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			comment.setCommentedResourceId(data.getCommentedResourceId());
 			comment.setResourceType(resource);
 			comment.setInstructor(data.isInstructor());
+			comment.setManagerComment(data.isManagerComment());
 			//comment.setDateCreated(data.getDateCreated());
 			comment.setPostDate(data.getDateCreated());
 			User user = (User) persistence.currentManager().load(User.class, userId);

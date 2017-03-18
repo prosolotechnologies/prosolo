@@ -127,7 +127,7 @@ public class ActivityViewBeanUser implements Serializable {
 				if (decodedCredId > 0) {
 					competenceData = activityManager
 							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId(), priv);
+									decodedCompId, decodedActId, loggedUser.getUserId(), priv, false);
 				} else { 
 					competenceData = activityManager
 							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
@@ -150,7 +150,7 @@ public class ActivityViewBeanUser implements Serializable {
 					}
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), false);
+							competenceData.getActivityToShowWithDetails().getActivityId(), false, false);
 					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 					//load result comments number

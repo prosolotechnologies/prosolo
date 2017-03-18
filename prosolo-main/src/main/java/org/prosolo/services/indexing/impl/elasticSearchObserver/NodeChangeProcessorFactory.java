@@ -112,6 +112,10 @@ public class NodeChangeProcessorFactory {
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
 			case RemoveBookmark:
 				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
+			case Follow:
+				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
+			case Unfollow:
+				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Delete);
 			case ADD_USER_TO_GROUP:
 			case REMOVE_USER_FROM_GROUP:
 			case USER_GROUP_ADDED_TO_RESOURCE:

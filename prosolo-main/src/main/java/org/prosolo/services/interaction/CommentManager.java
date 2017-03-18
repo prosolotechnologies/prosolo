@@ -9,6 +9,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentSortData;
+import org.prosolo.services.nodes.data.Role;
 
 public interface CommentManager {
 
@@ -61,8 +62,18 @@ public interface CommentManager {
 	void updateComment(CommentData data, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
+	/**
+	 * 
+	 * @param resourceType
+	 * @param resourceId
+	 * @param role
+	 * @param usersToExclude
+	 * @return
+	 * @throws NullPointerException if role is null
+	 * @throws DbConnectionException
+	 */
 	List<Long> getIdsOfUsersThatCommentedResource(CommentedResourceType resourceType, long resourceId, 
-			List<Long> usersToExclude) throws DbConnectionException;
+			Role role, List<Long> usersToExclude) throws NullPointerException, DbConnectionException;
 	
 	Long getCommentedResourceCreatorId(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException;
@@ -74,6 +85,7 @@ public interface CommentManager {
 			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
 			long commentId, long userId) throws DbConnectionException;
 	
-	
+	Role getCommentedResourceCreatorRole(CommentedResourceType resourceType, long resourceId) 
+			throws DbConnectionException;
 
 }

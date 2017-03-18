@@ -98,7 +98,6 @@
 			                                    		id="inputTitle"
 			                                    		styleClass="pasteable"
 			                                    		value="#{activityEditBean.activityData.title}"
-			                                    		onkeyup="updateStatusToDraft();"
 			                                    		required="true"
 														requiredMessage="Title is required" />
 													<h:panelGroup 
@@ -115,8 +114,7 @@
 			                                    <div class="formLineRight">
 			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
-			                                    		value="#{activityEditBean.activityData.description}"
-			                                    		onkeyup="updateStatusToDraft();" />
+			                                    		value="#{activityEditBean.activityData.description}" />
 			                                    		
 			                                    	<script>
 			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
@@ -215,8 +213,7 @@
 			                        <p>Estimated time to complete:</p>
 			                        <div class="selectRow">
 			                        	<h:selectOneMenu styleClass="selectpicker pickHours"
-			                        		value="#{activityEditBean.activityData.durationHours}"
-			                        		onchange="updateStatusToDraft();">
+			                        		value="#{activityEditBean.activityData.durationHours}">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
@@ -233,8 +230,7 @@
 			                        	</h:selectOneMenu>
 			                            <p>hours</p>
 			                            <h:selectOneMenu styleClass="selectpicker pickMinutes"
-			                        		value="#{activityEditBean.activityData.durationMinutes}"
-			                        		onchange="updateStatusToDraft();">
+			                        		value="#{activityEditBean.activityData.durationMinutes}">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="5"/>
 			                        		<f:selectItem itemValue="10"/>
@@ -256,8 +252,7 @@
 			                        <p>Difficulty level:</p>
 			                        <div class="selectRow">
 			                        	<h:selectOneMenu styleClass="selectpicker pickLevel"
-			                        		value="#{activityEditBean.activityData.difficulty}"
-			                        		onchange="updateStatusToDraft();">
+			                        		value="#{activityEditBean.activityData.difficulty}">
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
 			                        		<f:selectItem itemValue="3"/>

@@ -1,5 +1,6 @@
 package org.prosolo.services.notifications.eventprocessing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -10,6 +11,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
+import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
 
@@ -32,7 +34,7 @@ public class AnnouncementPublishedEventProcessor extends NotificationEventProces
 	}
 
 	@Override
-	List<Long> getReceiverIds() {
+	List<NotificationReceiverData> getReceiversData() {
 		String publishMode = event.getParameters().get("publishMode");
 		Long credId = Long.parseLong(event.getParameters().get("credentialId"));
 		AnnouncementPublishMode mode = AnnouncementPublishMode.fromString(publishMode);
@@ -42,11 +44,23 @@ public class AnnouncementPublishedEventProcessor extends NotificationEventProces
 					publishMode, AnnouncementPublishMode.ALL_STUDENTS.getText()));
 			mode = AnnouncementPublishMode.ALL_STUDENTS;
 		}
-		
-		if (mode.equals(AnnouncementPublishMode.ALL_STUDENTS)) {
-			return credentialManager.getUserIdsForCredential(credId);
+		List<Long> users = null;
+		try {
+			if (mode.equals(AnnouncementPublishMode.ALL_STUDENTS)) {
+				users = credentialManager.getUserIdsForCredential(credId);
+			} else {
+				users = credentialManager.getActiveUserIdsForCredential(credId);
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			return new ArrayList<>();
 		}
-		else return credentialManager.getActiveUserIdsForCredential(credId);
+		List<NotificationReceiverData> receivers = new ArrayList<>();
+		String link = getNotificationLink();
+		for(long id : users) {
+			receivers.add(new NotificationReceiverData(id, link, false));
+		}
+		return receivers;
 	}
 
 	@Override
@@ -79,8 +93,7 @@ public class AnnouncementPublishedEventProcessor extends NotificationEventProces
 		return event.getTarget().getId();
 	}
 
-	@Override
-	String getNotificationLink() {
+	private String getNotificationLink() {
 		return "/credentials/" + idEncoder.encodeId(Long.parseLong(event.getParameters().get("credentialId")))
 				+ "/announcements/" + idEncoder.encodeId(event.getObject().getId());
 	}

@@ -397,5 +397,5 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
 	}
-	
+
 }

@@ -67,6 +67,7 @@
 					}
 				}
 			},
+			
 			"credentialsWithInstructorRole": {
 				"properties": {
 					"id": {
@@ -79,10 +80,17 @@
 						"format":"yyyy/MM/dd HH:mm:ss"
 					}
 				}
+			},
+			
+			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
 			}
-
+			
 		}
-
 	}
-
 }

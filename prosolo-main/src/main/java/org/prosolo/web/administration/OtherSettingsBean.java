@@ -24,14 +24,14 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name="analyticsSettingsBean")
-@Component("analyticsSettingsBean")
+@ManagedBean(name="otherSettingsBean")
+@Component("otherSettingsBean")
 @Scope("view")
-public class AnalyticsSettingsBean implements Serializable {
+public class OtherSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = -747140356305370777L;
 	
-	protected static Logger logger = Logger.getLogger(AnalyticsSettingsBean.class);
+	protected static Logger logger = Logger.getLogger(OtherSettingsBean.class);
 	
 	@Inject
 	private SymptomManager symptomManager;
@@ -84,11 +84,20 @@ public class AnalyticsSettingsBean implements Serializable {
 	}
 	
 	public void prepareSymptomEdit(SymptomData symptom) {
-		symptomForEdit = symptom;
+		this.symptomForEdit = symptom;
+	}
+	
+	public SymptomData getSymptom(long id){
+		for(SymptomData sd : symptoms){
+			if(sd.getId()==id){
+				return sd;
+			}
+		}
+		return null;
 	}
 	
 	public void prepareSuggestionEdit(SuggestionData suggestion){
-		suggestionForEdit = suggestion;
+		this.suggestionForEdit = suggestion;
 	}
 	
 	public void saveSymptom() {
@@ -187,6 +196,7 @@ public class AnalyticsSettingsBean implements Serializable {
 			}
 
 			if (!valid) {
+				PageUtil.fireErrorMessage("Name already exist!");
 				FacesMessage message = new FacesMessage("The name: '" + value.toString() + "' is taken!");
 				throw new ValidatorException(message);
 			}
@@ -244,41 +254,6 @@ public class AnalyticsSettingsBean implements Serializable {
 		}
 	}
 
-//	public void prepareSymptomEdit(RowEditEvent event) {
-//		SymptomData sd = (SymptomData) event.getObject();
-//		prepareSymptomEdit(sd);
-//	}
-
-	public void onSymptomEdit(RowEditEvent event) {
-		SymptomData sd = (SymptomData) event.getObject();
-		try {
-			saveSymptom(sd.getId(), sd.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Symptom successfully updated");
-		} catch (DbConnectionException e) {
-			sd.setDescription(symptomForEdit.getDescription());
-			PageUtil.fireErrorMessage("Error while updating symptom");
-		}
-		setSymptomForEdit(null);
-	}
-
-//	public void prepareSuggestionEdit(RowEditEvent event) {
-//		SuggestionData sd = (SuggestionData) event.getObject();
-//		prepareSuggestionEdit(sd);
-//	}
-
-	public void onSuggestionEdit(RowEditEvent event) {
-		SuggestionData sd = (SuggestionData) event.getObject();
-		try {
-			saveSuggestion(sd.getId(), sd.getDescription());
-			PageUtil.fireSuccessfulInfoMessage("Suggestion successfully updated");
-		} catch (DbConnectionException e) {
-			sd.setDescription(suggestionForEdit.getDescription());
-			PageUtil.fireErrorMessage("Error while updating suggestion");
-		}
-		setSuggestionForEdit(null);
-	}
-	 
-	
 	//GETTERS AND SETTERS
 	
 	public List<SymptomData> getSymptoms() {

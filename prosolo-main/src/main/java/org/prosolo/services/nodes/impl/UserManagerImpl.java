@@ -51,7 +51,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			setString("email", email).
 		 	setBoolean("verifiedEmail",true).
 			uniqueResult();
-		
 		if (result != null) {
 			return result;
 		}
@@ -330,6 +329,26 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user email");
+		}
+	}
+
+	@Override
+	public String getPassword(long userId) throws ResourceCouldNotBeLoadedException {
+		try {
+			String query = 
+				"SELECT user.password " +
+				"FROM User user " +
+				"WHERE user.id = :id ";
+			
+			String password = (String) persistence.currentManager().createQuery(query).
+					setLong("id", userId).
+					uniqueResult();
+			
+			return password;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user password");
 		}
 	}
 }

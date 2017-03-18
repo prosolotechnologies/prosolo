@@ -77,7 +77,7 @@ public class CompetenceViewBeanUser implements Serializable {
 				}
 				
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), false);
+						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
 				

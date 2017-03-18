@@ -1,11 +1,11 @@
-/**
- * 
- */
 package org.prosolo.core.jsf;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.faces.application.ResourceHandler;
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -15,16 +15,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.core.spring.ServiceLocator;
+import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.web.ApplicationPage;
+import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
+import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+@Component(value = "pageLoadEventFilter")
+public class PageLoadEventFilter implements Filter {
 
-public class SavePageUrlInSessionFilter implements Filter {
-
+	private static Logger logger = Logger.getLogger(Competence1ManagerImpl.class);
+	
+	@Inject private EventFactory eventFactory;
+	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
@@ -35,7 +43,8 @@ public class SavePageUrlInSessionFilter implements Filter {
 		boolean resourceRequest = requestURI.startsWith(contextPath + ResourceHandler.RESOURCE_IDENTIFIER + "/")
 				|| requestURI.startsWith(contextPath + "/resources/");
 		boolean ajaxRequest = "partial/ajax".equals(request.getHeader("Faces-Request"));
-
+		//boolean ajaxRequest2 = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+		//logger.info("IS AJAX REQUEST: " + ajaxRequest + ", " + ajaxRequest2);
 		if(!resourceRequest && !ajaxRequest) {
 			String uri = requestURI;
 			if(requestURI.startsWith(contextPath)) {
@@ -44,16 +53,36 @@ public class SavePageUrlInSessionFilter implements Filter {
 			ApplicationPagesBean applicationPagesBean = ServiceLocator.getInstance()
 					.getService(ApplicationPagesBean.class);
 			ApplicationPage page = applicationPagesBean.getPageForURI(uri);
+			
+			long userId = 0;
 			HttpSession session = request.getSession(false);
-			if(page != null && session != null) {
+			if(session != null) {
 				LoggedUserBean loggedUserBean = (LoggedUserBean) session.getAttribute("loggeduser");
 				if(loggedUserBean != null) {
-					loggedUserBean.getLearningContext().setPage(page);
-					Gson gson = new GsonBuilder() 
-				             .setPrettyPrinting()
-				             .create();
-					System.out.println("JSON " + gson.toJson(loggedUserBean.getLearningContext()));
+					userId = loggedUserBean.getUserId();
 				}
+			}
+			if(page == null) {
+				logger.warn("Page is not mapped in ApplicationPage enum");
+			}
+			String ipAddress = request.getHeader("X-FORWARDED-FOR");
+			if (ipAddress != null) {
+				// get first IP from comma separated list
+		        ipAddress = ipAddress.replaceFirst(",.*", "");  
+		    } else {
+				ipAddress = request.getRemoteAddr();
+			}
+			logger.info("IP address: " + ipAddress);
+			Map<String, String> params = new HashMap<>();
+			params.put("ip", ipAddress);
+			params.put("uri", uri);
+			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
+			try {
+				eventFactory.generateEvent(EventType.PAGE_OPENED, userId, 
+						null, null, uri, null,
+						null, params);
+			} catch (EventException e) {
+				logger.error("Error while generating page open event " + e);
 			}
 		}
 		

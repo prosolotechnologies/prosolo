@@ -102,7 +102,7 @@ public interface Activity1Manager extends AbstractManager {
 			LearningContextData contextData) throws DbConnectionException;
 	
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId, UserGroupPrivilege privilege) 
+			long actId, long userId, UserGroupPrivilege privilege, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
@@ -119,8 +119,18 @@ public interface Activity1Manager extends AbstractManager {
 	List<TargetActivity1> getTargetActivities(long targetCompId) 
 			throws DbConnectionException;
 	
+	/**
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param actId
+	 * @param userId
+	 * @param isManager did request come from manage section
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-			long credId, long compId, long actId, long userId) 
+			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException;
 	
 	/**
@@ -141,8 +151,8 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, long actId, 
-			long targetActivityId, boolean isInstructor, boolean paginate, int page, int limit, 
-			StudentAssessedFilter filter) throws DbConnectionException;
+			long targetActivityId, boolean isInstructor, boolean isManager, boolean paginate, int page, 
+			int limit, StudentAssessedFilter filter) throws DbConnectionException;
 	
 	Long countStudentsResults(long credId, long compId, long actId, StudentAssessedFilter filter) 
 			throws DbConnectionException ;
@@ -158,6 +168,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param targetActivityId
 	 * @param userToExclude
 	 * @param isInstructor
+	 * @param isManager
 	 * @param returnAssessmentData
 	 * @param paginate
 	 * @param page
@@ -167,10 +178,12 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, long targetActivityId,
-			long userToExclude, boolean isInstructor, boolean returnAssessmentData, boolean paginate,
-			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException;
+			long userToExclude, boolean isInstructor, boolean isManager, boolean returnAssessmentData, 
+			boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+					throws DbConnectionException;
 
-	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, boolean instructor, long loggedUserId);
+	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
+			boolean instructor, boolean isManager, long loggedUserId);
 
 	ActivityData getActivityData(long credId, long competenceId, 
 			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
@@ -186,7 +199,8 @@ public interface Activity1Manager extends AbstractManager {
 	 * 
 	 * @param targetActId
 	 * @param userId
+	 * @param isManager did request come from manage section
 	 * @return
 	 */
-	ActivityData getActivityDataForUserToView(long targetActId, long userId);
+	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
 }

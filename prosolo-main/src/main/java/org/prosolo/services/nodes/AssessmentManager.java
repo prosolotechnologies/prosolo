@@ -127,5 +127,8 @@ public interface AssessmentManager {
 	 * @return list of participant ids
 	 */
 	List<Long> getParticipantIds(long activityAssessmentId);
+	
+	Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId) 
+			throws DbConnectionException;
 
 }

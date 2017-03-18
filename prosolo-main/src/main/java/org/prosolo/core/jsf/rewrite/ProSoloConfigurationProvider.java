@@ -55,6 +55,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/competences/{id}/edit").to("/create-competence.xhtml"))
 				.addRule(Join.path("/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{id}/students").to("/credential-students.xhtml"))
+				.addRule(Join.path("/credentials/{id}/keywords").to("/credential-keywords.xhtml"))
 				.addRule(Join.path("/credentials/{id}/assessments/{assessmentId}").to("/credential-assessment.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/competences/new").to("/create-competence.xhtml"))
 				.addRule(Join.path("/credentials/{credId}/{compId}").to("/competence.xhtml"))
@@ -155,8 +156,9 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				//admin
 				.addRule(Join.path("/admin").to("/admin/users.xhtml"))
 				.addRule(Join.path("/admin/").to("/admin/users.xhtml"))
-				.addRule(Join.path("/admin/users/{id}/edit").to("/admin/userEdit.xhtml"))
-				.addRule(Join.path("/admin/users/new").to("/admin/userEdit.xhtml"))
+				.addRule(Join.path("/admin/users/{id}/edit").to("/admin/adminUserEdit.xhtml"))
+				.addRule(Join.path("/admin/users/{id}/edit/password").to("/admin/adminUserEditPassword.xhtml"))
+				.addRule(Join.path("/admin/users/new").to("/admin/adminUserNew.xhtml"))
 				.addRule(Join.path("/admin/users").to("/admin/users.xhtml"))
 				.addRule(Join.path("/admin/roles").to("/admin/roles.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))
@@ -164,6 +166,6 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
 				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
-				.addRule(Join.path("/admin/analyticsSettings").to("/admin/analyticsSettings.xhtml"));
+				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"));
 	}
 }

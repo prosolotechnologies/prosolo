@@ -11,7 +11,9 @@ public enum NotificationTypeFilter {
 	Assessment_Approved(NotificationType.Assessment_Approved, "Assessment Approved"),
 	Assessment_Requested(NotificationType.Assessment_Requested, "Assessment Requested"),
 	Assessment_Comment(NotificationType.Assessment_Comment, "Assessment Comment"),
-	Started_Learning(NotificationType.Started_Learning, "Start Learning");
+	Announcement_Published(NotificationType.AnnouncementPublished, "Announcement Published"),
+	Social_Activity_Like(NotificationType.Social_Activity_Like, "Post Likes");
+	//Started_Learning(NotificationType.Started_Learning, "Start Learning");
 	
 	private NotificationType type;
 	private String label;

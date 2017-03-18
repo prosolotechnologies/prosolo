@@ -46,7 +46,7 @@ public interface NotificationManager extends AbstractManager {
 	Notification1 createNotification(long actorId, 
 			long receiverId, NotificationType type, Date date, 
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
-			boolean notifyByEmail, Session session) throws DbConnectionException;
+			boolean notifyByEmail, boolean isObjectOwner, Session session) throws DbConnectionException;
 	
 	/**
 	 * If all notifications for user need to be returned (no pagination) 0 should

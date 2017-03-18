@@ -12,10 +12,10 @@ import org.prosolo.common.domainmodel.user.reminders.Reminder;
 import org.prosolo.common.domainmodel.user.reminders.ReminderStatus;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilter;
 import org.prosolo.search.util.credential.CredentialSortOption;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
@@ -176,6 +176,18 @@ public interface TextSearch extends AbstractManager {
 	
 	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
+
+	/**
+	 * Retrieves all users followed by the user with specified id and fulfilling the search term.
+	 * 
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param userId
+	 * @return
+	 */
+	TextSearchResponse1<UserData> searchPeopleUserFollows(String searchTerm,
+			int page, int limit, long userId);
 
 	TextSearchResponse1<UserGroupData> searchUserGroups (
 			String searchString, int page, int limit);
