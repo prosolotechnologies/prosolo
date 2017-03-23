@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -189,6 +191,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 
@@ -241,6 +245,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 	
 
@@ -287,6 +293,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -317,6 +325,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 			
@@ -348,6 +358,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -369,6 +381,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred3, cred3.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 		
@@ -441,6 +455,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
  
@@ -470,6 +486,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 			
@@ -516,8 +534,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
-		
+		 
 		
 		///////////////////////////////////////
 		// CREDENTIAL Statistics 2 – Inference and Association
@@ -557,6 +577,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred6, cred6.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 		
@@ -597,6 +619,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred7, cred7.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 
@@ -639,6 +663,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred8, cred8.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -692,6 +718,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred9, cred9.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
  
 
@@ -739,6 +767,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred10, cred10.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 
@@ -785,6 +815,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 			
@@ -821,6 +853,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
  	}
 	
@@ -889,7 +923,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return null;
 	}
 
-	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links) {
+	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links)
+		throws DbConnectionException, EventException, IllegalDataStateException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setActivityType(ActivityType.TEXT);

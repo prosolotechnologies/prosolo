@@ -10,7 +10,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs">
+	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -206,7 +207,12 @@
 			                </h:panelGroup>			            
 			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                    Your competence is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                   	Competency is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                </div>
+			                
+			                <div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.canUnpublish ? 'display:none' : ''}">
+			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                    You are not allowed to unpublish a competency as it is a part of one or more active credential deliveries. Only when all deliveries of a credential with this competency have ended, a competency can be unpublished.
 			                </div>
 			                
 			            	<courses:rightSideBar
@@ -215,13 +221,19 @@
 			            		publishValue="#{competenceEditBean.competenceData.status}"
 			            		saveAction="#{competenceEditBean.save}"
 			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
-			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
+			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog" 
 			            		previewAction="#{competenceEditBean.preview}"
 			            		linkPreviewClass="hiddenLinkPreview"
 			            		resource="COMPETENCE"
 			            		role="#{cc.attrs.role}"
 			            		resourceLowerCase="competence"
-								childResourcePlural="activities"/>
+								childResourcePlural="activities"
+								statusChangeDisabled="#{not competenceEditBean.competenceData.canUnpublish}"
+								archiveModal="#archiveModal"
+								duplicateModal="#duplicateComp"
+								restoreModal="#restoreModal"
+								archived="#{competenceEditBean.competenceData.archived}"
+								resourceId="#{competenceEditBean.competenceData.competenceId}"/>
 			            		
 			            	<h:link
 								style="display: none;"
@@ -274,13 +286,6 @@
 		            </div>
 		        </div>
 		    </h:form>
-	    
-			<courses:deleteModalDialog  
-				deleteActionMethodName="delete"      	
-				deleteAction="#{competenceEditBean.delete}"
-				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
-				modalDeleteTitle="Competence"
-				modalDeleteText="competence"/>
 				
 			<dialogs:resourceVisibility
 				id="resourceVisibilityModal"
@@ -289,6 +294,36 @@
 				toUpdate=":#{cc.clientId}:formMain:growlMain"
 				learningContext="#{cc.attrs.learningContext}"
 			/>
+			
+			<dialogs:archiveResource
+	    		id="archiveDialog"
+	    		competence="#{competenceEditBean.competenceData}"      
+				archiveActionMethodName="archive"  	
+				archiveAction="#{competenceEditBean.archive}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
+				learningContext=""/>
+				
+			<dialogs:restoreResource
+	    		id="restoreDialog"
+	    		competence="#{competenceEditBean.competenceData}"      
+				restoreActionMethodName="restore"  	
+				restoreAction="#{competenceEditBean.restore}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
+				learningContext=""/>
+				
+	 		<compDialogs:duplicateCompetence   
+	 			id="duplicateDialog"   
+	 			competence="#{competenceEditBean.competenceData}"
+				duplicateActionMethodName="duplicate"  	
+				duplicateAction="#{competenceEditBean.duplicate}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				learningContext=""/>
 			
 		</div>
 	</composite:implementation>

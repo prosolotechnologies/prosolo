@@ -155,7 +155,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false, 
+						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false,
 								userId, UserGroupPrivilege.None, false);
 						
 						if (cd != null) {

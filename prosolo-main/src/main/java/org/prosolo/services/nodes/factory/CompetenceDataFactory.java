@@ -26,6 +26,7 @@ public class CompetenceDataFactory {
 		}
 		CompetenceData1 comp = new CompetenceData1(false);
 		Competence1 competence = credComp.getCompetence();
+		comp.setVersion(competence.getVersion());
 		comp.setCompetenceId(competence.getId());
 		comp.setCredentialCompetenceId(credComp.getId());
 		comp.setOrder(credComp.getOrder());

@@ -15,13 +15,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -117,9 +118,10 @@ public class CompetenceEditBean implements Serializable {
 	 * 
 	 * @return
 	 */
+	//TODO change this
 	public boolean isLimitedEdit() {
-		return true;
-		//return competenceData.isPublished();
+		//if competence was once published 'big' changes are not allowed
+		return competenceData.getDatePublished() != null;
 	}
 	
 	public void initVisibilityManageData() {
@@ -137,8 +139,7 @@ public class CompetenceEditBean implements Serializable {
 	
 	private void loadCompetenceData(long credId, long id) {
 		try {
-			competenceData = compManager.getCompetenceData(credId, id, true, true, true, 
-					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
+			competenceData = compManager.getCompetenceForEdit(credId, id, loggedUser.getUserId());
 			if(!competenceData.isCanAccess()) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
@@ -245,6 +246,7 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
+				competenceData.setVersion(comp.getVersion());
 				competenceData.startObservingChanges();
 				setContext();
 			}
@@ -254,7 +256,19 @@ public class CompetenceEditBean implements Serializable {
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException | CompetenceEmptyException e) {
+		} catch(StaleDataException sde) {
+			logger.error(sde);
+			PageUtil.fireErrorMessage("Update failed because competence is edited in the meantime. Please review changed competence and try again.");
+			//reload data
+			reloadCompetence();
+			return false;
+		} catch(IllegalDataStateException idse) {
+			logger.error(idse);
+			PageUtil.fireErrorMessage(idse.getMessage());
+			//reload data
+			reloadCompetence();
+			return false;
+		} catch(DbConnectionException e) {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -262,23 +276,75 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public void delete() {
+//	public void delete() {
+//		try {
+//			if(competenceData.getCompetenceId() > 0) {
+//				/*
+//				 * passing decodedId because we need to pass id of
+//				 * original competence and not id of a draft version
+//				 */
+//				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
+//				competenceData = new CompetenceData1(false);
+//				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+//			} else {
+//				PageUtil.fireErrorMessage("Competence is not saved so it can't be deleted");
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			PageUtil.fireErrorMessage(e.getMessage());
+//		}
+//	}
+	
+	public void archive() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			if(competenceData.getCompetenceId() > 0) {
-				/*
-				 * passing decodedId because we need to pass id of
-				 * original competence and not id of a draft version
-				 */
-				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
-				competenceData = new CompetenceData1(false);
-				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-			} else {
-				PageUtil.fireErrorMessage("Competence is not saved so it can't be deleted");
-			}
-		} catch(Exception e) {
+			compManager.archiveCompetence(decodedId, loggedUser.getUserId(), ctx);
+			competenceData.setArchived(true);
+			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+		} catch(DbConnectionException e) {
 			logger.error(e);
-			e.printStackTrace();
-			PageUtil.fireErrorMessage(e.getMessage());
+			PageUtil.fireErrorMessage("Error while trying to archive competence");
+		}
+	}
+	
+	public void restore() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
+		try {
+			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserId(), ctx);
+			competenceData.setArchived(false);
+			PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while trying to restore competency");
+		}
+	}
+	
+	public void duplicate() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
+		try {
+			long compId = compManager.duplicateCompetence(decodedId, 
+					loggedUser.getUserId(), ctx);
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + "/manage/competences/" 
+						+ idEncoder.encodeId(compId) + "/edit");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while trying to duplicate competence");
+		} catch(EventException ee) {
+			logger.error(ee);
+		}
+	}
+	
+	private void reloadCompetence() {
+		try {
+			competenceData = compManager.getCompetenceForEdit(decodedCredId, decodedId, loggedUser.getUserId());
+		} catch(DbConnectionException e) {
+			logger.error(e);
 		}
 	}
 	

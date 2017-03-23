@@ -75,6 +75,13 @@
 			<character-encoding>UTF-8</character-encoding>
 			<use-unicode>true</use-unicode>
 			<autocommit>false</autocommit>
+			<!-- 
+				READ_UNCOMMITED - 1
+				READ_COMMITED - 2
+				REPEATABLE_READ - 4
+				SERIALIZABLE - 8
+			-->
+		 <isolation>2</isolation>
 		</connection>
 		<cache>
 			<use-second-level-cache>true</use-second-level-cache>

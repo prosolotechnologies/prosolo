@@ -52,7 +52,7 @@
 							context="#{cc.attrs.learningContext}"/></ui:remove>
 						
 						<video width="731" height="413" id="player1">
-		    				<source type="video/youtube" src="#{cc.attrs.activity.link}" />
+		    				<source type="video/youtube" src="#{cc.attrs.activity.videoLink}" />
 		   					<ui:repeat var="subtitle" value="#{cc.attrs.activity.captions}">
 		   						<ui:fragment rendered="#{not empty subtitle.tempUrl}">
 		   							<track kind="subtitles" src="#{subtitle.tempUrl}" srclang="#{subtitle.linkName}" /> 

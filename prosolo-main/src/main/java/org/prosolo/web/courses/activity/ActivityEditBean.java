@@ -15,13 +15,16 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -107,6 +110,11 @@ public class ActivityEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
+	}
+	
+	public boolean isLimitedEdit() {
+		//if competence with this activity was once published, only limited edit is allowed
+		return activityData.isOncePublished();
 	}
 	
 	private void setContext() {
@@ -357,21 +365,13 @@ public class ActivityEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			
-			//youtube captions
-//			if(activityData.getActivityType() == ActivityType.VIDEO) {
-//				Captions c = new Captions();
-//				c.downloadVideoCaption(activityData.getEmbedId());
-//			}
-			
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, 
-							loggedUser.getUserId(), lcd);
+					activityManager.updateActivity(activityData, loggedUser.getUserId(), lcd);
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, 
-						loggedUser.getUserId(), lcd);
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserId(), lcd);
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -386,7 +386,10 @@ public class ActivityEditBean implements Serializable {
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException e) {
+		} catch(EventException ee) {
+			logger.error(ee);
+			return true;
+		} catch(DbConnectionException|IllegalDataStateException|StaleDataException e) {
 			logger.error(e);
 			e.printStackTrace();
 			/*
@@ -401,17 +404,29 @@ public class ActivityEditBean implements Serializable {
 	public void delete() {
 		try {
 			if(activityData.getActivityId() > 0) {
-				/*
-				 * passing decodedId because we need to pass id of
-				 * original competence and not id of a draft version
-				 */
-				activityManager.deleteActivity(decodedId, activityData, loggedUser.getUserId());
-				activityData = new ActivityData(false);
-				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
+				//activityData = new ActivityData(false);
+				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+				try {
+					/*
+					 * this will not work if there are multiple levels of directories in current view path
+					 * example: /credentials/create-credential will return /credentials as a section but this
+					 * may not be what we really want.
+					 */
+					StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+							"/competences/" + compId + "/edit?actAdded=true");
+					if(credId != null && !credId.isEmpty()) {
+						url.append("&credId=" + credId);
+					}
+					extContext.redirect(url.toString());
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} else {
 				PageUtil.fireErrorMessage("Activity is not saved so it can't be deleted");
 			}
-		} catch(Exception e) {
+		} catch(DbConnectionException|IllegalDataStateException e) {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());

@@ -20,6 +20,8 @@ import javax.inject.Inject;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -990,8 +992,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Competence1 updateCompetence(CompetenceData1 data, long userId) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
+    	IllegalDataStateException {
     	return competenceManager.updateCompetenceData(data, userId);
     }
     
@@ -1009,9 +1012,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data, 
-    		long userId) throws DbConnectionException {
+    		long userId) throws DbConnectionException, IllegalDataStateException {
     	try {
     		Result<Activity1> result = new Result<>();
     		Activity1 activity = activityFactory.getActivityFromActivityData(data);
@@ -1085,6 +1088,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			}
     		result.setResult(activity);
     		return result;
+    	} catch(IllegalDataStateException idse) {
+    		throw idse;
+    	} catch(DbConnectionException dce) {
+    		throw dce;
     	} catch(Exception e) {
     		logger.error(e);
     		e.printStackTrace();
@@ -1093,10 +1100,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
-			throws DbConnectionException {
-    	return activityManager.updateActivityData(data, userId);
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+    		throws DbConnectionException, StaleDataException {
+    	return activityManager.updateActivityData(data);
     }
     
     @Override

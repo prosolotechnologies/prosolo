@@ -39,6 +39,7 @@ public class ActivityDataFactory {
 		}
 		ActivityData data = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		data.setVersion(activity.getVersion());
 		data.setCompetenceActivityId(competenceActivity.getId());
 		data.setActivityId(activity.getId());
 		data.setOrder(competenceActivity.getOrder());
@@ -87,6 +88,8 @@ public class ActivityDataFactory {
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
+		
+		data.setOncePublished(competenceActivity.getCompetence().getDatePublished() != null);
 		
 		populateTypeSpecificData(data, activity);
 
@@ -176,14 +179,15 @@ public class ActivityDataFactory {
 							}
 							act.setCaptions(captions);
 						}
+						act.setVideoLink(activity.getUrl());
 						break;
 					case Slides:
 						act.setActivityType(ActivityType.SLIDESHARE);
 						act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
 								.getEmbedLink());
+						act.setSlidesLink(activity.getUrl());
 						break;
 				}
-				act.setLink(activity.getUrl());
 				act.setLinkName(activity.getLinkName());
 			}
 			
@@ -203,6 +207,7 @@ public class ActivityDataFactory {
 
 		ActivityData act = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		act.setVersion(activity.getVersion());
 		act.setCompetenceActivityId(competenceActivity.getId());
 		act.setActivityId(activity.getId());
 		act.setOrder(competenceActivity.getOrder());
@@ -466,11 +471,12 @@ public class ActivityDataFactory {
 				UrlActivity1 urlAct = new UrlActivity1();
 				if(activityData.getActivityType() == ActivityType.VIDEO) {
 					urlAct.setUrlType(UrlActivityType.Video);
+					urlAct.setUrl(activityData.getVideoLink());
 				} else {
 					urlAct.setUrlType(UrlActivityType.Slides);
+					urlAct.setUrl(activityData.getSlidesLink());
 				}
 				populateCommonData(urlAct, activityData);
-				urlAct.setUrl(activityData.getLink());
 				urlAct.setLinkName(activityData.getLinkName());
 				return urlAct;
 			case EXTERNAL_TOOL:

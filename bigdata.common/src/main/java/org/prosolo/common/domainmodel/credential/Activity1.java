@@ -13,18 +13,28 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
+/**
+ * Activity1 is versioned entity so special care should be taken of its version field value in all situations
+ * in order to avoid strange or inconsistent behavior.
+ * 
+ * @author stefanvuckovic
+ *
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Activity1 extends BaseEntity {
 
 	private static final long serialVersionUID = 15293664172196082L;
 	
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private long duration;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
@@ -176,6 +186,15 @@ public class Activity1 extends BaseEntity {
 
 	public void setAutograde(boolean autograde) {
 		this.autograde = autograde;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
 	}
 	
 }

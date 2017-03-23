@@ -1103,7 +1103,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return null;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
@@ -1119,11 +1118,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cc.setOrder(cred.getCompetences().size() + 1);
 			saveEntity(cc);
 			/* 
-			 * If duration of added competence is greater than 0 and competence is published
-			 * update credential duration
+			 * If duration of added competence is greater than 0 update credential duration
 			*/
 			//TODO check if this requires select + update and if so, use hql update instead
-			if(comp.getDuration() > 0 && comp.isPublished()) {
+			if(comp.getDuration() > 0) {
 				cred.setDuration(cred.getDuration() + comp.getDuration());
 			}
 			

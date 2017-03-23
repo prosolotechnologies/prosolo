@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -12,7 +14,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
@@ -24,9 +26,21 @@ import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTrac
 public interface Activity1Manager extends AbstractManager {
 	
 	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
-			throws DbConnectionException;
+			throws DbConnectionException, EventException, IllegalDataStateException;
 	
-	Activity1 deleteActivity(long originalActId, ActivityData data, long userId) throws DbConnectionException;
+	/**
+	 * Sets deleted flag for activity to true.
+	 * 
+	 * DB Locks:
+	 * Acquires exclusive lock on a competence which has activity with id {@code activityId}
+	 * 
+	 * @param activityId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws IllegalDataStateException
+	 */
+	Activity1 deleteActivity(long activityId, long userId) throws DbConnectionException, IllegalDataStateException;
 
 	List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException;
 	
@@ -34,16 +48,6 @@ public interface Activity1Manager extends AbstractManager {
 			throws DbConnectionException;
 	
 	List<ActivityData> getTargetActivitiesData(long targetCompId) 
-			throws DbConnectionException;
-
-	/**
-	 * Publishes all activities from competences with specified ids.
-	 * @param credId
-	 * @param userId
-	 * @param compIds
-	 * @throws DbConnectionException
-	 */
-	List<EventData> publishActivitiesFromCompetences(long credId, long userId, List<Long> compIds) 
 			throws DbConnectionException;
 	
 //	/**
@@ -57,10 +61,31 @@ public interface Activity1Manager extends AbstractManager {
 	List<CompetenceActivity1> getCompetenceActivities(long competenceId, boolean loadResourceLinks) 
 			throws DbConnectionException;
 	
+	/**
+	 * Updates activity.
+	 * 
+	 * DB Locks:
+	 * acquires exclusive lock on a competence that contains activity being updated.
+	 * 
+	 * @param data
+	 * @param userId
+	 * @param context
+	 * @return
+	 * @throws {@link DbConnectionException}, {@link StaleDataException}, {@link IllegalDataStateException}
+	 */
 	Activity1 updateActivity(ActivityData data, long userId, 
-			LearningContextData context) throws DbConnectionException;
+			LearningContextData context) throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Activity1 updateActivityData(ActivityData data, long userId);
+	/**
+	 * Updates activity.
+	 * 
+	 * DB Locks:
+	 * acquires exclusive lock on a competence which has activity that is being updated.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException;
 	
 	/**
 	 * Returns activity with all details for specified id as well as all competence
@@ -111,9 +136,6 @@ public interface Activity1Manager extends AbstractManager {
 			throws DbConnectionException;
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
-	
-	List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
-			throws DbConnectionException;
 	
 	List<TargetActivity1> getTargetActivities(long targetCompId) 
 			throws DbConnectionException;

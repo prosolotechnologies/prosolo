@@ -86,6 +86,9 @@
 			    <div class="container">
 			        <div class="row">
 			            <div class="col-md-8">
+			            	<h:panelGroup layout="block" rendered="#{activityEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
+			            		Activity is a part of a published competency... Only limited edits allowed.
+			            	</h:panelGroup>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade in active" id="info">
 			                        <div class="whiteBox">
@@ -128,7 +131,7 @@
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{activityEditBean.isCreateUseCase()}">
+			                                    	rendered="#{not activityEditBean.limitedEdit}">
 			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
 			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
 			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -151,7 +154,7 @@
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
+			                                    	rendered="#{activityEditBean.limitedEdit}">
 			                                         <ul class="addedItems">
 			                                             <li>
 			                                                 #{activityEditBean.activityData.activityType.label}
@@ -174,6 +177,7 @@
 			                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
 			                                	toUpdateModalUploadCaption=":#{cc.clientId}:formModalUploadCaption"
 			                                	mainForm=":#{cc.clientId}:formMain"
+			                                	limitedEdit="#{activityEditBean.limitedEdit}"
 			                                />
 			                            </div>
 			                        </div>
@@ -268,7 +272,14 @@
 					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 				              	  		Save changes
 					              	</p:commandLink>
-			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
+					        
+					        		<ui:fragment rendered="#{activityEditBean.limitedEdit}">
+					        			<a href="javascript:void(0);" disabled="disabled" class="linkRed">Delete</a>
+					        		</ui:fragment>
+					        		<ui:fragment rendered="#{not activityEditBean.limitedEdit}">
+					        			<a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
+					        		</ui:fragment>
+			                        
 			                        
 			                    </div>
 			                </div>

@@ -26,6 +26,12 @@
 		<composite:attribute name="resourceLowerCase" required="true" />
 		<composite:attribute name="childResourcePlural" required="true" />
 		<composite:attribute name="onclickSave" />
+		<composite:attribute name="statusChangeDisabled" default="false"/>
+		<composite:attribute name="duplicateModal" required="true"/>
+		<composite:attribute name="archiveModal" required="true"/>
+		<composite:attribute name="restoreModal" required="true"/>
+		<composite:attribute name="archived" required="true"/>
+		<composite:attribute name="resourceId" required="true"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -38,7 +44,7 @@
 				styleClass="linkPreview"
 				action="#{cc.attrs.previewAction}"
 				update="#{cc.attrs.toUpdate}"
-				oncomplete="if(args &amp;&amp; !args.validationFailed) {attachListenersForUpdatingStatus(); document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}">
+				oncomplete="if(args &amp;&amp; !args.validationFailed) {document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}">
 				<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 				<f:param name="learningContext" value="name:preview"></f:param>
 			</p:commandLink>
@@ -54,7 +60,7 @@
 	            </p>
             </ui:fragment>
             <ui:fragment rendered="#{cc.attrs.publishValue ne 'SCHEDULED_PUBLISH' and cc.attrs.publishValue ne 'SCHEDULED_UNPUBLISH'}">
-				<h:selectOneMenu 
+				<h:selectOneMenu disabled="#{cc.attrs.statusChangeDisabled}"
 					id="selectStatus" styleClass="selectpicker" 
 					value="#{cc.attrs.publishValue}"
 					onchange="onStatusChange();">
@@ -90,13 +96,13 @@
 					styleClass="saveChangesSelector"
 					onclick="#{cc.attrs.onclickSave}"
 					action="#{cc.attrs.saveAction}"
-					update="#{cc.attrs.toUpdate}"
-					oncomplete="attachListenersForUpdatingStatus();">
+					update="#{cc.attrs.toUpdate} :#{cc.clientId}"
+					oncomplete="">
 					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 					Save changes
 				</p:commandLink>
-				<ui:fragment rendered="#{cc.attrs.resource == 'CREDENTIAL' and cc.attrs.role == 'MANAGER'}">
-					<a href="#" data-toggle="modal" data-target="#duplicateCred">Duplicate</a>
+				<ui:fragment rendered="#{cc.attrs.resourceId > 0}">
+					<a href="#" data-toggle="modal" data-target="#{cc.attrs.duplicateModal}">Duplicate</a>
 				</ui:fragment>
 				<a id="linkPublishChildResources" href="#" style="display: none;" data-toggle="modal" data-target="#publishModal"></a> 
 				<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModal">
@@ -115,7 +121,7 @@
 									onclick="#{cc.attrs.onclickSave}"
 									action="#{cc.attrs.saveAction}"
 									update="#{cc.attrs.toUpdate}"
-									oncomplete="attachListenersForUpdatingStatus(); hideModal('publishModal');">
+									oncomplete="hideModal('publishModal');">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 									<f:param name="service" value="name:publish_resource_dialog"></f:param>
 									Publish
@@ -125,35 +131,14 @@
 			            </div>
 			        </div>
 	    		</div>
-				<a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>      
+	    		<ui:fragment rendered="#{cc.attrs.resourceId > 0 and not cc.attrs.archived}">
+					<a href="#" class="linkRed" data-toggle="modal" data-target="#{cc.attrs.archiveModal}">Archive</a> 
+				</ui:fragment> 
+				<ui:fragment rendered="#{cc.attrs.resourceId > 0 and cc.attrs.archived}">
+					<a href="#" data-toggle="modal" data-target="#{cc.attrs.restoreModal}">Restore</a> 
+				</ui:fragment>    
 			</div>
 		</div>
-		
-		<ui:fragment rendered="#{cc.attrs.resource == 'CREDENTIAL' and cc.attrs.role == 'MANAGER'}">
-			<div class="modal fade" id="duplicateCred" tabindex="-1" role="dialog" aria-labelledby="duplicateCredential">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-							<h2 class="modal-title" id="duplicateCredential">Duplicate Credential?</h2>
-						</div>
-						<div class="modal-body">
-							<p>You will create a new credential with the same structure as the original one in terms of competences and activities. The new credential will be empty in terms of students, student results, comments and assessments.</p>
-						</div>
-						<div class="modal-footer">
-							<p:commandLink styleClass="btn btn-green"
-								value="Duplicate Credential"
-								action="#{credentialEditBean.duplicate()}"
-								process="@this">
-								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-								<f:param name="learningContext" value="name:credential" />
-							</p:commandLink>
-							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</ui:fragment>
 		
 	</composite:implementation>
 </ui:component>

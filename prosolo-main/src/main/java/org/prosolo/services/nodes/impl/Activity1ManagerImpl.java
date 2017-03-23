@@ -3,19 +3,20 @@ package org.prosolo.services.nodes.impl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -51,7 +52,6 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.GradeData;
-import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
@@ -61,6 +61,7 @@ import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,11 +81,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	
-	@Deprecated
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
-			throws DbConnectionException {
+			throws DbConnectionException, EventException, IllegalDataStateException {
 		try {
 			Result<Activity1> res = resourceFactory.createActivity(data, userId);
 			
@@ -106,10 +106,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					service, null);
 
 			return act;
-		} catch (EventException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while saving activity");
+		} catch (IllegalDataStateException idse) {
+			throw idse;
 		} catch (DbConnectionException dbe) {
 			logger.error(dbe);
 			dbe.printStackTrace();
@@ -117,67 +115,64 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
 	@Override
-	@Transactional(readOnly = false)
-	public Activity1 deleteActivity(long originalActId, ActivityData data, long userId) 
-			throws DbConnectionException {
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	public Activity1 deleteActivity(long activityId, long userId) throws DbConnectionException, IllegalDataStateException {
 		try {
-			if(originalActId > 0) {
-				Activity1 act = (Activity1) persistence.currentManager()
-						.load(Activity1.class, originalActId);
+			if(activityId > 0) {
+				Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, activityId);
 				act.setDeleted(true);
 				
-				deleteAllCompetenceActivitiesForActivity(act.getId());
+				deleteCompetenceActivity(act.getId());
 	
-				User user = new User();
-				user.setId(userId);
-				eventFactory.generateEvent(EventType.Delete, user.getId(), act);
+				
+				Activity1 activity = new Activity1();
+				activity.setId(activityId);
+				eventFactory.generateEvent(EventType.Delete, userId, activity);
 				
 				return act;
 			}
 			return null;
+		} catch (IllegalDataStateException idse) {
+			idse.printStackTrace();
+			logger.error(idse);
+			throw idse;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential");
+			throw new DbConnectionException("Error while deleting activity");
 		}
 	}
 	
-	@Deprecated
-	//Currently, there can only be one competence with specific activity
-	private void deleteAllCompetenceActivitiesForActivity(long actId) {
-		Activity1 act = (Activity1) persistence.currentManager()
-				.load(Activity1.class, actId);
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	private void deleteCompetenceActivity(long actId) throws IllegalDataStateException {
+		Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, actId);
 		long duration = act.getDuration();
 		
 		String query = "SELECT compAct " +
 			       	   "FROM CompetenceActivity1 compAct " + 
+			       	   "INNER JOIN fetch compAct.competence comp " +
 			       	   "WHERE compAct.activity = :act";
 
-		@SuppressWarnings("unchecked")
-		List<CompetenceActivity1> res = persistence.currentManager()
+		CompetenceActivity1 res = (CompetenceActivity1) persistence.currentManager()
 			.createQuery(query)
 			.setEntity("act", act)
-			.list();
+			.setLockOptions(LockOptions.UPGRADE)
+			.uniqueResult();
 		
-		if(res != null) {
-			for(CompetenceActivity1 ca : res) {
-				if(ca != null) {
-					long competenceId = ca.getCompetence().getId();
-					shiftOrderOfActivitiesUp(competenceId, ca.getOrder());
-					delete(ca);
-				}
-			}
+		//if competence is once published, activities can not be removed from it.
+		if(res.getCompetence().getDatePublished() != null) {
+			throw new IllegalDataStateException("After competence is first published, activities can not be removed.");
 		}
+		long competenceId = res.getCompetence().getId();
+		shiftOrderOfActivitiesUp(competenceId, res.getOrder());
+		delete(res);
 		
 		if(duration != 0) {
 			compManager.updateDurationForCompetenceWithActivity(actId, duration, Operation.Subtract);
 		}
-		
 	}
 
-	@Deprecated
 	private void shiftOrderOfActivitiesUp(long id, int order) {
 		List<CompetenceActivity1> activitiesAfterDeleted = getAllCompetenceActivitiesAfterSpecified(
 				id, order);
@@ -187,7 +182,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
 	private List<CompetenceActivity1> getAllCompetenceActivitiesAfterSpecified(long compId, int order) {
 		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
 		String query = "SELECT compAct " +
@@ -203,14 +197,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			.setInteger("order", order)
 			.list();
 		
-		if(res == null) {
-			return new ArrayList<>();
-		}
-		
 		return res;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException {
@@ -257,10 +246,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			@SuppressWarnings("unchecked")
 			List<CompetenceActivity1> res = query.list();
-			
-			if(res == null) {
-				return new ArrayList<>();
-			}
 			
 			return res;
 		} catch(Exception e) {
@@ -364,7 +349,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Transactional(readOnly = true)
 	@Override
 	public ActivityData getActivityData(long credId, long competenceId, 
@@ -382,7 +366,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				throw new ResourceNotFoundException();
 			}
 			//we need user privilege for competence on which activity is dependent
-			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, competenceId, 
+			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(competenceId, 
 					userId);
 			/*
 			 * user can access activity:
@@ -411,7 +395,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadCompetence) {
 		try {
@@ -628,120 +611,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}
 //	}
 	
-	@Deprecated
 	@Override
-	@Transactional(readOnly = false)
-	public Activity1 updateActivity(ActivityData data, long userId,
-			LearningContextData context) throws DbConnectionException {
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	public Activity1 updateActivity(ActivityData data, long userId, LearningContextData context) 
+			throws DbConnectionException, StaleDataException {
 		try {
-			Activity1 act = resourceFactory.updateActivity(data, userId);
-			Class<? extends Activity1> actClass = null;
-			if(act instanceof TextActivity1) {
-				actClass = TextActivity1.class;
-			} else if(act instanceof UrlActivity1) {
-				actClass = UrlActivity1.class;
-			} else if(act instanceof ExternalToolActivity1) {
-				actClass = ExternalToolActivity1.class;
-			}
+			Activity1 act = resourceFactory.updateActivity(data);
 			
 			String page = context != null ? context.getPage() : null; 
 			String lContext = context != null ? context.getLearningContext() : null; 
 			String service = context != null ? context.getService() : null; 
-			User user = new User();
-			user.setId(userId);
-			
-			fireActivityEditEvent(actClass, data, user, act, page, lContext, service);
+			eventFactory.generateEvent(EventType.Edit, userId, act, null, page, lContext, service, null);
 
 		    return act;
 		} catch (EventException e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
-		} catch (DbConnectionException dbe) {
-			logger.error(dbe);
-			dbe.printStackTrace();
-			throw dbe;
 		}
 	}
 	
-	@Deprecated
-	private void fireActivityEditEvent(Class<? extends Activity1> actClass, 
-			ActivityData data, User user, Activity1 act, String page, 
-			String context, String service) throws EventException {
-		Map<String, String> params = new HashMap<>();
-		boolean linksChanged = false;
-		for(ResourceLinkData rl : data.getLinks()) {
-			if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
-				linksChanged = true;
-				break;
-			}
-		}
-		boolean filesChanged = false;
-		for(ResourceLinkData rl : data.getFiles()) {
-			if(rl.getStatus() != ObjectStatus.UP_TO_DATE) {
-				filesChanged = true;
-				break;
-			}
-		}
-		//TODO cred-redesign-07
-//	    ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-//	    		actClass, 
-//	    		data.isPublished(), 
-//	    		data.isPublishedChanged(), 
-//	    		data.isTitleChanged(), 
-//	    		data.isDescriptionChanged(), 
-//	    		data.isDurationHoursChanged() || data.isDurationMinutesChanged(), 
-//	    		linksChanged, 
-//	    		filesChanged, 
-//	    		data.isUploadAssignmentChanged(), 
-//	    		data.isTextChanged(), 
-//	    		data.isLinkChanged(), 
-//	    		data.isLaunchUrlChanged(), 
-//	    		data.isConsumerKeyChanged(), 
-//	    		data.isSharedSecretChanged(),
-//	    		data.isOpenInNewWindowChanged());
-//	    Gson gson = new GsonBuilder().create();
-//	    String jsonChangeTracker = gson.toJson(changeTracker);
-//	    params.put("changes", jsonChangeTracker);
-//	   
-//	    eventFactory.generateEvent(EventType.Edit, user.getId(), act, null, page, context, service, params);
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public Activity1 updateActivityData(ActivityData data, long userId) {
-		Activity1 act = null;
-		Class<? extends Activity1> activityClass = null;
-		
-		if(data.isActivityTypeChanged()) {
-			updateActivityType(data.getActivityId(), data.getActivityType());
-		}
-		
-		switch(data.getActivityType()) {
-			case TEXT:
-				act = (TextActivity1) persistence.currentManager().load(TextActivity1.class, 
-						data.getActivityId());
-				activityClass = TextActivity1.class;
-				break;
-			case VIDEO:
-			case SLIDESHARE:
-				act = (UrlActivity1) persistence.currentManager().load(UrlActivity1.class, 
-						data.getActivityId());
-				activityClass = UrlActivity1.class;
-				break;
-			case EXTERNAL_TOOL:
-				act = (ExternalToolActivity1) persistence.currentManager().load(
-						ExternalToolActivity1.class, data.getActivityId());
-				activityClass = ExternalToolActivity1.class;
-				break;
-		}
-		
-		return updateActivityData(act, activityClass, data);
-		
-	}
-	
-	@Deprecated
 	private void updateActivityType(long activityId, ActivityType activityType) {
 		Activity1 act = activityFactory.getObjectForActivityType(activityType);
 		boolean isUrlActivity = act instanceof UrlActivity1;
@@ -763,70 +652,137 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		q.executeUpdate();
 	}
 	
-	@Deprecated
-	@Transactional(readOnly = false)
-	private Activity1 updateActivityData(Activity1 actToUpdate, 
-			Class<? extends Activity1> activityClass, ActivityData data) {
+	@Override
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	public Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException {
 		try {
-			long oldDuration = getActivityDurationBeforeUpdate(data);;
+			/*
+			 * Lock the competence record so we can avoid integrity rule violation with concurrent updates.
+			 * 
+			 * This way, exclusive lock on a competence is acquired and publish date is retrieved.
+			 */
+			String query = "SELECT comp.datePublished " +
+						   "FROM Competence1 comp " +
+						   "WHERE comp.id = :compId";
+			
+			Date datePublished = (Date) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", data.getCompetenceId())
+					.setLockOptions(LockOptions.UPGRADE)
+					.uniqueResult();
+			
+			/*
+			 * if this crucial condition changed after data for editing activity is read, we should not
+			 * allow update, because it would not be clear to end user what data changed and why. It would
+			 * be possible that some changes are made and others not.
+			 */
+			boolean compOncePublished = datePublished != null;
+			if(compOncePublished != data.isOncePublished()) {
+				throw new StaleDataException("Data changed in the meantime. Please review changes and try again.");
+			}
+			
+			/*
+			 * handle the case where activity type is changed by client by mistake, but it shouldn't be changed 
+			 * because it would violate integrity rule
+			 */
+			final ActivityType actType = compOncePublished && data.isActivityTypeChanged()
+					? data.getActivityTypeBeforeUpdate().get()
+					: data.getActivityType();
+			
+			//if competence is published activity type can't be changed
+			if(!compOncePublished && data.isActivityTypeChanged()) {
+				updateActivityType(data.getActivityId(), data.getActivityType());
+			}
+			
+			Activity1 actToUpdate = (Activity1) persistence.currentManager().load(Activity1.class, 
+					data.getActivityId());
+			
+			/* this check is needed to find out if activity is changed from the moment activity data
+			 * is loaded for edit to the moment update request is sent
+			 */
+			if(actToUpdate.getVersion() != data.getVersion()) {
+				throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
+			}
+			
+			long oldDuration = getActivityDurationBeforeUpdate(data);
 			long newDuration = data.getDurationHours() * 60 + data.getDurationMinutes();
 			
 			if(oldDuration != newDuration) {
 				updateCompDuration(actToUpdate.getId(), newDuration, oldDuration);
 			}
 		
-			
 			actToUpdate.setTitle(data.getTitle());
 			actToUpdate.setDescription(data.getDescription());
 			actToUpdate.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
-			actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
 			actToUpdate.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
-			actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
 			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
-			actToUpdate.setAutograde(data.isAutograde());
-			//actToUpdate.setUploadAssignment(data.isUploadAssignment());
 			actToUpdate.setDifficulty(data.getDifficulty());
+			
+			//changes which are not allowed if competence is once published
+			if(!compOncePublished) {
+				actToUpdate.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 
+						: Integer.parseInt(data.getMaxPointsString()));
+				actToUpdate.setResultType(activityFactory.getResultType(data.getResultData().getResultType()));
+				actToUpdate.setAutograde(data.isAutograde());
+			}
 			
 			updateResourceLinks(data.getLinks(), actToUpdate.getLinks());
 			
 			updateResourceLinks(data.getFiles(), actToUpdate.getFiles());
 			
-			if(data.getActivityType() == ActivityType.VIDEO) {
-				updateResourceLinks(data.getCaptions(), ((UrlActivity1) actToUpdate).getCaptions());
-			}
-			
-			if(actToUpdate instanceof TextActivity1) {
-				TextActivity1 ta = (TextActivity1) actToUpdate;
-				ta.setText(data.getText());
-			} else if(actToUpdate instanceof UrlActivity1) {
-				UrlActivity1 urlAct = (UrlActivity1) actToUpdate;
-				if(data.getActivityType() == ActivityType.VIDEO) {
-					urlAct.setUrlType(UrlActivityType.Video);
-				} else {
-					urlAct.setUrlType(UrlActivityType.Slides);
+			actToUpdate.accept(new ActivityVisitor() {
+				
+				@Override
+				public void visit(ExternalToolActivity1 activity) {
+					activity.setLaunchUrl(data.getLaunchUrl());
+					activity.setSharedSecret(data.getSharedSecret());
+					activity.setConsumerKey(data.getConsumerKey());
+					activity.setOpenInNewWindow(data.isOpenInNewWindow());
+					
+					//changes which are not allowed if competence is published
+					if(!compOncePublished) {
+						activity.setAcceptGrades(data.isAcceptGrades());
+						activity.setScoreCalculation(data.getScoreCalculation());
+					}
 				}
-				urlAct.setUrl(data.getLink());
-				urlAct.setLinkName(data.getLinkName());
-			} else if(actToUpdate instanceof ExternalToolActivity1) {
-				ExternalToolActivity1 extAct = (ExternalToolActivity1) actToUpdate;
-				extAct.setLaunchUrl(data.getLaunchUrl());
-				extAct.setSharedSecret(data.getSharedSecret());
-				extAct.setConsumerKey(data.getConsumerKey());
-				extAct.setAcceptGrades(data.isAcceptGrades());
-				extAct.setOpenInNewWindow(data.isOpenInNewWindow());
-				extAct.setScoreCalculation(data.getScoreCalculation());
-			}
-		    
+				
+				@Override
+				public void visit(UrlActivity1 activity) {
+					if(actType == ActivityType.VIDEO) {
+						activity.setUrlType(UrlActivityType.Video);
+						activity.setUrl(data.getVideoLink());
+						updateResourceLinks(data.getCaptions(), activity.getCaptions());
+					} else {
+						activity.setUrlType(UrlActivityType.Slides);
+						activity.setUrl(data.getSlidesLink());
+					}
+					activity.setLinkName(data.getLinkName());
+				}
+				
+				@Override
+				public void visit(TextActivity1 activity) {
+					activity.setText(data.getText());
+				}
+			});
+	
+		    persistence.flush();
 		    return actToUpdate;
-		} catch(Exception e) {
+		} catch(HibernateOptimisticLockingFailureException e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new StaleDataException("Activity changed in the meantime. Please review changes and try again.");
+		} catch (StaleDataException ex) {
+			logger.error(ex);
+			ex.printStackTrace();
+			throw ex;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			return null;
+			throw new DbConnectionException("Error while updating activity");
 		}
 	}
 	
-	@Deprecated
 	private long getActivityDurationBeforeUpdate(ActivityData data) {
 		long oldDuration = 0;
 		if(data.isDurationHoursChanged() || data.isDurationMinutesChanged()) {
@@ -851,7 +807,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return oldDuration;
 	}
 	
-	@Deprecated
 	private void updateCompDuration(long actId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
     	Operation op = null;
@@ -870,7 +825,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @param resLinksData
 	 * @param resLinks
 	 */
-	@Deprecated
 	public void updateResourceLinks(List<ResourceLinkData> resLinksData, Set<ResourceLink> resLinks) {
 		if (resLinksData != null) {
 			for (ResourceLinkData rl : resLinksData) {
@@ -1598,123 +1552,123 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishActivitiesFromCompetences(long credId, long userId, 
-			List<Long> compIds) throws DbConnectionException {
-		try {
-			if(compIds == null || compIds.isEmpty()) {
-				return new ArrayList<>();
-			}
-			List<CompetenceActivity1> acts = getDraftActivitiesFromCompetences(compIds);
-			//publishDraftActivitiesWithoutDraftVersion(actIds);
-			return publishDraftActivitiesFromList(credId, userId, acts);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing activities");
-		}
-	}
+//	@Deprecated
+//	@Override
+//	@Transactional(readOnly = false)
+//	public List<EventData> publishActivitiesFromCompetences(long credId, long userId, 
+//			List<Long> compIds) throws DbConnectionException {
+//		try {
+//			if(compIds == null || compIds.isEmpty()) {
+//				return new ArrayList<>();
+//			}
+//			List<CompetenceActivity1> acts = getDraftActivitiesFromCompetences(compIds);
+//			//publishDraftActivitiesWithoutDraftVersion(actIds);
+//			return publishDraftActivitiesFromList(credId, userId, acts);
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while publishing activities");
+//		}
+//	}
 	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
-			throws DbConnectionException {
-		try {
-			//get all draft activities
-			List<CompetenceActivity1> acts = getDraftActivitiesFromList(actIds);
-			return publishDraftActivitiesFromList(credId, userId, acts);
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing activities");
-		}
-	}
+//	@Deprecated
+//	@Override
+//	@Transactional(readOnly = false)
+//	public List<EventData> publishDraftActivities(long credId, long userId, List<Long> actIds) 
+//			throws DbConnectionException {
+//		try {
+//			//get all draft activities
+//			List<CompetenceActivity1> acts = getDraftActivitiesFromList(actIds);
+//			return publishDraftActivitiesFromList(credId, userId, acts);
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while publishing activities");
+//		}
+//	}
 	
 	/**
 	 * expecting list of draft activities as parameter
 	 * @param activities
 	 * @throws DbConnectionException
 	 */
-	@Deprecated
-	@Transactional(readOnly = false)
-	private List<EventData> publishDraftActivitiesFromList(long credId, long userId, 
-			List<CompetenceActivity1> activities) throws DbConnectionException {
-		//TODO cred-redesign-07
-//		List<EventData> events = new ArrayList<>();
-//		for(CompetenceActivity1 a : activities) {
-//			//check if user can edit this activity
-//			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, 
-//					a.getCompetence().getId(), userId);
-//			if(priv == UserGroupPrivilege.Edit) {
-//				Activity1 act = a.getActivity();
-//				act.setPublished(true);
-//				EventData ev = new EventData();
-//				ev.setActorId(userId);
-//				ev.setEventType(EventType.Edit);
-//				ActivityChangeTracker changeTracker = new ActivityChangeTracker(
-//						Activity1.class, true, true, false, false, false, false, 
-//						false, false, false, false, false, false, false, false);
-//			    Gson gson = new GsonBuilder().create();
-//			    String jsonChangeTracker = gson.toJson(changeTracker);
-//			    Map<String, String> params = new HashMap<>();
-//			    params.put("changes", jsonChangeTracker);
-//			    ev.setParameters(params);
-//			    ev.setObject(act);
-//				events.add(ev);
-//			}
-//			
+//	@Deprecated
+//	@Transactional(readOnly = false)
+//	private List<EventData> publishDraftActivitiesFromList(long credId, long userId, 
+//			List<CompetenceActivity1> activities) throws DbConnectionException {
+//		//TODO cred-redesign-07
+////		List<EventData> events = new ArrayList<>();
+////		for(CompetenceActivity1 a : activities) {
+////			//check if user can edit this activity
+////			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, 
+////					a.getCompetence().getId(), userId);
+////			if(priv == UserGroupPrivilege.Edit) {
+////				Activity1 act = a.getActivity();
+////				act.setPublished(true);
+////				EventData ev = new EventData();
+////				ev.setActorId(userId);
+////				ev.setEventType(EventType.Edit);
+////				ActivityChangeTracker changeTracker = new ActivityChangeTracker(
+////						Activity1.class, true, true, false, false, false, false, 
+////						false, false, false, false, false, false, false, false);
+////			    Gson gson = new GsonBuilder().create();
+////			    String jsonChangeTracker = gson.toJson(changeTracker);
+////			    Map<String, String> params = new HashMap<>();
+////			    params.put("changes", jsonChangeTracker);
+////			    ev.setParameters(params);
+////			    ev.setObject(act);
+////				events.add(ev);
+////			}
+////			
+////		}
+////		return events;
+//		return null;
+//	}
+	
+//	@Deprecated
+//	@Transactional(readOnly = true)
+//	private List<CompetenceActivity1> getDraftActivitiesFromCompetences(List<Long> compIds) {
+//		String query = "SELECT cAct FROM CompetenceActivity1 cAct " +
+//					   "INNER JOIN cAct.activity act " +
+//					   "WHERE cAct.competence.id IN (:compIds) " +
+//					   "AND act.published = :published";
+//		
+//		Query q = persistence.currentManager()
+//				.createQuery(query)
+//				.setParameterList("compIds", compIds)
+//				.setBoolean("published", false);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<CompetenceActivity1> activities = q.list();
+//		if(activities == null) {
+//			return new ArrayList<>();
 //		}
-//		return events;
-		return null;
-	}
+//		return activities;
+//	}
 	
-	@Deprecated
-	@Transactional(readOnly = true)
-	private List<CompetenceActivity1> getDraftActivitiesFromCompetences(List<Long> compIds) {
-		String query = "SELECT cAct FROM CompetenceActivity1 cAct " +
-					   "INNER JOIN cAct.activity act " +
-					   "WHERE cAct.competence.id IN (:compIds) " +
-					   "AND act.published = :published";
-		
-		Query q = persistence.currentManager()
-				.createQuery(query)
-				.setParameterList("compIds", compIds)
-				.setBoolean("published", false);
-		
-		@SuppressWarnings("unchecked")
-		List<CompetenceActivity1> activities = q.list();
-		if(activities == null) {
-			return new ArrayList<>();
-		}
-		return activities;
-	}
-	
-	@Deprecated
-	@Transactional(readOnly = true)
-	private List<CompetenceActivity1> getDraftActivitiesFromList(List<Long> actIds) {
-		if(actIds == null || actIds.isEmpty()) {
-			return new ArrayList<>();
-		}
-		String query = "SELECT cAct FROM CompetenceActivity1 cAct " +
-					   "INNER JOIN cAct.activity act " +
-					   "WHERE act.id IN (:ids) " +
-					   "AND act.published = :published ";
-		
-		Query q = persistence.currentManager()
-				.createQuery(query)
-				.setParameterList("ids", actIds)
-				.setBoolean("published", false);
-		
-		@SuppressWarnings("unchecked")
-		List<CompetenceActivity1> activities = q.list();
-		if(activities == null) {
-			return new ArrayList<>();
-		}
-		return activities;
-	}
+//	@Deprecated
+//	@Transactional(readOnly = true)
+//	private List<CompetenceActivity1> getDraftActivitiesFromList(List<Long> actIds) {
+//		if(actIds == null || actIds.isEmpty()) {
+//			return new ArrayList<>();
+//		}
+//		String query = "SELECT cAct FROM CompetenceActivity1 cAct " +
+//					   "INNER JOIN cAct.activity act " +
+//					   "WHERE act.id IN (:ids) " +
+//					   "AND act.published = :published ";
+//		
+//		Query q = persistence.currentManager()
+//				.createQuery(query)
+//				.setParameterList("ids", actIds)
+//				.setBoolean("published", false);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<CompetenceActivity1> activities = q.list();
+//		if(activities == null) {
+//			return new ArrayList<>();
+//		}
+//		return activities;
+//	}
 	
 //	private Activity1 publishDraftVersion(Activity1 originalActivity, Activity1 draftActivity) {
 //		originalActivity.setTitle(draftActivity.getTitle());

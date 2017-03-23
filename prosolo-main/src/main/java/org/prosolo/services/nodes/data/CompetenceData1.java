@@ -20,6 +20,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceData1.class);
 	
+	/*
+	 * this is special version field that should not be changed. it should be copied from 
+	 * a database record and never be changed again.
+	 */
+	private long version = -1;
 	private long credentialCompetenceId;
 	private long competenceId;
 	private String title;
@@ -62,6 +67,9 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private Date datePublished;
 	
 	private long numberOfStudents;
+	
+	//by default competence can be unpublished
+	private boolean canUnpublish = true;
 	
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.UNPUBLISH;
@@ -467,6 +475,30 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setArchived(boolean archived) {
 		this.archived = archived;
+	}
+
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Setting version is only allowed if version is -1. Generally version should not 
+	 * be changed except when data is being populated.
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		if(this.version == -1) {
+			this.version = version;
+		}
+	}
+
+	public boolean isCanUnpublish() {
+		return canUnpublish;
+	}
+
+	public void setCanUnpublish(boolean canUnpublish) {
+		this.canUnpublish = canUnpublish;
 	}
 
 }

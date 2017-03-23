@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -146,7 +148,8 @@ public interface ResourceFactory extends AbstractManager {
 
 	Result<Credential1> updateCredential(CredentialData data, long creatorId);
 
-	Competence1 updateCompetence(CompetenceData1 data, long userId);
+	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
+			IllegalDataStateException;
 	
 	long deleteCredentialBookmark(long credId, long userId);
 	
@@ -159,13 +162,13 @@ public interface ResourceFactory extends AbstractManager {
 	 * @param activityData
 	 * @param userId
 	 * @return
-	 * @throws DbConnectionException
+	 * @throws DbConnectionException, IllegalDataStateException
 	 */
 	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
-    		long userId) throws DbConnectionException;
+    		long userId) throws DbConnectionException, IllegalDataStateException;
 
-	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
-			throws DbConnectionException;
+	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+			throws DbConnectionException, StaleDataException;
 	
 	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
 			throws DbConnectionException;

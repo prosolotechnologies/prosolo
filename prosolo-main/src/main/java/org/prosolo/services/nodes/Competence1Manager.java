@@ -5,7 +5,9 @@ import java.util.List;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -52,11 +54,38 @@ public interface Competence1Manager {
 	Competence1 deleteCompetence(CompetenceData1 data, long userId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Updates competence.
+	 * 
+	 * DB Locks:
+	 * exclusive lock on a competence being updated
+	 * 
+	 * @param data
+	 * @param userId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws IllegalDataStateException
+	 * @throws StaleDataException
+	 */
 	Competence1 updateCompetence(CompetenceData1 data, long userId, 
 			LearningContextData context) 
-			throws DbConnectionException, CompetenceEmptyException;
+			throws DbConnectionException, IllegalDataStateException, StaleDataException;
 	
-	Competence1 updateCompetenceData(CompetenceData1 data, long userId);
+	/**
+	 * Updates competence.
+	 * 
+	 * DB Locks:
+	 * exclusive lock on a competence being updated
+	 * 
+	 * @param data
+	 * @param userId
+	 * @return
+	 * @throws StaleDataException
+	 * @throws IllegalDataStateException
+	 */
+	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
+			IllegalDataStateException;
 	
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
@@ -115,15 +144,19 @@ public interface Competence1Manager {
 	/**
 	 * Call this method when you want to add activity to competence.
 	 * 
+	 * DB Locks:
+	 * This method uses exclusive lock on a competence1 record with id {@code compId} for the duration of a transaction.
+	 * 
 	 * Returns data for event that should be generated after transaction is commited.
+	 * 
 	 * 
 	 * @param compId
 	 * @param act
 	 * @param userId id of a user that created activity
-	 * @throws DbConnectionException
+	 * @throws DbConnectionException, IllegalDataStateException
 	 */
 	EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Duration for competences with activity specified by {@code actId} are updated by adding/subtracting {@code duration} value.
@@ -216,14 +249,11 @@ public interface Competence1Manager {
 	/**
 	 * Returns privilege of a user with {@code userId} id for competence with {@code compId} id.
 	 * 
-	 * If {@code credId} is greater than 0, privilege for credential is returned, otherwise privilege
-	 * for competence is returned.
-	 * @param credId
 	 * @param compId
 	 * @param userId
 	 * @return {@link UserGroupPrivilege}
 	 */
-	UserGroupPrivilege getUserPrivilegeForCompetence(long credId, long compId, long userId) 
+	UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
 			throws DbConnectionException;
 	
 	boolean isVisibleToAll(long compId) throws DbConnectionException;
@@ -307,5 +337,9 @@ public interface Competence1Manager {
 	
 	void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
 			throws DbConnectionException;
+	
+	CompetenceData1 getCompetenceForEdit(long credId, long compId, long userId) 
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	
 	
 }
