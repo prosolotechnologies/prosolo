@@ -16,7 +16,6 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
  
  
 
@@ -382,6 +381,13 @@ public class DateUtil {
 		return getDayBeginningDateTime(ldt.minusWeeks(1));
 	}
 	
+	public static LocalDateTime getNDaysAgoDayStartDateTime(LocalDateTime ldt, int daysAgo) {
+		if(ldt == null) {
+			throw new NullPointerException();
+		}
+		return getDayBeginningDateTime(ldt.minusDays(daysAgo));
+	}
+	
 	public static LocalDateTime getYesterdayEndDateTime(LocalDateTime ldt) {
 		return getDayEndingDateTime(yesterday(ldt));
 	}
@@ -436,5 +442,6 @@ public class DateUtil {
 		System.out.println("Week ago start " + getWeekAgoDayStartDateTime(ldt));
 		System.out.println("Is monday " + isDayOfWeek(ldt, DayOfWeek.MONDAY));
 		System.out.println("Is friday " + isDayOfWeek(ldt, DayOfWeek.FRIDAY));
+		System.out.println("6 days ago " + getNDaysAgoDayStartDateTime(ldt, 6));
 	}
 }

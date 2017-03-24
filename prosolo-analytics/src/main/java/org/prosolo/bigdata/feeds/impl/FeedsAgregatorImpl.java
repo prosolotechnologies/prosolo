@@ -524,6 +524,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 		Transaction t = null;
 		try {
 			t = session.beginTransaction();
+			//TODO interval for sending email to each user is hardcoded here, this should probably be option that user chooses
 			TimeFrame interval = TimeFrame.WEEKLY;
 			
 			boolean toSendEmail = false;
@@ -537,7 +538,7 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 					break;
 				case WEEKLY:
 					if(sendWeekly) { 
-						from = DateUtil.getWeekAgoDayStartDateTime(to);
+						from = DateUtil.getNDaysAgoDayStartDateTime(to, 6);
 						toSendEmail = true;
 					}
 					break;

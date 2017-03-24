@@ -23,7 +23,7 @@ object DigestManager1 {
   
   def createFeedDigestsAndSendEmails() {
     logger.info("Create feed diggest and send emails called")
-    val ldt = LocalDateTime.now().plusDays(6)
+    val ldt = LocalDateTime.now()
     val createWeeklyDigest = ldt.getDayOfWeek == DayOfWeek.MONDAY
     val diggestGeneratorDAO=new DiggestGeneratorDAOImpl
     val courseDAO = new CourseDAOImpl(false)
@@ -35,7 +35,7 @@ object DigestManager1 {
   
     val to = DateUtil.getYesterdayEndDateTime(ldt)
     val dailyFrom = DateUtil.getDayBeginningDateTime(to)
-    val weeklyFrom = DateUtil.getWeekAgoDayStartDateTime(to);
+    val weeklyFrom = DateUtil.getNDaysAgoDayStartDateTime(to, 6);
     val generateDailyFeedDigestForCredential = (feedsAgregator:FeedsAgregator, 
         credId:Long, ldt:LocalDateTime)=>{
        //generate daily digest
