@@ -27,7 +27,7 @@ object InstructorEmailSender {
     try {
       logger.info("Instructor email sender job executing")
       
-      val courseDAO = new CourseDAOImpl
+      val courseDAO = new CourseDAOImpl(false)
   
       val sc = SparkContextLoader.getSC
       
