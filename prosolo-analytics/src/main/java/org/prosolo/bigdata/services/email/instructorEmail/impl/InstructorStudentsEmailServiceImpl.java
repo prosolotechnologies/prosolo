@@ -22,7 +22,7 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 	
 	private static Logger logger = Logger.getLogger(InstructorStudentsEmailServiceImpl.class);
 	
-	CourseDAO courseDAO = new CourseDAOImpl();
+	CourseDAO courseDAO = new CourseDAOImpl(true);
 	UserDAO userDAO =  UserDAOImpl.getInstance();
 
 	@Override

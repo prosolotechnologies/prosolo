@@ -18,7 +18,7 @@ public class ResourceVisibilityUpdateJob  implements Job {
     private static Logger logger = Logger
             .getLogger(ResourceVisibilityUpdateJob.class.getName());
     
-    private CourseDAOImpl courseDao = new CourseDAOImpl();
+    private CourseDAOImpl courseDao = new CourseDAOImpl(true);
     private CompetenceDAOImpl compDao = new CompetenceDAOImpl();
     
     
