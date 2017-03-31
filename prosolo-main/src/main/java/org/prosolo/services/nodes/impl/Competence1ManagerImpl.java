@@ -54,10 +54,16 @@ import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
@@ -90,6 +96,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject
 	private UserGroupManager userGroupManager;
 	@Inject private ActivityDataFactory activityFactory;
+	@Inject private ResourceAccessFactory resourceAccessFactory;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -385,11 +392,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, long userId, UserGroupPrivilege privilege,
+	public RestrictedAccessResult<CompetenceData1> getCompetenceData(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
-			if(privilege == null) {
+			if(req == null) {
 				throw new IllegalArgumentException();
 			}
 			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, userId, true);
@@ -398,31 +405,23 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				throw new ResourceNotFoundException();
 			}
 			
-			UserGroupPrivilege priv = getUserPrivilegeForCompetence(compId, userId);
-			/*
-			 * user can access competence:
-			 *  - when he has the right privilege and
-			 *  - when competence is published if user has Learn privilege
-			 */
-			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.Learn && !comp.isPublished()) {
-				canAccess = false;
-			}
-			
 			User creator = loadCreator ? comp.getCreatedBy() : null;
 			Set<Tag> tags = loadTags ? comp.getTags() : null;
 			
 			CompetenceData1 compData = competenceFactory.getCompetenceData(
 					creator, comp, tags, shouldTrackChanges);
-			compData.setCanEdit(priv == UserGroupPrivilege.Edit);
-			compData.setCanAccess(canAccess);
+			
+//			compData.setCanEdit(priv == UserGroupPrivilege.Edit);
+//			compData.setCanAccess(canAccess);
 			
 			if(loadActivities) {
 				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
 				compData.setActivities(activities);
 			}
 			
-			return compData;
+			ResourceAccessData access = getResourceAccessData(compId, userId, req);
+			
+			return RestrictedAccessResult.of(compData, access);
 		} catch (ResourceNotFoundException rfe) {
 			throw rfe;
 		} catch(IllegalArgumentException iae) { 
@@ -454,8 +453,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if(credId > 0) {
 			builder.append("FROM CredentialCompetence1 credComp " +
 						   "INNER JOIN credComp.competence comp " +
-						   		"WITH comp.id = :compId " +
-						   		"AND comp.deleted = :deleted ");
+						   		"WITH comp.id = :compId ");
 			if(!returnIfArchived) {
 				builder.append("AND comp.archived = :archived ");
 			}
@@ -743,11 +741,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						creator, credComp, tags, true);
 				
 				if(includeCanEdit) {
-					UserGroupPrivilege priv = getUserPrivilegeForCompetence(
-							credComp.getCompetence().getId(), userId);
-					if(priv == UserGroupPrivilege.Edit) {
-						compData.setCanEdit(true);
-					}
+					//TODO cred-redesign-07
+//					UserGroupPrivilege priv = getUserPrivilegeForCompetence(
+//							credComp.getCompetence().getId(), userId);
+//					if(priv == UserGroupPrivilege.Edit) {
+//						compData.setCanEdit(true);
+//					}
 				}
 				
 				if(loadActivities) {
@@ -1293,7 +1292,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public String getCompetenceTitle(long id) throws DbConnectionException {
@@ -1315,25 +1313,33 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public String getTargetCompetenceTitle(long targetCompId) throws DbConnectionException {
+	public LearningInfo getCompetenceLearningInfo(long compId, long userId) throws DbConnectionException {
 		try {
-			String query = "SELECT comp.title " +
-						   "FROM TargetCompetence1 comp " +
-						   "WHERE comp.id = :compId";
+			String query = "SELECT comp.title, tComp.nextActivityToLearnId " +
+						   "FROM TargetCompetence1 tComp " +
+						   "INNER JOIN tComp.competence comp " +
+						   		"WITH comp.id = :compId " +
+						   "WHERE tComp.user.id = :userId";
 			
-			String title = (String) persistence.currentManager()
+			Object[] res = (Object[]) persistence.currentManager()
 				.createQuery(query)
-				.setLong("compId", targetCompId)
+				.setLong("userId", userId)
+				.setLong("compId", compId)
 				.uniqueResult();
 			
-			return title;
+			if(res != null) {
+				String title = (String) res[0];
+				long nextAct = (long) res[1];
+				
+				return LearningInfo.getLearningInfoForCompetence(title, nextAct);
+			}
+			return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence title");
+			throw new DbConnectionException("Error while retrieving learning info");
 		}
 	}
 	
@@ -1393,23 +1399,31 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+	public RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
-			compData = getTargetCompetenceData(credId, compId, userId, true, true);
+			compData = getTargetCompetenceData(credId, compId, userId, true);
 			if (compData == null) {
 //				compData = getCompetenceData(compId, true, true, true, userId,
 //						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
 				//compData = getCompetenceDataForUser(credId, compId, true, true, true, userId, true);
-				compData = getCompetenceData(credId, compId, true, true, true, userId, 
-						UserGroupPrivilege.Learn, false);
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
+				return getCompetenceData(credId, compId, true, true, true, userId, 
+						req, false);
 			}
 				
-			return compData;
+			/* if user is aleardy learning competence, he doesn't need any of the privileges;
+			 * we just need to determine which privileges he has (can he edit or instruct a competence)
+			 */
+			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
+			ResourceAccessData access = getResourceAccessData(compId, userId, req);
+			return RestrictedAccessResult.of(compData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
 		} catch(IllegalArgumentException iae) {
@@ -1431,48 +1445,50 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Deprecated
 	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId, 
-			boolean loadActivities, boolean loadCredentialTitle) throws DbConnectionException {
+			boolean loadActivities) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
-			//TODO cred-redesign-07
-//			String query = "SELECT targetComp " +
-//					   "FROM TargetCompetence1 targetComp " +
-//					   "INNER JOIN targetComp.targetCredential targetCred " +
-//					   		"WITH targetCred.credential.id = :credId " +
-//					   		"AND targetCred.user.id = :userId " +
-//				   	   "INNER JOIN fetch targetComp.createdBy user " + 
-//					   "LEFT JOIN fetch targetComp.tags tags " +
-//				   	   "WHERE targetComp.competence.id = :compId";
-//
-//
-//			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("userId", userId)
-//					.setLong("credId", credId)
-//					.setLong("compId", compId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
-//						res.getTags(), null, true);
-//				
-//				//retrieve user privilege to be able to tell if user can edit this competence
-//				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, compId, userId);
-//				compData.setCanEdit(priv == UserGroupPrivilege.Edit);
-//				//target competence can always be accessed
-//				compData.setCanAccess(true);
-//				
-//				if(compData != null && loadActivities) {
-//					List<ActivityData> activities = activityManager
-//							.getTargetActivitiesData(compData.getTargetCompId());
-//					compData.setActivities(activities);
-//				}
-//				return compData;
-//			}
-//			return null;
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT targetComp " +
+					       "FROM TargetCompetence1 targetComp " +
+						   "INNER JOIN fetch targetComp.competence comp ");
+			
+			if(credId > 0) {
+				builder.append("INNER JOIN comp.credentialCompetences credComp " +
+						   	   		"WITH credComp.credential.id = :credId ");
+			}
+			
+			builder.append("INNER JOIN fetch comp.createdBy user " +
+						   "LEFT JOIN fetch comp.tags tags " +
+					  	   "WHERE targetComp.user.id = :userId " +
+					  	   "AND comp.id = :compId ");
+		
+			
+			logger.info("QUERY: " + builder.toString());
+			Query q = persistence.currentManager()
+				.createQuery(builder.toString())
+				.setLong("compId", compId)
+				.setLong("userId", userId);
+			
+			if(credId > 0) {
+				q.setLong("credId", credId);
+			}
+
+			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
+			
+			if (res != null) {
+				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 
+						res.getCompetence().getTags(), null, true);
+				
+				if(compData != null && loadActivities) {
+					List<ActivityData> activities = activityManager
+							.getTargetActivitiesData(compData.getTargetCompId());
+					compData.setActivities(activities);
+				}
+				return compData;
+			}
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -1506,8 +1522,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					throw new CompetenceEmptyException();
 				}
 				//check if user can edit this competence
-				UserGroupPrivilege priv = getUserPrivilegeForCompetence(c.getId(), creatorId);
-				if(priv == UserGroupPrivilege.Edit) {
+				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
+				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
+				if(access.isCanEdit()) {
 					c.setPublished(true);
 					EventData ev = new EventData();
 					ev.setActorId(creatorId);
@@ -1800,43 +1817,67 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Transactional(readOnly = true)
 	@Override
-	public UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
+	public UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll " +
+			String query = "SELECT DISTINCT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll, comp.type, comp.published " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
 					"RIGHT JOIN compUserGroup.competence comp " +
 					"INNER JOIN userGroup.users user " +
 						"WITH user.user.id = :userId " +
-					"WHERE comp.id = :compId " +
-					"ORDER BY CASE WHEN compUserGroup.privilege = :editPriv THEN 1 WHEN compUserGroup.privilege = :viewPriv THEN 2 ELSE 3 END";
+					"WHERE comp.id = :compId";
 			
-			Object[] res = (Object[]) persistence.currentManager()
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("userId", userId)
 					.setLong("compId", compId)
-					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.Learn)
-					.setMaxResults(1)
-					.uniqueResult();
+					.list();
 			
-			if(res == null) {
-				return UserGroupPrivilege.None;
+			long owner = 0;
+			boolean visibleToAll = false;
+			LearningResourceType type = null;
+			boolean published = false;
+			boolean first = true;
+			Set<UserGroupPrivilege> privs = new HashSet<>();
+			for(Object[] row : res) {
+				if(row != null) {
+					UserGroupPrivilege priv = (UserGroupPrivilege) row[0];
+					if(priv == null) {
+						priv = UserGroupPrivilege.None;
+					}
+					privs.add(priv);
+					if(first) {
+						owner = (long) row[1];
+						visibleToAll = (boolean) row[2];
+						type = (LearningResourceType) row[3];
+						published = (boolean) row[4];
+						first = false;
+					}
+				}
 			}
-			UserGroupPrivilege priv = (UserGroupPrivilege) res[0];
-			if(priv == null) {
-				priv = UserGroupPrivilege.None;
-			}
-			long owner = (long) res[1];
-			boolean visibleToAll = (boolean) res[2];
-			return owner == userId 
-				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
+			return UserAccessSpecification.of(privs, visibleToAll, owner == userId, published, type);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privilege for competence");
+			throw new DbConnectionException("Error while trying to retrieve user privileges for competence");
+		}
+	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public ResourceAccessData getResourceAccessData(long compId, long userId, ResourceAccessRequirements req) 
+			throws DbConnectionException {
+		try {
+			UserAccessSpecification spec = getUserPrivilegesForCompetence(compId, userId);
+			return resourceAccessFactory.determineAccessRights(req, spec);
+		} catch (DbConnectionException dce) {
+			throw dce;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while trying to retrieve user privileges for competency");
 		}
 	}
 	
@@ -2404,24 +2445,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public ResourceAccessData getCompetenceAccessRights(long compId, long userId, 
-			UserGroupPrivilege neededPrivilege) throws DbConnectionException {
-		try {
-			UserGroupPrivilege priv = getUserPrivilegeForCompetence(compId, userId);
-			return new ResourceAccessData(
-					neededPrivilege.isPrivilegeIncluded(priv), 
-					priv == UserGroupPrivilege.Edit
-			);
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence access rights for user: " + userId
-					+ " and competence: " + compId);
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
 			throws DbConnectionException {  
 		try {
@@ -2474,16 +2497,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceForEdit(long credId, long compId, long userId) 
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+	public RestrictedAccessResult<CompetenceData1> getCompetenceForEdit(long credId, long compId, long userId, 
+			AccessMode accessMode) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
-			CompetenceData1 comp = getCompetenceData(credId, compId, true, true, true, userId, 
-					UserGroupPrivilege.Edit, true);
+			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
+					.addPrivilege(UserGroupPrivilege.Edit);
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceData(credId, compId, true, true, true, userId, 
+					req, true);
 			
 			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(compId);
-			comp.setCanUnpublish(canUnpublish);
+			res.getResource().setCanUnpublish(canUnpublish);
 			
-			return comp;
+			return res;
 		} catch (ResourceNotFoundException|IllegalArgumentException|DbConnectionException e) {
 			throw e;
 		} catch(Exception e) {
@@ -2511,6 +2536,119 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.uniqueResult();
 		
 		return count != null ? count > 0 : false;
-}
+    }
+	
+	@Override
+	@Transactional(readOnly = false)
+	public List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException {
+		try {
+			List<EventData> events = new ArrayList<>();
+			
+			String query = "SELECT comp.id, act.id, tAct.completed " +
+				   "FROM TargetActivity1 tAct " +
+				   "INNER JOIN tAct.targetCompetence tComp " +
+				   "INNER JOIN tComp.competence comp " +
+				   "INNER JOIN tAct.activity act " +
+				   "WHERE tComp.id = :tCompId " +
+				   "ORDER BY tAct.order";
+	
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("tCompId", targetCompId)
+				.list();
+			
+			if(res != null) {
+				int cumulativeCompProgress = 0;
+				int numberOfActivitiesInACompetence = 0;
+				long nextActToLearnInACompetenceId = 0;
+				
+				for(Object[] obj : res) {
+					long actId = (long) obj[1];
+					boolean actCompleted = (boolean) obj[2];
+					
+					int progress = actCompleted ? 100 : 0;
+					cumulativeCompProgress += progress;
+					numberOfActivitiesInACompetence ++;
+					if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
+						nextActToLearnInACompetenceId = actId;
+					}
+				}
+				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
+				
+				events.addAll(updateCompetenceProgress(targetCompId, (long) res.get(0)[0], finalCompProgress, 
+						nextActToLearnInACompetenceId, userId, contextData));
+				
+				events.addAll(credentialManager.updateCredentialProgress(targetCompId, userId, contextData));
+			}
+			return events;
+		} catch (DbConnectionException dce) {
+			throw dce;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating competency progress");
+		}
+	}
+
+	private List<EventData> updateCompetenceProgress(long targetCompId, long compId, int finalCompProgress, 
+			long nextActivityToLearnId, long userId, LearningContextData contextData) {
+		Date now = new Date();
+		/*
+		 * Update competence progress and id of next activity to learn.
+		 * Next activity to learn should be updated if competence progress is not 100.
+		 * If competence is completed there is no need to update next activity to learn.
+		 */
+		StringBuilder builder = new StringBuilder();
+		builder.append("UPDATE TargetCompetence1 targetComp SET " +
+ 				 	   "targetComp.progress = :progress ");
+		if(finalCompProgress != 100) {
+			builder.append(", targetComp.nextActivityToLearnId = :nextActToLearnId ");
+		} else {
+			builder.append(", targetComp.dateCompleted = :dateCompleted ");
+		}
+		builder.append("WHERE targetComp.id = :targetCompId");
+		
+		Query q = persistence.currentManager()
+			.createQuery(builder.toString())
+			.setInteger("progress", finalCompProgress)
+			.setLong("targetCompId", targetCompId);
+		if(finalCompProgress != 100) {
+			q.setLong("nextActToLearnId", nextActivityToLearnId);
+		} else {
+			q.setDate("dateCompleted", now);
+		}
+		q.executeUpdate();
+		
+		List<EventData> events = new ArrayList<>();
+		
+		TargetCompetence1 tComp = new TargetCompetence1();
+		tComp.setId(targetCompId);
+		Competence1 competence = new Competence1();
+		competence.setId(compId);
+		tComp.setCompetence(competence);
+		
+		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress, userId, tComp, null, 
+				contextData, null);
+		ev.setProgress(finalCompProgress);
+		events.add(ev);
+//		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
+//				lcPage, lcContext, lcService, params);
+		if(finalCompProgress == 100) {
+			Map<String, String> params = new HashMap<>();
+			String dateCompletedStr = null;
+			if(now != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				dateCompletedStr = df.format(now);
+			}
+			params.put("dateCompleted", dateCompletedStr);
+			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null, 
+					contextData, params));
+//			eventFactory.generateEvent(EventType.Completion, userId, tComp, null,
+//					lcPage, lcContext, lcService, null);
+		}
+		return events;
+	}
 	
 }

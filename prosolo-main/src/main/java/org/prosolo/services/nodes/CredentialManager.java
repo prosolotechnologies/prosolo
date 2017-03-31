@@ -11,23 +11,23 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.TagCountData;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
@@ -200,9 +200,8 @@ public interface CredentialManager extends AbstractManager {
 
 	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
 	
-	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
-			long targetCompId, long targetActId, long userId, LearningContextData contextData) 
-					throws DbConnectionException;
+	List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException;
 	
 	String getCredentialTitle(long id) throws DbConnectionException;
 	
@@ -257,9 +256,6 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
-
-	String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
-			throws DbConnectionException;
 	
 	TargetCredential1 getTargetCredential(long credentialId, long userId, 
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
@@ -299,9 +295,6 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException, EntityAlreadyExistsException;
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
-	
-	CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
-			throws DbConnectionException;
 
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
@@ -313,7 +306,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
 	
-	CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
+	long getTargetCredentialNextCompToLearn(long credId, long userId) 
 			throws DbConnectionException;
 	
 	long getNumberOfUsersLearningCredential(long credId) 
@@ -417,5 +410,8 @@ public interface CredentialManager extends AbstractManager {
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 
 	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
+			throws DbConnectionException;
+	
+	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException;
 }

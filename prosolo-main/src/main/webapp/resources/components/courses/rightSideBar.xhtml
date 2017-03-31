@@ -19,8 +19,6 @@
 		<composite:attribute name="saveAction" required="true" method-signature="void save()"/>
 		<composite:attribute name="cancelScheduledUpdateModal" default=""/>
 		<composite:attribute name="toUpdate" required="true" />
-		<composite:attribute name="previewAction" required="true" method-signature="void preview()"/>
-		<composite:attribute name="linkPreviewClass" required="true" />
 		<composite:attribute name="resource" required="true" /> <!-- Should be either CREDENTIAL or COMPETENCE -->
 		<composite:attribute name="role" required="true" />
 		<composite:attribute name="resourceLowerCase" required="true" />
@@ -38,16 +36,6 @@
 		<script src="#{request.contextPath}/resources/javascript2/rightSideBar.js"></script>
 		<div id="#{cc.clientId}" class="whiteBox publishBox">
 			<h2>Publish</h2>
-			
-			<p:commandLink id="linkPreview"
-				value="Preview #{cc.attrs.publishValue eq 'UNPUBLISH' ? 'Draft' : ''}"
-				styleClass="linkPreview"
-				action="#{cc.attrs.previewAction}"
-				update="#{cc.attrs.toUpdate}"
-				oncomplete="if(args &amp;&amp; !args.validationFailed) {document.getElementsByClassName('#{cc.attrs.linkPreviewClass}')[0].click();}">
-				<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-				<f:param name="learningContext" value="name:preview"></f:param>
-			</p:commandLink>
 			
 			<div class="clear"></div>
 			

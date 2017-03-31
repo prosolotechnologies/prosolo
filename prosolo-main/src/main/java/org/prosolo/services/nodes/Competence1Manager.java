@@ -23,9 +23,14 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
 public interface Competence1Manager {
@@ -102,15 +107,15 @@ public interface Competence1Manager {
 	 * @param loadTags
 	 * @param loadActivities
 	 * @param userId
-	 * @param privilege
+	 * @param req
 	 * @param shouldTrackChanges
 	 * @return
 	 * @throws ResourceNotFoundException
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, boolean loadTags, 
-			boolean loadActivities, long userId, UserGroupPrivilege privilege,
+	RestrictedAccessResult<CompetenceData1> getCompetenceData(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -180,8 +185,6 @@ public interface Competence1Manager {
 	
 	String getCompetenceTitle(long id) throws DbConnectionException;
 	
-	String getTargetCompetenceTitle(long targetCompId) throws DbConnectionException;
-
 	void updateProgressForTargetCompetenceWithActivity(long targetActId) 
 			throws DbConnectionException;
 	
@@ -194,7 +197,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+	RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
 	/**
@@ -247,13 +250,24 @@ public interface Competence1Manager {
 //			boolean loadActivities, Mode mode) throws DbConnectionException;
 	
 	/**
-	 * Returns privilege of a user with {@code userId} id for competence with {@code compId} id.
+	 * Returns user access specification object for a user with {@code userId} id and competence with {@code compId} id.
 	 * 
 	 * @param compId
 	 * @param userId
 	 * @return {@link UserGroupPrivilege}
 	 */
-	UserGroupPrivilege getUserPrivilegeForCompetence(long compId, long userId) 
+	UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
+			throws DbConnectionException;
+	
+	/**
+	 * 
+	 * @param compId
+	 * @param userId
+	 * @param req
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	ResourceAccessData getResourceAccessData(long compId, long userId, ResourceAccessRequirements req) 
 			throws DbConnectionException;
 	
 	boolean isVisibleToAll(long compId) throws DbConnectionException;
@@ -329,17 +343,18 @@ public interface Competence1Manager {
 	
 	String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type) throws DbConnectionException;
 	
-	ResourceAccessData getCompetenceAccessRights(long compId, long userId, UserGroupPrivilege neededPrivilege) 
-			throws DbConnectionException;
-	
 	List<TargetCompetence1> getTargetCompetencesForUser(long userId, Session session) 
 			throws DbConnectionException;
 	
 	void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
 			throws DbConnectionException;
 	
-	CompetenceData1 getCompetenceForEdit(long credId, long compId, long userId) 
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	RestrictedAccessResult<CompetenceData1> getCompetenceForEdit(long credId, long compId, long userId, 
+			AccessMode accessMode) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
+	LearningInfo getCompetenceLearningInfo(long compId, long userId) throws DbConnectionException;
+	
+	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException;
 	
 }

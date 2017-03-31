@@ -182,7 +182,6 @@
 			                    		bean="#{competenceEditBean}"
 			                    		isEdit="true"
 			                    		showMarkedIfCompleted="false"
-			                    		isPreview="false"
 			                    		encodedCompetenceId="#{param['id']}"
 			                    		encodedCredentialId="#{param['credId']}"
 			                    		toUpdate=""
@@ -222,8 +221,6 @@
 			            		saveAction="#{competenceEditBean.save}"
 			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog" 
-			            		previewAction="#{competenceEditBean.preview}"
-			            		linkPreviewClass="hiddenLinkPreview"
 			            		resource="COMPETENCE"
 			            		role="#{cc.attrs.role}"
 			            		resourceLowerCase="competence"
@@ -234,16 +231,6 @@
 								restoreModal="#restoreModal"
 								archived="#{competenceEditBean.competenceData.archived}"
 								resourceId="#{competenceEditBean.competenceData.competenceId}"/>
-			            		
-			            	<h:link
-								style="display: none;"
-								styleClass="hiddenLinkPreview"
-								target="_blank"
-								outcome="competence">
-								<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-								<f:param name="compId" value="#{param['id']}"></f:param>
-								<f:param name="mode" value="preview"></f:param>
-							</h:link>
 			            </div>
 			        </div>
 	

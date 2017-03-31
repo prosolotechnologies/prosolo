@@ -187,26 +187,7 @@
 			            <div class="col-md-4">
 			                <div class="whiteBox publishBox">
 			                    <h2>Publish</h2>
-			                    <p:commandLink
-			                    	id="linkPreview"
-									value="Preview"
-									styleClass="linkPreview"
-									action="#{activityEditBean.preview()}"
-									update=":#{cc.clientId}:formMain"
-									oncomplete="if(args &amp;&amp; !args.validationFailed) {document.getElementsByClassName('hiddenLinkPreview')[0].click();}">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-									<f:param name="learningContext" value="name:preview"></f:param>
-								</p:commandLink>
-								<h:link
-									style="display: none;"
-									styleClass="hiddenLinkPreview"
-									target="_blank"
-									outcome="activity">
-									<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-									<f:param name="compId" value="#{param['compId']}"></f:param>
-									<f:param name="actId" value="#{param['id']}"></f:param>
-									<f:param name="mode" value="preview"></f:param>
-								</h:link>
+			                    
 			                    <div class="clear"></div>
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>

@@ -366,6 +366,7 @@ public class ActivityDataFactory {
 		
 		//or add targetCompetenceId to activitydata
 		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
+		//TODO cred-redesign-07 - do we need next line - it issues additional db queries
 		data.setCompetenceName(targetActivity.getTargetCompetence().getCompetence().getTitle());
 		populateTypeSpecificData(data, targetActivity.getActivity());
 
@@ -406,36 +407,35 @@ public class ActivityDataFactory {
 	}
 	
 	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
-		//TODO cred-redesign-07
-//		if(activity == null) {
-//			return null;
-//		}
-//		ActivityData act = new ActivityData(false);
-//		act.setActivityId(activity.getActivity().getId());
-//		act.setTargetActivityId(activity.getId());
-//		act.setTitle(activity.getTitle());
-//		act.setCompleted(activity.isCompleted());
-//		act.setEnrolled(true);
-//		act.setDurationHours((int) (activity.getDuration() / 60));
-//		act.setDurationMinutes((int) (activity.getDuration() % 60));
-//		act.calculateDurationString();
-//		
-//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if(shouldTrackChanges) {
-//			act.startObservingChanges();
-//		}
-//		
-//		act.setActivityType(determineActivityType(activity));
-//
-//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if(shouldTrackChanges) {
-//			act.startObservingChanges();
-//		}
-//		
-//		return act;
-		return null;
+		if(activity == null) {
+			return null;
+		}
+		ActivityData act = new ActivityData(false);
+		Activity1 activ = activity.getActivity();
+		act.setActivityId(activ.getId());
+		act.setTargetActivityId(activity.getId());
+		act.setTitle(activ.getTitle());
+		act.setCompleted(activity.isCompleted());
+		act.setEnrolled(true);
+		act.setDurationHours((int) (activ.getDuration() / 60));
+		act.setDurationMinutes((int) (activ.getDuration() % 60));
+		act.calculateDurationString();
+		
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		act.setActivityType(getActivityType(activ));
+
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		return act;
 	}
 
 	private void populateCommonData(Activity1 activity, ActivityData data) {

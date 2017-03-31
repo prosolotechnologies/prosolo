@@ -30,6 +30,9 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
@@ -61,6 +64,7 @@ public class CompetenceEditBean implements Serializable {
 	private boolean addToCredential;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private List<ActivityData> activitiesToRemove;
 	private List<ActivityData> activitySearchResults;
 	private String activitySearchTerm;
@@ -113,12 +117,16 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
+	}
+	
 	/**
 	 * if this method returns true only limited edits are allowed
 	 * 
 	 * @return
 	 */
-	//TODO change this
 	public boolean isLimitedEdit() {
 		//if competence was once published 'big' changes are not allowed
 		return competenceData.getDatePublished() != null;
@@ -139,8 +147,11 @@ public class CompetenceEditBean implements Serializable {
 	
 	private void loadCompetenceData(long credId, long id) {
 		try {
-			competenceData = compManager.getCompetenceForEdit(credId, id, loggedUser.getUserId());
-			if(!competenceData.isCanAccess()) {
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(credId, id, 
+					loggedUser.getUserId(), mode);
+			unpackResult(res);
+			if(!access.isCanAccess()) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 				} catch (IOException e) {
@@ -177,9 +188,9 @@ public class CompetenceEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void preview() {
-		saveCompetenceData(true);
-	}
+//	public void preview() {
+//		saveCompetenceData(true);
+//	}
 	
 	public void saveAndNavigateToCreateActivity() {
 		boolean saved = saveCompetenceData(false);
@@ -342,7 +353,10 @@ public class CompetenceEditBean implements Serializable {
 	
 	private void reloadCompetence() {
 		try {
-			competenceData = compManager.getCompetenceForEdit(decodedCredId, decodedId, loggedUser.getUserId());
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(decodedCredId, decodedId, 
+					loggedUser.getUserId(), mode);
+			unpackResult(res);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 		}

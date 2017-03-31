@@ -11,7 +11,6 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -21,6 +20,8 @@ import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 
 public interface Activity1Manager extends AbstractManager {
@@ -47,8 +48,14 @@ public interface Activity1Manager extends AbstractManager {
 	List<TargetActivity1> createTargetActivities(TargetCompetence1 targetComp) 
 			throws DbConnectionException;
 	
-	List<ActivityData> getTargetActivitiesData(long targetCompId) 
-			throws DbConnectionException;
+	/**
+	 * Returns target activities data.
+	 * 
+	 * @param targetCompId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<ActivityData> getTargetActivitiesData(long targetCompId) throws DbConnectionException;
 	
 //	/**
 //	 * Sets published to true for all activities from the list that do not have
@@ -87,23 +94,23 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	Activity1 updateActivityData(ActivityData data) throws DbConnectionException, StaleDataException;
 	
+	
 	/**
-	 * Returns activity with all details for specified id as well as all competence
-	 * activities and competence basic info (title). 
+	 * Returns activity with all details for specified id with {@code activityId} argument as well as all competence
+	 * activities basic info for competence specified by {@code compId} id. 
+	 * 
 	 * @param credId
 	 * @param compId
 	 * @param activityId
-	 * @param creatorId id of a logged in user that should be creator of activity if {@code shouldReturnDraft}
-	 * is true. If this id does not match activity creator id, null will be returned.
-	 * @param shouldReturnDraft true if draft updates for activity with specified id should
-	 * be returned
-	 * @param role
-	 * @param returnType
+	 * @param creatorId
+	 * @param req
 	 * @return
 	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException
+	 * @throws IllegalArgumentException
 	 */
-	CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, UserGroupPrivilege privilege) 
+	RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
+			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	 void saveResponse(long targetActId, String path, Date postDate, long userId, 
@@ -114,19 +121,19 @@ public interface Activity1Manager extends AbstractManager {
 
 	/**
 	 * Updates activity flag to true. Also, progress of a competence that includes
-	 * activity is updated, as well as progress of target credential. Also, id of first unfinished
-	 * activity is set to credential and competence that includes this activity
+	 * activity is updated, as well as progress of all target credentials. Also, next activity and competence
+	 * to learn are set for user competence and credentials.
+	 * 
 	 * @param targetActId
 	 * @param targetCompId
-	 * @param credId
 	 * @param userId
 	 * @throws DbConnectionException
 	 */
-	void completeActivity(long targetActId, long targetCompId, long credId, long userId, 
-			LearningContextData contextData) throws DbConnectionException;
+	void completeActivity(long targetActId, long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException;
 	
-	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId, UserGroupPrivilege privilege, boolean isManager) 
+	RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+			long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
@@ -137,8 +144,14 @@ public interface Activity1Manager extends AbstractManager {
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
 	
-	List<TargetActivity1> getTargetActivities(long targetCompId) 
-			throws DbConnectionException;
+	/**
+	 * Returns target activities for target competence given by {@code targetCompId} id.
+	 * 
+	 * @param targetCompId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetActivity1> getTargetActivities(long targetCompId) throws DbConnectionException;
 	
 	/**
 	 * 
@@ -206,8 +219,8 @@ public interface Activity1Manager extends AbstractManager {
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
 			boolean instructor, boolean isManager, long loggedUserId);
 
-	ActivityData getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
+	RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
+			long activityId, long userId, boolean loadLinks, ResourceAccessRequirements req) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);

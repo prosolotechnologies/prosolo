@@ -26,12 +26,16 @@
 		<link rel="stylesheet" type="text/css" media="all"
 			href="#{request.contextPath}/resources/javascript2/mediaelement/mediaelementplayer.min.css" />
 			
-		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' and 
-     		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.activityToShowWithDetails.canEdit}"></ui:param>
+     		request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
      	<c:choose>
 			<c:when test="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}">
-				<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
+				<c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+					<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}///"/>
+				</c:when>
+				<c:otherwise>
+					<c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.activityId}|context:/name:target_activity|id:#{cc.attrs.bean.competenceData.activityToShowWithDetails.targetActivityId}//"/>
+				</c:otherwise>
 		    </c:when>
 			<c:otherwise>
 				<c:choose>
@@ -57,7 +61,6 @@
 						learningContext="#{learningContext}"
 						service="#{cc.attrs.service}"
 						canEdit="#{canEdit}"
-						isPreview="#{isPreview}"
 						toUpdateOnActivityComplete=":#{cc.clientId}:panelCompProgress :#{cc.clientId}:growlMain"
 					/>
 				</div>
@@ -67,7 +70,7 @@
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
 		    		<ol class="breadcrumb">
 			            <li>
-			            	<h:link value="Credentials" outcome="/credentialLibrary"/>
+			            	<h:link value="Credentials" outcome="credentialLibrary"/>
 			            </li>
 			            <li>
 			            	<h:link 
@@ -98,7 +101,7 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	 
 		    			<li>
-			            	<a href="javascript:void(0);">Competences</a>
+		    				<h:link value="Competencies" outcome="competenceLibrary"/>
 			            </li> 
 		    			<li>
 			            	<h:link 
@@ -121,7 +124,6 @@
 		            		competenceId="#{cc.attrs.bean.decodedCompId}"
 		            		activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
 		            		bean="#{cc.attrs.bean}"
-		            		isPreview="#{isPreview}"
 		            		learningContext="#{learningContext}"
 		            		role="#{cc.attrs.role}"
 		            	/>

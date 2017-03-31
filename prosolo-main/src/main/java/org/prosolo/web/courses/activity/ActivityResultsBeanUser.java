@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
@@ -20,7 +19,6 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -169,19 +167,20 @@ public class ActivityResultsBeanUser implements Serializable {
 	}
 	
 	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
-		decodedCredId = idEncoder.decodeId(credId);
-		competenceData.setTitle(compManager.getTargetCompetenceTitle(competenceData
-				.getActivityToShowWithDetails().getCompetenceId()));
-		
-		if (decodedCredId > 0) {
-			CredentialData cd = credManager
-					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-							loggedUser.getUserId());
-			competenceData.setCredentialTitle(cd.getTitle());
-			nextCompToLearn = cd.getNextCompetenceToLearnId();
-			nextActivityToLearn = cd.getNextActivityToLearnId();
-		}
-		competenceData.setCredentialId(decodedCredId);
+		//TODO cred-redesign-07 - see what should be done with next comp and activity to learn id
+//		decodedCredId = idEncoder.decodeId(credId);
+//		competenceData.setTitle(compManager.getTargetCompetenceTitle(competenceData
+//				.getActivityToShowWithDetails().getCompetenceId()));
+//		
+//		if (decodedCredId > 0) {
+//			CredentialData cd = credManager
+//					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
+//							loggedUser.getUserId());
+//			competenceData.setCredentialTitle(cd.getTitle());
+//			nextCompToLearn = cd.getNextCompetenceToLearnId();
+//			nextActivityToLearn = cd.getNextActivityToLearnId();
+//		}
+//		competenceData.setCredentialId(decodedCredId);
 	}
 	
 	public void initializeResultCommentsIfNotInitialized(ActivityResultData res) {
@@ -226,7 +225,6 @@ public class ActivityResultsBeanUser implements Serializable {
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
-					decodedCredId, 
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
@@ -236,14 +234,15 @@ public class ActivityResultsBeanUser implements Serializable {
 				}
 			}
 			
-			try {
-				CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
-						decodedCredId, loggedUser.getUserId());
-				nextCompToLearn = cd.getNextCompetenceToLearnId();
-				nextActivityToLearn = cd.getNextActivityToLearnId();
-			} catch(DbConnectionException e) {
-				logger.error(e);
-			}
+			//TODO cred-redesign-07 - see what should be done with next comp and activity to learn id
+//			try {
+//				CredentialData cd = credManager.getTargetCredentialNextCompToLearn(
+//						decodedCredId, loggedUser.getUserId());
+//				nextCompToLearn = cd.getNextCompetenceToLearnId();
+//				nextActivityToLearn = cd.getNextActivityToLearnId();
+//			} catch(DbConnectionException e) {
+//				logger.error(e);
+//			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while marking activity as completed");

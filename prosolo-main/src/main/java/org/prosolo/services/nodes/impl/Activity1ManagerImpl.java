@@ -57,6 +57,10 @@ import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -228,7 +232,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, competenceId);
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT distinct compAct " +
+			builder.append("SELECT compAct " +
 				      	   "FROM CompetenceActivity1 compAct " + 
 				       	   "INNER JOIN fetch compAct.activity act ");
 			
@@ -266,7 +270,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			List<TargetActivity1> targetActivities = new ArrayList<>();
 			if(compActivities != null) {
 				for(CompetenceActivity1 act : compActivities) {
-					TargetActivity1 ta = createTargetActivity(targetComp, act.getActivity());
+					TargetActivity1 ta = createTargetActivity(targetComp, act);
 					targetActivities.add(ta);
 				}
 			}
@@ -280,12 +284,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Transactional(readOnly = false)
 	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
-			Activity1 activity) throws DbConnectionException {
+			CompetenceActivity1 activity) throws DbConnectionException {
 		try {
 			TargetActivity1 targetAct = new TargetActivity1();
 			targetAct.setDateCreated(new Date());
 			targetAct.setTargetCompetence(targetComp);
-			targetAct.setActivity(activity);
+			targetAct.setActivity(activity.getActivity());
+			targetAct.setOrder(activity.getOrder());
     		
 			return saveEntity(targetAct);
 		} catch(Exception e) {
@@ -295,7 +300,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityData> getTargetActivitiesData(long targetCompId) 
@@ -311,6 +315,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 			}
 			return result;
+		} catch (DbConnectionException dce) {
+			throw dce;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -318,7 +324,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetActivity1> getTargetActivities(long targetCompId) 
@@ -329,6 +334,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			String query = "SELECT targetAct " +
 					       "FROM TargetActivity1 targetAct " +
+					       "INNER JOIN fetch targetAct.activity act " +
 					       "WHERE targetAct.targetCompetence = :targetComp " +
 					       "ORDER BY targetAct.order";
 
@@ -351,11 +357,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Transactional(readOnly = true)
 	@Override
-	public ActivityData getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, UserGroupPrivilege privilege) 
+	public RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
+			long activityId, long userId, boolean loadLinks, ResourceAccessRequirements req) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		try {
-			if(privilege == null) {
+			if(req == null) {
 				throw new IllegalArgumentException();
 			}
 			
@@ -365,25 +371,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if(res == null) {
 				throw new ResourceNotFoundException();
 			}
-			//we need user privilege for competence on which activity is dependent
-			UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(competenceId, 
-					userId);
-			/*
-			 * user can access activity:
-			 *  - when he has the right privilege (but when he has the View privilege
-			 *  activity and competence have to be published)
-			 *  
-			 */
-			boolean canAccess = privilege.isPrivilegeIncluded(priv);
-			if(canAccess && priv == UserGroupPrivilege.Learn && !res.getCompetence().isPublished()) {
-				canAccess = false;
-			}
 			
 			ActivityData actData = activityFactory.getActivityData(
 					res, res.getActivity().getLinks(), res.getActivity().getFiles(), true);
-			actData.setCanAccess(canAccess);
-			actData.setCanEdit(priv == UserGroupPrivilege.Edit);
-			return actData;
+			//we need user privilege for competence on which activity is dependent
+			ResourceAccessData access = compManager.getResourceAccessData(competenceId, userId, req);
+			
+			return RestrictedAccessResult.of(actData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
 		} catch(IllegalArgumentException iae) {
@@ -395,29 +389,42 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
+	/**
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id 
+	 * and if not throws {@link ResourceNotFoundException}.
+	 * 
+	 * @param credId
+	 * @param competenceId
+	 * @throws ResourceNotFoundException
+	 */
+	private void checkIfCompetenceIsPartOfACredential(long credId, long compId) 
+			throws ResourceNotFoundException {
+		/*
+		 * check if passed credential has specified competence
+		 */
+		if(credId > 0) {
+			String query1 = "SELECT credComp.id " +
+							"FROM CredentialCompetence1 credComp " +
+							"WHERE credComp.credential.id = :credId " +
+							"AND credComp.competence.id = :compId";
+			
+			@SuppressWarnings("unchecked")
+			List<Long> res1 = persistence.currentManager()
+					.createQuery(query1)
+					.setLong("credId", credId)
+					.setLong("compId", compId)
+					.list();
+			
+			if(res1 == null || res1.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
+		}
+	}
+	
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadCompetence) {
 		try {
-			/*
-			 * check if passed credential has specified competence
-			 */
-			if(credId > 0) {
-				String query1 = "SELECT credComp.id " +
-								"FROM CredentialCompetence1 credComp " +
-								"WHERE credComp.credential.id = :credId " +
-								"AND credComp.competence.id = :compId";
-				
-				@SuppressWarnings("unchecked")
-				List<Long> res1 = persistence.currentManager()
-						.createQuery(query1)
-						.setLong("credId", credId)
-						.setLong("compId", competenceId)
-						.list();
-				
-				if(res1 == null || res1.isEmpty()) {
-					throw new ResourceNotFoundException();
-				}
-			}
+			checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
 			 * we need to make sure that activity is bound to competence with passed id
 			 */
@@ -860,30 +867,23 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
-			long compId, long activityId, long creatorId, UserGroupPrivilege privilege) 
+	public RestrictedAccessResult<CompetenceData1> getCompetenceActivitiesWithSpecifiedActivityInFocus(long credId,
+			long compId, long activityId, long creatorId, ResourceAccessRequirements req) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
-			ActivityData activityWithDetails = getActivityData(credId, compId, activityId, 
-					creatorId, true, privilege);
-			if (activityWithDetails != null) {
-					compData = new CompetenceData1(false);
-					compData.setActivityToShowWithDetails(activityWithDetails);
-					
-					List<ActivityData> activities = getCompetenceActivitiesData(
-							activityWithDetails.getCompetenceId());
-					compData.setActivities(activities);
-					return compData;
-			}
-			return null;
-		} catch(ResourceNotFoundException rnfe) {
-			throw rnfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
+			RestrictedAccessResult<ActivityData> activityWithDetails = getActivityData(credId, compId, activityId, 
+					creatorId, true, req);
+			compData = new CompetenceData1(false);
+			compData.setActivityToShowWithDetails(activityWithDetails.getResource());
+			
+			List<ActivityData> activities = getCompetenceActivitiesData(compId);
+			compData.setActivities(activities);
+			return RestrictedAccessResult.of(compData, activityWithDetails.getAccess());
+		} catch (ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -959,10 +959,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, long credId, long userId,
+	public void completeActivity(long targetActId, long targetCompId, long userId,
 			LearningContextData contextData) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -977,8 +976,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setDate("date", new Date())
 				.executeUpdate();
 			
-			credManager.updateCredentialAndCompetenceProgressAndNextActivityToLearn(credId, 
-					targetCompId, targetActId, userId, contextData);
+			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, userId, contextData);
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
@@ -987,6 +985,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			String lcService = contextData != null ? contextData.getService() : null;
 			eventFactory.generateEvent(EventType.Completion, userId, tAct, null,
 					lcPage, lcContext, lcService, null);
+			
+			for(EventData ev : events) {
+				eventFactory.generateEvent(ev);
+			}
+		} catch (DbConnectionException dce) {
+			throw dce;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -994,26 +998,32 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId, 
-			long actId, long userId, UserGroupPrivilege privilege, boolean isManager) 
+	public RestrictedAccessResult<CompetenceData1> getFullTargetActivityOrActivityData(long credId, long compId, 
+			long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
 					compId, actId, userId, isManager);
 			if (compData == null) {
-				compData = getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
-						userId, privilege);
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.USER)
+						.addPrivilege(UserGroupPrivilege.Learn)
+						.addPrivilege(UserGroupPrivilege.Edit);
+				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId, 
+						userId, req);
 			}
 				
-			return compData;
-		} catch(ResourceNotFoundException rnfe) {
-			throw rnfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
+			/* if user is aleardy learning activity, he doesn't need any of the privileges;
+			 * we just need to determine which privileges he has (can he edit or instruct an activity)
+			 */
+			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
+			ResourceAccessData access = compManager.getResourceAccessData(compId, userId, req);
+			return RestrictedAccessResult.of(compData, access);
+		} catch(ResourceNotFoundException|IllegalArgumentException|DbConnectionException ex) {
+			throw ex;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1031,7 +1041,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Deprecated
 	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
@@ -1042,35 +1051,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					true, isManager);
 
 			if (activityWithDetails != null) {
-//				String query1 = "SELECT targetComp.title, targetCred.title, targetComp.createdBy.id " +
-//								"FROM TargetCompetence1 targetComp " +
-//								"INNER JOIN targetComp.targetCredential targetCred " +
-//								"WHERE targetComp.id = :compId";
-//				Object[] res1 = (Object[]) persistence.currentManager()
-//						.createQuery(query1)
-//						.setLong("compId", activityWithDetails.getCompetenceId())
-//						.uniqueResult();
-//				
-//				if(res1 != null) {
-//					compData = new CompetenceData1(false);
-//					compData.setCompetenceId(compId);
-//					compData.setTitle((String) res1[0]);
-//					compData.setCredentialId(credId);
-//					compData.setCredentialTitle((String) res1[1]);
-//					/*
-//					 * competence creator id is set because creator of a competence
-//					 * is also a creator of all activities for that competence.
-//					 */
-//					ResourceCreator rc = new ResourceCreator();
-//					rc.setId((long) res1[2]);
-//					compData.setCreator(rc);
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
 				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
 				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
 				compData.setActivities(activities);
 				return compData;
-				//}
 			}
 			return null;
 		} catch (Exception e) {
@@ -1091,50 +1077,46 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Deprecated
 	@Transactional(readOnly = true)
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean isManager) 
-			throws DbConnectionException {
+			throws DbConnectionException, ResourceNotFoundException {
 		try {	
-			//TODO cred-redesign-07
-//			StringBuilder query = new StringBuilder("SELECT targetAct " +
-//					   "FROM TargetActivity1 targetAct " +
-//					   "INNER JOIN targetAct.targetCompetence targetComp " +
-//					   		"WITH targetComp.competence.id = :compId " +
-//					   "INNER JOIN targetComp.targetCredential targetCred " +
-//					   		"WITH targetCred.credential.id = :credId " +
-//					   		"AND targetCred.user.id = :userId ");
-//			if(loadResourceLinks) {
-//				query.append("LEFT JOIN fetch targetAct.links link " + 
-//							 "LEFT JOIN fetch targetAct.files files ");
-//			}
-//			query.append("WHERE targetAct.activity.id = :actId");
-//
-//			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
-//					.createQuery(query.toString())
-//					.setLong("userId", userId)
-//					.setLong("credId", credId)
-//					.setLong("compId", compId)
-//					.setLong("actId", actId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Set<ResourceLink> links = loadResourceLinks ? res.getLinks() : null;
-//				Set<ResourceLink> files = loadResourceLinks ? res.getFiles() : null;
-//				ActivityData activity = activityFactory.getActivityData(res, links, 
-//						files, true, isManager);
-//				
-//				//retrieve user privilege to be able to tell if user can edit this activity
-//				UserGroupPrivilege priv = compManager.getUserPrivilegeForCompetence(credId, compId, 
-//						userId);
-//				activity.setCanEdit(priv == UserGroupPrivilege.Edit);
-//				//target activity can always be accessed
-//				activity.setCanAccess(true);
-//				return activity;
-//			}
-//			return null;
+			/*
+			 * check if competence is part of a credential
+			 */
+			checkIfCompetenceIsPartOfACredential(credId, compId);
+			
+			StringBuilder query = new StringBuilder("SELECT targetAct " +
+					   "FROM TargetActivity1 targetAct " +
+					   "INNER JOIN fetch targetAct.activity act " +
+					   "INNER JOIN targetAct.targetCompetence targetComp " +
+					   		"WITH targetComp.competence.id = :compId " +
+					   		"AND targetComp.user.id = :userId ");
+			if(loadResourceLinks) {
+				query.append("LEFT JOIN fetch act.links link " + 
+							 "LEFT JOIN fetch act.files files ");
+			}
+			query.append("WHERE act.id = :actId");
+
+			TargetActivity1 res = (TargetActivity1) persistence.currentManager()
+					.createQuery(query.toString())
+					.setLong("userId", userId)
+					.setLong("compId", compId)
+					.setLong("actId", actId)
+					.uniqueResult();
+
+			if (res != null) {
+				Set<ResourceLink> links = loadResourceLinks ? res.getActivity().getLinks() : null;
+				Set<ResourceLink> files = loadResourceLinks ? res.getActivity().getFiles() : null;
+				ActivityData activity = activityFactory.getActivityData(res, links, 
+						files, true, 0, isManager);
+				
+				return activity;
+			}
 			return null;
+		} catch (ResourceNotFoundException rnfe) {
+			throw rnfe;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

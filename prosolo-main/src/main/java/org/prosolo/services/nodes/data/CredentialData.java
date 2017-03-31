@@ -48,7 +48,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long targetCredId;
 	private int progress;
 	private long nextCompetenceToLearnId;
-	private long nextActivityToLearnId;
 	
 	private boolean bookmarkedByCurrentUser;
 	private long instructorId;
@@ -363,14 +362,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
 		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
-	}
-
-	public long getNextActivityToLearnId() {
-		return nextActivityToLearnId;
-	}
-
-	public void setNextActivityToLearnId(long nextActivityToLearnId) {
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public long getNextCompetenceToLearnId() {

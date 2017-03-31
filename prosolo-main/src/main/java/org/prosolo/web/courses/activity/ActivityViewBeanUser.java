@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -15,7 +16,6 @@ import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
@@ -27,8 +27,9 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -63,10 +64,10 @@ public class ActivityViewBeanUser implements Serializable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
-	private String mode;
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
@@ -118,29 +119,14 @@ public class ActivityViewBeanUser implements Serializable {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
 			
-				UserGroupPrivilege priv = null;
-				if ("preview".equals(mode)) {
-					priv = UserGroupPrivilege.Edit;
-				} else {
-					priv = UserGroupPrivilege.Learn;
-				}
-				if (decodedCredId > 0) {
-					competenceData = activityManager
-							.getFullTargetActivityOrActivityData(decodedCredId,
-									decodedCompId, decodedActId, loggedUser.getUserId(), priv, false);
-				} else { 
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
-									0, decodedCompId, decodedActId,  loggedUser.getUserId(), priv);
-				}
-				if (competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				} else if(!competenceData.getActivityToShowWithDetails().isCanAccess()){
+				RestrictedAccessResult<CompetenceData1> res = activityManager
+						.getFullTargetActivityOrActivityData(decodedCredId,
+								decodedCompId, decodedActId, loggedUser.getUserId(), false);
+				
+				unpackResult(res);
+				
+				//if user is enrolled he can always access the resource
+				if (!access.isCanAccess()) {
 					try {
 						FacesContext.getCurrentInstance().getExternalContext().dispatch(
 								"/accessDenied.xhtml");
@@ -167,8 +153,6 @@ public class ActivityViewBeanUser implements Serializable {
 								loggedUser.getAvatar(), null, null, true);
 						ad.getResultData().setUser(ud);
 					}
-//					commentBean.init(CommentedResourceType.Activity, 
-//							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
 					loadCompetenceAndCredentialTitle();
 					
@@ -195,28 +179,35 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
+	}
+	
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = null;
 		String credTitle = null;
 		decodedCredId = idEncoder.decodeId(credId);
 		if(competenceData.getActivityToShowWithDetails().isEnrolled()) {
-			compTitle = compManager.getTargetCompetenceTitle(competenceData
-					.getActivityToShowWithDetails().getCompetenceId());
-			if(decodedCredId > 0) {
-//				credTitle = credManager.getTargetCredentialTitle(decodedCredId, loggedUser
-//						.getUser().getId());
-					CredentialData cd = credManager
-							.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-									loggedUser.getUserId());
-					credTitle = cd.getTitle();
-					nextCompToLearn = cd.getNextCompetenceToLearnId();
-					nextActivityToLearn = cd.getNextActivityToLearnId();
-					mandatoryOrder = cd.isMandatoryFlow();
+			//LearningInfo li = compManager.getCompetenceLearningInfo(decodedCompId, loggedUser.getUserId());
+			//compTitle = li.getCompetenceTitle();
+			//TODO revisit when it is clear what mandatory order means in new design
+			//nextActivityToLearn = li.getNextActivityToLearn();
+			nextCompToLearn = decodedCompId;
+			compTitle = compManager.getCompetenceTitle(decodedCompId);
+			//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
+			//if(decodedCredId > 0) {
+//					LearningInfo credLI = credManager
+//							.getCredentialLearningInfo(decodedCredId, loggedUser.getUserId(), false);
+//					credTitle = credLI.getCredentialTitle();
+//					mandatoryOrder = credLI.isMandatoryFlow();
+			if (decodedCredId > 0) {
+				credTitle = credManager.getCredentialTitle(decodedCredId);
 			}
-			if(!mandatoryOrder) {
+			//}
+			if (!mandatoryOrder) {
 				for (ActivityData ad : competenceData.getActivities()) {
 					if(!ad.isCompleted()) {
-						nextCompToLearn = decodedCompId;
 						nextActivityToLearn = ad.getActivityId();
 						break;
 					}
@@ -231,7 +222,6 @@ public class ActivityViewBeanUser implements Serializable {
 		competenceData.setTitle(compTitle);
 		competenceData.setCredentialId(decodedCredId);
 		competenceData.setCredentialTitle(credTitle);
-		
 	}
 	
 	public void initializeResultCommentsIfNotInitialized(ActivityResultData resultData) {
@@ -246,19 +236,25 @@ public class ActivityViewBeanUser implements Serializable {
 		}
 	}
 	
-	public void enrollInCredential() {
+	public void enrollInCompetence() {
 		try {
 			LearningContextData lcd = new LearningContextData();
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			credManager.enrollInCredential(decodedCredId, 
-					loggedUser.getUserId(), lcd);
-			initializeActivityData();
+			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), lcd);
+			//initializeActivityData();
 			
 			try {
-				FacesContext.getCurrentInstance().getExternalContext().redirect("/credentials/" + 
-					credId + "/" + compId + "/" + actId);
+				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+				if(decodedCredId > 0) {
+					extContext.redirect(extContext.getRequestContextPath() + "/credentials/" + 
+						credId + "/" + compId + "/" + actId);
+				} else {
+					FacesContext.getCurrentInstance().getExternalContext().redirect(
+							extContext.getRequestContextPath() +
+							"/competences/" + compId + "/" + actId);
+				}
 			} catch (IOException e) {
 				logger.error(e);
 				e.printStackTrace();
@@ -293,10 +289,6 @@ public class ActivityViewBeanUser implements Serializable {
 // 		}
 		return null;
  	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
 
 	/*
 	 * ACTIONS
@@ -311,8 +303,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					competenceData.getActivityToShowWithDetails().getCompetenceId(), 
-					decodedCredId, 
+					competenceData.getActivityToShowWithDetails().getCompetenceId(),  
 					loggedUser.getUserId(), lcd);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
@@ -329,11 +320,19 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 			
 			try {
+				/*
+				 * if all activities from current competence are completed and id of a credential is passed, 
+				 * we retrieve the next competence and activity to learn from credential
+				 */
+				//TODO for now we don't want to navigate to another competence so if competence is completed we don't show continue button
+//				if(!localNextToLearn && decodedCredId > 0) {
+//					LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
+//							loggedUser.getUserId(), true);
+//					nextCompToLearn = li.getNextCompetenceToLearn();
+//					nextActivityToLearn = li.getNextActivityToLearn();
+//				}
 				if(!localNextToLearn) {
-					CredentialData cd = credManager.getTargetCredentialNextCompAndActivityToLearn(
-							decodedCredId, loggedUser.getUserId());
-					nextCompToLearn = cd.getNextCompetenceToLearnId();
-					nextActivityToLearn = cd.getNextActivityToLearnId();
+					nextCompToLearn = 0;
 				}
 			} catch(DbConnectionException e) {
 				logger.error(e);
@@ -454,14 +453,6 @@ public class ActivityViewBeanUser implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
 	public CommentsData getCommentsData() {
 		return commentsData;
 	}
@@ -500,6 +491,10 @@ public class ActivityViewBeanUser implements Serializable {
 
 	public void setMandatoryOrder(boolean mandatoryOrder) {
 		this.mandatoryOrder = mandatoryOrder;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 	
 }

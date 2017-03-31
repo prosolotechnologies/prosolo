@@ -35,9 +35,14 @@ import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -68,6 +73,7 @@ public class ActivityEditBean implements Serializable {
 	private long decodedCredId;
 	
 	private ActivityData activityData;
+	private ResourceAccessData access;
 	private String competenceName;
 	private ResourceLinkData resLinkToAdd;
 	private String credentialTitle;
@@ -80,7 +86,10 @@ public class ActivityEditBean implements Serializable {
 	
 	private String context;
 	
+	private boolean manageSection;
+	
 	public void init() {
+		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
 		decodedCredId = idEncoder.decodeId(credId);
 		try {
@@ -110,6 +119,11 @@ public class ActivityEditBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 		
+	}
+	
+	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
+		activityData = res.getResource();
+		access = res.getAccess();
 	}
 	
 	public boolean isLimitedEdit() {
@@ -148,10 +162,14 @@ public class ActivityEditBean implements Serializable {
 
 	private void loadActivityData(long credId, long compId, long actId) {
 		try {
-			activityData = activityManager.getActivityData(credId, compId, actId, 
-					loggedUser.getUserId(), true, UserGroupPrivilege.Edit);
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			ResourceAccessRequirements req = ResourceAccessRequirements.of(mode)
+					.addPrivilege(UserGroupPrivilege.Edit);
+			RestrictedAccessResult<ActivityData> res = activityManager.getActivityData(credId, compId, actId, 
+					loggedUser.getUserId(), true, req);
+			unpackResult(res);
 			
-			if(!activityData.isCanAccess()) {
+			if(!access.isCanAccess()) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 				} catch (IOException e) {
@@ -326,9 +344,9 @@ public class ActivityEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void preview() {
-		saveActivityData(true);
-	}
+//	public void preview() {
+//		saveActivityData(true);
+//	}
 	
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;

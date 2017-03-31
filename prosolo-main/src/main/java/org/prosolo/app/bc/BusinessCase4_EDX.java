@@ -750,7 +750,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
 						actData.getTargetActivityId(), 
 						compData.getCompetenceId(), 
-						cred1.getId(), 
 						userKevinHall.getId(),
 						 new LearningContextData());
 				

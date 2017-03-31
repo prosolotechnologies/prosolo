@@ -23,7 +23,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -98,8 +97,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				String title = credManager.getCredentialTitleForCredentialWithType(decodedId,
-						LearningResourceType.UNIVERSITY_CREATED);
+				String title = credManager.getCredentialTitle(decodedId);
 				if (title != null) {
 					credentialTitle = title;
 					paginationData.update(assessmentManager.countAssessmentsForAssessorAndCredential(

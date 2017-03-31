@@ -35,6 +35,8 @@ public class TargetActivity1 extends BaseEntity {
 	
 	private long timeSpent;
 	
+    private int order;
+	
 	public TargetActivity1() {
 		
 	}
@@ -125,4 +127,12 @@ public class TargetActivity1 extends BaseEntity {
 		this.numberOfAttempts = numberOfAttempts;
 	}
 	
+	@Column(name = "actOrder")
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
 }

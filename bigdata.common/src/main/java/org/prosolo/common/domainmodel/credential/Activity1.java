@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -60,6 +61,8 @@ public class Activity1 extends BaseEntity {
 	
 	private int difficulty;
 	private boolean autograde;
+	
+	private List<CompetenceActivity1> competenceActivities;
 	
 	public Activity1() {
 		links = new HashSet<>();
@@ -195,6 +198,15 @@ public class Activity1 extends BaseEntity {
 
 	public void setVersion(long version) {
 		this.version = version;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
+	public List<CompetenceActivity1> getCompetenceActivities() {
+		return competenceActivities;
+	}
+
+	public void setCompetenceActivities(List<CompetenceActivity1> competenceActivities) {
+		this.competenceActivities = competenceActivities;
 	}
 	
 }

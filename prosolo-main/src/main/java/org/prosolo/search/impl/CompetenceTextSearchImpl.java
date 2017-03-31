@@ -42,6 +42,9 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.stereotype.Service;
@@ -155,11 +158,15 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false,
-								userId, UserGroupPrivilege.None, false);
+						/*
+						 * access rights are already checked when querying ES, so we don't need to do that again
+						 */
+						ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
+						RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceData(0, id, true, 
+								false, false, userId, req, false);
 						
-						if (cd != null) {
-							response.addFoundNode(cd);
+						if (res.getResource() != null) {
+							response.addFoundNode(res.getResource());
 						}
 					} catch (DbConnectionException e) {
 						logger.error(e);
