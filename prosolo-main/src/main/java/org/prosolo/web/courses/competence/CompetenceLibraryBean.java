@@ -25,7 +25,6 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -64,7 +63,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			true, true, false, true, LearningResourceType.USER_CREATED);
 
 	private String context = "name:library";
-@Inject CredentialManager credManager;
+
 	public void init() {
 		sortOptions = LearningResourceSortOption.values();
 		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
@@ -72,10 +71,6 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
 				.toArray(LearningResourceSearchFilter[]::new);
 		searchCompetences(false);
-//		credManager.enrollInCredential(1, loggedUserBean.getUserId(), null);
-//		credManager.enrollInCredential(2, loggedUserBean.getUserId(), null);
-//		credManager.enrollInCredential(3, loggedUserBean.getUserId(), null);
-//		credManager.enrollInCredential(4, loggedUserBean.getUserId(), null);
 	}
 
 	public void searchCompetences(boolean userSearch) {

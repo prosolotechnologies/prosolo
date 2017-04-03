@@ -60,6 +60,7 @@
 		}
 
 	</script>
+	<ui:param name="canEdit" value="#{request.isUserInRole('MANAGE.CONTENT.EDIT') and activityResultsBeanManager.access.canEdit}" />
 	<h:form prependId="false" id="remoteCommandForm">
 		<p:remoteCommand action="#{activityResultsBeanManager.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
 	</h:form>
@@ -73,71 +74,117 @@
 				bean="#{activityResultsBeanManager}"
 				activity="#{activityResultsBeanManager.activity}"
 				learningContext="#{learningContext}"
-				canEdit="false"
-				isPreview="false"
+				canEdit="#{canEdit}"
 			/>
         </div>
     </div>
 
     <div class="container">
-    	<ol class="breadcrumb">
-            <li>
-            	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
-            </li>
-            <li>
-            	<h:link 
-            		value="#{activityResultsBeanManager.credentialTitle}"
-            		outcome="/manage/credential"
-            		onclick="sendLogPageNavigation('/manage/credential.xhtml', 
-							'#{facesContext.viewRoot.viewId}', 
-							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanManager.decodedCredId).concat(&#34;/&#34;))}', 
-							'');">
-            		<f:param name="id" value="#{param['credId']}"></f:param>
-            	</h:link>
-            </li>
-            <li>
-            	<h:link 
-            		value="#{activityResultsBeanManager.competenceTitle}"
-            		outcome="/manage/competence"
-            		onclick="sendLogPageNavigation('/manage/competence.xhtml', 
-							'#{facesContext.viewRoot.viewId}', 
-							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanManger.decodedCompId).concat(&#34;/&#34;))}', 
-							'');">
-            		<f:param name="compId" value="#{param['compId']}"></f:param>
-            		<f:param name="credId" value="#{param['credId']}"></f:param>
-            	</h:link>
-            </li>
-            <li>
-            	<h:link 
-            		value="#{activityResultsBeanManager.activity.title}"
-            		outcome="/manage/activity"
-            		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
-							'#{facesContext.viewRoot.viewId}', 
-							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
-							'');">
-					<f:param name="actId" value="#{param['actId']}"></f:param>
-            		<f:param name="compId" value="#{param['compId']}"></f:param>
-            		<f:param name="credId" value="#{param['credId']}"></f:param>
-            	</h:link>
-            	
-            </li>
-            <li>
-            	<h:link
-            		outcome="/manage/activity-responses"
-            		onclick="sendLogPageNavigation('/manage/activity-responses.xhtml', 
-							'#{facesContext.viewRoot.viewId}', 
-							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanManager.targetActivityId).concat(&#34;/&#34;))}', 
-							'');">
-            		<f:param name="credId" value="#{param['credId']}" />
-	            	<f:param name="compId" value="#{param['compId']}" />
-	            	<f:param name="actId" value="#{param['actId']}" />
-            		Responses
-            	</h:link>
-            </li>
-            <li class="active">
-            	#{activityResultsBeanManager.resultOwnerFullName}
-            </li>
-        </ol>
+    	<ui:fragment rendered="#{activityResultsBeanManager.credentialId != 0}">
+	    	<ol class="breadcrumb">
+	            <li>
+	            	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
+	            </li>
+	            <li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.credentialTitle}"
+	            		outcome="/manage/credential"
+	            		onclick="sendLogPageNavigation('/manage/credential.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanManager.decodedCredId).concat(&#34;/&#34;))}', 
+								'');">
+	            		<f:param name="id" value="#{param['credId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.competenceTitle}"
+	            		outcome="/manage/competence"
+	            		onclick="sendLogPageNavigation('/manage/competence.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanManger.decodedCompId).concat(&#34;/&#34;))}', 
+								'');">
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            		<f:param name="credId" value="#{param['credId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.activity.title}"
+	            		outcome="/manage/activity"
+	            		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanManager.decodedActId).concat(&#34;/&#34;))}', 
+								'');">
+						<f:param name="actId" value="#{param['actId']}"></f:param>
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            		<f:param name="credId" value="#{param['credId']}"></f:param>
+	            	</h:link>
+	            	
+	            </li>
+	            <li>
+	            	<h:link
+	            		outcome="/manage/activity-responses"
+	            		onclick="sendLogPageNavigation('/manage/activity-responses.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanManager.targetActivityId).concat(&#34;/&#34;))}', 
+								'');">
+	            		<f:param name="credId" value="#{param['credId']}" />
+		            	<f:param name="compId" value="#{param['compId']}" />
+		            	<f:param name="actId" value="#{param['actId']}" />
+	            		Responses
+	            	</h:link>
+	            </li>
+	            <li class="active">
+	            	#{activityResultsBeanManager.resultOwnerFullName}
+	            </li>
+	        </ol>
+	     </ui:fragment>
+	     <ui:fragment rendered="#{activityResultsBeanManager.credentialId == 0}">
+       		<ol class="breadcrumb">	 
+    			<li>
+    				<h:link value="Competencies" outcome="competenceLibrary"/>
+	            </li> 
+    			<li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.competenceTitle}"
+	            		outcome="/manage/competence"
+	            		onclick="sendLogPageNavigation('/manage/competence.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanManger.decodedCompId).concat(&#34;/&#34;))}', 
+								'');">
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>         
+	            <li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.activity.title}"
+	            		outcome="/manage/activity"
+	            		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanManager.decodedActId).concat(&#34;/&#34;))}', 
+								'');">
+						<f:param name="actId" value="#{param['actId']}"></f:param>
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <li>
+	            	<h:link
+	            		outcome="/manage/activity-responses"
+	            		onclick="sendLogPageNavigation('/manage/activity-responses.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanManager.targetActivityId).concat(&#34;/&#34;))}', 
+								'');">
+		            	<f:param name="compId" value="#{param['compId']}" />
+		            	<f:param name="actId" value="#{param['actId']}" />
+	            		Responses
+	            	</h:link>
+	            </li>
+	            <li class="active">
+	            	#{activityResultsBeanManager.resultOwnerFullName}
+	            </li>
+	        </ol>
+       </ui:fragment>
     </div>
 
     <div class="container">

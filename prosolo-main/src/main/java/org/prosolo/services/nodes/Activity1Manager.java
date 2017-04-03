@@ -3,6 +3,7 @@ package org.prosolo.services.nodes;
 import java.util.Date;
 import java.util.List;
 
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -161,11 +162,11 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param userId
 	 * @param isManager did request come from manage section
 	 * @return
-	 * @throws DbConnectionException
+	 * @throws {@link DbConnectionException} {@link ResourceNotFoundException} {@link AccessDeniedException}
 	 */
 	CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 			long credId, long compId, long actId, long userId, boolean isManager) 
-					throws DbConnectionException;
+					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException;
 	
 	/**
 	 * Returns activity data with results for all students that posted result for activity with id {@code actId} 
@@ -196,7 +197,8 @@ public interface Activity1Manager extends AbstractManager {
 	 * if {@code targetActivityId} equals 0, otherwise returns result just for that specific target
 	 * activity.
 	 * 
-	 * @param credId
+	 * @param credId - if greater than zero, it will be checked if competence given by {@code compId} 
+	 * is part of a credential with {@code credId} id and if not, {@link ResourceNotFoundException} will be thrown
 	 * @param compId
 	 * @param actId
 	 * @param targetActivityId
@@ -204,6 +206,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param isInstructor
 	 * @param isManager
 	 * @param returnAssessmentData
+	 * @param loadUsersCommentsOnOtherResults
 	 * @param paginate
 	 * @param page
 	 * @param limit
@@ -213,8 +216,8 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, long targetActivityId,
 			long userToExclude, boolean isInstructor, boolean isManager, boolean returnAssessmentData, 
-			boolean paginate, int page, int limit, StudentAssessedFilter filter) 
-					throws DbConnectionException;
+			boolean loadUsersCommentsOnOtherResults, boolean paginate, int page, int limit, 
+			StudentAssessedFilter filter) throws DbConnectionException, ResourceNotFoundException;
 
 	ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
 			boolean instructor, boolean isManager, long loggedUserId);

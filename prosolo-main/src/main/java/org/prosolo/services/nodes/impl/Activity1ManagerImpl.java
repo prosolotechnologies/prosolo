@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.impl;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -40,7 +42,11 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentReplyFetchMode;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
+import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -84,6 +90,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private CommentDataFactory commentDataFactory;
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
@@ -1747,18 +1754,21 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
 			long credId, long compId, long actId, long userId, boolean isManager) 
-					throws DbConnectionException {
+					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
 		CompetenceData1 compData = null;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, 
 					userId, false, isManager);
 			
 			if (activityWithDetails != null) {
+				//if it is not allowed for students to see other students responses throw AccessDeniedException
+				if(!activityWithDetails.isStudentCanSeeOtherResponses()) {
+					throw new AccessDeniedException();
+				}
 				/*
 				 * if user hasn't submitted result, null should be returned
 				 */
@@ -1766,9 +1776,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				if(result == null || result.isEmpty()) {
 					return null;
 				}
-				
-				activityWithDetails.setStudentResults(getStudentsResults(credId, compId, actId, 0, userId, 
-						false, false, false, false, 0, 0, null));
+				//pass 0 for credentialId because we don't need to check again if competence belongs to credential
+				activityWithDetails.setStudentResults(getStudentsResults(0, compId, actId, 0, userId, 
+						false, false, false, false, false, 0, 0, null));
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
@@ -1779,6 +1789,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				//}
 			}
 			return null;
+		} catch (AccessDeniedException ade) {
+			throw ade;
+		} catch (ResourceNotFoundException rnfe) {
+			throw rnfe;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1844,17 +1858,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
 			long targetActivityId, long userToExclude, boolean isInstructor, boolean isManager,
-			boolean returnAssessmentData, boolean paginate, int page, int limit, 
-			StudentAssessedFilter filter)  throws DbConnectionException {
+			boolean returnAssessmentData, boolean loadUsersCommentsOnOtherResults, boolean paginate, 
+			int page, int limit, StudentAssessedFilter filter)  throws DbConnectionException, ResourceNotFoundException {
 		try {
+			if(credId > 0) {
+				checkIfCompetenceIsPartOfACredential(credId, compId);
+			}
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
-			   "SELECT targetAct.id as tActId, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
+			   "SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
 		   	   "COUNT(distinct com.id) ");
 			
@@ -1869,18 +1885,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			query.append("FROM target_activity1 targetAct " +
 				   	     "INNER JOIN target_competence1 targetComp " +
 				   	   		"ON (targetAct.target_competence = targetComp.id " +
-				   			"AND targetComp.competence = :compId) " +
-			   			"INNER JOIN activity1 act " +
-				   			"ON (targetAct.activity = act.id) " +
-				   	     "INNER JOIN target_credential1 targetCred " +
-				   		   "ON (targetComp.target_credential = targetCred.id " +
-					   	   "AND targetCred.credential = :credId ");
+				   			"AND targetComp.competence = :compId ");
 			
 			if (userToExclude > 0) {
-				query.append("AND targetCred.user != :userId) ");
+				query.append("AND targetComp.user != :userId) ");
 			} else {
 				query.append(") ");
 			}
+			
+			query.append("INNER JOIN activity1 act " +
+				   		 "ON (targetAct.activity = act.id " +
+						 "AND act.id = :actId) ");
 			
 			if (returnAssessmentData || filter != null) {
 				query.append("LEFT JOIN activity_assessment ad " +
@@ -1889,19 +1904,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			
 			if (returnAssessmentData) {
 				query.append("LEFT JOIN activity_discussion_participant p " +
-						 		"ON ad.id = p.activity_discussion AND p.participant = targetCred.user " +
+						 		"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
 						 	 "LEFT JOIN activity_discussion_message msg " +
 						 		"ON ad.id = msg.discussion ");
 			}
 		   	   
 			query.append("INNER JOIN user u " +
-				   			"ON (targetCred.user = u.id) " +
+				   			"ON (targetComp.user = u.id) " +
 				   		 "LEFT JOIN comment1 com " +
 				   			"ON (targetAct.id = com.commented_resource_id " +
 				   			"AND com.resource_type = :resType " +
 				   			"AND com.parent_comment is NULL) " +
-				   		 "WHERE targetAct.activity = :actId " +
-				   		 "AND targetAct.result is not NULL ");
+				   		 "WHERE targetAct.result is not NULL ");
 			
 			if (filter != null) {
 				if (filter == StudentAssessedFilter.Assessed) {
@@ -1915,7 +1929,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				query.append("AND targetAct.id = :tActId ");
 			}
 				   		
-			query.append("GROUP BY targetAct.id, targetAct.result_type, targetAct.result, targetAct.result_post_date, " +
+			query.append("GROUP BY targetAct.id, act.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id, u.name, u.lastname, u.avatar_url ");
 			
 			
@@ -1935,7 +1949,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				
 			Query q = persistence.currentManager()
 						.createSQLQuery(query.toString())
-						.setLong("credId", credId)
 						.setLong("compId", compId)
 						.setLong("actId", actId)
 						.setString("resType", CommentedResourceType.ActivityResult.name());
@@ -1975,7 +1988,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ActivityResultData ard = activityFactory.getActivityResultData(tActId, type, result, 
 							date, user, commentsNo, isInstructor, isManager);
 					
-					ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId));
+					if(loadUsersCommentsOnOtherResults) {
+						ard.setOtherResultsComments(getCommentsOnOtherResults(userId, tActId, actId));
+					}
 					results.add(ard); 
 					
 					if (returnAssessmentData) {
@@ -2010,32 +2025,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 			}
 			return results;
-		} catch(Exception e) {
+		} catch (ResourceNotFoundException rnfe) {
+			throw rnfe;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving results for students");
 		}
 	}
 	
-	@Deprecated
-	private List<ResultCommentInfo> getCommentsOnOtherResults(long userId, long targetActivityId) {
+	private List<ResultCommentInfo> getCommentsOnOtherResults(long userId, long targetActivityId, long actId) {
 		String query = 
 				"SELECT targetAct.id, user.name, user.lastname, COUNT(DISTINCT com.id) AS noOfComments, MIN(com.post_date) AS firstCommentDate " +
 				"FROM target_activity1 targetAct " +
-				"INNER JOIN activity1 act ON (targetAct.activity = act.id) " +
+				"INNER JOIN activity1 act ON (targetAct.activity = act.id AND act.id = :actId) " +
 				"INNER JOIN target_competence1 targetComp ON (targetAct.target_competence = targetComp.id) " +
-				"INNER JOIN target_credential1 targetCred ON (targetComp.target_credential = targetCred.id) " +
-				"INNER JOIN user user ON (targetCred.user = user.id) " +
-				"LEFT JOIN comment1 com ON (targetAct.id = com.commented_resource_id AND com.resource_type = 'ActivityResult') " +
-				"WHERE act.id IN ( " +
-						"SELECT act1.id " +
-						"FROM target_activity1 targetAct1 " +
-						"INNER JOIN activity1 act1 ON (targetAct1.activity = act1.id) " +
-						"WHERE targetAct1.id = :targetActivityId " +
-					") " +
-					"AND targetAct.id != :targetActivityId " +
+				"INNER JOIN user user ON (targetComp.user = user.id) " +
+				"INNER JOIN comment1 com ON (targetAct.id = com.commented_resource_id AND com.resource_type = 'ActivityResult' " +
+											"AND com.user = :userId) " +
+				"WHERE targetAct.id != :targetActivityId " +
 					"AND targetAct.result IS NOT NULL " +
-					"AND com.user = :userId " +
 					"AND user.id != :userId " +
 				"GROUP BY targetAct.id, user.name, user.lastname ";
 		
@@ -2043,6 +2052,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		List<Object[]> rows = persistence.currentManager().createSQLQuery(query)
 				.setLong("targetActivityId", targetActivityId)
 				.setLong("userId", userId)
+				.setLong("actId", actId)
 				.list();
 		
 		List<ResultCommentInfo> result = new LinkedList<>();
@@ -2059,13 +2069,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		return result;
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, 
 			long actId, long targetActivityId, boolean isInstructor, boolean isManager, 
 			boolean paginate, int page, int limit, StudentAssessedFilter filter) 
-					throws DbConnectionException {
+					throws DbConnectionException, ResourceNotFoundException {
 		try {			
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 			if (activity == null) {
@@ -2084,7 +2093,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 			data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 			data.setStudentResults(getStudentsResults(credId, compId, actId, targetActivityId, 0, 
-					isInstructor, isManager, true, paginate, page, limit, filter));
+					isInstructor, isManager, true, true, paginate, page, limit, filter));
 			
 			return data;
 		} catch (Exception e) {
@@ -2094,67 +2103,64 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public ActivityResultData getActivityResultData(long targetActivityId, boolean loadComments, 
 			boolean instructor, boolean isManager, long loggedUserId) {
-		//TODO cred-redesign-07
-//		String query = 
-//			"SELECT targetAct, targetCred.user " +
-//			"FROM TargetActivity1 targetAct " +
-//			"INNER JOIN targetAct.targetCompetence targetComp " + 
-//			"INNER JOIN targetComp.targetCredential targetCred " + 
-//			"WHERE targetAct.id = :targetActivityId";
-//		
-//		Object[] result = (Object[]) persistence.currentManager()
-//			.createQuery(query.toString())
-//			.setLong("targetActivityId", targetActivityId)
-//			.uniqueResult();
-//		
-//		if (result != null) {
-//			TargetActivity1 targetActivity = (TargetActivity1) result[0];
-//			User user = (User) result[1];
-//			
-//			ActivityResultData activityResult = activityFactory.getActivityResultData(
-//					targetActivity.getId(), targetActivity.getResultType(), targetActivity.getResult(), 
-//					targetActivity.getResultPostDate(), user, 0, false, isManager);
-//			
-//			if (loadComments) {
-//				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
-//						targetActivityId, 
-//						instructor, false);
-//				
-//				List<CommentData> comments = commentManager.getComments(
-//						commentsData.getResourceType(), 
-//						commentsData.getResourceId(), false, 0, 
-//						CommentBean.getCommentSortData(commentsData), 
-//						CommentReplyFetchMode.FetchReplies, 
-//						loggedUserId);
-//				
-//				Collections.reverse(comments);
-//				
-//				commentsData.setComments(comments);
-//				
-//				activityResult.setResultComments(commentsData);
-//			}
-//			
-//			return activityResult;
-//		} 
-//		return null;
+		String query = 
+			"SELECT targetAct, targetComp.user, act.resultType " +
+			"FROM TargetActivity1 targetAct " +
+			"INNER JOIN targetAct.activity act " +
+			"INNER JOIN targetAct.targetCompetence targetComp " + 
+			"WHERE targetAct.id = :targetActivityId";
+		
+		Object[] result = (Object[]) persistence.currentManager()
+			.createQuery(query.toString())
+			.setLong("targetActivityId", targetActivityId)
+			.uniqueResult();
+		
+		if (result != null) {
+			TargetActivity1 targetActivity = (TargetActivity1) result[0];
+			User user = (User) result[1];
+			org.prosolo.common.domainmodel.credential.ActivityResultType resType = 
+					(org.prosolo.common.domainmodel.credential.ActivityResultType) result[2];
+			
+			ActivityResultData activityResult = activityFactory.getActivityResultData(
+					targetActivity.getId(), resType, targetActivity.getResult(), 
+					targetActivity.getResultPostDate(), user, 0, false, isManager);
+			
+			if (loadComments) {
+				CommentsData commentsData = new CommentsData(CommentedResourceType.ActivityResult, 
+						targetActivityId, instructor, false);
+				
+				List<CommentData> comments = commentManager.getComments(
+						commentsData.getResourceType(), 
+						commentsData.getResourceId(), false, 0, 
+						commentDataFactory.getCommentSortData(commentsData), 
+						CommentReplyFetchMode.FetchReplies, 
+						loggedUserId);
+				
+				Collections.reverse(comments);
+				
+				commentsData.setComments(comments);
+				
+				activityResult.setResultComments(commentsData);
+			}
+			
+			return activityResult;
+		} 
 		return null;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional (readOnly = true)
 	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId,
 			boolean isManager) {
 		String query = 
-				"SELECT targetAct, targetCred.user " +
+				"SELECT targetAct, targetComp.user " +
 				"FROM TargetActivity1 targetAct " +
+				"INNER JOIN FETCH targetAct.activity act " +
 				"INNER JOIN targetAct.targetCompetence targetComp " + 
-				"INNER JOIN targetComp.targetCredential targetCred " + 
 				"WHERE targetAct.id = :targetActivityId";
 			
 			Object[] result = (Object[]) persistence.currentManager()
@@ -2167,16 +2173,21 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				User user = (User) result[1];
 				
 				// check whether userToViewId is owner of TargetActivity 
-				if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
-					ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
-							null, false, 0, isManager);
-					
-					UserData ud = new UserData(user.getId(), user.getFullName(), 
-							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);
-					
-					activityData.getResultData().setUser(ud);
-					return activityData;
-				}
+				/*
+				 * TODO with this condition only owner and assessor can access the resource but this method should return result
+				 * in other cases too - when user commented on someone else's result.
+ 				 */
+				
+				//if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
+				ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
+						null, false, 0, isManager);
+				
+				UserData ud = new UserData(user.getId(), user.getFullName(), 
+						AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);
+				
+				activityData.getResultData().setUser(ud);
+				return activityData;
+				//}
 			} 
 			return null;
 	}

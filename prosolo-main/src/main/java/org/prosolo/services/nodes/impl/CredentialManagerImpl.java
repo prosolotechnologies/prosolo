@@ -2393,35 +2393,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Deprecated
 	@Override
-	@Transactional (readOnly = true)
-	public Object[] getCredentialAndCompetenceTitle(long credId, long compId) 
-			throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT DISTINCT cred.title, comp.title " +
-					"FROM Credential1 cred, Competence1 comp " +
-					"WHERE cred.id = :credId " +
-						"AND comp.id = :compId";
-			
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.uniqueResult();
-			
-			if (res != null) {
-				return res;
-			}
-			return null;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential and competence title");
-		}
-	}
-	
-	@Deprecated
-	@Override
 	@Transactional
 	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException {

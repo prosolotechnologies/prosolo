@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
@@ -35,6 +36,9 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilterState;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -80,11 +84,11 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private static final boolean paginate = false;
 	private PaginationData paginationData = new PaginationData();
 	
-	private boolean hasInstructorCapability;
-
 	private ActivityResultData currentResult;
 	// adding new comment
 	private String newCommentValue;
+	
+	private ResourceAccessData access;
 	
 	private List<StudentAssessedFilterState> filters = new ArrayList<>();
 	private List<StudentAssessedFilter> appliedFilters = new ArrayList<>();
@@ -93,12 +97,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
-		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
+		if (decodedActId > 0 && decodedCompId > 0) {
 			/*
-			 * check if user has instructor capability and if has, we should mark his comments as
+			 * check if user has instructor privilege for this resource and if has, we should mark his comments as
 			 * instructor comments
 			 */
-			hasInstructorCapability = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
+			access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), 
+					ResourceAccessRequirements.of(AccessMode.MANAGER));
 			try {
 				for (StudentAssessedFilter filterEnum : StudentAssessedFilter.values()) {
 					StudentAssessedFilterState f = new StudentAssessedFilterState(filterEnum, true);
@@ -107,7 +112,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				activity = activityManager
 						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, 0, hasInstructorCapability,
+								decodedCredId, decodedCompId, decodedActId, 0, access.isCanInstruct(),
 								true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), 
 								null);
 				for(ActivityResultData ard : activity.getStudentResults()) {
@@ -118,15 +123,60 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 					updatePaginationData(countStudentResults(null));
 				}
 				if(activity == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.forward("/notfound.xhtml");
 				} else {
 					loadCompetenceAndCredentialTitle();
 				}
+			} catch (ResourceNotFoundException rnfe) {
+				logger.error(rnfe);
+				PageUtil.forward("/notfound.xhtml");
 			} catch(Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while loading activity results");
+			}
+		} else {
+			PageUtil.forward("/notfound.xhtml");
+		}
+	}
+	
+	public void initIndividualResponse() {
+		decodedActId = idEncoder.decodeId(actId);
+		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
+		decodedTargetActId = idEncoder.decodeId(targetActId);
+		if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
+			/*
+			 * check if user has instructor privilege for this resource and if has, we should mark his comments as
+			 * instructor comments
+			 */
+			access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), 
+					ResourceAccessRequirements.of(AccessMode.MANAGER));
+			try {
+				activity = activityManager
+						.getActivityDataWithStudentResultsForManager(
+								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
+								access.isCanInstruct(), true, false, 0, 
+								0, null);
+				if (activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
+					currentResult = activity.getStudentResults().get(0);
+					loadAdditionalData(currentResult);
+					if (commentId != null) {
+						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+						initializeResultCommentsIfNotInitialized(currentResult);
+					}
+					
+					if(activity == null || currentResult == null) {
+						PageUtil.forward("/notfound.xhtml");
+					} else {
+						loadCompetenceAndCredentialTitle();
+					}
+				} else {
+					PageUtil.forward("/notfound.xhtml");
+				}
+			} catch (ResourceNotFoundException rnfe) {
+				logger.error(rnfe);
+				PageUtil.forward("/notfound.xhtml");
+			} catch (Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity results");
 			}
@@ -140,59 +190,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		}
 	}
 	
-	public void initIndividualResponse() {
-		decodedActId = idEncoder.decodeId(actId);
-		decodedCompId = idEncoder.decodeId(compId);
-		decodedCredId = idEncoder.decodeId(credId);
-		decodedTargetActId = idEncoder.decodeId(targetActId);
-		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
-			/*
-			 * check if user has instructor capability and if has, we should mark his comments as
-			 * instructor comments
-			 */
-			hasInstructorCapability = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-			try {
-				activity = activityManager
-						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
-								hasInstructorCapability, true, false, 0, 
-								0, null);
-				if(activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
-					currentResult = activity.getStudentResults().get(0);
-					loadAdditionalData(currentResult);
-					if(commentId != null) {
-						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
-						initializeResultCommentsIfNotInitialized(currentResult);
-					}
-					
-					if(activity == null || currentResult == null) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
-					} else {
-						loadCompetenceAndCredentialTitle();
-					}
-				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				}
-			} catch(Exception e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity results");
-			}
-		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
-		}
+	public long getCredentialId() {
+		return decodedCredId;
 	}
 	
 	public long getTargetActivityId() {
@@ -221,7 +220,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				}
 				List<ActivityResultData> results = activityManager
 						.getStudentsResults(decodedCredId, decodedCompId, decodedActId, 0, 0, 
-								hasInstructorCapability, true, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
+								access.isCanInstruct(), true, true, true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), saFilter);
 				for(ActivityResultData ard : results) {
 					loadAdditionalData(ard);
 				}
@@ -313,7 +312,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		ActivityResultData result = activityManager.getActivityResultData(
 				targetActivityId, 
 				loadComments, 
-				loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS"), 
+				access.isCanInstruct(), 
 				true, 
 				loggedUserBean.getUserId());
 		
@@ -326,11 +325,14 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		ActivityAssessmentData assessment = result.getAssessment();
 		CompetenceAssessment ca = assessmentManager.getDefaultCompetenceAssessment(
 				decodedCredId, decodedCompId, result.getUser().getId());
-		assessment.setCompAssessmentId(ca.getId());
-		assessment.setCredAssessmentId(ca.getCredentialAssessment().getId());
-		//we need to know if logged in user is assessor to determine if he can participate in private conversation
-		assessment.setAssessorId(assessmentManager.getAssessorIdForCompAssessment(
-				assessment.getCompAssessmentId()));
+		//TODO cred-redesign-07 - currently it is null always, return to this when assessments are implemented
+		if (ca != null) {
+			assessment.setCompAssessmentId(ca.getId());
+			assessment.setCredAssessmentId(ca.getCredentialAssessment().getId());
+			//we need to know if logged in user is assessor to determine if he can participate in private conversation
+			assessment.setAssessorId(assessmentManager.getAssessorIdForCompAssessment(
+					assessment.getCompAssessmentId()));
+		}
 	}
 	
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
@@ -672,6 +674,10 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 	
 }

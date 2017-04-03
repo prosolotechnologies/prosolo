@@ -9,6 +9,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.CommentManager;
@@ -19,7 +21,11 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -58,36 +64,26 @@ public class ActivityResultsBeanUser implements Serializable {
 	private long nextCompToLearn;
 	private long nextActivityToLearn;
 	private boolean resultOwnerIsLookingThisPage;
+	
+	private boolean mandatoryOrder;
+	
+	private ResourceAccessData access;
 
 	public void init() {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
 		
-		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
+		if (decodedActId > 0 && decodedCompId > 0) {
 			try {
 				competenceData = activityManager
 						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(),
-								false);
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
 				if (competenceData == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.forward("/notfound.xhtml");
 				} else {
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
-					
-					if (!ad.isStudentCanSeeOtherResponses()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-						} catch (IOException ioe) {
-							ioe.printStackTrace();
-							logger.error(ioe);
-						}
-					}
 					
 					if (ad.isEnrolled()) {
 						int numberOfComments = (int) commentManager.getCommentsNumber(
@@ -100,11 +96,17 @@ public class ActivityResultsBeanUser implements Serializable {
 								loggedUser.getAvatar(), null, null, true);
 						ad.getResultData().setUser(ud);
 					}
-//					commentBean.init(CommentedResourceType.Activity, 
-//							competenceData.getActivityToShowWithDetails().getActivityId(), false);
 					
-					loadCompetenceAndCredentialTitleAndNextToLearnInfo();
+					loadCompetenceAndCredentialTitle();
+					loadNextToLearnInfo();
+					
+					access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), 
+							ResourceAccessRequirements.of(AccessMode.USER));
 				}
+			} catch (AccessDeniedException ade) {
+				PageUtil.forward("/accessDenied.xhtml");
+			} catch (ResourceNotFoundException rnfe) {
+				PageUtil.forward("/notfound.xhtml");
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity results");
@@ -120,69 +122,70 @@ public class ActivityResultsBeanUser implements Serializable {
 	}
 	
 	public void initIndividualResponse() {
-		System.out.println("Init individual response");
+		logger.info("Init individual response");
 		
 		decodedTargetActId = idEncoder.decodeId(targetActId);
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
 		
-		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
+		if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
 			ActivityData activityWithDetails = activityManager.getActivityDataForUserToView(
 					decodedTargetActId, loggedUser.getUserId(), false);
 
 			if (activityWithDetails == null) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.forward("/notfound.xhtml");
 			} else {
 				competenceData = new CompetenceData1(false);
 				competenceData.setActivityToShowWithDetails(activityWithDetails);
-				resultOwnerIsLookingThisPage = competenceData.getActivityToShowWithDetails().getResultData().getUser().getId() == loggedUser.getUserId();
+				resultOwnerIsLookingThisPage = competenceData.getActivityToShowWithDetails().getResultData()
+						.getUser().getId() == loggedUser.getUserId();
 				
 				if (resultOwnerIsLookingThisPage) {
-					loadCompetenceAndCredentialTitleAndNextToLearnInfo();
-				} else {
-					Object[] credCompTitle = credManager.getCredentialAndCompetenceTitle(decodedCredId, decodedCompId);
-					competenceData.setCredentialTitle((String) credCompTitle[0]);
-					competenceData.setTitle((String) credCompTitle[0]);
-				}
+					loadNextToLearnInfo();
+				} 
+				loadCompetenceAndCredentialTitle();
 				if(commentId != null) {
 					competenceData.getActivityToShowWithDetails().getResultData()
 						.getResultComments().setCommentId(idEncoder.decodeId(commentId));
 					initializeResultCommentsIfNotInitialized(
 							competenceData.getActivityToShowWithDetails().getResultData());
 				}
+				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), 
+						ResourceAccessRequirements.of(AccessMode.USER));
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.forward("/notfound.xhtml");
 		}
 	}
 	
-	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
-		//TODO cred-redesign-07 - see what should be done with next comp and activity to learn id
-//		decodedCredId = idEncoder.decodeId(credId);
-//		competenceData.setTitle(compManager.getTargetCompetenceTitle(competenceData
-//				.getActivityToShowWithDetails().getCompetenceId()));
-//		
-//		if (decodedCredId > 0) {
-//			CredentialData cd = credManager
-//					.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-//							loggedUser.getUserId());
-//			competenceData.setCredentialTitle(cd.getTitle());
-//			nextCompToLearn = cd.getNextCompetenceToLearnId();
-//			nextActivityToLearn = cd.getNextActivityToLearnId();
-//		}
-//		competenceData.setCredentialId(decodedCredId);
+	private void loadCompetenceAndCredentialTitle() {
+		competenceData.setTitle(compManager.getCompetenceTitle(decodedCompId));
+		
+		if (decodedCredId > 0) {
+			competenceData.setCredentialTitle(credManager.getCredentialTitle(decodedCredId));
+		}
+		competenceData.setCredentialId(decodedCredId);
 	}
 	
+	private void loadNextToLearnInfo() {
+		//TODO cred-redesign-07 - see what to do with mandatory order
+		if (!mandatoryOrder) {
+			nextCompToLearn = decodedCompId;
+			if(competenceData.getActivities().isEmpty()) {
+				LearningInfo li = compManager.getCompetenceLearningInfo(decodedCompId, loggedUser.getUserId());
+				nextActivityToLearn = li.getNextActivityToLearn();
+			} else {
+				for(ActivityData ad : competenceData.getActivities()) {
+					if(!ad.isCompleted()) {
+						nextActivityToLearn = ad.getActivityId();
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	public void initializeResultCommentsIfNotInitialized(ActivityResultData res) {
 		try {
 			activityResultBean.initializeResultCommentsIfNotInitialized(res);
@@ -235,14 +238,7 @@ public class ActivityResultsBeanUser implements Serializable {
 			}
 			
 			//TODO cred-redesign-07 - see what should be done with next comp and activity to learn id
-//			try {
-//				CredentialData cd = credManager.getTargetCredentialNextCompToLearn(
-//						decodedCredId, loggedUser.getUserId());
-//				nextCompToLearn = cd.getNextCompetenceToLearnId();
-//				nextActivityToLearn = cd.getNextActivityToLearnId();
-//			} catch(DbConnectionException e) {
-//				logger.error(e);
-//			}
+			loadNextToLearnInfo();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("Error while marking activity as completed");
@@ -358,6 +354,10 @@ public class ActivityResultsBeanUser implements Serializable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 	
 }

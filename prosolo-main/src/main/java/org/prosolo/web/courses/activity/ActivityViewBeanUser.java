@@ -154,7 +154,7 @@ public class ActivityViewBeanUser implements Serializable {
 						ad.getResultData().setUser(ud);
 					}
 					
-					loadCompetenceAndCredentialTitle();
+					loadCompetenceAndCredentialTitleAndNextToLearnInfo();
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
@@ -184,7 +184,7 @@ public class ActivityViewBeanUser implements Serializable {
 		access = res.getAccess();
 	}
 	
-	private void loadCompetenceAndCredentialTitle() {
+	private void loadCompetenceAndCredentialTitleAndNextToLearnInfo() {
 		String compTitle = null;
 		String credTitle = null;
 		decodedCredId = idEncoder.decodeId(credId);
@@ -193,7 +193,6 @@ public class ActivityViewBeanUser implements Serializable {
 			//compTitle = li.getCompetenceTitle();
 			//TODO revisit when it is clear what mandatory order means in new design
 			//nextActivityToLearn = li.getNextActivityToLearn();
-			nextCompToLearn = decodedCompId;
 			compTitle = compManager.getCompetenceTitle(decodedCompId);
 			//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
 			//if(decodedCredId > 0) {
@@ -206,6 +205,7 @@ public class ActivityViewBeanUser implements Serializable {
 			}
 			//}
 			if (!mandatoryOrder) {
+				nextCompToLearn = decodedCompId;
 				for (ActivityData ad : competenceData.getActivities()) {
 					if(!ad.isCompleted()) {
 						nextActivityToLearn = ad.getActivityId();

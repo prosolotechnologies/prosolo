@@ -16,7 +16,6 @@
 		<composite:attribute name="bean" required="true"/>
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
-		<composite:attribute name="isPreview" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -27,15 +26,15 @@
 				<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 
 							#{cc.attrs.bean.isActivityActive(act) ? 'active' : ''}">
 					<h:panelGroup 
-						rendered="#{!cc.attrs.isPreview and act.completed}"
+						rendered="#{act.completed}"
 						styleClass="check">    
 					</h:panelGroup>
 					<h:panelGroup
-						rendered="#{!act.completed || cc.attrs.isPreview}"
+						rendered="#{!act.completed}"
 						styleClass="iconType">
 					</h:panelGroup>
                		<h3>
-						<ui:fragment rendered="#{!cc.attrs.isPreview and !cc.attrs.bean.isActivityActive(act)}">
+						<ui:fragment rendered="#{!cc.attrs.bean.isActivityActive(act)}">
 							<h:link	value="#{act.title}"
 								outcome="activity"
 								onclick="sendLogPageNavigation('/activity.xhtml', 
@@ -49,9 +48,6 @@
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.bean.isActivityActive(act)}">
 							#{act.title}
-						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.isPreview and !cc.attrs.bean.isActivityActive(act)}">
-							<a href="javascript:void(0);">#{act.title}</a>
 						</ui:fragment>
 					</h3>
 				</li>

@@ -486,11 +486,9 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			switch (resourceType) {
 			case ActivityResult:
 				String query = 
-				"SELECT user.id " + 
+				"SELECT targetCompetence.user.id " + 
 				"FROM TargetActivity1 targetActivity " +
-				"LEFT JOIN targetActivity.targetCompetence targetCompetence " +
-				"LEFT JOIN targetCompetence.targetCredential targetCredential " +
-				"LEFT JOIN targetCredential.user user " +
+				"INNER JOIN targetActivity.targetCompetence targetCompetence " +
 				"WHERE targetActivity.id = :targetActivityId";
 		
 				Long id = (Long) persistence.currentManager()

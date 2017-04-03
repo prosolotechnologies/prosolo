@@ -2595,17 +2595,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private List<EventData> updateCompetenceProgress(long targetCompId, long compId, int finalCompProgress, 
 			long nextActivityToLearnId, long userId, LearningContextData contextData) {
 		Date now = new Date();
-		/*
-		 * Update competence progress and id of next activity to learn.
-		 * Next activity to learn should be updated if competence progress is not 100.
-		 * If competence is completed there is no need to update next activity to learn.
-		 */
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE TargetCompetence1 targetComp SET " +
- 				 	   "targetComp.progress = :progress ");
-		if(finalCompProgress != 100) {
-			builder.append(", targetComp.nextActivityToLearnId = :nextActToLearnId ");
-		} else {
+ 				 	   "targetComp.progress = :progress, " +
+					   "targetComp.nextActivityToLearnId = :nextActToLearnId ");
+		if (finalCompProgress == 100) {
 			builder.append(", targetComp.dateCompleted = :dateCompleted ");
 		}
 		builder.append("WHERE targetComp.id = :targetCompId");
@@ -2613,10 +2608,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Query q = persistence.currentManager()
 			.createQuery(builder.toString())
 			.setInteger("progress", finalCompProgress)
-			.setLong("targetCompId", targetCompId);
-		if(finalCompProgress != 100) {
-			q.setLong("nextActToLearnId", nextActivityToLearnId);
-		} else {
+			.setLong("targetCompId", targetCompId)
+			.setLong("nextActToLearnId", nextActivityToLearnId);
+		
+		if (finalCompProgress == 100) {
 			q.setDate("dateCompleted", now);
 		}
 		q.executeUpdate();
