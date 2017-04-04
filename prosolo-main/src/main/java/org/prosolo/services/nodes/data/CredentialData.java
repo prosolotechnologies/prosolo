@@ -48,7 +48,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long targetCredId;
 	private int progress;
 	private long nextCompetenceToLearnId;
-	private long nextActivityToLearnId;
 	
 	private boolean bookmarkedByCurrentUser;
 	private long instructorId;
@@ -67,7 +66,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private boolean canAccess;
 	
 	public CredentialData(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
+		//this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
@@ -77,19 +76,19 @@ public class CredentialData extends StandardObservable implements Serializable {
 	}
 	
 	public void setCredentialStatus(boolean published, Date scheduledPublicDate) {
-		if(published) {
-			if(scheduledPublicDate == null) {
-				this.status = PublishedStatus.PUBLISHED;
-			} else {
-				this.status = PublishedStatus.SCHEDULED_UNPUBLISH;
-			}
-		} else {
-			if(scheduledPublicDate == null) {
-				this.status = PublishedStatus.UNPUBLISH;
-			} else {
-				this.status = PublishedStatus.SCHEDULED_PUBLISH;
-			}
-		}
+//		if(published) {
+//			if(scheduledPublicDate == null) {
+//				this.status = PublishedStatus.PUBLISHED;
+//			} else {
+//				this.status = PublishedStatus.SCHEDULED_UNPUBLISH;
+//			}
+//		} else {
+//			if(scheduledPublicDate == null) {
+//				this.status = PublishedStatus.UNPUBLISH;
+//			} else {
+//				this.status = PublishedStatus.SCHEDULED_PUBLISH;
+//			}
+//		}
 	}
 	
 //	public boolean isCredVisible() {
@@ -132,9 +131,9 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	//setting published flag based on course status
 	private void setPublished() {
-		if(status == PublishedStatus.PUBLISHED || status == PublishedStatus.UNPUBLISH) {
-			setPublished(status == PublishedStatus.PUBLISHED ? true : false);
-		}
+//		if(status == PublishedStatus.PUBLISHED || status == PublishedStatus.UNPUBLISH) {
+//			setPublished(status == PublishedStatus.PUBLISHED ? true : false);
+//		}
 	}
 	
 	private void setCredentialTypeFromString() {
@@ -363,14 +362,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
 		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
-	}
-
-	public long getNextActivityToLearnId() {
-		return nextActivityToLearnId;
-	}
-
-	public void setNextActivityToLearnId(long nextActivityToLearnId) {
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public long getNextCompetenceToLearnId() {

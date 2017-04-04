@@ -18,6 +18,9 @@ public class EventData {
 	private Class<? extends EventObserver>[] observersToExclude; 
 	private Map<String, String> parameters;
 	
+	//for ChangeProgress event
+	private int progress;
+	
 	public EventType getEventType() {
 		return eventType;
 	}
@@ -77,6 +80,12 @@ public class EventData {
 	}
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
+	}
+	public int getProgress() {
+		return progress;
+	}
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 	
 }

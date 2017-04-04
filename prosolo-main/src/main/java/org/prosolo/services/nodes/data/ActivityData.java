@@ -15,6 +15,11 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = 4976975810970581297L;
 	
+	/*
+	 * this is special version field that should not be changed. it should be copied from 
+	 * a database record and never changed again.
+	 */
+	private long version = -1;
 	private long activityId;
 	private long competenceActivityId;
 	private long targetActivityId;
@@ -31,8 +36,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private int durationHours;
 	private int durationMinutes;
 	private String durationString;
-	private boolean published;
-	private PublishedStatus status;
 	private long creatorId;
 	
 	private List<ResourceLinkData> links;
@@ -46,7 +49,8 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private ActivityType activityType;
 	
 	//UrlActivity specific
-	private String link;
+	private String videoLink;
+	private String slidesLink;
 	private String linkName;
 	private String embedId;
 	
@@ -77,8 +81,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private int difficulty;
 	
+	//indicates that competence was once published
+	private boolean oncePublished;
+	
 	public ActivityData(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
 		this.listenChanges = listenChanges;
 		links = new ArrayList<>();
 		files = new ArrayList<>();
@@ -145,16 +151,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	public void statusRemoveTransition() {
 		setObjectStatus(ObjectStatusTransitions.removeTransition(getObjectStatus()));
-	}
-	
-	//setting activity status based on published flag
-	public void setActivityStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
-	}
-	
-	//setting published flag based on course status
-	private void setPublished() {
-		setPublished(status == PublishedStatus.PUBLISHED ? true : false);
 	}
 	
 	public void statusBackFromRemovedTransition() {
@@ -265,24 +261,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.durationString = durationString;
 	}
 
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		observeAttributeChange("published", this.published, published);
-		this.published = published;
-	}
-
-	public PublishedStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(PublishedStatus status) {
-		this.status = status;
-		setPublished();
-	}
-
 	public long getTargetActivityId() {
 		return targetActivityId;
 	}
@@ -342,13 +320,22 @@ public class ActivityData extends StandardObservable implements Serializable {
 		this.activityType = activityType;
 	}
 
-	public String getLink() {
-		return link;
+	public String getVideoLink() {
+		return videoLink;
 	}
 
-	public void setLink(String link) {
-		observeAttributeChange("link", this.link, link);
-		this.link = link;
+	public void setVideoLink(String videoLink) {
+		observeAttributeChange("videoLink", this.videoLink, videoLink);
+		this.videoLink = videoLink;
+	}
+
+	public String getSlidesLink() {
+		return slidesLink;
+	}
+
+	public void setSlidesLink(String slidesLink) {
+		observeAttributeChange("slidesLink", this.slidesLink, slidesLink);
+		this.slidesLink = slidesLink;
 	}
 
 	public String getLinkName() {
@@ -490,10 +477,6 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public boolean isDescriptionChanged() {
 		return changedAttributes.containsKey("description");
 	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
 	
 	public boolean isObjectStatusChanged() {
 		return changedAttributes.containsKey("objectStatus");
@@ -577,6 +560,20 @@ public class ActivityData extends StandardObservable implements Serializable {
 			return Optional.of(dur);
 		}
 	}
+	
+	/**
+	 * Retrieves activity type before update if it is changed. Otherwise value is empty.
+	 * 
+	 * @return
+	 */
+	public Optional<ActivityType> getActivityTypeBeforeUpdate() {
+		ActivityType type = (ActivityType) changedAttributes.get("activityType");
+		if(type == null) {
+			return Optional.empty();
+		} else {
+			return Optional.of(type);
+		}
+	}
 
 	public ActivityResultData getResultData() {
 		return resultData;
@@ -652,6 +649,30 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setAutograde(boolean autograde) {
 		observeAttributeChange("autograde", this.autograde, autograde);
 		this.autograde = autograde;
+	}
+	
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Setting version is only allowed if version is -1. Generally version should not 
+	 * be changed except when data is being populated.
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		if(this.version == -1) {
+			this.version = version;
+		}
+	}
+
+	public boolean isOncePublished() {
+		return oncePublished;
+	}
+
+	public void setOncePublished(boolean oncePublished) {
+		this.oncePublished = oncePublished;
 	}
 	
 }

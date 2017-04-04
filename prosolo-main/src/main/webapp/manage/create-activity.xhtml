@@ -27,11 +27,7 @@
 
     <ui:define name="resourceTitle">
     	<h:panelGroup id="panelTitle">
-	    	<h1>#{activityEditBean.pageHeaderTitle}
-	    		<h:panelGroup rendered="#{activityEditBean.activityData.activityId > 0 and !activityEditBean.activityData.published}">
-	    			<span>(Unpublished)</span>
-	    		</h:panelGroup>
-	    	</h1>
+	    	<h1>#{activityEditBean.pageHeaderTitle}</h1>
 	    </h:panelGroup>
     </ui:define>
     

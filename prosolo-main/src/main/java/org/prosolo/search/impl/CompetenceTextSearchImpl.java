@@ -42,6 +42,9 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.Role;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.stereotype.Service;
@@ -155,11 +158,15 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					Long id = ((Integer) hit.getSource().get("id")).longValue();
 					
 					try {
-						CompetenceData1 cd = compManager.getCompetenceData(0, id, true, false, false, 
-								userId, UserGroupPrivilege.None, false);
+						/*
+						 * access rights are already checked when querying ES, so we don't need to do that again
+						 */
+						ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
+						RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceData(0, id, true, 
+								false, false, userId, req, false);
 						
-						if (cd != null) {
-							response.addFoundNode(cd);
+						if (res.getResource() != null) {
+							response.addFoundNode(res.getResource());
 						}
 					} catch (DbConnectionException e) {
 						logger.error(e);
@@ -348,7 +355,8 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
-					LearningResourceSearchConfig.of(false, false, false, true), userId));
+					LearningResourceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
+						userId));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
@@ -428,11 +436,24 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		}
 		
 		if(config.shouldIncludeResourcesWithEditPrivilege()) {
+			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
 			//user is owner of a competence
-			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
+			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
 			
 			//user has Edit privilege for competence
-			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+			
+			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
+			editorAndTypeFilter.filter(editorFilter);
+			/*
+			 * for edit privilege resource type should be included in condition
+			 * for example: if competence is user created and user has edit privilege for that competence
+			 * but university created type is set in config object, user should not see this competence
+			 */
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("type", config.getResourceType().toString()
+					.toLowerCase()));
+			
+			boolFilter.should(editorAndTypeFilter);
 		}
 		
 		return boolFilter;

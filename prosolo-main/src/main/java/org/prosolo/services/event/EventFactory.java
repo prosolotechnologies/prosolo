@@ -115,6 +115,16 @@ public class EventFactory {
 	
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventData event) throws EventException {
+		if(event.getEventType() == EventType.ChangeProgress) {
+			return generateChangeProgressEvent(
+					event.getActorId(), 
+					event.getObject(), 
+					event.getProgress(), 
+					event.getPage(), 
+					event.getContext(), 
+					event.getService(), 
+					event.getParameters());
+		}
 		return generateEvent(event.getEventType(), 
 				event.getActorId(), 
 				event.getObject(), 
@@ -147,6 +157,22 @@ public class EventFactory {
 		genericEvent.setObserversToExclude(observersToExclude);
 		genericEvent.setParameters(parameters);
 		return genericEvent;
+	}
+	
+	public EventData generateEventData(EventType type, long userId, BaseEntity object, BaseEntity target, 
+			LearningContextData context, Map<String, String> params) {
+		EventData event = new EventData();
+		event.setEventType(type);
+		event.setActorId(userId);
+		event.setObject(object);
+		event.setTarget(target);
+		if(context != null) {
+			event.setPage(context.getPage());
+			event.setContext(context.getLearningContext());
+			event.setService(context.getService());
+		}
+		event.setParameters(params);
+		return event;
 	}
 	
 }

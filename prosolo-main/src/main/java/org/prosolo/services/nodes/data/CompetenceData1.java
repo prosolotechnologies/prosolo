@@ -20,6 +20,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceData1.class);
 	
+	/*
+	 * this is special version field that should not be changed. it should be copied from 
+	 * a database record and never be changed again.
+	 */
+	private long version = -1;
 	private long credentialCompetenceId;
 	private long competenceId;
 	private String title;
@@ -60,12 +65,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean bookmarkedByCurrentUser;
 	
 	private Date datePublished;
-	private boolean canBeEdited;
 	
 	private long numberOfStudents;
 	
+	//by default competence can be unpublished
+	private boolean canUnpublish = true;
+	
 	public CompetenceData1(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
+		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
@@ -142,9 +149,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		}
 	}
 	
-	//setting competence status based on published flag
+	/**
+	 * setting competence status based on published flag and datePublished field, so these two field must be set
+	 * before calling this method.
+	 */
 	public void setCompStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
+		this.status = this.published 
+				? PublishedStatus.PUBLISHED 
+				: this.datePublished != null ? PublishedStatus.UNPUBLISHED : PublishedStatus.DRAFT;
 	}
 	
 	//setting published flag based on competence status
@@ -454,14 +466,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.datePublished = datePublished;
 	}
 
-	public boolean isCanBeEdited() {
-		return canBeEdited;
-	}
-
-	public void setCanBeEdited(boolean canBeEdited) {
-		this.canBeEdited = canBeEdited;
-	}
-
 	public long getNumberOfStudents() {
 		return numberOfStudents;
 	}
@@ -476,6 +480,30 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setArchived(boolean archived) {
 		this.archived = archived;
+	}
+
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Setting version is only allowed if version is -1. Generally version should not 
+	 * be changed except when data is being populated.
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		if(this.version == -1) {
+			this.version = version;
+		}
+	}
+
+	public boolean isCanUnpublish() {
+		return canUnpublish;
+	}
+
+	public void setCanUnpublish(boolean canUnpublish) {
+		this.canUnpublish = canUnpublish;
 	}
 
 }

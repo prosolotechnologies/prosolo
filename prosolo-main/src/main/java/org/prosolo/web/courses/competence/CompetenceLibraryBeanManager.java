@@ -178,7 +178,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive competence");
+				PageUtil.fireErrorMessage("Error while trying to restore competence");
 			}
 			if(success) {
 				try {

@@ -158,4 +158,13 @@ public class PageUtil {
 		LearningContextData context = new LearningContextData(page, lContext, service);
 		return context;
 	}
+	
+	public static void forward(String url) {
+		try {
+			FacesContext.getCurrentInstance().getExternalContext().dispatch(url);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			logger.error(ioe);
+		}
+	}
 }

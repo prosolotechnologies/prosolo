@@ -19,8 +19,10 @@ import org.prosolo.search.util.competences.CompetenceStudentsSearchFilter;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -79,8 +81,11 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if(title != null) {
-					access = compManager.getCompetenceAccessRights(decodedId, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.Edit);
+					//TODO cred-redesign-07 check if this is ok
+					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
+						.addPrivilege(UserGroupPrivilege.Edit)
+						.addPrivilege(UserGroupPrivilege.Instruct);
+					access = compManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(), req);
 					if(!access.isCanAccess()) {
 						try {
 							FacesContext.getCurrentInstance().getExternalContext().dispatch(

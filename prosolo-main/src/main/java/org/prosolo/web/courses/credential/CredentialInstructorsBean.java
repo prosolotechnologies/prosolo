@@ -22,7 +22,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserTextSearch;
@@ -35,11 +34,11 @@ import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -107,8 +106,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				String title = credManager.getCredentialTitleForCredentialWithType(
-						decodedId, LearningResourceType.UNIVERSITY_CREATED);
+				String title = credManager.getCredentialTitle(decodedId);
 				if(title != null) {
 					access = credManager.getCredentialAccessRights(decodedId, 
 							loggedUserBean.getUserId(), UserGroupPrivilege.Learn);

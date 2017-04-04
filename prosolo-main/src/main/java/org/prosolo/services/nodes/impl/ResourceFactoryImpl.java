@@ -20,6 +20,8 @@ import javax.inject.Inject;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.CompetenceActivity;
 import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
@@ -52,6 +54,7 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -888,6 +891,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 	}
     
+    @Deprecated
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString, 
@@ -896,38 +900,37 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
     	try {
     		 //TODO cred-redesign-07
-//			 Credential1 cred = new Credential1();
-//		     cred.setCreatedBy(loadResource(User.class, creatorId));
-//		     cred.setType(type);
-//		     cred.setTitle(title);
-//		     cred.setDescription(description);
-//		     cred.setDateCreated(new Date());
-//		     cred.setCompetenceOrderMandatory(compOrderMandatory);
-//		     cred.setPublished(published);
-//		     cred.setDuration(duration);
-//		     //cred.setVisible(visible);
-//		     cred.setScheduledPublishDate(scheduledDate);
-//		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-//		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-//		     cred.setManuallyAssignStudents(manuallyAssign);
-//		     
-//		     saveEntity(cred);
-//		     
-//		     if(comps != null) {
-//				for(CompetenceData1 cd : comps) {
-//					CredentialCompetence1 cc = new CredentialCompetence1();
-//					cc.setOrder(cd.getOrder());
-//					cc.setCredential(cred);
-//					Competence1 comp = (Competence1) persistence.currentManager().load(
-//							Competence1.class, cd.getCompetenceId());
-//					cc.setCompetence(comp);
-//					saveEntity(cc);
-//				}
-//			 }
-//		
-//		     logger.info("New credential is created with id " + cred.getId());
-//		     return cred;
-    		 return null;
+			 Credential1 cred = new Credential1();
+		     cred.setCreatedBy(loadResource(User.class, creatorId));
+		     //cred.setType(type);
+		     cred.setTitle(title);
+		     cred.setDescription(description);
+		     cred.setDateCreated(new Date());
+		     cred.setCompetenceOrderMandatory(compOrderMandatory);
+		     //cred.setPublished(published);
+		     cred.setDuration(duration);
+		     //cred.setVisible(visible);
+		     //cred.setScheduledPublishDate(scheduledDate);
+		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
+		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
+		     cred.setManuallyAssignStudents(manuallyAssign);
+		     
+		     saveEntity(cred);
+		     
+		     if(comps != null) {
+				for(CompetenceData1 cd : comps) {
+					CredentialCompetence1 cc = new CredentialCompetence1();
+					cc.setOrder(cd.getOrder());
+					cc.setCredential(cred);
+					Competence1 comp = (Competence1) persistence.currentManager().load(
+							Competence1.class, cd.getCompetenceId());
+					cc.setCompetence(comp);
+					saveEntity(cc);
+				}
+			 }
+		
+		     logger.info("New credential is created with id " + cred.getId());
+		     return cred;
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
@@ -990,8 +993,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Competence1 updateCompetence(CompetenceData1 data, long userId) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
+    	IllegalDataStateException {
     	return competenceManager.updateCompetenceData(data, userId);
     }
     
@@ -1009,9 +1013,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data, 
-    		long userId) throws DbConnectionException {
+    		long userId) throws DbConnectionException, IllegalDataStateException {
     	try {
     		Result<Activity1> result = new Result<>();
     		Activity1 activity = activityFactory.getActivityFromActivityData(data);
@@ -1085,6 +1089,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			}
     		result.setResult(activity);
     		return result;
+    	} catch(IllegalDataStateException idse) {
+    		throw idse;
+    	} catch(DbConnectionException dce) {
+    		throw dce;
     	} catch(Exception e) {
     		logger.error(e);
     		e.printStackTrace();
@@ -1093,10 +1101,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
-			throws DbConnectionException {
-    	return activityManager.updateActivityData(data, userId);
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+    		throws DbConnectionException, StaleDataException {
+    	return activityManager.updateActivityData(data);
     }
     
     @Override
@@ -1354,7 +1362,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			competence.setStudentAllowedToAddActivities(comp.isStudentAllowedToAddActivities());
 			competence.setType(comp.getType());
 			competence.setOriginalVersion(comp);
-			competence.setCanBeEdited(true);
 			competence.setArchived(false);
 			competence.setPublished(false);
 			saveEntity(competence);

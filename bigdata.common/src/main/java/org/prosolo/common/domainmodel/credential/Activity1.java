@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,20 +14,29 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
+/**
+ * Activity1 is versioned entity so special care should be taken of its version field value in all situations
+ * in order to avoid strange or inconsistent behavior.
+ * 
+ * @author stefanvuckovic
+ *
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Activity1 extends BaseEntity {
 
 	private static final long serialVersionUID = 15293664172196082L;
 	
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private long duration;
-	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
 	
@@ -52,6 +62,8 @@ public class Activity1 extends BaseEntity {
 	private int difficulty;
 	private boolean autograde;
 	
+	private List<CompetenceActivity1> competenceActivities;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
@@ -75,14 +87,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
-	}
-
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		this.published = published;
 	}
 	
 	public int getMaxPoints() {
@@ -185,6 +189,24 @@ public class Activity1 extends BaseEntity {
 
 	public void setAutograde(boolean autograde) {
 		this.autograde = autograde;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
+	public List<CompetenceActivity1> getCompetenceActivities() {
+		return competenceActivities;
+	}
+
+	public void setCompetenceActivities(List<CompetenceActivity1> competenceActivities) {
+		this.competenceActivities = competenceActivities;
 	}
 	
 }

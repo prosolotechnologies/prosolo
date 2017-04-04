@@ -157,7 +157,7 @@ public class CredentialEditBean implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
-			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), true);
+			activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
@@ -175,12 +175,14 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	private boolean shouldIncludeStatus(PublishedStatus s) {
-		boolean published = credentialData.isPublished();
-		if(published && s == PublishedStatus.SCHEDULED_PUBLISH 
-				|| !published && s == PublishedStatus.SCHEDULED_UNPUBLISH) {
-			return false;
-		}
-		return true;
+		//TODO cred-redesign-07
+//		boolean published = credentialData.isPublished();
+//		if(published && s == PublishedStatus.SCHEDULED_PUBLISH 
+//				|| !published && s == PublishedStatus.SCHEDULED_UNPUBLISH) {
+//			return false;
+//		}
+//		return true;
+		return false;
 	}
 
 	public boolean hasMoreCompetences(int index) {

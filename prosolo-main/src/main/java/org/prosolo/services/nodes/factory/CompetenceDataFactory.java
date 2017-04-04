@@ -26,6 +26,7 @@ public class CompetenceDataFactory {
 		}
 		CompetenceData1 comp = new CompetenceData1(false);
 		Competence1 competence = credComp.getCompetence();
+		comp.setVersion(competence.getVersion());
 		comp.setCompetenceId(competence.getId());
 		comp.setCredentialCompetenceId(credComp.getId());
 		comp.setOrder(credComp.getOrder());
@@ -36,6 +37,7 @@ public class CompetenceDataFactory {
 		comp.setArchived(competence.isArchived());
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
+		comp.setDatePublished(competence.getDatePublished());
 		comp.setCompStatus();
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
@@ -51,9 +53,6 @@ public class CompetenceDataFactory {
 //		comp.setVisible(competence.isVisible());
 //		comp.setVisibility(competence.isVisible(), competence.getScheduledPublicDate());
 
-		comp.setDatePublished(competence.getDatePublished());
-		comp.setCanBeEdited(competence.isCanBeEdited());
-		
 		comp.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {

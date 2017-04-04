@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -18,6 +17,10 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.activity.util.ActivityUtil;
@@ -48,10 +51,10 @@ public class ActivityViewBeanManager implements Serializable {
 	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
-	private String mode;
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private CommentsData commentsData;
 
 	public void init() {	
@@ -62,50 +65,32 @@ public class ActivityViewBeanManager implements Serializable {
 				decodedCredId = idEncoder.decodeId(credId);
 			}
 			try {
-				UserGroupPrivilege priv = null;
-				if("preview".equals(mode)) {
-					priv = UserGroupPrivilege.Edit;
-				} else {
-					priv = UserGroupPrivilege.Learn;
-				}
-				competenceData = activityManager
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.MANAGER)
+						.addPrivilege(UserGroupPrivilege.Edit)
+						.addPrivilege(UserGroupPrivilege.Instruct);
+				RestrictedAccessResult<CompetenceData1> res = activityManager
 						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
-								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), priv);
+								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), req);
+				unpackResult(res);
 				
-				if(competenceData == null || competenceData.getActivityToShowWithDetails() == null) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+				/*
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 */
+				if (!access.isCanRead()) {
+					PageUtil.forward("/accessDenied.xhtml");
 				} else {
-					if(!competenceData.getActivityToShowWithDetails().isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
-					} else {
-						/*
-						 * check if user has instructor capability and if has, we should mark his comments as
-						 * instructor comments
-						 */
-						boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-						commentsData = new CommentsData(CommentedResourceType.Activity, 
-								competenceData.getActivityToShowWithDetails().getActivityId(), 
-								hasInstructorCapability, true);
-						commentsData.setCommentId(idEncoder.decodeId(commentId));
-						commentBean.loadComments(commentsData);
-		//					commentBean.init(CommentedResourceType.Activity, 
-		//							competenceData.getActivityToShowWithDetails().getActivityId(), 
-		//							hasInstructorCapability);
-						
-						ActivityUtil.createTempFilesAndSetUrlsForCaptions(
-								competenceData.getActivityToShowWithDetails().getCaptions(), 
-								loggedUser.getUserId());
-						
-						loadCompetenceAndCredentialTitle();
-					}
+					commentsData = new CommentsData(CommentedResourceType.Activity, 
+							competenceData.getActivityToShowWithDetails().getActivityId(), 
+							access.isCanInstruct(), true);
+					commentsData.setCommentId(idEncoder.decodeId(commentId));
+					commentBean.loadComments(commentsData);
+					
+					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
+							competenceData.getActivityToShowWithDetails().getCaptions(), 
+							loggedUser.getUserId());
+					
+					loadCompetenceAndCredentialTitle();
 				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {
@@ -128,6 +113,11 @@ public class ActivityViewBeanManager implements Serializable {
 		}
 	}
 	
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
+	}
+	
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
@@ -148,20 +138,16 @@ public class ActivityViewBeanManager implements Serializable {
 	}
 	
 	public String getLabelForActivity() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(!competenceData.getActivityToShowWithDetails().isPublished() && 
- 				competenceData.getActivityToShowWithDetails().getType() 
- 					== LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
+		//TODO cred-redesign-07
+// 		if(!competenceData.getActivityToShowWithDetails().isPublished() && 
+// 				competenceData.getActivityToShowWithDetails().getType() 
+// 					== LearningResourceType.UNIVERSITY_CREATED) {
+// 			return "(Unpublished)";
+// 		} else {
+// 			return "";
+// 		}
+ 		return "";
  	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
 	
 	
 	/*
@@ -224,14 +210,6 @@ public class ActivityViewBeanManager implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
 	public CommentsData getCommentsData() {
 		return commentsData;
 	}
@@ -246,6 +224,10 @@ public class ActivityViewBeanManager implements Serializable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 
 }

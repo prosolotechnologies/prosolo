@@ -27,6 +27,8 @@ public class LearningResourceChangeProcessorFactory {
 	@Inject
 	private Activity1Manager activityManager;
 	
+	//TODO cred-redesign-07 - this should probably be deleted as we no longer have change propagation 
+	@Deprecated
 	public LearningResourceChangeProcessor getProcessor(Event event) {
 		BaseEntity node = event.getObject();
 		Map<String, String> params = event.getParameters();

@@ -18,7 +18,6 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showMarkedIfCompleted" required="true" type="java.lang.Boolean" />
-		<composite:attribute name="isPreview" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="mainForm" default="" />
 		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
@@ -29,17 +28,16 @@
 	     <ui:repeat var="act" value="#{cc.attrs.activities}" varStatus="status">
              <div class="activityItem #{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)}">
           		<h:panelGroup 
-          			rendered="#{cc.attrs.showMarkedIfCompleted and !cc.attrs.isPreview and act.completed}"
+          			rendered="#{cc.attrs.showMarkedIfCompleted and act.completed}"
           			styleClass="check">    
           		</h:panelGroup>
             		<h:panelGroup
-            			rendered="#{!cc.attrs.showMarkedIfCompleted || !act.completed || cc.attrs.isPreview}"
+            			rendered="#{!cc.attrs.showMarkedIfCompleted || !act.completed}"
             			styleClass="iconType">
             		</h:panelGroup>
             		<h3>
 	            		<ui:fragment rendered="#{cc.attrs.isEdit or cc.attrs.readOnly}">
 	                   		#{act.title}
-	                   		<h:panelGroup rendered="#{!act.published}"><span>(Unpublished)</span></h:panelGroup>
 	                   	</ui:fragment>
 	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
@@ -48,7 +46,6 @@
 			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
 			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
-            					<f:param name="mode" value="preview" disable="#{!cc.attrs.isPreview}"></f:param>
             				</h:link>
 	                   	</ui:fragment>
 	         
@@ -70,39 +67,46 @@
                    				<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
                    			</h:link> 
                         </li>
-                        <li>
-                        	<p:commandLink
-	                     		value="Remove"
-			            	  	process="@this"
-			            	  	action="#{cc.attrs.bean.setActivityForRemovalIndex(status.index)}"
-			            	  	oncomplete="$('#modalRemoveActivity').modal('show');"
-			            	  	pt:data-toggle="modal">	            
-			            	</p:commandLink>
-			            </li>
+                        <ui:fragment rendered="#{cc.attrs.bean.limitedEdit}">
+	                        <li>
+	                        	<a href="javascript:void(0);" disabled="disabled">Remove</a>
+				            </li>
+				        </ui:fragment>
+                        <ui:fragment rendered="#{!cc.attrs.bean.limitedEdit}">
+	                        <li>
+	                        	<p:commandLink
+		                     		value="Remove"
+				            	  	process="@this"
+				            	  	action="#{cc.attrs.bean.setActivityForRemovalIndex(status.index)}"
+				            	  	oncomplete="$('#modalRemoveActivity').modal('show');"
+				            	  	pt:data-toggle="modal">	            
+				            	</p:commandLink>
+				            </li>
+				        </ui:fragment>
                     </ul>
                     
                 </div>
                     
-                <ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfActivities - 1}">
+                <ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfActivities - 1 or cc.attrs.bean.limitedEdit}">
 					<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
 				</ui:fragment>
                 
                	<p:commandLink
                		styleClass="moveDown"
-					rendered="#{status.index != cc.attrs.bean.currentNumberOfActivities - 1}"
+					rendered="#{status.index != cc.attrs.bean.currentNumberOfActivities - 1 and !cc.attrs.bean.limitedEdit}"
 					process="@this"
 					action="#{cc.attrs.bean.moveDown(status.index)}"
 					update=":#{cc.clientId} #{cc.attrs.toUpdate}">
 					down
 				</p:commandLink>
 				
-				<ui:fragment rendered="#{status.index == 0}">
+				<ui:fragment rendered="#{status.index == 0 or cc.attrs.bean.limitedEdit}">
 					<a href="javascript:void(0);" class="moveUp" disabled="disabled">up</a>
 				</ui:fragment>
 			
 				<p:commandLink 
 					styleClass="moveUp"
-					rendered="#{status.index != 0}"
+					rendered="#{status.index != 0 and !cc.attrs.bean.limitedEdit}"
 					process="@this"
 					action="#{cc.attrs.bean.moveUp(status.index)}"
 					update=":#{cc.clientId} #{cc.attrs.toUpdate}">
@@ -119,15 +123,23 @@
          </ui:repeat>
         
          <ui:fragment rendered="#{cc.attrs.isEdit}">
-         	 <p:commandLink
-         	  	styleClass="activityItem addActivity"
-         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
-         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
-         	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-				<f:param name="learningContext" value="name:new_activity"></f:param>
-         	 	<span class="iconPlus"></span>
-	            Add Activity
-         	 </p:commandLink>
+         	 <ui:fragment rendered="#{!cc.attrs.bean.limitedEdit}">
+	         	 <p:commandLink
+	         	  	styleClass="activityItem addActivity"
+	         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
+	         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
+	         	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+					<f:param name="learningContext" value="name:new_activity"></f:param>
+	         	 	<span class="iconPlus"></span>
+		            Add Activity
+	         	 </p:commandLink>
+	         </ui:fragment>
+	         <ui:fragment rendered="#{cc.attrs.bean.limitedEdit}">
+	         	<a href="javascript:void(0);" class="activityItem addActivity" disabled="disabled">
+	         		<span class="iconPlus"></span>
+		            Add Activity
+	         	</a>
+	         </ui:fragment>
          	 <p:commandLink style="display:none" id="hiddenLinkFailure"
 				update="#{cc.attrs.mainForm}"
 			/>

@@ -8,14 +8,18 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -42,10 +46,10 @@ public class CompetenceViewBeanManager implements Serializable {
 	private long decodedCredId;
 	private String compId;
 	private long decodedCompId;
-	private String mode;
 	private String commentId;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private CommentsData commentsData;
 
 	public void init() {	
@@ -55,23 +59,28 @@ public class CompetenceViewBeanManager implements Serializable {
 				decodedCredId = idEncoder.decodeId(credId);
 			}
 			try {
-				if("preview".equals(mode)) {
-					competenceData = competenceManager
-							.getCompetenceData(decodedCredId, decodedCompId, true, true, true, 
-									loggedUser.getUserId(), UserGroupPrivilege.Edit, false);
-				} else {
-					competenceData = competenceManager
-							.getCompetenceData(decodedCredId, decodedCompId, true, true, true, 
-									loggedUser.getUserId(), UserGroupPrivilege.Learn, false);
+				ResourceAccessRequirements req = ResourceAccessRequirements
+						.of(AccessMode.MANAGER)
+						.addPrivilege(UserGroupPrivilege.Edit)
+						.addPrivilege(UserGroupPrivilege.Instruct);
+				RestrictedAccessResult<CompetenceData1> result = competenceManager
+						.getCompetenceData(decodedCredId, decodedCompId, true, true, true,
+								loggedUser.getUserId(), req, false);
+				
+				unpackResult(result);
+				/*
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 */
+				if (!access.isCanRead()) {
+					throw new AccessDeniedException();
 				}
 				
 				/*
-				 * check if user has instructor capability and if has, we should mark his comments as
+				 * check if user has instructor privilege and if has, we should mark his comments as
 				 * instructor comments
 				 */
-				boolean hasInstructorCapability = loggedUser.hasCapability("BASIC.INSTRUCTOR.ACCESS");
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), hasInstructorCapability, true);
+						competenceData.getCompetenceId(), access.isCanInstruct(), true);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
@@ -81,7 +90,13 @@ public class CompetenceViewBeanManager implements Serializable {
 					competenceData.setCredentialId(decodedCredId);
 					competenceData.setCredentialTitle(credTitle);
 				}
-			} catch(ResourceNotFoundException rnfe) {
+			} catch (AccessDeniedException ade) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} catch (ResourceNotFoundException rnfe) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 				} catch (IOException e) {
@@ -101,6 +116,11 @@ public class CompetenceViewBeanManager implements Serializable {
 		}
 	}
 	
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
+	}
+	
 	public boolean isCurrentUserCreator() {
 		return competenceData == null || competenceData.getCreator() == null ? false : 
 			competenceData.getCreator().getId() == loggedUser.getUserId();
@@ -111,19 +131,13 @@ public class CompetenceViewBeanManager implements Serializable {
 	}
 	
 	public String getLabelForCompetence() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(!competenceData.isPublished() && 
- 				competenceData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+ 		if(!competenceData.isPublished() && 
+ 				access.isCanEdit()) {
  			return "(Unpublished)";
  		} else {
  			return "";
  		}
  	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
 
 	/*
 	 * ACTIONS
@@ -174,14 +188,6 @@ public class CompetenceViewBeanManager implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
 	public CommentsData getCommentsData() {
 		return commentsData;
 	}
@@ -196,6 +202,10 @@ public class CompetenceViewBeanManager implements Serializable {
 
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 
 }

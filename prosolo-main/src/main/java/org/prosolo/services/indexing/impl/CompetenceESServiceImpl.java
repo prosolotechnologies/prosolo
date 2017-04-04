@@ -323,7 +323,6 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			XContentBuilder doc = XContentFactory.jsonBuilder()
 			    .startObject()
 		        .field("archived", false)
-		        .field("published", false)
 		        .endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
 		} catch(Exception e) {

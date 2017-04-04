@@ -21,6 +21,7 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.interaction.data.CommentSortOption;
 import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.util.ICommentBean;
@@ -44,7 +45,7 @@ public class CommentBean implements Serializable, ICommentBean {
 	@Inject private CommentManager commentManager;
 	@Inject private SocialActivityManager socialActivityManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	
+	@Inject private CommentDataFactory commentDataFactory;
 	private CommentSortOption[] sortOptions;
 	private int limit = 2;
 	
@@ -93,20 +94,8 @@ public class CommentBean implements Serializable, ICommentBean {
 		}
 	}
 	
-	public static CommentSortData getCommentSortData(CommentsData commentsData) {
-		List<CommentData> comms = commentsData.getComments();
-		Date previousDate = null;
-		int previousLikeCount = 0;
-		long previousId = 0;
-		if (comms != null && !comms.isEmpty()) {
-			CommentData comment = comms.get(0);
-			previousDate = comment.getDateCreated();
-			previousLikeCount = comment.getLikeCount();
-			previousId = comment.getCommentId();
-		}
-		return new CommentSortData(commentsData.getSortOption().getSortField(), 
-				commentsData.getSortOption().getSortOption(), previousDate, previousLikeCount,
-				previousId);
+	public CommentSortData getCommentSortData(CommentsData commentsData) {
+		return commentDataFactory.getCommentSortData(commentsData);
 	}
 
 	public void loadMoreComments(CommentsData commentsData) {

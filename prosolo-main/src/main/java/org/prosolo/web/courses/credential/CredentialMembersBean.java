@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserTextSearch;
@@ -29,9 +28,9 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -98,8 +97,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
-				String title = credManager.getCredentialTitleForCredentialWithType(
-						decodedId, LearningResourceType.UNIVERSITY_CREATED);
+				String title = credManager.getCredentialTitle(decodedId);
 				if(title != null) {
 					access = credManager.getCredentialAccessRights(decodedId, 
 							loggedUserBean.getUserId(), UserGroupPrivilege.Learn);

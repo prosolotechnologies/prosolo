@@ -161,7 +161,7 @@ public class CredentialViewBeanUser implements Serializable {
 			if (cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			}
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);

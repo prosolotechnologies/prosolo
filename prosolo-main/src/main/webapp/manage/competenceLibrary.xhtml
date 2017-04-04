@@ -138,9 +138,9 @@
 			                    <li>
 			                        <div class="manageCompetencesListLeft">
 			                            <h2>
-			                            	<h:link outcome="/manage/create-competence">
+			                            	<h:link outcome="/manage/competence">
 			                            		#{comp.title}<span>#{comp.published or comp.archived ? '' : ' (Draft)'}</span>
-			                            		<f:param name="id" value="#{util:encodeId(comp.competenceId)}"></f:param>
+			                            		<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            	</h:link>
 			                            </h2>
 			                            <div class="competenceInfo">
@@ -176,7 +176,6 @@
 			                            <h:link outcome="/manage/competence">
 			                            	Preview
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
-			                            	<f:param name="mode" value="preview"></f:param>
 			                            </h:link>
 			                            <p:commandLink rendered="#{not comp.archived}"
 					                  	  	value="Archive"
@@ -235,7 +234,7 @@
 	 	<compDialogs:duplicateCompetence   
 	 			id="duplicateDialog"   
 	 			competence="#{competenceLibraryBeanManager.selectedComp}"
-				duplicateActionMethodName="archive"  	
+				duplicateActionMethodName="duplicate"  	
 				duplicateAction="#{competenceLibraryBeanManager.duplicate}"
 				toUpdate=":growlMain"
 				learningContext="name:library"/>

@@ -39,6 +39,7 @@ public class ActivityDataFactory {
 		}
 		ActivityData data = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		data.setVersion(activity.getVersion());
 		data.setCompetenceActivityId(competenceActivity.getId());
 		data.setActivityId(activity.getId());
 		data.setOrder(competenceActivity.getOrder());
@@ -47,11 +48,9 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
-		data.setPublished(activity.isPublished());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
-		data.setActivityStatus();
 		data.getResultData().setResultType(getResultType(activity.getResultType()));
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
@@ -89,6 +88,8 @@ public class ActivityDataFactory {
 		}
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
+		
+		data.setOncePublished(competenceActivity.getCompetence().getDatePublished() != null);
 		
 		populateTypeSpecificData(data, activity);
 
@@ -178,14 +179,15 @@ public class ActivityDataFactory {
 							}
 							act.setCaptions(captions);
 						}
+						act.setVideoLink(activity.getUrl());
 						break;
 					case Slides:
 						act.setActivityType(ActivityType.SLIDESHARE);
 						act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
 								.getEmbedLink());
+						act.setSlidesLink(activity.getUrl());
 						break;
 				}
-				act.setLink(activity.getUrl());
 				act.setLinkName(activity.getLinkName());
 			}
 			
@@ -205,6 +207,7 @@ public class ActivityDataFactory {
 
 		ActivityData act = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		act.setVersion(activity.getVersion());
 		act.setCompetenceActivityId(competenceActivity.getId());
 		act.setActivityId(activity.getId());
 		act.setOrder(competenceActivity.getOrder());
@@ -212,7 +215,6 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
-		act.setPublished(activity.isPublished());
 		act.setType(activity.getType());
 		act.setAutograde(activity.isAutograde());
 		
@@ -364,6 +366,7 @@ public class ActivityDataFactory {
 		
 		//or add targetCompetenceId to activitydata
 		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
+		//TODO cred-redesign-07 - do we need next line - it issues additional db queries
 		data.setCompetenceName(targetActivity.getTargetCompetence().getCompetence().getTitle());
 		populateTypeSpecificData(data, targetActivity.getActivity());
 
@@ -404,36 +407,35 @@ public class ActivityDataFactory {
 	}
 	
 	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
-		//TODO cred-redesign-07
-//		if(activity == null) {
-//			return null;
-//		}
-//		ActivityData act = new ActivityData(false);
-//		act.setActivityId(activity.getActivity().getId());
-//		act.setTargetActivityId(activity.getId());
-//		act.setTitle(activity.getTitle());
-//		act.setCompleted(activity.isCompleted());
-//		act.setEnrolled(true);
-//		act.setDurationHours((int) (activity.getDuration() / 60));
-//		act.setDurationMinutes((int) (activity.getDuration() % 60));
-//		act.calculateDurationString();
-//		
-//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if(shouldTrackChanges) {
-//			act.startObservingChanges();
-//		}
-//		
-//		act.setActivityType(determineActivityType(activity));
-//
-//		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
-//		
-//		if(shouldTrackChanges) {
-//			act.startObservingChanges();
-//		}
-//		
-//		return act;
-		return null;
+		if(activity == null) {
+			return null;
+		}
+		ActivityData act = new ActivityData(false);
+		Activity1 activ = activity.getActivity();
+		act.setActivityId(activ.getId());
+		act.setTargetActivityId(activity.getId());
+		act.setTitle(activ.getTitle());
+		act.setCompleted(activity.isCompleted());
+		act.setEnrolled(true);
+		act.setDurationHours((int) (activ.getDuration() / 60));
+		act.setDurationMinutes((int) (activ.getDuration() % 60));
+		act.calculateDurationString();
+		
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		act.setActivityType(getActivityType(activ));
+
+		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
+		
+		if(shouldTrackChanges) {
+			act.startObservingChanges();
+		}
+		
+		return act;
 	}
 
 	private void populateCommonData(Activity1 activity, ActivityData data) {
@@ -441,7 +443,6 @@ public class ActivityDataFactory {
 		activity.setTitle(data.getTitle());
 		activity.setDescription(data.getDescription());
 		activity.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
-		activity.setPublished(data.isPublished());
 		activity.setResultType(getResultType(data.getResultData().getResultType()));
 		activity.setDateCreated(data.getDateCreated());
 		activity.setType(data.getType());
@@ -470,11 +471,12 @@ public class ActivityDataFactory {
 				UrlActivity1 urlAct = new UrlActivity1();
 				if(activityData.getActivityType() == ActivityType.VIDEO) {
 					urlAct.setUrlType(UrlActivityType.Video);
+					urlAct.setUrl(activityData.getVideoLink());
 				} else {
 					urlAct.setUrlType(UrlActivityType.Slides);
+					urlAct.setUrl(activityData.getSlidesLink());
 				}
 				populateCommonData(urlAct, activityData);
-				urlAct.setUrl(activityData.getLink());
 				urlAct.setLinkName(activityData.getLinkName());
 				return urlAct;
 			case EXTERNAL_TOOL:

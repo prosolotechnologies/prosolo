@@ -1,9 +1,15 @@
-function isPublishOrScheduledPublish(status) {
-	return status === "SCHEDULED_PUBLISH" || status === "PUBLISHED";
+var isDraft = false;
+
+function setIsDraft(draft) {
+	isDraft = draft;
+}
+
+function isPublished(status) {
+	return status === "PUBLISHED";
 }
 
 function saveChangesBtnClick(status) {
-	if(isPublishOrScheduledPublish(status)) {
+	if(isDraft && isPublished(status)) {
 		$('#linkPublishChildResources').click();
 	} else {
 		$('.saveChangesSelector').click()

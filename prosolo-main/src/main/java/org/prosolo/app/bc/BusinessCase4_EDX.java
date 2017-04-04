@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -291,6 +293,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Competence1 comp2cred1 = null;
@@ -440,6 +444,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -540,6 +546,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Competence1 comp2cred2 = null;
@@ -565,6 +573,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -597,6 +607,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred3, cred2.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 		
@@ -629,6 +641,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Credential1 cred5 = createCredential(
@@ -660,6 +674,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -734,7 +750,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
 						actData.getTargetActivityId(), 
 						compData.getCompetenceId(), 
-						cred1.getId(), 
 						userKevinHall.getId(),
 						 new LearningContextData());
 				
@@ -897,21 +912,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 	}
 
 	private Activity1 createActivity(User userNickPowell, String title, String description, String url, ActivityType type, 
-			long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink) {
+			long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink) 
+		throws DbConnectionException, IllegalDataStateException, EventException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setDescription(description);
-		actData.setPublished(true);
 		actData.setActivityType(type);
 		actData.setStudentCanSeeOtherResponses(true);
 		
 		switch (type) {
 		case VIDEO:
+			actData.setVideoLink(url);
+			break;
 		case SLIDESHARE:
-			actData.setLink(url);
+			actData.setSlidesLink(url);
 			break;
 		case TEXT:
 			actData.setText(url);
+			break;
+		default:
 			break;
 		}
 		actData.setType(LearningResourceType.UNIVERSITY_CREATED);

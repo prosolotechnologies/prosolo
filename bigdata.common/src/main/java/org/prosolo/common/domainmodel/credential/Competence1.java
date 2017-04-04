@@ -15,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -23,11 +24,20 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
+/**
+ * Competence1 is versioned entity so special care should be taken of its version field value in all situations
+ * in order to avoid strange or inconsistent behavior.
+ * 
+ * @author stefanvuckovic
+ *
+ */
 @Entity
 public class Competence1 extends BaseEntity {
 
 	private static final long serialVersionUID = 412852664415717013L;
 	
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private User createdBy;
 	private long duration;
 	private List<CompetenceActivity1> activities;
@@ -45,8 +55,8 @@ public class Competence1 extends BaseEntity {
 	
 	//if competence is original version this will be null
 	private Competence1 originalVersion;
+	//this is date of the first publish
 	private Date datePublished;
-	private boolean canBeEdited = true;
 	
 	private List<CompetenceBookmark> bookmarks;
 	
@@ -162,16 +172,6 @@ public class Competence1 extends BaseEntity {
 	public void setDatePublished(Date datePublished) {
 		this.datePublished = datePublished;
 	}
-
-	@Type(type = "true_false")
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isCanBeEdited() {
-		return canBeEdited;
-	}
-
-	public void setCanBeEdited(boolean canBeEdited) {
-		this.canBeEdited = canBeEdited;
-	}
 	
 	@OneToMany(mappedBy = "competence")
 	public List<CompetenceBookmark> getBookmarks() {
@@ -190,6 +190,15 @@ public class Competence1 extends BaseEntity {
 
 	public void setArchived(boolean archived) {
 		this.archived = archived;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
 	}
 	
 }

@@ -1,18 +1,12 @@
 package org.prosolo.services.nodes.factory;
 
-import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceCreator;
-import org.prosolo.util.nodes.AnnotationUtil;
-import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -139,11 +133,10 @@ public class CredentialDataFactory {
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
-			long nextCompToLearnId, long nextActToLearnId) {
+			long nextCompToLearnId) {
 		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
-		cred.setNextActivityToLearnId(nextActToLearnId);
 		cred.setEnrolled(true);
 		return cred;
 	}

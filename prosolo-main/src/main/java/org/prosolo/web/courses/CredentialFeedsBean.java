@@ -17,7 +17,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;

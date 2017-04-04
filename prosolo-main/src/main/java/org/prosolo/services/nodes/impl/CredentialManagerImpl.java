@@ -28,7 +28,6 @@ import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
@@ -53,14 +52,15 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.PublishedStatus;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.TagCountData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
@@ -136,19 +136,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
 			
-			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
-					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
-					&& data.getScheduledPublishDate() != null) {
-				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, cred, null, page, lContext, 
-						service, null);
-			}
+			//TODO cred-redesign-07
+//			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+//					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
+//					&& data.getScheduledPublishDate() != null) {
+//				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, cred, null, page, lContext, 
+//						service, null);
+//			}
 
 			return cred;
 		} catch(CredentialEmptyException cee) {
 			logger.error(cee);
+			cee.printStackTrace();
 			throw cee;
 		} catch (Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			throw new DbConnectionException("Error while saving credential");
 		} 
 	}
@@ -207,50 +210,52 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataWithProgressIfExists(long credentialId, long userId) 
 					throws DbConnectionException {
-		CredentialData credData = null;
-		try {
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
-						   "FROM Credential1 cred " + 
-						   "INNER JOIN cred.createdBy creator " +
-						   "LEFT JOIN cred.targetCredentials targetCred " + 
-						   "WITH targetCred.user.id = :user " +
-						   "LEFT JOIN cred.bookmarks bookmark " +
-						   "WITH bookmark.user.id = :user " +
-						   "WHERE cred.id = :credId";
-
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
-					.setLong("user", user.getId())
-					.setLong("credId", credentialId)
-					.uniqueResult();
-
-			if (res != null) {
-				Credential1 cred = (Credential1) res[0];
-				User creator = (User) res[1];
-				Integer paramProgress = (Integer) res[2];
-				Long paramBookmarkId = (Long) res[3];
-				Long nextCompId = (Long) res[4];
-				Long nextActId = (Long) res[5];
-				if(paramProgress != null) {
-					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
-							null, false, paramProgress.intValue(), nextCompId.longValue(),
-							nextActId.longValue());
-				} else {
-					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
-				}
-				if(paramBookmarkId != null) {
-					credData.setBookmarkedByCurrentUser(true);
-				}
-				
-				return credData;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
-		}
+		//TODO cred-redesign-07
+//		CredentialData credData = null;
+//		try {
+//			User user = (User) persistence.currentManager().load(User.class, userId);
+//			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
+//						   "FROM Credential1 cred " + 
+//						   "INNER JOIN cred.createdBy creator " +
+//						   "LEFT JOIN cred.targetCredentials targetCred " + 
+//						   "WITH targetCred.user.id = :user " +
+//						   "LEFT JOIN cred.bookmarks bookmark " +
+//						   "WITH bookmark.user.id = :user " +
+//						   "WHERE cred.id = :credId";
+//
+//			Object[] res = (Object[]) persistence.currentManager()
+//					.createQuery(query)
+//					.setLong("user", user.getId())
+//					.setLong("credId", credentialId)
+//					.uniqueResult();
+//
+//			if (res != null) {
+//				Credential1 cred = (Credential1) res[0];
+//				User creator = (User) res[1];
+//				Integer paramProgress = (Integer) res[2];
+//				Long paramBookmarkId = (Long) res[3];
+//				Long nextCompId = (Long) res[4];
+//				Long nextActId = (Long) res[5];
+//				if(paramProgress != null) {
+//					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
+//							null, false, paramProgress.intValue(), nextCompId.longValue(),
+//							nextActId.longValue());
+//				} else {
+//					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+//				}
+//				if(paramBookmarkId != null) {
+//					credData.setBookmarkedByCurrentUser(true);
+//				}
+//				
+//				return credData;
+//			}
+//			return null;
+//		} catch (Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			throw new DbConnectionException("Error while loading credential data");
+//		}
+		return null;
 	}
 	
 //	@Override
@@ -728,14 +733,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
  			
- 			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
- 					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH)
- 					&& data.getScheduledPublishDate() != null && data.isScheduledPublicDateChanged()) {
-				Credential1 cr = new Credential1();
-				cr.setId(data.getId());
- 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
-						service, null);
-			} 
+			//TODO cred-redesign-07
+// 			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+// 					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH)
+// 					&& data.getScheduledPublishDate() != null && data.isScheduledPublicDateChanged()) {
+//				Credential1 cr = new Credential1();
+//				cr.setId(data.getId());
+// 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
+//						service, null);
+//			} 
 // 			else if(data.getStatus() != PublishedStatus.SCHEDULED_PUBLISH 
 //					&& data.getStatus() != PublishedStatus.SCHEDULED_UNPUBLISH &&
 //					data.getScheduledPublishDate() == null && data.isScheduledPublicDateChanged()) {
@@ -1025,7 +1031,49 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //			
 //			result.setResult(cd);
 //			return result;
-			return null;
+			
+			
+			Result<CredentialData> result = new Result<>();
+			
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			
+			Credential1 cred = getCredential(credentialId, false, 0);
+			TargetCredential1 targetCred = createTargetCredential(cred, user);
+			
+			/*
+			 * Loaded user instance is not used because that would lead to select query
+			 * when trying to get name of a user while capturing ENROLL_COURSE event.
+			 */
+			User actor = new User();
+			actor.setId(userId);
+			Map<String, String> params = new HashMap<>();
+			//params.put("instructorId", instructorId + "");
+			String dateString = null;
+			Date date = targetCred.getDateCreated();
+			if(date != null) {
+				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				dateString = df.format(date);
+			}
+			params.put("dateEnrolled", dateString);
+			
+			String page = null;
+			String lContext = null;
+			String service = null;
+			if(context != null) {
+				page = context.getPage();
+				lContext = context.getLearningContext();
+				service = context.getService();
+			}
+			result.addFiredEvent(eventFactory.generateEvent(
+					EventType.ENROLL_COURSE, 
+					actor.getId(), cred, null, 
+					page, lContext, service, 
+					observersToExclude, params));
+//			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
+//					page, lContext, service, params);
+			
+			result.setResult(null);
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1100,10 +1148,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //					.get(0).getActivity().getId());
 //		}
 //		return targetCred;
-		return null;
+		
+		TargetCredential1 targetCred = new TargetCredential1();
+		targetCred.setCredential(cred);
+		targetCred.setUser(user);
+		Date now = new Date();
+		targetCred.setDateCreated(now);
+		targetCred.setDateStarted(now);
+		targetCred.setLastAction(now);
+
+		saveEntity(targetCred);
+		
+		/*
+		 * set first competence and first activity in first competence as next to learn
+		 */
+		targetCred.setNextCompetenceToLearnId(getIdOfFirstCompetenceInCredential(cred.getId()));
+		
+		return targetCred;
 	}
 	
-	@Deprecated
+	private long getIdOfFirstCompetenceInCredential(long credId) {
+		String query = "SELECT credComp.competence.id " +
+					   "FROM CredentialCompetence1 credComp " +
+					   "WHERE credComp.credential.id = :credId " +
+					   "AND credComp.order = :order";
+		Long res = (Long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setInteger("order", 1)
+				.uniqueResult();
+		return res != null ? res : 0;
+	}
+	
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
@@ -1119,11 +1195,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cc.setOrder(cred.getCompetences().size() + 1);
 			saveEntity(cc);
 			/* 
-			 * If duration of added competence is greater than 0 and competence is published
-			 * update credential duration
+			 * If duration of added competence is greater than 0 update credential duration
 			*/
 			//TODO check if this requires select + update and if so, use hql update instead
-			if(comp.getDuration() > 0 && comp.isPublished()) {
+			if(comp.getDuration() > 0) {
 				cred.setDuration(cred.getDuration() + comp.getDuration());
 			}
 			
@@ -1151,7 +1226,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		event.setTarget(cred);
 		return event;
 	}
-
+	
 	//TODO check if this method can be used for change propagation to target credential
 //	private Credential1 createDraftVersionOfCredential(long originalCredentialId) {
 //		Credential1 originalCred = getCredential(originalCredentialId, false, 0, 
@@ -1706,163 +1781,74 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
-			long targetCompId, long targetActIda, long userId, LearningContextData contextData) 
-					throws DbConnectionException {
+	public List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException {
 		try {
-			String query = "SELECT tCred.id, comp.id, tComp.id, act.id, tComp.progress, tAct.completed " +
-						   "FROM TargetCredential1 tCred " +
-						   "LEFT JOIN tCred.targetCompetences tComp " +
-						   "INNER JOIN tComp.competence comp " +
-						   "LEFT JOIN tComp.targetActivities tAct " +
-						   "INNER JOIN tAct.activity act " +
-						   "WHERE tCred.credential.id = :credId " +
-						   "AND tCred.user.id = :userId " +
-						   "ORDER BY tComp.order, tAct.order";
-		
+			List<EventData> events = new ArrayList<>();
+			String query = "SELECT tCred.id, cred.id, comp.id, coalesce(tComp.progress, 0) " +
+				    	   "FROM TargetCredential1 tCred " +
+				    	   "INNER JOIN tCred.credential cred " +
+				    	   "INNER JOIN cred.competences credComp1 " +
+				    	   "INNER JOIN credComp1.competence comp1 " +
+				    	   "INNER JOIN comp1.targetCompetences tComp1 " +
+			   		   			"WITH tComp1.id = :targetCompId " +
+				    	   "INNER JOIN cred.competences credComp " +
+				    	   "INNER JOIN credComp.competence comp " +
+				    	   "LEFT JOIN comp.targetCompetences tComp " +
+				    	   		"WITH tComp.user.id = :userId " +
+				    	   "WHERE tCred.user.id = :userId " +
+				   		   "ORDER BY tCred.id, credComp.order";
+			
 			@SuppressWarnings("unchecked")
 			List<Object[]> res =  persistence.currentManager()
 				.createQuery(query)
-				.setLong("credId", credId)
+				.setLong("targetCompId", targetCompId)
 				.setLong("userId", userId)
 				.list();
 			
+			long currentTCredId = 0;
+			long currentCredId = 0;
 			long nextCompToLearnId = 0;
-			long nextActToLearnId = 0;
-			long currentCompId = 0;
 			int cumulativeCredProgress = 0;
 			int numberOfCompetencesInCredential = 0;
-			int cumulativeCompProgress = 0;
-			int numberOfActivitiesInACompetence = 0;
-			long nextActToLearnInACompetenceId = 0;
-			long changedCompId = 0;
+			Date now = new Date();
 			if(res != null) {
 				for(Object[] obj : res) {
-					long compId = (long) obj[1];
-					long tCompId = (long) obj[2];
-					long actId = (long) obj[3];
-					long compProgress = (int) obj[4];
-					boolean actCompleted = (boolean) obj[5];
+					long tCredId = (long) obj[0];
+					long credId = (long) obj[1];
+					long compId = (long) obj[2];
+					int compProgress = (int) obj[3];
 					
-					int progress = actCompleted ? 100 : 0;
-					if(tCompId != currentCompId) {
-						currentCompId = tCompId;
+					if(tCredId != currentTCredId) {
+						if(currentTCredId > 0) {
+							int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
+							events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId, 
+									finalCredProgress, nextCompToLearnId, userId, now, contextData));
+						}
+						currentTCredId = tCredId;
+						currentCredId = credId;
+						numberOfCompetencesInCredential = 1;
+						cumulativeCredProgress = compProgress;
+						nextCompToLearnId = 0;
+					} else {
 						numberOfCompetencesInCredential ++;
-						if(tCompId != targetCompId) {
-							cumulativeCredProgress += compProgress;
-						}
+						cumulativeCredProgress += compProgress;
 					}
-					if(tCompId == targetCompId) {
-						if(changedCompId == 0) {
-							changedCompId = compId;
-						}
-						cumulativeCompProgress += progress;
-						numberOfActivitiesInACompetence ++;
-						if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
-							nextActToLearnInACompetenceId = actId;
-						}
-					}
-					if(nextActToLearnId == 0 && !actCompleted) {
-						nextActToLearnId = actId;
+					
+					if(nextCompToLearnId == 0 && compProgress < 100) {
 						nextCompToLearnId = compId;
 					}
 				}
-				long targetCredId = (long) res.get(0)[0];
-				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
-				int finalCredProgress = (cumulativeCredProgress + finalCompProgress) 
-						/ numberOfCompetencesInCredential;
-				
-				Date now = new Date();
-				
-				StringBuilder updateCredQuery = new StringBuilder(
-						"UPDATE TargetCredential1 targetCred SET " +
-						"targetCred.progress = :progress, " +
-						"targetCred.nextCompetenceToLearnId = :nextCompToLearnId, " +
-						"targetCred.nextActivityToLearnId = :nextActToLearnId ");
-				
-				if(finalCredProgress == 100) {
-					updateCredQuery.append(", targetCred.dateFinished = :dateCompleted ");
+				//update last credential
+				if(currentTCredId > 0) {
+					int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
+					events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId, 
+							finalCredProgress, nextCompToLearnId, userId, now, contextData));
 				}
-				updateCredQuery.append("WHERE targetCred.id = :targetCredId");
-				Query q1 = persistence.currentManager()
-					.createQuery(updateCredQuery.toString())
-					.setInteger("progress", finalCredProgress)
-					.setLong("nextCompToLearnId", nextCompToLearnId)
-					.setLong("nextActToLearnId", nextActToLearnId)
-					.setLong("targetCredId", targetCredId);
-				
-				if(finalCredProgress == 100) {
-					q1.setDate("dateCompleted", now);
-				}
-				
-				q1.executeUpdate();
-				
-				/*
-				 * Update competence progress and id of next activity to learn.
-				 * Next activity to learn should be updated if competence progress is not 100.
-				 * If competence is completed there is no need to update next activity to learn.
-				 */
-				StringBuilder builder = new StringBuilder();
-				builder.append("UPDATE TargetCompetence1 targetComp SET " +
-		 				 	   "targetComp.progress = :progress ");
-				if(finalCompProgress != 100) {
-					builder.append(", targetComp.nextActivityToLearnId = :nextActToLearnId ");
-				} else {
-					builder.append(", targetComp.dateCompleted = :dateCompleted ");
-				}
-				builder.append("WHERE targetComp.id = :targetCompId");
-				
-				Query q2 = persistence.currentManager()
-					.createQuery(builder.toString())
-					.setInteger("progress", finalCompProgress)
-					.setLong("targetCompId", targetCompId);
-				if(finalCompProgress != 100) {
-					q2.setLong("nextActToLearnId", nextActToLearnInACompetenceId);
-				} else {
-					q2.setDate("dateCompleted", now);
-				}
-				q2.executeUpdate();
-				
-				User user = new User();
-				user.setId(userId);
-				TargetCredential1 tCred = new TargetCredential1();
-				tCred.setId(targetCredId);
-				Credential1 cred = new Credential1();
-				cred.setId(credId);
-				tCred.setCredential(cred);
-				String lcPage = contextData != null ? contextData.getPage() : null; 
-				String lcContext = contextData != null ? contextData.getLearningContext() : null; 
-				String lcService = contextData != null ? contextData.getService() : null; 
-				eventFactory.generateChangeProgressEvent(user.getId(), tCred, finalCredProgress, 
-						lcPage, lcContext, lcService, null);
-				if(finalCredProgress == 100) {
-					eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
-							lcPage, lcContext, lcService, null);
-				}
-				
-				TargetCompetence1 tComp = new TargetCompetence1();
-				tComp.setId(targetCompId);
-				Competence1 competence = new Competence1();
-				competence.setId(changedCompId);
-				tComp.setCompetence(competence);
-				Map<String, String> params = new HashMap<>();
-				String dateCompletedStr = null;
-				if(now != null) {
-					DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-					dateCompletedStr = df.format(now);
-				}
-				params.put("dateCompleted", dateCompletedStr);
-				eventFactory.generateChangeProgressEvent(user.getId(), tComp, finalCompProgress, 
-						lcPage, lcContext, lcService, params);
-				if(finalCompProgress == 100) {
-					eventFactory.generateEvent(EventType.Completion, user.getId(), tComp, null,
-							lcPage, lcContext, lcService, null);
-				}
-				
 			}
+			return events;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1870,11 +1856,65 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
+	private List<EventData> updateTargetCredentialProgress(long tCredId, long credId, int finalCredProgress, 
+			long nextCompToLearnId, long userId, Date now, LearningContextData contextData) {
+		StringBuilder updateCredQuery = new StringBuilder(
+				"UPDATE TargetCredential1 targetCred SET " +
+				"targetCred.progress = :progress, " +
+				"targetCred.nextCompetenceToLearnId = :nextCompToLearnId ");
+		
+		if(finalCredProgress == 100) {
+			updateCredQuery.append(", targetCred.dateFinished = :dateCompleted ");
+		}
+		updateCredQuery.append("WHERE targetCred.id = :tCredId");
+		
+		Query q1 = persistence.currentManager()
+			.createQuery(updateCredQuery.toString())
+			.setInteger("progress", finalCredProgress)
+			.setLong("nextCompToLearnId", nextCompToLearnId)
+			.setLong("tCredId", tCredId);
+		
+		if(finalCredProgress == 100) {
+			q1.setDate("dateCompleted", now);
+		}
+		
+		q1.executeUpdate();
+		
+		List<EventData> events = new ArrayList<>();
+		
+		TargetCredential1 tCred = new TargetCredential1();
+		tCred.setId(tCredId);
+		Credential1 cred = new Credential1();
+		cred.setId(credId);
+		tCred.setCredential(cred);
+		
+		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress, userId, tCred, null, contextData, null);
+		ev.setProgress(finalCredProgress);
+		events.add(ev);
+//		eventFactory.generateChangeProgressEvent(userId, tCred, finalCredProgress, 
+//				lcPage, lcContext, lcService, null);
+		if(finalCredProgress == 100) {
+			events.add(eventFactory.generateEventData(EventType.Completion, userId, tCred, null, contextData, null));
+//			eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
+//					lcPage, lcContext, lcService, null);
+		}
+		return events;
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
-		return getCredentialTitleForCredentialWithType(id, null);
+			StringBuilder queryBuilder = new StringBuilder(
+				   "SELECT cred.title " +
+				   "FROM Credential1 cred " +
+				   "WHERE cred.id = :credId");
+			
+			Query q = persistence.currentManager()
+				.createQuery(queryBuilder.toString())
+				.setLong("credId", id);
+			
+			String title = (String) q.uniqueResult();
+			return title;
 	}
 	
 	@Deprecated
@@ -2017,39 +2057,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
-		}
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
-			throws DbConnectionException {
-		try {
-			StringBuilder queryBuilder = new StringBuilder(
-				   "SELECT cred.title " +
-				   "FROM Credential1 cred " +
-				   "WHERE cred.id = :credId ");
-			
-			if(type != null) {
-				queryBuilder.append("AND cred.type = :type");
-			}
-			
-			Query q = persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", id);
-			
-			if(type != null) {
-				q.setParameter("type", type);
-			}
-			
-			String title = (String) q.uniqueResult();
-			
-			return title;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential title");
 		}
 	}
 	
@@ -2348,16 +2355,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return cred;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
+	public LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred.title, cred.nextCompetenceToLearnId, cred.nextActivityToLearnId, cred.competenceOrderMandatory " +
+			String query = "SELECT c.title, cred.nextCompetenceToLearnId, c.competenceOrderMandatory " +
 						   "FROM TargetCredential1 cred " +
-						   "WHERE cred.user.id = :userId " +
-						   "AND cred.credential.id = :credId";
+						   "INNER JOIN cred.credential c " +
+						   		"WITH c.id = :credId " +
+						   "WHERE cred.user.id = :userId";
 			
 			Object[] res = (Object[]) persistence.currentManager()
 				.createQuery(query)
@@ -2368,50 +2375,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(res != null) {
 				String title = (String) res[0];
 				long nextComp = (long) res[1];
-				long nextAct = (long) res[2];
-				boolean mandatoryOrder = (boolean) res[3];
+				boolean mandatoryOrder = (boolean) res[2];
 				
-				CredentialData cd = new CredentialData(false);
-				cd.setTitle(title);
-				cd.setNextCompetenceToLearnId(nextComp);
-				cd.setNextActivityToLearnId(nextAct);
-				cd.setMandatoryFlow(mandatoryOrder);
-				return cd;
+				LearningInfo credLI = LearningInfo.getLearningInfoForCredential(title, mandatoryOrder, nextComp);
+				
+				if(loadCompLearningInfo && nextComp > 0) {
+					return LearningInfo.merge(credLI, compManager.getCompetenceLearningInfo(nextComp, userId));
+				}
+				
+				return credLI;
 			}
 			return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential data");
-		}
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional (readOnly = true)
-	public Object[] getCredentialAndCompetenceTitle(long credId, long compId) 
-			throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT DISTINCT cred.title, comp.title " +
-					"FROM Credential1 cred, Competence1 comp " +
-					"WHERE cred.id = :credId " +
-						"AND comp.id = :compId";
-			
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.uniqueResult();
-			
-			if (res != null) {
-				return res;
-			}
-			return null;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential and competence title");
+			throw new DbConnectionException("Error while retrieving learning info");
 		}
 	}
 	
@@ -2499,34 +2477,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
+	public long getTargetCredentialNextCompToLearn(long credId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT cred.nextCompetenceToLearnId, cred.nextActivityToLearnId " +
+			String query = "SELECT cred.nextCompetenceToLearnId " +
 						   "FROM TargetCredential1 cred " +
 						   "WHERE cred.user.id = :userId " +
 						   "AND cred.credential.id = :credId";
 			
-			Object[] res = (Object[]) persistence.currentManager()
+			Long res = (Long) persistence.currentManager()
 				.createQuery(query)
 				.setLong("userId", userId)
 				.setLong("credId", credId)
 				.uniqueResult();
 			
-			if(res != null) {
-				long nextComp = (long) res[0];
-				long nextAct = (long) res[1];
-				
-				CredentialData cd = new CredentialData(false);
-				cd.setNextCompetenceToLearnId(nextComp);
-				cd.setNextActivityToLearnId(nextAct);
-				return cd;
-			}
-			return null;
+			return res != null ? res : 0;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential data");
+			throw new DbConnectionException("Error while retrieving next competency to learn");
 		}
 	}
 	
@@ -3047,11 +3016,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public ResourceAccessData getCredentialAccessRights(long credId, long userId, 
 			UserGroupPrivilege neededPrivilege) throws DbConnectionException {
 		try {
-			UserGroupPrivilege priv = getUserPrivilegeForCredential(credId, userId);
-			return new ResourceAccessData(
-					neededPrivilege.isPrivilegeIncluded(priv), 
-					priv == UserGroupPrivilege.Edit
-			);
+			//TODO cred-redesign-07
+//			UserGroupPrivilege priv = getUserPrivilegeForCredential(credId, userId);
+//			return new ResourceAccessData(
+//					neededPrivilege.isPrivilegeIncluded(priv), 
+//					priv == UserGroupPrivilege.Edit
+//			);
+			return new ResourceAccessData(true, true, true, true, true);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
