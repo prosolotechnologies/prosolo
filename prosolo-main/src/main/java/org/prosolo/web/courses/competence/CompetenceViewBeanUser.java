@@ -66,11 +66,9 @@ public class CompetenceViewBeanUser implements Serializable {
 				unpackResult(res);
 				
 				/*
-				 * if user does not have permission to access this competence and it is published, he should
-				 * be able to see it in read only mode, but if it isn't published he should not be able to access
-				 * it at all.
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
 				 */
-				if (!access.isCanAccess() && !competenceData.isPublished()) {
+				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
 				

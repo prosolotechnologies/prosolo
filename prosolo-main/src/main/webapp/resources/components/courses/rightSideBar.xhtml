@@ -40,14 +40,8 @@
 			<div class="clear"></div>
 			
 			<label>Status:</label>
-			<ui:fragment rendered="#{cc.attrs.publishValue eq 'SCHEDULED_PUBLISH' or cc.attrs.publishValue eq 'SCHEDULED_UNPUBLISH'}">
-				<p>
-	                #{cc.attrs.publishValue eq 'SCHEDULED_UNPUBLISH' ? 'Un-' : ''}Publish scheduled for:<br></br>
-	                <strong>#{cc.attrs.scheduledDatePrettyString}</strong><br></br>
-	                <a href="javascript:void(0);" data-toggle="modal" data-target="##{cc.attrs.cancelScheduledUpdateModal}">Cancel</a>
-	            </p>
-            </ui:fragment>
-            <ui:fragment rendered="#{cc.attrs.publishValue ne 'SCHEDULED_PUBLISH' and cc.attrs.publishValue ne 'SCHEDULED_UNPUBLISH'}">
+			
+            <ui:fragment>
 				<h:selectOneMenu disabled="#{cc.attrs.statusChangeDisabled}"
 					id="selectStatus" styleClass="selectpicker" 
 					value="#{cc.attrs.publishValue}"
@@ -55,26 +49,10 @@
 					<f:selectItems value="#{cc.attrs.publishValues}" var="status"
 						itemValue="#{status}" itemLabel="#{status.label}" />
 				</h:selectOneMenu>
-				
 				<script>
+					setIsDraft(#{competenceEditBean.draft});
 					$('.selectpicker').selectpicker('refresh');
-					$(function () {
-					    $("[id$=datetimepicker4]").datetimepicker({
-					    	minDate : new Date()
-					    	//defaultDate : new Date()
-					    });
-					    $("[id$=datetimepicker4]").keypress(function(event) {event.preventDefault();});
-					    var status = $(document.getElementById("#{cc.clientId}:selectStatus")).val();
-						if(status != "SCHEDULED_PUBLISH" &amp;&amp; status != "SCHEDULED_UNPUBLISH") {
-							$("[id$=datetimepicker4]").hide();
-						}
-					});	
 				</script>
-				
-				<div class="datePickerRow">
-	                 <h:inputText value="#{cc.attrs.scheduledDateValue}" style="width:100%;" 
-	                 type="text" id="datetimepicker4" placeholder="Date and Time" />
-	            </div>
 				<br />
 			</ui:fragment>
 			<div class="publishRow">
@@ -101,7 +79,10 @@
 			                    <h2 class="modal-title" id="duplicateCredential">Save changes</h2>
 			                </div>
 			                <div class="modal-body">
-			                    <p>You are about to publish this #{cc.attrs.resourceLowerCase}. By publishing the #{cc.attrs.resourceLowerCase} you will also publish all #{cc.attrs.childResourcePlural}.</p>
+			                	<p>
+			                		Are you sure you want to publish this competency? Once published, only small edits can be made on this competency.
+									Competency will be available for enrollment to all students with proper privileges. But also, competency structure can be seen by all users.
+			                	</p>
 			                </div>
 			                <div class="modal-footer">
 			                    <p:commandLink

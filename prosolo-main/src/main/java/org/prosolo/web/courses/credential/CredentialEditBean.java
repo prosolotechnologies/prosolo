@@ -175,12 +175,14 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	private boolean shouldIncludeStatus(PublishedStatus s) {
-		boolean published = credentialData.isPublished();
-		if(published && s == PublishedStatus.SCHEDULED_PUBLISH 
-				|| !published && s == PublishedStatus.SCHEDULED_UNPUBLISH) {
-			return false;
-		}
-		return true;
+		//TODO cred-redesign-07
+//		boolean published = credentialData.isPublished();
+//		if(published && s == PublishedStatus.SCHEDULED_PUBLISH 
+//				|| !published && s == PublishedStatus.SCHEDULED_UNPUBLISH) {
+//			return false;
+//		}
+//		return true;
+		return false;
 	}
 
 	public boolean hasMoreCompetences(int index) {

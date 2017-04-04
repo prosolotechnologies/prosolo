@@ -16,7 +16,7 @@ public class ResourceAccessFactory {
 		 * If collection of needed privileges is empty or contains None privilege resource can be accessed 
 		 * no matter which privileges user has.
 		 */
-		boolean canAccess = privileges.isEmpty() || privileges.contains(UserGroupPrivilege.None), 
+		boolean canRead = false, canAccess = privileges.isEmpty() || privileges.contains(UserGroupPrivilege.None), 
 				canEdit = false, canLearn = false, canInstruct = false;
 		boolean hasRightAccessMode = hasRightAccessMode(req.getAccessMode(), userAccess.getResourceType());
 
@@ -32,10 +32,13 @@ public class ResourceAccessFactory {
 					}
 					break;
 				case Instruct:
-					if(!canAccess && hasNeededPrivilege) {
-						canAccess = true;
+					//if resource is not draft instructor with right privilege can access resource
+					if(userAccess.getDatePublished() != null) {
+						if(!canAccess && hasNeededPrivilege) {
+							canAccess = true;
+						}
+						canInstruct = true;
 					}
-					canInstruct = true;
 					break;
 				case Edit:
 					if(hasRightAccessMode) {
@@ -68,7 +71,22 @@ public class ResourceAccessFactory {
 			}
 		}
 		
-		return new ResourceAccessData(canAccess, canEdit, canLearn, canInstruct);
+		//if full access is allowed, than user also have privilege to read resource content.
+		if(canAccess) {
+			canRead = true;
+		} 
+		/*
+		 * if user can't access resource there is a situation where he can still access the resource in read only mode:
+		 * when one of the privileges required is Learn privilege and resource is not draft (which means it was published once).
+		 * That means that when Learn privilege is enough to access resource in given context, user can access that resource
+		 * in read only mode no matter which privileges he has (even if he does not have any privilege) as long as resource
+		 * is not draft.
+		 */
+		else {
+			canRead = userAccess.getDatePublished() != null && privileges.contains(UserGroupPrivilege.Learn);
+		}
+		
+		return new ResourceAccessData(canRead, canAccess, canEdit, canLearn, canInstruct);
 	}
 
 	private boolean hasRightAccessMode(AccessMode accessMode, LearningResourceType resourceType) {

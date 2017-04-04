@@ -2,7 +2,6 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +32,6 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -79,8 +77,6 @@ public class ActivityEditBean implements Serializable {
 	private String credentialTitle;
 	
 	private ActivityType[] activityTypes;
-	
-	private PublishedStatus[] actStatusArray;
 	
 	private ActivityResultType[] resultTypes;
 	
@@ -145,9 +141,6 @@ public class ActivityEditBean implements Serializable {
 	
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
-		actStatusArray = Arrays.stream(PublishedStatus.values()).filter(
-				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
-				.toArray(PublishedStatus[]::new);
 		resultTypes = ActivityResultType.values();
 	}
 
@@ -490,14 +483,6 @@ public class ActivityEditBean implements Serializable {
 
 	public void setActivityTypes(ActivityType[] activityTypes) {
 		this.activityTypes = activityTypes;
-	}
-
-	public PublishedStatus[] getActStatusArray() {
-		return actStatusArray;
-	}
-
-	public void setActStatusArray(PublishedStatus[] actStatusArray) {
-		this.actStatusArray = actStatusArray;
 	}
 
 	public ResourceLinkData getResLinkToAdd() {

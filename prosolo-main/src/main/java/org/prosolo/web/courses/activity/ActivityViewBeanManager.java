@@ -73,13 +73,12 @@ public class ActivityViewBeanManager implements Serializable {
 						.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), req);
 				unpackResult(res);
-				 
-				if(!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+				
+				/*
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 */
+				if (!access.isCanRead()) {
+					PageUtil.forward("/accessDenied.xhtml");
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 

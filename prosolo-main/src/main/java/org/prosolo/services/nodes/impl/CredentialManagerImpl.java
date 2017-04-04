@@ -136,12 +136,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
 			
-			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
-					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
-					&& data.getScheduledPublishDate() != null) {
-				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, cred, null, page, lContext, 
-						service, null);
-			}
+			//TODO cred-redesign-07
+//			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+//					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
+//					&& data.getScheduledPublishDate() != null) {
+//				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, cred, null, page, lContext, 
+//						service, null);
+//			}
 
 			return cred;
 		} catch(CredentialEmptyException cee) {
@@ -732,14 +733,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						lContext, service, params);
 			}
  			
- 			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
- 					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH)
- 					&& data.getScheduledPublishDate() != null && data.isScheduledPublicDateChanged()) {
-				Credential1 cr = new Credential1();
-				cr.setId(data.getId());
- 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
-						service, null);
-			} 
+			//TODO cred-redesign-07
+// 			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
+// 					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH)
+// 					&& data.getScheduledPublishDate() != null && data.isScheduledPublicDateChanged()) {
+//				Credential1 cr = new Credential1();
+//				cr.setId(data.getId());
+// 				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, userId, cr, null, page, lContext, 
+//						service, null);
+//			} 
 // 			else if(data.getStatus() != PublishedStatus.SCHEDULED_PUBLISH 
 //					&& data.getStatus() != PublishedStatus.SCHEDULED_UNPUBLISH &&
 //					data.getScheduledPublishDate() == null && data.isScheduledPublicDateChanged()) {
@@ -3020,7 +3022,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //					neededPrivilege.isPrivilegeIncluded(priv), 
 //					priv == UserGroupPrivilege.Edit
 //			);
-			return new ResourceAccessData(true, true, true, true);
+			return new ResourceAccessData(true, true, true, true, true);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();

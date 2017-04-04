@@ -1820,7 +1820,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT DISTINCT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll, comp.type, comp.published " +
+			String query = "SELECT DISTINCT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll, comp.type, comp.published, comp.datePublished " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
 					"RIGHT JOIN compUserGroup.competence comp " +
@@ -1839,6 +1839,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			boolean visibleToAll = false;
 			LearningResourceType type = null;
 			boolean published = false;
+			Date datePublished = null;
 			boolean first = true;
 			Set<UserGroupPrivilege> privs = new HashSet<>();
 			for(Object[] row : res) {
@@ -1853,11 +1854,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						visibleToAll = (boolean) row[2];
 						type = (LearningResourceType) row[3];
 						published = (boolean) row[4];
+						datePublished = (Date) row[5];
 						first = false;
 					}
 				}
 			}
-			return UserAccessSpecification.of(privs, visibleToAll, owner == userId, published, type);
+			return UserAccessSpecification.of(privs, visibleToAll, owner == userId, published, datePublished, type);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data.resourceAccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,14 +15,17 @@ public class UserAccessSpecification {
 	private final boolean resourceVisibleToAll;
 	private final boolean isUserResourceOwner;
 	private final boolean resourcePublished;
+	private final Date datePublished;
 	private final LearningResourceType resourceType;
 	
 	private UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, boolean resourcePublished, LearningResourceType resourceType) {
+			boolean isUserResourceOwner, boolean resourcePublished, Date datePublished, 
+			LearningResourceType resourceType) {
 		this.privileges.addAll(privileges);
 		this.resourceVisibleToAll = resourceVisibleToAll;
 		this.isUserResourceOwner = isUserResourceOwner;
 		this.resourcePublished = resourcePublished;
+		this.datePublished = datePublished;
 		this.resourceType = resourceType;
 	}
 	
@@ -33,18 +37,20 @@ public class UserAccessSpecification {
 	 * @param resourceVisibleToAll
 	 * @param isUserResourceOwner
 	 * @param resourcePublished
+	 * @param datePublished
 	 * @param resourceType
 	 * @return
 	 * @throws IllegalArgumentException - when {@code privileges} collection is either null or empty, 
 	 * or when {@code resourceType} is null
 	 */
 	public static UserAccessSpecification of(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, boolean resourcePublished, LearningResourceType resourceType) {
+			boolean isUserResourceOwner, boolean resourcePublished, Date datePublished,
+			LearningResourceType resourceType) {
 		if(privileges == null || privileges.isEmpty() || resourceType == null) {
 			throw new IllegalArgumentException();
 		}
 		return new UserAccessSpecification(privileges, resourceVisibleToAll, isUserResourceOwner, resourcePublished, 
-				resourceType);
+				datePublished, resourceType);
 	}
 
 	/**
@@ -70,6 +76,10 @@ public class UserAccessSpecification {
 
 	public LearningResourceType getResourceType() {
 		return resourceType;
+	}
+
+	public Date getDatePublished() {
+		return datePublished;
 	}
 	
 }

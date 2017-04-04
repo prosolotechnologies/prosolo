@@ -6,6 +6,8 @@ public class ResourceAccessData implements Serializable {
 
 	private static final long serialVersionUID = 4665592641386312458L;
 	
+	//the lowest possible privilege - it means that user is allowed to see resource in read only mode 
+	private final boolean canRead;
 	//does user have needed access in specified context
 	private boolean canAccess;
 	
@@ -16,7 +18,8 @@ public class ResourceAccessData implements Serializable {
 	//can user instruct resource in specified context
 	private final boolean canInstruct;
 	
-	public ResourceAccessData(boolean canAccess, boolean canEdit, boolean canLearn, boolean canInstruct) {
+	public ResourceAccessData(boolean canRead, boolean canAccess, boolean canEdit, boolean canLearn, boolean canInstruct) {
+		this.canRead = canRead;
 		this.canAccess = canAccess;
 		this.canEdit = canEdit;
 		this.canLearn = canLearn;
@@ -46,6 +49,10 @@ public class ResourceAccessData implements Serializable {
 	 */
 	public void userEnrolled() {
 		this.canAccess = true;
+	}
+
+	public boolean isCanRead() {
+		return canRead;
 	}
 
 }

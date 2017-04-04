@@ -72,7 +72,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private boolean canUnpublish = true;
 	
 	public CompetenceData1(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
+		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
@@ -149,9 +149,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		}
 	}
 	
-	//setting competence status based on published flag
+	/**
+	 * setting competence status based on published flag and datePublished field, so these two field must be set
+	 * before calling this method.
+	 */
 	public void setCompStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
+		this.status = this.published 
+				? PublishedStatus.PUBLISHED 
+				: this.datePublished != null ? PublishedStatus.UNPUBLISHED : PublishedStatus.DRAFT;
 	}
 	
 	//setting published flag based on competence status

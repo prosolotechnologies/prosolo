@@ -109,6 +109,7 @@ public class CompetenceEditBean implements Serializable {
 					competenceData.getCredentialsWithIncludedCompetence().add(cd);
 				}
 			}
+			initializeStatuses();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -120,6 +121,11 @@ public class CompetenceEditBean implements Serializable {
 	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
 		competenceData = res.getResource();
 		access = res.getAccess();
+	}
+	
+	//competence is draft when it has never been published or when date of first publish is null
+	public boolean isDraft() {
+		return competenceData.getDatePublished() == null;
 	}
 	
 	/**
@@ -175,9 +181,24 @@ public class CompetenceEditBean implements Serializable {
 	private void initializeValues() {
 		activitiesToRemove = new ArrayList<>();
 		activitiesToExcludeFromSearch = new ArrayList<>();
+	}
+	
+	private void initializeStatuses() {
 		compStatusArray = Arrays.stream(PublishedStatus.values()).filter(
-				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
-				.toArray(PublishedStatus[]::new);
+				s -> shouldIncludeStatus(s)).toArray(PublishedStatus[]::new);
+	}
+	
+	private boolean shouldIncludeStatus(PublishedStatus status) {
+		//draft status should not be included when competence is published or unpublished
+		if(status == PublishedStatus.DRAFT && (competenceData.getStatus() == PublishedStatus.PUBLISHED
+				|| competenceData.getStatus() == PublishedStatus.UNPUBLISHED)) {
+			return false;
+		}
+		//unpublished status should not be included when competence is draft
+		if(status == PublishedStatus.UNPUBLISHED && competenceData.getStatus() == PublishedStatus.DRAFT) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean hasMoreActivities(int index) {
@@ -264,6 +285,7 @@ public class CompetenceEditBean implements Serializable {
 			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
 				loadCompetenceData(decodedCredId, decodedId);
+				initializeStatuses();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
