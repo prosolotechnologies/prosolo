@@ -3,6 +3,7 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -334,7 +336,8 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
-		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
+		/*return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());*/
+		return true;
 	}
 	
 	public boolean isCurrentUserAssessor(ActivityResultData result) {
@@ -345,6 +348,13 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
+			for(ActivityDiscussionMessageData messageData : currentResult.getAssessment().getActivityDiscussionMessageData()){
+				if(messageData.getEncodedMessageId().equals(activityMessageEncodedId)){
+					messageData.setDateUpdated(new Date());
+					messageData.setDateUpdatedFormat(DateUtil.createUpdateTime(messageData.getDateUpdated()));
+					break;
+				}
+			}
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
