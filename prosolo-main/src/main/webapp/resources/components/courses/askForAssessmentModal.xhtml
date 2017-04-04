@@ -1,0 +1,189 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="role" required="true" />
+	</composite:interface>
+
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script src="https://use.typekit.net/zvv0dgl.js"></script>
+		<script>
+			try {
+				Typekit.load({
+					async : true
+				});
+			} catch (e) {
+			}
+		</script>
+		<script>
+			function hideAssesmentDialog(dialogId) {
+				$('#' + dialogId).modal('hide');
+				$("body").removeAttr("class").removeAttr("style")
+				$("div.modal-backdrop.fade.in").remove()
+			}
+		</script>
+
+		<ui:param name="baseContext"
+			value="name:credential|id:#{cc.attrs.bean.decodedId}"></ui:param>
+		<ui:param name="canEdit"
+			value="#{(cc.attrs.role == 'MANAGER' and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.credentialData.canEdit}"></ui:param>
+
+		<div class="modal fade" id="askAssessment" tabindex="-1" role="dialog"
+			aria-labelledby="askForAssessment">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&#215;</span>
+						</button>
+						<h2 class="modal-title" id="askForAssessment">Ask for
+							Assessment</h2>
+					</div>
+
+					<div class="assessmentModalMeta">
+						<div class="assessmentModalMetaLine">
+							<div class="assessmentModalMetaLeft">Credential:</div>
+							<div class="assessmentModalMetaRight">
+								<h3>#{cc.attrs.bean.credentialData.title}</h3>
+							</div>
+						</div>
+
+						<ui:remove>
+							<div class="assessmentModalMetaLine" id="assessmentModalMetaLine">
+								<ui:fragment
+									rendered="#{cc.attrs.bean.credentialData.instructorPresent}">
+									<div class="assessmentModalMetaLeft">Instructor:</div>
+									<div class="assessmentModalMetaRight">
+										<img src="#{cc.attrs.bean.credentialData.instructorAvatarUrl}"
+											class="img-circle" width="32" height="32"
+											alt="#{cc.attrs.bean.credentialData.instructorFullName}" />
+										<h3>#{cc.attrs.bean.credentialData.instructorFullName}</h3>
+									</div>
+								</ui:fragment>
+							</div>
+						</ui:remove>
+
+						<div class="assessmentModalMetaLine">
+							<div class="assessmentModalMetaLeft">Ask to:</div>
+							<h:panelGroup layuot="block" id="selectAssessor"
+								class="assessmentModalMetaRight">
+								<h:panelGroup
+									rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
+									<utilcomp:userAvatar
+										avatar="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
+										fullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}" />
+									<h3>#{cc.attrs.bean.assessmentRequestData.assessorFullName}</h3>
+								</h:panelGroup>
+
+								<h:inputText
+									rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
+									onkeyup="searchListener(execSearchUsers);"
+									value="#{cc.attrs.bean.peerSearchTerm}" id="newAssessorName"
+									placeholder="Type peer's name..." name="newAssessorName"
+									autocomplete="off" />
+
+								<p:remoteCommand name="execSearchUsers"
+									process="newAssessorName"
+									action="#{cc.attrs.bean.searchCredentialPeers()}"
+									update=":credential:formMain:askForAssessmentModal:usersListPanel" />
+
+								<p:commandLink styleClass="btn btn-green-stroke btn-sm"
+									value="Choose random"
+									action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
+									update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage" />
+
+								<h:panelGroup id="usersListPanel">
+									<h:panelGroup
+										rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.peersForAssessment != null and cc.attrs.bean.peersForAssessment.size() > 0}">
+										<ul id="usersList" class="dropdown-menu searchResultsDrop"
+											style="display: block;">
+											<ui:repeat value="#{cc.attrs.bean.peersForAssessment}"
+												var="user" varStatus="iterator">
+												<li><p:commandLink style="cursor: pointer;"
+														id="userlink-#{user.id}"
+														action="#{cc.attrs.bean.setAssessor(user)}"
+														update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage">
+														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+															fullName="#{user.fullName}" />
+														<h3>#{user.fullName}</h3>
+													</p:commandLink></li>
+											</ui:repeat>
+										</ul>
+									</h:panelGroup>
+								</h:panelGroup>
+							</h:panelGroup>
+						</div>
+					</div>
+
+					<h:panelGroup id="randomUserErrorMessage">
+						<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
+							<div class="alert alert-warning" role="alert">There is no
+								peer available to ask for assessment.</div>
+						</ui:fragment>
+					</h:panelGroup>
+
+					<div class="modal-body alignLeft">
+						<h:inputTextarea id="messageContentTextarea"
+							placeholder="Write message..."
+							value="#{cc.attrs.bean.assessmentRequestData.messageText}" />
+
+						<ui:remove>
+							<div class="assessmentMassageContent"
+								placeholder="Write message..." strip-br="true"
+								contenteditable="true" onkeyup="displaySubmitButton(this);"></div>
+						</ui:remove>
+
+						<script>
+							$(
+									'#'
+											+ escapeColons('comment_#{comment.commentId}')
+											+ ' .replyComment .contentEditableComment')
+									.on(
+											'keyup',
+											function(e) {
+												$(this).prev('textarea').val(
+														$(this).html());
+											});
+						</script>
+					</div>
+
+					<div class="modal-footer alignLeft">
+						<p:commandLink process="messageContentTextarea"
+							update=":credential:formMain"
+							action="#{cc.attrs.bean.submitAssessment()}"
+							styleClass="btn btn-green"
+							oncomplete="hideAssesmentDialog('askAssessment')">
+							<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+							<f:param name="learningContext" value="#{baseContext}"></f:param>
+							<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
+			                                    		Submit
+			                                    </p:commandLink>
+					</div>
+				</div>
+			</div>
+		</div>
+		<p:remoteCommand name="resetAskForAssessmentModal"
+			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
+			update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage :credential:formMain:askForAssessmentModal:messageContentTextarea" />
+
+		<script>
+			$('#askAssessment').on('shown.bs.modal', function() {
+				$('#credential\\:formMain\\:newAssessorName').focus();
+			}).on('hidden.bs.modal', function() {
+				resetAskForAssessmentModal();
+			})
+		</script>
+	</composite:implementation>
+</ui:component>
