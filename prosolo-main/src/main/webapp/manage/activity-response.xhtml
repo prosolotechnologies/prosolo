@@ -49,16 +49,6 @@
 			markActivityDiscussionRead([{name:'encodedActivityDiscussionId', value:discussionId}])
 			$(parentElement).removeClass( "hasNewComments" );
 		}
-		
-		//comment form hide/show
-		function displaySubmitButtonPrivateConvModal(inputElem) {
-		    if ($(inputElem).val().length==0) {
-		        $(inputElem).next('a.btn-green').addClass('hidden');
-		    } else {
-		        $(inputElem).next('a.btn-green').removeClass('hidden');
-		    }
-		}
-
 	</script>
 	<h:form prependId="false" id="remoteCommandForm">
 		<p:remoteCommand action="#{activityResultsBeanManager.markDiscussionRead()}" name="markActivityDiscussionRead"></p:remoteCommand>
@@ -155,7 +145,7 @@
 	           			growlToUpdate=":growlMain"
 	           			regionToUpdate=""
 	           			privateConvModalId="assessmentCommentsModal1"
-	           			toUpdateConvModal=":formPrivateConversation:panelModalPrivateConversation"
+	           			toUpdateConvModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
 	           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
 	           			assessmentGradeModalId="assessmentGradeModal1"
 	           			gradeLink="gradeLink_#{activityResultsBeanManager.currentResult.targetActivityId}"
@@ -166,144 +156,10 @@
         </div>
     </div>
     
-    <h:form id="formPrivateConversation">
-    	<div class="modal fade assessmentCommentsModal" id="assessmentCommentsModal1" tabindex="-1" role="dialog" aria-labelledby="assessmentCommentsModal">
-          <div class="modal-dialog modal-lg">
-              <h:panelGroup id="panelModalPrivateConversation" layout="block" styleClass="modal-content">
-              	<ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult}">
-                  <div class="modal-header alignLeft">
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      	<span aria-hidden="true">&#215;</span>
-                      </button>
-                      <h2 class="modal-title">Comments</h2>
-                  </div>
-                  <div class="discussion">
-                      <div class="comments">
-                          <ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
-								<ul class="media-list">
-									<ui:repeat var="activityMessageData" value="#{activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
-										<li class="media">
-											<div class="media-left">
-												<utilcomp:userAvatar
-													avatar="#{activityMessageData.senderAvatarUrl}"
-													fullName="#{activityMessageData.senderFullName}" />
-											</div>
-											
-											<div class="media-body">
-												<ui:fragment rendered="#{activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
-													<div class="commentMain">
-														<span class="commentTime">
-															Edited: #{activityMessageData.dateUpdatedFormat}
-														</span>
-														
-														<h3 class="media-heading">
-															#{activityMessageData.senderFullName}
-															<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-																<span>INSTRUCTOR</span>
-															</ui:fragment>
-														</h3>
-														
-														<p class="commentText">#{activityMessageData.content}</p>
-														
-														<div class="editComment hidden">
-															<p:inputTextarea name="name"
-																styleClass="contentEditableComment"
-																style="width:100%;" rows="1"
-																value="#{activityMessageData.content}"></p:inputTextarea>
-															<p:commandLink styleClass="btn btn-sm btn-green"
-																oncomplete="hideEditPrivateConversationComment(this);"
-																update=":formPrivateConversation:panelModalPrivateConversation"
-																actionListener="#{activityResultsBeanManager.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
-																type="button"
-																name="button">
-																Submit
-															</p:commandLink>
-															
-															<a href="javascript:void(0)"
-																class="btn btn-sm btn-green-stroke"
-																onclick="hideEditPrivateConversationComment(this)">Cancel</a>
-														</div>
-														
-														<div class="commentOptions">
-															<a href="javascript:void(0)" class="edit"
-																onclick="showEditComment(this)">
-																<span class="icon"></span>Edit
-															</a>
-														</div>
-													</div>
-												</ui:fragment>
-												
-												<ui:fragment rendered="#{not activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
-													<div class="commentMain">
-														<span class="commentTime">
-															Edited: #{activityMessageData.dateCreatedFormat}
-														</span>
-														<h3 class="media-heading">
-															#{activityMessageData.senderFullName}
-															<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-																<span>INSTRUCTOR</span>
-															</ui:fragment>
-														</h3>
-														<p>#{activityMessageData.content}</p>
-													</div>
-													
-													<div class="media replyInput hidden">
-														<div class="media-left">
-															<utilcomp:userAvatar
-																avatar="#{activityMessageData.senderAvatarUrl}"
-																fullName="#{activityMessageData.senderFullName}" />
-														</div>
-														
-														<div class="media-body replyComment">
-															<div class="commentForm">
-																<textarea placeholder="Add Comment..." onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
-																<button type="button"
-																	class="btn btn-sm btn-green hidden"
-																	name="button">
-																	Submit
-																</button>
-															</div>
-														</div>
-													</div>
-												</ui:fragment>
-											</div>
-										</li>
-									</ui:repeat>
-								</ul>
-							</ui:fragment>
-                      </div>
-                      <div class="addComment">
-							<utilcomp:userAvatar
-								avatar="#{loggeduser.avatar}"
-								fullName="#{loggeduser.fullName}" />
-								
-							<div class="commentForm">
-								<p:inputTextarea styleClass="contentEditableComment"
-									style="width:100%;" rows="1"
-									value="#{activityResultsBeanManager.newCommentValue}"
-									placeholder="Add Comment..."
-									onkeyup="displaySubmitButtonPrivateConvModal(this)" />
-								
-								<p:commandLink
-									action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
-									type="button" styleClass="btn btn-sm btn-green hidden"
-									name="button"
-									update=":formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
-									Submit
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-									<f:param name="learningContext" value="#{learningContext}"/>
-									<f:param name="service" value="name:result_private_conversation_dialog|id:#{activityResultsBeanManager.currentResult.targetActivityId}"/>
-								</p:commandLink>
-								
-							</div>
-						</div>
-                      <div class="clear"></div>
-                  </div>
-                </ui:fragment>
-              </h:panelGroup>
-          </div>
-      </div>
-    </h:form>
+	<activities:activityCommentModal 
+    	id="commentModal"
+    	bean="activityResultsBeanManager"
+    />
     
     <activities:activityGradeModal
     	id="activityGradeModal"
