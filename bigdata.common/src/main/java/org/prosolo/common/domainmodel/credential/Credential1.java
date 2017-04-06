@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -30,6 +31,8 @@ public class Credential1 extends BaseEntity {
 
 	private static final long serialVersionUID = 4974054331339101656L;
 
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private User createdBy;
 	private Set<Tag> tags;
 	private Set<Tag> hashtags;
@@ -54,6 +57,8 @@ public class Credential1 extends BaseEntity {
 	private Date deliveryStart;
 	private Date deliveryEnd;
 	private CredentialType type;
+	
+	private boolean archived;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -261,5 +266,23 @@ public class Credential1 extends BaseEntity {
 		this.type = type;
 	}
 
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
 
 }

@@ -1,6 +1,7 @@
 package org.prosolo.search;
 
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.AbstractManager;
@@ -36,5 +37,9 @@ public interface CredentialTextSearch extends AbstractManager {
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege);
+	
+	TextSearchResponse1<CredentialData> searchCredentialsForManager(
+			String searchTerm, int page, int limit, long userId, 
+			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption);
 
 }

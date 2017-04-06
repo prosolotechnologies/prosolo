@@ -125,14 +125,20 @@ public class NodeChangeProcessorFactory {
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
 						userGroupManager, competenceESService);
 			case ARCHIVE:
-				if(node instanceof Competence1) {
+				if (node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Archive, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService, 
 							NodeOperation.Archive, session);
 				}
 				break;
 			case RESTORE:
-				if(node instanceof Competence1) {
+				if (node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Restore, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService, 
 							NodeOperation.Restore, session);
 				}
 				break;

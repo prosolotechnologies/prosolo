@@ -42,5 +42,9 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 	void addInstructorToCredentialIndex(long credId, long userId);
 	
 	void removeInstructorFromCredentialIndex(long credId, long userId);
+	
+	void archiveCredential(long credId);
+	
+	void restoreCredential(long credId);
 
 }

@@ -19,7 +19,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.LearningResourceSearchConfig;
+import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
@@ -59,7 +59,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	private LearningResourceSortOption[] sortOptions;
 	private LearningResourceSearchFilter[] searchFilters;
 	
-	private final LearningResourceSearchConfig config = LearningResourceSearchConfig.of(
+	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
 			true, true, false, true, LearningResourceType.USER_CREATED);
 
 	private String context = "name:library";

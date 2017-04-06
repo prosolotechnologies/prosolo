@@ -33,6 +33,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
+import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -185,7 +186,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	public TextSearchResponse1<CompetenceData1> searchCompetences(
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
-			LearningResourceSearchConfig config) {
+			CompetenceSearchConfig config) {
 		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -355,7 +356,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
-					LearningResourceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
+					CompetenceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
 						userId));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
@@ -415,7 +416,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		return response;
 	}
 	
-	private QueryBuilder configureAndGetSearchFilter(LearningResourceSearchConfig config, long userId) {
+	private QueryBuilder configureAndGetSearchFilter(CompetenceSearchConfig config, long userId) {
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		
 		if(config.shouldIncludeResourcesWithViewPrivilege()) {

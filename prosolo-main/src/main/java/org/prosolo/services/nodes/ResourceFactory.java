@@ -122,10 +122,6 @@ public interface ResourceFactory extends AbstractManager {
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
 
-	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
-			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
-
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
 	 * and events data that can be accessed using {@link Result#getEvents()}
@@ -198,5 +194,9 @@ public interface ResourceFactory extends AbstractManager {
 			Session session) throws ResourceCouldNotBeLoadedException;
 	
 	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
+	
+	Credential1 createCredential(String title, String description, String tagsString, 
+    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
+    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException;
 
 }

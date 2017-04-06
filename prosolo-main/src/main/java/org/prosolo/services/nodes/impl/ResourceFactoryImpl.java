@@ -55,6 +55,7 @@ import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
@@ -891,26 +892,20 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		}
 	}
     
-    @Deprecated
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, long creatorId, LearningResourceType type, 
-    		boolean compOrderMandatory, boolean published, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate) {
+    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
+    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException {
     	try {
-    		 //TODO cred-redesign-07
 			 Credential1 cred = new Credential1();
 		     cred.setCreatedBy(loadResource(User.class, creatorId));
-		     //cred.setType(type);
+		     cred.setType(CredentialType.Original);
 		     cred.setTitle(title);
 		     cred.setDescription(description);
 		     cred.setDateCreated(new Date());
 		     cred.setCompetenceOrderMandatory(compOrderMandatory);
-		     //cred.setPublished(published);
 		     cred.setDuration(duration);
-		     //cred.setVisible(visible);
-		     //cred.setScheduledPublishDate(scheduledDate);
 		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
 		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
 		     cred.setManuallyAssignStudents(manuallyAssign);

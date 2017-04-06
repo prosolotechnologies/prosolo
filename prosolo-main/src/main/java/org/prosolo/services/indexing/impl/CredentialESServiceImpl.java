@@ -49,14 +49,21 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Transactional
 	public void saveCredentialNode(Credential1 cred, Session session) {
 	 	try {
+	 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", cred.getId());
+			builder.field("archived", cred.isArchived());
 			builder.field("title", cred.getTitle());
 			builder.field("description", cred.getDescription());
 			Date date = cred.getDateCreated();
-			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			if (date != null) {
 				builder.field("dateCreated", df.format(date));
+			}
+			if (cred.getDeliveryStart() != null) {
+				builder.field("deliveryStart", df.format(cred.getDeliveryStart()));
+			}
+			if (cred.getDeliveryEnd() != null) {
+				builder.field("deliveryEnd", df.format(cred.getDeliveryEnd()));
 			}
 			
 			builder.startArray("tags");
@@ -366,6 +373,34 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, 
 					credId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void archiveCredential(long credId) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+			    .startObject()
+		        .field("archived", true)
+		        .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void restoreCredential(long credId) {
+		try {
+			XContentBuilder doc = XContentFactory.jsonBuilder()
+			    .startObject()
+		        .field("archived", false)
+		        .endObject();
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

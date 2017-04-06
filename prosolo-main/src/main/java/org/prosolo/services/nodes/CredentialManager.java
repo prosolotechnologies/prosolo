@@ -3,8 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
-import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -15,6 +13,8 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
@@ -110,9 +110,8 @@ public interface CredentialManager extends AbstractManager {
 //	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 //			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, long userId, 
-			LearningContextData context) throws DbConnectionException, CredentialEmptyException, 
-			CompetenceEmptyException;
+	Credential1 updateCredential(CredentialData data, long userId, LearningContextData context) 
+			throws DbConnectionException;
 	
 	Result<Credential1> updateCredentialData(CredentialData data, long creatorId);
 	
@@ -403,4 +402,16 @@ public interface CredentialManager extends AbstractManager {
 	
 	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
 			throws DbConnectionException;
+	
+	List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException;
+	
+	void archiveCredential(long credId, long userId, LearningContextData context) throws DbConnectionException;
+	
+	void restoreArchivedCredential(long credId, long userId, LearningContextData context) throws DbConnectionException;
+	
+	long countNumberOfCredentials(CredentialSearchFilterManager searchFilter, long userId, UserGroupPrivilege priv) 
+			throws DbConnectionException, NullPointerException;
+	
+	List<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page, 
+			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
 }

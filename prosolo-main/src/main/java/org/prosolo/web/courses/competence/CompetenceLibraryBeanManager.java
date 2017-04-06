@@ -154,10 +154,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			}
 			if(archived) {
 				try {
-					paginationData.update((int) compManager.countNumberOfCompetences(searchFilter, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
-					competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
-							paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+					reloadDataFromDB();
 					PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
 				} catch(DbConnectionException e) {
 					logger.error(e);
@@ -178,14 +175,11 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore competence");
+				PageUtil.fireErrorMessage("Error while trying to restore competency");
 			}
 			if(success) {
 				try {
-					paginationData.update((int) compManager.countNumberOfCompetences(searchFilter, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
-					competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
-							paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
+					reloadDataFromDB();
 					PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
 				} catch(DbConnectionException e) {
 					logger.error(e);
@@ -193,6 +187,13 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				}
 			}
 		}
+	}
+	
+	private void reloadDataFromDB() {
+		paginationData.update((int) compManager.countNumberOfCompetences(searchFilter, 
+				loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
+		competences = compManager.searchCompetencesForManager(searchFilter, paginationData.getLimit(), 
+				paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
 	}
 	
 	public void duplicate() {

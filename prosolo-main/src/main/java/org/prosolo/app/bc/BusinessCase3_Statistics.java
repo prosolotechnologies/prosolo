@@ -882,7 +882,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				true, creator.getId(), UserGroupPrivilege.None);
 		
 		if(credentialData != null) {
-			credentialData.setPublished(true);
+			//credentialData.setPublished(true);
 			credentialManager.updateCredential(credentialData, creator.getId(), null);
 		}
 	}
@@ -965,8 +965,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
-		credentialData.setPublished(false);
-		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()

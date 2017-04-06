@@ -177,6 +177,7 @@
 			                            	Preview
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            </h:link>
+			                            
 			                            <p:commandLink rendered="#{not comp.archived}"
 					                  	  	value="Archive"
 					                  	  	styleClass="linkRed"
@@ -211,25 +212,23 @@
 	    
 	    <dialogs:archiveResource
 	    		id="archiveDialog"
-	    		competence="#{competenceLibraryBeanManager.selectedComp}"      
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
 				title="Competency" 
 				resourceType="competency"
 				resourceTypePlural="competencies"
-				learningContext="name:library"/>
+				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 		<dialogs:restoreResource
 	    		id="restoreDialog"
-	    		competence="#{competenceLibraryBeanManager.selectedComp}"      
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceLibraryBeanManager.restore}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
 				title="Competency" 
 				resourceType="competency"
 				resourceTypePlural="competencies"
-				learningContext="name:library"/>
+				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 	 	<compDialogs:duplicateCompetence   
 	 			id="duplicateDialog"   

@@ -1894,7 +1894,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				throw new IllegalStateException("Privilege is not valid");
 			}
 			StringBuilder query = new StringBuilder(
-					"SELECT comp.id " +
+					"SELECT distinct comp.id " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
 					"RIGHT JOIN compUserGroup.competence comp " +
@@ -2482,7 +2482,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while archiving competence");
+			throw new DbConnectionException("Error while restoring competence");
 		}
 	}
 	

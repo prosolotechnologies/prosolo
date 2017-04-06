@@ -83,14 +83,16 @@ public class CredentialViewBeanManager implements Serializable {
 	}
 	
 	public String getLabelForCredential() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(!credentialData.isPublished() && 
- 				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
+		//TODO cred-redesign-07
+// 		if(isPreview()) {
+// 			return "(Preview)";
+// 		} else if(!credentialData.isPublished() && 
+// 				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
+// 			return "(Unpublished)";
+// 		} else {
+// 			return "";
+// 		}
+		return "";
  	}
 	
 	public boolean isPreview() {

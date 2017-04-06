@@ -284,25 +284,23 @@
 			
 			<dialogs:archiveResource
 	    		id="archiveDialog"
-	    		competence="#{competenceEditBean.competenceData}"      
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceEditBean.archive}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 				title="Competency" 
 				resourceType="competency"
 				resourceTypePlural="competencies"
-				learningContext=""/>
+				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 				
 			<dialogs:restoreResource
 	    		id="restoreDialog"
-	    		competence="#{competenceEditBean.competenceData}"      
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceEditBean.restore}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
 				title="Competency" 
 				resourceType="competency"
 				resourceTypePlural="competencies"
-				learningContext=""/>
+				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 				
 	 		<compDialogs:duplicateCompetence   
 	 			id="duplicateDialog"   

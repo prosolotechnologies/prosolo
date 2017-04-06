@@ -874,7 +874,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		}
 		
 		if (credentialData != null) {
-			credentialData.setPublished(true);
+			//credentialData.setPublished(true);
 			
 			credentialManager.updateCredential(credentialData, creator.getId(), null);
 			
@@ -967,8 +967,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
-		credentialData.setPublished(false);
-		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()

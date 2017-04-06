@@ -53,6 +53,10 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 			credentialESService.saveCredentialNode(cred, session);
 		} else if(operation == NodeOperation.Delete) {
 			credentialESService.deleteNodeFromES(cred);
+		} else if(operation == NodeOperation.Archive) {
+			credentialESService.archiveCredential(cred.getId());
+		} else if(operation == NodeOperation.Restore) {
+			credentialESService.restoreCredential(cred.getId());
 		}
 	}
 

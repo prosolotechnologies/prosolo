@@ -138,13 +138,15 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 
 	public String getLabelForCredential() {
-		if (isPreview()) {
-			return "(Preview)";
-		} else if (isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
-			return "(Unpublished)";
-		} else {
-			return "";
-		}
+		//TODO cred-redesign-07
+//		if (isPreview()) {
+//			return "(Preview)";
+//		} else if (isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
+//			return "(Unpublished)";
+//		} else {
+//			return "";
+//		}
+		return "";
 	}
 
 	public boolean isPreview() {

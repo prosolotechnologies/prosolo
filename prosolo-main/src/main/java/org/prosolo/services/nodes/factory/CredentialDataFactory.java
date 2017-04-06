@@ -4,9 +4,14 @@ import java.util.Set;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.util.nodes.AnnotationUtil;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,57 +19,46 @@ public class CredentialDataFactory {
 
 	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
 			Set<Tag> hashtags, boolean shouldTrackChanges) {
-		//TODO cred-redesign-07
-//		if(credential == null) {
-//			return null;
-//		}
-//		CredentialData cred = new CredentialData(false);
-//		cred.setId(credential.getId());
-//		cred.setTitle(credential.getTitle());
-//		cred.setDescription(credential.getDescription());
-//		if(tags != null) {
-//			cred.setTags(credential.getTags());
-//			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
-//		}
-//		if(hashtags != null) {
-//			cred.setHashtags(credential.getHashtags());
-//			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
-//		}
-//		cred.setType(credential.getType());
-//		cred.setPublished(credential.isPublished());
-//		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
-//		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-//		//cred.setDraft(credential.isDraft());
-//		//cred.setHasDraft(credential.isHasDraft());
-//		cred.setDuration(credential.getDuration());
-//		cred.calculateDurationString();
-//		if(createdBy != null) {
-//			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
-//					getFullName(createdBy.getName(), createdBy.getLastname()),
-//					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
-//					createdBy.getPosition());
-//			cred.setCreator(creator);
-//		}
-//		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
-//		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
-//		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
-//
-//		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
-//		if(credential.getScheduledPublishDate() != null) {
-//			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-//			String formattedDate = sdf.format(credential.getScheduledPublishDate());
-//			cred.setScheduledPublishDateValue(formattedDate);
-//		}
-//		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
-//				credential.getScheduledPublishDate()));
-//		//cred.setVisible(credential.isVisible());
-//		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
-//		
-//		if(shouldTrackChanges) {
-//			cred.startObservingChanges();
-//		}
-//		return cred;
-		return null;
+		if(credential == null) {
+			return null;
+		}
+		CredentialData cred = new CredentialData(false);
+		cred.setId(credential.getId());
+		cred.setType(credential.getType());
+		cred.setTitle(credential.getTitle());
+		cred.setDescription(credential.getDescription());
+		if(tags != null) {
+			cred.setTags(credential.getTags());
+			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
+		}
+		if(hashtags != null) {
+			cred.setHashtags(credential.getHashtags());
+			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
+		}
+		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
+		cred.setDuration(credential.getDuration());
+		cred.calculateDurationString();
+		if(createdBy != null) {
+			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
+					getFullName(createdBy.getName(), createdBy.getLastname()),
+					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
+					createdBy.getPosition());
+			cred.setCreator(creator);
+		}
+		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
+		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
+
+		if(credential.getType() == CredentialType.Delivery) {
+			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
+			cred.setDeliveryStart(credential.getDeliveryStart());
+			cred.setDeliveryEnd(credential.getDeliveryEnd());
+			cred.determineDeliveryStatus();
+		}
+		
+		if(shouldTrackChanges) {
+			cred.startObservingChanges();
+		}
+		return cred;
 	}
 	
 	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,

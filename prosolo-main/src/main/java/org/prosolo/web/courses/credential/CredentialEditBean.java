@@ -127,7 +127,9 @@ public class CredentialEditBean implements Serializable {
 		try {
 			credentialData = credentialManager.getCredentialData(id, true, true, loggedUser.getUserId(), 
 					UserGroupPrivilege.Edit);
-			if(!credentialData.isCanAccess()) {
+			//TODO cred-redesign-07
+			//if(!credentialData.isCanAccess()) {
+			if(false) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 				} catch (IOException e) {
@@ -264,27 +266,27 @@ public class CredentialEditBean implements Serializable {
 		}
 	}
 	
-	public void cancelScheduledUpdate() {
-		String page = PageUtil.getPostParameter("page");
-		String lContext = PageUtil.getPostParameter("learningContext");
-		String service = PageUtil.getPostParameter("service");
-		String learningContext = context;
-		if(lContext != null && !lContext.isEmpty()) {
-			learningContext = contextParser.addSubContext(context, lContext);
-		}
-		Credential1 cr = new Credential1();
-		cr.setId(decodedId);
-		try {
-			eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, 
-					loggedUser.getUserId(), cr, null, page, learningContext, 
-					service, null);
-			credentialData.setScheduledPublishDate(null);
-			credentialData.setCredentialStatus();
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		}
-	}
+//	public void cancelScheduledUpdate() {
+//		String page = PageUtil.getPostParameter("page");
+//		String lContext = PageUtil.getPostParameter("learningContext");
+//		String service = PageUtil.getPostParameter("service");
+//		String learningContext = context;
+//		if(lContext != null && !lContext.isEmpty()) {
+//			learningContext = contextParser.addSubContext(context, lContext);
+//		}
+//		Credential1 cr = new Credential1();
+//		cr.setId(decodedId);
+//		try {
+//			eventFactory.generateEvent(EventType.CANCEL_SCHEDULED_VISIBILITY_UPDATE, 
+//					loggedUser.getUserId(), cr, null, page, learningContext, 
+//					service, null);
+//			credentialData.setScheduledPublishDate(null);
+//			credentialData.setCredentialStatus();
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			logger.error(e);
+//		}
+//	}
 	
 	public void delete() {
 		try {
