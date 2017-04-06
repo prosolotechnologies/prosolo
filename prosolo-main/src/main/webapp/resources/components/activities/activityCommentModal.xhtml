@@ -43,7 +43,7 @@
 				<div class="modal-dialog modal-lg">
 					<h:panelGroup id="panelModalPrivateConversation" layout="block"
 						styleClass="modal-content">
-						<ui:fragment rendered="#{not empty activityResultsBeanManager.currentResult}">
+						<ui:fragment rendered="#{not empty activityPrivateConversationBean.currentResult}">
 							<div class="modal-header alignLeft">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
@@ -54,10 +54,10 @@
 							<div class="discussion">
 								<div class="comments">
 									<ui:fragment
-										rendered="#{not empty activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
+										rendered="#{not empty activityPrivateConversationBean.currentResult.assessment.activityDiscussionMessageData}">
 										<ul class="media-list">
 											<ui:repeat var="activityMessageData"
-												value="#{activityResultsBeanManager.currentResult.assessment.activityDiscussionMessageData}">
+												value="#{activityPrivateConversationBean.currentResult.assessment.activityDiscussionMessageData}">
 												<li class="media">
 													<div class="media-left">
 														<utilcomp:userAvatar
@@ -67,7 +67,7 @@
 
 													<div class="media-body">
 														<ui:fragment
-															rendered="#{activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
+															rendered="#{activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateUpdatedFormat} </span>
@@ -89,7 +89,7 @@
 																	<p:commandLink styleClass="btn btn-sm btn-green"
 																		oncomplete="hideEditPrivateConversationComment(this);"
 																		update=":commentModal:formPrivateConversation:panelModalPrivateConversation"
-																		actionListener="#{activityResultsBeanManager.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
+																		actionListener="#{activityPrivateConversationBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
 																		type="button" name="button">
 																Submit
 															</p:commandLink>
@@ -109,7 +109,7 @@
 														</ui:fragment>
 
 														<ui:fragment
-															rendered="#{not activityResultsBeanManager.isCurrentUserMessageSender(activityMessageData)}">
+															rendered="#{not activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateCreatedFormat} </span>
@@ -154,20 +154,20 @@
 									<div class="commentForm">
 										<p:inputTextarea styleClass="contentEditableComment"
 											style="width:100%;" rows="1"
-											value="#{activityResultsBeanManager.newCommentValue}"
+											value="#{activityPrivateConversationBean.newCommentValue}"
 											placeholder="Add Comment..."
 											onkeyup="displaySubmitButtonPrivateConvModal(this)" />
 
 										<p:commandLink
-											action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
+											action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
 											type="button" styleClass="btn btn-sm btn-green hidden"
 											name="button"
-											update=":commentModal:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
+											update=":commentModal:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.currentResult.targetActivityId})">
 									Submit
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"
-												value="name:result_private_conversation_dialog|id:#{activityResultsBeanManager.currentResult.targetActivityId}" />
+												value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.currentResult.targetActivityId}" />
 										</p:commandLink>
 
 									</div>

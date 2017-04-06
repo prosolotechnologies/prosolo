@@ -85,10 +85,8 @@
 						<span>Private conversation:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							pt:data-toggle="modal"
-							data-target="##{cc.attrs.privateConvModalId}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{cc.attrs.bean.loadActivityDiscussion(cc.attrs.resultData)}"
+							action="#{activityPrivateConversationBean.loadActivityDiscussion(cc.attrs.resultData)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}
@@ -97,7 +95,6 @@
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and not cc.attrs.resultData.assessment.automaticGrade}">
 							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
 								pt:data-toggle="modal"
-								data-target="##{cc.attrs.assessmentGradeModalId}"
 								action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
 								update="#{cc.attrs.toUpdateAssessmentGradeModal}"
 								oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
@@ -264,10 +261,8 @@
 						<span>Private conversation:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							pt:data-toggle="modal"
-							data-target="##{cc.attrs.privateConvModalId}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{cc.attrs.bean.loadActivityDiscussion(cc.attrs.resultData)}"
+							action="#{activityPrivateConversationBean.loadActivityDiscussion(cc.attrs.resultData)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
