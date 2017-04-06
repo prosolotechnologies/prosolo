@@ -336,8 +336,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 	
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
-		/*return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());*/
-		return true;
+		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
 	}
 	
 	public boolean isCurrentUserAssessor(ActivityResultData result) {
