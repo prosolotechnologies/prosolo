@@ -166,6 +166,11 @@
 											avatar="#{userEditBean.newOwner.avatarUrl}"
 											fullName="#{userEditBean.newOwner.fullName}" />
 										<h3>#{userEditBean.newOwner.fullName}</h3>
+										<div class="assignOpt">
+										<p:commandLink styleClass="removeX"
+										action="#{userEditBean.userReset()}"
+										update="selectNewOwner">Close</p:commandLink>
+										</div>
 									</h:panelGroup>
 
 									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
@@ -201,11 +206,11 @@
 						</div>
 						<BR />
 						<div class="modal-footer alignLeft">
-							<h:panelGroup id = "formDeleteBtn">
+							<h:panelGroup id="formDeleteBtn">
 								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
 									action="#{userEditBean.delete()}"
 									rendered="#{userEditBean.newOwner.userSet}"
-									update=":formMain :growlMain" 
+									update=":formMain :growlMain"
 									oncomplete="$('#deleteUser').modal('hide');">
 	                                	Delete
 	                                </p:commandLink>

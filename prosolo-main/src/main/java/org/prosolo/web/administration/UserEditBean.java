@@ -268,6 +268,9 @@ public class UserEditBean implements Serializable {
 		this.userToDelete = user;
 	}
 	
+	public void userReset(){
+		newOwner.setUserSet(false);
+	}
 	public RoleFilter getFilter() {
 		return filter;
 	}
