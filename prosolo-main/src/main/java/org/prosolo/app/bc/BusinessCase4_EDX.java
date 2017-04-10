@@ -744,20 +744,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		 * Kevin Hall learning cred1
 		 */
 		
-		int activitiesToComplete = 3;
-		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
-			for (ActivityData actData : compData.getActivities()) {
-				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
-						actData.getTargetActivityId(), 
-						compData.getCompetenceId(), 
-						userKevinHall.getId(),
-						 new LearningContextData());
-				
-				if (activitiesToComplete-- == 0) {
-					break comLoop;
-				}
-			}
-		}
+//		int activitiesToComplete = 3;
+//		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
+//			for (ActivityData actData : compData.getActivities()) {
+//				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
+//						actData.getTargetActivityId(), 
+//						compData.getCompetenceId(), 
+//						userKevinHall.getId(),
+//						 new LearningContextData());
+//				
+//				if (activitiesToComplete-- == 0) {
+//					break comLoop;
+//				}
+//			}
+//		}
 		
 		/*
 		 * Commenting on activities/ competences
