@@ -1,6 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,17 +16,13 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -52,8 +46,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private static Logger logger = Logger.getLogger(ActivityPrivateConversationBean.class);
 
 	@Inject
-	private Activity1Manager activityManager;
-	@Inject
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private LoggedUserBean loggedUserBean;
@@ -63,77 +55,14 @@ public class ActivityPrivateConversationBean implements Serializable {
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Inject
 	private EventFactory eventFactory;
-	@Inject
-	private ActivityResultBean actResultBean;
 
-	private String actId;
-	private long decodedActId;
-	private String compId;
-	private long decodedCompId;
-	private String credId;
-	private long decodedCredId;
-	private String targetActId;
-	private long decodedTargetActId;
-	private String commentId;
-
-	private ActivityData activity;
-
-	private boolean hasInstructorCapability;
-
-	private ActivityResultData currentResult;
+	private ActivityAssessmentData activityAssessmentData;
 	// adding new comment
 	private String newCommentValue;
 
-	public void initIndividualResponse() {
-		decodedActId = idEncoder.decodeId(actId);
-		decodedCompId = idEncoder.decodeId(compId);
-		decodedCredId = idEncoder.decodeId(credId);
-		decodedTargetActId = idEncoder.decodeId(targetActId);
-		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
-			hasInstructorCapability = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-			try {
-				activity = activityManager.getActivityDataWithStudentResultsForManager(decodedCredId, decodedCompId,
-						decodedActId, decodedTargetActId, hasInstructorCapability, true, false, 0, 0, null);
-				if (activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
-					currentResult = activity.getStudentResults().get(0);
-					loadAdditionalData(currentResult);
-					if (commentId != null) {
-						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
-						initializeResultCommentsIfNotInitialized(currentResult);
-					}
-				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				}
-			} catch (Exception e) {
-				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity results");
-			}
-		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
-		}
-	}
-
-	public void initializeResultCommentsIfNotInitialized(ActivityResultData result) {
-		try {
-			actResultBean.initializeResultCommentsIfNotInitialized(result);
-		} catch (Exception e) {
-			logger.error(e);
-		}
-	}
-
 	// assessment begin
-	public void loadActivityDiscussion(ActivityResultData result) {
+	public void init(ActivityAssessmentData assessment) {
 		try {
-			ActivityAssessmentData assessment = result.getAssessment();
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
 					assessment.setActivityDiscussionMessageData(assessmentManager.getActivityDiscussionMessages(
@@ -141,7 +70,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 				}
 				assessment.setMessagesInitialized(true);
 			}
-			this.currentResult = result;
+			activityAssessmentData = assessment;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -149,30 +78,15 @@ public class ActivityPrivateConversationBean implements Serializable {
 		}
 	}
 
-	private void loadAdditionalData(ActivityResultData result) {
-		ActivityAssessmentData assessment = result.getAssessment();
-		CompetenceAssessment ca = assessmentManager.getDefaultCompetenceAssessment(decodedCredId, decodedCompId,
-				result.getUser().getId());
-		assessment.setCompAssessmentId(ca.getId());
-		assessment.setCredAssessmentId(ca.getCredentialAssessment().getId());
-		// we need to know if logged in user is assessor to determine if he can
-		// participate in private conversation
-		assessment.setAssessorId(assessmentManager.getAssessorIdForCompAssessment(assessment.getCompAssessmentId()));
-	}
-
 	public boolean isCurrentUserMessageSender(ActivityDiscussionMessageData messageData) {
 		return idEncoder.encodeId(loggedUserBean.getUserId()).equals(messageData.getEncodedSenderId());
-	}
-
-	public boolean isCurrentUserAssessor(ActivityResultData result) {
-		return loggedUserBean.getUserId() == result.getAssessment().getAssessorId();
 	}
 
 	public void editComment(String newContent, String activityMessageEncodedId) {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
-			for (ActivityDiscussionMessageData messageData : currentResult.getAssessment()
+			for (ActivityDiscussionMessageData messageData : activityAssessmentData
 					.getActivityDiscussionMessageData()) {
 				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
 					messageData.setDateUpdated(new Date());
@@ -188,22 +102,22 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 	public void addCommentToActivityDiscussion() {
 		long actualDiscussionId;
-		if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
+		if (StringUtils.isBlank(activityAssessmentData.getEncodedDiscussionId())) {
 			LearningContextData lcd = new LearningContextData();
 			lcd.setPage(PageUtil.getPostParameter("page"));
 			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(),
-					currentResult.getAssessment().getCompAssessmentId(), lcd);
+			actualDiscussionId = createDiscussion(activityAssessmentData.getTargetActivityId(),
+					activityAssessmentData.getCompAssessmentId(), lcd);
 
 			// set discussionId in the appropriate ActivityAssessmentData
 			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
 
-			currentResult.getAssessment().setEncodedDiscussionId(encodedDiscussionId);
+			activityAssessmentData.setEncodedDiscussionId(encodedDiscussionId);
 		} else {
-			actualDiscussionId = idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId());
+			actualDiscussionId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
 		}
-		addComment(actualDiscussionId, currentResult.getAssessment().getCompAssessmentId());
+		addComment(actualDiscussionId, activityAssessmentData.getCompAssessmentId());
 		cleanupCommentData();
 	}
 
@@ -213,7 +127,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 			Set<Long> participantIds = new HashSet<>();
 
 			// adding the student as a participant
-			participantIds.add(currentResult.getUser().getId());
+			participantIds.add(activityAssessmentData.getUserId());
 
 			// adding the logged in user (the message poster) as a participant.
 			// It can happen that some other user,
@@ -222,13 +136,13 @@ public class ActivityPrivateConversationBean implements Serializable {
 			participantIds.add(loggedUserBean.getUserId());
 
 			// if assessor is set, add him to the discussion
-			if (currentResult.getAssessment().getAssessorId() > 0) {
-				participantIds.add(currentResult.getAssessment().getAssessorId());
+			if (activityAssessmentData.getAssessorId() > 0) {
+				participantIds.add(activityAssessmentData.getAssessorId());
 			}
 
 			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), true,
-					currentResult.getAssessment().getGrade().getValue(), context).getId();
+					activityAssessmentData.getGrade().getValue(), context).getId();
 		} catch (ResourceCouldNotBeLoadedException | EventException e) {
 			logger.error(e);
 			return -1;
@@ -245,8 +159,9 @@ public class ActivityPrivateConversationBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 
-			notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(), activityAssessmentId,
-					idEncoder.decodeId(newComment.getEncodedMessageId()), page, lContext, service, decodedCredId);
+			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(), activityAssessmentId,
+					idEncoder.decodeId(newComment.getEncodedMessageId()), page, lContext, service,
+					activityAssessmentData.getCredentialId());
 
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
@@ -277,11 +192,11 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
 			long competenceAssessmentId) {
-		if (isCurrentUserAssessor(currentResult)) {
+		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
 			newComment.setSenderInsructor(true);
 		}
-		currentResult.getAssessment().getActivityDiscussionMessageData().add(newComment);
-		currentResult.getAssessment().setNumberOfMessages(currentResult.getAssessment().getNumberOfMessages() + 1);
+		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
+		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
 	private void cleanupCommentData() {
@@ -292,70 +207,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 	 * GETTERS / SETTERS
 	 */
 
-	public String getActId() {
-		return actId;
-	}
-
-	public void setActId(String actId) {
-		this.actId = actId;
-	}
-
-	public long getDecodedActId() {
-		return decodedActId;
-	}
-
-	public void setDecodedActId(long decodedActId) {
-		this.decodedActId = decodedActId;
-	}
-
-	public String getCompId() {
-		return compId;
-	}
-
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
-
-	public long getDecodedCompId() {
-		return decodedCompId;
-	}
-
-	public void setDecodedCompId(long decodedCompId) {
-		this.decodedCompId = decodedCompId;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
-
-	public long getDecodedCredId() {
-		return decodedCredId;
-	}
-
-	public void setDecodedCredId(long decodedCredId) {
-		this.decodedCredId = decodedCredId;
-	}
-
-	public ActivityData getActivity() {
-		return activity;
-	}
-
-	public void setActivity(ActivityData activity) {
-		this.activity = activity;
-	}
-
-	public ActivityResultData getCurrentResult() {
-		return currentResult;
-	}
-
-	public void setCurrentResult(ActivityResultData currentResult) {
-		this.currentResult = currentResult;
-	}
-
 	public String getNewCommentValue() {
 		return newCommentValue;
 	}
@@ -363,29 +214,13 @@ public class ActivityPrivateConversationBean implements Serializable {
 	public void setNewCommentValue(String newCommentValue) {
 		this.newCommentValue = newCommentValue;
 	}
-	
-	public String getTargetActId() {
-		return targetActId;
+
+	public ActivityAssessmentData getActivityAssessmentData() {
+		return activityAssessmentData;
 	}
 
-	public void setTargetActId(String targetActId) {
-		this.targetActId = targetActId;
-	}
-
-	public long getDecodedTargetActId() {
-		return decodedTargetActId;
-	}
-
-	public void setDecodedTargetActId(long decodedTargetActId) {
-		this.decodedTargetActId = decodedTargetActId;
-	}
-
-	public String getCommentId() {
-		return commentId;
-	}
-
-	public void setCommentId(String commentId) {
-		this.commentId = commentId;
+	public void setActivityAssessmentData(ActivityAssessmentData activityAssessmentData) {
+		this.activityAssessmentData = activityAssessmentData;
 	}
 
 }
