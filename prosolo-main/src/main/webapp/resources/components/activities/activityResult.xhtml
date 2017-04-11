@@ -266,7 +266,7 @@
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
-		                </p:commandLink>
+		                 </p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
 							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
