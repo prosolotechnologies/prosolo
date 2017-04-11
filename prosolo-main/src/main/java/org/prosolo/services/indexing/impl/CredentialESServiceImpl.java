@@ -151,14 +151,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, 
-			Session session) {
-		if(changeTracker != null &&
-				(changeTracker.isStatusChanged() || changeTracker.isTitleChanged() || 
-						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged())) {
-			saveCredentialNode(cred, session);
-		}
+	public void updateCredentialNode(Credential1 cred, Session session) {
+		saveCredentialNode(cred, session);
 	}
 	
 //	@Override

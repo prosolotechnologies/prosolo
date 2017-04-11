@@ -59,6 +59,7 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -392,32 +393,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceData(long credId, long compId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
-			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
+			boolean loadCreator, boolean loadTags, boolean loadActivities, long userId, 
+			ResourceAccessRequirements req, boolean shouldTrackChanges) 
+					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		try {
 			if(req == null) {
 				throw new IllegalArgumentException();
 			}
-			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, userId, true);
-			
-			if(comp == null) {
-				throw new ResourceNotFoundException();
-			}
-			
-			User creator = loadCreator ? comp.getCreatedBy() : null;
-			Set<Tag> tags = loadTags ? comp.getTags() : null;
-			
-			CompetenceData1 compData = competenceFactory.getCompetenceData(
-					creator, comp, tags, shouldTrackChanges);
-			
-//			compData.setCanEdit(priv == UserGroupPrivilege.Edit);
-//			compData.setCanAccess(canAccess);
-			
-			if(loadActivities) {
-				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
-				compData.setActivities(activities);
-			}
+			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadTags, loadActivities, 
+					shouldTrackChanges);
 			
 			ResourceAccessData access = getResourceAccessData(compId, userId, req);
 			
@@ -433,17 +418,51 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+					throws ResourceNotFoundException, DbConnectionException {
+		try {
+			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
+			
+			if(comp == null) {
+				throw new ResourceNotFoundException();
+			}
+			
+			User creator = loadCreator ? comp.getCreatedBy() : null;
+			Set<Tag> tags = loadTags ? comp.getTags() : null;
+			
+			CompetenceData1 compData = competenceFactory.getCompetenceData(
+					creator, comp, tags, shouldTrackChanges);
+			
+			if(loadActivities) {
+				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
+				compData.setActivities(activities);
+			}
+			
+			return compData;
+		} catch (ResourceNotFoundException rfe) {
+			throw rfe;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
+		}
+	}
+	
 	/**
 	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
-	 * @param userId
+	 * @param returnIfArchived
 	 * @return
 	 */
 	@Transactional(readOnly = true)
 	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
-			long userId, boolean returnIfArchived) {
+			boolean returnIfArchived) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT comp ");
 		/* 
@@ -453,7 +472,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if(credId > 0) {
 			builder.append("FROM CredentialCompetence1 credComp " +
 						   "INNER JOIN credComp.competence comp " +
-						   		"WITH comp.id = :compId ");
+						   		"WITH comp.id = :compId " +
+						   	    "AND comp.deleted = :deleted ");
 			if(!returnIfArchived) {
 				builder.append("AND comp.archived = :archived ");
 			}
@@ -529,7 +549,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			/* 
 			 * flushing to force lock timeout exception so it can be catched here. 
-			 * It is rethrown as DbConnectionException.
+			 * It is rethrown as StaleDataException.
 			 */
 			persistence.currentManager().flush();
 		    
@@ -721,12 +741,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, 
-			boolean includeCanEdit, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
 					throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -739,15 +757,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				
 				CompetenceData1 compData = competenceFactory.getCompetenceData(
 						creator, credComp, tags, true);
-				
-				if(includeCanEdit) {
-					//TODO cred-redesign-07
-//					UserGroupPrivilege priv = getUserPrivilegeForCompetence(
-//							credComp.getCompetence().getId(), userId);
-//					if(priv == UserGroupPrivilege.Edit) {
-//						compData.setCanEdit(true);
-//					}
-				}
 				
 				if(loadActivities) {
 					List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
@@ -765,7 +774,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
@@ -775,7 +783,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					credentialId);
 			
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT distinct credComp " + 
+			builder.append("SELECT credComp " + 
 						   "FROM CredentialCompetence1 credComp " +
 						   "INNER JOIN fetch credComp.competence comp ");
 			if(loadCreator) {
@@ -1414,7 +1422,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceData(credId, compId, true, true, true, userId, 
+				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
 						req, false);
 			}
 				
@@ -1859,11 +1867,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					}
 				}
 			}
-			return UserAccessSpecification.of(privs, visibleToAll, owner == userId, published, datePublished, type);
+			return CompetenceUserAccessSpecification.of(privs, visibleToAll, owner == userId, published, 
+					datePublished, type);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privileges for competence");
+			throw new DbConnectionException("Error while trying to retrieve user privileges for competency");
 		}
 	}
 	
@@ -2504,7 +2513,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CompetenceData1> res = getCompetenceData(credId, compId, true, true, true, userId, 
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, userId, 
 					req, true);
 			
 			boolean canUnpublish = !isThereAnActiveDeliveryWithACompetence(compId);

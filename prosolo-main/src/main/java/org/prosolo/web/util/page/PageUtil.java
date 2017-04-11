@@ -151,6 +151,16 @@ public class PageUtil {
 		}
 	}
 	
+	/**
+	 * Extracts learning context post parameters from request and returns result.
+	 * 
+	 * Method relies on following parameter names:
+	 *  - 'page' param name for page
+	 *  - 'learningContext' param name for context
+	 *  - 'service' param name for service
+	 *  
+	 * @return
+	 */
 	public static LearningContextData extractLearningContextData() {
 		String page = getPostParameter("page");
 		String lContext = getPostParameter("learningContext");
@@ -166,5 +176,13 @@ public class PageUtil {
 			ioe.printStackTrace();
 			logger.error(ioe);
 		}
+	}
+	
+	public static void accessDenied() {
+		forward("/accessDenied.xhtml");
+	}
+	
+	public static void notFound() {
+		forward("/notfound.xhtml");
 	}
 }

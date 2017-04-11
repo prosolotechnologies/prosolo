@@ -90,20 +90,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changed;
 	}
 	
-	public void determineDeliveryStatus() {
-		Date now = new Date();
-		//if delivery start is not set or is in future then delivery is pending
-		if (deliveryStart == null || deliveryStart.after(now)) {
-			deliveryStatus = CredentialDeliveryStatus.PENDING;
-		} 
-		//if delivery start is in past and delivery end is not set or is in future delivery is active
-		else if (deliveryEnd == null || deliveryEnd.after(now)) {
-			deliveryStatus = CredentialDeliveryStatus.ACTIVE;
-		} else {
-			deliveryStatus = CredentialDeliveryStatus.ENDED;
-		}
-	}
-	
 	public String getDeliveryStartString() {
 		return getDateString(deliveryStart);
 	}
@@ -408,10 +394,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	public String getOldHashtags() {
 		return (String) changedAttributes.get("hashtagsString");
-	}
-
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
 	}
 
 	public boolean isStatusChanged() {

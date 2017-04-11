@@ -65,9 +65,6 @@ public class NodeChangeProcessorFactory {
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
 							credentialESService, competenceESService, EventUserRole.Object);
-				} else if (node instanceof TargetLearningGoal) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, 
-							credentialESService, competenceESService, EventUserRole.Subject);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {

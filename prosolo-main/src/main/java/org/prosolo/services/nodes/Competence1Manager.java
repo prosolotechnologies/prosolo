@@ -100,6 +100,7 @@ public interface Competence1Manager {
 	
 	
 	/**
+	 * Returns competence data with access rights info for user specified by {@code userId} id.
 	 * 
 	 * @param credId
 	 * @param compId
@@ -114,12 +115,29 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CompetenceData1> getCompetenceData(long credId, long compId, boolean loadCreator, 
+	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
+	/**
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param loadActivities
+	 * @param shouldTrackChanges
+	 * @return
+	 * @throws ResourceNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, boolean includeCanEdit, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 

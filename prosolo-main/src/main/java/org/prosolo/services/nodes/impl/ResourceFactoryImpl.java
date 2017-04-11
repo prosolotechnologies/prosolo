@@ -982,8 +982,8 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Credential1> updateCredential(CredentialData data, long creatorId) {
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException {
     	return credentialManager.updateCredentialData(data, creatorId);
     }
     
