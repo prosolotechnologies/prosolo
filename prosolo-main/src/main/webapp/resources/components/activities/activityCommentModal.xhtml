@@ -43,7 +43,7 @@
 				<div class="modal-dialog modal-lg">
 					<h:panelGroup id="panelModalPrivateConversation" layout="block"
 						styleClass="modal-content">
-						<ui:fragment rendered="#{not empty activityPrivateConversationBean.currentResult}">
+						<ui:fragment rendered="#{not empty activityPrivateConversationBean.activityAssessmentData}">
 							<div class="modal-header alignLeft">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-label="Close">
@@ -54,10 +54,10 @@
 							<div class="discussion">
 								<div class="comments">
 									<ui:fragment
-										rendered="#{not empty activityPrivateConversationBean.currentResult.assessment.activityDiscussionMessageData}">
+										rendered="#{not empty activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
 										<ul class="media-list">
 											<ui:repeat var="activityMessageData"
-												value="#{activityPrivateConversationBean.currentResult.assessment.activityDiscussionMessageData}">
+												value="#{activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
 												<li class="media">
 													<div class="media-left">
 														<utilcomp:userAvatar
@@ -88,7 +88,7 @@
 																		value="#{activityMessageData.content}"></p:inputTextarea>
 																	<p:commandLink styleClass="btn btn-sm btn-green"
 																		oncomplete="hideEditPrivateConversationComment(this);"
-																		update=":commentModal:formPrivateConversation:panelModalPrivateConversation"
+																		update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
 																		actionListener="#{activityPrivateConversationBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
 																		type="button" name="button">
 																Submit
@@ -162,12 +162,12 @@
 											action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
 											type="button" styleClass="btn btn-sm btn-green hidden"
 											name="button"
-											update=":commentModal:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.currentResult.targetActivityId})">
+											update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId})">
 									Submit
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"
-												value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.currentResult.targetActivityId}" />
+												value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}" />
 										</p:commandLink>
 
 									</div>
