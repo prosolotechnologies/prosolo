@@ -520,11 +520,7 @@
 			<version>4.1.4.Final</version>
 		</dependency-->
 
-		<!--dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-juli</artifactId>
-			<version>9.0.0.M4</version>
-		</dependency-->
+
 
 
 	</dependencies>
@@ -637,7 +633,7 @@
 					</webAppConfig>
 					<webApp>
 						<contextPath>/</contextPath>
-
+						<parentLoaderPriority>true</parentLoaderPriority>
 					</webApp>
 					<httpConnector>
 						<port>8082</port>

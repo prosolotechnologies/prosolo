@@ -15,18 +15,19 @@ import org.prosolo.bigdata.dal.cassandra.impl.{StudentAssignEventDBManagerImpl, 
 import org.prosolo.bigdata.services.email.instructorEmail.InstructorStudentsEmailService
 import org.prosolo.bigdata.services.email.instructorEmail.impl.InstructorStudentsEmailServiceImpl
 
-object InstructorEmailSender {
+object InstructorEmailSender extends App{
   
-  val logger = LoggerFactory.getLogger(getClass)
+
 
   case class Record(courseId: java.lang.Long,
                     timestamp: java.lang.Long,
                     instructorId: java.lang.Long, 
                     assigned: Seq[java.lang.Long], 
                     unassigned: Seq[java.lang.Long])
-  
+  sendEmailsToInstructors()
   def sendEmailsToInstructors() {
     try {
+      val logger = LoggerFactory.getLogger(getClass)
       logger.info("Instructor email sender job executing")
       
       val courseDAO = new CourseDAOImpl(false)
