@@ -3,13 +3,15 @@ package org.prosolo.bigdata.scala.instructorEmails
 import org.slf4j.LoggerFactory
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl
+
 import scala.collection.mutable.Buffer
 import org.apache.spark.rdd.RDD
+
 import scala.collection.JavaConverters._
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.common.config.CommonSettings
-import org.prosolo.bigdata.dal.cassandra.impl.StudentAssignEventDBManagerImpl
+import org.prosolo.bigdata.dal.cassandra.impl.{StudentAssignEventDBManagerImpl, TablesNames}
 import org.prosolo.bigdata.services.email.instructorEmail.InstructorStudentsEmailService
 import org.prosolo.bigdata.services.email.instructorEmail.impl.InstructorStudentsEmailServiceImpl
 
@@ -39,7 +41,7 @@ object InstructorEmailSender {
         val scalaCourseIds: Seq[java.lang.Long] = courseIds.asScala.toSeq
         
         val courseRDD = sc.parallelize(scalaCourseIds).map(Tuple1(_))
-          .repartitionByCassandraReplica(dbName, "student_assign_events", 1)
+          .repartitionByCassandraReplica(dbName, TablesNames.STUDENT_ASSIGN_EVENTS, 1)
         val studentAssignManager = StudentAssignEventDBManagerImpl.getInstance;
     
         val bucket = studentAssignManager.getBucket;

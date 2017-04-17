@@ -182,6 +182,14 @@ public class CassandraDDLManagerImpl extends SimpleCassandraClientImpl
 		String newUsersDDL = "CREATE TABLE IF NOT EXISTS "+TablesNames.USERRECOM_NEWUSERS+"(userid bigint, timestamp bigint,  PRIMARY KEY (userid))";
 		this.cqls.add(newUsersDDL);
 
+		String studentAssignEventsByProffesor="CREATE TABLE IF NOT EXISTS "+TablesNames.STUDENT_ASSIGN_EVENTS +"(courseId bigint, timestamp bigint, instructorId bigint, assigned list<bigint>, unassigned list<bigint>, " +
+
+				 				"PRIMARY KEY(courseId, timestamp, instructorId)) " +
+
+				 				"WITH CLUSTERING ORDER BY (timestamp DESC);";
+
+		 		this.cqls.add(studentAssignEventsByProffesor);
+
 
 	}
 
