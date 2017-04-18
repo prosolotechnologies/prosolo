@@ -825,6 +825,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				CredentialCompetence1 cc3 = (CredentialCompetence1) persistence.currentManager().load(
 				    				CredentialCompetence1.class, cd.getCredentialCompetenceId());
 		    				delete(cc3);
+		    				Competence1 competence1 = new Competence1();
+		    				competence1.setId(cd.getCompetenceId());
+		    				res.addEvent(eventFactory.generateEventData(
+		    						EventType.Detach, userId, competence1, credToUpdate, null, null));
 		    				recalculateDuration = true;
 		    				break;
 		    			case UP_TO_DATE:
@@ -2956,19 +2960,46 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
+	//should not be transaction
 	@Override
-	@Transactional(readOnly = false)
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
-    				throws DbConnectionException {
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long actorId,
+    		LearningContextData lcd) throws DbConnectionException, EventException {
 		try {
+			List<EventData> events = 
+					updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll, visibleToAllChanged, 
+							actorId, lcd);
+			for(EventData ev : events) {
+				eventFactory.generateEvent(ev);
+			}
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
+    		LearningContextData lcd) throws DbConnectionException {
+		try {
+			List<EventData> events = new ArrayList<>();
 			if(visibleToAllChanged) {
 				Credential1 cred = (Credential1) persistence.currentManager().load(
 						Credential1.class, credId);
 				cred.setVisibleToAll(visibleToAll);
+				
+				Credential1 credential = new Credential1();
+				credential.setId(credId);
+				credential.setVisibleToAll(visibleToAll);
+				events.add(eventFactory.generateEventData(
+						EventType.VISIBLE_TO_ALL_CHANGED, 
+						userId, 
+						credential, null, lcd, null));
 			}
-			userGroupManager.saveCredentialUsersAndGroups(credId, groups, users);
+			events.addAll(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, userId, lcd).getEvents());
+			return events;
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -3315,6 +3346,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			logger.error(e);
 			throw new DbConnectionException("Error while trying to retrieve credential ids");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException {
+		try {	
+			String query = "SELECT cc.competence.id " +
+						   "FROM CredentialCompetence1 cc " +
+						   "WHERE cc.credential.id = :credId";
+	
+			@SuppressWarnings("unchecked")
+			List<Long> compIds =  session
+					.createQuery(query)
+					.setLong("credId", credId)
+					.list();
+			
+			return compIds;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competency ids");
 		}
 	}
 }

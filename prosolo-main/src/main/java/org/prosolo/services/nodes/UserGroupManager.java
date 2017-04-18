@@ -9,6 +9,8 @@ import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -92,10 +94,12 @@ public interface UserGroupManager extends AbstractManager {
 	 * @param credId
 	 * @param groups
 	 * @param users
+	 * @param actorId - actor that issued a request
+	 * @param lcd
 	 * @throws DbConnectionException
 	 */
-	void saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
-	    	List<ResourceVisibilityMember> users) throws DbConnectionException;
+	Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
+	    	List<ResourceVisibilityMember> users, long actorId, LearningContextData lcd) throws DbConnectionException;
 	
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
     		throws DbConnectionException;
@@ -126,5 +130,130 @@ public interface UserGroupManager extends AbstractManager {
 	 */
 	void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
     		UserGroupPrivilege privilege) throws DbConnectionException;
+	
+	/**
+	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
+	 * in a credential given by {@code credId}
+	 * 
+	 * @param credId
+	 * @param userGroupId
+	 * @param session
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void removeUserGroupPrivilegePropagatedFromCredential(long credId, long userGroupId, Session session) 
+    		throws DbConnectionException, EventException;
+	
+	/**
+	 * This method removes privilege for all user groups that have some privilege in a credential given by {@code credId} id
+	 * in a competency given by {@code compId}
+	 * 
+	 * @param compId
+	 * @param credId
+	 * @param session
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void removeUserGroupPrivilegesPropagatedFromCredential(long compId, long credId, Session session) 
+    		throws DbConnectionException, EventException;
+	
+	/**
+	 * This method propagates privilege for user group from a credential to all competencies 
+	 * that are part of that credential 
+	 * 
+	 * @param credUserGroupId - id of a CredentialUserGroup instance
+	 * @param session
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void propagateUserGroupPrivilegeFromCredentialToAllCompetences(long credUserGroupId, Session session) 
+    		throws DbConnectionException, EventException;
+	
+	/**
+	 * This method propagates privileges for all user groups that have some privilege in a credential given by {@code credId} id
+	 * to competency specified by {@code compId}
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param session
+	 * @throws DbConnectionException 
+	 * @throws EventException
+	 */
+	void propagateUserGroupPrivilegesFromCredentialToCompetence(long credId, long compId, Session session) 
+    		throws DbConnectionException, EventException;
+	
+	/**
+	 * This method propagates privilege change for all inherited user groups in all credential competencies
+	 * 
+	 * @param credUserGroupId
+	 * @param session
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void propagatePrivilegeChangeToAllCredentialCompetences(long credUserGroupId, Session session) 
+			throws DbConnectionException, EventException;
+	
+	/**
+	 * This method propagates privilege change for all inherited user groups in all credential competencies
+	 * and returns event data for all events that should be generated
+	 * 
+	 * @param credUserGroupId
+	 * @param session
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(long credUserGroupId, 
+			Session session) throws DbConnectionException;
+	
+	/**
+	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
+	 * in a credential given by {@code credId} and returns event data for all events that should be generated.
+	 * 
+	 * @param credId
+	 * @param userGroupId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method removes privilege for all user groups that have some privilege in a credential given by {@code credId} id
+	 * in a competency given by {@code compId} and returns event data for all events that should be generated
+	 * 
+	 * @param compId
+	 * @param credId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(long compId, long credId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method propagates privilege for user group from a credential to all competencies 
+	 * that are part of that credential and returns event data for all events that should be generated
+	 * 
+	 * @param credUserGroupId - id of a CredentialUserGroup instance
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method propagates privileges for all user groups that have some privilege in a credential given by {@code credId}
+	 * to competency specified by {@code compId} and returns event data for all events that should be generated
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(long credId, long compId, 
+    		Session session) throws DbConnectionException;
 
 }

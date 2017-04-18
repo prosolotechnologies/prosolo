@@ -18,6 +18,7 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -339,8 +340,8 @@ public interface CredentialManager extends AbstractManager {
 			boolean justUncompleted) throws DbConnectionException;
 	
 	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
-    				throws DbConnectionException;
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
+    		LearningContextData lcd) throws DbConnectionException, EventException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 	
@@ -435,4 +436,6 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getResourceAccessData(long credId, long userId, ResourceAccessRequirements req) 
 			throws DbConnectionException;
+	
+	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 }
