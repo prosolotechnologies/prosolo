@@ -1,4 +1,4 @@
-package org.prosolo.bigdata.services.email.instructorEmail.impl;
+package org.prosolo.bigdata.services.email.impl;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.prosolo.bigdata.dal.persistence.UserDAO;
 import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.dal.persistence.impl.UserDAOImpl;
 import org.prosolo.bigdata.email.EmailSender;
-import org.prosolo.bigdata.services.email.instructorEmail.InstructorStudentsEmailService;
+import org.prosolo.bigdata.services.email.InstructorStudentsEmailService;
 import org.prosolo.bigdata.services.email.instructorEmail.emailGenerator.InstructorEmailGenerator;
 import org.prosolo.common.config.CommonSettings;
 
@@ -43,9 +43,9 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 			EmailSender emailSender = new EmailSender();
 			
 			if (CommonSettings.getInstance().config.appConfig.developmentMode) {
+
 				email = CommonSettings.getInstance().config.appConfig.developerEmail;
 			}
-			
 			try {
 				emailSender.sendEmail(generator, email);
 			} catch (AddressException e) {

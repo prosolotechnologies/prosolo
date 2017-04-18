@@ -32,7 +32,7 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
 public class EmailSender {
 	public void sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
-		
+		System.out.println("SEND EMAIL...");
 		String host = smtpConfig.host;
 		String user = smtpConfig.user;
 		String pass = smtpConfig.pass;
@@ -72,19 +72,23 @@ public class EmailSender {
 		final Multipart mp = new MimeMultipart("alternative");
 		mp.addBodyPart(textPart);
 		mp.addBodyPart(htmlPart);
-		
-		// Set Multipart as the message's content
-		message.setContent(mp);
-		Transport transport = session.getTransport("smtp");
-		transport.connect(host, user, pass);
-		transport.sendMessage(message, message.getAllRecipients());
-		transport.close();
+		try{
+			// Set Multipart as the message's content
+			message.setContent(mp);
+			Transport transport = session.getTransport("smtp");
+			transport.connect(host, user, pass);
+			transport.sendMessage(message, message.getAllRecipients());
+			transport.close();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		try {
 			EmailVerificationEmailContentGenerator contentGenerator = new EmailVerificationEmailContentGenerator("Nik", "http://example.com");
-			new EmailSender().sendEmail(contentGenerator,  "zoran.jeremic@gmail.com");
+			new EmailSender().sendEmail(contentGenerator,  "example@gmail.com");
 		} catch (AddressException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
