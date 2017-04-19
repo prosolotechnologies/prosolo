@@ -82,13 +82,13 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 
 	@Override
 	public void sendEmailsToInstructors(List<CourseInstructorEmail> batchEmails) {
-		Map<String,EmailContentGenerator> instructorEmailGeneratorMap= batchEmails.stream().map(
+		Map<EmailContentGenerator,String> instructorEmailGeneratorMap= batchEmails.stream().map(
 			batchEmail-> {
 				Pair<String,InstructorEmailGenerator> emailGeneratorPair=createEmailGenerator(batchEmail.courseId(),batchEmail.instructorId(),batchEmail.assigned(),batchEmail.unassigned());
 
 				return emailGeneratorPair;
 			}
-			).collect(Collectors.toMap(p->p.getFirst(), p->  p.getSecond()));
+			).collect(Collectors.toMap( p->  p.getSecond(),p->p.getFirst()));
 
 		EmailSender emailSender = new EmailSender();
 		try{

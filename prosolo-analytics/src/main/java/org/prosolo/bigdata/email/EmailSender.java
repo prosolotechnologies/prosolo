@@ -17,6 +17,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailContentGenerator;
@@ -31,19 +32,20 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
  *
  */
 public class EmailSender {
-	public void sendBatchEmails(Map<String,EmailContentGenerator> emailsToSend) throws AddressException{
-		System.out.println("SEND BATCH EMAILS");
+	private static Logger logger = Logger
+			.getLogger(EmailSender.class.getName());
+	public void sendBatchEmails(Map<EmailContentGenerator,String> emailsToSend) throws AddressException{
+		logger.info("SEND BATCH EMAILS");
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
 		Session session = Session.getDefaultInstance(getMailProperties());
 
 		try{
 			Transport transport = session.getTransport("smtp");
 			transport.connect(smtpConfig.host, smtpConfig.user, smtpConfig.pass);
-		for(Map.Entry<String,EmailContentGenerator> emailToSend:emailsToSend.entrySet()){
-			String email=emailToSend.getKey();
-			System.out.println("SENDING:"+email);
-			EmailContentGenerator contentGenerator=emailToSend.getValue();
-
+		for(Map.Entry<EmailContentGenerator,String> emailToSend:emailsToSend.entrySet()){
+			String email=emailToSend.getValue();
+			EmailContentGenerator contentGenerator=emailToSend.getKey();
+				logger.info("sending email:"+email);
 				Multipart mp=createMailMultipart(contentGenerator);
 				Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
 				transport.sendMessage(message, message.getAllRecipients());

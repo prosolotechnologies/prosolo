@@ -15,8 +15,8 @@ import collection.JavaConversions._
 /**
   * Created by zoran on 17/04/17.
   */
-object InstructorEmailManager  extends App{
-runJob()
+object InstructorEmailManager{
+val BATCH_SIZE=50
   def runJob(): Unit ={
     val logger = LoggerFactory.getLogger(getClass)
     logger.info("Instructor email sender job executing")
@@ -26,19 +26,18 @@ runJob()
     val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName +
       CommonSettings.getInstance().config.getNamespaceSufix();
     val studentAssignManager = StudentAssignEventDBManagerImpl.getInstance
-    //val bucket = studentAssignManager.getBucket;
-     val bucket=7
+   val bucket = studentAssignManager.getBucket;
+
 
     studentAssignManager.setBucket(bucket + 1)
     studentAssignManager.updateCurrentTimestamp(bucket + 1)
 
    val emailsToSend:Array[CourseInstructorEmail]= InstructorEmailSenderSparkJob.runSparkJob(courseIds,dbName, bucket)
     val emailService: InstructorStudentsEmailService = new InstructorStudentsEmailServiceImpl
-    val emailsBatches:Array[Array[CourseInstructorEmail]]=emailsToSend.grouped(50).toArray
-  // val emailsBatchesList:Array[java.util.Collection[CourseInstructorEmail]]= emailsBatches.map(batch=>util.Arrays.asList(batch))
+    val emailsBatches:Array[Array[CourseInstructorEmail]]=emailsToSend.grouped(BATCH_SIZE).toArray
+
     emailsBatches.foreach{
       emailBatch=>
-        println("EMAIL BATCH")
         val emails: java.util.List[CourseInstructorEmail] = emailBatch.toSeq
         emailService.sendEmailsToInstructors(emails)
     }
