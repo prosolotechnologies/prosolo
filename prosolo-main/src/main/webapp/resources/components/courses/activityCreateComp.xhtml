@@ -1,5 +1,4 @@
-<ui:component
-	xmlns:ui="http://java.sun.com/jsf/facelets"
+<ui:component xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
@@ -15,8 +14,10 @@
 		<composite:attribute name="uploadFileModalId" required="true" />
 		<composite:attribute name="addLinkModalId" required="true" />
 		<composite:attribute name="uploadCaptionModalId" required="true" />
-		<composite:attribute name="prepareAddingResLinkMethodName" required="true" />
-		<composite:attribute name="prepareAddingResLinkMethod" required="true" method-signature="void #{cc.attrs.prepareAddingResLinkMethodName}()" />
+		<composite:attribute name="prepareAddingResLinkMethodName"
+			required="true" />
+		<composite:attribute name="prepareAddingResLinkMethod" required="true"
+			method-signature="void #{cc.attrs.prepareAddingResLinkMethodName}()" />
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="toUpdateModalUploadFile" default="" />
 		<composite:attribute name="toUpdateModalAddLink" default="" />
@@ -24,391 +25,370 @@
 		<composite:attribute name="mainForm" default="" />
 		<composite:attribute name="limitedEdit" default="false" />
 	</composite:interface>
-	
+
 	<composite:implementation>
 		<div id="#{cc.clientId}">
-		<script>
-        	$(function() {
-        		disableAutogradeIfAcceptGradesChecked('#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');
-        		disableAcceptGradesIfAutogradeChecked('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');
-        	});
-        </script>
-		<!-- video activity start -->
-	    <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'VIDEO'}" styleClass="fieldsVideo">
-           <div class="formLine">
-               <label>Video URL</label>
-               <div class="formLineRight">
-               	   <h:inputText 
-               	   		id="inputVideoUrl"
-               	   		styleClass="pasteable"
-               	   		value="#{cc.attrs.activity.videoLink}"
-               	   		validator="youtubeValidator"
-               	   		required="true"
-						requiredMessage="Video URL is required"/>
-				   <h:panelGroup 
-                    	layout="block" 
-                    	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputVideoUrl'))}" 
-                    	styleClass="alert alert-danger" 
-                    	pt:role="alert">
-                        <h:message for="inputVideoUrl"></h:message>
-                    </h:panelGroup>
-               </div>
-           </div>
-           
-            <div class="formLine">
-               <label>Subtitles</label>
-               <div class="formLineRight">
-               	 <h:panelGroup id="panelCaptions">
-	             	<h:panelGroup id="panelAddedCaptions" rendered="#{!cc.attrs.bean.isCaptionListEmpty()}">
-	                   <ul class="addedItems">
-	                       <ui:repeat var="cap" value="#{cc.attrs.activity.captions}">
-		                 		<ui:fragment rendered="#{cap.status != 'REMOVED'}">
-		                 			<li>
-		                 				<h3>#{cap.linkName}</h3>
-	                                    <p:commandLink 
-				                         	styleClass="removeX" 
-				                         	pt:data-toggle="tooltip" 
-				                         	pt:title="Remove"
-				                         	process="@this"
-				                         	action="#{cc.attrs.bean.removeCaption(cap)}"
-				                         	update=":#{cc.clientId}:panelCaptions #{cc.attrs.toUpdate}">
+			<script>
+				$(function() {
+					disableAutogradeIfAcceptGradesChecked(
+							'#{cc.clientId}:checkAcceptGrades',
+							'#{cc.clientId}:checkAutograding',
+							'#{cc.clientId}:checkAutogradeLabel');
+					disableAcceptGradesIfAutogradeChecked(
+							'#{cc.clientId}:checkAutograding',
+							'#{cc.clientId}:checkAcceptGrades',
+							'#{cc.clientId}:checkAcceptGradesLabel');
+				});
+			</script>
+			<!-- video activity start -->
+			<h:panelGroup layout="block"
+				rendered="#{cc.attrs.activity.activityType == 'VIDEO'}"
+				styleClass="fieldsVideo">
+				<div class="formLine">
+					<label>Video URL</label>
+					<div class="formLineRight">
+						<h:inputText id="inputVideoUrl" styleClass="pasteable"
+							value="#{cc.attrs.activity.videoLink}"
+							validator="youtubeValidator" required="true"
+							requiredMessage="Video URL is required" />
+						<h:panelGroup layout="block"
+							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputVideoUrl'))}"
+							styleClass="alert alert-danger" pt:role="alert">
+							<h:message for="inputVideoUrl"></h:message>
+						</h:panelGroup>
+					</div>
+				</div>
+
+				<div class="formLine">
+					<label>Subtitles</label>
+					<div class="formLineRight">
+						<h:panelGroup id="panelCaptions">
+							<h:panelGroup id="panelAddedCaptions"
+								rendered="#{!cc.attrs.bean.isCaptionListEmpty()}">
+								<ul class="addedItems">
+									<ui:repeat var="cap" value="#{cc.attrs.activity.captions}">
+										<ui:fragment rendered="#{cap.status != 'REMOVED'}">
+											<li>
+												<h3>#{cap.linkName}</h3> <p:commandLink styleClass="removeX"
+													pt:data-toggle="tooltip" pt:title="Remove" process="@this"
+													action="#{cc.attrs.bean.removeCaption(cap)}"
+													update=":#{cc.clientId}:panelCaptions #{cc.attrs.toUpdate}">
 				                         	remove
 				                         </p:commandLink>
-	                                    <div class="clear">
-	                                    </div>
-				                        <a href="#{cap.url}" target="_blank">#{cap.fetchedTitle}</a>
-		                     		</li>
-		                 		</ui:fragment>
-	                 		</ui:repeat>
-	                   </ul>
-	                   
-	                 </h:panelGroup>
-	               </h:panelGroup>
-	               <p:commandLink 
-	                 	process="@this"
-	                 	styleClass="btn btn-green btn-sm" 
-	                 	pt:data-toggle="modal"
-	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
-	                 	update="#{cc.attrs.toUpdateModalUploadCaption}"
-	                 	oncomplete="$('##{cc.attrs.uploadCaptionModalId}').modal('show');">Add Subtitles
+												<div class="clear"></div> <a href="#{cap.url}"
+												target="_blank">#{cap.fetchedTitle}</a>
+											</li>
+										</ui:fragment>
+									</ui:repeat>
+								</ul>
+
+							</h:panelGroup>
+						</h:panelGroup>
+						<p:commandLink process="@this" styleClass="btn btn-green btn-sm"
+							pt:data-toggle="modal"
+							action="#{cc.attrs.prepareAddingResLinkMethod}"
+							update="#{cc.attrs.toUpdateModalUploadCaption}"
+							oncomplete="$('##{cc.attrs.uploadCaptionModalId}').modal('show');">Add Subtitles
 	               </p:commandLink>
-               </div>
-           </div>
-        </h:panelGroup>
-        
-        <!-- text activity start -->
-        <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'TEXT'}" styleClass="fieldsText">
-          <div class="formLine">
-              <label>Text</label>
-              <div class="formLineRight">
-				<h:inputTextarea 
-					id="inputTextActText"
-					value="#{cc.attrs.activity.text}"
-					styleClass="textareaBig pasteable"/>
-              	  	
-				<h:panelGroup 
-					layout="block" 
-					rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}" 
-					styleClass="alert alert-danger" 
-					pt:role="alert">
-					<h:message for="inputTextActText" />
-				</h:panelGroup>
-	               
-				<script>
-					initTinyMCE('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');
-				</script>
-			</div>
-		  </div>
-     	</h:panelGroup>
-     	
-     	 <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}" styleClass="fieldsSlideshare">
-	          <div class="formLine">
-	              <label>Slideshare URL</label>
-	              <div class="formLineRight">
-	                   <h:inputText 
-	                   		id="inputSlideshareUrl"
-	                   		styleClass="pasteable"
-	                   		value="#{cc.attrs.activity.slidesLink}"
-	                   		validator="slideshareValidator"
-	                   		required="true"
-	        				requiredMessage="Slideshare URL is required"/>
-       				   <h:panelGroup 
-                           	layout="block" 
-                           	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSlideshareUrl'))}" 
-                           	styleClass="alert alert-danger" 
-                           	pt:role="alert">
-                               <h:message for="inputSlideshareUrl"></h:message>
-                       </h:panelGroup>
-	              </div>
-	          </div>
-	     </h:panelGroup>
-	       
-	     <h:panelGroup rendered="#{cc.attrs.activity.activityType != 'EXTERNAL_TOOL'}">
-	         <div class="formLine">
-	             <label>Upload file</label>
-	             <div class="formLineRight">
-	             	<h:panelGroup id="panelFiles">
-	             	<h:panelGroup id="panelAddedFiles" rendered="#{!cc.attrs.bean.isFileListEmpty()}">	
-	                 <ul class="addedItems">
-	                 	<ui:repeat var="file" value="#{cc.attrs.activity.files}">
-	                 		<ui:fragment rendered="#{file.status != 'REMOVED'}">
-	                 			<li>
-	                 				<h3>#{file.linkName}</h3>
-                                    <p:commandLink 
-			                         	styleClass="removeX" 
-			                         	pt:data-toggle="tooltip" 
-			                         	pt:title="Remove"
-			                         	process="@this"
-			                         	action="#{cc.attrs.bean.removeFile(file)}"
-			                         	update=":#{cc.clientId}:panelFiles #{cc.attrs.toUpdate}">
+					</div>
+				</div>
+			</h:panelGroup>
+
+			<!-- text activity start -->
+			<h:panelGroup layout="block"
+				rendered="#{cc.attrs.activity.activityType == 'TEXT'}"
+				styleClass="fieldsText">
+				<div class="formLine">
+					<label>Text</label>
+					<div class="formLineRight">
+						<h:inputTextarea id="inputTextActText"
+							value="#{cc.attrs.activity.text}"
+							styleClass="textareaBig pasteable" />
+
+						<h:panelGroup layout="block"
+							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}"
+							styleClass="alert alert-danger" pt:role="alert">
+							<h:message for="inputTextActText" />
+						</h:panelGroup>
+
+						<script>
+							initTinyMCE('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');
+						</script>
+					</div>
+				</div>
+			</h:panelGroup>
+
+			<h:panelGroup layout="block"
+				rendered="#{cc.attrs.activity.activityType == 'SLIDESHARE'}"
+				styleClass="fieldsSlideshare">
+				<div class="formLine">
+					<label>Slideshare URL</label>
+					<div class="formLineRight">
+						<h:inputText id="inputSlideshareUrl" styleClass="pasteable"
+							value="#{cc.attrs.activity.slidesLink}"
+							validator="slideshareValidator" required="true"
+							requiredMessage="Slideshare URL is required" />
+						<h:panelGroup layout="block"
+							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSlideshareUrl'))}"
+							styleClass="alert alert-danger" pt:role="alert">
+							<h:message for="inputSlideshareUrl"></h:message>
+						</h:panelGroup>
+					</div>
+				</div>
+			</h:panelGroup>
+
+			<h:panelGroup
+				rendered="#{cc.attrs.activity.activityType != 'EXTERNAL_TOOL'}">
+				<div class="formLine">
+					<label>Upload file</label>
+					<div class="formLineRight">
+						<h:panelGroup id="panelFiles">
+							<h:panelGroup id="panelAddedFiles"
+								rendered="#{!cc.attrs.bean.isFileListEmpty()}">
+								<ul class="addedItems">
+									<ui:repeat var="file" value="#{cc.attrs.activity.files}">
+										<ui:fragment rendered="#{file.status != 'REMOVED'}">
+											<li>
+												<h3>#{file.linkName}</h3> <p:commandLink
+													styleClass="removeX" pt:data-toggle="tooltip"
+													pt:title="Remove" process="@this"
+													action="#{cc.attrs.bean.removeFile(file)}"
+													update=":#{cc.clientId}:panelFiles #{cc.attrs.toUpdate}">
 			                         	remove
 			                         </p:commandLink>
-                                    <div class="clear">
-                                    </div>
-			                        <a href="#{file.url}" target="_blank">#{file.fetchedTitle}</a>
-	                     		</li>
-	                 		</ui:fragment>
-	                 	</ui:repeat>
-	                 </ul>
-	                 </h:panelGroup>
-	                      
-	                 <p:commandLink 
-	                 	process="@this"
-	                 	styleClass="btn btn-green btn-sm" 
-	                 	pt:data-toggle="modal"
-	                 	action="#{cc.attrs.prepareAddingResLinkMethod}"
-	                 	update="#{cc.attrs.toUpdateModalUploadFile}"
-	                 	oncomplete="$('##{cc.attrs.uploadFileModalId}').modal('show');">Upload New File
+												<div class="clear"></div> <a href="#{file.url}"
+												target="_blank">#{file.fetchedTitle}</a>
+											</li>
+										</ui:fragment>
+									</ui:repeat>
+								</ul>
+							</h:panelGroup>
+
+							<p:commandLink process="@this" styleClass="btn btn-green btn-sm"
+								pt:data-toggle="modal"
+								action="#{cc.attrs.prepareAddingResLinkMethod}"
+								update="#{cc.attrs.toUpdateModalUploadFile}"
+								oncomplete="$('##{cc.attrs.uploadFileModalId}').modal('show');">Upload New File
 	                 </p:commandLink>
-	                
-	                 </h:panelGroup>
-	             </div>
-	         </div>
-	         <div class="formLine">
-				<label>Add URL</label>
-				<div class="formLineRight">
-					<h:panelGroup id="panelLinks">
-						<h:panelGroup id="panelAddedLinks" rendered="#{!cc.attrs.bean.isLinkListEmpty()}">	
-							<ul class="addedItems">
-								<ui:repeat var="link" value="#{cc.attrs.activity.links}">
-									<ui:fragment rendered="#{link.status != 'REMOVED'}">
-										<li>
-											<h3>#{link.linkName}</h3>
-											<p:commandLink 
-												styleClass="removeX" 
-												pt:data-toggle="tooltip" 
-												pt:title="Remove"
-												process="@this"
-												action="#{cc.attrs.bean.removeLink(link)}"
-												update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
+
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="formLine">
+					<label>Add URL</label>
+					<div class="formLineRight">
+						<h:panelGroup id="panelLinks">
+							<h:panelGroup id="panelAddedLinks"
+								rendered="#{!cc.attrs.bean.isLinkListEmpty()}">
+								<ul class="addedItems">
+									<ui:repeat var="link" value="#{cc.attrs.activity.links}">
+										<ui:fragment rendered="#{link.status != 'REMOVED'}">
+											<li>
+												<h3>#{link.linkName}</h3> <p:commandLink
+													styleClass="removeX" pt:data-toggle="tooltip"
+													pt:title="Remove" process="@this"
+													action="#{cc.attrs.bean.removeLink(link)}"
+													update=":#{cc.clientId}:panelLinks #{cc.attrs.toUpdate}">
 												remove
 											</p:commandLink>
-											<div class="clear"></div>
-											<a href="#{link.url}" target="_blank">
-												#{link.url}<h:outputText rendered="#{not empty link.idParamName}" 
-																value="#{(link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=[USER ID]')}" />
+												<div class="clear"></div> <a href="#{link.url}"
+												target="_blank"> #{link.url}<h:outputText
+														rendered="#{not empty link.idParamName}"
+														value="#{(link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=[USER ID]')}" />
 											</a>
-										</li>
-									</ui:fragment>
-								</ui:repeat>
-							</ul>
+											</li>
+										</ui:fragment>
+									</ui:repeat>
+								</ul>
+							</h:panelGroup>
 						</h:panelGroup>
-					</h:panelGroup>
-	                 
-					<p:commandLink 
-						process="@this"
-						styleClass="btn btn-green btn-sm" 
-						pt:data-toggle="modal"
-						action="#{cc.attrs.prepareAddingResLinkMethod}"
-						update="#{cc.attrs.toUpdateModalAddLink}"
-						oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
+
+						<p:commandLink process="@this" styleClass="btn btn-green btn-sm"
+							pt:data-toggle="modal"
+							action="#{cc.attrs.prepareAddingResLinkMethod}"
+							update="#{cc.attrs.toUpdateModalAddLink}"
+							oncomplete="attachListenerForFetchingPageTitle(); $('##{cc.attrs.addLinkModalId}').modal('show')">Add New URL
 					</p:commandLink>
-	             </div>	          
-	         </div>
-	         
-			<div class="formLine">
-				<label>Response</label>
-				<div class="formLineRight">
-					<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
-						styleClass="selectpicker"
-						value="#{cc.attrs.activity.resultData.resultType}">
-						<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
-							itemValue="#{resType}" itemLabel="#{resType.label}" />
-					</h:selectOneMenu>
-					<script>$('.selectpicker').selectpicker('refresh');</script>
+					</div>
 				</div>
-			</div>
-            
-			<div class="formLine">
-				<label>Max points</label>
-				<div class="formLineRight">
-					<h:inputText disabled="#{cc.attrs.limitedEdit}"
-						id="maxPoints"
-						value="#{cc.attrs.activity.maxPointsString}"
-                     	placeholder="e.g. 10"
-                     	converterMessage="Only numbers are allowed">
-                     	<f:convertNumber integerOnly="true"/>
-                   	</h:inputText>
-                   	<h:message for="maxPoints" style="color:red" />
+
+				<div class="formLine">
+					<label>Response Type</label>
+					<div class="formLineRight">
+						<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
+							styleClass="selectpicker"
+							value="#{cc.attrs.activity.resultData.resultType}">
+							<f:selectItems value="#{cc.attrs.bean.resultTypes}" var="resType"
+								itemValue="#{resType}" itemLabel="#{resType.label}" />
+						</h:selectOneMenu>
+						<script>
+							$('.selectpicker').selectpicker('refresh');
+						</script>
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
+								value="#{cc.attrs.activity.studentCanSeeOtherResponses}">
+							</h:selectBooleanCheckbox>
+							<label for="#{cc.clientId}:checkStudentCanSeeOtherResponses">
+								After submission, student can see other responses </label>
+							<div class="infoIcon">info</div>
+						</div>
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox id="checkStudentCanEditResponse"
+								value="#{cc.attrs.activity.studentCanEditResponse}">
+							</h:selectBooleanCheckbox>
+							<label for="#{cc.clientId}:checkStudentCanEditResponse">
+								After submission, student can edit their response </label>
+							<div class="infoIcon">info</div>
+						</div>
+					</div>
 				</div>
-			</div>
-			<div class="formLine">
-				<label>Other</label>
-				<div class="formLineRight">
-					<div class="checkbox checkLine">
-                		<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}" id="checkAutograding1"
-                    		value="#{cc.attrs.activity.autograde}">
-                    	</h:selectBooleanCheckbox>
-                        <h:outputLabel for="checkAutograding1">
+
+				<div class="formLine">
+					<label>Max points</label>
+					<div class="formLineRight">
+						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPoints"
+							value="#{cc.attrs.activity.maxPointsString}"
+							placeholder="e.g. 10" converterMessage="Only numbers are allowed">
+							<f:convertNumber integerOnly="true" />
+						</h:inputText>
+						<h:message for="maxPoints" style="color:red" />
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
+								id="checkAutograding1" value="#{cc.attrs.activity.autograde}">
+							</h:selectBooleanCheckbox>
+							<h:outputLabel for="checkAutograding1">
                         	Autograding - When a student marks activity as completed, he will be given maximum number of points.
                         </h:outputLabel>
-	                </div>
-					<div class="checkbox checkLine">
-						<h:selectBooleanCheckbox id="checkStudentCanSeeOtherResponses"
-                    		value="#{cc.attrs.activity.studentCanSeeOtherResponses}">
-                    	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkStudentCanSeeOtherResponses">
-							After submission, student can see other responses
-						</label>
-						<div class="infoIcon">info</div>
+						</div>
 					</div>
-					<div class="checkbox checkLine">
-						<h:selectBooleanCheckbox id="checkStudentCanEditResponse"
-                    		value="#{cc.attrs.activity.studentCanEditResponse}">
-                    	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkStudentCanEditResponse">
-							After submission, student can edit their response
-						</label>
-						<div class="infoIcon">info</div>
+				</div>
+
+				<div class="formLine">
+					<label>Other</label>
+					<div class="formLineRight">
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
+								value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
+							</h:selectBooleanCheckbox>
+							<label for="#{cc.clientId}:checkVisibleToUnenrolled">This
+								activity should be available to unenrolled students</label>
+						</div>
 					</div>
-					<div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled"
-                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
-                    	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkVisibleToUnenrolled">This activity should be available to unenrolled students</label>
-                    </div>
 				</div>
-			</div>
-		</h:panelGroup>
-         
-         <!-- external tool activity -->
-   		 <h:panelGroup layout="block" rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}" styleClass="fieldsExternal">
-            <div class="formLine">
-                <label>&#160;</label>
-                <div class="formLineRight">
-                    <p>External activities are added via LTI protocol. Please provide LTI tool details obtained from your LTI provider.</p>
-                </div>
-            </div>
-            <div class="formLine">
-                <label>Launch URL</label>
-                <div class="formLineRight">
-                     <h:inputText 
-                     	id="inputLaunchUrl"
-                     	styleClass="pasteable"
-                     	value="#{cc.attrs.activity.launchUrl}"
-                     	validator="urlValidator"
-                     	required="true"
-        				requiredMessage="Launch URL is required"/>
-   				     <h:panelGroup 
-                       	layout="block" 
-                       	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputLaunchUrl'))}" 
-                       	styleClass="alert alert-danger" 
-                       	pt:role="alert">
-                           <h:message for="inputLaunchUrl"></h:message>
-                     </h:panelGroup>
-                </div>
-            </div>
-            <div class="formLine">
-                <label>Shared secret</label>
-                <div class="formLineRight">
-                     <h:inputText 
-                     	id="inputSecret"
-                     	styleClass="pasteable"
-                     	value="#{cc.attrs.activity.sharedSecret}"
-                     	required="true"
-        				requiredMessage="Shared secret is required"/>
-   				     <h:panelGroup 
-                       	layout="block" 
-                       	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSecret'))}" 
-                       	styleClass="alert alert-danger" 
-                       	pt:role="alert">
-                           <h:message for="inputSecret"></h:message>
-                     </h:panelGroup>
-                </div>
-            </div>
-            <div class="formLine">
-                <label>Consumer key (optional)</label>
-                <div class="formLineRight">
-                     <h:inputText 
-                     	styleClass="pasteable"
-                     	value="#{cc.attrs.activity.consumerKey}"/>
-                </div>
-            </div>
-            
-            <div class="formLine">
-				<label>Max points</label>
-				<div class="formLineRight">
-					<h:inputText disabled="#{cc.attrs.limitedEdit}"
-						id="maxPointsExt"
-						value="#{cc.attrs.activity.maxPointsString}"
-                     	placeholder="e.g. 10"
-                     	converterMessage="Only numbers are allowed">
-                     	<f:convertNumber integerOnly="true"/>
-                   	</h:inputText>
-                   	<h:message for="maxPoints" style="color:red" />
+			</h:panelGroup>
+
+			<!-- external tool activity -->
+			<h:panelGroup layout="block"
+				rendered="#{cc.attrs.activity.activityType == 'EXTERNAL_TOOL'}"
+				styleClass="fieldsExternal">
+				<div class="formLine">
+					<label>&#160;</label>
+					<div class="formLineRight">
+						<p>External activities are added via LTI protocol. Please
+							provide LTI tool details obtained from your LTI provider.</p>
+					</div>
 				</div>
-			</div>
-            
-            <div class="formLine">
-                <label>Other</label>
-                <div class="formLineRight">
-                	<div class="checkbox checkLine">
-                		<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}" id="checkAutograding"
-                    		value="#{cc.attrs.activity.autograde}"
-                    		onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');">
-                    	</h:selectBooleanCheckbox>
-                        <h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
+				<div class="formLine">
+					<label>Launch URL</label>
+					<div class="formLineRight">
+						<h:inputText id="inputLaunchUrl" styleClass="pasteable"
+							value="#{cc.attrs.activity.launchUrl}" validator="urlValidator"
+							required="true" requiredMessage="Launch URL is required" />
+						<h:panelGroup layout="block"
+							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputLaunchUrl'))}"
+							styleClass="alert alert-danger" pt:role="alert">
+							<h:message for="inputLaunchUrl"></h:message>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="formLine">
+					<label>Shared secret</label>
+					<div class="formLineRight">
+						<h:inputText id="inputSecret" styleClass="pasteable"
+							value="#{cc.attrs.activity.sharedSecret}" required="true"
+							requiredMessage="Shared secret is required" />
+						<h:panelGroup layout="block"
+							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSecret'))}"
+							styleClass="alert alert-danger" pt:role="alert">
+							<h:message for="inputSecret"></h:message>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="formLine">
+					<label>Consumer key (optional)</label>
+					<div class="formLineRight">
+						<h:inputText styleClass="pasteable"
+							value="#{cc.attrs.activity.consumerKey}" />
+					</div>
+				</div>
+
+				<div class="formLine">
+					<label>Max points</label>
+					<div class="formLineRight">
+						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPointsExt"
+							value="#{cc.attrs.activity.maxPointsString}"
+							placeholder="e.g. 10" converterMessage="Only numbers are allowed">
+							<f:convertNumber integerOnly="true" />
+						</h:inputText>
+						<h:message for="maxPoints" style="color:red" />
+					</div>
+				</div>
+
+				<div class="formLine">
+					<label>Other</label>
+					<div class="formLineRight">
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
+								id="checkAutograding" value="#{cc.attrs.activity.autograde}"
+								onchange="autogradeChanged('#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAcceptGrades', '#{cc.clientId}:checkAcceptGradesLabel');">
+							</h:selectBooleanCheckbox>
+							<h:outputLabel for="checkAutograding" id="checkAutogradeLabel">
                         	Autograding - When a student marks activity as completed, he will be given maximum number of points.
                         </h:outputLabel>
-	                </div>
-                    <div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox id="checkOpenInNewWindow"
-                    		value="#{cc.attrs.activity.openInNewWindow}">
-                    	</h:selectBooleanCheckbox>
-                        <h:outputLabel for="checkOpenInNewWindow">Open in new window</h:outputLabel>
-                    </div>
-                    <div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}" id="checkAcceptGrades"
-                    		value="#{cc.attrs.activity.acceptGrades}"
-                    		onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');">
-                    	</h:selectBooleanCheckbox>
-                        <h:outputLabel for="checkAcceptGrades" id="checkAcceptGradesLabel">
+						</div>
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox id="checkOpenInNewWindow"
+								value="#{cc.attrs.activity.openInNewWindow}">
+							</h:selectBooleanCheckbox>
+							<h:outputLabel for="checkOpenInNewWindow">Open in new window</h:outputLabel>
+						</div>
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
+								id="checkAcceptGrades" value="#{cc.attrs.activity.acceptGrades}"
+								onchange="acceptGradesChanged('#{cc.clientId}:checkAcceptGrades', 'scoreCalcPanel', '#{cc.clientId}:checkAutograding', '#{cc.clientId}:checkAutogradeLabel');">
+							</h:selectBooleanCheckbox>
+							<h:outputLabel for="checkAcceptGrades"
+								id="checkAcceptGradesLabel">
                         	Accept grades
                         </h:outputLabel>
-                    </div>
-                   
-                    <div class="checkbox checkLine">
-                    	<h:selectBooleanCheckbox id="checkVisibleToUnenrolled1"
-                    		value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
-                    	</h:selectBooleanCheckbox>
-                        <label for="#{cc.clientId}:checkVisibleToUnenrolled1">This activity should be available to unenrolled students</label>
-                    </div>
-                    
-                    <div id="scoreCalcPanel" style="#{cc.attrs.activity.acceptGrades ? '' : 'display:none;'}">
-	                    <label>In case of multiple responses:</label>
-	                    <div class="formLineRight">
-	                    	<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
-								id="selectScoreCalcType" styleClass="selectpicker" 
-								value="#{cc.attrs.activity.scoreCalculation}">
-								<f:selectItems value="#{cc.attrs.bean.scoreCalculationTypes}" var="scoreCalc"
-									itemValue="#{scoreCalc}" itemLabel="#{scoreCalc.label}" />
-							</h:selectOneMenu>
-							<script>$('.selectpicker').selectpicker('refresh');</script>
-	                    </div>
-                    </div>
-                </div>
-            </div>     
-        </h:panelGroup>
-    	</div>
+						</div>
+
+						<div class="checkbox checkLine">
+							<h:selectBooleanCheckbox id="checkVisibleToUnenrolled1"
+								value="#{cc.attrs.activity.visibleForUnenrolledStudents}">
+							</h:selectBooleanCheckbox>
+							<label for="#{cc.clientId}:checkVisibleToUnenrolled1">This
+								activity should be available to unenrolled students</label>
+						</div>
+
+						<div id="scoreCalcPanel" style="">
+							<label>In case of multiple responses:</label>
+							<div class="formLineRight">
+								<h:selectOneMenu disabled="#{cc.attrs.limitedEdit}"
+									id="selectScoreCalcType" styleClass="selectpicker"
+									value="#{cc.attrs.activity.scoreCalculation}">
+									<f:selectItems value="#{cc.attrs.bean.scoreCalculationTypes}"
+										var="scoreCalc" itemValue="#{scoreCalc}"
+										itemLabel="#{scoreCalc.label}" />
+								</h:selectOneMenu>
+								<script>
+									$('.selectpicker').selectpicker('refresh');
+								</script>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:panelGroup>
+		</div>
 	</composite:implementation>
 </ui:component>
