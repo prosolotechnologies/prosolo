@@ -3,6 +3,7 @@ package org.prosolo.bigdata.email;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -30,59 +31,93 @@ import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerato
  *
  */
 public class EmailSender {
+	public void sendBatchEmails(Map<String,EmailContentGenerator> emailsToSend) throws AddressException{
+		System.out.println("SEND BATCH EMAILS");
+		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
+		Session session = Session.getDefaultInstance(getMailProperties());
+
+		try{
+			Transport transport = session.getTransport("smtp");
+			transport.connect(smtpConfig.host, smtpConfig.user, smtpConfig.pass);
+		for(Map.Entry<String,EmailContentGenerator> emailToSend:emailsToSend.entrySet()){
+			String email=emailToSend.getKey();
+			System.out.println("SENDING:"+email);
+			EmailContentGenerator contentGenerator=emailToSend.getValue();
+
+				Multipart mp=createMailMultipart(contentGenerator);
+				Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
+				transport.sendMessage(message, message.getAllRecipients());
+
+
+		}
+			transport.close();
+		}catch(MessagingException me){
+			me.printStackTrace();
+		}catch (IOException ioe){
+			ioe.printStackTrace();
+		}
+
+
+
+
+	}
 	public void sendEmail(EmailContentGenerator contentGenerator, String email) throws AddressException, MessagingException, FileNotFoundException, IOException {
 		SMTPConfig smtpConfig = CommonSettings.getInstance().config.emailNotifier.smtpConfig;
-		System.out.println("SEND EMAIL...");
-		String host = smtpConfig.host;
-		String user = smtpConfig.user;
-		String pass = smtpConfig.pass;
-		String from = smtpConfig.fullEmail;
-		    
-	    // Port we will connect to on the Amazon SES SMTP endpoint. We are choosing port 25 because we will use
-	    // STARTTLS to encrypt the connection.
-	    final int PORT = 587;
-		    
-		    
-	    // Create a Properties object to contain connection configuration information.
-    	Properties props = System.getProperties();
-    	props.put("mail.transport.protocol", "smtp");
-    	props.put("mail.smtp.port", PORT); 
-    	props.put("mail.smtp.auth", "true");
-    	props.put("mail.smtp.starttls.enable", "true");
-    	props.put("mail.smtp.starttls.required", "true");
+
 
         // Create a Session object to represent a mail session with the specified properties. 
-    	Session session = Session.getDefaultInstance(props);
-		
-		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(from));
-		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
-		
-		message.setSubject(contentGenerator.getSubject());
-		
-		// Unformatted text version
-		final MimeBodyPart textPart = new MimeBodyPart();
-		textPart.setContent(contentGenerator.generatePlainText(), "text/plain");
-      
-		// HTML version
-		final MimeBodyPart htmlPart = new MimeBodyPart();
-		htmlPart.setContent(contentGenerator.generateHTML(), "text/html");
-		
-		// Create the Multipart. Add BodyParts to it.
-		final Multipart mp = new MimeMultipart("alternative");
-		mp.addBodyPart(textPart);
-		mp.addBodyPart(htmlPart);
+    	Session session = Session.getDefaultInstance(getMailProperties());
+		Multipart mp=createMailMultipart(contentGenerator);
+		Message message=createMessage(email, contentGenerator.getSubject(),session, mp);
+
+
 		try{
-			// Set Multipart as the message's content
-			message.setContent(mp);
+
 			Transport transport = session.getTransport("smtp");
-			transport.connect(host, user, pass);
+			transport.connect(smtpConfig.host, smtpConfig.user, smtpConfig.pass);
 			transport.sendMessage(message, message.getAllRecipients());
 			transport.close();
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+	}
+	private Multipart createMailMultipart(EmailContentGenerator contentGenerator) throws IOException, MessagingException{
+		// Unformatted text version
+		final MimeBodyPart textPart = new MimeBodyPart();
+		textPart.setContent(contentGenerator.generatePlainText(), "text/plain");
 
+		// HTML version
+		final MimeBodyPart htmlPart = new MimeBodyPart();
+		htmlPart.setContent(contentGenerator.generateHTML(), "text/html");
+
+		// Create the Multipart. Add BodyParts to it.
+		final Multipart mp = new MimeMultipart("alternative");
+		mp.addBodyPart(textPart);
+		mp.addBodyPart(htmlPart);
+
+		return mp;
+	}
+	private Message createMessage(String email, String subject, Session session, Multipart mp) throws AddressException, MessagingException{
+		Message message = new MimeMessage(session);
+		message.setFrom(new InternetAddress(CommonSettings.getInstance().config.emailNotifier.smtpConfig.fullEmail));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+
+		message.setSubject(subject);
+		// Set Multipart as the message's content
+		message.setContent(mp);
+		return message;
+	}
+	private Properties getMailProperties(){
+
+
+		// Create a Properties object to contain connection configuration information.
+		Properties props = System.getProperties();
+		props.put("mail.transport.protocol", "smtp");
+		props.put("mail.smtp.port", CommonSettings.getInstance().config.emailNotifier.smtpConfig.port);
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.starttls.required", "true");
+		return props;
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {

@@ -23,6 +23,7 @@ object InstructorEmailSenderSparkJob {
   val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, bucket: Long): Array[CourseInstructorEmail] = {
+    println("RUN SPARK JOB FOR BUCKET:"+bucket+" course:"+credentialsIds)
     val scalaCourseIds: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
 
     val courseRDD = sc.parallelize(scalaCourseIds).map(Tuple1(_))
@@ -38,10 +39,12 @@ object InstructorEmailSenderSparkJob {
     val emailsToSend:RDD[CourseInstructorEmail]=joinedCourseRDD.map {
           case (_, rec) =>
           {
+            println("EMAIL TO SEND")
             CourseInstructorEmail(rec.courseId, rec.instructorId,
               rec.assigned.asJava, rec.unassigned.asJava)
           }
     }
+    println("FINISHED SPARK JOB:"+emailsToSend.collect().length)
     emailsToSend.collect()
   }
 }
