@@ -20,6 +20,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -143,6 +144,20 @@ public interface Competence1Manager {
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException;
+	
+	/**
+	 * Returns list of credential competencies (together with competencies data loaded) for credential with {@code credentialId} id.
+	 * 
+	 * @param credentialId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param includeNotPublished
+	 * @param usePessimisticLock - load credential competencies with pessimistic lock
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
+			boolean loadTags, boolean includeNotPublished, boolean usePessimisticLock) throws DbConnectionException;
 	
 //	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
 //			boolean loadCredentialTitle) throws DbConnectionException;
@@ -374,5 +389,8 @@ public interface Competence1Manager {
 	
 	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
 			throws DbConnectionException;
+	
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
+			throws DbConnectionException, CompetenceEmptyException;
 	
 }

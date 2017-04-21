@@ -132,68 +132,6 @@ public interface UserGroupManager extends AbstractManager {
     		UserGroupPrivilege privilege) throws DbConnectionException;
 	
 	/**
-	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
-	 * in a credential given by {@code credId}
-	 * 
-	 * @param credId
-	 * @param userGroupId
-	 * @param session
-	 * @throws DbConnectionException
-	 * @throws EventException
-	 */
-	void removeUserGroupPrivilegePropagatedFromCredential(long credId, long userGroupId, Session session) 
-    		throws DbConnectionException, EventException;
-	
-	/**
-	 * This method removes privilege for all user groups that have some privilege in a credential given by {@code credId} id
-	 * in a competency given by {@code compId}
-	 * 
-	 * @param compId
-	 * @param credId
-	 * @param session
-	 * @throws DbConnectionException
-	 * @throws EventException
-	 */
-	void removeUserGroupPrivilegesPropagatedFromCredential(long compId, long credId, Session session) 
-    		throws DbConnectionException, EventException;
-	
-	/**
-	 * This method propagates privilege for user group from a credential to all competencies 
-	 * that are part of that credential 
-	 * 
-	 * @param credUserGroupId - id of a CredentialUserGroup instance
-	 * @param session
-	 * @throws DbConnectionException
-	 * @throws EventException
-	 */
-	void propagateUserGroupPrivilegeFromCredentialToAllCompetences(long credUserGroupId, Session session) 
-    		throws DbConnectionException, EventException;
-	
-	/**
-	 * This method propagates privileges for all user groups that have some privilege in a credential given by {@code credId} id
-	 * to competency specified by {@code compId}
-	 * 
-	 * @param credId
-	 * @param compId
-	 * @param session
-	 * @throws DbConnectionException 
-	 * @throws EventException
-	 */
-	void propagateUserGroupPrivilegesFromCredentialToCompetence(long credId, long compId, Session session) 
-    		throws DbConnectionException, EventException;
-	
-	/**
-	 * This method propagates privilege change for all inherited user groups in all credential competencies
-	 * 
-	 * @param credUserGroupId
-	 * @param session
-	 * @throws DbConnectionException
-	 * @throws EventException
-	 */
-	void propagatePrivilegeChangeToAllCredentialCompetences(long credUserGroupId, Session session) 
-			throws DbConnectionException, EventException;
-	
-	/**
 	 * This method propagates privilege change for all inherited user groups in all credential competencies
 	 * and returns event data for all events that should be generated
 	 * 
@@ -202,12 +140,13 @@ public interface UserGroupManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 * @throws EventException
 	 */
-	Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(long credUserGroupId, 
+	Result<Void> propagatePrivilegeChangeFromCredentialAndGetEvents(long credUserGroupId, 
 			Session session) throws DbConnectionException;
 	
 	/**
 	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
-	 * in a credential given by {@code credId} and returns event data for all events that should be generated.
+	 * and credential deliveries for a credential given by {@code credId} and returns event data for all events 
+	 * that should be generated.
 	 * 
 	 * @param credId
 	 * @param userGroupId
@@ -233,14 +172,15 @@ public interface UserGroupManager extends AbstractManager {
 	
 	/**
 	 * This method propagates privilege for user group from a credential to all competencies 
-	 * that are part of that credential and returns event data for all events that should be generated
+	 * that are part of that credential and all credential deliveries and returns event data 
+	 * for all events that should be generated
 	 * 
 	 * @param credUserGroupId - id of a CredentialUserGroup instance
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId, 
+	Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
     		Session session) throws DbConnectionException;
 	
 	/**
@@ -255,5 +195,18 @@ public interface UserGroupManager extends AbstractManager {
 	 */
 	Result<Void> propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(long credId, long compId, 
     		Session session) throws DbConnectionException;
+	
+	/**
+	 * Propagates edit privileges from credential specified by {@code credId} id to all credential deliveries
+	 * and returns events that should be generated.
+	 * 
+	 * @param credId
+	 * @param deliveryId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId, 
+    		long deliveryId, Session session) throws DbConnectionException ;
 
 }

@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
@@ -83,7 +82,7 @@ public class NodeChangeProcessorFactory {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager, competenceESService);
+							credentialESService, userGroupManager, competenceESService, session);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
@@ -97,7 +96,7 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Delete, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager, competenceESService);
+							credentialESService, userGroupManager, competenceESService, session);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -119,8 +118,9 @@ public class NodeChangeProcessorFactory {
 			case REMOVE_USER_FROM_GROUP:
 			case USER_GROUP_ADDED_TO_RESOURCE:
 			case USER_GROUP_REMOVED_FROM_RESOURCE:
+			case USER_GROUP_CHANGE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
-						userGroupManager, competenceESService);
+						userGroupManager, competenceESService, session);
 			case ARCHIVE:
 				if (node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 

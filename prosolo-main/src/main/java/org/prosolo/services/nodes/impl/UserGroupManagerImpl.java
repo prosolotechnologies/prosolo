@@ -24,7 +24,6 @@ import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialManager;
@@ -488,7 +487,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, false, persistence.currentManager());
+			List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, false, null, 
+					persistence.currentManager());
 			if (credGroups != null) {
 				for(CredentialUserGroup group : credGroups) {
 					UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
@@ -507,9 +507,19 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
+	/**
+	 * 
+	 * @param credId
+	 * @param returnDefaultGroups
+	 * @param privilege - if only groups with specific privilege should be returned pass that privilege here,
+	 * otherwise pass null
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	@Transactional(readOnly = true)
-    private List<CredentialUserGroup> getCredentialUserGroups (long credId, boolean returnDefaultGroups, Session session) 
-    		throws DbConnectionException {
+    private List<CredentialUserGroup> getCredentialUserGroups (long credId, boolean returnDefaultGroups, 
+    		UserGroupPrivilege privilege, Session session) throws DbConnectionException {
 		try {
     		StringBuilder query = new StringBuilder (
     					   "SELECT credGroup FROM CredentialUserGroup credGroup " +
@@ -518,12 +528,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		if (!returnDefaultGroups) {
     			query.append("AND userGroup.defaultGroup = :defaultGroup ");
     		}
+    		if (privilege != null) {
+    			query.append("AND credGroup.privilege = :priv ");
+    		}
 			Query q = session
 						.createQuery(query.toString())
 						.setLong("credId", credId);
 			
 			if (!returnDefaultGroups) {
 				q.setBoolean("defaultGroup", false);
+			}
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
 			}
 			
 			@SuppressWarnings("unchecked")
@@ -634,13 +650,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     			//store reference to default groups for learn and edit privilege to be reused for different users
     			CredentialUserGroup learnCredGroup = null;
     			CredentialUserGroup editCredGroup = null;
+    			Map<Long, EventData> userGroupsChangedEvents = new HashMap<>(); 
 	    		for(ResourceVisibilityMember user : users) {
 	    			UserGroupUser userGroupUser = null;
 	    			UserGroupPrivilege priv = groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege());
 	    			switch(user.getStatus()) {
 	    				case CREATED:
-	    					Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(credId, priv, 
-	    							actorId, context);
+	    					Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
+	    							credId, priv, actorId, context);
 	    					res.addEvents(credUserGroupRes.getEvents());
 	    					CredentialUserGroup gr = credUserGroupRes.getResult();
 	    					saveNewUserToCredentialGroup(user.getUserId(), gr);
@@ -649,6 +666,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	    					} else {
 	    						learnCredGroup = gr;
 	    					}
+	    					generateUserGroupChangeEventIfNotGenerated(gr.getUserGroup().getId(), actorId, 
+	    							context, userGroupsChangedEvents);
 	    					break;
 	    				case CHANGED:
 	    					userGroupUser = (UserGroupUser) persistence
@@ -672,17 +691,34 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	    						 credGroup = learnCredGroup;
 	    					}
 	    					userGroupUser.setGroup(credGroup.getUserGroup());
+	    					generateUserGroupChangeEventIfNotGenerated(credGroup.getUserGroup().getId(), actorId, 
+	    							context, userGroupsChangedEvents);
 	    					break;
 	    				case REMOVED:
 	    					userGroupUser = (UserGroupUser) persistence
 								.currentManager().load(UserGroupUser.class, user.getId());
 	    					delete(userGroupUser);
+	    					generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId, 
+	    							context, userGroupsChangedEvents);
 	    					break;
 	    				case UP_TO_DATE:
 	    					break;
-	    					
 	    			}
 	    		}
+	    		
+	    		/*
+	    		 * user group change event should not be generated for newly created groups. Since
+	    		 * these groups are default groups user group added to resource event actually means
+	    		 * that group is newly created so user group change event is removed from map for such 
+	    		 * user groups.
+	    		 */
+	    		res.getEvents().stream()
+	    			.filter(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE)
+	    			.map(ev -> ev.getObject().getId())
+	    			.forEach(id -> userGroupsChangedEvents.remove(id));
+	    		
+	    		//generate all user group change events
+	    		userGroupsChangedEvents.forEach((key, event) -> res.addEvent(event));
     		}
     		return res;
     	} catch(Exception e) {
@@ -692,6 +728,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
+	private void generateUserGroupChangeEventIfNotGenerated(long userGroupId, long actorId, 
+			LearningContextData context, Map<Long, EventData> userGroupsChangedEvents) {
+		UserGroup ug = new UserGroup();
+		ug.setId(userGroupId);
+		//if event for this user group is not already generated, generate it and put it in the map
+		if(userGroupsChangedEvents.get(userGroupId) == null) {
+			userGroupsChangedEvents.put(userGroupId, 
+					eventFactory.generateEventData(EventType.USER_GROUP_CHANGE, actorId, ug, 
+							null, context, null));
+		}
+	}
+
 	private Result<Void> saveUserToDefaultCredentialGroup(long userId, long credId, UserGroupPrivilege privilege, long actorId,
 			LearningContextData context) {
 		Result<CredentialUserGroup> credGroup = getOrCreateDefaultCredentialUserGroup(credId, privilege, actorId, context);
@@ -1151,23 +1199,29 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Override
-	public void propagatePrivilegeChangeToAllCredentialCompetences(long credUserGroupId, Session session) 
-			throws DbConnectionException, EventException {
-		try {
-    		Result<Void> res = propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(credUserGroupId, session);
-    		for (EventData ev : res.getEvents()) {
-    			eventFactory.generateEvent(ev);
-    		}
-    	} catch(DbConnectionException e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
-    	}
+	@Transactional(readOnly = false)
+	public Result<Void> propagatePrivilegeChangeFromCredentialAndGetEvents(long credUserGroupId, 
+			Session session) throws DbConnectionException {
+		Result<Void> res = new Result<>();
+		res.addEvents(propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents1(credUserGroupId, session)
+				.getEvents());
+		CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
+		/*
+		 * if privilege is changed and is now edit, it should be propagated to all deliveries, otherwise we suppose
+		 * privilege was edit before change and this privilege should be removed from all deliveries.
+		 */
+		if(cug.getPrivilege() == UserGroupPrivilege.Edit) {
+			res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(credUserGroupId, session)
+					.getEvents());
+		} else {
+			res.addEvents(removeUserGroupPrivilegeFromDeliveriesAndGetEvents(cug.getCredential().getId(), 
+					cug.getUserGroup().getId(), session).getEvents());
+		}
+		return res;
 	}
 	
-	@Override
 	@Transactional(readOnly = false)
-	public Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(long credUserGroupId, 
+	private Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents1(long credUserGroupId, 
 			Session session) throws DbConnectionException {
 		try {
 			CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
@@ -1205,23 +1259,25 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Override
-    public void removeUserGroupPrivilegePropagatedFromCredential(long credId, long userGroupId, Session session) 
-    		throws DbConnectionException, EventException {
+	@Transactional(readOnly = false)
+    public Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId, 
+    		Session session) throws DbConnectionException {
     	try {
-    		Result<Void> res = removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(credId, userGroupId, session);
-    		for (EventData ev : res.getEvents()) {
-    			eventFactory.generateEvent(ev);
-    		}
-    	} catch(DbConnectionException e) {
+    		Result<Void> res = new Result<>();
+    		res.addEvents(removeUserGroupPrivilegeFromCompetencesAndGetEvents(credId, userGroupId, session)
+    				.getEvents());
+    		res.addEvents(removeUserGroupPrivilegeFromDeliveriesAndGetEvents(credId, userGroupId, session)
+    				.getEvents());
+    		return res;
+    	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while saving user privileges");
     	}
     }
 	
-	@Override
 	@Transactional(readOnly = false)
-    public Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId, 
+    private Result<Void> removeUserGroupPrivilegeFromCompetencesAndGetEvents(long credId, long userGroupId, 
     		Session session) throws DbConnectionException {
     	try {
     		String query = "DELETE FROM CompetenceUserGroup gr " +
@@ -1229,24 +1285,26 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     				       "AND gr.inherited = :inherited " +
     				       "AND gr.inheritedFrom.id = :credId";
     		
-    		session.createQuery(query)
+    		int affected = session.createQuery(query)
     			   .setLong("userGroupId", userGroupId)
     			   .setBoolean("inherited", true)
     			   .setLong("credId", credId)
     			   .executeUpdate();
     		
     		Result<Void> res = new Result<>();
-    		//retrieve compIds so appropriate events can be generated for each competence
-    		List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(credId, session);
-    		for (long compId : compIds) {
-    			/*
-        		 * generate only resource visibility change event, user group removed from resource event is not needed 
-        		 * because it is inherited group
-        		 */
-        		Competence1 comp = new Competence1();
-        		comp.setId(compId);
-        		res.addEvent(eventFactory.generateEventData(
-        				EventType.RESOURCE_VISIBILITY_CHANGE, 0, comp, null, null, null));
+    		if (affected > 0) {
+	    		//retrieve compIds so appropriate events can be generated for each competence
+	    		List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(credId, session);
+	    		for (long compId : compIds) {
+	    			/*
+	        		 * generate only resource visibility change event, user group removed from resource event is not needed 
+	        		 * because it is inherited group
+	        		 */
+	        		Competence1 comp = new Competence1();
+	        		comp.setId(compId);
+	        		res.addEvent(eventFactory.generateEventData(
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, 0, comp, null, null, null));
+	    		}
     		}
     		return res;
     	} catch(Exception e) {
@@ -1256,15 +1314,41 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Override
-    public void removeUserGroupPrivilegesPropagatedFromCredential(long compId, long credId, Session session) 
-    		throws DbConnectionException, EventException {
+	@Transactional(readOnly = false)
+    private Result<Void> removeUserGroupPrivilegeFromDeliveriesAndGetEvents(long credId, long userGroupId, 
+    		Session session) throws DbConnectionException {
     	try {
-    		Result<Void> res = removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(compId, credId, session);
-    		for (EventData ev : res.getEvents()) {
-    			eventFactory.generateEvent(ev);
+    		String query = "DELETE gr FROM credential_user_group gr " +
+    					   "INNER JOIN credential1 c on gr.credential = c.id " +
+    					   "WHERE gr.privilege = :editPriv " +
+    					   "AND gr.user_group = :userGroupId " +
+    				       "AND c.delivery_of = :credId";
+    		
+    		int affected = session.createSQLQuery(query)
+    			   .setString("editPriv", UserGroupPrivilege.Edit.name())
+    			   .setLong("userGroupId", userGroupId)
+    			   .setLong("credId", credId)
+    			   .executeUpdate();
+    		
+    		logger.info("credential delivery user groups deleted: " + affected);
+    		
+    		Result<Void> res = new Result<>();
+    		if (affected > 0) {
+	    		//retrieve deliveries ids so appropriate events can be generated for each delivery
+	    		List<Long> deliveries = credManager.getIdsOfAllCredentialDeliveries(credId, session);
+	    		for (long delId : deliveries) {
+	    			/*
+	        		 * generate only resource visibility change event, user group removed from resource event is not needed 
+	        		 * because it is inherited group
+	        		 */
+	        		Credential1 del = new Credential1();
+	        		del.setId(delId);
+	        		res.addEvent(eventFactory.generateEventData(
+	        				EventType.RESOURCE_VISIBILITY_CHANGE, 0, del, null, null, null));
+	    		}
     		}
-    	} catch(DbConnectionException e) {
+    		return res;
+    	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while saving user privileges");
@@ -1305,23 +1389,19 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     }
 	
 	@Override
-    public void propagateUserGroupPrivilegeFromCredentialToAllCompetences(long credUserGroupId, Session session) 
-    		throws DbConnectionException, EventException {
-    	try {
-    		Result<Void> res = propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(credUserGroupId, session);
-    		for (EventData ev : res.getEvents()) {
-    			eventFactory.generateEvent(ev);
-    		}
-    	} catch(DbConnectionException e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
-    	}
+	@Transactional(readOnly = false)
+    public Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
+    		Session session) throws DbConnectionException {
+		Result<Void> res = new Result<>();
+		res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(
+				credUserGroupId, session).getEvents());
+		res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(
+				credUserGroupId, session).getEvents());
+		return res;
     }
 	
-	@Override
 	@Transactional(readOnly = false)
-    public Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId, 
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(long credUserGroupId, 
     		Session session) throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
@@ -1338,16 +1418,32 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	@Override
-    public void propagateUserGroupPrivilegesFromCredentialToCompetence(long credId, long compId, Session session) 
-    		throws DbConnectionException, EventException {
+	/**
+	 * Propagates privilege to all credential deliveries but only if it is edit privilege.
+	 * 
+	 * @param credUserGroupId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	@Transactional(readOnly = false)
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(long credUserGroupId, 
+    		Session session) throws DbConnectionException {
     	try {
-    		Result<Void> res = propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(
-    				credId, compId, session);
-    		for (EventData ev : res.getEvents()) {
-    			eventFactory.generateEvent(ev);
+    		Result<Void> res = new Result<>();
+    		CredentialUserGroup credUserGroup = (CredentialUserGroup) session.load(CredentialUserGroup.class, 
+    				credUserGroupId);
+    		//only edit privileges are propagated to deliveries
+    		if(credUserGroup.getPrivilege() == UserGroupPrivilege.Edit) {
+	    		List<Long> deliveries = credManager.getIdsOfAllCredentialDeliveries(
+	    				credUserGroup.getCredential().getId(), session);
+	    		for (long deliveryId : deliveries) {
+	    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credUserGroup, deliveryId, session)
+	    					.getEvents());
+	    		}
     		}
-    	} catch(DbConnectionException e) {
+    		return res;
+    	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while saving user privileges");
@@ -1361,7 +1457,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	try {
     		Result<Void> res = new Result<>();
     		//we should propagate all groups, event default
-    		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true, session);
+    		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true, null, session);
     		for (CredentialUserGroup credGroup : credGroups) {
     			res.addEvents(propagateUserGroupPrivilegeFromCredential(credGroup, compId, session).getEvents());
     		}
@@ -1373,7 +1469,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-	//TODO create one method that creates competence user group and generate appropriate event
 	@Transactional(readOnly = false)
     private Result<Void> propagateUserGroupPrivilegeFromCredential(CredentialUserGroup credUserGroup, long compId, 
     		Session session) throws DbConnectionException {
@@ -1397,6 +1492,56 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		//actor is zero because this method is always called from a background process and it is not triggered by user
     		res.addEvent(eventFactory.generateEventData(
     				EventType.RESOURCE_VISIBILITY_CHANGE, 0, competence, null, null, null));
+    		return res;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while saving user privileges");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = false)
+    public Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId, 
+    		long deliveryId, Session session) throws DbConnectionException {
+    	try {
+    		Result<Void> res = new Result<>();
+    		//we should propagate all groups, event default
+    		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true, UserGroupPrivilege.Edit, 
+    				session);
+    		for (CredentialUserGroup credGroup : credGroups) {
+    			res.addEvents(propagateUserGroupPrivilegeFromCredentialToDelivery(credGroup, deliveryId, session)
+    					.getEvents());
+    		}
+    		return res;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while saving user privileges");
+    	}
+    }
+	
+	@Transactional(readOnly = false)
+    private Result<Void> propagateUserGroupPrivilegeFromCredentialToDelivery(CredentialUserGroup credUserGroup, 
+    		long deliveryId, Session session) throws DbConnectionException {
+    	try {
+    		CredentialUserGroup cug = new CredentialUserGroup();
+    		Credential1 del = (Credential1) session.load(Credential1.class, deliveryId);
+    		cug.setCredential(del);
+    		cug.setUserGroup(credUserGroup.getUserGroup());
+    		cug.setPrivilege(credUserGroup.getPrivilege());
+    		saveEntity(cug, session);
+    		
+    		/*
+    		 * we generate only resource visibility change event and not user group added to resource event because 
+    		 * it is inherited group and for now we don't need to generate this event.
+    		 */
+    		Credential1 delivery =  new Credential1();
+    		delivery.setId(deliveryId);
+    		Result<Void> res = new Result<>();
+    		//actor is zero because this method is always called from a background process and it is not triggered by user
+    		res.addEvent(eventFactory.generateEventData(
+    				EventType.RESOURCE_VISIBILITY_CHANGE, 0, delivery, null, null, null));
     		return res;
     	} catch(Exception e) {
     		e.printStackTrace();

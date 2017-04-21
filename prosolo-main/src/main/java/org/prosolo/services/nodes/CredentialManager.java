@@ -1,8 +1,10 @@
 package org.prosolo.services.nodes;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
@@ -438,4 +440,9 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
+	
+	Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
+			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, EventException;
+	
+	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 }

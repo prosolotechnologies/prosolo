@@ -778,6 +778,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean includeNotPublished) throws DbConnectionException {
+		return getCredentialCompetences(credentialId, loadCreator, loadTags, includeNotPublished, false);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
+			boolean loadTags, boolean includeNotPublished, boolean usePessimisticLock) throws DbConnectionException {
 		try {
 			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
 					credentialId);
@@ -807,9 +814,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.createQuery(builder.toString())
 					.setEntity("credential", cred)
 					.setBoolean("deleted", false);
-			if(!includeNotPublished) {
+			if (!includeNotPublished) {
 				query.setBoolean("published", true);
 			}
+			
+			if (usePessimisticLock) {
+				query.setLockOptions(LockOptions.UPGRADE);
+			}
+		
 			@SuppressWarnings("unchecked")
 			List<CredentialCompetence1> res = query.list();
 
@@ -2655,6 +2667,41 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //					lcPage, lcContext, lcService, null);
 		}
 		return events;
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
+			throws DbConnectionException, CompetenceEmptyException {
+		try {
+			Result<Void> res = new Result<>();
+			
+			if (!comp.isPublished()) {
+				/*
+				 * check if competence has at least one activity - if not, it can't be published
+				 */
+				int numberOfActivities = comp.getActivities().size();
+				if(numberOfActivities == 0) {
+					throw new CompetenceEmptyException();
+				}
+			
+				comp.setPublished(true);
+
+				Competence1 c = new Competence1();
+				c.setId(comp.getId());
+				res.addEvent(eventFactory.generateEventData(EventType.STATUS_CHANGED, actorId, c, null, null, null));
+			}
+			
+			return res;
+		} catch(CompetenceEmptyException cee) {
+			logger.error(cee);
+			//cee.printStackTrace();
+			throw cee;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while publishing competency");
+		}
 	}
 	
 }

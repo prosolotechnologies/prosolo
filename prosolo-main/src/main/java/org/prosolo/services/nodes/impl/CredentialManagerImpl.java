@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
@@ -3112,7 +3113,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setParameter("type", CredentialType.Delivery);
 			
 			if(onlyActive) {
-				q.setDate("now", new Date());
+				q.setTimestamp("now", new Date());
 			}
 			
 			@SuppressWarnings("unchecked")
@@ -3368,6 +3369,105 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving competency ids");
+		}
+	}
+	
+	// should not be marked as transactional
+	@Override
+	public Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
+			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, EventException {
+		Result<Credential1> res = createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+		
+		return res.getResult();
+	}
+	
+	@Transactional (readOnly = false)
+	private Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
+			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException {
+		try {
+			Result<Credential1> res = new Result<>();
+			
+			Credential1 original = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
+	
+			Credential1 cred = new Credential1();
+			cred.setTitle(original.getTitle());
+			cred.setDescription(original.getDescription());
+			cred.setCreatedBy(original.getCreatedBy());
+			cred.setDateCreated(new Date());
+			cred.setTags(new HashSet<Tag>(original.getTags()));
+			cred.setHashtags(new HashSet<Tag>(original.getHashtags()));
+			cred.setCompetenceOrderMandatory(original.isCompetenceOrderMandatory());
+			cred.setDuration(original.getDuration());
+			cred.setManuallyAssignStudents(original.isManuallyAssignStudents());
+			cred.setDefaultNumberOfStudentsPerInstructor(original.getDefaultNumberOfStudentsPerInstructor());
+			cred.setType(CredentialType.Delivery);
+			cred.setDeliveryOf(original);
+			cred.setDeliveryStart(start);
+			cred.setDeliveryEnd(end);
+			
+			saveEntity(cred);
+			
+			res.addEvent(eventFactory.generateEventData(EventType.Create, actorId, cred, null, context, null));
+			Set<Tag> hashtags = cred.getHashtags();
+			if(!hashtags.isEmpty()) {
+				Map<String, String> params = new HashMap<>();
+				String csv = StringUtil.convertTagsToCSV(hashtags);
+				params.put("newhashtags", csv);
+				params.put("oldhashtags", "");
+				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, actorId, cred, null, context, null));
+			}
+			
+			//lock competencies so they cannot be unpublished after they are published here which would violate our integrity rule
+			List<CredentialCompetence1> competences = compManager.getCredentialCompetences(
+					credentialId, false, false, true, true);
+			
+			for (CredentialCompetence1 credComp : competences) {
+				//create new credential competence which will be referenced by delivery
+				CredentialCompetence1 cc = new CredentialCompetence1();
+				cc.setCredential(cred);
+				cc.setOrder(credComp.getOrder());
+				cc.setCompetence(credComp.getCompetence());
+				saveEntity(cc);
+				
+				//publish competency if not published because creating a delivery means that all competencies must be published
+				res.addEvents(compManager.publishCompetenceIfNotPublished(credComp.getCompetence(), actorId).getEvents());
+				
+				cred.getCompetences().add(cc);
+			}
+			
+			res.setResult(cred);
+			return res;
+		} catch (CompetenceEmptyException cee) {
+			throw cee;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while creating credential delivery");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException {
+		try {	
+			String query = "SELECT d.id " +
+						   "FROM Credential1 d " +
+						   "WHERE d.deliveryOf.id = :credId";
+	
+			@SuppressWarnings("unchecked")
+			List<Long> deliveries =  session
+					.createQuery(query)
+					.setLong("credId", credId)
+					.list();
+			
+			return deliveries;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential delivery ids");
 		}
 	}
 }

@@ -10,6 +10,7 @@ import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
@@ -40,7 +41,8 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				EventType.Detach,
 				EventType.USER_GROUP_ADDED_TO_RESOURCE,
 				EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
-				EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE
+				EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE,
+				EventType.Create
 		};
 	}
 
@@ -50,11 +52,18 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 		return new Class[] {
 			Competence1.class,
 			UserGroup.class,
-			CredentialUserGroup.class
+			CredentialUserGroup.class,
+			Credential1.class
 		};
 	}
 
 	public void handleEvent(Event event) {
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		logger.info("UserPrivilegePropagationObserver triggered with event: " + event.getAction());
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		
@@ -87,7 +96,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				case USER_GROUP_ADDED_TO_RESOURCE:
 					if (target instanceof Credential1) {
 						long credUserGroupId = Long.parseLong(params.get("credentialUserGroupId"));
-						res = userGroupManager.propagateUserGroupPrivilegeFromCredentialToAllCompetencesAndGetEvents(credUserGroupId, 
+						res = userGroupManager.propagateUserGroupPrivilegeFromCredentialAndGetEvents(credUserGroupId, 
 								session);
 					}
 					break;
@@ -101,9 +110,18 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				//on privilege change, change privilege for inherited competence user group on all credential competences too
 				case RESOURCE_USER_GROUP_PRIVILEGE_CHANGE:
 					if (object instanceof CredentialUserGroup) {
-						res = userGroupManager.propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(object.getId(), session);
+						res = userGroupManager.propagatePrivilegeChangeFromCredentialAndGetEvents(object.getId(), session);
 					}
 					break;
+				case Create:
+					if (object instanceof Credential1) {
+						Credential1 credObj = (Credential1) object;
+						if(credObj.getType() == CredentialType.Delivery) {
+							res = userGroupManager
+									.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
+											credObj.getDeliveryOf().getId(), credObj.getId(), session);
+						}
+					}
 				default:
 					break;
 			}
