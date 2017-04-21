@@ -38,12 +38,22 @@
     <ui:define name="navLinks">
 	    <ul class="nav nav-tabs headerSubmenu">
 	       	<li role="presentation" class="active">
-	       		<a href="javascript:void(0);">Edit</a>
+	       		<a href="javascript:void(0);">Competence Details</a>
+	       	</li>
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/competence-visibility">
+	       			Visibility
+	       		</h:link>
 	       	</li>
 	       	<li role="presentation">
 	       		<h:link outcome="/manage/competence-students">
 	       			Students
 	       			<f:param name="id" value="#{param['id']}"/>
+	       		</h:link>
+	       	</li>
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/competence-privacy">
+	       			Privacy
 	       		</h:link>
 	       	</li>
 	   	</ul>
