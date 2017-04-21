@@ -166,26 +166,12 @@
 			                            	Edit
 			                            	<f:param name="id" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            </h:link>
-			                            <p:commandLink 
-			                            	styleClass="btn btn-sm btn-green-stroke"
-			                            	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
-			                            	update=":duplicateDialog"
-			                            	oncomplete="$('#duplicateComp').modal('show');">
-			                            	Duplicate
-			                            </p:commandLink>
+			                            
 			                            <h:link outcome="/manage/competence">
 			                            	Preview
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            </h:link>
 			                            
-			                            <p:commandLink rendered="#{not comp.archived}"
-					                  	  	value="Archive"
-					                  	  	styleClass="linkRed"
-					                  	  	process="@this"
-					                  	  	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
-					                  	  	update=":archiveDialog"
-					                  	  	oncomplete="$('#archiveModal').modal('show');">
-					                  	</p:commandLink>
 					                  	<p:commandLink rendered="#{comp.archived}"
 					                  	  	value="Restore"
 					                  	  	process="@this"
@@ -193,6 +179,29 @@
 					                  	  	update=":restoreDialog"
 					                  	  	oncomplete="$('#restoreModal').modal('show');">
 					                  	</p:commandLink>
+					                  	<div class="dropdown optMoreMenu">
+                                			<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                			<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu3">
+                                    			<li>
+	                                    			<p:commandLink 
+				                            			action="#{competenceLibraryBeanManager.prepareComp(comp)}"
+				                            			update=":duplicateDialog"
+				                            			oncomplete="$('#duplicateComp').modal('show');">
+				                            			Duplicate
+				                            		</p:commandLink>
+			                            		</li>
+                                    			<li>
+                                    				<p:commandLink rendered="#{not comp.archived}"
+					                  	  				value="Archive"
+					                  	  				styleClass="linkRed"
+					                  	  				process="@this"
+					                  	  				action="#{competenceLibraryBeanManager.prepareComp(comp)}"
+					                  	  				update=":archiveDialog"
+					                  	  				oncomplete="$('#archiveModal').modal('show');">
+					                  				</p:commandLink>
+                                    			</li>
+                                			</ul>
+                            			</div>
 			                        </div>
 			                    </li>
 			                </ui:repeat>
