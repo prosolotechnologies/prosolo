@@ -172,13 +172,7 @@
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            </h:link>
 			                            
-					                  	<p:commandLink rendered="#{comp.archived}"
-					                  	  	value="Restore"
-					                  	  	process="@this"
-					                  	  	action="#{competenceLibraryBeanManager.prepareComp(comp)}"
-					                  	  	update=":restoreDialog"
-					                  	  	oncomplete="$('#restoreModal').modal('show');">
-					                  	</p:commandLink>
+					                  	
 					                  	<div class="dropdown optMoreMenu">
                                 			<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                 			<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu3">
@@ -198,6 +192,15 @@
 					                  	  				action="#{competenceLibraryBeanManager.prepareComp(comp)}"
 					                  	  				update=":archiveDialog"
 					                  	  				oncomplete="$('#archiveModal').modal('show');">
+					                  				</p:commandLink>
+                                    			</li>
+                                    			<li>
+                                    				<p:commandLink rendered="#{comp.archived}"
+					                  	  				value="Restore"
+					                  	  				process="@this"
+					                  	  				action="#{competenceLibraryBeanManager.prepareComp(comp)}"
+					                  	  				update=":restoreDialog"
+					                  	  				oncomplete="$('#restoreModal').modal('show');">
 					                  				</p:commandLink>
                                     			</li>
                                 			</ul>
