@@ -179,14 +179,15 @@ public class UserEditBean implements Serializable {
 	
 	private void updateUser() {
 		try {
-			boolean shouldChangePassword = false;
+			boolean shouldChangePassword = this.user.getPassword() != null 
+					&& !this.user.getPassword().isEmpty();
 			User user = userManager.updateUser(
 					this.user.getId(),
 					this.user.getName(),
 					this.user.getLastName(),
 					this.user.getEmail(),
 					true,
-					shouldChangePassword,
+					this.user.isChangePassword(),
 					this.user.getPassword(),
 					this.user.getPosition(),
 					this.user.getRoleIds(),
