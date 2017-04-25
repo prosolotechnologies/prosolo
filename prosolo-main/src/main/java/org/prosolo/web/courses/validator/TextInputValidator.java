@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.prosolo.web.courses.validator;
 
 import javax.faces.application.FacesMessage;
@@ -32,13 +29,10 @@ public class TextInputValidator implements Validator {
 		
 		HTMLUtil htmlUtil = new HTMLUtil();
 		String inputText = (String)value;
-		String inputTextForValidation = htmlUtil.cleanHTMLTags(inputText);
+		String inputTextForValidation = null;
+		FacesMessage msg = new FacesMessage("Text is required");
 		
-		if(inputTextForValidation.isEmpty() || inputTextForValidation == null){
-			FacesMessage msg = new FacesMessage("Text is required");
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			throw new ValidatorException(msg);
-		}
+		htmlUtil.cleanHTMLTagsAndRemoveWhiteSpaces(inputText, inputTextForValidation,msg);
 	}
 
 }
