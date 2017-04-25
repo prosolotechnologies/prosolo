@@ -25,7 +25,6 @@ public class HTMLUtil {
 
 	public static void cleanHTMLTagsAndRemoveWhiteSpaces(String inputText,String inputTextForValidation,FacesMessage msg){
 		
-		
 		if(inputText == null || inputText.trim().isEmpty()){
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);
