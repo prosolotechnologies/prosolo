@@ -59,9 +59,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
 	
-	private boolean canEdit;
-	private boolean canAccess;
-	
 	private boolean bookmarkedByCurrentUser;
 	
 	private Date datePublished;
@@ -394,22 +391,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setInstructorId(long instructorId) {
 		this.instructorId = instructorId;
-	}
-	
-	public boolean isCanEdit() {
-		return canEdit;
-	}
-
-	public void setCanEdit(boolean canEdit) {
-		this.canEdit = canEdit;
-	}
-	
-	public boolean isCanAccess() {
-		return canAccess;
-	}
-
-	public void setCanAccess(boolean canAccess) {
-		this.canAccess = canAccess;
 	}
 	
 	//change tracking get methods

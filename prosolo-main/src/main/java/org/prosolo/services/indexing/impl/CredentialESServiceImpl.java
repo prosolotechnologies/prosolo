@@ -29,7 +29,6 @@ import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,14 +150,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, 
-			Session session) {
-		if(changeTracker != null &&
-				(changeTracker.isStatusChanged() || changeTracker.isTitleChanged() || 
-						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged())) {
-			saveCredentialNode(cred, session);
-		}
+	public void updateCredentialNode(Credential1 cred, Session session) {
+		saveCredentialNode(cred, session);
 	}
 	
 //	@Override
