@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -20,6 +21,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -34,6 +36,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -74,6 +77,7 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +117,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private UserGroupManager userGroupManager;
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
+	//self inject for better control of transaction bondaries
+	@Resource(name = "org.prosolo.services.nodes.CredentialManager")
+	private CredentialManager credManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -197,6 +204,79 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while deleting credential");
+		}
+	}
+	
+	//non transactional
+	@Override
+	public void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
+			DataIntegrityViolationException, EventException {
+		//self invocation so spring can intercept the call and start transaction
+		Result<Void> res = credManager.deleteDeliveryAndGetEvents(deliveryId, actorId);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException,
+			DataIntegrityViolationException, StaleDataException {
+		try {
+			Result<Void> res = new Result<>();
+			if(deliveryId > 0) {
+				/*
+				 * get ids of all competencies in a credential so right event can be fired for each competency.
+				 * resource visibility change event for each competency must be generated here because later
+				 * reference between delivery and competencies will be lost
+				 */
+				List<Long> compIds = getIdsOfAllCompetencesInACredential(deliveryId, persistence.currentManager());
+				for (long id : compIds) {
+					Competence1 comp = new Competence1();
+					comp.setId(id);
+					res.addEvent(eventFactory.generateEventData(
+							EventType.RESOURCE_VISIBILITY_CHANGE, actorId, comp, null, null, null));
+				}
+				/*
+				 * get ids of user groups added to delivery not including default groups and only groups with
+				 * learn privilege will be returned. That is because user group removed from resource event
+				 * should be generated and this event does not have to be generated for default groups and
+				 * groups with edit privilege (because edit privilege in delivery is inherited from original
+				 * credential). user group removed from resource event for delivery must be generated here because 
+				 * later reference between delivery and user groups will be lost
+				 */
+				List<Long> userGroupIds = userGroupManager.getIdsOfUserGroupsAddedToCredential(deliveryId, false, 
+						UserGroupPrivilege.Learn, persistence.currentManager());
+				for (long id : userGroupIds) {
+					UserGroup ug = new UserGroup();
+					ug.setId(id);
+					Credential1 del = new Credential1();
+					del.setId(deliveryId);
+					res.addEvent(eventFactory.generateEventData(
+							EventType.USER_GROUP_REMOVED_FROM_RESOURCE, actorId, ug, del, null, null));
+				}
+				Credential1 del = new Credential1();
+				del.setId(deliveryId);
+				res.addEvent(eventFactory.generateEventData(EventType.Delete, actorId, del, null, null, null));
+			
+				//delete delivery from database
+				deleteById(Credential1.class, deliveryId, persistence.currentManager());
+			}
+			//to force evential exceptions on commit so they can be caught
+			persistence.flush();
+			return res;
+		} catch (HibernateOptimisticLockingFailureException e) {
+				e.printStackTrace();
+				logger.error(e);
+				throw new StaleDataException("Credential edited in the meantime");
+		} catch (DataIntegrityViolationException div) {
+			logger.error(div);
+			div.printStackTrace();
+			throw div;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while deleting credential delivery");
 		}
 	}
 
@@ -686,7 +766,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Credential1 updateCredential(CredentialData data, long userId, LearningContextData context) 
-			throws DbConnectionException, StaleDataException {
+			throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
 			Result<Credential1> res = resourceFactory.updateCredential(data, userId);
 			Credential1 cred = res.getResult();
@@ -723,6 +803,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			e.printStackTrace();
 			logger.error(e);
 			throw new StaleDataException("Credential edited in the meantime");
+		} catch (IllegalDataStateException idse) {
+			logger.error(idse);
+			throw idse;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -758,7 +841,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException {
+	public Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException,
+			IllegalDataStateException {
 		Result<Credential1> res = new Result<>();
 		Credential1 credToUpdate = (Credential1) persistence.currentManager()
 				.load(Credential1.class, data.getId());
@@ -766,8 +850,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		/* this check is needed to find out if credential is changed from the moment credential data
 		 * is loaded for edit to the moment update request is sent
 		 */
-		if(credToUpdate.getVersion() != data.getVersion()) {
+		if (credToUpdate.getVersion() != data.getVersion()) {
 			throw new StaleDataException("Credential edited in the meantime");
+		}
+		
+		/*
+		 * if it is a delivery and end date is before start throw exception
+		 */
+		if (data.getType() == CredentialType.Delivery
+				&& data.getDeliveryStart() != null && data.getDeliveryEnd() != null 
+				&& data.getDeliveryStart().after(data.getDeliveryEnd())) {
+			throw new IllegalDataStateException("Delivery cannot be ended before it starts");
 		}
 
 		//group of attributes that can be changed on delivery and original credential
@@ -848,6 +941,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    			 credToUpdate.setDuration(getRecalculatedDuration(data.getId()));
 	    		}
 		    }
+    	} else {
+    		Date now = new Date();
+    		if (data.isDeliveryStartChanged()) {
+	    		/*
+	    		 * if delivery start is not set or is in future, changes are allowed
+	    		 */
+	    		if (credToUpdate.getDeliveryStart() == null || credToUpdate.getDeliveryStart().after(now)) {
+	    			credToUpdate.setDeliveryStart(data.getDeliveryStart());
+	    		} else {
+	    			throw new IllegalDataStateException("Update failed. Delivery start time cannot be changed because "
+	    					+ "delivery has already started.");
+	    		}
+    		}
+    		
+    		if (data.isDeliveryEndChanged()) {
+	    		/*
+	    		 * if delivery end is not set or is in future, changes are allowed
+	    		 */
+	    		if (credToUpdate.getDeliveryEnd() == null || credToUpdate.getDeliveryEnd().after(now)) {
+	    			credToUpdate.setDeliveryEnd(data.getDeliveryEnd());
+	    		} else {
+	    			throw new IllegalDataStateException("Update failed. Delivery end time cannot be changed because "
+	    					+ "delivery has already ended.");
+	    		}
+    		}
     	}
 	  
 	    res.setResult(credToUpdate);
@@ -2961,15 +3079,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	//should not be transaction
+	//not transactional
 	@Override
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long actorId,
     		LearningContextData lcd) throws DbConnectionException, EventException {
 		try {
 			List<EventData> events = 
-					updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll, visibleToAllChanged, 
-							actorId, lcd);
+					credManager.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll, 
+							visibleToAllChanged, actorId, lcd);
 			for(EventData ev : events) {
 				eventFactory.generateEvent(ev);
 			}
@@ -2980,8 +3098,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
+	@Override
 	@Transactional(readOnly = false)
-	private List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
+	public List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
     		LearningContextData lcd) throws DbConnectionException {
 		try {
@@ -3372,11 +3491,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	// should not be marked as transactional
+	//not transactional
 	@Override
 	public Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
-			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, EventException {
-		Result<Credential1> res = createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId, context);
+			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
+			IllegalDataStateException, EventException {
+		Result<Credential1> res = credManager.createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId, 
+				context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -3384,11 +3505,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res.getResult();
 	}
 	
+	@Override
 	@Transactional (readOnly = false)
-	private Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
-			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException {
+	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
+			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException,
+			IllegalDataStateException {
 		try {
 			Result<Credential1> res = new Result<>();
+			//if end date is before start throw exception
+			if (start != null && end != null && start.after(end)) {
+				throw new IllegalDataStateException("Delivery cannot be ended before it starts");
+			}
 			
 			Credential1 original = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
 	
@@ -3439,9 +3566,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			
 			res.setResult(cred);
+			
 			return res;
-		} catch (CompetenceEmptyException cee) {
-			throw cee;
+		} catch (CompetenceEmptyException|IllegalDataStateException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

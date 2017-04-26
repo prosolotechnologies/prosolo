@@ -208,5 +208,17 @@ public interface UserGroupManager extends AbstractManager {
 	 */
 	Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId, 
     		long deliveryId, Session session) throws DbConnectionException ;
+	
+	/**
+	 * 
+	 * @param credId
+	 * @param returnDefaultGroups
+	 * @param privilege - pass null if ids should be returned for groups with any privilege
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<Long> getIdsOfUserGroupsAddedToCredential(long credId, boolean returnDefaultGroups, 
+    		UserGroupPrivilege privilege, Session session) throws DbConnectionException;
 
 }

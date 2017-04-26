@@ -2,6 +2,7 @@ $(function () {
 	//attachListenersForUpdatingStatus();
 	
 	//setInitialValues();
+	initializeDeliveryDatePickers();
 });
 
 //var data = null;
@@ -43,6 +44,22 @@ function showOrHideMandatoryArrows() {
 	}
 	
 }
+
+function initializeDeliveryDatePickers() {
+	$(".datePickerSelector").datetimepicker({
+    	minDate : new Date(),
+    	useCurrent: false
+    });
+}
+
+function disableInputAfterSpecifiedTime(inputClass, time) {
+	if(time > 0) {
+		setTimeout(function() {
+			$("." + inputClass).prop('disabled', true); 
+		}, time);
+	}
+}
+
 
 //function getFieldValue(label) {
 //	switch(label) {

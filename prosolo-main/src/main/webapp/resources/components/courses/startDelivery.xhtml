@@ -23,7 +23,6 @@
 		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-		<script src="#{request.contextPath}/resources/javascript2/startDelivery.js"></script>
 	   
 	    <h:form id="formDeliveryStart">
 			<div class="modal fade newDeliveryModal" id="newDeliveryModal" tabindex="-1" role="dialog" aria-labelledby="newDeliveryModal">
@@ -40,13 +39,13 @@
 	                            <div class="col-md-6 startDate">
 	                                <label>Start:</label>
 	                                <div class="datePickerRow">
-	                                    <input type='text' id='datetimepicker1' placeholder="Date and Time" class="datePickerSelector"></input>
+	                                    <input type='text' id='datetimepicker1' placeholder="Date and Time" class="datePickerSelector deliveryStartSelector"></input>
 	                                </div>
 	                            </div>
 	                            <div class="col-md-6 endDate">
 	                                <label>End:</label>
 	                                <div class="datePickerRow">
-	                                	<input type='text' id='datetimepicker2' placeholder="Date and Time" class="datePickerSelector"></input>
+	                                	<input type='text' id='datetimepicker2' placeholder="Date and Time" class="datePickerSelector deliveryEndSelector"></input>
 	                                </div>
 	                                <small>If not set, delivery is unlimited.</small>
 	                            </div>

@@ -4,24 +4,31 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -37,6 +44,7 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "credentialEditBean")
@@ -75,6 +83,8 @@ public class CredentialEditBean implements Serializable {
 		
 		if (id == null) {
 			credentialData = new CredentialData(false);
+			//if it is new resource, it can only be original credential, delivery can never be created from this page
+			credentialData.setType(CredentialType.Original);
 		} else {
 			try {
 				decodedId = idEncoder.decodeId(id);
@@ -89,6 +99,50 @@ public class CredentialEditBean implements Serializable {
 				PageUtil.fireErrorMessage("Error while trying to load credential data");
 			}
 		}
+	}
+	
+	public boolean hasDeliveryStarted() {
+		return credentialData.getDeliveryStart() != null && 
+				getNumberOfMillisecondsBetweenNowAndDeliveryStart() <= 0;
+	}
+	
+	public boolean hasDeliveryEnded() {
+		return credentialData.getDeliveryEnd() != null &&
+				getNumberOfMillisecondsBetweenNowAndDeliveryEnd() <= 0;
+	}
+	
+	public long getNumberOfMillisecondsBetweenNowAndDeliveryStart() {
+		return credentialData.getDeliveryStart() != null
+				? getDateDiffInMilliseconds(credentialData.getDeliveryStart(), new Date())
+				: 0;
+	}
+	
+	public long getNumberOfMillisecondsBetweenNowAndDeliveryEnd() {
+		return credentialData.getDeliveryEnd() != null
+				? getDateDiffInMilliseconds(credentialData.getDeliveryEnd(), new Date())
+				: 0;
+	}
+	
+	private long getDateDiffInMilliseconds(Date d1, Date d2) {
+		/*
+		 * if difference is bigger than one day return one day in millis to avoid bigger number than
+		 * js timeout allows
+		 */
+		long oneDayMillis = 24 * 60 * 60 * 1000;
+		long diff = d1.getTime() - d2.getTime();
+		return diff < oneDayMillis ? diff : oneDayMillis;
+	}
+	
+	public String getResourceTypeString() {
+		return credentialData.getType() == CredentialType.Original ? "Credential" : "Delivery";
+	}
+	
+	public boolean isOriginal() {
+		return credentialData.getType() == CredentialType.Original;
+	}
+	
+	public boolean isDelivery() {
+		return credentialData.getType() == CredentialType.Delivery;
 	}
 	
 	public void initVisibilityManageData() {
@@ -206,6 +260,11 @@ public class CredentialEditBean implements Serializable {
 			//reload data
 			reloadCredential();
 			return false;
+		} catch (IllegalDataStateException idse) {
+			logger.error(idse);
+			PageUtil.fireErrorMessage(idse.getMessage());
+			reloadCredential();
+			return false;
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -265,25 +324,33 @@ public class CredentialEditBean implements Serializable {
 //		}
 //	}
 	
-//	public void delete() {
-//		try {
-//			if(credentialData.getId() > 0) {
-//				/*
-//				 * decoded id is passed because we want to pass id of original version
-//				 * and not draft
-//				 */
-//				credentialManager.deleteCredential(decodedId, loggedUser.getUserId());
-//				credentialData = new CredentialData(false);
-//				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-//			} else {
-//				PageUtil.fireErrorMessage("Credential is not saved so it can't be deleted");
-//			}
-//		} catch(Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			PageUtil.fireErrorMessage(e.getMessage());
-//		}
-//	}
+	public void delete() {
+		try {
+			if(credentialData.getId() > 0 && isDelivery()) {
+				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserId());
+				credentialData = new CredentialData(false);
+				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted"); 
+				PageUtil.redirect(extContext.getRequestContextPath() + "/manage/library");
+			}
+		} catch (StaleDataException sde) {
+			logger.error(sde);
+			PageUtil.fireErrorMessage("Delete failed because credential is edited in the meantime. Please review changed credential and try again.");
+			//reload data
+			reloadCredential();
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (DataIntegrityViolationException div) {
+			//if integrity rule is violated it is due to students already started learning, so they hava i reference to
+			logger.error(div);
+			div.printStackTrace();
+			PageUtil.fireErrorMessage("There are students that started learning this credential so it cannot be deleted");
+		} catch (EventException ee) {
+			logger.error(ee);
+		}
+	}
 	
 //	public void duplicate() {
 //

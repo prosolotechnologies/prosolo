@@ -1203,7 +1203,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public Result<Void> propagatePrivilegeChangeFromCredentialAndGetEvents(long credUserGroupId, 
 			Session session) throws DbConnectionException {
 		Result<Void> res = new Result<>();
-		res.addEvents(propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents1(credUserGroupId, session)
+		res.addEvents(propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(credUserGroupId, session)
 				.getEvents());
 		CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
 		/*
@@ -1221,7 +1221,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	@Transactional(readOnly = false)
-	private Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents1(long credUserGroupId, 
+	private Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(long credUserGroupId, 
 			Session session) throws DbConnectionException {
 		try {
 			CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
@@ -1547,6 +1547,43 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while saving user privileges");
+    	}
+    }
+	
+	@Override
+	@Transactional(readOnly = true)
+    public List<Long> getIdsOfUserGroupsAddedToCredential(long credId, boolean returnDefaultGroups, 
+    		UserGroupPrivilege privilege, Session session) throws DbConnectionException {
+		try {
+    		StringBuilder query = new StringBuilder (
+    					   "SELECT ug.id FROM CredentialUserGroup credGroup " +
+    					   "INNER JOIN credGroup.userGroup ug " +
+    					   "WHERE credGroup.credential.id = :credId ");
+    		if (!returnDefaultGroups) {
+    			query.append("AND ug.defaultGroup = :defaultGroup ");
+    		}
+    		if (privilege != null) {
+    			query.append("AND credGroup.privilege = :priv ");
+    		}
+			Query q = session
+						.createQuery(query.toString())
+						.setLong("credId", credId);
+			
+			if (!returnDefaultGroups) {
+				q.setBoolean("defaultGroup", false);
+			}
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<Long> groups = q.list();
+			
+			return groups;
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		logger.error(e);
+    		throw new DbConnectionException("Error while retrieving user groups");
     	}
     }
 	

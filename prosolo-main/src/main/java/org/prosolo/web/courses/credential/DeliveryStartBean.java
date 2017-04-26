@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
@@ -62,6 +63,9 @@ public class DeliveryStartBean implements Serializable {
 		} catch (CompetenceEmptyException cee) {
 			logger.error(cee);
 			PageUtil.fireErrorMessage("At least one of the credential competencies is empty so it can not be published.");
+		} catch (IllegalDataStateException idse) {
+			logger.error(idse);
+			PageUtil.fireErrorMessage(idse.getMessage());
 		}
 	}
 

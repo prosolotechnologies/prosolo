@@ -20,6 +20,7 @@
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="role" default="USER"/>
 		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="isOriginal" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -43,7 +44,7 @@
 							</ui:fragment>
 						</h2>
 
-						<h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
+						<h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit and cc.attrs.isOriginal}">
 							<ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfComps - 1}">
 								<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
 							</ui:fragment>
@@ -89,7 +90,7 @@
 									
 								</ui:fragment>
                         		
-								<ui:fragment rendered="#{cc.attrs.isEdit}">
+								<ui:fragment rendered="#{cc.attrs.isEdit and cc.attrs.isOriginal}">
 									<p:commandLink
 										value="Remove"
 										process="@this"

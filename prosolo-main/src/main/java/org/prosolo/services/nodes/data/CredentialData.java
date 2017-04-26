@@ -411,6 +411,14 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
 	}
+	
+	public boolean isDeliveryStartChanged() {
+		return changedAttributes.containsKey("deliveryStart");
+	}
+	
+	public boolean isDeliveryEndChanged() {
+		return changedAttributes.containsKey("deliveryEnd");
+	}
 
 	public List<CredentialData> getDeliveries() {
 		return deliveries;

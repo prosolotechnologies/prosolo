@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -36,6 +37,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 
@@ -64,6 +66,12 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	Credential1 deleteCredential(long credId, long userId) throws DbConnectionException;
+	
+	void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
+			DataIntegrityViolationException, EventException;
+	
+	Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException, 
+			DataIntegrityViolationException, StaleDataException;
 	
 	/**
 	 * Returns user target credential data if user is enrolled in a credential, or credential data 
@@ -130,9 +138,9 @@ public interface CredentialManager extends AbstractManager {
 //			throws DbConnectionException;
 	
 	Credential1 updateCredential(CredentialData data, long userId, LearningContextData context) 
-			throws DbConnectionException, StaleDataException;
+			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException;
+	Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException, IllegalDataStateException;
 	
 	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
 			throws DbConnectionException;
@@ -345,6 +353,10 @@ public interface CredentialManager extends AbstractManager {
     		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
     		LearningContextData lcd) throws DbConnectionException, EventException;
 	
+	List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
+    		LearningContextData lcd) throws DbConnectionException;
+	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 	
 	/**
@@ -442,7 +454,12 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	
 	Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
-			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, EventException;
+			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
+			IllegalDataStateException, EventException;
+	
+	Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
+			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException,
+			IllegalDataStateException;
 	
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 }
