@@ -30,7 +30,7 @@
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
-		
+	    
 	    <div class="whiteBar">
 	
 	    </div>
@@ -88,8 +88,8 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
-			                        <li role="presentation" class="#{cc.attrs.actAdded ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
+			                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">Competence Info</a></li>
+			                        <li role="presentation" class="#{cc.attrs.actAdded ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
@@ -244,6 +244,13 @@
 		        		type = "university_created";
 		        	}
 					document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
+					
+					$(function(){
+						var tabParamValue = getQueryParam('tab');
+						if(tabParamValue == 'activities'){
+							$('.nav.nav-tabs.pageSubmenu a[href="#activities"]').tab('show');
+						};
+					})
 		        </script>
 		    </h:form>
 	    
