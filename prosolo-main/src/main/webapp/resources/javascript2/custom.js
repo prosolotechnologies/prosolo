@@ -93,6 +93,16 @@ function showCommentReplies(elem) {
 	$(elem).nextAll('.media').show();
 }
 
+function getQueryParam(name) {
+    var url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 function setQueryParam(key, value) {
     var uri = window.location.href;
     var newUri = setQueryParamOfUri(uri, key, value);
@@ -166,6 +176,8 @@ function addClassToElement(elementId, cssClass) {
 		element.addClass(cssClass);
 	}
 };
+
+
 
 function escapeColons(text){
 	return text.replace(/:/g, '\\:');
