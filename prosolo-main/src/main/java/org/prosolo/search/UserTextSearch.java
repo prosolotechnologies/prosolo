@@ -29,7 +29,19 @@ public interface UserTextSearch extends AbstractManager {
 			int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds);
 	
-	TextSearchResponse1<StudentData> searchCredentialMembers (
+	/**
+	 * Returns list of students currently learning credential specified by {@code credId}.
+	 * 
+	 * @param searchTerm
+	 * @param filter
+	 * @param page
+	 * @param limit
+	 * @param credId
+	 * @param instructorId
+	 * @param sortOption
+	 * @return
+	 */
+	TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
 			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption);
 	
@@ -98,10 +110,6 @@ public interface UserTextSearch extends AbstractManager {
 	
 	/**
 	 * Returns list of students currently learning competence specified by {@code compId}.
-	 * 
-	 * Call {@link TextSearchResponse1#getAdditionalInfo()} to get search filters: 
-	 * under key 'filters' all filters can be retrieved with type {@code CompetenceStudentsSearchFilter[]},
-	 * under key 'selectedFilter' applied filter can be retrieved with type {@code CompetenceStudentsSearchFilter}.
 	 * 
 	 * @param searchTerm
 	 * @param compId

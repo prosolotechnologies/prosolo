@@ -1,7 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +49,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -1138,11 +1137,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			actor.setId(userId);
 			Map<String, String> params = new HashMap<>();
 			//params.put("instructorId", instructorId + "");
+			params.put("instructorId", "0");
 			String dateString = null;
 			Date date = targetCred.getDateCreated();
 			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateString = df.format(date);
+				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
 			}
 			params.put("dateEnrolled", dateString);
 			
@@ -2600,7 +2599,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
@@ -2650,7 +2648,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
@@ -2672,10 +2669,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				long assigned = (long) res[1];
 				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Unassigned, all - assigned);
+				CredentialMembersSearchFilter assignedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Assigned, assigned);
 				long completed = (long) res[2];
 				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Completed, completed);
-				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, completedFilter};
+				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, assignedFilter, completedFilter};
 			}
 			
 			return null;
