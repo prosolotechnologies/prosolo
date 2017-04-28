@@ -30,6 +30,7 @@
 		<composite:attribute name="restoreModal" required="true"/>
 		<composite:attribute name="archived" required="true"/>
 		<composite:attribute name="resourceId" required="true"/>
+
 	</composite:interface>
 	
 	<composite:implementation>
@@ -52,12 +53,25 @@
 				<script>
 					setIsDraft(#{competenceEditBean.draft});
 					$('.selectpicker').selectpicker('refresh');
+			
+					$(function(){
+						var activityListSize = $('.activityItem').length - 1;
+
+						$("#btnSaveChanges").click(function(){
+							   if(activityListSize == 0 ){
+								   $('#activityNotFoundModal').modal('show');
+								   
+							   }else{
+								   saveChangesBtnClick(status);
+							   }
+							}); 
+		    		})
 				</script>
 				<br />
 			</ui:fragment>
 			<div class="publishRow">
-				<a href="javascript:void(0);" class="btn btn-green" 
-					onclick="saveChangesBtnClick(getStatus());">Save changes</a>
+				<a href="javascript:void(0);" id="btnSaveChanges" class="btn btn-green" 
+					>Saves changes</a>
 				<p:commandLink style="display: none;"
 					styleClass="saveChangesSelector"
 					onclick="#{cc.attrs.onclickSave}"
@@ -67,6 +81,7 @@
 					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 					Save changes
 				</p:commandLink>
+				#{cc.attrs.activities}
 				<ui:fragment rendered="#{cc.attrs.resourceId > 0}">
 					<a href="#" data-toggle="modal" data-target="#{cc.attrs.duplicateModal}">Duplicate</a>
 				</ui:fragment>
@@ -100,6 +115,27 @@
 			            </div>
 			        </div>
 	    		</div>
+	    		
+	    		<a id="linkActivityNotFound" href="#" style="display: none;" data-toggle="modal" data-target="#activityNotFoundModal"></a>
+				<div class="modal fade" id="activityNotFoundModal" tabindex="-1" role="dialog" aria-labelledby="activityNotFoundModal">
+			        <div class="modal-dialog" role="document">
+			            <div class="modal-content">
+			                <div class="modal-header">
+			                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+			                    <h2 class="modal-title" id="duplicateCredential">Activity does not exist for this competence</h2>
+			                </div>
+			                <div class="modal-body">
+			                	<p>
+			                		You can not publish a competence without activities. Please add activities to your competence.
+			                	</p>
+			                </div>
+			                <div class="modal-footer">
+			                    <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+			                </div>
+			            </div>
+			        </div>
+	    		</div>
+	    	
 	    		<ui:fragment rendered="#{cc.attrs.resourceId > 0 and not cc.attrs.archived}">
 					<a href="#" class="linkRed" data-toggle="modal" data-target="#{cc.attrs.archiveModal}">Archive</a> 
 				</ui:fragment> 
