@@ -907,6 +907,7 @@
 					<webApp>
 						<contextPath>/</contextPath>
 						<configurationDiscovered>false</configurationDiscovered>
+						<parentLoaderPriority>true</parentLoaderPriority>
 					</webApp>
 					<!-- Enable for JRebel -->
 					<reload>manual</reload>

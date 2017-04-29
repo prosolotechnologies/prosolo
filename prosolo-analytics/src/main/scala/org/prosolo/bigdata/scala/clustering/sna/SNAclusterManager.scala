@@ -1,10 +1,12 @@
 package org.prosolo.bigdata.scala.clustering.sna
 
 
+import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.SocialInteractionStatisticsDBManagerImpl
 import org.prosolo.bigdata.dal.cassandra.impl.TableNames
 import org.prosolo.bigdata.scala.clustering.userprofiling.UserProfileClusteringManager._
-import org.prosolo.bigdata.spark.scala.clustering.{SNAClusteringSparkJob}
+import org.prosolo.bigdata.spark.scala.clustering.SNAClusteringSparkJob
+import org.prosolo.common.config.CommonSettings
 
 
 
@@ -16,7 +18,8 @@ import org.prosolo.bigdata.spark.scala.clustering.{SNAClusteringSparkJob}
   */
 object SNAclusterManager{
   val dbManager=SocialInteractionStatisticsDBManagerImpl.getInstance()
-
+  val dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName +
+    CommonSettings.getInstance().config.getNamespaceSufix();
   println("INITIALIZED SNA CLUSTER MANAGER")
 
   def updateTimestamp(timestamp:Long)={
