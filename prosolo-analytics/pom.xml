@@ -451,11 +451,11 @@
   			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
-		<dependency>
+		<!--dependency>
 			<groupId>org.jblas</groupId>
 			<artifactId>jblas</artifactId>
 			<version>1.2.4</version>
-		</dependency>
+		</dependency-->
 
 		<!-- dependency> <groupId>com.novemberain</groupId> <artifactId>quartz-mongodb</artifactId> 
 			<version>1.5.0</version> </dependency -->

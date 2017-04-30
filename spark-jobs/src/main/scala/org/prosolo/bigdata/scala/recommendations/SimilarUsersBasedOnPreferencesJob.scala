@@ -45,9 +45,10 @@ object SimilarUsersBasedOnPreferencesJob {
     * Performs recommendation of similar users based on their similarity using Spark ML ALS and cosine similarity
     */
   def runALSUserRecommender(clusterAproxSize:Int,keyspaceName:String): Unit ={
-    val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext,keyspaceName)
+    val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext,keyspaceName).collect()
     clustersUsers.foreach {
       row: Row =>
+        println("RUN ALS ON ROW:"+row.toString())
         ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize, keyspaceName)
     }
     println("runALSUserRecommender finished")
@@ -61,6 +62,7 @@ object SimilarUsersBasedOnPreferencesJob {
       "table" -> TablesNames.USER_COURSES)).load()
     usersInTheSystemDF.show
     val clusterUsers:java.util.List[java.lang.Long] = usersInTheSystemDF.select("userid").map(row => {
+      println("MAPPING ROW:"+row.toString())
       val id = row.getLong(0).asInstanceOf[java.lang.Long]
       id
     }).collect().toList.asJava

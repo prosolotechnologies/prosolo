@@ -20,9 +20,10 @@ import scala.collection.JavaConverters._
 /**
   * zoran 23/07/16
   */
+
 object SimilarUsersBasedOnPreferences {
 println("FIND SIMILAR USERS BASED ON PREFERENCES")
-  val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
+ /* val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
   val clusterAproxSize=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
   val maxIt1=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration1").toInt;
   val maxIt2=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration2").toInt;
@@ -41,13 +42,13 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
 
     runALSUserRecommender()
     println("SIMILAR USERS BASED ON PREFERENCES runJob finished")
-  }
+  }*/
  //runJob()
 
   /**
     * Stores all users in one cluster without clustering if number of users is small
     */
-  def createOneCluster()= {
+  /*def createOneCluster()= {
     println("CREATE ONE CLUSTER ONLY")
     println("KEYSPACE:"+keyspaceName+" ")
     if(sqlContext==null)println("SQL CONTEXT IS NULL")
@@ -62,25 +63,25 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     val clusterId:Long=0
     UserRecommendationsDBManagerImpl.getInstance().insertClusterUsers(clusterId,clusterUsers)
 
-  }
+  }*/
 
   /**
     * Calculates what are the boundaries for the number of clusters
     * @return
     */
-  private def getMinNumClusters(totalNumberOfUsers:Long)={
+  /*private def getMinNumClusters(totalNumberOfUsers:Long)={
     val maxNumber:Int= (totalNumberOfUsers/clusterAproxSize).toInt
     val multiplicator:Int=if(maxNumber>20) maxNumber/10 else 1
     val minNumber:Int=if(maxNumber>5) maxNumber-5*multiplicator else 1
     println("MIN:"+minNumber+" MAX:"+maxNumber+" multiplicator:"+multiplicator)
     Seq(minNumber, maxNumber)
-  }
+  }*/
 
   /**
     * Performs users clustering, in order to limit data model loading to one specific cluster only.
     * Users are clustered based on the credentials they are assigned to
     */
-  def runKmeans(totalNumberOfUsers:Long): Unit ={
+ /* def runKmeans(totalNumberOfUsers:Long): Unit ={
     val possibleNumClusters=getMinNumClusters(totalNumberOfUsers)
 
     val (usersWithCredentialsDF, usersWithExplodedCredentials)= UserFeaturesDataManager.prepareUsersCredentialDataFrame(sqlContext)
@@ -88,19 +89,19 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     val joinedResults=UserFeaturesDataManager.combineUserCredentialVectors(sqlContext, resultsDF, usersWithCredentialsDF)
     val clusteringResults= KMeansClusterer.performClustering(joinedResults,sqlContext, possibleNumClusters, possibleMaxIterations)
     UserFeaturesDataManager.interpretKMeansClusteringResults(sqlContext,clusteringResults)
-  }
+  }*/
 
   /**
     * Performs recommendation of similar users based on their similarity using Spark ML ALS and cosine similarity
     */
-  def runALSUserRecommender(): Unit ={
+ /* def runALSUserRecommender(): Unit ={
     val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext)
     clustersUsers.foreach {
       row: Row =>
         ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize)
     }
     println("runALSUserRecommender finished")
-  }
+  }*/
 
   def recommendBasedOnCredentialsForColdStart(userid:Long, credentials:java.util.Set[java.lang.Long]):Unit={
     val dataSearch=new DataSearchImpl
@@ -116,10 +117,10 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
 
 
   }
-  val creds=new java.util.HashSet[java.lang.Long]()
+ /* val creds=new java.util.HashSet[java.lang.Long]()
   creds.add(1l)
   creds.add(2l)
-  creds.add(3l)
+  creds.add(3l)*/
 //recommendBasedOnCredentialsForColdStart(2,creds)
   // runKmeans()
 
