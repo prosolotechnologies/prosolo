@@ -79,6 +79,11 @@
         <version>${spark.version}</version>
         <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-mllib_2.11</artifactId>
+        <version>${spark.version}</version>
+    </dependency>
     <!--dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-mllib_2.11</artifactId>
@@ -125,6 +130,12 @@
         <artifactId>mail</artifactId>
         <version>1.4.5</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
+    <dependency>
+        <groupId>org.jblas</groupId>
+        <artifactId>jblas</artifactId>
+        <version>1.2.4</version>
+    </dependency>
     <!--dependency>
         <groupId>com.datastax.cassandra</groupId>
         <artifactId>cassandra-driver-core</artifactId>
@@ -140,6 +151,17 @@
         <groupId>com.typesafe.play</groupId>
         <artifactId>play-json_2.11</artifactId>
         <version>2.5.0-M1</version>
+    </dependency>
+    <!--Jung dependencies-->
+    <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-graph-impl</artifactId>
+        <version>2.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-algorithms</artifactId>
+        <version>2.0.1</version>
     </dependency>
 
 </dependencies>

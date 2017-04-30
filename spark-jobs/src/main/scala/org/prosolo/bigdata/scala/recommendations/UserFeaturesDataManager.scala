@@ -1,8 +1,8 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames}
+import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
 
 
 /**
@@ -16,7 +16,7 @@ case class UserCredentials(id:Long, credentials: Seq[String]) {
 }
 object UserFeaturesDataManager {
 
-  val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
+  //val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
  // val dbName = Settings.getInstance.config.dbConfig.dbServerConfig.dbName + CommonSettings.getInstance.config.getNamespaceSufix
 
 
@@ -26,7 +26,7 @@ object UserFeaturesDataManager {
     * @param sqlContext
     * @return
     */
-  def prepareUsersCredentialDataFrame(sqlContext: SQLContext): (DataFrame, DataFrame) = {
+  def prepareUsersCredentialDataFrame(sqlContext: SQLContext, keyspaceName: String): (DataFrame, DataFrame) = {
     import sqlContext.implicits._
     val usersCredentialsDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
@@ -52,7 +52,6 @@ object UserFeaturesDataManager {
     * @return
     */
   def combineUserCredentialVectors(sqlContext: SQLContext, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
-    import sqlContext.implicits._
 
     println("TEMPORARY DISABLED. SHOULD BE FIXED")
     usersWithCredentialsDF
@@ -74,7 +73,7 @@ object UserFeaturesDataManager {
     joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined")*/
   }
 
-  def interpretKMeansClusteringResults(sqlContext: SQLContext,clusteringResults:DataFrame): Unit ={
+  def interpretKMeansClusteringResults(sqlContext: SQLContext,clusteringResults:DataFrame,keyspaceName:String): Unit ={
     import sqlContext.implicits._
     clusteringResults.sort($"clusterId" asc).show(1000)
     val count=clusteringResults.groupBy("clusterId").count
@@ -90,7 +89,8 @@ object UserFeaturesDataManager {
       //.collect().foreach(s=>println("CLUSTER:"+s._1+" values:"+s._2.mkString(",")))
 
   }
-  def loadUsersInClusters(sqlContext: SQLContext):DataFrame={
+  def loadUsersInClusters(sqlContext: SQLContext,keyspaceName:String):DataFrame={
+    println("LOAD USERS IN CLUSTERS:"+keyspaceName)
     val clustersUsers = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USERRECOM_CLUSTERUSERS)).load()
     clustersUsers.show

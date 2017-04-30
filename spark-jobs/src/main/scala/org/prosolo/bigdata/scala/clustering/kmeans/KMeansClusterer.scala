@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.clustering.kmeans
 
-import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 
 /**
   * Created by zoran on 19/07/16.

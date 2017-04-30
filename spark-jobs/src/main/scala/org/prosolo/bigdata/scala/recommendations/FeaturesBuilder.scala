@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.ml.feature.{OneHotEncoder, StringIndexer}
 import org.apache.spark.ml.{Pipeline, PipelineStage}
+import org.apache.spark.ml.feature.{OneHotEncoder, StringIndexer}
 import org.apache.spark.sql.DataFrame
 
 /**

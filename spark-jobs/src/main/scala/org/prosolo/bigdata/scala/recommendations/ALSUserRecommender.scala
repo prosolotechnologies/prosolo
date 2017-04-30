@@ -1,13 +1,11 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import com.datastax.spark.connector.CassandraRow
+import com.datastax.spark.connector.{CassandraRow, _}
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.apache.spark.rdd.RDD
-import com.datastax.spark.connector._
+import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.jblas.DoubleMatrix
-import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames, UserObservationsDBManagerImpl, UserRecommendationsDBManagerImpl}
-import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
 
 /**
   * Created by zoran on 23/07/16.
@@ -16,8 +14,8 @@ import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
   * zoran 23/07/16
   */
 object ALSUserRecommender {
-  val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
-  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int) {
+  //val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
+  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int, keyspaceName:String) {
     println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
     val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable(keyspaceName, TablesNames.USERRECOM_USERRESOURCEPREFERENCES)
@@ -48,8 +46,9 @@ object ALSUserRecommender {
       val nonRel: Array[(Int, Double)]=nonRelevantUsers.map{uid=>(uid.toInt,0.0)}.toArray
       val recommendations: Array[(Int, Double)]=sortedSims++nonRel
       println("WHOLE LIST:"+recommendations.mkString(","))
-      RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations)
-      UserRecommendationsDBManagerImpl.getInstance.deleteStudentNew(userId)
+      println("TEMPORARY DISABLED NEXT TWO LINES")
+     // RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations)
+     // UserRecommendationsDBManagerImpl.getInstance.deleteStudentNew(userId)
       //(userId, sortedSims)
    // }
     }
