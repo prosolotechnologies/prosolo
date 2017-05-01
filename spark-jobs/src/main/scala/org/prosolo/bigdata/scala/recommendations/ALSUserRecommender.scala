@@ -3,9 +3,10 @@ package org.prosolo.bigdata.scala.recommendations
 import com.datastax.spark.connector.{CassandraRow, _}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.jblas.DoubleMatrix
+import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
 
 /**
   * Created by zoran on 23/07/16.
@@ -15,9 +16,11 @@ import org.jblas.DoubleMatrix
   */
 object ALSUserRecommender {
   //val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
-  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int, keyspaceName:String) {
+
+  def processClusterUsers(sc: SparkContext, cId: Long, users: List[Long], clusterAproxSize:Int, keyspaceName:String,indexRecommendationDataName:String, similarUsersIndexType:String) {
     println("PROCESS CLUSTER:" + cId + " users:" + users.mkString(","))
     val usersIds = sc.parallelize(users)
+    val recommendationsDAO=new RecommendationsDAO(keyspaceName)
     val rawRatings = usersIds.map(Tuple1(_)).joinWithCassandraTable(keyspaceName, TablesNames.USERRECOM_USERRESOURCEPREFERENCES)
     println("FOUND:" + rawRatings.collect().length);
     val maximumPreference = rawRatings.fold(rawRatings.first())((res1: (Tuple1[Long], CassandraRow), res2: (Tuple1[Long], CassandraRow)) => {
@@ -46,8 +49,9 @@ object ALSUserRecommender {
       val nonRel: Array[(Int, Double)]=nonRelevantUsers.map{uid=>(uid.toInt,0.0)}.toArray
       val recommendations: Array[(Int, Double)]=sortedSims++nonRel
       println("WHOLE LIST:"+recommendations.mkString(","))
-      println("TEMPORARY DISABLED NEXT TWO LINES")
-     // RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations)
+     // println("TEMPORARY DISABLED NEXT TWO LINES")
+      RecommendationsESIndexer.storeRecommendedUsersForUser(userId, recommendations,indexRecommendationDataName,similarUsersIndexType)
+     recommendationsDAO.deleteStudentNew(userId)
      // UserRecommendationsDBManagerImpl.getInstance.deleteStudentNew(userId)
       //(userId, sortedSims)
    // }

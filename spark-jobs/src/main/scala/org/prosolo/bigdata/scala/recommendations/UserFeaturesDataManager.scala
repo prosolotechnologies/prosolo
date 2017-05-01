@@ -1,8 +1,16 @@
 package org.prosolo.bigdata.scala.recommendations
 
 import com.datastax.spark.connector._
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.mllib.linalg.{SparseVector, Vectors}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SQLContext}
+import com.datastax.spark.connector._
+import com.datastax.spark.connector.cql.CassandraConnector
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.jblas.DoubleMatrix
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.apache.spark.SparkContext._
+import org.apache.spark.rdd.RDD._
 
 
 /**
@@ -52,15 +60,18 @@ object UserFeaturesDataManager {
     * @return
     */
   def combineUserCredentialVectors(sqlContext: SQLContext, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
-
+    import sqlContext.implicits._
     println("TEMPORARY DISABLED. SHOULD BE FIXED")
-    usersWithCredentialsDF
-/*
+    //usersWithCredentialsDF
+
+
+
+
     //Combine One-Hot Encoded credential vectors for each item
     val usersWithcredentialsOneHotEncodedCombinedDF=resultsDF.map{
       case Row(userid: Long, credential:String, credentialIndex: Double, credentialsOneHotEncoded: SparseVector)=>
         (userid, (new DoubleMatrix(credentialsOneHotEncoded.toDense.values)))
-    }.reduceByKey((credentialsOneHotEncodedDoubleMatrix1, credentialsOneHotEncodedDoubleMatrix2)=>
+    }.rdd.reduceByKey((credentialsOneHotEncodedDoubleMatrix1, credentialsOneHotEncodedDoubleMatrix2)=>
       credentialsOneHotEncodedDoubleMatrix1.ori(credentialsOneHotEncodedDoubleMatrix2))
       .mapValues(tagsOneHotEncodedDoubleMatrixCompined => Vectors.dense(tagsOneHotEncodedDoubleMatrixCompined.toArray))
       .toDF("userid","credentialsOneHotEncodedCombined").as("oneHotEncodedCombined")
@@ -70,7 +81,7 @@ object UserFeaturesDataManager {
 
     joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined").show(35)
    // joinedResultsWithcredentialsOneHotEncodedCombinedDF
-    joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined")*/
+    joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined")
   }
 
   def interpretKMeansClusteringResults(sqlContext: SQLContext,clusteringResults:DataFrame,keyspaceName:String): Unit ={

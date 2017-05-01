@@ -1,18 +1,20 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.sql.{Row, SQLContext}
+/*import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.mllib.linalg.{SparseVector, Vectors}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames, UserObservationsDBManagerImpl, UserRecommendationsDBManagerImpl}
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
-import com.datastax.spark.connector._
-import org.prosolo.bigdata.config.Settings
+import com.datastax.spark.connector._*/
+import org.prosolo.bigdata.common.enums.ESIndexTypes
+//import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.es.impl.DataSearchImpl
-import org.prosolo.bigdata.jobs.{GenerateUserProfileClusters, SimilarUsersBasedOnPreferencesJob}
+//import org.prosolo.bigdata.jobs.{GenerateUserProfileClusters, SimilarUsersBasedOnPreferencesJob}
 import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
+import org.prosolo.common.ESIndexNames
 
-import scala.collection.JavaConversions._
+//import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 /**
   * Created by zoran on 23/07/16.
@@ -113,7 +115,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
       (member.toInt,0.0)
     }.toArray
     println("STORE RECOMMENDATIONS FOR:"+userid+" REC:"+recommendations.mkString(","))
-    RecommendationsESIndexer.storeRecommendedUsersForUser(userid, recommendations)
+    RecommendationsESIndexer.storeRecommendedUsersForUser(userid, recommendations,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
 
 
   }

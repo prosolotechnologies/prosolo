@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.recommendations
 
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 //import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
 //import org.prosolo.bigdata.scala.es.RecommendationsESIndexer
@@ -44,12 +44,12 @@ object SimilarUsersBasedOnPreferencesJob {
   /**
     * Performs recommendation of similar users based on their similarity using Spark ML ALS and cosine similarity
     */
-  def runALSUserRecommender(clusterAproxSize:Int,keyspaceName:String): Unit ={
+  def runALSUserRecommender(clusterAproxSize:Int,keyspaceName:String,indexRecommendationDataName:String, similarUsersIndexType:String): Unit ={
     val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext,keyspaceName).collect()
     clustersUsers.foreach {
       row: Row =>
         println("RUN ALS ON ROW:"+row.toString())
-        ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize, keyspaceName)
+        ALSUserRecommender.processClusterUsers(sc,row.getLong(0), row.getList[Long](1).toList, clusterAproxSize, keyspaceName,indexRecommendationDataName,similarUsersIndexType)
     }
     println("runALSUserRecommender finished")
   }
@@ -67,7 +67,10 @@ object SimilarUsersBasedOnPreferencesJob {
       id
     }).collect().toList.asJava
     val clusterId:Long=0
-    println("TEMPORARY DISABLED")
+    //println("TEMPORARY DISABLED")
+    val recommendationsDAO=new RecommendationsDAO(keyspaceName)
+
+    recommendationsDAO.insertClusterUsers(clusterId,clusterUsers)
     //UserRecommendationsDBManagerImpl.getInstance().insertClusterUsers(clusterId,clusterUsers)
 
   }
