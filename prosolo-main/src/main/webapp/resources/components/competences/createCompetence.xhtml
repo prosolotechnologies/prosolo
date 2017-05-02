@@ -59,7 +59,7 @@
 	        <ui:fragment rendered="#{empty param['credId']}">
 	    		<ol class="breadcrumb">	 
 	    			<li>
-		            	<a href="javascript:void(0);">Competences</a>
+		            	<h:link value="Competencies" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>

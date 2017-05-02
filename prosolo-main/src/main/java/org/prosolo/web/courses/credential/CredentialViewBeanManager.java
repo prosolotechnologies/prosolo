@@ -48,13 +48,13 @@ public class CredentialViewBeanManager implements Serializable {
 		if (decodedId > 0) {
 			try {
 				if("preview".equals(mode)) {
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
-									UserGroupPrivilege.Edit);
+//					credentialData = credentialManager
+//							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
+//									UserGroupPrivilege.Edit);
 				} else {
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
-									UserGroupPrivilege.Learn);
+//					credentialData = credentialManager
+//							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
+//									UserGroupPrivilege.Learn);
 				}
 			} catch(ResourceNotFoundException rnfe) {
 				try {

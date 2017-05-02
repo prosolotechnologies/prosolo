@@ -92,15 +92,15 @@ public class CredentialViewBeanUser implements Serializable {
 		if (decodedId > 0) {
 			try {
 				if ("preview".equals(mode)) {
-					credentialData = credentialManager.getCredentialData(decodedId, false, true, loggedUser.getUserId(),
-							UserGroupPrivilege.Edit);
+//					credentialData = credentialManager.getCredentialData(decodedId, false, true, loggedUser.getUserId(),
+//							UserGroupPrivilege.Edit);
 					ResourceCreator rc = new ResourceCreator();
 					rc.setFullName(loggedUser.getFullName());
 					rc.setAvatarUrl(loggedUser.getAvatar());
 					credentialData.setCreator(rc);
 				} else {
-					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId,
-							loggedUser.getUserId());
+//					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId,
+//							loggedUser.getUserId());
 					if (justEnrolled) {
 						PageUtil.fireSuccessfulInfoMessage(
 								"You have enrolled in the credential " + credentialData.getTitle());

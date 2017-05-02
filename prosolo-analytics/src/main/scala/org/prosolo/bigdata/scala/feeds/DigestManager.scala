@@ -19,8 +19,7 @@ import org.hibernate.Session
 object DigestManager {
   
   val logger = LoggerFactory.getLogger(getClass)
-  
-  
+
   def createFeedDiggestsAndSendEmails(){
     println("Create feed diggest and send emails called")
     val cal:Calendar=Calendar.getInstance
