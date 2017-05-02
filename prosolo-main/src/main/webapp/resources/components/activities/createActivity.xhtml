@@ -146,7 +146,7 @@
 			                                        				oncomplete="">
 			                                        			</p:commandLink>
 			                                        		</li>
-			                                        	</ui:repeat>   
+			                                        	</ui:repeat>    
 			                                        </ul>
 			                                    </h:panelGroup>
 			                                    
@@ -187,11 +187,12 @@
 			            <div class="col-md-4">
 			                <div class="whiteBox publishBox">
 			                    <h2>Publish</h2>
-			                    <h:link outcome="activity" value="Preview" class="linkPreview">
-									<f:param name="actId"
-										value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>
-										<f:param name="compId" value="#{activityEditBean.compId}" ></f:param>
-								</h:link>
+			                    <h:link
+			                    	outcome="activity"
+			                    	value="Preview"
+			                    	class="linkPreview">
+									<f:param name="actId" value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>	                    
+			                    </h:link>
 			                    <div class="clear"></div>
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>
