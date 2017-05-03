@@ -71,7 +71,8 @@ public enum ContextName {
 	AUTOGRADE("TargetActivity1"),
 	ARCHIVE_DIALOG(""),
 	DUPLICATE_DIALOG(""),
-	RESTORE_DIALOG("");
+	RESTORE_DIALOG(""),
+	START_DELIVERY("");
 	
     private String objectType; 
     
