@@ -544,19 +544,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
 //		Credential1 cred = (Credential1) persistence.currentManager().load(
 //				Credential1.class, credentialId);
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT DISTINCT targetCred " +
-				"FROM TargetCredential1 targetCred ");
-		if(loadCreator) {
-			queryBuilder.append("INNER JOIN fetch targetCred.createdBy user ");
+				"FROM TargetCredential1 targetCred " +
+				"INNER JOIN fetch targetCred.credential cred ");
+		if (loadCreator) {
+			queryBuilder.append("INNER JOIN fetch cred.createdBy user ");
 		}
-		if(loadTags) {
-			queryBuilder.append("LEFT JOIN fetch targetCred.tags tags " +
-					   		    "LEFT JOIN fetch targetCred.hashtags hashtags ");
+		if (loadTags) {
+			queryBuilder.append("LEFT JOIN fetch cred.tags tags " +
+					   		    "LEFT JOIN fetch cred.hashtags hashtags ");
+		}
+		if (loadInstructor) {
+			queryBuilder.append("LEFT JOIN fetch targetCred.instructor inst " +
+								"INNER JOIN fetch inst.user ");
 		}
 		queryBuilder.append("WHERE targetCred.credential.id = :credId " +
 				   			"AND targetCred.user = :student");
@@ -2341,34 +2346,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	public List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException {
 		try {
 			if(userIds == null || userIds.isEmpty()) {
 				return null;
 			}
 			String query = 
-					"SELECT cred.id " +
+					"SELECT cred " +
 					"FROM TargetCredential1 cred " +
 					"WHERE cred.credential.id = :credId " +
 					"AND cred.user.id IN (:userIds)";
 			
 			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager().createQuery(query)
+			List<TargetCredential1> res = persistence.currentManager().createQuery(query)
 					.setLong("credId", credId)
 					.setParameterList("userIds", userIds)
 					.list();
-			if(res == null) {
-				return new ArrayList<>();
-			} 
+		
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user credential ids");
+			throw new DbConnectionException("Error while loading user credentials");
 		}
 	}
 	
@@ -3149,7 +3151,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 

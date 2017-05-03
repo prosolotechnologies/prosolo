@@ -284,7 +284,7 @@ public interface CredentialManager extends AbstractManager {
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
 	
 	TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
 	
@@ -314,7 +314,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) throws DbConnectionException;
 	
-	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
 	
 	boolean saveNewCredentialFeed(long credId, String feedLink) 

@@ -5,9 +5,7 @@ package org.prosolo.web.courses.credential;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -15,9 +13,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -26,7 +23,6 @@ import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
@@ -62,8 +58,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private CredentialManager credManager;
 	@Inject 
 	private LoggedUserBean loggedUserBean;
-	@Inject 
-	private EventFactory eventFactory;
 	@Inject
 	private StudentEnrollBean studentEnrollBean;
 
@@ -222,54 +216,39 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	//assign student to an instructor
 	public void selectInstructor(InstructorData instructor) {
 		try {
-			EventType event = null;
-			Map<String, String> params = new HashMap<>();
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData ctx = new LearningContextData(page, context, service);
+			String action = null;
 			if(studentToAssignInstructor.getInstructor() == null 
 					|| studentToAssignInstructor.getInstructor().getInstructorId() 
 						!= instructor.getInstructorId()) {
+				long formerInstructoruserId = studentToAssignInstructor.getInstructor() != null
+						? studentToAssignInstructor.getInstructor().getUser().getId()
+						: 0;
 				credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getUser().getId(), 
-						instructor.getInstructorId(), decodedId);
+						instructor.getInstructorId(), decodedId, formerInstructoruserId, 
+						loggedUserBean.getUserId(), ctx);
 				if(studentToAssignInstructor.getInstructor() == null) {
-					event = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+					action = "assigned";
 				} else {
-					event = EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR;
-					params.put("reassignedFromInstructorUserId", 
-							studentToAssignInstructor.getInstructor().getUser().getId() + "");
+					action = "reassigned";
 				}
+				studentToAssignInstructor.setInstructor(instructor);
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
-						studentToAssignInstructor.getUser().getId(), decodedId);
-				event = EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR;
-			}
-
-			String page = PageUtil.getPostParameter("page");
-			String service = PageUtil.getPostParameter("service");
-			try {
-				User target = new User();
-				target.setId(instructor.getUser().getId());
-				User object = new User();
-				object.setId(studentToAssignInstructor.getUser().getId());
-				params.put("credId", decodedId + "");
-				eventFactory.generateEvent(event, loggedUserBean.getUserId(), object, target, 
-						page, context, service, params);
-			} catch (EventException e) {
-				logger.error(e);
-			}
-			String action = null;
-			if(event == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR 
-					|| event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
-				studentToAssignInstructor.setInstructor(instructor);
-				action = (event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR ? "re" : "") + "assigned";
-			} else {
+						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserId(), ctx);
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
 			}
-			
+
 			studentToAssignInstructor = null;
 			credentialInstructors = null;
 			PageUtil.fireSuccessfulInfoMessage("Instructor successfully " + action);
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 	}
 

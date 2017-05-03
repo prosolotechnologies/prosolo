@@ -143,20 +143,26 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	public void addUserToIndex(long compId, long userId, UserGroupPrivilege privilege) {
-		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
-		String script = "if (ctx._source[\"" + field + "\"] == null) { " +
-				"ctx._source." + field + " = user " +
-				"} else { " +
-				"ctx._source." + field + " += user " +
-				"}";
-		updateUsers(compId, userId, script);
+		//temporarely while collection of users with instruct privilege is not introduced
+		if (privilege != UserGroupPrivilege.Instruct) {
+			String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
+			String script = "if (ctx._source[\"" + field + "\"] == null) { " +
+					"ctx._source." + field + " = user " +
+					"} else { " +
+					"ctx._source." + field + " += user " +
+					"}";
+			updateUsers(compId, userId, script);
+		}
 	}
 	
 	@Override
 	public void removeUserFromIndex(long compId, long userId, UserGroupPrivilege privilege) {
-		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
-		String script = "ctx._source." + field + " -= user";
-		updateUsers(compId, userId, script);
+		//temporarely while collection of users with instruct privilege is not introduced
+		if (privilege != UserGroupPrivilege.Instruct) {
+			String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
+			String script = "ctx._source." + field + " -= user";
+			updateUsers(compId, userId, script);
+		}
 	}
 	
 	private void updateUsers(long compId, long userId, String script) {
