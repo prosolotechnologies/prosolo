@@ -9,7 +9,7 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
-		#{announcementBean.credentialTitle} - Announcements
+		Delivery - #{announcementBean.credentialTitle} - Announcements
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -21,12 +21,12 @@
 	</ui:define>
 
 	<ui:define name="resourceTitle">
-		<h1>#{announcementBean.credentialTitle}</h1>
+		<h1><span>Delivery:</span> #{announcementBean.credentialTitle}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
-			credEncodedId="#{param['id']}" credType="UNIVERSITY_CREATED" />
+			credEncodedId="#{param['id']}" credType="Delivery" />
 	</ui:define>
 
 	<ui:define name="content">
