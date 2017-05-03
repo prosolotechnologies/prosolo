@@ -1986,17 +1986,36 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
-			StringBuilder queryBuilder = new StringBuilder(
-				   "SELECT cred.title " +
-				   "FROM Credential1 cred " +
-				   "WHERE cred.id = :credId");
-			
-			Query q = persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", id);
-			
-			String title = (String) q.uniqueResult();
-			return title;
+		return getCredentialTitle(id, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCredentialTitle(long id, CredentialType type) throws DbConnectionException {
+			try {
+				StringBuilder queryBuilder = new StringBuilder(
+					   "SELECT cred.title " +
+					   "FROM Credential1 cred " +
+					   "WHERE cred.id = :credId ");
+				
+				if (type != null) {
+					queryBuilder.append("AND cred.type = :type");
+				}
+				
+				Query q = persistence.currentManager()
+					.createQuery(queryBuilder.toString())
+					.setLong("credId", id);
+				
+				if (type != null) {
+					q.setString("type", type.name());
+				}
+				
+				return (String) q.uniqueResult();
+			} catch (Exception e) {
+				logger.error(e);
+				e.printStackTrace();
+				throw new DbConnectionException("Error while retrieving credential title");
+			}
 	}
 	
 	@Deprecated
@@ -3211,6 +3230,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getDeliveries(credId, true);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
+			long userId) throws DbConnectionException {
+		List<CredentialData> credentials = getDeliveries(credId, false);
+		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
+				.addPrivilege(UserGroupPrivilege.Edit);
+		ResourceAccessData access = getResourceAccessData(credId, userId, req);
+		return RestrictedAccessResult.of(credentials, access);
+	}
+	
 	@Transactional(readOnly = true)
 	private List<CredentialData> getDeliveries(long credId, boolean onlyActive) 
 			throws DbConnectionException {
@@ -3249,6 +3279,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
 	}
+	
+	
 	
 	@Override
 	@Transactional(readOnly = false)

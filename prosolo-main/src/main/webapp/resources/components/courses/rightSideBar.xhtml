@@ -37,6 +37,9 @@
 		<div id="#{cc.clientId}" class="whiteBox publishBox">
 			<h2>Publish</h2>
 			
+			<h:link outcome="/manage/competence" value="Preview" class="linkPreview">
+				<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}"></f:param>
+			</h:link>
 			<div class="clear"></div>
 			
 			<label>Status:</label>

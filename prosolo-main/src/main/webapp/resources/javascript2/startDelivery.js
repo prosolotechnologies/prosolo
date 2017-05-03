@@ -1,5 +1,3 @@
-var startDeliveryPrependId;
-
 function initializeDatePickers() {
 	var start = $(".datePickerSelector.deliveryStartSelector");
 	start.datetimepicker({
@@ -47,14 +45,4 @@ function setEndMinDateIfNeeded() {
 			end.data("DateTimePicker").minDate(false);
 		}
 	}
-}
-
-
-
-
-function copyDatesToHiddenFields() {
-	var startDateId = startDeliveryPrependId + ":formStartDeliveryConfirm:startDateHidden";
-	var endDateId = startDeliveryPrependId + ":formStartDeliveryConfirm:endDateHidden";
-	$(document.getElementById(startDateId)).val($('#datetimepicker1').val());
-	$(document.getElementById(endDateId)).val($('#datetimepicker2').val());
 }
