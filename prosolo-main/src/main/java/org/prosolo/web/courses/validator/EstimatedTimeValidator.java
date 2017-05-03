@@ -3,7 +3,6 @@ package org.prosolo.web.courses.validator;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.component.html.HtmlSelectOneMenu;
 
 import javax.faces.context.FacesContext;
@@ -24,10 +23,7 @@ import org.springframework.stereotype.Component;
 @Scope("request")
 @FacesValidator("estimatedTimeValidator")
 public class EstimatedTimeValidator implements Validator {
-	
-	UIViewRoot viewRoot = FacesContext.getCurrentInstance().getViewRoot();
-	
-	
+
 	@Override
 	public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
 		
