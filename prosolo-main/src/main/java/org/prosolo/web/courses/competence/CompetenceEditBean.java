@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -302,6 +303,10 @@ public class CompetenceEditBean implements Serializable {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
+			return false;
+		}catch (CompetenceEmptyException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Can not save competence without activities.");
 			return false;
 		}
 	}
