@@ -2,57 +2,58 @@ package org.prosolo.services.nodes.data.resourceAccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
-public class UserAccessSpecification {
+public abstract class UserAccessSpecification {
 
 	private final Set<UserGroupPrivilege> privileges = new HashSet<>();
 	private final boolean resourceVisibleToAll;
 	private final boolean isUserResourceOwner;
-	private final boolean resourcePublished;
-	private final Date datePublished;
-	private final LearningResourceType resourceType;
 	
-	private UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, boolean resourcePublished, Date datePublished, 
-			LearningResourceType resourceType) {
+	protected UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
+			boolean isUserResourceOwner) {
 		this.privileges.addAll(privileges);
 		this.resourceVisibleToAll = resourceVisibleToAll;
 		this.isUserResourceOwner = isUserResourceOwner;
-		this.resourcePublished = resourcePublished;
-		this.datePublished = datePublished;
-		this.resourceType = resourceType;
 	}
 	
 	/**
-	 * Returns {@link UserAccessSpecification} object based on provided data.
+	 * This method allows visitor to visit user specification object.
 	 * 
-	 * 
-	 * @param privileges
-	 * @param resourceVisibleToAll
-	 * @param isUserResourceOwner
-	 * @param resourcePublished
-	 * @param datePublished
-	 * @param resourceType
-	 * @return
-	 * @throws IllegalArgumentException - when {@code privileges} collection is either null or empty, 
-	 * or when {@code resourceType} is null
+	 * @param visitor
 	 */
-	public static UserAccessSpecification of(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, boolean resourcePublished, Date datePublished,
-			LearningResourceType resourceType) {
-		if(privileges == null || privileges.isEmpty() || resourceType == null) {
-			throw new IllegalArgumentException();
-		}
-		return new UserAccessSpecification(privileges, resourceVisibleToAll, isUserResourceOwner, resourcePublished, 
-				datePublished, resourceType);
-	}
+	public abstract <T> T accept(UserAccessSpecificationVisitor<T> visitor);
 
+//	/**
+//	 * Returns whether user is allowed to learn resource if he has right privileges.
+//	 * This method has nothing to do with checking if user has needed privileges, it only checks
+//	 * additional conditions or preconditions that have to be met so access can be granted to user.
+//	 * 
+//	 * @return
+//	 */
+//	public abstract boolean isAllowedToLearn();
+//	
+//	/**
+//	 * Returns whether user can be given instructor access to the resource if he has right privileges.
+//	 * This method has nothing to do with checking if user has needed privileges, it only checks
+//	 * additional conditions or preconditions that have to be met so access can be granted to user.
+//	 * 
+//	 * @return
+//	 */
+//	public abstract boolean isAllowedToInstruct();
+//	
+//	/**
+//	 * Returns whether user is allowed to learn resource if he has right privileges.
+//	 * So, this method has nothing with checking if user has needed privileges, but it checks
+//	 * additional conditions or preconditions that have to be met for user to be able to learn.
+//	 * 
+//	 * @return
+//	 */
+//	public abstract boolean isAllowedToEdit();
+	
 	/**
 	 * Returns copy of internal collection.
 	 * 
@@ -68,18 +69,6 @@ public class UserAccessSpecification {
 
 	public boolean isUserResourceOwner() {
 		return isUserResourceOwner;
-	}
-
-	public boolean isResourcePublished() {
-		return resourcePublished;
-	}
-
-	public LearningResourceType getResourceType() {
-		return resourceType;
-	}
-
-	public Date getDatePublished() {
-		return datePublished;
 	}
 	
 }

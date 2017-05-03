@@ -5,7 +5,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -27,14 +26,11 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
-import org.prosolo.search.util.credential.LearningResourceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -42,10 +38,6 @@ import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.Role;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.stereotype.Service;
@@ -70,9 +62,9 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	@Transactional
-	public TextSearchResponse1<CompetenceData1> searchCompetences(long userId, Role role,
+	public TextSearchResponse1<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
 			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, List<Tag> filterTags, SortingOption sortTitleAsc) {
+			long[] toExclude, SortingOption sortTitleAsc) {
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
 		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
 		
@@ -94,15 +86,15 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				bQueryBuilder.filter(qb);
 			}
 		
-			if (filterTags != null) {
-				for (Tag tag : filterTags) {
-					QueryBuilder tagQB = QueryBuilders
-							.queryStringQuery(tag.getTitle()).useDisMax(true)
-							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
-							.field("tags.title");
-					bQueryBuilder.filter(tagQB);
-				}
-			}
+//			if (filterTags != null) {
+//				for (Tag tag : filterTags) {
+//					QueryBuilder tagQB = QueryBuilders
+//							.queryStringQuery(tag.getTitle()).useDisMax(true)
+//							.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+//							.field("tags.title");
+//					bQueryBuilder.filter(tagQB);
+//				}
+//			}
 			
 			if (toExclude != null) {
 				for (int i = 0; i < toExclude.length; i++) {
@@ -110,25 +102,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 				}
 			}
 			
-			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-			
-			//competence is published and: visible to all users or user has View privilege
-			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
-			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
-			BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
-			visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
-			visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
-			publishedAndVisibleFilter.filter(visibleFilter);
-			
-			boolFilter.should(publishedAndVisibleFilter);
-			
-			//user is owner of a competence
-			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
-			//user has Edit privilege for competence
-			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
-			bQueryBuilder.filter(boolFilter);
+			//university created type is set because credentail can only be university created
+			bQueryBuilder.filter(configureAndGetSearchFilter(
+					CompetenceSearchConfig.of(
+							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId));
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
@@ -162,12 +139,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						/*
 						 * access rights are already checked when querying ES, so we don't need to do that again
 						 */
-						ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
-						RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceData(0, id, true, 
-								false, false, userId, req, false);
+						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false);
 						
-						if (res.getResource() != null) {
-							response.addFoundNode(res.getResource());
+						if (res != null) {
+							response.addFoundNode(res);
 						}
 					} catch (DbConnectionException e) {
 						logger.error(e);

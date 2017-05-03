@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -23,7 +24,6 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -45,6 +45,9 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -867,24 +870,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		}
  	}
 	
-	private void publishCredential(Credential1 cred, User creator) {
-		//to make sure that all documents will be indexed in ES before we try to update them.
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {
-			logger.error(e);
-		}
-		CredentialManager credentialManager = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class);
-		
-		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
-				true, creator.getId(), UserGroupPrivilege.None);
-		
-		if(credentialData != null) {
-			//credentialData.setPublished(true);
-			credentialManager.updateCredential(credentialData, creator.getId(), null);
-		}
+	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
+		//we no longer have published status for credential
+//		//to make sure that all documents will be indexed in ES before we try to update them.
+//		try {
+//			Thread.sleep(1500);
+//		} catch (InterruptedException e) {
+//			logger.error(e);
+//		}
+//		CredentialManager credentialManager = ServiceLocator
+//				.getInstance()
+//				.getService(CredentialManager.class);
+//		
+//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false, 
+//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//		CredentialData credentialData = res.getResource();
+//		if(credentialData != null) {
+//			//credentialData.setPublished(true);
+//			credentialManager.updateCredential(credentialData, creator.getId(), null);
+//		}
 	}
 
 	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
