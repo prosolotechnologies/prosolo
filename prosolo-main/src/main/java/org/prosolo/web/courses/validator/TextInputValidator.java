@@ -32,7 +32,17 @@ public class TextInputValidator implements Validator {
 		String inputTextForValidation = null;
 		FacesMessage msg = new FacesMessage("Text is required");
 		
-		htmlUtil.cleanHTMLTagsAndRemoveWhiteSpaces(inputText, inputTextForValidation,msg);
+		if(inputText == null || inputText.trim().isEmpty()){
+			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+			throw new ValidatorException(msg);
+		}else{
+			inputTextForValidation = htmlUtil.cleanHTMLTags(inputText);
+			inputTextForValidation = inputTextForValidation.replaceAll("[\u00A0|\\s+]", "").trim();
+		}
+		if(inputTextForValidation.isEmpty()){
+			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+			throw new ValidatorException(msg);
+		}
 	}
 
 }
