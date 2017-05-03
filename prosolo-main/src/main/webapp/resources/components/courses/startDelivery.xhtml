@@ -1,0 +1,117 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+
+	<composite:interface>
+		<composite:attribute name="credentialId" type="java.lang.Long" required="true" />
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
+		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+	   
+	    <h:form id="formDeliveryStart">
+			<div class="modal fade newDeliveryModal" id="newDeliveryModal" tabindex="-1" role="dialog" aria-labelledby="newDeliveryModal">
+	            <div class="modal-dialog">
+	                <h:panelGroup id="newDeliveryModalContent" layout="block" styleClass="modal-content">
+	                    <div class="modal-header alignLeft">
+	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                        <h2 class="modal-title">Start New Delivery</h2>
+	                    </div>
+	                    <div class="containerInner30">
+	                        <div class="row">
+	                        	<small>You are not required to set delivery start and end dates here.<br></br>
+	                        	You can also set these dates later, on a page for editing delivery.</small>
+	                            <div class="col-md-6 startDate">
+	                                <label>Start:</label>
+	                                <div class="datePickerRow">
+	                                    <input type='text' id='datetimepicker1' placeholder="Date and Time" class="datePickerSelector deliveryStartSelector"></input>
+	                                </div>
+	                            </div>
+	                            <div class="col-md-6 endDate">
+	                                <label>End:</label>
+	                                <div class="datePickerRow">
+	                                	<input type='text' id='datetimepicker2' placeholder="Date and Time" class="datePickerSelector deliveryEndSelector"></input>
+	                                </div>
+	                                <small>If not set, delivery is unlimited.</small>
+	                            </div>
+	                            
+	                        </div>
+	                    </div>
+	
+	                    <div class="modal-footer alignLeft">
+	                    	<a href="#" id="startDeliveryButton" class="btn btn-green startDeliveryButtonSelector" data-toggle="modal" data-target="#startDeliveryConfirmModal">
+	                    		Start
+	                    	</a>
+	                    </div>
+	                    
+	                    <script>
+	                    	$(function() {
+	                    		initializeDatePickers();
+	                    		startDeliveryPrependId = "#{cc.clientId}";
+	                    		
+	                    		$('#startDeliveryButton').click(function() {
+	                    			copyDatesToHiddenFields();
+	                    		});
+	                    		
+	                    	});
+	                    </script>
+	                </h:panelGroup>
+	            </div>
+	        </div>
+	     </h:form>
+	     
+	     <h:form id="formStartDeliveryConfirm">
+	     	<div class="modal fade" id="startDeliveryConfirmModal" tabindex="-1" role="dialog" aria-labelledby="confirm">
+	               <div class="modal-dialog" role="document">
+	                   <div class="modal-content">
+	                       <div class="modal-header">
+	                           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                           <h2 class="modal-title" id="deleteCredential">Start credential delivery</h2>
+	                       </div>
+	                       <div class="modal-body">
+	                           <p>Are you sure you want to start credential delivery?<br></br><br></br>
+	                           <small>By starting delivery all competencies that are part of the credential will be published. It is advisable to go through each competency individually, review competency content and publish from there if everything is fine.</small></p>
+	                       </div>
+	                       <div class="modal-footer">
+	                       	  <h:inputHidden id="startDateHidden"
+                                   	value="#{deliveryStartBean.start}">
+                                   	<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
+	                          </h:inputHidden>
+	                          <h:inputHidden id="endDateHidden"
+                                   	value="#{deliveryStartBean.end}">
+                                   	<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
+	                          </h:inputHidden>
+	                       	  <p:commandLink
+	                       	  		value="Start"
+	                       	  		styleClass="btn btn-green"
+	                       	  		process="@this startDateHidden endDateHidden"
+	                        	  	action="#{deliveryStartBean.createDelivery(cc.attrs.credentialId)}"
+	        	  					update="#{cc.attrs.toUpdate}">
+	        	  					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+	        	  					<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+	        	  					<f:param name="service" value="name:start_delivery" />
+	       	  				  </p:commandLink>
+	                          <a href="#" class="btn btn-default" data-dismiss="modal" onclick="$('#newDeliveryModal').modal('hide');">Cancel</a>
+	                       </div>
+	                   </div>
+	               </div>
+	          </div>
+	     </h:form>
+	  
+	</composite:implementation>
+</ui:component>

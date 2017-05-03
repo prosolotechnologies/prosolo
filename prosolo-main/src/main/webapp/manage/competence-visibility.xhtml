@@ -1,0 +1,173 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	template="templates/masterLayout2.xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
+
+	<ui:define name="windowTitle">
+		New Competence
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="id" value="#{competenceEditBean.id}" default="null" />
+			
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h:panelGroup id="panelTitle">
+			<h1>New Competence</h1>
+		</h:panelGroup>
+	</ui:define>
+	
+	 <ui:define name="navLinks">
+	    <ul class="nav nav-tabs headerSubmenu">
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/create-competence">
+		       		<f:param name="id" value="#{param['id']}"/>
+		       		Competence Details
+	       		</h:link>
+	       		
+	       	</li>
+	       	<li role="presentation" class="active">
+	       		<h:link outcome="/manage/competence-visibility">
+	       			<f:param name="id" value="#{param['id']}"/>
+	       			Visibility
+	       		</h:link>
+	       	</li>
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/competence-students">
+	       			<f:param name="id" value="#{param['id']}"/>
+	       			Students
+	       		</h:link>
+	       	</li>
+	       	<li role="presentation">
+	       		<h:link outcome="/manage/competence-privacy">
+	       			<f:param name="id" value="#{param['id']}"/>
+	       			Privacy
+	       		</h:link>
+	       	</li>
+	   	</ul>
+	</ui:define>
+	
+
+	<ui:define name="content">
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		
+		<div class="whiteBar">
+        
+    	</div>
+
+    	<div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="whiteBox manageVisibility">
+                    <div class="innerWrapper">
+                        <h2>Visibility</h2>
+                        <p>Select which students/student groups can enroll the competence:</p>
+                    </div>
+                    <div class="checkbox checkLine checkAll">
+                        <input type="checkbox" id="checkVisibleAll"/>
+                        <label for="checkVisibleAll">Visible to Everyone</label>
+                    </div>
+                    <div class="searchInstructors">
+                        <input type="search" name="name" value="" placeholder="Search Users or Groups"/>
+                        <ul class="dropdown-menu searchResultsDrop" style="display:block;">
+                            <li>
+                                <a href="#">
+                                    <div class="instructorInfo">
+                                        <span class="letterAvatar letterAvatar48 img-circle">WW</span>
+                                        <div class="infoWrap">
+                                            <h3>Gustavo Fring</h3>
+                                            <span>Teaching Assistant, University of Texas</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <div class="instructorInfo">
+                                        <div class="infoWrap">
+                                            <h3>Group Name</h3>
+                                            <span>23 users</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul class="list">
+                        <li>
+                            <div class="instructorInfo">
+                                <div class="infoWrap">
+                                    <h3>Group Name</h3>
+                                    <span>23 users</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <a href="#" class="removeX">Close</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instructorInfo">
+                                <span class="letterAvatar letterAvatar48 img-circle">WW</span>
+                                <div class="infoWrap">
+                                    <h3>Gustavo Fring</h3>
+                                    <span>Teaching Assistant, University of Texas</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <a href="#" class="removeX">Close</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instructorInfo">
+                                <img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
+                                <div class="infoWrap">
+                                    <h3>Gustavo Fring</h3>
+                                    <span>Teaching Assistant, University of Texas</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <a href="#" class="removeX">Close</a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instructorInfo">
+                                <div class="infoWrap">
+                                    <h3>Group name</h3>
+                                    <span>23 users</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <a href="#" class="removeX">Close</a>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="lastRow">
+                        <a href="#" class="btn btn-green">Save Changes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="javascript2/bootstrap.min.js"></script>
+    <script src="javascript2/bootstrap-select.min.js"></script>
+    <script src="javascript2/bootstrap-tagsinput.min.js"></script>
+    <script src="javascript2/bootstrap-tagsinput-angular.min.js"></script>
+    <script src="javascript2/dropdowns-enhancement.js"></script>
+    <script src="javascript2/custom.js"></script>
+	</ui:define>
+</ui:composition>

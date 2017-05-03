@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -55,6 +56,9 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -859,33 +863,35 @@ public class BusinessCase4_EDX extends BusinessCase {
 		return newComment;
 	}
 	
-	private void publishCredential(Credential1 cred, User creator) {
-		CredentialManager credentialManager = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class);
-		
-		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
-				true, creator.getId(), UserGroupPrivilege.Edit);
-		
-		if (credentialData == null) {
-			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
-					true, creator.getId(), UserGroupPrivilege.Edit);
-			System.out.println(credentialData1);
-		}
-		
-		if (credentialData != null) {
-			//credentialData.setPublished(true);
-			
-			credentialManager.updateCredential(credentialData, creator.getId(), null);
-			
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
-			} catch (EventException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.error("Could not load credential " + cred.getId());
-		}
+	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
+//		CredentialManager credentialManager = ServiceLocator
+//				.getInstance()
+//				.getService(CredentialManager.class);
+//		
+//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false, 
+//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//		CredentialData credentialData = res.getResource();
+//		
+//		if (credentialData == null) {
+//			RestrictedAccessResult<CredentialData> res1 = credentialManager.getCredentialData(cred.getId(), false, 
+//					true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//			CredentialData credentialData1 = res.getResource();
+//			System.out.println(credentialData1);
+//		}
+//		
+//		if (credentialData != null) {
+//			//credentialData.setPublished(true);
+//			
+//			credentialManager.updateCredential(credentialData, creator.getId(), null);
+//			
+//			try {
+//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
+//			} catch (EventException e) {
+//				e.printStackTrace();
+//			}
+//		} else {
+//			logger.error("Could not load credential " + cred.getId());
+//		}
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
