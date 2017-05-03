@@ -40,6 +40,4 @@ public class EstimatedTimeValidator implements Validator {
 			throw new ValidatorException(msg);
 		}
 	}
-	
-
 }
