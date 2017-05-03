@@ -160,7 +160,7 @@ public class UserEditBean implements Serializable {
 			
 			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
 
-			sendNewPassword();
+			sendNewPasswordViaEmail();
 			
 //			if (this.user.isSendEmail()) {
 //			emailSenderManager.sendEmailAboutNewAccount(user,
@@ -177,6 +177,23 @@ public class UserEditBean implements Serializable {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+	public void sendNewPasswordViaEmail() {
+			
+			User userNewPass = userManager.getUser(user.getEmail());
+			if (userNewPass != null) {
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
+				
+				if (resetLinkSent) {
+					PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
+				} else {
+					PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+				}
+			} else {
+				PageUtil.fireErrorMessage("resetMessage", "User already registrated");
+			}
+		}
+	
 	private void updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null 
@@ -187,7 +204,7 @@ public class UserEditBean implements Serializable {
 					this.user.getLastName(),
 					this.user.getEmail(),
 					true,
-					this.user.isChangePassword(),
+					false,
 					this.user.getPassword(),
 					this.user.getPosition(),
 					this.user.getRoleIds(),
@@ -205,28 +222,19 @@ public class UserEditBean implements Serializable {
 		}
 	}
 	
-//	public void changePassword() {
-//		if (authenticationService.checkPassword(user.getPassword(), user.getOldPassword())) {
-//			if (user.getNewPassword().length() < 6) {
-//				PageUtil.fireErrorMessage(passwordInput.getClientId(), 
-//						"Password is too short. It has to contain more that 6 characters.");
-//				FacesContext.getCurrentInstance().validationFailed();
-//			}
-//
-//			try {
-//				User user = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
-//				loggedUser.getSessionData().setPassword(user.getPassword());
-//				
-//				PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "Password updated!");
-//			} catch (ResourceCouldNotBeLoadedException e) {
-//				logger.error(e);
-//				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Error updating the password");
-//			}
-//		} else {
-//			PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
-//		}
-//	}
-
+	public void updatePassword() {
+		if (accountData.getNewPassword().length() < 6) {
+			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
+			return;
+		}
+		try {
+			userManager.changePassword(user.getId(), accountData.getNewPassword());
+			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error updating the password");
+		}
+	}
 
 	/*
 	 * GETTERS / SETTERS
@@ -263,20 +271,6 @@ public class UserEditBean implements Serializable {
 	public void setAllRoles(SelectItem[] allRoles) {
 		this.allRoles = allRoles;
 	}
-	
-	public void savePassChangeForAnotherUser() {
-		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
-			return;
-		}
-		try {
-			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error updating the password");
-		}
-	}
 
 	/*
 	 * GETTERS / SETTERS
@@ -285,20 +279,5 @@ public class UserEditBean implements Serializable {
 	public AccountData getAccountData() {
 		return accountData;
 	}
-@SuppressWarnings("deprecation")
-public void sendNewPassword() {
-		
-		User userNewPass = userManager.getUser(user.getEmail());
-		if (userNewPass != null) {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
-			
-			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
-			} else {
-				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-			}
-		} else {
-			PageUtil.fireErrorMessage("resetMessage", "User already registrated");
-		}
-	}
+
 }
