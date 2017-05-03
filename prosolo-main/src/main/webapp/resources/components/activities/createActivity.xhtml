@@ -117,7 +117,16 @@
 			                                    <div class="formLineRight">
 			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
-			                                    		value="#{activityEditBean.activityData.description}" />
+			                                    		value="#{activityEditBean.activityData.description}"
+			                                    		required="true"
+			                                    		requiredMessage="Description is required"/>
+													<h:panelGroup 
+                    									layout="block" 
+                    									rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}" 
+                    									styleClass="alert alert-danger" 
+                    									pt:role="alert">
+                        								<h:message for="description"></h:message>
+                    								</h:panelGroup>
 			                                    		
 			                                    	<script>
 			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
@@ -146,7 +155,7 @@
 			                                        				oncomplete="">
 			                                        			</p:commandLink>
 			                                        		</li>
-			                                        	</ui:repeat>   
+			                                        	</ui:repeat>    
 			                                        </ul>
 			                                    </h:panelGroup>
 			                                    
@@ -187,7 +196,12 @@
 			            <div class="col-md-4">
 			                <div class="whiteBox publishBox">
 			                    <h2>Publish</h2>
-			                    
+			                    <h:link
+			                    	outcome="activity"
+			                    	value="Preview"
+			                    	class="linkPreview">
+									<f:param name="actId" value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>	                    
+			                    </h:link>
 			                    <div class="clear"></div>
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>
