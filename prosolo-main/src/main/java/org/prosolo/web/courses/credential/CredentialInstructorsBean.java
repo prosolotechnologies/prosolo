@@ -3,17 +3,16 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
@@ -93,18 +92,13 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				String title = credManager.getCredentialTitle(decodedId);
+				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
 				if(title != null) {
 					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
 								ResourceAccessRequirements.of(AccessMode.MANAGER)
 														  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialTitle = title;	
 						//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
@@ -112,15 +106,13 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 						studentAssignBean.init(decodedId, context);
 					}
 				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.notFound();
 				}
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error while loading instructor data");
 			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 
@@ -350,4 +342,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		this.reassignAutomatically = reassignAutomatically;
 	}
 
+	public long getCredentialId() {
+		return decodedId;
+	}
 }

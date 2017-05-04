@@ -26,7 +26,8 @@
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
-			credEncodedId="#{param['id']}" credType="Delivery" />
+			credId="#{announcementBean.decodedCredId}" 
+			credType="Delivery" />
 	</ui:define>
 
 	<ui:define name="content">

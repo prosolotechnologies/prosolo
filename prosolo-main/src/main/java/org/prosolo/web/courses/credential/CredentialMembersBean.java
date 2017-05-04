@@ -3,16 +3,15 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
@@ -101,7 +100,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
-				String title = credManager.getCredentialTitle(decodedId);
+				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
 				if(title != null) {
 					//user needs instruct or edit privilege to be able to access this page
 					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
@@ -109,12 +108,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 													  .addPrivilege(UserGroupPrivilege.Instruct)
 													  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialTitle = title;
 						/*
@@ -128,21 +122,13 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						studentEnrollBean.init(decodedId, context);
 					}
 				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.notFound();
 				}	
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 

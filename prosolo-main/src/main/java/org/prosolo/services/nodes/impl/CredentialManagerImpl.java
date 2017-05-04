@@ -386,26 +386,42 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
 					throws DbConnectionException {
+		return getBasicCredentialData(credentialId, userId, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+					throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, creator, bookmark.id " +
+			StringBuilder query =  new StringBuilder(
+						   "SELECT cred, creator, bookmark.id " +
 						   "FROM Credential1 cred " + 
 						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.bookmarks bookmark " +
 						   "WITH bookmark.user.id = :user " +
-						   "WHERE cred.id = :credId";
+						   "WHERE cred.id = :credId ");
+			
+			if (type != null) {
+				query.append("AND cred.type = :type");
+			}
 
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
 					.setLong("user", user.getId())
-					.setLong("credId", credentialId)
-					.uniqueResult();
+					.setLong("credId", credentialId);
+			
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+			
+			Object[] res = (Object[]) q.uniqueResult();
 
 			if (res != null) {
 				Credential1 cred = (Credential1) res[0];

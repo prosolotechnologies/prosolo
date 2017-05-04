@@ -125,6 +125,19 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getBasicCredentialData(long credentialId, long userId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Returns basic credential data with info whether credential is bookmarked by user or not, but only
+	 * if credential is of type given by {@code type} parameter. Otherwise, null is returned.
+	 * 
+	 * @param credentialId
+	 * @param userId
+	 * @param type
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+			throws DbConnectionException;
+	
 //	/** Returns credential data for edit. If there is a draft version for a credential
 //	 *  that version data will be returned
 //	 *  
