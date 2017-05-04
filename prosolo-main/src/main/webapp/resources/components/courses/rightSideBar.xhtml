@@ -12,24 +12,9 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
-		<composite:attribute name="publishValues" required="true" />
-		<composite:attribute name="publishValue" required="true" />
-		<composite:attribute name="scheduledDateValue" />
-		<composite:attribute name="scheduledDatePrettyString" default=""/>
-		<composite:attribute name="saveAction" required="true" method-signature="void save()"/>
-		<composite:attribute name="cancelScheduledUpdateModal" default=""/>
 		<composite:attribute name="toUpdate" required="true" />
-		<composite:attribute name="resource" required="true" /> <!-- Should be either CREDENTIAL or COMPETENCE -->
 		<composite:attribute name="role" required="true" />
-		<composite:attribute name="resourceLowerCase" required="true" />
-		<composite:attribute name="childResourcePlural" required="true" />
 		<composite:attribute name="onclickSave" />
-		<composite:attribute name="statusChangeDisabled" default="false"/>
-		<composite:attribute name="duplicateModal" required="true"/>
-		<composite:attribute name="archiveModal" required="true"/>
-		<composite:attribute name="restoreModal" required="true"/>
-		<composite:attribute name="archived" required="true"/>
-		<composite:attribute name="resourceId" required="true"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -45,11 +30,11 @@
 			<label>Status:</label>
 			
             <ui:fragment>
-				<h:selectOneMenu disabled="#{cc.attrs.statusChangeDisabled}"
+				<h:selectOneMenu disabled="#{not competenceEditBean.competenceData.canUnpublish}"
 					id="selectStatus" styleClass="selectpicker" 
-					value="#{cc.attrs.publishValue}"
+					value="#{competenceEditBean.competenceData.status}"
 					onchange="onStatusChange();">
-					<f:selectItems value="#{cc.attrs.publishValues}" var="status"
+					<f:selectItems value="#{competenceEditBean.compStatusArray}" var="status"
 						itemValue="#{status}" itemLabel="#{status.label}" />
 				</h:selectOneMenu>
 				<script>
@@ -64,14 +49,14 @@
 				<p:commandLink style="display: none;"
 					styleClass="saveChangesSelector"
 					onclick="#{cc.attrs.onclickSave}"
-					action="#{cc.attrs.saveAction}"
+					action="#{competenceEditBean.save}"
 					update="#{cc.attrs.toUpdate} :#{cc.clientId}"
 					oncomplete="">
 					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 					Save changes
 				</p:commandLink>
-				<ui:fragment rendered="#{cc.attrs.resourceId > 0}">
-					<a href="#" data-toggle="modal" data-target="#{cc.attrs.duplicateModal}">Duplicate</a>
+				<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0}">
+					<a href="#" data-toggle="modal" data-target="#duplicateComp">Duplicate</a>
 				</ui:fragment>
 				<a id="linkPublishChildResources" href="#" style="display: none;" data-toggle="modal" data-target="#publishModal"></a> 
 				<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModal">
@@ -91,7 +76,7 @@
 			                    <p:commandLink
 									styleClass="btn btn-green"
 									onclick="#{cc.attrs.onclickSave}"
-									action="#{cc.attrs.saveAction}"
+									action="#{competenceEditBean.save}"
 									update="#{cc.attrs.toUpdate}"
 									oncomplete="hideModal('publishModal');">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
@@ -103,10 +88,10 @@
 			            </div>
 			        </div>
 	    		</div>
-	    		<ui:fragment rendered="#{cc.attrs.resourceId > 0 and not cc.attrs.archived}">
+	    		<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and not competenceEditBean.competenceData.archived}">
 					<a href="#" class="linkRed" data-toggle="modal" data-target="#{cc.attrs.archiveModal}">Archive</a> 
 				</ui:fragment> 
-				<ui:fragment rendered="#{cc.attrs.resourceId > 0 and cc.attrs.archived}">
+				<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and competenceEditBean.competenceData.archived}">
 					<a href="#" data-toggle="modal" data-target="#{cc.attrs.restoreModal}">Restore</a> 
 				</ui:fragment>    
 			</div>
