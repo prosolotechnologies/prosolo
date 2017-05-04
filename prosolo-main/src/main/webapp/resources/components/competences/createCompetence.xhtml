@@ -224,21 +224,9 @@
 			                
 			            	<courses:rightSideBar
 			            		id="compSideBar"
-			            		publishValues="#{competenceEditBean.compStatusArray}" 
-			            		publishValue="#{competenceEditBean.competenceData.status}"
-			            		saveAction="#{competenceEditBean.save}"
 			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog" 
-			            		resource="COMPETENCE"
-			            		role="#{cc.attrs.role}"
-			            		resourceLowerCase="competence"
-								childResourcePlural="activities"
-								statusChangeDisabled="#{not competenceEditBean.competenceData.canUnpublish}"
-								archiveModal="#archiveModal"
-								duplicateModal="#duplicateComp"
-								restoreModal="#restoreModal"
-								archived="#{competenceEditBean.competenceData.archived}"
-								resourceId="#{competenceEditBean.competenceData.competenceId}"/>
+			            		role="#{cc.attrs.role}"/>
 			            </div>
 			        </div>
 	
