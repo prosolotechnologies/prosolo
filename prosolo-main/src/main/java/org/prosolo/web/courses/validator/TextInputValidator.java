@@ -23,11 +23,9 @@ import org.springframework.stereotype.Component;
 @FacesValidator("textInputValidator")
 public class TextInputValidator implements Validator {
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
 		
-		HTMLUtil htmlUtil = new HTMLUtil();
 		String inputText = (String)value;
 		String inputTextForValidation = null;
 		FacesMessage msg = new FacesMessage("Text is required");
@@ -36,7 +34,7 @@ public class TextInputValidator implements Validator {
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);
 		}else{
-			inputTextForValidation = htmlUtil.cleanHTMLTags(inputText);
+			inputTextForValidation = HTMLUtil.cleanHTMLTags(inputText);
 			inputTextForValidation = inputTextForValidation.replaceAll("[\u00A0|\\s+]", "").trim();
 		}
 		if(inputTextForValidation.isEmpty()){
