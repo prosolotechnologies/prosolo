@@ -39,7 +39,7 @@
 	            		<ui:fragment rendered="#{ cc.attrs.readOnly}">
 	                   		#{act.title}
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{ !cc.attrs.edit and !cc.attrs.readOnly}">
+	                   	<ui:fragment rendered="#{ !cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="activity">
@@ -48,7 +48,7 @@
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
             				</h:link>
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{ cc.attrs.edit and !cc.attrs.readOnly}">
+	                   	<ui:fragment rendered="#{ cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="create-activity">
