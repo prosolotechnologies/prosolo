@@ -59,7 +59,7 @@
 	        <ui:fragment rendered="#{empty param['credId']}">
 	    		<ol class="breadcrumb">	 
 	    			<li>
-		            	<a href="javascript:void(0);">Competences</a>
+		            	<h:link value="Competencies" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
@@ -84,7 +84,7 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{competenceEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-			            		Competency is published... Only limited edits allowed.
+			            		Competency is published... Only limited edits are allowed.
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
@@ -137,8 +137,16 @@
 			                                        <h:inputTextarea
 			                                        	id="description"
 			                                        	styleClass="pasteable"
-			                                        	value="#{competenceEditBean.competenceData.description}" />
-			                                        	
+			                                        	value="#{competenceEditBean.competenceData.description}" 
+			                                        	required="true"
+			                                        	requiredMessage="Description is required"/>
+			                                        <h:panelGroup 
+                    									layout="block" 
+                    									rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}" 
+                    									styleClass="alert alert-danger" 
+                    									pt:role="alert">
+                        								<h:message for="description"></h:message>
+                    								</h:panelGroup>
 			                                        <script>
 			                                    		initTinyMCE('#createCompetence\\:formMain\\:description');
 			                                    	</script>

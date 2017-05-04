@@ -158,11 +158,7 @@ public class CompetenceEditBean implements Serializable {
 					loggedUser.getUserId(), mode);
 			unpackResult(res);
 			if(!access.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} else {
 				List<ActivityData> activities = competenceData.getActivities();
 				for(ActivityData bad : activities) {
@@ -174,7 +170,7 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competence can not be found");
+			PageUtil.fireErrorMessage("Competency can not be found");
 		}
 	}
 
@@ -224,7 +220,8 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() + "/competences/" + id + "/newActivity");
+				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() 
+						+ "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -291,7 +288,7 @@ public class CompetenceEditBean implements Serializable {
 			return true;
 		} catch(StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Update failed because competence is edited in the meantime. Please review changed competence and try again.");
+			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
 			//reload data
 			reloadCompetence();
 			return false;
@@ -337,7 +334,7 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to archive competence");
+			PageUtil.fireErrorMessage("Error while trying to archive competency");
 		}
 	}
 	

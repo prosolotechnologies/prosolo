@@ -42,6 +42,7 @@ public class Credential1 extends BaseEntity {
 	private boolean manuallyAssignStudents;
 	private int defaultNumberOfStudentsPerInstructor;
 	private List<TargetCredential1> targetCredentials;
+	private List<CredentialInstructor> credInstructors;
 	private List<Announcement> announcements;
 	
 	private List<CredentialBookmark> bookmarks;
@@ -59,6 +60,9 @@ public class Credential1 extends BaseEntity {
 	private CredentialType type;
 	
 	private boolean archived;
+	
+	private List<CredentialUserGroup> userGroups;
+	private List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -186,7 +190,7 @@ public class Credential1 extends BaseEntity {
 		this.targetCredentials = targetCredentials;
 	}
 
-	@OneToMany(mappedBy = "credential")
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	public List<CredentialBookmark> getBookmarks() {
 		return bookmarks;
 	}
@@ -276,6 +280,15 @@ public class Credential1 extends BaseEntity {
 		this.archived = archived;
 	}
 	
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CredentialInstructor> getCredInstructors() {
+		return credInstructors;
+	}
+
+	public void setCredInstructors(List<CredentialInstructor> credInstructors) {
+		this.credInstructors = credInstructors;
+	}
+
 	@Version
 	public long getVersion() {
 		return version;
@@ -283,6 +296,24 @@ public class Credential1 extends BaseEntity {
 
 	public void setVersion(long version) {
 		this.version = version;
+	}
+
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CredentialUserGroup> getUserGroups() {
+		return userGroups;
+	}
+
+	public void setUserGroups(List<CredentialUserGroup> userGroups) {
+		this.userGroups = userGroups;
+	}
+
+	@OneToMany(mappedBy = "inheritedFrom", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CompetenceUserGroup> getInheritedUserGroupsFromThisCredential() {
+		return inheritedUserGroupsFromThisCredential;
+	}
+
+	public void setInheritedUserGroupsFromThisCredential(List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential) {
+		this.inheritedUserGroupsFromThisCredential = inheritedUserGroupsFromThisCredential;
 	}
 
 }

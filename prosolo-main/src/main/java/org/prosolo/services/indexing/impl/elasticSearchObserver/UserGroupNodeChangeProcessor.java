@@ -1,7 +1,9 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import java.util.List;
+import java.util.Map;
 
+import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
@@ -23,16 +25,18 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private CredentialESService credESService;
 	private UserGroupManager userGroupManager;
 	private CompetenceESService compESService;
+	private Session session;
 	
 	
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
 			CredentialESService credESService, UserGroupManager userGroupManager, 
-			CompetenceESService compESService) {
+			CompetenceESService compESService, Session session) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
 		this.compESService = compESService;
+		this.session = session;
 	}
 	
 	@Override
@@ -62,8 +66,13 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			} else {
 				for(CredentialUserGroup g : credGroups) {
-					credESService.removeUserFromCredentialIndex(g.getCredential().getId(), userId, 
-							g.getPrivilege());
+					/*
+					 * if user is removed, we can't just remove that user from index because user is maybe 
+					 * a member of some other groups that have a specific privilege in a credential in which case
+					 * user should not be removed from index at all. Because of that, a whole collection of users with
+					 * privileges is reindexed.
+					 */
+					credESService.updateCredentialUsersWithPrivileges(g.getCredential().getId(), session);
 				}
 			}
 			//get all competences associated with this user group
@@ -75,16 +84,42 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			} else {
 				for(CompetenceUserGroup g : compGroups) {
-					compESService.removeUserFromIndex(g.getCompetence().getId(), userId, 
-							g.getPrivilege());
+					/*
+					 * if user is removed, we can't just remove that user from index because user is maybe 
+					 * a member of some other groups that have a specific privilege in a competence in which case
+					 * user should not be removed from index at all. Because of that, a whole collection of users with
+					 * privileges is reindexed.
+					 */
+					compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
 				}
 			}
+		} else if (type == EventType.USER_GROUP_CHANGE) {
+			/*
+			 * user group changed - users added and/or removed so collection of users with privileges should be updated
+			 * for all credentials and competences containing that group
+			 */
+			long groupId = event.getObject().getId();
+			//get all credentials associated with this user group
+			List<CredentialUserGroup> credGroups = userGroupManager.getCredentialUserGroups(groupId);
+			for(CredentialUserGroup g : credGroups) {
+				credESService.updateCredentialUsersWithPrivileges(g.getCredential().getId(), session);
+			}
+			//get all competences associated with this user group
+			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
+			for(CompetenceUserGroup g : compGroups) {
+				compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
+			}
 		} else if(type == EventType.USER_GROUP_ADDED_TO_RESOURCE) {
-			long groupId = ((UserGroup) object).getId();
-			if(target instanceof Credential1) {
-				groupESService.addCredential(groupId, ((Credential1) target).getId());
-			} else if(target instanceof Competence1) {
-				groupESService.addCompetence(groupId, ((Competence1) target).getId());
+			Map<String, String> params = event.getParameters();
+			boolean isDefault = Boolean.parseBoolean(params.get("default"));
+			//default groups should not be indexed
+			if(!isDefault) {
+				long groupId = ((UserGroup) object).getId();
+				if(target instanceof Credential1) {
+					groupESService.addCredential(groupId, ((Credential1) target).getId());
+				} else if(target instanceof Competence1) {
+					groupESService.addCompetence(groupId, ((Competence1) target).getId());
+				}
 			}
 		} else if(type == EventType.USER_GROUP_REMOVED_FROM_RESOURCE) {
 			long groupId = ((UserGroup) object).getId();
