@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -51,8 +50,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private EventFactory eventFactory;
-	@Resource(name = "org.prosolo.services.nodes.CredentialInstructorManager")
-	private CredentialInstructorManager credInstructorManager;
+	@Inject private CredentialInstructorManager credInstructorManager;
 	
 	@Override
 	@Transactional(readOnly = true)

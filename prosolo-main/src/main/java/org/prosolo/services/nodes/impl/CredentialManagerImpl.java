@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -117,8 +116,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
 	//self inject for better control of transaction bondaries
-	@Resource(name = "org.prosolo.services.nodes.CredentialManager")
-	private CredentialManager credManager;
+	@Inject private CredentialManager credManager;
 	
 	@Override
 	@Transactional(readOnly = false)
