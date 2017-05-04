@@ -17,10 +17,10 @@
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="isEdit" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="startedLearning" required="true" type="java.lang.Boolean" />
-		<composite:attribute name="isPreview" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="toUpdate" default=""/>
 		<composite:attribute name="role" default="USER"/>
 		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="isOriginal" type="java.lang.Boolean" default="false"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -40,12 +40,11 @@
 									outcome="competence">
 									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
-									<f:param name="mode" value="preview" disable="#{!cc.attrs.isPreview}"></f:param>
 								</h:link>
 							</ui:fragment>
 						</h2>
 
-						<h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit}">
+						<h:panelGroup layout="block" styleClass="editOptions" rendered="#{cc.attrs.isEdit and cc.attrs.isOriginal}">
 							<ui:fragment rendered="#{status.index == cc.attrs.bean.currentNumberOfComps - 1}">
 								<a href="javascript:void(0);" class="moveDown" disabled="disabled">up</a>
 							</ui:fragment>
@@ -79,7 +78,7 @@
 						<div class="metaBox">
 							<div class="metaLeft">
 								<ui:fragment rendered="#{cc.attrs.isEdit}">
-									<ui:fragment rendered="#{comp.canEdit}">
+									<ui:fragment>
 										<h:link 
 											styleClass="btn btn-green-stroke btn-sm"
 											value="Edit" 
@@ -88,18 +87,10 @@
 											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId or comp.objectStatus eq 'CREATED'}"/>
 										</h:link> 
 									</ui:fragment>
-									<ui:fragment rendered="#{not comp.canEdit}">
-										<a
-											class="btn btn-green-stroke btn-sm"
-											disabled="disabled"
-											data-toggle="tooltip" 
-		                 					title="You are not allowed to edit this competence">
-											Edit
-										</a> 
-									</ui:fragment>
+									
 								</ui:fragment>
                         		
-								<ui:fragment rendered="#{cc.attrs.isEdit}">
+								<ui:fragment rendered="#{cc.attrs.isEdit and cc.attrs.isOriginal}">
 									<p:commandLink
 										value="Remove"
 										process="@this"
@@ -109,7 +100,7 @@
 										pt:data-toggle="modal" />
 								</ui:fragment>
                             	
-								<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.isPreview}">
+								<ui:fragment rendered="#{!cc.attrs.isEdit}">
 									<ui:fragment rendered="#{cc.attrs.startedLearning}">
 										<h:link rendered="#{(!cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId) and comp.progress lt 100}"
 											value="#{comp.progress != 0 ? 'Resume' : 'Start'}"

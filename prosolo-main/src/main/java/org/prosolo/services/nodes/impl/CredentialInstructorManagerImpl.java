@@ -414,29 +414,32 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
+	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
 	public CredentialInstructor addInstructorToCredential(long credId, long userId, 
 			int maxNumberOfStudents) throws DbConnectionException {
 		try {
-			Credential1 cred = (Credential1) persistence
-					.currentManager().load(Credential1.class, credId);
-			
-			User user = (User) persistence
-					.currentManager().load(User.class, userId);
-			
-			CredentialInstructor instructor = new CredentialInstructor();
-			instructor.setUser(user);
-			instructor.setCredential(cred);
-			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
-			instructor.setDateAssigned(new Date());
-			
-			saveEntity(instructor);
-			
-			//assign view privilege to newly added instructor
-			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
-					UserGroupPrivilege.Learn);
-			return instructor;
+			//TODO cred-redesign-07
+//			Credential1 cred = (Credential1) persistence
+//					.currentManager().load(Credential1.class, credId);
+//			
+//			User user = (User) persistence
+//					.currentManager().load(User.class, userId);
+//			
+//			CredentialInstructor instructor = new CredentialInstructor();
+//			instructor.setUser(user);
+//			instructor.setCredential(cred);
+//			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
+//			instructor.setDateAssigned(new Date());
+//			
+//			saveEntity(instructor);
+//			
+//			//assign view privilege to newly added instructor
+//			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
+//					UserGroupPrivilege.Learn);
+//			return instructor;
+			return null;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
