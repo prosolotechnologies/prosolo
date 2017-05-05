@@ -179,10 +179,10 @@ public class UserEditBean implements Serializable {
 	private void updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null && !this.user.getPassword().isEmpty();
-			User updatedUser = userManager.updateUser(this.user.getId(), this.user.getName(), this.user.getLastName(),
+			User updatedUser = userManager.updateUser(user.getId(), user.getName(), user.getLastName(),
 					this.user.getEmail(), true, shouldChangePassword, this.user.getPassword(), this.user.getPosition(),
-					this.user.getRoleIds(), loggedUser.getUserId());
-
+					user.getRoleIds(), loggedUser.getUserId());
+			user = new UserData(updatedUser);
 			logger.debug("User (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
 			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
@@ -384,6 +384,8 @@ public class UserEditBean implements Serializable {
 	}
 	
 	public void resetAndSearch() {
+		searchTerm = "";
+		users.clear();
 		loadUsers();
 	}
 } 

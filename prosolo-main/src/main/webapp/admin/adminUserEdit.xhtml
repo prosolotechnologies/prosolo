@@ -41,7 +41,7 @@
 			} catch (e) {
 			}
 		</script>
-		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+		
 		<div class="whiteBar"></div>
 
 		<div class="container">
@@ -53,9 +53,10 @@
 							<h:outputText
 								value="#{userEditBean.user.name} #{userEditBean.user.lastName} - Personal Info" />
 						</H2>
-
+						
 						<div class="formWrapper">
 							<h:form id="formMain">
+							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
@@ -169,7 +170,7 @@
 										<div class="assignOpt">
 										<p:commandLink styleClass="removeX"
 										action="#{userEditBean.userReset()}"
-										update="selectNewOwner">Close</p:commandLink>
+										update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
 										</div>
 									</h:panelGroup>
 
@@ -210,7 +211,7 @@
 								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
 									action="#{userEditBean.delete()}"
 									rendered="#{userEditBean.newOwner.userSet}"
-									update=":formMain :growlMain"
+									update=":formMain"
 									oncomplete="$('#deleteUser').modal('hide');">
 	                                	Delete
 	                                </p:commandLink>
