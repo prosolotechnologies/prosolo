@@ -280,57 +280,55 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataWithProgressIfExists(long credentialId, long userId) 
 					throws DbConnectionException {
-		//TODO cred-redesign-07
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
-//						   "FROM Credential1 cred " + 
-//						   "INNER JOIN cred.createdBy creator " +
-//						   "LEFT JOIN cred.targetCredentials targetCred " + 
-//						   "WITH targetCred.user.id = :user " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", credentialId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				User creator = (User) res[1];
-//				Integer paramProgress = (Integer) res[2];
-//				Long paramBookmarkId = (Long) res[3];
-//				Long nextCompId = (Long) res[4];
-//				Long nextActId = (Long) res[5];
-//				if(paramProgress != null) {
-//					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
-//							null, false, paramProgress.intValue(), nextCompId.longValue(),
-//							nextActId.longValue());
-//				} else {
-//					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
-//				}
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-		return null;
+		CredentialData credData = null;
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId " +
+						   "FROM Credential1 cred " + 
+						   "INNER JOIN cred.createdBy creator " +
+						   "LEFT JOIN cred.targetCredentials targetCred " + 
+						   "WITH targetCred.user.id = :user " +
+						   "LEFT JOIN cred.bookmarks bookmark " +
+						   "WITH bookmark.user.id = :user " +
+						   "WHERE cred.id = :credId " +
+						   "AND cred.type = :type";
+
+			//only delivery is considered because user can only enroll delivery
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("user", user.getId())
+					.setLong("credId", credentialId)
+					.setString("type", CredentialType.Delivery.name())
+					.uniqueResult();
+
+			if (res != null) {
+				Credential1 cred = (Credential1) res[0];
+				User creator = (User) res[1];
+				Integer paramProgress = (Integer) res[2];
+				Long paramBookmarkId = (Long) res[3];
+				Long nextCompId = (Long) res[4];
+				if(paramProgress != null) {
+					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
+							null, false, paramProgress.intValue(), nextCompId.longValue());
+				} else {
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+				}
+				if(paramBookmarkId != null) {
+					credData.setBookmarkedByCurrentUser(true);
+				}
+				
+				return credData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
 	}
 	
 //	@Override
