@@ -54,8 +54,8 @@ public class UserEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
-	
-	@Autowired 
+
+	@Autowired
 	private TextSearch textSearch;
 
 	private UIInput passwordInput;
@@ -71,7 +71,7 @@ public class UserEditBean implements Serializable {
 	private List<UserData> users;
 	private String searchTerm;
 	private RoleFilter filter;
-	
+
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
@@ -179,16 +179,16 @@ public class UserEditBean implements Serializable {
 	private void updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null && !this.user.getPassword().isEmpty();
-			User updatedUser = userManager.updateUser(user.getId(), user.getName(), user.getLastName(),
+			User updatedUser = userManager.updateUser(this.user.getId(), this.user.getName(), this.user.getLastName(),
 					this.user.getEmail(), true, shouldChangePassword, this.user.getPassword(), this.user.getPosition(),
 					user.getRoleIds(), loggedUser.getUserId());
 			user = new UserData(updatedUser);
 			logger.debug("User (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
+			PageUtil.fireSuccessfulInfoMessage("User successfully updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to save user data");
+			PageUtil.fireErrorMessage("Error while trying to update user data");
 		} catch (EventException e) {
 			logger.error(e);
 		}
@@ -263,14 +263,17 @@ public class UserEditBean implements Serializable {
 
 	public void setUserToDelete() {
 		newOwner.setUserSet(false);
-		searchTerm= "";
-		users=null;
+		searchTerm = "";
+		users = null;
 		this.userToDelete = user;
 	}
-	
-	public void userReset(){
+
+	public void userReset() {
+		searchTerm = "";
+		users = null;
 		newOwner.setUserSet(false);
 	}
+
 	public RoleFilter getFilter() {
 		return filter;
 	}
@@ -356,7 +359,8 @@ public class UserEditBean implements Serializable {
 	public void delete() {
 		if (userToDelete != null) {
 			try {
-				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());;
+				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
+				;
 				users.remove(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
@@ -368,24 +372,22 @@ public class UserEditBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public void loadUsers() {
-		this.users = new ArrayList<UserData>();
-		if (searchTerm == null && searchTerm.isEmpty()) {
+		this.users = null;
+		if (searchTerm == null || searchTerm.isEmpty()) {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result= textSearch.searchNewOwner(searchTerm, 3 ,user.getId());
+				TextSearchResponse1<UserData> result = textSearch.searchNewOwner(searchTerm, 3, user.getId());
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
 			}
 		}
 	}
-	
+
 	public void resetAndSearch() {
-		searchTerm = "";
-		users.clear();
 		loadUsers();
 	}
-} 
+}
