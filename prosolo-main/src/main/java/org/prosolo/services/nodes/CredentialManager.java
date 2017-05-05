@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -231,6 +232,8 @@ public interface CredentialManager extends AbstractManager {
 	
 	String getCredentialTitle(long id) throws DbConnectionException;
 	
+	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
+	
 	String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException;
 	
 	/**
@@ -435,6 +438,9 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 	List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException;
+	
+	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
+			long userId) throws DbConnectionException;
 	
 	void archiveCredential(long credId, long userId, LearningContextData context) throws DbConnectionException;
 	

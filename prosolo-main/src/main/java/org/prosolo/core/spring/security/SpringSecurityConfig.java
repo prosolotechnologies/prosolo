@@ -230,6 +230,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/rss").hasAnyAuthority("MANAGE.CREDENTIAL.RSSFEEDS")
 		   .antMatchers("/manage/credentials/*/assessments").hasAnyAuthority("MANAGE.CREDENTIAL.ASSESSMENTS")
 		   .antMatchers("/manage/credentials/*/announcements").hasAnyAuthority("COURSE.ANNOUNCEMENTS.VIEW")
+		   .antMatchers("/manage/credentials/*/deliveries").hasAnyAuthority("BASIC.MANAGER.ACCESS")
 		   
 		   //manage activity
 		   .antMatchers("/manage/competences/*/*/edit").hasAnyAuthority("COURSE.CREATE")
