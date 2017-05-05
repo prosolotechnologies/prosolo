@@ -30,6 +30,7 @@
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
+	    <script src="#{request.contextPath}/resources/javascript2/rightSideBar.js"></script>
 		
 	    <div class="whiteBar">
 	
@@ -222,14 +223,84 @@
 			                    You are not allowed to unpublish a competency as it is a part of one or more active credential deliveries. Only when all deliveries of a credential with this competency have ended, a competency can be unpublished.
 			                </div>
 			                
-			            	<courses:rightSideBar
-			            		id="compSideBar"
-			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
-			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog" 
-			            		role="#{cc.attrs.role}"/>
+			                <div id="#{cc.clientId}" class="whiteBox publishBox">
+								<h2>Publish</h2>
+								<h:link outcome="/manage/competence" value="Preview" class="linkPreview">
+									<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}"></f:param>
+								</h:link>
+								<div class="clear"></div>
+								
+								<label>Status:</label>
+								
+					            <ui:fragment>
+									<h:selectOneMenu disabled="#{not competenceEditBean.competenceData.canUnpublish}"
+										id="selectStatus" styleClass="selectpicker" 
+										value="#{competenceEditBean.competenceData.status}"
+										onchange="onStatusChange();">
+										<f:selectItems value="#{competenceEditBean.compStatusArray}" var="status"
+											itemValue="#{status}" itemLabel="#{status.label}" />
+									</h:selectOneMenu>
+									<script>
+										setIsDraft(#{competenceEditBean.draft});
+										$('.selectpicker').selectpicker('refresh');
+									</script>
+									<br />
+								</ui:fragment>
+								<div class="publishRow">
+									<a href="javascript:void(0);" class="btn btn-green" 
+										onclick="saveChangesBtnClick(getStatus());">Save changes</a>
+									<p:commandLink style="display: none;"
+										styleClass="saveChangesSelector"
+										onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
+										action="#{competenceEditBean.save}"
+										update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+										oncomplete="">
+										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+										Save changes
+									</p:commandLink>
+									<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0}">
+										<a href="#" data-toggle="modal" data-target="#duplicateComp">Duplicate</a>
+									</ui:fragment>
+									<a id="linkPublishChildResources" href="#" style="display: none;" data-toggle="modal" data-target="#publishModal"></a> 
+									<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModal">
+								        <div class="modal-dialog" role="document">
+								            <div class="modal-content">
+								                <div class="modal-header">
+								                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+								                    <h2 class="modal-title" id="duplicateCredential">Save changes</h2>
+								                </div>
+								                <div class="modal-body">
+								                	<p>
+								                		Are you sure you want to publish this competency? Once published, only small edits can be made on this competency.
+														Competency will be available for enrollment to all students with proper privileges. But also, competency structure can be seen by all users.
+								                	</p>
+								                </div>
+								                <div class="modal-footer">
+								                    <p:commandLink
+														styleClass="btn btn-green"
+														onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
+														action="#{competenceEditBean.save}"
+														update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+														oncomplete="hideModal('publishModal');">
+														<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+														<f:param name="service" value="name:publish_resource_dialog"></f:param>
+														Publish
+													</p:commandLink>
+								                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+								                </div>
+								            </div>
+								        </div>
+						    		</div>
+						    		<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and not competenceEditBean.competenceData.archived}">
+										<a href="#" class="linkRed" data-toggle="modal" data-target="#archiveModal">Archive</a> 
+									</ui:fragment> 
+									<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and competenceEditBean.competenceData.archived}">
+										<a href="#" data-toggle="modal" data-target="#restoreModal">Restore</a> 
+									</ui:fragment>    
+								</div>
+							</div>
 			            </div>
 			        </div>
-	
 		    	</div>
 		    	
 		    	<script>  
