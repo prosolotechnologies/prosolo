@@ -1,7 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -51,6 +48,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -118,8 +116,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
 	//self inject for better control of transaction bondaries
-	@Resource(name = "org.prosolo.services.nodes.CredentialManager")
-	private CredentialManager credManager;
+	@Inject private CredentialManager credManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -387,26 +384,42 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
 					throws DbConnectionException {
+		return getBasicCredentialData(credentialId, userId, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+					throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, creator, bookmark.id " +
+			StringBuilder query =  new StringBuilder(
+						   "SELECT cred, creator, bookmark.id " +
 						   "FROM Credential1 cred " + 
 						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.bookmarks bookmark " +
 						   "WITH bookmark.user.id = :user " +
-						   "WHERE cred.id = :credId";
+						   "WHERE cred.id = :credId ");
+			
+			if (type != null) {
+				query.append("AND cred.type = :type");
+			}
 
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
 					.setLong("user", user.getId())
-					.setLong("credId", credentialId)
-					.uniqueResult();
+					.setLong("credId", credentialId);
+			
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+			
+			Object[] res = (Object[]) q.uniqueResult();
 
 			if (res != null) {
 				Credential1 cred = (Credential1) res[0];
@@ -543,19 +556,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
 //		Credential1 cred = (Credential1) persistence.currentManager().load(
 //				Credential1.class, credentialId);
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT DISTINCT targetCred " +
-				"FROM TargetCredential1 targetCred ");
-		if(loadCreator) {
-			queryBuilder.append("INNER JOIN fetch targetCred.createdBy user ");
+				"FROM TargetCredential1 targetCred " +
+				"INNER JOIN fetch targetCred.credential cred ");
+		if (loadCreator) {
+			queryBuilder.append("INNER JOIN fetch cred.createdBy user ");
 		}
-		if(loadTags) {
-			queryBuilder.append("LEFT JOIN fetch targetCred.tags tags " +
-					   		    "LEFT JOIN fetch targetCred.hashtags hashtags ");
+		if (loadTags) {
+			queryBuilder.append("LEFT JOIN fetch cred.tags tags " +
+					   		    "LEFT JOIN fetch cred.hashtags hashtags ");
+		}
+		if (loadInstructor) {
+			queryBuilder.append("LEFT JOIN fetch targetCred.instructor inst " +
+								"INNER JOIN fetch inst.user ");
 		}
 		queryBuilder.append("WHERE targetCred.credential.id = :credId " +
 				   			"AND targetCred.user = :student");
@@ -1136,11 +1154,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			actor.setId(userId);
 			Map<String, String> params = new HashMap<>();
 			//params.put("instructorId", instructorId + "");
+			params.put("instructorId", "0");
 			String dateString = null;
 			Date date = targetCred.getDateCreated();
 			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateString = df.format(date);
+				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
 			}
 			params.put("dateEnrolled", dateString);
 			
@@ -2359,34 +2377,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	public List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException {
 		try {
 			if(userIds == null || userIds.isEmpty()) {
 				return null;
 			}
 			String query = 
-					"SELECT cred.id " +
+					"SELECT cred " +
 					"FROM TargetCredential1 cred " +
 					"WHERE cred.credential.id = :credId " +
 					"AND cred.user.id IN (:userIds)";
 			
 			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager().createQuery(query)
+			List<TargetCredential1> res = persistence.currentManager().createQuery(query)
 					.setLong("credId", credId)
 					.setParameterList("userIds", userIds)
 					.list();
-			if(res == null) {
-				return new ArrayList<>();
-			} 
+		
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user credential ids");
+			throw new DbConnectionException("Error while loading user credentials");
 		}
 	}
 	
@@ -2617,7 +2632,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
@@ -2667,7 +2681,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
@@ -2689,10 +2702,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				long assigned = (long) res[1];
 				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Unassigned, all - assigned);
+				CredentialMembersSearchFilter assignedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Assigned, assigned);
 				long completed = (long) res[2];
 				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Completed, completed);
-				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, completedFilter};
+				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, assignedFilter, completedFilter};
 			}
 			
 			return null;
@@ -3167,7 +3182,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 

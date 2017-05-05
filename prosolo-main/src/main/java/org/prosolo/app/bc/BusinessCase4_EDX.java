@@ -29,7 +29,6 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
@@ -56,9 +55,6 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -718,15 +714,15 @@ public class BusinessCase4_EDX extends BusinessCase {
 			Map<String, String> params = new HashMap<>();
 			params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
 	
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userPhillAmstrong, cred1, null, null, null, params);
 			
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userKarenWhite, cred1, null, null, null, params);
 			
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userErikaAmes, cred1, null, null, null, params);
 			

@@ -125,6 +125,19 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getBasicCredentialData(long credentialId, long userId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Returns basic credential data with info whether credential is bookmarked by user or not, but only
+	 * if credential is of type given by {@code type} parameter. Otherwise, null is returned.
+	 * 
+	 * @param credentialId
+	 * @param userId
+	 * @param type
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+			throws DbConnectionException;
+	
 //	/** Returns credential data for edit. If there is a draft version for a credential
 //	 *  that version data will be returned
 //	 *  
@@ -287,7 +300,7 @@ public interface CredentialManager extends AbstractManager {
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
 	
 	TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
 	
@@ -317,7 +330,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) throws DbConnectionException;
 	
-	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
 	
 	boolean saveNewCredentialFeed(long credId, String feedLink) 

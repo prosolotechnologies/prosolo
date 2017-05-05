@@ -3,17 +3,19 @@ package org.prosolo.services.nodes.data.instructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+
 public class StudentAssignData {
 
 	private List<StudentInstructorPair> assigned;
-	private List<Long> unassigned;
+	private List<TargetCredential1> unassigned;
 	
 	public StudentAssignData() {
 		assigned = new ArrayList<>();
 		unassigned = new ArrayList<>();
 	}
 
-	public StudentAssignData(List<StudentInstructorPair> assigned, List<Long> unassigned) {
+	public StudentAssignData(List<StudentInstructorPair> assigned, List<TargetCredential1> unassigned) {
 		this.assigned = assigned;
 		this.unassigned = unassigned;
 	}
@@ -22,8 +24,8 @@ public class StudentAssignData {
 		assigned.add(pair);
 	}
 	
-	public void addUnassignedId(long id) {
-		unassigned.add(id);
+	public void addUnassigned(TargetCredential1 tc) {
+		unassigned.add(tc);
 	}
 	
 	public List<StudentInstructorPair> getAssigned() {
@@ -34,11 +36,11 @@ public class StudentAssignData {
 		this.assigned = assigned;
 	}
 
-	public List<Long> getUnassigned() {
+	public List<TargetCredential1> getUnassigned() {
 		return unassigned;
 	}
 
-	public void setUnassigned(List<Long> unassigned) {
+	public void setUnassigned(List<TargetCredential1> unassigned) {
 		this.unassigned = unassigned;
 	}
 	

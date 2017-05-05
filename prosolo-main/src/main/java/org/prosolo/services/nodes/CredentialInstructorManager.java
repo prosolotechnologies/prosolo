@@ -5,6 +5,9 @@ import java.util.List;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
@@ -15,25 +18,49 @@ public interface CredentialInstructorManager {
 			boolean returnNumberOfCurrentlyAssignedStudents, boolean trackChanges) 
 					throws DbConnectionException;
 
-	void assignStudentToInstructor(long studentId, long instructorId, long credId) throws DbConnectionException;
+	Result<Void> assignStudentToInstructorAndGetEvents(long instructorId, long targetCredId, long formerInstructorId, 
+			long actorId, LearningContextData context) throws DbConnectionException;
+	
+	/**
+	 * 
+	 * @param studentId
+	 * @param instructorId
+	 * @param credId
+	 * @param formerInstructorUserId
+	 * @param actorId
+	 * @param context
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void assignStudentToInstructor(long studentId, long instructorId, long credId, long formerInstructorUserId,
+			long actorId, LearningContextData context) throws DbConnectionException, EventException;
 
-	void assignStudentToInstructor(long instructorId, long targetCredId) 
-			throws DbConnectionException;
+	Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
+			long formerInstructorUserId, long actorId, LearningContextData context) throws DbConnectionException;
+	
+	void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
+			long actorId, LearningContextData context) throws DbConnectionException, EventException;
 	
 	/**
 	 * Assigns students with target credential ids to instructors that currently have lowest 
 	 * number of students assigned. 
+	 * 
 	 * @param credId
 	 * @param targetCreds
-	 * @param instructorToExcludeId
+	 * @param formerInstructorId
+	 * @param updateAssessor
+	 * @param actorId
+	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	StudentAssignData assignStudentsToInstructorAutomatically(long credId, 
-			List<TargetCredential1> targetCreds, long instructorToExcludeId) throws DbConnectionException;
+	Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, List<TargetCredential1> targetCreds,
+    		long formerInstructorId, boolean updateAssessor, long actorId, LearningContextData context) 
+    				throws DbConnectionException;
 	
-	StudentAssignData assignStudentsToInstructorAutomatically(long credId, List<TargetCredential1> targetCreds,
-    		long instructorToExcludeId, boolean updateAssessor) throws DbConnectionException;
+	Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, 
+			List<TargetCredential1> targetCreds, long formerInstructorId, long actorId, LearningContextData context) 
+					throws DbConnectionException;
 	
 	List<InstructorData> getCredentialInstructorsWithLowestNumberOfStudents(long credentialId, long instructorToExcludeId) 
 			throws DbConnectionException;
@@ -41,22 +68,68 @@ public interface CredentialInstructorManager {
 	List<CredentialData> getCredentialIdsAndAssignDateForInstructor(long userId) 
 			throws DbConnectionException;
 	
-	void unassignStudentFromInstructor(long userId, long credId) throws DbConnectionException;
+	void unassignStudentFromInstructor(long userId, long credId, long actorId, LearningContextData context) 
+			throws DbConnectionException, EventException;
 	
-	StudentAssignData reassignStudentsAutomatically(long instructorId, long credId) 
-			throws DbConnectionException;
+	Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, long actorId, LearningContextData context) 
+    		throws DbConnectionException;
 	
-	StudentAssignData removeInstructorFromCredential(long instructorId, long credId, 
-			boolean reassignAutomatically) throws DbConnectionException;
+	Result<Void> reassignStudentsAutomatically(long instructorId, long credId, long actorId,
+			LearningContextData context) throws DbConnectionException;
 	
-	CredentialInstructor addInstructorToCredential(long credId, long userId, int maxNumberOfStudents) 
-			throws DbConnectionException;
+	/**
+	 * Remove instructor from credential and based on {@code reassignAutomatically} parameter, sets all their students
+	 * as unassigned or automatically assigns students to instructors. With automatic assign, there is a possibility to
+	 * have unassigned students if maximum capacity is reached for all instructors
+	 *
+	 * @param instructorId
+	 * @param credId
+	 * @param reassignAutomatically
+	 * @param actorId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	void removeInstructorFromCredential(long instructorId, long credId, 
+			boolean reassignAutomatically, long actorId, LearningContextData context) 
+					throws DbConnectionException, EventException;
 	
-	void updateInstructorAndStudentsAssigned(long credId, InstructorData id, List<Long> studentsToAssign, 
-			List<Long> studentsToUnassign) throws DbConnectionException;
+	/**
+	 * Remove instructor from credential and based on {@code reassignAutomatically} parameter, sets all their students
+	 * as unassigned or automatically assigns students to instructors. With automatic assign, there is a possibility to
+	 * have unassigned students if maximum capacity is reached for all instructors. This method also returns events that
+	 * should be generated.
+	 * 
+	 * @param instructorId
+	 * @param credId
+	 * @param reassignAutomatically
+	 * @param actorId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> removeInstructorFromCredentialAndGetEvents(long instructorId, long credId, 
+			boolean reassignAutomatically, long actorId, LearningContextData context) throws DbConnectionException;
 	
-	void updateStudentsAssignedToInstructor(long instructorId, long credId, 
-			List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException;
+	Result<CredentialInstructor> addInstructorToCredentialAndGetEvents(long credId, long userId, 
+			int maxNumberOfStudents, long actorId, LearningContextData context) throws DbConnectionException;
+	
+	void addInstructorToCredential(long credId, long userId, 
+			int maxNumberOfStudents, long actorId, LearningContextData context) throws DbConnectionException, 
+				EventException;
+	
+	void updateInstructorAndStudentsAssigned(long credId, InstructorData id, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException, EventException;
+	
+	Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException;
+	
+	Result<Void> updateStudentsAssignedToInstructor(long instructorId, long credId, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException;
 	
 	List<InstructorData> getCredentialInstructors(long credentialId, 
 			boolean returnNumberOfCurrentlyAssignedStudents, int limit, boolean trackChanges) 
