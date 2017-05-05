@@ -45,19 +45,19 @@
 	       		
 	       	</li>
 	       	<li role="presentation">
-	       		<h:link outcome="/manage/competence-visibility">
+	       		<h:link outcome="/manage/competence-visibility" rendered="#{not empty competenceEditBean.id}">
 	       			<f:param name="id" value="#{param['id']}"/>
 	       			Visibility
 	       		</h:link>
 	       	</li>
 	       	<li role="presentation">
-	       		<h:link outcome="/manage/competence-students">
+	       		<h:link outcome="/manage/competence-students" rendered="#{not empty competenceEditBean.id}">
 	       			<f:param name="id" value="#{param['id']}"/>
 	       			Students
 	       		</h:link>
 	       	</li>
 	       	<li role="presentation">
-	       		<h:link outcome="/manage/competence-privacy">
+	       		<h:link outcome="/manage/competence-privacy" rendered="#{not empty competenceEditBean.id}">
 	       			<f:param name="id" value="#{param['id']}"/>
 	       			Privacy
 	       		</h:link>
