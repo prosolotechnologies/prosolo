@@ -11,19 +11,20 @@ import org.prosolo.common.domainmodel.feeds.FeedsDigest;
  * @version 0.5
  *
  */
+@Deprecated
 @Entity
 public class CourseRSSFeedsDigest extends FeedsDigest {
 	
 	private static final long serialVersionUID = 5843846830079939252L;
 	
-	private Course course;
+	///private Course course;
 
-	@OneToOne
-	public Course getCourse() {
-		return course;
-	}
-
-	public void setCourse(Course course) {
-		this.course = course;
-	}
+//	@OneToOne
+//	public Course getCourse() {
+//		return course;
+//	}
+//
+//	public void setCourse(Course course) {
+//		this.course = course;
+//	}
 }

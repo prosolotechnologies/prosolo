@@ -2,7 +2,7 @@ package org.prosolo.bigdata.scala.statistics
 
 import org.prosolo.bigdata.clustering.QuartileName
 
-import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
+import scala.collection.mutable.ArrayBuffer
 object FeatureQuartiles{
   def matchQuartileValueToQuartileName(value:Double):String={
     if(value==1){

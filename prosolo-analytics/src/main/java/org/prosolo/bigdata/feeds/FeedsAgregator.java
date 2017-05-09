@@ -1,10 +1,7 @@
 package org.prosolo.bigdata.feeds;
 
+import java.time.LocalDateTime;
 import java.util.Date;
-
-import org.hibernate.Session;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Zoran Jeremic 2013-08-17
@@ -35,7 +32,12 @@ public interface FeedsAgregator {
 	void aggregatePersonalBlogOfUser(Long userid);
 
 	void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date);
+	
+	void generateCredentialTwitterHashtagsDigest(Long credId, LocalDateTime dateCreated, 
+			LocalDateTime from, LocalDateTime to);
 
 	void sendEmailWithFeeds(Long userid, Date date);
+	
+	void sendEmailWithFeeds(long userId, LocalDateTime ldt, boolean sendWeekly);
 
 }

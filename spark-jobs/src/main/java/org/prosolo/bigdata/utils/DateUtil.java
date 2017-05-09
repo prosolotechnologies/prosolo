@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.MutableDateTime;
@@ -35,6 +36,9 @@ public class DateUtil {
 
 	public static long getDaysSinceEpoch(Date date) {
 		return days(new MutableDateTime(date, DateTimeZone.UTC));
+	}
+	public static long getDaysSinceEpoch(DateTime dateTime) {
+		return getDaysSinceEpoch(dateTime.toDate());
 	}
 
 	public static long getDaysSinceEpoch(long timestamp) {

@@ -1,24 +1,20 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
-import java.math.RoundingMode
 import java.util
-import java.util.Date
 
 import be.ac.ulg.montefiore.run.jahmm.learn.BaumWelchLearner
-import com.datastax.driver.core.Row
+import be.ac.ulg.montefiore.run.jahmm.{Hmm, ObservationDiscrete, OpdfDiscreteFactory}
 import org.prosolo.bigdata.clustering.QuartileName
-import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
-import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
+import org.prosolo.bigdata.dal.cassandra.impl.{ProfilesDAO}
+import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.utils.DateUtil
 import play.api.libs.json.Json
 
-
 import scala.collection.mutable.{HashMap, Map}
-
-//import org.prosolo.bigdata.scala.statistics.QuartileName
+import org.joda.time.DateTime
 import java.util.List
 
-import be.ac.ulg.montefiore.run.jahmm._
-import org.prosolo.bigdata.utils.DateUtil
+import com.datastax.driver.core.Row
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -29,70 +25,72 @@ import scala.collection.JavaConverters._
 /**
   * Zoran 05/12/15
   */
-class HmmClustering {
- // val dbManager = new UserObservationsDBManagerImpl()
+class HmmClustering (val dbName:String) extends Serializable {
 
-  //val dateFormat: SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-  //val startDate: Date = dateFormat.parse("10/20/2014")
- // val endDate: Date = dateFormat.parse("10/22/2014")
   val nStates=4
   val learntHmmModels:Map[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]=new HashMap[ClusterName.Value,Hmm[ObservationDiscrete[QuartileName]]]()
-    //testHmmModel()
+  val sc=SparkContextLoader.getSC
+  val sparkConf=SparkContextLoader.sparkConf
+  val profilesDAO=new ProfilesDAO(dbName)
 
-  def performHmmClusteringForPeriod(startDate: Date, endDate: Date, courseId: Long) = {
+
+  def performHmmClusteringForPeriod(days:IndexedSeq[DateTime], courseId: Long):Unit = {
     initializeHmmModels(courseId)
-    processCourseTestSequencesForPeriod(startDate, endDate, courseId)
+    processCourseTestSequencesForPeriod(days, courseId)
   }
 
+  /**
+    * For each course we are training HMM model which will be used later to find clusters
+    * @param courseId
+    */
   def initializeHmmModels(courseId:Long)={
     ClusterName.values.foreach{clusterName=>
       val initFactory:OpdfDiscreteFactory[QuartileName]  = new OpdfDiscreteFactory[QuartileName](classOf[QuartileName])
       val sequences:List[List[ObservationDiscrete[QuartileName]]]=getClusterCourseSequences(clusterName, courseId)
+      println("InitializeHMM model for:"+courseId)
       val initHmm:Hmm[ObservationDiscrete[QuartileName]]=new Hmm[ObservationDiscrete[QuartileName]](nStates,initFactory)
       val mBwl:BaumWelchLearner=new BaumWelchLearner
     if(sequences.size>0){
+      println("Learning for:"+courseId)
       val learntHmm:Hmm[ObservationDiscrete[QuartileName]]=mBwl.learn(initHmm, sequences)
       learntHmmModels.put(clusterName,learntHmm)
     }
-
+      println("INITIALIZED MODEL FOR:"+courseId)
     }
-
   }
+
   def getClusterCourseSequences(clusterName:ClusterName.Value, courseId:Long):List[List[ObservationDiscrete[QuartileName]]]={
-    val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseAndProfile(courseId, clusterName.toString)
-    val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-    results.toList.foreach{
+    println("GET CLUSTER COURSE SEQUENCES:"+courseId+" clusterName:"+clusterName.toString+" dbName:"+dbName)
+    val results:List[Row]=profilesDAO.findUserQuartileFeaturesByProfile(courseId,clusterName)
+      val seq:List[List[ObservationDiscrete[QuartileName]]]= results.map{
       row=>
         val sequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
-        sequences.add(sequence)
-    }
-    sequences
+         sequence
+    }.toList
+    seq
   }
-  def processCourseTestSequencesForPeriod(startDate: Date, endDate: Date, courseId: Long)={
-    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
-    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
-    val clusteringDBManager=new ClusteringDAOImpl
 
-    println("PROCESSING COURSE:"+courseId)
+  /**
+    * We are finding best cluster for each students by matching learnt models with their observed sequences
+    * @param days
+    * @param courseId
+    */
+  def processCourseTestSequencesForPeriod(days:IndexedSeq[DateTime], courseId: Long)={
+    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(days.last)
+    println("PROCESSING COURSE:"+courseId+" date:"+endDateSinceEpoch)
     val sequences:List[List[ObservationDiscrete[QuartileName]]]=new util.ArrayList[List[ObservationDiscrete[QuartileName]]]()
-  //  ClusterName.values.foreach(clusterName=>
-  //  {
-      val  results:util.List[Row]=UserObservationsDBManagerImpl.getInstance().findAllUserQuartileFeaturesForCourseDate(courseId, endDateSinceEpoch)
-      println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+" end date:"+endDateSinceEpoch+" size:"+results.size())
-      results.toList.foreach{
+    val results=profilesDAO.findUserQuartileFeaturesByDate(courseId, endDateSinceEpoch)
+
+      println("FOUND TEST SEQUENCES:"+courseId+" cluster:"+" end date:"+endDateSinceEpoch+" size:"+results.size)
+      val bestClusters=results.map{
         row=>
+          val userid=row._2;
+          println("ROW TEST SEQUENCE:"+row._1+" user:"+userid)
+          val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row._1.split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
 
-
-          val testSequence: java.util.List[ObservationDiscrete[QuartileName]] =row.getString("sequence").split(",").map(_.trim).map{s=>QuartileName.valueOf(s)}.map{qn=>qn.observation()}.toList
-          println("TEST-Sequence:"+ testSequence.toString)
-          val userid=row.getLong("userid");
           println("*****************************************")
           println("CHECKING ROW WITH TEST SEQUENCE:"+testSequence.toString)
-       /*    val learntHmm= learntHmmModels.get(clusterName).get
-          val probability:Double=learntHmm.probability(testSequence);
-          val lnProbability:Double=learntHmm.lnProbability(testSequence);
-          println("user "+userid+" has probability for cluster:"+clusterName.toString+" p:"+probability+" lnP:"+lnProbability)
-*/
+
           var bestCluster=None:Option[ClusterName.Value]
           var bestClusterProbability:Double=0.0
 
@@ -102,6 +100,7 @@ class HmmClustering {
 
              val probability:Double=learntHmm.probability(testSequence);
              val probability2:Double=BigDecimal(probability).setScale(3,BigDecimal.RoundingMode.HALF_UP).toDouble
+             println("PROBABILITY:"+probability+" prob2:"+probability2+" best cluster prob:"+bestClusterProbability)
             if(bestClusterProbability < probability){
                bestCluster=Some(clusterName)
                bestClusterProbability=probability
@@ -119,17 +118,19 @@ class HmmClustering {
 
               val clusterTemplate:ClusterTemplate=FeaturesToProfileMatcher.clusterProfiles.get(cluster).get
               println("BEST CLUSTER IDENTIFIED for course:"+courseId+" user:"+userid+" IS:"+cluster+" cluster full name:"+clusterTemplate.clusterFullName)
-              clusteringDBManager.updateUserCourseProfile(courseId,userid, bestCluster.get.toString, clusterTemplate.clusterFullName)
+              println("THIS IS DISABLED TEMPORARY. WE ARE NOT UPDATING HIBERNATE DB HERE")
+             // clusteringDBManager.updateUserCourseProfile(courseId,userid, bestCluster.get.toString, clusterTemplate.clusterFullName)
               val tSeq=testSequence.zipWithIndex.map{case(sv,i)=>
                 val jsonObject=Json.obj("featurename"->clusterTemplate.getFeatureName(i),"value"->clusterTemplate.getFeatureValue(i),"quartile"->sv.toString)
                 Json.stringify(jsonObject)}.toList.asJava
               println("T--SEQ:"+tSeq)
-              UserObservationsDBManagerImpl.getInstance().updateUserCurrentProfile(courseId,userid,bestCluster.get.toString,clusterTemplate.clusterFullName,tSeq)
+              profilesDAO.updateStudentProfileInCourse(bestCluster.get.toString,clusterTemplate.clusterFullName,tSeq, courseId, userid)
+              (courseId,userid,bestCluster.get.toString,clusterTemplate.clusterFullName,tSeq)
             }
             case None=>println("NO BEST CLUSTER FOUND")
+              (courseId,userid,"NO_CLUSTER","NO_CLUSTER","")
           }
       }
-   // })
     println("FINISHED PROCESSING COURSE:"+courseId)
   }
 
