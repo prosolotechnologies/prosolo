@@ -2943,4 +2943,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential access rights for user: " + userId);
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateTargetCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE TargetCredential1 cred SET " +
+				     		"cred.createdBy = :newCreatorId " +
+				     		"WHERE cred.createdBy = :oldCreatorId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE Credential1 cred SET " +
+							"cred.createdBy = :newCreatorId " +
+							"WHERE cred.createdBy = :oldCreatorId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
+		}
+	}
 }

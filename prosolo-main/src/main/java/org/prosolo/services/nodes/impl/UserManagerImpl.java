@@ -5,11 +5,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -18,9 +25,14 @@ import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.web.administration.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +44,17 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	
 	private static Logger logger = Logger.getLogger(UserManager.class);
 	
+	@Inject
+	private Competence1Manager competence1Manager;
+	@Inject
+	private Activity1Manager activity1Manager;
+	@Inject
+	private CredentialManager credentialManager;
+	
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
+	@Autowired private UserEntityESService userEntityESService;
 	 
 	@Override
 	@Transactional (readOnly = true)
@@ -211,8 +231,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error while updating user password");
 		}
 		return newPassEncrypted;
-	}
-	
+	}	
 	@Override
 	@Transactional (readOnly = false)
 	public User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException {
@@ -350,5 +369,28 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user password");
 		}
+	}
+
+	@Override
+	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException {
+			User user;
+			try {
+				user = loadResource(User.class, oldCreatorId);
+				user.setDeleted(true);
+				saveEntity(user);
+				assignNewOwner(newCreatorId, oldCreatorId);
+				userEntityESService.deleteNodeFromES(user);
+			} catch (ResourceCouldNotBeLoadedException e) {
+				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
+			}
+	}
+	
+	private void assignNewOwner(long newCreatorId, long oldCreatorId){
+		credentialManager.updateTargetCredentialCreator(newCreatorId, oldCreatorId);
+		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
+		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);
+		competence1Manager.updateTargetCompetenceCreator(newCreatorId, oldCreatorId);
+		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
+		activity1Manager.updateTargetActivityCreator(newCreatorId, oldCreatorId);
 	}
 }
