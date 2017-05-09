@@ -28,7 +28,7 @@ public class TablesNames {
     public static final String PROFILE_USER_CURRENT_PROFILE_INCOURSE="profile_usercurrentprofileincourse";
 
     public static final String CURRENT_TIMESTAMPS="currenttimestamps";
-    public static final String STUDENT_ASSIGN_EVENT = "student_assign_events";
+    //public static final String STUDENT_ASSIGN_EVENT = "student_assign_events";
     public static final String USER_COURSES="usercourses";
 
     public static final String TARGET_COMPETENCE_ACTIVITIES="targetcompetenceactivities";
@@ -48,4 +48,5 @@ public class TablesNames {
     public static final String TWITTER_HASHTAG_WEEKLY_AVERAGE = "twitter_hashtagweeklyaverage";
     public static final String TWITTER_HASHTAG_USERS_COUNT = "twitter_hashtaguserscount";
     public static final String TWITTER_DISABLED_HASHTAGS = "twitter_disabledhashtags";
+    public static final String STUDENT_ASSIGN_EVENTS ="student_assign_events";
 }

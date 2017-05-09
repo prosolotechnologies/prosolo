@@ -1,12 +1,10 @@
 package org.prosolo.bigdata.dal.cassandra.impl
 
 import com.datastax.driver.core.Row
-
-import scala.collection.mutable
-import com.datastax.spark.connector.types.TypeConverter
 import org.prosolo.bigdata.scala.clustering.userprofiling.ClusterName
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 /**
   * Created by zoran on 04/03/17.
   */

@@ -75,21 +75,24 @@ public class UserDAOImpl extends GenericDAOImpl implements UserDAO {
 	@Override
 	public List<String> getUserNames(List<Long> userIds) {
 		List<String> result = new ArrayList<>();
-		try {
-			String query = "SELECT user.name, user.lastname FROM User user WHERE user.id in (:users)";
-			
-			List<Object[]> users = session.createQuery(query)
-					 .setParameterList("users", userIds)
-					 .list();
-			if(users != null) {
-				for(Object[] row : users) {
-					result.add(name(row[0], row[1]));
+
+		if(!userIds.isEmpty()) {
+			try {
+				String query = "SELECT user.name, user.lastname FROM User user WHERE user.id in (:users)";
+
+				List<Object[]> users = session.createQuery(query)
+						.setParameterList("users", userIds)
+						.list();
+				if (users != null) {
+					for (Object[] row : users) {
+						result.add(name(row[0], row[1]));
+					}
 				}
+
+			} catch (Exception e) {
+				logger.error("Cannot read users data.", e);
+				e.printStackTrace();
 			}
-			
-		} catch (Exception e) {
-			logger.error("Cannot read users data.", e);
-			e.printStackTrace();
 		}
 		return result;
 	}
