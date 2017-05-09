@@ -13,6 +13,7 @@
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="role" required="true" />
+		<composite:attribute name="toUpdate" default=""/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -97,12 +98,12 @@
 								<p:remoteCommand name="execSearchUsers"
 									process="newAssessorName"
 									action="#{cc.attrs.bean.searchCredentialPeers()}"
-									update=":credential:formMain:askForAssessmentModal:usersListPanel" />
+									update="usersListPanel" />
 
 								<p:commandLink styleClass="btn btn-green-stroke btn-sm"
 									value="Choose random"
 									action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
-									update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage" />
+									update="selectAssessor randomUserErrorMessage" />
 
 								<h:panelGroup id="usersListPanel">
 									<h:panelGroup
@@ -114,7 +115,7 @@
 												<li><p:commandLink style="cursor: pointer;"
 														id="userlink-#{user.id}"
 														action="#{cc.attrs.bean.setAssessor(user)}"
-														update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage">
+														update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:randomUserErrorMessage">
 														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 															fullName="#{user.fullName}" />
 														<h3>#{user.fullName}</h3>
@@ -161,7 +162,7 @@
 
 					<div class="modal-footer alignLeft">
 						<p:commandLink process="messageContentTextarea"
-							update=":credential:formMain"
+							update="#{cc.attrs.toUpdate}"
 							action="#{cc.attrs.bean.submitAssessment()}"
 							styleClass="btn btn-green"
 							oncomplete="hideAssesmentDialog('askAssessment')">
@@ -176,7 +177,7 @@
 		</div>
 		<p:remoteCommand name="resetAskForAssessmentModal"
 			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
-			update=":credential:formMain:askForAssessmentModal:selectAssessor :credential:formMain:askForAssessmentModal:randomUserErrorMessage :credential:formMain:askForAssessmentModal:messageContentTextarea" />
+			update="selectAssessor randomUserErrorMessage messageContentTextarea" />
 
 		<script>
 			$('#askAssessment').on('shown.bs.modal', function() {
