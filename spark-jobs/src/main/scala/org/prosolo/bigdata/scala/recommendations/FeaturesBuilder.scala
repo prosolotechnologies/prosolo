@@ -30,11 +30,14 @@ object FeaturesBuilder {
     Array.concat(credentialPipelineStages)
   }
   def buildAndTransformPipelineModel(trainingData:DataFrame):DataFrame={
+    println("TRAINING DATA")
     trainingData.show(10)
     val pipelineStagesForFeatures=buildPipeLineForFeaturePreparation()
     val pipeline=new Pipeline().setStages(pipelineStagesForFeatures)
     val pipelineModel=pipeline.fit(trainingData)
-    val resultsDF=pipelineModel.transform(trainingData)
+    val resultsDF:DataFrame=pipelineModel.transform(trainingData)
+    println("BUILD AND TRANSFORM PIPELINE MODEL")
+println(resultsDF.select("credential_index", "credential_onehotindex"))
     println(resultsDF.select("*"))
     resultsDF.show(40)
     resultsDF

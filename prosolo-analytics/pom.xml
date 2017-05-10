@@ -234,22 +234,15 @@
 					<artifactId>xbean-asm5-shaded</artifactId>
 					<groupId>org.apache.xbean</groupId>
 				</exclusion>
-				<!--exclusion>
-					<groupId>io.netty</groupId>
-					<artifactId>netty</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>io.netty</groupId>
-					<artifactId>netty-all</artifactId>
-				</exclusion-->
+
 			</exclusions>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-streaming_2.11</artifactId>
 			<version>${spark.version}</version>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.11</artifactId>
 			<version>${spark.version}</version>
@@ -258,7 +251,7 @@
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-mllib_2.11</artifactId>
 			<version>${spark.version}</version>
-		</dependency>
+		</dependency-->
 
 		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.11 -->
 
@@ -428,7 +421,7 @@
 
 
 		<!--JSON dependencies-->
-		<dependency>
+		<!--dependency>
 			<groupId>org.json4s</groupId>
 			<artifactId>json4s-native_2.11</artifactId>
 			<version>3.3.0</version>
@@ -437,7 +430,7 @@
 			<groupId>org.json4s</groupId>
 			<artifactId>json4s-jackson_2.11</artifactId>
 			<version>3.3.0</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.typesafe.play</groupId>
 			<artifactId>play-json_2.11</artifactId>
