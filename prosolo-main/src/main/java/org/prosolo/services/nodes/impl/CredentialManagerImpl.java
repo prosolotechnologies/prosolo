@@ -446,7 +446,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, 
@@ -480,7 +479,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, false);
+			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, true);
 
 			if (res != null) {
 				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(), 

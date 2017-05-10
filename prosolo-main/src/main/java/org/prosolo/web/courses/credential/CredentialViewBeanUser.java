@@ -1,5 +1,6 @@
 package org.prosolo.web.courses.credential;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -23,6 +25,7 @@ import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -65,6 +68,7 @@ public class CredentialViewBeanUser implements Serializable {
 	@Autowired
 	private EventFactory eventFactory;
 	@Inject private UserTextSearch userTextSearch;
+	@Inject private Competence1Manager compManager;
 	
 
 	private String id;
@@ -135,6 +139,25 @@ public class CredentialViewBeanUser implements Serializable {
 	/*
 	 * ACTIONS
 	 */
+	
+	public void enrollInCompetence(CompetenceData1 comp) {
+		try {
+			LearningContextData context = PageUtil.extractLearningContextData();
+			
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), context);
+			
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+		}
+	}
 
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		//TODO this must be implemented in a different way because if user is enrolled in a credential, it doesn't mean he is enrolled in competence
