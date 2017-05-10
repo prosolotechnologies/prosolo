@@ -474,7 +474,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					.setLong("groupId", groupId)
 					.list();
 			return compGroups == null ? new ArrayList<>() : compGroups;
-    	} catch(Exception e) {
+    	} catch (Exception e) {
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while retrieving competence groups");
@@ -739,14 +739,34 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 							null, context, null));
 		}
 	}
-
-	private Result<Void> saveUserToDefaultCredentialGroup(long userId, long credId, UserGroupPrivilege privilege, long actorId,
-			LearningContextData context) {
-		Result<CredentialUserGroup> credGroup = getOrCreateDefaultCredentialUserGroup(credId, privilege, actorId, context);
-		saveNewUserToCredentialGroup(userId, credGroup.getResult());
-		Result<Void> res = new Result<>();
-		res.setEvents(credGroup.getEvents());
-		return res;
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, 
+			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException {
+		try {
+			Result<CredentialUserGroup> credGroup = getOrCreateDefaultCredentialUserGroup(credId, privilege, actorId, 
+					context);
+			saveNewUserToCredentialGroup(userId, credGroup.getResult());
+			Result<Void> res = new Result<>();
+			res.setEvents(credGroup.getEvents());
+			boolean groupJustCreated = res.getEvents().stream()
+				.anyMatch(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE);
+			//if user group is not just created, generate add user to group event
+			if (!groupJustCreated) {
+				User object = new User();
+				object.setId(userId);
+				UserGroup target = new UserGroup();
+				target.setId(credGroup.getResult().getUserGroup().getId());
+				res.addEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, actorId, object, target, 
+						context, null));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding privilege to a user for credential");
+		}
 	}
 	
 	private void saveNewUserToCredentialGroup(long userId, CredentialUserGroup credGroup) {
@@ -758,6 +778,49 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		userGroupUser.setUser(u);
 		userGroupUser.setGroup(credGroup.getUserGroup());
 		saveEntity(userGroupUser);
+	}
+	
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
+			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException {
+		try {
+			String query = "SELECT ugu FROM CredentialUserGroup cug " +
+					       "INNER JOIN cug.userGroup ug " +
+					       "INNER JOIN ug.users ugu " +
+					       		"WITH ugu.user.id = :userId " +
+					       "WHERE cug.credential.id = :credId " +
+					       "AND cug.privilege = :priv " +
+					       "AND ug.defaultGroup = :isDefault";
+			UserGroupUser ugu = (UserGroupUser) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setLong("credId", credId)
+					.setString("priv", privilege.name())
+					.setBoolean("isDefault", true)
+					.uniqueResult();
+			
+			return removeUserFromGroupAndGetEvents(ugu, actorId, context);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while removing user privilege from credential");
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	private Result<Void> removeUserFromGroupAndGetEvents(UserGroupUser userGroupUser, long actorId, 
+			LearningContextData context) {
+		Result<Void> res = new Result<>();
+		
+		User object = new User();
+		object.setId(userGroupUser.getUser().getId());
+		UserGroup target = new UserGroup();
+		target.setId(userGroupUser.getGroup().getId());
+		res.addEvent(eventFactory.generateEventData(
+				EventType.REMOVE_USER_FROM_GROUP, actorId, object, target, context, null));
+		delete(userGroupUser);
+		return res;
 	}
 	
 	@Override
@@ -783,24 +846,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		e.printStackTrace();
     		logger.error(e);
     		throw new DbConnectionException("Error while checking if user is in a default credential group");
-    	}
-    }
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-    public void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
-    		UserGroupPrivilege privilege) throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-			//this should be changed because we should check if user is in a group with specific privilege
-//			if(!isUserInADefaultCredentialGroup(userId, credId)) {
-//				saveUserToDefaultCredentialGroup(userId, credId, privilege,);
-//			}
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while adding user to a default credential group");
     	}
     }
 	
