@@ -1,32 +1,35 @@
 package org.prosolo.services.nodes.data.instructor;
 
+import org.prosolo.common.domainmodel.credential.CredentialInstructor;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+
 public class StudentInstructorPair {
 
-	private long targetCredId;
-	private InstructorData instructor;
+	private TargetCredential1 targetCred;
+	private CredentialInstructor instructor;
 	
 	public StudentInstructorPair() {
 		
 	}
 	
-	public StudentInstructorPair(long targetCredId, InstructorData instructor) {
-		this.targetCredId = targetCredId;
+	public StudentInstructorPair(TargetCredential1 targetCred, CredentialInstructor instructor) {
+		this.targetCred = targetCred;
 		this.instructor = instructor;
 	}
 
-	public long getTargetCredId() {
-		return targetCredId;
+	public TargetCredential1 getTargetCred() {
+		return targetCred;
 	}
 
-	public void setTargetCredId(long targetCredId) {
-		this.targetCredId = targetCredId;
+	public void setTargetCred(TargetCredential1 targetCred) {
+		this.targetCred = targetCred;
 	}
 
-	public InstructorData getInstructor() {
+	public CredentialInstructor getInstructor() {
 		return instructor;
 	}
 
-	public void setInstructor(InstructorData instructor) {
+	public void setInstructor(CredentialInstructor instructor) {
 		this.instructor = instructor;
 	}
 	

@@ -81,7 +81,7 @@ public class UserGroupESServiceImpl extends AbstractBaseEntityESServiceImpl impl
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", credId + "");
+			param.put("id", credId);
 			params.put("cred", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP, 
@@ -112,7 +112,7 @@ public class UserGroupESServiceImpl extends AbstractBaseEntityESServiceImpl impl
 		try {
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
-			param.put("id", compId + "");
+			param.put("id", compId);
 			params.put("comp", param);
 			
 			partialUpdateByScript(ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP, 

@@ -2,6 +2,7 @@ $(function () {
 	//attachListenersForUpdatingStatus();
 	
 	//setInitialValues();
+	initializeDeliveryDatePickers();
 });
 
 //var data = null;
@@ -44,31 +45,21 @@ function showOrHideMandatoryArrows() {
 	
 }
 
-function onStatusChange() {
-	var status = getStatus();
-	if(status === "UNPUBLISH") {
-		$('#noteDraft').show();
-		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview Draft');
-	} else {
-		$('#noteDraft').hide();
-		$('#' + containerId + '\\:formMain\\:credSidebar\\:linkPreview').text('Preview');
-	}
-	if(isScheduledUpdate()) {
-		$("[id$=datetimepicker4]").show();
-	} else {
-		$("[id$=datetimepicker4]").val("");
-		$("[id$=datetimepicker4]").hide();
+function initializeDeliveryDatePickers() {
+	$(".datePickerSelector").datetimepicker({
+    	minDate : new Date(),
+    	useCurrent: false
+    });
+}
+
+function disableInputAfterSpecifiedTime(inputClass, time) {
+	if(time > 0) {
+		setTimeout(function() {
+			$("." + inputClass).prop('disabled', true); 
+		}, time);
 	}
 }
 
-function getStatus() {
-	return $('#' + containerId + '\\:formMain\\:credSidebar\\:selectStatus').val();
-}
-
-function isScheduledUpdate() {
-	var status = getStatus();
-	return status === "SCHEDULED_PUBLISH" || status === "SCHEDULED_UNPUBLISH";
-}
 
 //function getFieldValue(label) {
 //	switch(label) {
