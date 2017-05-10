@@ -1,39 +1,15 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialInstructor;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
@@ -51,28 +27,10 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.CredentialUserAccessSpecification;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
@@ -82,9 +40,8 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -118,8 +75,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
 	//self inject for better control of transaction bondaries
-	@Resource(name = "org.prosolo.services.nodes.CredentialManager")
-	private CredentialManager credManager;
+	@Inject private CredentialManager credManager;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -280,57 +236,55 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getCredentialDataWithProgressIfExists(long credentialId, long userId) 
 					throws DbConnectionException {
-		//TODO cred-redesign-07
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
-//						   "FROM Credential1 cred " + 
-//						   "INNER JOIN cred.createdBy creator " +
-//						   "LEFT JOIN cred.targetCredentials targetCred " + 
-//						   "WITH targetCred.user.id = :user " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", credentialId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				User creator = (User) res[1];
-//				Integer paramProgress = (Integer) res[2];
-//				Long paramBookmarkId = (Long) res[3];
-//				Long nextCompId = (Long) res[4];
-//				Long nextActId = (Long) res[5];
-//				if(paramProgress != null) {
-//					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
-//							null, false, paramProgress.intValue(), nextCompId.longValue(),
-//							nextActId.longValue());
-//				} else {
-//					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
-//				}
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-		return null;
+		CredentialData credData = null;
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId " +
+						   "FROM Credential1 cred " +
+						   "INNER JOIN cred.createdBy creator " +
+						   "LEFT JOIN cred.targetCredentials targetCred " + 
+						   "WITH targetCred.user.id = :user " +
+						   "LEFT JOIN cred.bookmarks bookmark " +
+						   "WITH bookmark.user.id = :user " +
+						   "WHERE cred.id = :credId " +
+						   "AND cred.type = :type";
+
+			//only delivery is considered because user can only enroll delivery
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("user", user.getId())
+					.setLong("credId", credentialId)
+					.setString("type", CredentialType.Delivery.name())
+					.uniqueResult();
+
+			if (res != null) {
+				Credential1 cred = (Credential1) res[0];
+				User creator = (User) res[1];
+				Integer paramProgress = (Integer) res[2];
+				Long paramBookmarkId = (Long) res[3];
+				Long nextCompId = (Long) res[4];
+				if(paramProgress != null) {
+					credData = credentialFactory.getCredentialDataWithProgress(creator, cred, null, 
+							null, false, paramProgress.intValue(), nextCompId.longValue());
+				} else {
+					credData = credentialFactory.getCredentialData(creator, cred, null, null, false);
+				}
+				if(paramBookmarkId != null) {
+					credData.setBookmarkedByCurrentUser(true);
+				}
+				
+				return credData;
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
 	}
 	
 //	@Override
@@ -389,26 +343,42 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
 					throws DbConnectionException {
+		return getBasicCredentialData(credentialId, userId, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+					throws DbConnectionException {
 		CredentialData credData = null;
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
-			String query = "SELECT cred, creator, bookmark.id " +
+			StringBuilder query =  new StringBuilder(
+						   "SELECT cred, creator, bookmark.id " +
 						   "FROM Credential1 cred " + 
 						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.bookmarks bookmark " +
 						   "WITH bookmark.user.id = :user " +
-						   "WHERE cred.id = :credId";
+						   "WHERE cred.id = :credId ");
+			
+			if (type != null) {
+				query.append("AND cred.type = :type");
+			}
 
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
 					.setLong("user", user.getId())
-					.setLong("credId", credentialId)
-					.uniqueResult();
+					.setLong("credId", credentialId);
+			
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+			
+			Object[] res = (Object[]) q.uniqueResult();
 
 			if (res != null) {
 				Credential1 cred = (Credential1) res[0];
@@ -510,7 +480,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
+			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, false);
 
 			if (res != null) {
 				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(), 
@@ -534,20 +504,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException {
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
 
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT targetCred " +
 				"FROM TargetCredential1 targetCred " +
 				"INNER JOIN fetch targetCred.credential cred ");
-		
 		if (loadCreator) {
 			queryBuilder.append("INNER JOIN fetch cred.createdBy user ");
 		}
 		if (loadTags) {
 			queryBuilder.append("LEFT JOIN fetch cred.tags tags " +
 					   		    "LEFT JOIN fetch cred.hashtags hashtags ");
+		}
+		if (loadInstructor) {
+			queryBuilder.append("LEFT JOIN fetch targetCred.instructor inst " +
+								"INNER JOIN fetch inst.user ");
 		}
 		queryBuilder.append("WHERE cred.id = :credId " +
 				   			"AND targetCred.user = :student");
@@ -1139,11 +1112,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			actor.setId(userId);
 			Map<String, String> params = new HashMap<>();
 			//params.put("instructorId", instructorId + "");
+			params.put("instructorId", "0");
 			String dateString = null;
 			Date date = targetCred.getDateCreated();
 			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateString = df.format(date);
+				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
 			}
 			params.put("dateEnrolled", dateString);
 			
@@ -1983,17 +1956,36 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public String getCredentialTitle(long id) throws DbConnectionException {
-			StringBuilder queryBuilder = new StringBuilder(
-				   "SELECT cred.title " +
-				   "FROM Credential1 cred " +
-				   "WHERE cred.id = :credId");
-			
-			Query q = persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("credId", id);
-			
-			String title = (String) q.uniqueResult();
-			return title;
+		return getCredentialTitle(id, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public String getCredentialTitle(long id, CredentialType type) throws DbConnectionException {
+			try {
+				StringBuilder queryBuilder = new StringBuilder(
+					   "SELECT cred.title " +
+					   "FROM Credential1 cred " +
+					   "WHERE cred.id = :credId ");
+				
+				if (type != null) {
+					queryBuilder.append("AND cred.type = :type");
+				}
+				
+				Query q = persistence.currentManager()
+					.createQuery(queryBuilder.toString())
+					.setLong("credId", id);
+				
+				if (type != null) {
+					q.setString("type", type.name());
+				}
+				
+				return (String) q.uniqueResult();
+			} catch (Exception e) {
+				logger.error(e);
+				e.printStackTrace();
+				throw new DbConnectionException("Error while retrieving credential title");
+			}
 	}
 	
 	@Deprecated
@@ -2343,34 +2335,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	public List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException {
 		try {
 			if(userIds == null || userIds.isEmpty()) {
 				return null;
 			}
 			String query = 
-					"SELECT cred.id " +
+					"SELECT cred " +
 					"FROM TargetCredential1 cred " +
 					"WHERE cred.credential.id = :credId " +
 					"AND cred.user.id IN (:userIds)";
 			
 			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager().createQuery(query)
+			List<TargetCredential1> res = persistence.currentManager().createQuery(query)
 					.setLong("credId", credId)
 					.setParameterList("userIds", userIds)
 					.list();
-			if(res == null) {
-				return new ArrayList<>();
-			} 
+		
 			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user credential ids");
+			throw new DbConnectionException("Error while loading user credentials");
 		}
 	}
 	
@@ -2600,7 +2589,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
@@ -2650,7 +2638,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId) 
@@ -2672,10 +2659,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				long assigned = (long) res[1];
 				CredentialMembersSearchFilter unassignedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Unassigned, all - assigned);
+				CredentialMembersSearchFilter assignedFilter = new CredentialMembersSearchFilter(
+						CredentialMembersSearchFilterValue.Assigned, assigned);
 				long completed = (long) res[2];
 				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilterValue.Completed, completed);
-				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, completedFilter};
+				return new CredentialMembersSearchFilter[] {allFilter, unassignedFilter, assignedFilter, completedFilter};
 			}
 			
 			return null;
@@ -3149,7 +3138,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
@@ -3210,6 +3198,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getDeliveries(credId, true);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
+			long userId) throws DbConnectionException {
+		List<CredentialData> credentials = getDeliveries(credId, false);
+		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
+				.addPrivilege(UserGroupPrivilege.Edit);
+		ResourceAccessData access = getResourceAccessData(credId, userId, req);
+		return RestrictedAccessResult.of(credentials, access);
+	}
+	
 	@Transactional(readOnly = true)
 	private List<CredentialData> getDeliveries(long credId, boolean onlyActive) 
 			throws DbConnectionException {
@@ -3248,6 +3247,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
 	}
+	
+	
 	
 	@Override
 	@Transactional(readOnly = false)

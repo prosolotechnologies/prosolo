@@ -24,11 +24,10 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilterUser;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
@@ -63,10 +62,9 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	}
 	
 	@Override
-	public TextSearchResponse1<CredentialData> searchCredentials(
+	public TextSearchResponse1<CredentialData> searchCredentialsForUser(
 			String searchTerm, int page, int limit, long userId, 
-			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
-			boolean includeEnrolledCredentials, boolean includeCredentialsWithViewPrivilege) {
+			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
 		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
 		try {
 			int start = 0;
@@ -95,34 +93,6 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				case BOOKMARKS:
 					bQueryBuilder.filter(termQuery("bookmarkedBy.id", userId));
 					break;
-				case FROM_CREATOR:
-					bQueryBuilder.filter(termQuery("creatorId", userId));
-					break;
-				case BY_OTHER_STUDENTS:
-					bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
-					break;
-				case UNIVERSITY:
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.UNIVERSITY_CREATED.toString().toLowerCase()));
-					break;
-				case BY_STUDENTS:
-					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					/*
-					 * Because lowercased strings are always stored in index. Alternative
-					 * is to use match query that would analyze term passed.
-					 */
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString().toLowerCase()));
-					break;
-				case YOUR_CREDENTIALS:
-					bQueryBuilder.filter(termQuery("instructors.id", userId));
-					break;
 				case ENROLLED:
 					bQueryBuilder.filter(termQuery("students.id", userId));
 					break;
@@ -130,36 +100,8 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					break;
 			}
 			
-			BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-			
-			if(includeCredentialsWithViewPrivilege) {
-				//credential is published and: visible to all users or user has View privilege
-				BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
-				publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
-				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
-				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
-				visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
-				publishedAndVisibleFilter.filter(visibleFilter);
-				
-				boolFilter.should(publishedAndVisibleFilter);
-			}
-			
-			if(includeEnrolledCredentials) {
-				//user is enrolled in a credential (currently learning or completed credential)
-				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
-			}
-			
-			//user is owner of a credential
-			boolFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
-			//user has Edit privilege for credential
-			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
-			bQueryBuilder.filter(boolFilter);
-//			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
-//					boolFilter);
-			
-			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
+			bQueryBuilder.filter(configureAndGetSearchFilter(
+					CredentialSearchConfig.forDelivery(true, true, false, false), userId));
 			
 			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
@@ -190,18 +132,8 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						 */
 						Long id = Long.parseLong(hit.getSource().get("id").toString());
 						try {
-							CredentialData cd = null;
-							/*
-							 * we should include user progress in this credential only
-							 * if includeEnrolledCredentials is true
-							 */
-							if(includeEnrolledCredentials) {
-								cd = credentialManager
-										.getCredentialDataWithProgressIfExists(id, userId);
-							} else {
-								cd = credentialManager
-										.getBasicCredentialData(id, userId);
-							}
+							CredentialData cd = credentialManager
+									.getCredentialDataWithProgressIfExists(id, userId);
 							
 							if(cd != null) {
 								response.addFoundNode(cd);
@@ -311,13 +243,13 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			if(config.shouldIncludeResourcesWithViewPrivilege()) {
 				/*
 				 * users with learn privilege (or when credential is visible to all) can see credential delivery
-				 * if delivery started and not ended.
+				 * if delivery is scheduled (delivery start is set) and not ended.
 				 */
 				Date now = new Date();
 				BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
 				publishedAndVisibleFilter.filter(QueryBuilders.existsQuery("deliveryStart"));
-				publishedAndVisibleFilter.filter(QueryBuilders.rangeQuery("deliveryStart")
-						.lte(org.prosolo.services.indexing.utils.ElasticsearchUtil.getDateStringRepresentation(now)));
+//				publishedAndVisibleFilter.filter(QueryBuilders.rangeQuery("deliveryStart")
+//						.lte(org.prosolo.services.indexing.utils.ElasticsearchUtil.getDateStringRepresentation(now)));
 				BoolQueryBuilder endDateFilter = QueryBuilders.boolQuery();
 				endDateFilter.should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery("deliveryEnd")));
 				endDateFilter.should(QueryBuilders.rangeQuery("deliveryEnd")

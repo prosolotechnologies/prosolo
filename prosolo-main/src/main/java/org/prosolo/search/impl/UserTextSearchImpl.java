@@ -327,10 +327,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchCredentialMembers (
+	public TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchCredentialMembers (
 			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> response = 
+				new TextSearchFilteredResponse<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -347,18 +348,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				
 				bQueryBuilder.must(qb);
 			}
-			
-			//bQueryBuilder.minimumNumberShouldMatch(1);
-			
-			//using filter instead
-//			BoolQueryBuilder nestedBQBuilder = QueryBuilders.boolQuery();
-//			nestedBQBuilder.must(termQuery("credentials.id", credId));
-//			if(instructorId != -1) {
-//				nestedBQBuilder.must(termQuery("credentials.instructorId", instructorId));
-//			}
-//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-//	        "credentials", nestedBQBuilder).innerHit(new QueryInnerHitBuilder());
-//			bQueryBuilder.must(nestedQB);
 			
 			BoolQueryBuilder nestedFB = QueryBuilders.boolQuery();
 			nestedFB.must(QueryBuilders.termQuery("credentials.id", credId));
@@ -513,36 +502,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							unassignedNo = it.next().getDocCount();
 						}
 						
-						CredentialMembersSearchFilter[] filters = new CredentialMembersSearchFilter[3];
 						long allStudentsNumber = filtered.getDocCount();
-						filters[0] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 
-								allStudentsNumber);
-								//nestedAgg.getDocCount());
-						filters[1] = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.Unassigned, 
-								unassignedNo);
-						filters[2] = new CredentialMembersSearchFilter(
-								CredentialMembersSearchFilterValue.Completed, completed.getDocCount());
 						
-						CredentialMembersSearchFilter selected = null;
-						switch(filter) {
-							case All:
-								selected = filters[0];
-								break;
-							case Unassigned:
-								selected = filters[1];
-								break;
-							case Completed:
-								selected = filters[2];
-								break;
-							default:
-								selected = filters[0];
-								break;
-						}
-						Map<String, Object> additionalInfo = new HashMap<>();
-						additionalInfo.put("filters", filters);
-						additionalInfo.put("selectedFilter", selected);
-						response.setAdditionalInfo(additionalInfo);
-						
+						response.putFilter(CredentialMembersSearchFilterValue.All, allStudentsNumber);
+						response.putFilter(CredentialMembersSearchFilterValue.Unassigned, unassignedNo);
+						response.putFilter(CredentialMembersSearchFilterValue.Assigned, allStudentsNumber - unassignedNo);
+						response.putFilter(CredentialMembersSearchFilterValue.Completed, completed.getDocCount());
+
 						return response;
 					}
 				}

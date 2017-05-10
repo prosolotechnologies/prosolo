@@ -116,22 +116,6 @@ public interface UserGroupManager extends AbstractManager {
 	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
 	
 	/**
-	 * Adds user to a default credential user group according to the privilege specified by
-	 * {@code privilege} parameter.
-	 * 
-	 * If user is already a member of a DEFAULT credential group with ANY privilege, he is not
-	 * added again.
-	 * If there is no default credential user group, it is created.
-	 * 
-	 * @param userId
-	 * @param credId
-	 * @param privilege
-	 * @throws DbConnectionException
-	 */
-	void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
-    		UserGroupPrivilege privilege) throws DbConnectionException;
-	
-	/**
 	 * This method propagates privilege change for all inherited user groups in all credential competencies
 	 * and returns event data for all events that should be generated
 	 * 
@@ -220,5 +204,11 @@ public interface UserGroupManager extends AbstractManager {
 	 */
 	List<Long> getIdsOfUserGroupsAddedToCredential(long credId, boolean returnDefaultGroups, 
     		UserGroupPrivilege privilege, Session session) throws DbConnectionException;
+	
+	Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, UserGroupPrivilege privilege, 
+			long actorId, LearningContextData context) throws DbConnectionException;
+	
+	Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
+			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException;
 
 }
