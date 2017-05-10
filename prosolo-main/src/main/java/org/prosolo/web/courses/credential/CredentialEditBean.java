@@ -55,7 +55,7 @@ public class CredentialEditBean implements Serializable {
 	private static final long serialVersionUID = 3430513767875001534L;
 
 	private static Logger logger = Logger.getLogger(CredentialEditBean.class);
-	
+
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
@@ -63,10 +63,10 @@ public class CredentialEditBean implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private CredentialVisibilityBean visibilityBean;
-	
+
 	private String id;
 	private long decodedId;
-	
+
 	private CredentialData credentialData;
 	private ResourceAccessData access;
 	private List<CompetenceData1> compsToRemove;
@@ -75,12 +75,12 @@ public class CredentialEditBean implements Serializable {
 	private List<Long> compsToExcludeFromSearch;
 	private int currentNumberOfComps;
 	private int competenceForRemovalIndex;
-	
+
 	private String context;
-	
+
 	public void init() {
 		initializeValues();
-		
+
 		if (id == null) {
 			credentialData = new CredentialData(false);
 			//if it is new resource, it can only be original credential, delivery can never be created from this page
@@ -100,7 +100,7 @@ public class CredentialEditBean implements Serializable {
 			}
 		}
 	}
-	
+
 	public boolean hasDeliveryStarted() {
 		return credentialData.getDeliveryStart() != null && 
 				getNumberOfMillisecondsBetweenNowAndDeliveryStart() <= 0;

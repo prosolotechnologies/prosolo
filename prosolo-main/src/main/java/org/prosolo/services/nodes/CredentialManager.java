@@ -85,6 +85,10 @@ public interface CredentialManager extends AbstractManager {
 	
 	/**
 	 * Returns credential data with specified id.
+	 *
+	 * If {@code req.getAccessMode()} equals {@code AccessMode.User} competencies that are returned if competencies
+	 * should be loaded are user competencies with progress if exists. Otherwise credential competencies without user
+	 * progress are returned
 	 * 
 	 * @param credentialId
 	 * @param loadCreatorData
@@ -99,6 +103,9 @@ public interface CredentialManager extends AbstractManager {
 	RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
 			boolean loadCompetences, long userId, ResourceAccessRequirements req) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	
+	RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
+			long userId) throws ResourceNotFoundException, DbConnectionException;
 	
 	RestrictedAccessResult<CredentialData> getCredentialForEdit(long credId, long userId) 
 			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;

@@ -479,16 +479,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, 
+			long userId) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		CredentialData credData = null;
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn)
-						.addPrivilege(UserGroupPrivilege.Edit);
+						.addPrivilege(UserGroupPrivilege.Learn);
 				return getCredentialData(credentialId, true, true, userId, req);
 			}
 			
@@ -505,34 +504,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId, 
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			//TODO cred-redesign-07
-//			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
-//
-//			if (res != null) {
-//				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
-//						res, res.getTags(), res.getHashtags(), true);
-//				
-//				//retrieve privilege to be able to tell if user can edit credential
-//				UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
-//				credData.setCanEdit(priv == UserGroupPrivilege.Edit);
-//				//target credential can always be accessed
-//				credData.setCanAccess(true);
-//				
-//				if(credData != null && loadCompetences) {
-//					List<CompetenceData1> targetCompData = compManager
-//							.getTargetCompetencesData(res.getId(), false);
-//					credData.setCompetences(targetCompData);
-//				}
-//				return credData;
-//			}
-//			return null;
+			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
+
+			if (res != null) {
+				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(), 
+						res, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
+				
+				if (credData != null && loadCompetences) {
+					List<CompetenceData1> targetCompData = compManager
+							.getUserCompetencesForCredential(credentialId, userId, true);
+					credData.setCompetences(targetCompData);
+				}
+				return credData;
+			}
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -541,33 +531,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
 			boolean loadCreator, boolean loadTags) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
-//		Credential1 cred = (Credential1) persistence.currentManager().load(
-//				Credential1.class, credentialId);
+
 		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetCred " +
-				"FROM TargetCredential1 targetCred ");
-		if(loadCreator) {
-			queryBuilder.append("INNER JOIN fetch targetCred.createdBy user ");
+				"SELECT targetCred " +
+				"FROM TargetCredential1 targetCred " +
+				"INNER JOIN fetch targetCred.credential cred ");
+		
+		if (loadCreator) {
+			queryBuilder.append("INNER JOIN fetch cred.createdBy user ");
 		}
-		if(loadTags) {
-			queryBuilder.append("LEFT JOIN fetch targetCred.tags tags " +
-					   		    "LEFT JOIN fetch targetCred.hashtags hashtags ");
+		if (loadTags) {
+			queryBuilder.append("LEFT JOIN fetch cred.tags tags " +
+					   		    "LEFT JOIN fetch cred.hashtags hashtags ");
 		}
-		queryBuilder.append("WHERE targetCred.credential.id = :credId " +
+		queryBuilder.append("WHERE cred.id = :credId " +
 				   			"AND targetCred.user = :student");
-//			String query = "SELECT targetCred " +
-//						   "FROM TargetCredential1 targetCred " + 
-//						   "INNER JOIN fetch targetCred.createdBy user " + 
-//						   "LEFT JOIN fetch targetCred.tags tags " +
-//						   "LEFT JOIN fetch targetCred.hashtags hashtags " +
-//						   "WHERE targetCred.credential = :cred " +
-//						   "AND targetCred.user = :student";
 
 		TargetCredential1 res = (TargetCredential1) persistence.currentManager()
 				.createQuery(queryBuilder.toString())
@@ -577,7 +560,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		return res;
 	}
-
+	
+	@Override
+	@Transactional(readOnly = true)
+	public RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
+			long userId) throws ResourceNotFoundException, DbConnectionException {
+		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
+				.addPrivilege(UserGroupPrivilege.Edit)
+				.addPrivilege(UserGroupPrivilege.Instruct);
+		return getCredentialDataForView(credentialId, userId, req);
+	}
+	
+	@Transactional(readOnly = true)
+	private RestrictedAccessResult<CredentialData> getCredentialDataForView(long credentialId, 
+			long userId, ResourceAccessRequirements req) throws ResourceNotFoundException, DbConnectionException {
+		return getCredentialData(credentialId, true, true, userId, req);
+	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
@@ -598,20 +597,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cred.getHashtags(), true);
 			
 			if(loadCompetences) {
-				/*
-				 * always include not published competences
-				 */
-				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, true, userId);
-				credData.setCompetences(compsData);
+				//if user sent a request, we should always return enrolled competencies if he is enrolled
+				if (req.getAccessMode() == AccessMode.USER) {
+					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, false));
+				} else {
+					/*
+					 * always include not published competences
+					 */
+					credData.setCompetences(compManager.getCredentialCompetencesData(
+							credentialId, false, false, false, true, userId));
+				}
 			}
 			
 			ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
 			return RestrictedAccessResult.of(credData, access);
-		} catch (ResourceNotFoundException rfe) {
-			throw rfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
+		} catch (ResourceNotFoundException|IllegalArgumentException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2577,7 +2578,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public long getNumberOfUsersLearningCredential(long credId) 
@@ -2838,16 +2838,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return ev;
 //	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {
 
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT DISTINCT tag, COUNT(tag) " +
-				"FROM TargetCompetence1 targetComp " + 
-				"LEFT JOIN targetComp.tags tag " +
-				"WHERE targetComp.targetCredential.id = :credId "+
+				"FROM CredentialCompetence1 cc " +
+				"INNER JOIN cc.competence c " +
+				"INNER JOIN c.tags tag " +
+				"WHERE cc.credential.id = :credId "+
 				"GROUP BY tag");
 		
 		@SuppressWarnings("unchecked")
@@ -2866,7 +2866,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return tags;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public int getNumberOfTags(long credentialId) throws DbConnectionException {
