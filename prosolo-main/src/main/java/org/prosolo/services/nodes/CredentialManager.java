@@ -163,11 +163,14 @@ public interface CredentialManager extends AbstractManager {
 	
 	Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException, IllegalDataStateException;
 	
-	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
-			throws DbConnectionException;
+	void enrollInCredential(long credentialId, long userId, LearningContextData context) 
+			throws DbConnectionException, EventException;
 	
 	void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
 			throws DbConnectionException;
+	
+	Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId, 
+			long instructorThatForcedEnrollId, LearningContextData context) throws DbConnectionException;
 	
 	/**
 	 * Adds competence to credential, updates credential duration. If credential is published, draft version 
@@ -281,7 +284,7 @@ public interface CredentialManager extends AbstractManager {
 	 * Method for getting all completed credentials (credentials that has progress == 100)
 	 * 
 	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
 	 * @return
 	 * @throws DbConnectionException
 	 */
@@ -301,7 +304,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Updated hidden_from_profile_field
 	 * @param id
-	 * @param duration
+	 * @param hiddenFromProfile
 	 * @throws DbConnectionException
 	 */
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
@@ -409,7 +412,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return list of simple data types from TargetCompetence
 	 * @throws DbConnectionException
 	 */
@@ -418,7 +421,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns titles of a tag and number of tag occurrences for given credential
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return array of two elements where first element is tag title and the second element is competence title.
 	 * @throws DbConnectionException
 	 */
@@ -427,7 +430,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns list of ActivityData for given credentials.
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return list of simple data types from TargetActivity(title, id, duration and competenceId)
 	 * @throws DbConnectionException
 	 */

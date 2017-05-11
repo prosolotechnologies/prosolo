@@ -11,7 +11,7 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void saveUserNode(User user, Session session);
 	
-	void addCredentialToUserIndex(long credId, long userId, long instructorId, String dateEnrolled);
+	void addCredentialToUserIndex(long credId, long userId, long instructorId, int progress, String dateEnrolled);
 	
 	void assignInstructorToUserInCredential(long userId, long credId, long instructorId);
 	

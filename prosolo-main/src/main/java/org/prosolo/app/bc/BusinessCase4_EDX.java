@@ -696,16 +696,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
-		
-		/* 
-		 * Enrolling students to credentials
-		 */
-		CredentialData cred1DataKevinHall = ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(),  new LearningContextData());
-		
+
+		try {
+			/*
+			 * Enrolling students to credentials
+			 */
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(), new LearningContextData());
+
+		} catch (EventException e) {
+			logger.error(e);
+		}
 		/* 
 		 * Adding instructors
 		 */

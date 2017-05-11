@@ -22,6 +22,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -94,9 +95,7 @@ public class CredentialViewBeanUser implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				RestrictedAccessResult<CredentialData> res = credentialManager
-						.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
-				unpackResult(res);
+				retrieveUserCredentialData();
 				
 				/*
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
@@ -125,7 +124,13 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.notFound();
 		}
 	}
-	
+
+	private void retrieveUserCredentialData() {
+		RestrictedAccessResult<CredentialData> res = credentialManager
+				.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
+		unpackResult(res);
+	}
+
 	private void unpackResult(RestrictedAccessResult<CredentialData> res) {
 		credentialData = res.getResource();
 		access = res.getAccess();
@@ -179,13 +184,16 @@ public class CredentialViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
-			credentialData = cd;
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
+			//reload user credential data after enroll
+			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 	}
 

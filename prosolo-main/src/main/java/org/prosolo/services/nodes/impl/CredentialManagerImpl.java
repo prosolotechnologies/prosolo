@@ -25,11 +25,15 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.instructor.StudentAssignData;
+import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
@@ -519,7 +523,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 		if (loadInstructor) {
 			queryBuilder.append("LEFT JOIN fetch targetCred.instructor inst " +
-								"INNER JOIN fetch inst.user ");
+								"LEFT JOIN fetch inst.user ");
 		}
 		queryBuilder.append("WHERE cred.id = :credId " +
 				   			"AND targetCred.user = :student");
@@ -985,157 +989,79 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
+	//not transactional
 	@Override
-	@Transactional(readOnly = false)
-	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
-			throws DbConnectionException {
-		return enrollInCredential(credentialId, userId, 0, context, null).getResult();
+	public void enrollInCredential(long credentialId, long userId, LearningContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = credManager.enrollInCredentialAndGetEvents(credentialId, userId, 0, context);
+		for (EventData ev : res.getEvents()) {
+			/*
+			if student assigned to instructor event should be generated, don't invoke nodechangeobserver
+			because instructor will be assigned to student in ES index by enroll course event.
+			 */
+			//TODO observer refactor - these dependencies between different events and/or observers should be avoided
+			if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+				Class<? extends EventObserver>[] toExclude = new Class[] {NodeChangeObserver.class};
+				ev.setObserversToExclude(toExclude);
+			}
+			eventFactory.generateEvent(ev);
+		}
 	}
 	
-	@Deprecated
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
 	@Transactional(readOnly = false)
-	private Result<CredentialData> enrollInCredential(long credentialId, long userId, 
-			long instructorThatForcedEnrollId, LearningContextData context, Class[] observersToExclude) 
-			throws DbConnectionException {
+	public Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId, 
+			long instructorThatForcedEnrollId, LearningContextData context) throws DbConnectionException {
 		try {
-			//TODO cred-redesign-07
-//			Result<CredentialData> result = new Result<>();
-//			
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			
-//			Credential1 cred = getCredential(credentialId, false, 0);
-//			TargetCredential1 targetCred = createTargetCredential(cred, user);
-//			long instructorId = 0;
-//			String page = null;
-//			String lContext = null;
-//			String service = null;
-//			if(context != null) {
-//				page = context.getPage();
-//				lContext = context.getLearningContext();
-//				service = context.getService();
-//			}
-//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
-//					!cred.isManuallyAssignStudents()) {
-//				List<TargetCredential1> targetCredIds = new ArrayList<>();
-//				targetCredIds.add(targetCred);
-//				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
-//						credentialId, targetCredIds, 0, false);
-//				List<StudentInstructorPair> assigned = res.getAssigned();
-//				if(assigned.size() == 1) {
-//					StudentInstructorPair pair = assigned.get(0);
-//					//we need user id, not instructor id
-//					instructorId = pair.getInstructor().getUser().getId();
-//					
-//					User target = new User();
-//					target.setId(instructorId);
-//					User object = new User();
-//					object.setId(userId);
-//					Map<String, String> params = new HashMap<>();
-//					params.put("credId", credentialId + "");
-//					if(instructorThatForcedEnrollId > 0) {
-//						params.put("forcedEnroll", "true");
-//						params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-//					}
-//					result.addFiredEvent(eventFactory.generateEvent(
-//							EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-//							userId, object, target, 
-//							page, lContext, service, 
-//							observersToExclude, params));
-////					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-////							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
-//				}
-//	    	}
-//			
-//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
-//				//create default assessment for user
-//				assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
-//			}
-//			
-//			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
-//					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
-//			
-//			List<TargetCompetence1> comps = targetCred.getTargetCompetences();
-//			if(comps != null) {
-//				for(TargetCompetence1 tc : comps) {
-//					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
-//							null, true);
-//					cd.getCompetences().add(compData);
-//				}
-//			}
-//			
-//			/*
-//			 * Loaded user instance is not used because that would lead to select query
-//			 * when trying to get name of a user while capturing ENROLL_COURSE event.
-//			 */
-//			User actor = new User();
-//			actor.setId(userId);
-//			Map<String, String> params = new HashMap<>();
-//			params.put("instructorId", instructorId + "");
-//			String dateString = null;
-//			Date date = targetCred.getDateCreated();
-//			if(date != null) {
-//				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//				dateString = df.format(date);
-//			}
-//			params.put("dateEnrolled", dateString);
-//			if(instructorThatForcedEnrollId > 0) {
-//				params.put("forcedEnroll", "true");
-//				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-//			}
-//			result.addFiredEvent(eventFactory.generateEvent(
-//					EventType.ENROLL_COURSE, 
-//					actor.getId(), cred, null, 
-//					page, lContext, service, 
-//					observersToExclude, params));
-////			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-////					page, lContext, service, params);
-//			
-//			result.setResult(cd);
-//			return result;
-			
-			
-			Result<CredentialData> result = new Result<>();
+			Result<Void> result = new Result<>();
 			
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			
 			Credential1 cred = getCredential(credentialId, false, 0);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			
-			/*
-			 * Loaded user instance is not used because that would lead to select query
-			 * when trying to get name of a user while capturing ENROLL_COURSE event.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+			long instructorId = 0;
+			
+			if (!cred.isManuallyAssignStudents()) {
+				List<TargetCredential1> targetCredIds = new ArrayList<>();
+				targetCredIds.add(targetCred);
+				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
+						credentialId, targetCredIds, 0, false, userId, context);
+				result.addEvents(res.getEvents());
+				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
+				if (assigned.size() == 1) {
+					StudentInstructorPair pair = assigned.get(0);
+					//we need user id, not instructor id
+					instructorId = pair.getInstructor().getUser().getId();
+				}
+	    	}
+			
+			//TODO cred-redesign-07 implement when assessments are refactored
+			//create default assessment for user
+			//assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			
 			Map<String, String> params = new HashMap<>();
-			//params.put("instructorId", instructorId + "");
-			params.put("instructorId", "0");
+			params.put("instructorId", instructorId + "");
 			String dateString = null;
 			Date date = targetCred.getDateCreated();
-			if(date != null) {
+			if (date != null) {
 				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
 			}
 			params.put("dateEnrolled", dateString);
-			
-			String page = null;
-			String lContext = null;
-			String service = null;
-			if(context != null) {
-				page = context.getPage();
-				lContext = context.getLearningContext();
-				service = context.getService();
+			if (instructorThatForcedEnrollId > 0) {
+				params.put("forcedEnroll", "true");
+				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
 			}
-			result.addFiredEvent(eventFactory.generateEvent(
-					EventType.ENROLL_COURSE, 
-					actor.getId(), cred, null, 
-					page, lContext, service, 
-					observersToExclude, params));
-//			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-//					page, lContext, service, params);
+			params.put("progress", targetCred.getProgress() + "");
+			result.addEvent(eventFactory.generateEventData(
+					EventType.ENROLL_COURSE, userId, cred, null, context, params));
+
+			//generate completion event if progress is 100
+			if (targetCred.getProgress() == 100) {
+				result.addEvent(eventFactory.generateEventData(
+						EventType.Completion, userId, targetCred, null, context, null));
+			}
 			
-			result.setResult(null);
 			return result;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1143,75 +1069,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while enrolling in a credential");
 		}
 	}
-	
-	@Deprecated
+
+	//not transactional
 	@Override
-	@Transactional(readOnly = false)
-	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
+	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context)
 			throws DbConnectionException {
-		if(userIds != null) {
+		if (userIds != null) {
 			try {
-				for(long userId : userIds) {
-					enrollInCredential(credId, userId, instructorId, context, null);
+				List<EventData> events = new ArrayList<>();
+				for (long userId : userIds) {
+					events.addAll(credManager.enrollInCredentialAndGetEvents(
+							credId, userId, instructorId, context).getEvents());
 				}
-			} catch(Exception e) {
+				for (EventData ev : events) {
+					/*
+					if student assigned to instructor event should be generated, don't invoke nodechangeobserver
+					because instructor will be assigned to student in ES index by enroll course event.
+					 */
+					//TODO observer refactor - these dependencies between different events and/or observers should be avoided
+					if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+						Class<? extends EventObserver>[] toExclude = new Class[] {NodeChangeObserver.class};
+						ev.setObserversToExclude(toExclude);
+					}
+					eventFactory.generateEvent(ev);
+				}
+			} catch (Exception e) {
 				throw new DbConnectionException("Error while enrolling students in a credential");
 			}
 		}
 	}
 	
-	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
-		//TODO cred-redesign-07
-//		TargetCredential1 targetCred = new TargetCredential1();
-//		targetCred.setTitle(cred.getTitle());
-//		targetCred.setDescription(cred.getDescription());
-//		targetCred.setCredential(cred);
-//		targetCred.setUser(user);
-//		Date now = new Date();
-//		targetCred.setDateCreated(now);
-//		targetCred.setDateStarted(now);
-//		targetCred.setLastAction(now);
-//		targetCred.setCredentialType(cred.getType());
-//
-//		if(cred.getTags() != null) {
-//			Set<Tag> tags = new HashSet<>();
-//			for(Tag tag : cred.getTags()) {
-//				tags.add(tag);
-//			}
-//			targetCred.setTags(tags);
-//		}
-//		
-//		if(cred.getHashtags() != null) {
-//			Set<Tag> hashtags = new HashSet<>();
-//			for(Tag tag : cred.getHashtags()) {
-//				hashtags.add(tag);
-//			}
-//			targetCred.setHashtags(hashtags);
-//		}
-//		
-//		targetCred.setDuration(cred.getDuration());
-//		targetCred.setStudentsCanAddCompetences(cred.isStudentsCanAddCompetences());
-//		targetCred.setCompetenceOrderMandatory(cred.isCompetenceOrderMandatory());
-//		targetCred.setCreatedBy(cred.getCreatedBy());
-//		saveEntity(targetCred);
-//		
-//		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
-//				targetCred);
-//		targetCred.setTargetCompetences(targetComps);
-//		
-//		/*
-//		 * set first competence and first activity in first competence as next to learn
-//		 */
-//		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
-//		
-//		if (!targetComps.isEmpty() && !targetComps.get(0).getTargetActivities().isEmpty()) {
-//			targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
-//					.get(0).getActivity().getId());
-//		}
-//		return targetCred;
-		
 		TargetCredential1 targetCred = new TargetCredential1();
 		targetCred.setCredential(cred);
 		targetCred.setUser(user);
@@ -1219,28 +1108,58 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setDateCreated(now);
 		targetCred.setDateStarted(now);
 		targetCred.setLastAction(now);
-
-		saveEntity(targetCred);
+		targetCred.setProgress(calculateAndGetCredentialProgress(cred.getId(), user.getId()));
+		//if progress is 100, set completion date
+		if (targetCred.getProgress() == 100) {
+			targetCred.setDateFinished(now);
+		}
 		
 		/*
 		 * set first competence and first activity in first competence as next to learn
 		 */
-		targetCred.setNextCompetenceToLearnId(getIdOfFirstCompetenceInCredential(cred.getId()));
+		targetCred.setNextCompetenceToLearnId(getIdOfFirstCompetenceInCredential(cred.getId(), user.getId()));
+
+		saveEntity(targetCred);
 		
 		return targetCred;
 	}
 	
-	private long getIdOfFirstCompetenceInCredential(long credId) {
+	private long getIdOfFirstCompetenceInCredential(long credId, long userId) {
 		String query = "SELECT credComp.competence.id " +
-					   "FROM CredentialCompetence1 credComp " +
-					   "WHERE credComp.credential.id = :credId " +
-					   "AND credComp.order = :order";
-		Long res = (Long) persistence.currentManager()
-				.createQuery(query)
-				.setLong("credId", credId)
-				.setInteger("order", 1)
-				.uniqueResult();
-		return res != null ? res : 0;
+		       	       "FROM Credential1 cred " + 
+		       	       "INNER JOIN cred.competences credComp " +
+		       	       "INNER JOIN credComp.competence comp " +
+		       	       "LEFT JOIN comp.targetCompetences tComp " +
+		       				"WITH tComp.user.id = :userId " +
+		       		   "WHERE cred.id = :credId AND (tComp is NULL OR tComp.progress < 100) " +
+		       		   "ORDER BY credComp.order";
+	
+		Long nextId = (Long) persistence.currentManager()
+			.createQuery(query)
+			.setLong("credId", credId)
+			.setLong("userId", userId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return nextId != null ? nextId : 0;
+	}
+	
+	private int calculateAndGetCredentialProgress(long credId, long userId) {
+		String query = "SELECT floor(AVG(coalesce(tComp.progress, 0)))" +
+			       	   "FROM Credential1 cred " + 
+			       	   "INNER JOIN cred.competences credComp " +
+			       	   "INNER JOIN credComp.competence comp " +
+			       	   "LEFT JOIN comp.targetCompetences tComp " +
+			       			"WITH tComp.user.id = :userId " +
+			       	   "WHERE cred.id = :credId ";
+
+		Integer progress = (Integer) persistence.currentManager()
+			.createQuery(query)
+			.setLong("credId", credId)
+			.setLong("userId", userId)
+			.uniqueResult();
+		
+		return progress != null ? progress : 0;
 	}
 	
 	@Override

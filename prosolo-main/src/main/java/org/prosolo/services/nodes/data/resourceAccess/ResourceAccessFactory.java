@@ -128,11 +128,11 @@ public class ResourceAccessFactory {
 								spec.getDeliveryStart(), spec.getDeliveryEnd());
 				/*
 				 * resource can be accessed in read only mode when delivery is not pending or it is pending but delivery
-				 * is not scheduled yet (start date not set);
+				 * is scheduled (start date set);
 				 * when delivery is ended it should remain visible in read only mode to everyone (inlcuding users
 				 * without any privilege)
 				 */
-				allowedToRead = status != CredentialDeliveryStatus.PENDING || spec.getDeliveryStart() == null;
+				allowedToRead = status != CredentialDeliveryStatus.PENDING || spec.getDeliveryStart() != null;
 				//users can learn delivery only when it is active
 				allowedToLearn = status == CredentialDeliveryStatus.ACTIVE;
 				//users can always access resource with instruct privilege when it is delivery, no additional conditions are needed
