@@ -56,15 +56,17 @@
 			
 					$(function(){
 						var activityListSize = $('.activityItem').length - 1;
-
+						
+						
 						$("#btnSaveChanges").click(function(){
-							   if(activityListSize == 0 ){
-								   $('#activityNotFoundModal').modal('show');
-								   
-							   }else{
-								   saveChangesBtnClick(status);
-							   }
-							}); 
+							var status = getStatus();
+							if(activityListSize == 0 &amp;&amp; status == "PUBLISHED"){
+								$('#activityNotFoundModal').modal('show');
+								return false;
+							}else if(activityListSize != 0){
+								saveChangesBtnClick(status);
+							}
+						}); 
 		    		})
 				</script>
 				<br />
