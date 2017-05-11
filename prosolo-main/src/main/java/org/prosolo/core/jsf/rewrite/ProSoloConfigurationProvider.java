@@ -122,14 +122,18 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assId}").to("/manage/assessment-preview.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/rss").to("/manage/credential-rss.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/announcements").to("/manage/announcements.xhtml"))
+				.addRule(Join.path("/manage/credentials/{id}/deliveries").to("/manage/credential-deliveries.xhtml"))
 				
-				.addRule(Join.path("/manage/competences/{id}/edit").to("/manage/create-competence.xhtml"))
+				
 				.addRule(Join.path("/manage/credentials/{credId}/competences/new").to("/manage/create-competence.xhtml"))
-				.addRule(Join.path("/manage/competences/new").to("/manage/create-competence.xhtml"))
+				.addRule(Join.path("/manage/credentials/{credId}/{compId}").to("/manage/competence.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}/activities").to("/manage/competence-activities.xhtml"))
 				//.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence-overall.xhtml"))
+				.addRule(Join.path("/manage/competences/{id}/edit").to("/manage/create-competence.xhtml"))
+				.addRule(Join.path("/manage/competences/new").to("/manage/create-competence.xhtml"))
 				.addRule(Join.path("/manage/competences").to("/manage/competences.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/{compId}").to("/manage/competence.xhtml"))
+				.addRule(Join.path("/manage/competences/{id}/visibility").to("/manage/competence-visibility.xhtml"))
+				.addRule(Join.path("/manage/competences/{id}/privacy").to("/manage/competence-privacy.xhtml"))
 				.addRule(Join.path("/manage/competences/{compId}").to("/manage/competence.xhtml"))
 				.addRule(Join.path("/manage/competences/{id}/students").to("/manage/competence-students.xhtml"))
 				

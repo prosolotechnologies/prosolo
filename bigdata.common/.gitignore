@@ -4,3 +4,5 @@
 /.classpath
 /.project
 bigdata.common.iml
+/logs
+/src/main/resources/rebel.xml

@@ -2,20 +2,30 @@ package org.prosolo.services.nodes.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -24,7 +34,6 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
-import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +45,12 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 
 	private static Logger logger = Logger.getLogger(CredentialInstructorManagerImpl.class);
 	
-	@Inject
-	private CredentialManager credManager;
-	@Inject
-	private CredentialInstructorDataFactory credInstructorFactory;
-	@Inject
-	private AssessmentManager assessmentManager;
+	@Inject private CredentialManager credManager;
+	@Inject private CredentialInstructorDataFactory credInstructorFactory;
+	@Inject private AssessmentManager assessmentManager;
 	@Inject private UserGroupManager userGroupManager;
+	@Inject private EventFactory eventFactory;
+	@Inject private CredentialInstructorManager credInstructorManager;
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -82,37 +90,72 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
+	//not transactional
 	@Override
-	@Transactional(readOnly = false) 
-	public void assignStudentToInstructor(long studentId, long instructorId, long credId) 
-			throws DbConnectionException {
-		TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, false, false);
-		assignStudentToInstructor(instructorId, targetCred, true);
+	public void assignStudentToInstructor(long studentId, long instructorId, long credId, long formerInstructorUserId,
+			long actorId, LearningContextData context) throws DbConnectionException, EventException {
+		Result<Void> res = credInstructorManager.assignStudentToInstructorAndGetEvents(studentId, instructorId, credId, 
+				formerInstructorUserId, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
 	}
 	
 	@Override
 	@Transactional(readOnly = false) 
-	public void assignStudentToInstructor(long instructorId, long targetCredId) 
-			throws DbConnectionException {
-		assignStudentToInstructor(instructorId, targetCredId, true);
+	public Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
+			long formerInstructorUserId, long actorId, LearningContextData context) throws DbConnectionException {
+		try {
+			TargetCredential1 targetCred = credManager.getTargetCredential(credId, studentId, false, false, false);
+			return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, true, actorId, context);
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw e;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while assigning student to an instructor");
+		}
+	}
+	
+	//not transactional
+	@Override
+	public void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorId, 
+			long actorId, LearningContextData context) throws DbConnectionException, EventException {
+		Result<Void> res = credInstructorManager.assignStudentToInstructorAndGetEvents(
+				instructorId, targetCredId, formerInstructorId, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = false) 
+	public Result<Void> assignStudentToInstructorAndGetEvents(long instructorId, long targetCredId, long formerInstructorId, 
+			long actorId, LearningContextData context) throws DbConnectionException {
+		return assignStudentToInstructor(instructorId, targetCredId, formerInstructorId, true, actorId, context);
 	}
 	
 	@Transactional(readOnly = false) 
-	private void assignStudentToInstructor(long instructorId, long targetCredId, boolean updateAsessor) 
-			throws DbConnectionException {
+	private Result<Void> assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId, 
+			boolean updateAsessor, long actorId, LearningContextData context) throws DbConnectionException {
 		TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
 				TargetCredential1.class, targetCredId);
-		assignStudentToInstructor(instructorId, targetCred, updateAsessor);
+		return assignStudentToInstructor(instructorId, targetCred, formerInstructorUserId, updateAsessor,
+				actorId, context);
 	}
 	
 	@Transactional(readOnly = false) 
-	private void assignStudentToInstructor(long instructorId, TargetCredential1 targetCred,
-			boolean updateAssessor) throws DbConnectionException {
+	private Result<Void> assignStudentToInstructor(long instructorId, TargetCredential1 targetCred,
+			long formerInstructorUserId, boolean updateAssessor, long actorId, LearningContextData context) 
+					throws DbConnectionException {
 		try {
 			CredentialInstructor instructor = (CredentialInstructor) persistence
 					.currentManager().load(CredentialInstructor.class, instructorId);
 			
-			setInstructorForStudent(targetCred, instructor, updateAssessor);
+			return setInstructorForStudent(targetCred, instructor, formerInstructorUserId, updateAssessor, 
+					actorId, context);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -121,8 +164,9 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	}
 	
 	@Transactional(readOnly = false) 
-	private void setInstructorForStudent(TargetCredential1 targetCred, CredentialInstructor instructor,
-			boolean updateAssessor) {
+	private Result<Void> setInstructorForStudent(TargetCredential1 targetCred, CredentialInstructor instructor,
+			long formerInstructorUserId, boolean updateAssessor, long actorId, LearningContextData context) {
+		Result<Void> result = new Result<>();
 		if(targetCred != null) {
 			boolean assigned = instructor != null;
 			targetCred.setAssignedToInstructor(assigned);
@@ -134,7 +178,39 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				assessmentManager.updateDefaultAssessmentAssessor(targetCred.getId(), 
 						instructorUserId);
 			}
+			
+			/*
+			 * if student is assigned to instructor and id of former instructor passed is 0, then student
+			 * assigned to instructor event is generated, if id of former instructor is greater than 0,
+			 * student reassigned to instructor event is generated and if instructor is null and id of 
+			 * former instructor is greater than 0, student unassigned from instructor event is generated
+			 */ 
+			long targetInstructorUserId = 0;
+			EventType eventType = null;
+			Map<String, String> params = null;
+			if (instructor != null) {
+				targetInstructorUserId = instructor.getUser().getId();
+				params = new HashMap<>();
+				params.put("credId", targetCred.getCredential().getId() + "");
+				if (formerInstructorUserId > 0) {
+					eventType = EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR;
+					params.put("reassignedFromInstructorUserId", formerInstructorUserId + "");
+				} else {
+					eventType = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+				}
+			} else if (formerInstructorUserId > 0) {
+				eventType = EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR;
+				targetInstructorUserId = formerInstructorUserId;
+				params = new HashMap<>();
+				params.put("credId", targetCred.getCredential().getId() + "");
+			}
+			User target = new User();
+			target.setId(targetInstructorUserId);
+			User object = new User();
+			object.setId(targetCred.getUser().getId());
+			result.addEvent(eventFactory.generateEventData(eventType, actorId, object, target, context, params));
 		}	
+		return result;
 	}
 	
 	@Override
@@ -199,49 +275,52 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	
 	@Override
     @Transactional(readOnly = false)
-    public StudentAssignData assignStudentsToInstructorAutomatically(long credId, 
-		List<TargetCredential1> targetCreds, long instructorToExcludeId) throws DbConnectionException {
-        return assignStudentsToInstructorAutomatically(credId, targetCreds, instructorToExcludeId, true);
+    public Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, 
+		List<TargetCredential1> targetCreds, long formerInstructorId, long actorId, LearningContextData context) 
+				throws DbConnectionException {
+        return assignStudentsToInstructorAutomatically(credId, targetCreds, formerInstructorId, true, actorId, context);
     }
 	
 	@Override
     @Transactional(readOnly = false)
-    public StudentAssignData assignStudentsToInstructorAutomatically(long credId, List<TargetCredential1> targetCreds,
-    		long instructorToExcludeId, boolean updateAssessor) throws DbConnectionException {
+    public Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, 
+    		List<TargetCredential1> targetCreds, long formerInstructorId, boolean updateAssessor, 
+    		long actorId, LearningContextData context) throws DbConnectionException {
+		Result<StudentAssignData> result = new Result<>();
         List<InstructorData> instructors = getCredentialInstructorsWithLowestNumberOfStudents(credId, 
-        		instructorToExcludeId);
+        		formerInstructorId);
         StudentAssignData data = new StudentAssignData();
-        if(instructors != null && targetCreds != null) {
+        if (instructors != null && targetCreds != null) {
             List<TargetCredential1> targetCredsCopy = new ArrayList<>(targetCreds);
             Iterator<TargetCredential1> iterator = targetCredsCopy.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 TargetCredential1 tCred = iterator.next();
-                InstructorData instructorToAssign = getInstructorWithLowestNumberOfStudents(instructors, tCred.getUser().getId());
-                if(instructorToAssign != null) {
-	                assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(), updateAssessor);
+                InstructorData instructorToAssign = getInstructorWithLowestNumberOfStudents(instructors, 
+                		tCred.getUser().getId());
+                if (instructorToAssign != null) {
+	                result.addEvents(assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(), 
+	                		formerInstructorId, updateAssessor, actorId, context)
+	                			.getEvents());
 	                instructorToAssign.setNumberOfAssignedStudents(instructorToAssign
 	                		.getNumberOfAssignedStudents() + 1);
-	                if(instructorToAssign.isFull()) {
+	                if (instructorToAssign.isFull()) {
 	                	instructors.remove(instructorToAssign);
-	                	if(instructors.isEmpty()) {
+	                	if (instructors.isEmpty()) {
 		                	break;
 		                }
 	                }
 	                
-	                StudentInstructorPair pair = new StudentInstructorPair(tCred.getId(), instructorToAssign);
-	                data.addAssignedPair(pair);
 	                iterator.remove();
                 }
             }
-            if(!targetCredsCopy.isEmpty()) {
-            	List<Long> unassignedCreds = new ArrayList<>();
+            if (!targetCredsCopy.isEmpty()) {
             	for(TargetCredential1 tc : targetCredsCopy) {
-            		unassignedCreds.add(tc.getId());
+            		data.addUnassigned(tc);
             	}
-            	data.setUnassigned(unassignedCreds);
             }
         }
-        return data;
+        result.setResult(data);
+        return result;
     }
 	
 	/**
@@ -298,12 +377,25 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
     
+    //not transactional
+    @Override
+    public void unassignStudentFromInstructor(long userId, long credId, long actorId, LearningContextData context) 
+    		throws DbConnectionException, EventException {
+		Result<Void> res = credInstructorManager.unassignStudentFromInstructorAndGetEvents(
+				userId, credId, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+    }
+    
     @Override
     @Transactional(readOnly = false)
-    public void unassignStudentFromInstructor(long userId, long credId) throws DbConnectionException {
+    public Result<Void> unassignStudentFromInstructorAndGetEvents(long userId, long credId, long actorId, LearningContextData context) 
+    		throws DbConnectionException {
     	try {
-    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, false, false);
-    		setInstructorForStudent(targetCred, null, true);
+    		TargetCredential1 targetCred = credManager.getTargetCredential(credId, userId, false, false, true);
+    		return setInstructorForStudent(targetCred, null, targetCred.getInstructor().getUser().getId(), true, 
+    				actorId, context);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -312,63 +404,82 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     }
     
     @Transactional(readOnly = false)
-    private StudentAssignData assignStudentsAutomatically(long credId, List<TargetCredential1> targetCreds, 
-    		long instructorId) {
-		StudentAssignData result = assignStudentsToInstructorAutomatically(credId, 
-				targetCreds, instructorId);
-		List<Long> unassigned = result.getUnassigned();
+    private Result<Void> assignStudentsAutomatically(long credId, List<TargetCredential1> targetCreds, 
+    		long instructorId, long actorId, LearningContextData context) {
+    	Result<Void> res = new Result<>();
+		Result<StudentAssignData> result = assignStudentsToInstructorAutomatically(credId, 
+				targetCreds, instructorId, actorId, context);
+		res.addEvents(result.getEvents());
+		List<TargetCredential1> unassigned = result.getResult().getUnassigned();
 		if(!unassigned.isEmpty()) {
 //			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager().
 //					load(CredentialInstructor.class, instructorId);
-			updateStudentsAssigned(null, null, unassigned);
+			res.addEvents(updateStudentsAssigned(
+					null, null, unassigned, actorId, context)
+						.getEvents());
 		}
-		return result;
+		return res;
 	}
 	
 	@Override
 	@Transactional(readOnly = false)
-	public StudentAssignData reassignStudentsAutomatically(long instructorId, long credId) 
-			throws DbConnectionException {
+	public Result<Void> reassignStudentsAutomatically(long instructorId, long credId, long actorId,
+			LearningContextData context) throws DbConnectionException {
 		try {
 			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
-			return assignStudentsAutomatically(credId, targetCreds, instructorId);
+			return assignStudentsAutomatically(credId, targetCreds, instructorId, actorId, context);
 		} catch(Exception e) {
 			throw new DbConnectionException("Error while reassigning students");
 		}
 	}
 	
-	/**
-	  remove instructor from credential and based on {@code reassignAutomatically} parameter, sets all their students
-	  as unassigned or automatically assigns students to instructors. With automatic assign, there is a possibility to
-	  have unassigned students if maximum capacity is reached for all instructors
-	 * @param instructorId
-	 * @param credId
-	 * @param reassignAutomatically
-	 * @return
-	 * @throws DbConnectionException
-	 */
+	//not transactional
+	@Override
+	public void removeInstructorFromCredential(long instructorId, long credId, 
+			boolean reassignAutomatically, long actorId, LearningContextData context) 
+					throws DbConnectionException, EventException {
+		Result<Void> res = credInstructorManager.removeInstructorFromCredentialAndGetEvents(
+				instructorId, credId, reassignAutomatically, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+	
+	
 	@Override
 	@Transactional(readOnly = false)
-	public StudentAssignData removeInstructorFromCredential(long instructorId, long credId, 
-			boolean reassignAutomatically) throws DbConnectionException {
+	public Result<Void> removeInstructorFromCredentialAndGetEvents(long instructorId, long credId, 
+			boolean reassignAutomatically, long actorId, LearningContextData context) throws DbConnectionException {
 		try {
+			Result<Void> res = new Result<>();
 			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager().
 					load(CredentialInstructor.class, instructorId);
 			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
-			StudentAssignData result = null;
-			if(reassignAutomatically) {
-				result = assignStudentsAutomatically(credId, targetCreds, 
-						instructorId);
+			if (reassignAutomatically) {
+				res.addEvents(assignStudentsAutomatically(
+						credId, targetCreds, instructorId, actorId, context).getEvents());
 			} else {
 				List<Long> unassignedCreds = new ArrayList<>();
             	for(TargetCredential1 tc : targetCreds) {
             		unassignedCreds.add(tc.getId());
             	}
-				updateStudentsAssigned(null, null, unassignedCreds);
-				result = new StudentAssignData(null, unassignedCreds);
+				res.addEvents(updateStudentsAssigned(null, null, targetCreds, actorId, context)
+						.getEvents());
 			}
+			res.addEvents(userGroupManager.removeUserFromCredentialDefaultGroupAndGetEvents(
+					credId, instructor.getUser().getId(), UserGroupPrivilege.Instruct, actorId, context)
+						.getEvents());
+			
 			persistence.currentManager().delete(instructor);
-			return result;
+			
+			Credential1 cred = new Credential1();
+			cred.setId(credId);
+			User instr = new User();
+			instr.setId(instructor.getUser().getId());
+			res.addEvent(eventFactory.generateEventData(
+				EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, actorId, instr, cred, context, null));
+				
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -376,8 +487,10 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
-	private void updateStudentsAssigned(CredentialInstructor instructor, List<Long> targetCredIdsToAssign, 
-			List<Long> targetCredIdsForUnassign) throws DbConnectionException {
+	private Result<Void> updateStudentsAssigned(CredentialInstructor instructor, 
+			List<TargetCredential1> targetCredsToAssign, List<TargetCredential1> targetCredsToUnassign, 
+			long actorId, LearningContextData context) throws DbConnectionException {
+		Result<Void> result = new Result<>();
 		try {
 			String query = 
 					"UPDATE " +
@@ -387,7 +500,33 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				    "WHERE cred.id IN " +
 						"(:ids)";
 			
-			if(targetCredIdsToAssign != null && !targetCredIdsToAssign.isEmpty()) {
+			if (targetCredsToAssign != null && !targetCredsToAssign.isEmpty()) {
+				/*
+				 * go through all credentials and generate appropriate event
+				 */
+				EventType eventType = null;
+				Map<String, String> params = null;
+			    for (TargetCredential1 tc : targetCredsToAssign) {
+					if (instructor != null) {
+						params = new HashMap<>();
+						params.put("credId", tc.getCredential().getId() + "");
+						//if student already had instructor assigned, reassign event should be generated
+						if (tc.getInstructor() != null) {
+							eventType = EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR;
+							params.put("reassignedFromInstructorUserId", tc.getInstructor().getUser().getId() + "");
+						} else {
+							eventType = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+						}
+					} 
+					User target = new User();
+					target.setId(instructor.getUser().getId());
+					User object = new User();
+					object.setId(tc.getUser().getId());
+					result.addEvent(eventFactory.generateEventData(eventType, actorId, object, target, context, params));
+				}
+			    
+				List<Long> targetCredIdsToAssign = targetCredsToAssign.stream().map(tc -> tc.getId())
+						.collect(Collectors.toList());
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", instructor)
 								.setBoolean("assigned", true)
@@ -397,16 +536,29 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToAssign, 
 						instructor.getUser().getId());
 			}
-			if(targetCredIdsForUnassign != null && !targetCredIdsForUnassign.isEmpty()) {						
+			if (targetCredsToUnassign != null && !targetCredsToUnassign.isEmpty()) {	
+				for (TargetCredential1 tc : targetCredsToUnassign) {
+					Map<String, String> params = new HashMap<>();
+					params.put("credId", tc.getCredential().getId() + "");
+					User target = new User();
+					target.setId(tc.getInstructor().getUser().getId());
+					User object = new User();
+					object.setId(tc.getUser().getId());
+					result.addEvent(eventFactory.generateEventData(
+							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, actorId, object, target, context, params));
+				}
+				
+				List<Long> targetCredIdsToUnassign = targetCredsToUnassign.stream().map(tc -> tc.getId())
+						.collect(Collectors.toList());
 				persistence.currentManager().createQuery(query)
 								.setParameter("instructor", null)
 								.setBoolean("assigned", false)
-								.setParameterList("ids", targetCredIdsForUnassign)
+								.setParameterList("ids", targetCredIdsToUnassign)
 								.executeUpdate();
 				
-				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsForUnassign, 0);
+				assessmentManager.updateDefaultAssessmentsAssessor(targetCredIdsToUnassign, 0);
 			}
-				
+			return result;	
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -414,32 +566,58 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
-	@Deprecated
+	//not transactional
+	@Override
+	public void addInstructorToCredential(long credId, long userId, 
+			int maxNumberOfStudents, long actorId, LearningContextData context) throws DbConnectionException, 
+				EventException {
+		//self invocation to trigger spring interception and transaction start
+		for (EventData ev : credInstructorManager.addInstructorToCredentialAndGetEvents(
+				credId, userId, maxNumberOfStudents, actorId, context)
+					.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+	
 	@Override
 	@Transactional(readOnly = false)
-	public CredentialInstructor addInstructorToCredential(long credId, long userId, 
-			int maxNumberOfStudents) throws DbConnectionException {
+	public Result<CredentialInstructor> addInstructorToCredentialAndGetEvents(long credId, long userId, 
+			int maxNumberOfStudents, long actorId, LearningContextData context) throws DbConnectionException {
 		try {
-			//TODO cred-redesign-07
-//			Credential1 cred = (Credential1) persistence
-//					.currentManager().load(Credential1.class, credId);
-//			
-//			User user = (User) persistence
-//					.currentManager().load(User.class, userId);
-//			
-//			CredentialInstructor instructor = new CredentialInstructor();
-//			instructor.setUser(user);
-//			instructor.setCredential(cred);
-//			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
-//			instructor.setDateAssigned(new Date());
-//			
-//			saveEntity(instructor);
-//			
-//			//assign view privilege to newly added instructor
-//			userGroupManager.addUserToADefaultCredentialGroupIfNotAlreadyMember(userId, credId, 
-//					UserGroupPrivilege.Learn);
-//			return instructor;
-			return null;
+			Result<CredentialInstructor> res = new Result<>();
+			
+			Credential1 cred = (Credential1) persistence
+					.currentManager().load(Credential1.class, credId);
+			
+			User user = (User) persistence
+					.currentManager().load(User.class, userId);
+			
+			CredentialInstructor instructor = new CredentialInstructor();
+			instructor.setUser(user);
+			instructor.setCredential(cred);
+			instructor.setMaxNumberOfStudents(maxNumberOfStudents);
+			instructor.setDateAssigned(new Date());
+			
+			saveEntity(instructor);
+			
+			//assign instruct privilege for newly added instructor
+			res.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
+					userId, credId, UserGroupPrivilege.Instruct, actorId, context).getEvents());
+			
+			Credential1 credential = new Credential1();
+			credential.setId(credId);
+			User instr = new User();
+			instr.setId(userId);
+			Map<String, String> params = new HashMap<>();
+			String dateString = null;
+			if(instructor.getDateAssigned() != null) {
+				dateString = ElasticsearchUtil.getDateStringRepresentation(instructor.getDateAssigned());
+			}
+			params.put("dateAssigned", dateString);
+			res.addEvent(eventFactory.generateEventData(
+					EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, actorId, instr, credential, context, params));
+				
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -447,12 +625,25 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 	
+	//not transactional
+	@Override
+	public void updateInstructorAndStudentsAssigned(long credId, InstructorData id, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException, EventException {
+		Result<Void> res = credInstructorManager.updateInstructorAndStudentsAssignedAndGetEvents(
+				credId, id, studentsToAssign, studentsToUnassign, actorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateInstructorAndStudentsAssigned(long credId, InstructorData id, 
-			List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException {
+	public Result<Void> updateInstructorAndStudentsAssignedAndGetEvents(long credId, InstructorData id, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException {
 		try {
-			if(id.hasObjectChanged()) {
+			if (id.hasObjectChanged()) {
 				String query = "UPDATE CredentialInstructor instructor SET " +
 							   "instructor.maxNumberOfStudents = :maxNo " +
 							   "WHERE instructor.id = :instructorId";
@@ -464,8 +655,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					.executeUpdate();
 			}
 			
-			updateStudentsAssignedToInstructor(id.getInstructorId(), credId, studentsToAssign, 
-					studentsToUnassign);
+			return updateStudentsAssignedToInstructor(id.getInstructorId(), credId, studentsToAssign, 
+					studentsToUnassign, actorId, context);
 				
 		} catch(Exception e) {
 			logger.error(e);
@@ -476,22 +667,23 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void updateStudentsAssignedToInstructor(long instructorId, long credId, 
-			List<Long> studentsToAssign, List<Long> studentsToUnassign) throws DbConnectionException {
+	public Result<Void> updateStudentsAssignedToInstructor(long instructorId, long credId, 
+			List<Long> studentsToAssign, List<Long> studentsToUnassign, long actorId,
+			LearningContextData context) throws DbConnectionException {
 		try {
 			CredentialInstructor instructor = (CredentialInstructor) persistence.currentManager()
 					.load(CredentialInstructor.class, instructorId);
 			
-			List<Long> idsAssign = null;
-			if(studentsToAssign != null && !studentsToAssign.isEmpty()) {
-				idsAssign = credManager.getTargetCredentialIdsForUsers(studentsToAssign, credId);
+			List<TargetCredential1> studentCredsToAssign = null;
+			if (studentsToAssign != null && !studentsToAssign.isEmpty()) {
+				studentCredsToAssign = credManager.getTargetCredentialsForUsers(studentsToAssign, credId);
 			}
-			List<Long> idsUnAssign = null;
-			if(studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
-				idsUnAssign = credManager.getTargetCredentialIdsForUsers(studentsToUnassign, credId);
+			List<TargetCredential1> studentCredsToUnassign = null;
+			if (studentsToUnassign != null && !studentsToUnassign.isEmpty()) {		
+				studentCredsToUnassign = credManager.getTargetCredentialsForUsers(studentsToUnassign, credId);
 			}
 			
-			updateStudentsAssigned(instructor, idsAssign, idsUnAssign);
+			return updateStudentsAssigned(instructor, studentCredsToAssign, studentCredsToUnassign, actorId, context);
 				
 		} catch(Exception e) {
 			logger.error(e);

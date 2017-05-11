@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Announcement;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventFactory;
@@ -23,7 +24,9 @@ import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -57,6 +60,8 @@ public class AnnouncementBean implements Serializable, Paginable {
 	
 	//credential related data
 	private String credentialId;
+	private long decodedCredId;
+	
 	private List<AnnouncementData> credentialAnnouncements = new ArrayList<>();
 	private String credentialTitle;
 	private boolean credentialMandatoryFlow;
@@ -76,25 +81,35 @@ public class AnnouncementBean implements Serializable, Paginable {
 		
 		if (StringUtils.isNotBlank(credentialId)) {
 			try {
-				long credId = idEncoder.decodeId(credentialId);
-				access = credManager.getCredentialAccessRights(credId, 
-						loggedUser.getUserId(), UserGroupPrivilege.Learn);
-				if(!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/accessDenied.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+				decodedCredId = idEncoder.decodeId(credentialId);
+				
+				CredentialData basicCredentialData = credManager.getBasicCredentialData(
+						idEncoder.decodeId(credentialId), loggedUser.getUserId(), CredentialType.Delivery);
+				if (basicCredentialData == null) {
+					PageUtil.notFound();
 				} else {
-					credentialAnnouncements = announcementManager
-							.getAllAnnouncementsForCredential(credId, paginationData.getPage() - 1, paginationData.getLimit());
-					paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-							idEncoder.decodeId(credentialId)));
-					CredentialData basicCredentialData = credManager.getBasicCredentialData(idEncoder.decodeId(credentialId), loggedUser.getUserId());
 					credentialTitle = basicCredentialData.getTitle();
 					credentialMandatoryFlow = basicCredentialData.isMandatoryFlow();
 					credentialDurationString = basicCredentialData.getDurationString();
+					
+					//user needs instruct or edit privilege to be able to access this page
+					access = credManager.getResourceAccessData(decodedCredId, loggedUser.getUserId(),
+							ResourceAccessRequirements.of(AccessMode.MANAGER)
+													  .addPrivilege(UserGroupPrivilege.Instruct)
+													  .addPrivilege(UserGroupPrivilege.Edit));
+					if(!access.isCanAccess()) {
+						try {
+							FacesContext.getCurrentInstance().getExternalContext().dispatch(
+									"/accessDenied.xhtml");
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					} else {
+						credentialAnnouncements = announcementManager
+								.getAllAnnouncementsForCredential(decodedCredId, paginationData.getPage() - 1, paginationData.getLimit());
+						paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+								idEncoder.decodeId(credentialId)));
+					}
 				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Could not initialize list of announcements", e);
@@ -285,4 +300,7 @@ public class AnnouncementBean implements Serializable, Paginable {
 		this.eventFactory = eventFactory;
 	}
 
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
 }
