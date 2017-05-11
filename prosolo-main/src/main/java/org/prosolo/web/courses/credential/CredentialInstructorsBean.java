@@ -3,42 +3,30 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialInstructor;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
-import org.prosolo.services.nodes.data.instructor.StudentAssignData;
-import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -65,9 +53,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	@Inject private CredentialManager credManager;
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private NodeChangeObserver nodeChangeObserver;
 	@Inject private RoleManager roleManager;
 	@Inject private StudentAssignBean studentAssignBean;
 
@@ -106,17 +92,13 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId;
 			try {
-				String title = credManager.getCredentialTitle(decodedId);
+				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
 				if(title != null) {
-					access = credManager.getCredentialAccessRights(decodedId, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.Learn);
+					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+								ResourceAccessRequirements.of(AccessMode.MANAGER)
+														  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialTitle = title;	
 						//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
@@ -124,15 +106,13 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 						studentAssignBean.init(decodedId, context);
 					}
 				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.notFound();
 				}
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error while loading instructor data");
 			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 
@@ -184,8 +164,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
 	public void addInstructorToCredential(UserData user) {
 		try {
-			CredentialInstructor inst = credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0);
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData ctx = new LearningContextData(page, context, service);
+			credInstructorManager
+					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserId(), ctx);
 			paginationData.setPage(1);
 			searchTerm = "";
 			sortOption = InstructorSortOption.Date;
@@ -194,37 +177,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			for (InstructorData id : instructors) {
 				excludedInstructorIds.add(id.getUser().getId());
 			}
-			
-			String page = PageUtil.getPostParameter("page");
-			String service = PageUtil.getPostParameter("service");
-			final String lContext = context;
-			Date dateAssigned = inst.getDateAssigned();
-			
-			taskExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					Credential1 cred = new Credential1();
-					cred.setId(decodedId);
-					User instr = new User();
-					instr.setId(user.getId());
-					Map<String, String> params = new HashMap<>();
-					String dateString = null;
-					if(dateAssigned != null) {
-						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-						dateString = df.format(dateAssigned);
-					}
-					params.put("dateAssigned", dateString);
-					try {
-						eventFactory.generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
-								loggedUserBean.getUserId(), instr, cred, page, lContext, service, params);
-					} catch (EventException e) {
-							logger.error(e);
-					}
-				}
-			});
-		} catch(Exception e) {
+		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 		
 	}
@@ -235,7 +192,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	
 		paginationData.update((int) searchResponse.getHitsNumber());
 		instructors = searchResponse.getFoundNodes();
-		for(InstructorData id : instructors) {
+		for (InstructorData id : instructors) {
 			excludedInstructorIds.add(id.getUser().getId());
 		}
 	}
@@ -245,22 +202,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		searchCredentialInstructors();
 	}
 	
-//	public void automaticallyReassignStudents() {
-//		try {
-//			StudentAssignData assignData = credInstructorManager.reassignStudentsAutomatically(
-//					instructorForStudentAssign.getInstructorId(), decodedId);
-//			String appPage = PageUtil.getPostParameter("page");
-//			String service = PageUtil.getPostParameter("service");
-//			fireReassignEvents(instructorForStudentAssign, appPage, service, assignData, true);
-//			searchCredentialInstructors();
-//			instructorForStudentAssign = null;
-//			PageUtil.fireSuccessfulInfoMessage("Students successfully reassigned");
-//		} catch (DbConnectionException e) {
-//			logger.error(e);
-//			PageUtil.fireErrorMessage(e.getMessage());
-//		}
-//	}
-	
 	public void applySortOption(InstructorSortOption sortOption) {
 		this.sortOption = sortOption;
 		paginationData.setPage(1);
@@ -269,96 +210,23 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	
 	public void removeInstructorFromCredential() {
 		try {
-			StudentAssignData res = credInstructorManager.removeInstructorFromCredential(
-					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically);
 			String appPage = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			String lContext = context + "|context:/name:INSTRUCTOR|id:" 
 					+ instructorForRemoval.getInstructorId() + "/";
-			
-			Credential1 cred = new Credential1();
-			cred.setId(decodedId);
-			User instr = new User();
-			instr.setId(instructorForRemoval.getUser().getId());
-			try {
-				@SuppressWarnings("unchecked")
-				Event event = eventFactory.generateEvent(
-						EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL, 
-						loggedUserBean.getUserId(), instr, cred, 
-						appPage, lContext, service, 
-						new Class[] {NodeChangeObserver.class}, null);
-				nodeChangeObserver.handleEvent(event);
-				fireReassignEvents(instructorForRemoval, appPage, service, res, reassignAutomatically);
-			} catch (EventException e) {
-				logger.error(e);
-			}
+			LearningContextData ctx = new LearningContextData(appPage, lContext, service);
+			credInstructorManager.removeInstructorFromCredential(
+					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically, 
+					loggedUserBean.getUserId(), ctx);
+
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();
 			instructorForRemoval = null;
 			PageUtil.fireSuccessfulInfoMessage("Instructor successfully removed from credential");
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
-
-	private void fireReassignEvents(InstructorData instructorData, String appPage, 
-			String service, StudentAssignData assignData, boolean automatic) {
-		long instructorUserId = instructorData.getUser().getId();
-		long instructorId = instructorData.getInstructorId();
-		String lContext = context + "|context:/name:INSTRUCTOR|id:" + instructorId + "/";
-		
-		if(automatic) {
-			List<StudentInstructorPair> assigned = assignData.getAssigned();
-			if(assigned != null && !assigned.isEmpty()) {
-				Map<String, String> parameters = new HashMap<String, String>();
-				parameters.put("credId", decodedId + "");
-				parameters.put("reassignedFromInstructorUserId", instructorUserId + "");
-				for(StudentInstructorPair pair : assigned) {
-					long studentUserId = credManager.getUserIdForTargetCredential(pair.getTargetCredId());
-					long insUserId = pair.getInstructor().getUser().getId();
-					try {
-						User target = new User();
-						target.setId(insUserId);
-						User object = new User();
-						object.setId(studentUserId);
-						@SuppressWarnings("unchecked")
-						Event event = eventFactory.generateEvent(
-								EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR, 
-								loggedUserBean.getUserId(), object, target, 
-								appPage, lContext, service, 
-								new Class[] {NodeChangeObserver.class}, parameters);
-						nodeChangeObserver.handleEvent(event);
-					} catch(Exception e) {
-						logger.error(e);
-					}
-				}
-			}	
-		} 
-			
-		List<Long> unassignedTargetCredIds = assignData.getUnassigned();
-		if(unassignedTargetCredIds != null && !unassignedTargetCredIds.isEmpty()) {
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("credId", decodedId + "");
-			List<Long> unassignedUserIds = credManager
-					.getUserIdsForTargetCredentials(unassignedTargetCredIds);
-			for (Long userId : unassignedUserIds) {
-				try {
-					User target = new User();
-					target.setId(instructorData.getUser().getId());
-					User object = new User();
-					object.setId(userId);
-					
-					@SuppressWarnings("unchecked")
-					Event event = eventFactory.generateEvent(
-							EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, 
-							loggedUserBean.getUserId(), object, target, 
-							appPage, lContext, service, 
-							new Class[] {NodeChangeObserver.class}, parameters);
-					nodeChangeObserver.handleEvent(event);
-				} catch (EventException e) {
-					logger.error(e);
-				}
-			}
+		} catch (EventException ee) {
+			logger.error(ee);
 		}
 	}
 	
@@ -474,4 +342,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		this.reassignAutomatically = reassignAutomatically;
 	}
 
+	public long getCredentialId() {
+		return decodedId;
+	}
 }

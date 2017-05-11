@@ -66,7 +66,10 @@ public enum ApplicationPage {
 	MANAGER_RESULTS("/manage/activity-results.xhtml"),
 	USER_COMPETENCE_LIBRARY("/competenceLibrary.xhtml"),
 	MANAGER_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
-	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml");
+	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
+	MANAGER_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
+	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-visibility.xhtml"),
+	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml");
 	
     private String uri; 
     

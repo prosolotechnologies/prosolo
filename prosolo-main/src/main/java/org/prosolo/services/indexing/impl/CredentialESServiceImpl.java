@@ -29,7 +29,6 @@ import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,14 +150,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, 
-			Session session) {
-		if(changeTracker != null &&
-				(changeTracker.isStatusChanged() || changeTracker.isTitleChanged() || 
-						changeTracker.isDescriptionChanged() || changeTracker.isTagsChanged() 
-						|| changeTracker.isHashtagsChanged())) {
-			saveCredentialNode(cred, session);
-		}
+	public void updateCredentialNode(Credential1 cred, Session session) {
+		saveCredentialNode(cred, session);
 	}
 	
 //	@Override
@@ -233,20 +226,28 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	public void addUserToCredentialIndex(long credId, long userId, UserGroupPrivilege privilege) {
-		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
-		String script = "if (ctx._source[\"" + field + "\"] == null) { " +
-				"ctx._source." + field + " = user " +
-				"} else { " +
-				"ctx._source." + field + " += user " +
-				"}";
-		updateCredentialUsers(credId, userId, script);
+		//temporarely while collection of users with instruct privilege is not introduced
+		if (privilege != UserGroupPrivilege.Instruct) {
+			String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
+			String script = "if (ctx._source[\"" + field + "\"] == null) { " +
+					"ctx._source." + field + " = user " +
+					"} else { " +
+					"ctx._source." + field + " += user " +
+					"}";
+			updateCredentialUsers(credId, userId, script);
+		}
 	}
 	
 	@Override
 	public void removeUserFromCredentialIndex(long credId, long userId, UserGroupPrivilege privilege) {
-		String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
-		String script = "ctx._source." + field + " -= user";
-		updateCredentialUsers(credId, userId, script);
+		//temporarely while collection of users with instruct privilege is not introduced
+		if (privilege != UserGroupPrivilege.Instruct) {
+			String field = privilege == UserGroupPrivilege.Edit 
+					? "usersWithEditPrivilege" 
+					: "usersWithViewPrivilege";
+			String script = "ctx._source." + field + " -= user";
+			updateCredentialUsers(credId, userId, script);
+		}
 	}
 	
 	private void updateCredentialUsers(long credId, long userId, String script) {
