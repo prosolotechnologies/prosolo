@@ -304,10 +304,6 @@ public class CompetenceEditBean implements Serializable {
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
-		}catch (CompetenceEmptyException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Can not save competence without activities.");
-			return false;
 		}
 	}
 	

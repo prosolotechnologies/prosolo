@@ -49,7 +49,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
-			LearningContextData context) throws DbConnectionException;
+			LearningContextData context) throws DbConnectionException,IllegalDataStateException;
 	
 	/**
 	 * @param data
