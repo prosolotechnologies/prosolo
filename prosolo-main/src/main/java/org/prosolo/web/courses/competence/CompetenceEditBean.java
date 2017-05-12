@@ -211,6 +211,9 @@ public class CompetenceEditBean implements Serializable {
 //	}
 	
 	public void saveAndNavigateToCreateActivity() {
+		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
+		// we will manually set field 'published 'to false
+		competenceData.setPublished(false);
 		boolean saved = saveCompetenceData(false);
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();

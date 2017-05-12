@@ -108,10 +108,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * if competence has no activities, it can't be published
 			 */
-			if(data.getCompetenceId() > 0){
-				if(data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-					throw new CompetenceEmptyException();
-				}
+			if(data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
+				throw new CompetenceEmptyException();
 			}
 			
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 

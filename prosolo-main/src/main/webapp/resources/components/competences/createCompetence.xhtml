@@ -244,23 +244,23 @@
 	
 		    	</div>
 		    	
-		    	<script>  
-		        	var type = null;
-		        	if('#{cc.attrs.role}' === "USER") {
-		        		type = "user_created";
-		        	} else {
-		        		type = "university_created";
-		        	}
-					document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
-					
-					$(function(){
-						var tabParamValue = getQueryParam('tab');
-						if(tabParamValue == 'activities'){
-							$('.nav.nav-tabs.pageSubmenu a[href="#activities"]').tab('show');
-						};
-					})
-		        </script>
 		    </h:form>
+	    	<script>  
+	        	var type = null;
+	        	if('#{cc.attrs.role}' === "USER") {
+	        		type = "user_created";
+	        	} else {
+	        		type = "university_created";
+	        	}
+				document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
+				
+				$(function(){
+					var tabParamValue = getQueryParam('tab');
+					if(tabParamValue == 'activities'){
+						$('.nav.nav-tabs.pageSubmenu a[href="#activities"]').tab('show');
+					};
+				})
+	        </script>
 	    
 		    <h:form id="formRemoveActivityModal">
 		    	<div class="modal fade" id="modalRemoveActivity" tabindex="-1" role="dialog" aria-labelledby="removeActivity">
