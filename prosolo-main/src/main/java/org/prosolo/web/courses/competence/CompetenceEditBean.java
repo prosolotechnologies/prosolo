@@ -296,8 +296,10 @@ public class CompetenceEditBean implements Serializable {
 		} catch(IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
-			//reload data
-			reloadCompetence();
+			if (competenceData.getCompetenceId() > 0) {
+		        //reload data
+		        reloadCompetence();
+			}
 			return false;
 		} catch(DbConnectionException e) {
 			logger.error(e);
