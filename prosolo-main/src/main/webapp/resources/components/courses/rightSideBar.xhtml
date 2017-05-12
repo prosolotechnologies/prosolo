@@ -63,7 +63,9 @@
 						
 						$("#btnSaveChanges").click(function(){
 							var status = getStatus();
-							if(activityListSize == 0 &amp;&amp; status == "PUBLISHED"){
+							if(status == "DRAFT"){
+								saveChangesBtnClick(status);
+							}else if(activityListSize == 0 &amp;&amp; status == "PUBLISHED"){
 								$('#activityNotFoundModal').modal('show');
 								return false;
 							}else if(activityListSize != 0){
