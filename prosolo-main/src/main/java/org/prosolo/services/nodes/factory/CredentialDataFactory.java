@@ -23,7 +23,7 @@ public class CredentialDataFactory {
 	
 	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
 			Set<Tag> hashtags, boolean shouldTrackChanges) {
-		if(credential == null) {
+		if (credential == null) {
 			return null;
 		}
 		CredentialData cred = new CredentialData(false);
@@ -33,18 +33,18 @@ public class CredentialDataFactory {
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
 		cred.setArchived(credential.isArchived());
-		if(tags != null) {
+		if (tags != null) {
 			cred.setTags(credential.getTags());
 			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
 		}
-		if(hashtags != null) {
+		if (hashtags != null) {
 			cred.setHashtags(credential.getHashtags());
 			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
 		}
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
 		cred.setDuration(credential.getDuration());
 		cred.calculateDurationString();
-		if(createdBy != null) {
+		if (createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
 					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
@@ -54,7 +54,7 @@ public class CredentialDataFactory {
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
-		if(credential.getType() == CredentialType.Delivery) {
+		if (credential.getType() == CredentialType.Delivery) {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
 			cred.setDeliveryStart(credential.getDeliveryStart());
 			cred.setDeliveryEnd(credential.getDeliveryEnd());
@@ -62,7 +62,7 @@ public class CredentialDataFactory {
 					cred.getDeliveryStart(), cred.getDeliveryEnd()));
 		}
 		
-		if(shouldTrackChanges) {
+		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
 		return cred;
@@ -70,54 +70,33 @@ public class CredentialDataFactory {
 	
 	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
-		//TODO cred-redesign-07
-//		if(credential == null) {
-//			return null;
-//		}
-//		CredentialData cred = new CredentialData(false);
-//		cred.setId(credential.getCredential().getId());
-//		cred.setTitle(credential.getTitle());
-//		cred.setDescription(credential.getDescription());
-//		if(tags != null) {
-//			cred.setTags(credential.getTags());
-//			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
-//		}
-//		if(hashtags != null) {
-//			cred.setHashtags(credential.getHashtags());
-//			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
-//		}
-//		cred.setType(credential.getCredentialType());
-//		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-//		cred.setDuration(credential.getDuration());
-//		cred.calculateDurationString();
-//		if(createdBy != null) {
-//			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
-//					getFullName(createdBy.getName(), createdBy.getLastname()),
-//					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
-//					createdBy.getPosition());
-//			cred.setCreator(creator);
-//		}
-//		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
-//		cred.setEnrolled(true);
-//		cred.setTargetCredId(credential.getId());
-//		cred.setProgress(credential.getProgress());
-//		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
-//		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
-//		if(credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
-//			cred.setInstructorPresent(true);
-//			cred.setInstructorId(credential.getInstructor().getUser().getId());
-//			cred.setInstructorAvatarUrl(
-//					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
-//					ImageFormat.size120x120));
-//			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
-//					+ " " 
-//					+ credential.getInstructor().getUser().getLastname());
-//		}
-//		if(shouldTrackChanges) {
-//			cred.startObservingChanges();
-//		}
-//		return cred;
-		return null;
+		if (credential == null || credential.getCredential() == null) {
+			return null;
+		}
+		Credential1 c = credential.getCredential();
+		//get credential specific data
+		CredentialData cred = getCredentialData(createdBy, c, tags, hashtags, false);
+		
+		//set target credential specific data
+		cred.setEnrolled(true);
+		cred.setTargetCredId(credential.getId());
+		cred.setProgress(credential.getProgress());
+		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
+		
+		if (credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
+			cred.setInstructorPresent(true);
+			cred.setInstructorId(credential.getInstructor().getUser().getId());
+			cred.setInstructorAvatarUrl(
+					AvatarUtils.getAvatarUrlInFormat(credential.getInstructor().getUser().getAvatarUrl(),
+					ImageFormat.size120x120));
+			cred.setInstructorFullName(credential.getInstructor().getUser().getName()
+					+ " " 
+					+ credential.getInstructor().getUser().getLastname());
+		}
+		if (shouldTrackChanges) {
+			cred.startObservingChanges();
+		}
+		return cred;
 	}
 	
 	/**

@@ -9,7 +9,8 @@
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<composite:interface>
 		<composite:attribute name="competences" required="true" />
@@ -21,6 +22,8 @@
 		<composite:attribute name="role" default="USER"/>
 		<composite:attribute name="readOnly" type="java.lang.Boolean" default="false"/>
 		<composite:attribute name="isOriginal" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="growlToUpdate" default="" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -100,43 +103,52 @@
 										pt:data-toggle="modal" />
 								</ui:fragment>
                             	
-								<ui:fragment rendered="#{!cc.attrs.isEdit}">
+								<c:if test="#{!cc.attrs.isEdit and cc.attrs.role eq 'USER'}">
 									<ui:fragment rendered="#{cc.attrs.startedLearning}">
-										<h:link rendered="#{(!cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId) and comp.progress lt 100}"
-											value="#{comp.progress != 0 ? 'Resume' : 'Start'}"
-											styleClass="btn btn-green btn-sm"
-											outcome="activity">
-											<f:param name="actId" value="#{util:encodeId(comp.nextActivityToLearnId)}"></f:param>
-											<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
-											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
-										</h:link>
+										<ui:fragment 
+											rendered="#{(!cc.attrs.bean.credentialData.mandatoryFlow or comp.competenceId eq cc.attrs.bean.credentialData.nextCompetenceToLearnId) and comp.progress lt 100}">
+											<h:link rendered="#{comp.enrolled}"
+												value="Resume"
+												styleClass="btn btn-green btn-sm"
+												outcome="competence">
+												<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
+												<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"></f:param>
+											</h:link>
+											<p:commandLink rendered="#{not comp.enrolled}" value="Start"
+												styleClass="btn btn-green btn-sm"
+												action="#{cc.attrs.bean.enrollInCompetence(comp)}"
+												update="#{cc.attrs.growlToUpdate}">
+												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+             									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(comp.competenceId))}" />
+											</p:commandLink>
+										</ui:fragment>
+										
 										
 										<ui:fragment rendered="#{cc.attrs.bean.credentialData.mandatoryFlow and comp.competenceId != cc.attrs.bean.credentialData.nextCompetenceToLearnId and comp.progress lt 100}">
 											<a href="javascript:void(0);" 
 												class="btn btn-green btn-sm" 
 												disabled="disabled" 
 												data-toggle="tooltip" 
-												title="In order to start this competence, previous tasks need to be completed.">
-												#{comp.progress != 0 ? 'Resume' : 'Start'}
+												title="In order to #{comp.enrolled ? 'resume' : 'start'} this competency, previous tasks need to be completed.">
+												#{comp.enrolled ? 'Resume' : 'Start'}
 											</a>
 										</ui:fragment>
-										
-										<h:panelGroup layout="block" rendered="#{comp.progress lt 100}" styleClass="progressBar">
-											<span>#{comp.progress}</span>
-											<div class="progress">
-												<div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
-											</div>
-											</div>
-										</h:panelGroup>
-										
-										<h:panelGroup 
-											layout="block" 
-											styleClass="tagCompleted"
-											rendered="#{comp.progress == 100}">
-											Completed
-										</h:panelGroup>
 									</ui:fragment>
-								</ui:fragment>
+									<h:panelGroup layout="block" rendered="#{comp.progress lt 100 and comp.enrolled}" styleClass="progressBar">
+										<span>#{comp.progress}</span>
+										<div class="progress">
+											<div class="progress-bar" role="progressbar" aria-valuenow="#{comp.progress}" aria-valuemin="0" aria-valuemax="100" style="width: #{comp.progress}%;">
+										</div>
+										</div>
+									</h:panelGroup>
+									
+									<h:panelGroup 
+										layout="block" 
+										styleClass="tagCompleted"
+										rendered="#{comp.progress == 100}">
+										Completed
+									</h:panelGroup>
+								</c:if>
 							</div>
                             
 							<div class="metaRight">
