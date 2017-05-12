@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -295,8 +296,10 @@ public class CompetenceEditBean implements Serializable {
 		} catch(IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
-			//reload data
-			reloadCompetence();
+			if (competenceData.getCompetenceId() > 0) {
+		        //reload data
+		        reloadCompetence();
+			}
 			return false;
 		} catch(DbConnectionException e) {
 			logger.error(e);

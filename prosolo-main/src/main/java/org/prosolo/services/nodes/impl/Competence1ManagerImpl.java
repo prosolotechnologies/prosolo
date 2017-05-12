@@ -102,7 +102,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
-			LearningContextData context) throws DbConnectionException {
+			LearningContextData context) throws DbConnectionException,IllegalDataStateException {
 		Competence1 comp = null;
 		try {
 			/*
@@ -145,7 +145,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(CompetenceEmptyException cee) {
 			logger.error(cee);
 			//cee.printStackTrace();
-			throw cee;
+			throw new IllegalDataStateException("Can not publish competency without activities.");
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
