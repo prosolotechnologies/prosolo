@@ -108,9 +108,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * if competence has no activities, it can't be published
 			 */
-			if(data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new CompetenceEmptyException();
+			if(data.getCompetenceId() > 0){
+				if(data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
+					throw new CompetenceEmptyException();
+				}
 			}
+			
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
 					data.getDescription(), data.getTagsString(), creatorId, 
 					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
@@ -150,7 +153,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving competence");
-		} 
+		}
 	}
 
 	@Deprecated
@@ -2672,7 +2675,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Void> res = new Result<>();
 			
@@ -2696,7 +2699,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(CompetenceEmptyException cee) {
 			logger.error(cee);
 			//cee.printStackTrace();
-			throw cee;
+			throw new IllegalDataStateException("Can not publish competency without activities.");
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -391,6 +391,6 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException;
+			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
 	
 }
