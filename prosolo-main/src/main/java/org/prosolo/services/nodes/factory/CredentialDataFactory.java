@@ -2,6 +2,8 @@ package org.prosolo.services.nodes.factory;
 
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -17,16 +19,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class CredentialDataFactory {
 
+	@Inject private CredentialDeliveryStatusFactory deliveryStatusFactory;
+	
 	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
 			Set<Tag> hashtags, boolean shouldTrackChanges) {
 		if(credential == null) {
 			return null;
 		}
 		CredentialData cred = new CredentialData(false);
+		cred.setVersion(credential.getVersion());
 		cred.setId(credential.getId());
 		cred.setType(credential.getType());
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
+		cred.setArchived(credential.isArchived());
 		if(tags != null) {
 			cred.setTags(credential.getTags());
 			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
@@ -52,7 +58,8 @@ public class CredentialDataFactory {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
 			cred.setDeliveryStart(credential.getDeliveryStart());
 			cred.setDeliveryEnd(credential.getDeliveryEnd());
-			cred.determineDeliveryStatus();
+			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
+					cred.getDeliveryStart(), cred.getDeliveryEnd()));
 		}
 		
 		if(shouldTrackChanges) {

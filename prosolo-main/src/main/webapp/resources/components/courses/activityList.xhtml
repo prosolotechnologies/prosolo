@@ -36,14 +36,23 @@
             			styleClass="iconType">
             		</h:panelGroup>
             		<h3>
-	            		<ui:fragment rendered="#{cc.attrs.isEdit or cc.attrs.readOnly}">
+	            		<ui:fragment rendered="#{ cc.attrs.readOnly}">
 	                   		#{act.title}
 	                   	</ui:fragment>
-	                   	<ui:fragment rendered="#{!cc.attrs.isEdit and !cc.attrs.readOnly}">
+	                   	<ui:fragment rendered="#{ !cc.attrs.isEdit and !cc.attrs.readOnly}">
                    			<h:link
 			            		value="#{act.title}"
 			            		outcome="activity">
 			            		<f:param name="actId" value="#{util:encodeId(act.activityId)}"></f:param>
+			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
+            					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
+            				</h:link>
+	                   	</ui:fragment>
+	                   	<ui:fragment rendered="#{ cc.attrs.isEdit and !cc.attrs.readOnly}">
+                   			<h:link
+			            		value="#{act.title}"
+			            		outcome="create-activity">
+			            		<f:param name="id" value="#{util:encodeId(act.activityId)}"></f:param>
 			            		<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}" disable="#{empty cc.attrs.encodedCompetenceId}"></f:param>
             					<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
             				</h:link>
@@ -63,6 +72,15 @@
                    				value="Edit" 
                    				outcome="create-activity">
                    				<f:param name="id" value="#{util:encodeId(act.activityId)}" />
+                   				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
+                   				<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
+                   			</h:link> 
+                        </li>
+                        <li>	
+                        	<h:link 
+                   				value="Preview" 
+                   				outcome="activity">
+                   				<f:param name="actId" value="#{util:encodeId(act.activityId)}" />
                    				<f:param name="compId" value="#{cc.attrs.encodedCompetenceId}"></f:param>
                    				<f:param name="credId" value="#{cc.attrs.encodedCredentialId}" disable="#{empty cc.attrs.encodedCredentialId}"></f:param>
                    			</h:link> 
@@ -126,6 +144,7 @@
          	 <ui:fragment rendered="#{!cc.attrs.bean.limitedEdit}">
 	         	 <p:commandLink
 	         	  	styleClass="activityItem addActivity"
+	         	  	onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 	         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
 	         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
 	         	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>

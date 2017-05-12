@@ -7,12 +7,11 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -36,7 +35,6 @@ public class CredentialVisibilityBean implements Serializable {
 	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private EventFactory eventFactory;
 	@Inject private CredentialManager credManager;
 	
 	private long credentialId;
@@ -107,47 +105,15 @@ public class CredentialVisibilityBean implements Serializable {
 	
 	public void saveVisibilityMembersData() {
 		try {
+			LearningContextData lcd = PageUtil.extractLearningContextData();
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
-					isVisibleToEveryone(), isVisibleToEveryoneChanged());
-			//userGroupManager.saveCredentialUsersAndGroups(credentialId, existingGroups, existingUsers);
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			
-			Credential1 cred = new Credential1();
-			cred.setId(credentialId);
-			cred.setVisibleToAll(isVisibleToEveryone());
-			if(isVisibleToEveryoneChanged()) {
-				eventFactory.generateEvent(EventType.VISIBLE_TO_ALL_CHANGED, 
-						loggedUserBean.getUserId(), cred, null, page, lContext,
-						service, null);
-			}
-			for(ResourceVisibilityMember group : getExistingGroups()) {
-				EventType eventType = null;
-				switch(group.getStatus()) {
-					case CREATED:
-						eventType = EventType.USER_GROUP_ADDED_TO_RESOURCE;
-						break;
-					case REMOVED:
-						eventType = EventType.USER_GROUP_REMOVED_FROM_RESOURCE;
-						break;
-					default:
-						break;
-				}
-				if(eventType != null) {
-					UserGroup userGroup = new UserGroup();
-					userGroup.setId(group.getGroupId());
-					eventFactory.generateEvent(eventType, loggedUserBean.getUserId(), userGroup, cred, page, 
-							lContext, service, null);
-				}
-			}
-			eventFactory.generateEvent(EventType.RESOURCE_VISIBILITY_CHANGE, 
-					loggedUserBean.getUserId(), cred, null, page, lContext,
-					service, null);
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
 			PageUtil.fireSuccessfulInfoMessage("Credential visibility options successfully updated");
-		} catch(Exception e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to update credential visibility");
+		} catch (EventException ee) {
+			logger.error(ee);
 		}
 	}
 

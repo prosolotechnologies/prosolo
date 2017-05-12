@@ -6,7 +6,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,14 @@ public class PageUtil {
 	
 	public static void fireSuccessfulInfoMessage(String description) {
 		fireSuccessfulInfoMessage(null, description);
+	}
+	
+	public static void fireSuccessfulInfoMessageAcrossPages(String description) {
+		fireSuccessfulInfoMessage(null, description);
+		ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+		Flash flash = extContext.getFlash();
+		flash.setKeepMessages(true);
+		flash.setRedirect(true);
 	}
 	
 	public static void fireSuccessfulInfoMessageFromBundle(String messageName, Locale locale, Object... parameters) {
@@ -151,6 +161,16 @@ public class PageUtil {
 		}
 	}
 	
+	/**
+	 * Extracts learning context post parameters from request and returns result.
+	 * 
+	 * Method relies on following parameter names:
+	 *  - 'page' param name for page
+	 *  - 'learningContext' param name for context
+	 *  - 'service' param name for service
+	 *  
+	 * @return
+	 */
 	public static LearningContextData extractLearningContextData() {
 		String page = getPostParameter("page");
 		String lContext = getPostParameter("learningContext");
@@ -166,5 +186,13 @@ public class PageUtil {
 			ioe.printStackTrace();
 			logger.error(ioe);
 		}
+	}
+	
+	public static void accessDenied() {
+		forward("/accessDenied.xhtml");
+	}
+	
+	public static void notFound() {
+		forward("/notfound.xhtml");
 	}
 }

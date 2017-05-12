@@ -5,7 +5,6 @@ package org.prosolo.web.courses.credential;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,16 +15,12 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
@@ -51,9 +46,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private CredentialInstructorManager credInstructorManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private NodeChangeObserver nodeChangeObserver;
 	@Inject private CredentialManager credManager;
 
 	private long credId;
@@ -225,8 +218,9 @@ public class StudentAssignBean implements Serializable, Paginable {
 				String service = PageUtil.getPostParameter("service");
 				String lContext = context + "|context:/name:INSTRUCTOR|id:" 
 						+ instructorForStudentAssign.getInstructorId() + "/";
+				LearningContextData ctx = new LearningContextData(page, lContext, service);
 				List<Long> usersToAssign = null;
-				if(selectAll) {
+				if (selectAll) {
 					List<Long> studentsToExcludeCopy = new ArrayList<>(studentsToExcludeFromAssign);
 					//exclude instructor because user can not be instructor for himself
 					studentsToExcludeCopy.add(instructorForStudentAssign.getUser().getId());
@@ -235,20 +229,22 @@ public class StudentAssignBean implements Serializable, Paginable {
 				} else {
 					usersToAssign = studentsToAssign;
 				}
-				credInstructorManager.updateInstructorAndStudentsAssigned(credId, 
-						instructorForStudentAssign, usersToAssign, studentsToUnassign);
-				fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
-				fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
+				credInstructorManager.updateInstructorAndStudentsAssigned(credId, instructorForStudentAssign, 
+						usersToAssign, studentsToUnassign, loggedUserBean.getUserId(), ctx);
+				//fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
+				//fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
 				int numberOfAffectedStudents = usersToAssign.size() - studentsToUnassign.size();
 				instructorForStudentAssign.setNumberOfAssignedStudents(
 						instructorForStudentAssign.getNumberOfAssignedStudents() + numberOfAffectedStudents);
 				//instructorForStudentAssign = null;
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			}
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			instructorForStudentAssign.setMaxNumberOfStudentsToOriginalValue();
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 	}
 	
@@ -261,56 +257,6 @@ public class StudentAssignBean implements Serializable, Paginable {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
 		searchStudents();
-	}
-	
-	public void fireAssignEvent(InstructorData id, List<Long> studentsToAssign, String page, 
-			String context, String service) {
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("credId", credId + "");
-		
-		for (Long userId : studentsToAssign) {
-			try {
-				User target = new User();
-				target.setId(id.getUser().getId());
-				User object = new User();
-				object.setId(userId);
-				
-				@SuppressWarnings("unchecked")
-				Event event = eventFactory.generateEvent(
-						EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-						loggedUserBean.getUserId(), object, target, 
-						page, context, service, 
-						new Class[] {NodeChangeObserver.class}, parameters);
-				nodeChangeObserver.handleEvent(event);
-			} catch (EventException e) {
-				logger.error(e);
-			}
-		}
-	}
-	
-	public void fireUnassignEvent(InstructorData id, List<Long> studentsToAssign, String page, 
-			String context, String service) {
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("credId", credId + "");
-		
-		for (Long userId : studentsToAssign) {
-			try {
-				User target = new User();
-				target.setId(id.getUser().getId());
-				User object = new User();
-				object.setId(userId);
-				
-				@SuppressWarnings("unchecked")
-				Event event = eventFactory.generateEvent(
-						EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR, 
-						loggedUserBean.getUserId(), object, target, 
-						page, context, service, 
-						new Class[] {NodeChangeObserver.class}, parameters);
-				nodeChangeObserver.handleEvent(event);
-			} catch (EventException e) {
-				logger.error(e);
-			}
-		}
 	}
 	
 	//VALIDATOR METHODS

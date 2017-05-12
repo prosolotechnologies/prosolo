@@ -20,6 +20,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.CompetenceData1;
@@ -48,7 +49,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
-			LearningContextData context) throws DbConnectionException;
+			LearningContextData context) throws DbConnectionException,IllegalDataStateException;
 	
 	/**
 	 * @param data
@@ -100,6 +101,7 @@ public interface Competence1Manager {
 	
 	
 	/**
+	 * Returns competence data with access rights info for user specified by {@code userId} id.
 	 * 
 	 * @param credId
 	 * @param compId
@@ -114,17 +116,48 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CompetenceData1> getCompetenceData(long credId, long compId, boolean loadCreator, 
+	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
 			boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
+	/**
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param loadActivities
+	 * @param shouldTrackChanges
+	 * @return
+	 * @throws ResourceNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws DbConnectionException
+	 */
+	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+			boolean loadTags, boolean loadActivities, boolean shouldTrackChanges) 
+					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	
 	List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
-			boolean loadTags, boolean loadActivities, boolean includeNotPublished, boolean includeCanEdit, long userId) 
+			boolean loadTags, boolean loadActivities, boolean includeNotPublished, long userId) 
 					throws DbConnectionException;
 	
 	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean includeNotPublished) 
 					throws DbConnectionException;
+	
+	/**
+	 * Returns list of credential competencies (together with competencies data loaded) for credential with {@code credentialId} id.
+	 * 
+	 * @param credentialId
+	 * @param loadCreator
+	 * @param loadTags
+	 * @param includeNotPublished
+	 * @param usePessimisticLock - load credential competencies with pessimistic lock
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
+			boolean loadTags, boolean includeNotPublished, boolean usePessimisticLock) throws DbConnectionException;
 	
 //	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
 //			boolean loadCredentialTitle) throws DbConnectionException;
@@ -356,5 +389,8 @@ public interface Competence1Manager {
 	
 	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
 			throws DbConnectionException;
+	
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
+			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
 	
 }

@@ -15,6 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -158,11 +159,7 @@ public class CompetenceEditBean implements Serializable {
 					loggedUser.getUserId(), mode);
 			unpackResult(res);
 			if(!access.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.accessDenied();
 			} else {
 				List<ActivityData> activities = competenceData.getActivities();
 				for(ActivityData bad : activities) {
@@ -174,7 +171,7 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competence can not be found");
+			PageUtil.fireErrorMessage("Competency can not be found");
 		}
 	}
 
@@ -214,6 +211,9 @@ public class CompetenceEditBean implements Serializable {
 //	}
 	
 	public void saveAndNavigateToCreateActivity() {
+		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
+		// we will manually set field 'published 'to false
+		competenceData.setPublished(false);
 		boolean saved = saveCompetenceData(false);
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -224,7 +224,8 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() + "/competences/" + id + "/newActivity");
+				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() 
+						+ "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -247,7 +248,7 @@ public class CompetenceEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?compAdded=true");
+						"/credentials/" + credId +"/edit?compAdded=true&tab=competences");
 			} catch (IOException e) {
 				logger.error(e);
 			}
@@ -291,15 +292,17 @@ public class CompetenceEditBean implements Serializable {
 			return true;
 		} catch(StaleDataException sde) {
 			logger.error(sde);
-			PageUtil.fireErrorMessage("Update failed because competence is edited in the meantime. Please review changed competence and try again.");
+			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
 			//reload data
 			reloadCompetence();
 			return false;
 		} catch(IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
-			//reload data
-			reloadCompetence();
+			if (competenceData.getCompetenceId() > 0) {
+		        //reload data
+		        reloadCompetence();
+			}
 			return false;
 		} catch(DbConnectionException e) {
 			logger.error(e);
@@ -337,7 +340,7 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
 		} catch(DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to archive competence");
+			PageUtil.fireErrorMessage("Error while trying to archive competency");
 		}
 	}
 	
