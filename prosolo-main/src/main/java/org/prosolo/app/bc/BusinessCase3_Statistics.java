@@ -988,15 +988,21 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		Competence1 comp = ServiceLocator
-				.getInstance()
-				.getService(Competence1Manager.class)
-				.saveNewCompetence(
-						compData,
-						user.getId(),
-						credentialId, null);
+		Competence1 comp;
+		try {
+			comp = ServiceLocator
+					.getInstance()
+					.getService(Competence1Manager.class)
+					.saveNewCompetence(
+							compData,
+							user.getId(),
+							credentialId, null);
+			return comp;
+		} catch (DbConnectionException e) {
+		} catch (IllegalDataStateException e) {
+		}
 		
-		return comp;
+		return null;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {
