@@ -144,6 +144,7 @@
          	 <ui:fragment rendered="#{!cc.attrs.bean.limitedEdit}">
 	         	 <p:commandLink
 	         	  	styleClass="activityItem addActivity"
+	         	  	onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 	         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
 	         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
 	         	 	<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
