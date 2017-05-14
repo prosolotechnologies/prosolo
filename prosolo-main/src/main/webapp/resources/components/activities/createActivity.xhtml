@@ -240,7 +240,11 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
-			                        <label><h:message for="estimatedTimeHours" style="color:red;"></h:message></label>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:estimatedTimeHours'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="estimatedTimeHours"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">
@@ -256,7 +260,11 @@
 			                        		<f:selectItem itemValue="5"/>
 			                        	</h:selectOneMenu>
 			                        </div>
-			                        <label><h:message for="difficultyLevelSelect" style="color:red;"></h:message></label>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:difficultyLevelSelect'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="difficultyLevelSelect"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			          
