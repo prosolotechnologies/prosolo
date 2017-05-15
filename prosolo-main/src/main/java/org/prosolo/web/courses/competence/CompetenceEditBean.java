@@ -138,9 +138,9 @@ public class CompetenceEditBean implements Serializable {
 		return competenceData.getDatePublished() != null;
 	}
 	
-	public void initVisibilityManageData() {
-		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
-	}
+//	public void initVisibilityManageData() {
+//		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
+//	}
 	
 	private void setContext() {
 		if(decodedCredId > 0) {

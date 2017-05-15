@@ -46,7 +46,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
-	@Inject private UserGroupPrivilegeDataFactory groupPrivilegeFactory;
 	@Inject private CredentialManager credManager;
 	 
 	@Override
@@ -483,19 +482,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-    public List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId) 
+    public List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, false, null, 
+			List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, false, privilege,
 					persistence.currentManager());
 			if (credGroups != null) {
 				for(CredentialUserGroup group : credGroups) {
-					UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
-							group.getPrivilege());
 					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
 							group.getUserGroup().getName(), group.getUserGroup().getUsers().size(), 
-							priv, true));
+							group.getPrivilege(), true));
 				}
 			}
 			
@@ -555,29 +552,38 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-    public List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId) 
+    public List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			String query = "SELECT distinct credGroup FROM CredentialUserGroup credGroup " +
+			StringBuilder query = new StringBuilder("SELECT distinct credGroup FROM CredentialUserGroup credGroup " +
 					   "INNER JOIN fetch credGroup.userGroup userGroup " +
 					   "LEFT JOIN fetch userGroup.users users " +
 					   "WHERE credGroup.credential.id = :credId " +
-					   "AND userGroup.defaultGroup = :defaultGroup ";
-			@SuppressWarnings("unchecked")
-			List<CredentialUserGroup> defaultGroups = persistence.currentManager()
-					.createQuery(query)
+					   "AND userGroup.defaultGroup = :defaultGroup ");
+
+			if (privilege != null) {
+				query.append("AND credGroup.privilege = :priv ");
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query.toString())
 					.setLong("credId", credId)
-					.setBoolean("defaultGroup", true)
-					.list();
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<CredentialUserGroup> defaultGroups = q.list();
+
 			if(defaultGroups != null) {
 				for(CredentialUserGroup group : defaultGroups) {
 					List<UserGroupUser> users = group.getUserGroup().getUsers();
 					for(UserGroupUser u : users) {
-						UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
-								group.getPrivilege());
-						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(), 
-								priv, true));
+						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(),
+								group.getPrivilege(), true));
 					}
 				}
 			}
@@ -646,22 +652,21 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		if (users == null) {
     			return res;
     		}
-    		if(!users.isEmpty()) {
+    		if (!users.isEmpty()) {
     			//store reference to default groups for learn and edit privilege to be reused for different users
     			CredentialUserGroup learnCredGroup = null;
     			CredentialUserGroup editCredGroup = null;
     			Map<Long, EventData> userGroupsChangedEvents = new HashMap<>(); 
-	    		for(ResourceVisibilityMember user : users) {
+	    		for (ResourceVisibilityMember user : users) {
 	    			UserGroupUser userGroupUser = null;
-	    			UserGroupPrivilege priv = groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege());
-	    			switch(user.getStatus()) {
+	    			switch (user.getStatus()) {
 	    				case CREATED:
 	    					Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
-	    							credId, priv, actorId, context);
+	    							credId, user.getPrivilege(), actorId, context);
 	    					res.addEvents(credUserGroupRes.getEvents());
 	    					CredentialUserGroup gr = credUserGroupRes.getResult();
 	    					saveNewUserToCredentialGroup(user.getUserId(), gr);
-	    					if(priv == UserGroupPrivilege.Edit) {
+	    					if (user.getPrivilege() == UserGroupPrivilege.Edit) {
 	    						editCredGroup = gr;
 	    					} else {
 	    						learnCredGroup = gr;
@@ -673,18 +678,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	    					userGroupUser = (UserGroupUser) persistence
 	    							.currentManager().load(UserGroupUser.class, user.getId());
 	    					CredentialUserGroup credGroup = null;
-	    					if(priv == UserGroupPrivilege.Edit) {
+	    					if (user.getPrivilege() == UserGroupPrivilege.Edit) {
 	    						 if(editCredGroup == null) {
 	    							 Result<CredentialUserGroup> credUserGroupRes1 = 
-	    									 getOrCreateDefaultCredentialUserGroup(credId, priv, actorId, context);
+	    									 getOrCreateDefaultCredentialUserGroup(credId, user.getPrivilege(), actorId, context);
 	    							 res.addEvents(credUserGroupRes1.getEvents());
 	    							 editCredGroup = credUserGroupRes1.getResult();
 	    						 }
 	    						 credGroup = editCredGroup;
 	    					} else {
-	    						if(learnCredGroup == null) {
+	    						if (learnCredGroup == null) {
 	    							Result<CredentialUserGroup> credUserGroupRes1 = 
-	    									getOrCreateDefaultCredentialUserGroup(credId, priv, actorId, context);
+	    									getOrCreateDefaultCredentialUserGroup(credId, user.getPrivilege(), actorId, context);
 	    							res.addEvents(credUserGroupRes1.getEvents());
 	    							learnCredGroup = credUserGroupRes1.getResult();
 	    						 }
@@ -864,14 +869,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     				case CREATED:
     					res.addEvents(
     							createNewCredentialUserGroup(group.getGroupId(), false, credId, 
-    									groupPrivilegeFactory.getUserGroupPrivilege(group.getPrivilege()), userId, lcd)
+    									group.getPrivilege(), userId, lcd)
     										.getEvents());
     					break;
     				case CHANGED:
     					res.addEvents(
     							changeCredentialUserGroupPrivilege(credId, group.getId(), 
-    									groupPrivilegeFactory.getUserGroupPrivilege(
-    										group.getPrivilege()), userId, lcd)
+    									group.getPrivilege(), userId, lcd)
     											.getEvents());
     					break;
     				case REMOVED:
@@ -1024,11 +1028,9 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					.list();
 			if(compGroups != null) {
 				for(CompetenceUserGroup group : compGroups) {
-					UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
-							group.getPrivilege());
 					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
 							group.getUserGroup().getName(), group.getUserGroup().getUsers().size(), 
-							priv, true));
+							group.getPrivilege(), true));
 				}
 			}
 			
@@ -1061,10 +1063,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				for(CompetenceUserGroup group : defaultGroups) {
 					List<UserGroupUser> users = group.getUserGroup().getUsers();
 					for(UserGroupUser u : users) {
-						UserGroupPrivilegeData priv = groupPrivilegeFactory.getUserGroupPrivilegeData(
-								group.getPrivilege());
-						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(), 
-								priv, true));
+						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(),
+								group.getPrivilege(), true));
 					}
 				}
 			}
@@ -1109,27 +1109,25 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     private void saveCompetenceUsers(long compId, List<ResourceVisibilityMember> users) 
     		throws DbConnectionException {
     	try {
-    		if(users == null) {
+    		if (users == null) {
     			return;
     		}
-    		for(ResourceVisibilityMember user : users) {
+    		for (ResourceVisibilityMember user : users) {
     			UserGroupUser userGroupUser = null;
     			CompetenceUserGroup compGroup = null;
-    			switch(user.getStatus()) {
+    			switch (user.getStatus()) {
     				case CREATED:
     					userGroupUser = new UserGroupUser();
     					User u = (User) persistence.currentManager().load(User.class, user.getUserId());
     					userGroupUser.setUser(u);
-    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, 
-    							groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege()));
+    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege());
     					userGroupUser.setGroup(compGroup.getUserGroup());
     					saveEntity(userGroupUser);
     					break;
     				case CHANGED:
     					userGroupUser = (UserGroupUser) persistence
     							.currentManager().load(UserGroupUser.class, user.getId());
-    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, 
-    							groupPrivilegeFactory.getUserGroupPrivilege(user.getPrivilege()));
+    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege());
     					userGroupUser.setGroup(compGroup.getUserGroup());
     					break;
     				case REMOVED:
@@ -1167,15 +1165,13 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     					UserGroup userGroup = (UserGroup) persistence.currentManager().load(
     							UserGroup.class, group.getGroupId());
     					compGroup.setUserGroup(userGroup);
-    					compGroup.setPrivilege(groupPrivilegeFactory.getUserGroupPrivilege(
-    							group.getPrivilege()));
+    					compGroup.setPrivilege(group.getPrivilege());
     					saveEntity(compGroup);
     					break;
     				case CHANGED:
     					compGroup = (CompetenceUserGroup) persistence
     							.currentManager().load(CompetenceUserGroup.class, group.getId());
-    					compGroup.setPrivilege(groupPrivilegeFactory.getUserGroupPrivilege(
-    							group.getPrivilege()));
+    					compGroup.setPrivilege(group.getPrivilege());
     					break;
     				case REMOVED:
     					compGroup = (CompetenceUserGroup) persistence

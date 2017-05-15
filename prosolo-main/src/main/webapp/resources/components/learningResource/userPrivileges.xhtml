@@ -1,0 +1,156 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+	<composite:interface>
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+		<div class="searchInstructors">
+			<h:form id="formSearch">
+				<p:remoteCommand name="execSearchGroups"
+								 process="inputGroupSearch"
+								 update=":#{cc.clientId}:panelGroupSearchResults"
+								 action="#{cc.attrs.bean.searchUsersAndGroups()}"
+				  				 oncomplete="showSearchResults('.panelGroupSearchResultsSelector', '.groupSearchFieldSelector');"/>
+
+				<h:inputText id="inputGroupSearch" type="search"
+							 styleClass="groupSearchFieldSelector"
+							 placeholder="Search Users or Groups"
+							 value="#{cc.attrs.bean.searchTerm}" onclick="$(this).select();"
+							 onkeyup="searchIfNeeded('.groupSearchFieldSelector', execSearchGroups, '.panelGroupSearchResultsSelector'); return false;" />
+			</h:form>
+			<h:panelGroup id="panelGroupSearchResults">
+				<ui:fragment rendered="#{not empty cc.attrs.bean.searchMembers}">
+					<ul class="dropdown-menu searchResultsDrop panelGroupSearchResultsSelector" style="display: block;">
+						<ui:repeat var="member" value="#{cc.attrs.bean.searchMembers}">
+							<li>
+								<p:commandLink process="@this"
+											   action="#{cc.attrs.bean.addNewMember(member)}"
+											   update=":#{cc.clientId}:panelExistingMembers"
+											   oncomplete="$('.groupSearchFieldSelector').val(''); $('.panelGroupSearchResultsSelector').first().stop(true, true).slideUp(10);">
+
+									<div class="instructorInfo">
+										<ui:fragment rendered="#{member.type eq 'User'}">
+											<utilcomp:userAvatar
+													avatar="#{member.avatar}"
+													fullName="#{member.name}"
+													width="48" height="48" />
+
+											<div class="infoWrap">
+												<h3>#{member.name}</h3>
+												<span>#{member.position}</span>
+											</div>
+										</ui:fragment>
+
+										<ui:fragment rendered="#{member.type eq 'Group'}">
+											<div class="infoWrap">
+												<h3>#{member.name}</h3>
+												<span>#{member.userCount} #{member.userCount eq 1 ? 'User' : 'Users'}</span>
+											</div>
+										</ui:fragment>
+									</div>
+								</p:commandLink>
+							</li>
+						</ui:repeat>
+					</ul>
+				</ui:fragment>
+			</h:panelGroup>
+		</div>
+
+		<h:panelGroup id="panelExistingMembers">
+			<ul class="list">
+				<li>
+					<div class="instructorInfo">
+						<utilcomp:userAvatar
+								avatar="#{cc.attrs.bean.creator.avatar}"
+								fullName="#{cc.attrs.bean.creator.name}"
+								width="48" height="48" />
+
+						<div class="infoWrap">
+							<h3>#{cc.attrs.bean.creator.name}</h3>
+							<span>#{cc.attrs.bean.creator.position}</span>
+						</div>
+					</div>
+					<div class="assignOpt">
+						Is owner
+					</div>
+				</li>
+
+				<ui:repeat var="group" value="#{cc.attrs.bean.existingGroups}" varStatus="status">
+					<ui:fragment rendered="#{group.status ne 'REMOVED'}">
+						<li>
+							<div class="instructorInfo">
+								<div class="infoWrap">
+									<h3>#{group.name}</h3>
+									<span>#{group.userCount} #{group.userCount eq 1 ? 'User' : 'Users'}</span>
+								</div>
+							</div>
+
+							<div class="assignOpt">
+								<p:commandLink styleClass="removeX" process="@this"
+											   action="#{cc.attrs.bean.removeMember(group)}"
+											   update=":#{cc.clientId}:panelExistingMembers">
+									Close
+								</p:commandLink>
+							</div>
+						</li>
+					</ui:fragment>
+				</ui:repeat>
+
+				<ui:repeat var="user" value="#{cc.attrs.bean.existingUsers}" varStatus="status">
+					<ui:fragment rendered="#{user.status ne 'REMOVED'}">
+						<li>
+							<div class="instructorInfo">
+								<utilcomp:userAvatar
+										avatar="#{user.avatar}"
+										fullName="#{user.name}"
+										width="48" height="48" />
+
+								<div class="infoWrap">
+									<h3>#{user.name}</h3>
+									<span>#{user.position}</span>
+								</div>
+							</div>
+
+							<div class="assignOpt">
+								<p:commandLink styleClass="removeX" process="@this"
+											   action="#{cc.attrs.bean.removeMember(user)}"
+											   update=":#{cc.clientId}:panelExistingMembers">
+									Close
+								</p:commandLink>
+							</div>
+						</li>
+					</ui:fragment>
+				</ui:repeat>
+			</ul>
+		</h:panelGroup>
+
+		<div class="lastRow">
+			<p:commandLink styleClass="btn btn-green"
+						   action="#{cc.attrs.bean.saveVisibilityMembersData()}"
+						   update="#{cc.attrs.toUpdate}">
+				<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+				<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+				Save Changes
+			</p:commandLink>
+		</div>
+
+		<script>
+			$('.groupSearchFieldSelector').focus();
+		</script>
+	</composite:implementation>
+</ui:component>

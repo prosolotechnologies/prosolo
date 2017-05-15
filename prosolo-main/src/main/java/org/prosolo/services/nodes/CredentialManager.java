@@ -24,15 +24,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -491,4 +483,6 @@ public interface CredentialManager extends AbstractManager {
 			IllegalDataStateException;
 	
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
+
+	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
 }
