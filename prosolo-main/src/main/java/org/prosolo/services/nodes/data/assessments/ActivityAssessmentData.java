@@ -57,7 +57,6 @@ public class ActivityAssessmentData {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, targetActivity.getActivity());
 		populateIds(data,targetActivity,compAssessment);
-		data.setUserId(userId);
 		//populateDownloadResourceLink(targetActivity,data);
 		data.setResultType(targetActivity.getResultType());
 		data.setResult(targetActivity.getResult());
@@ -117,6 +116,7 @@ public class ActivityAssessmentData {
 		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
 		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
 		data.setTargetActivityId(targetActivity.getId());
+		data.setUserId(data.getUserId());
 	}
 
 //	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
