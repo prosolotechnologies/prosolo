@@ -13,6 +13,7 @@
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
 		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="process" default="" />
 		<composite:attribute name="learningContext" default="" />
 	</composite:interface>
 
@@ -20,19 +21,18 @@
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 
 		<div class="searchInstructors">
-			<h:form id="formSearch">
-				<p:remoteCommand name="execSearchGroups"
-								 process="inputGroupSearch"
-								 update=":#{cc.clientId}:panelGroupSearchResults"
-								 action="#{cc.attrs.bean.searchUsersAndGroups()}"
-				  				 oncomplete="showSearchResults('.panelGroupSearchResultsSelector', '.groupSearchFieldSelector');"/>
+			<p:remoteCommand name="execSearchGroups"
+							 process="inputGroupSearch"
+							 update=":#{cc.clientId}:panelGroupSearchResults"
+							 action="#{cc.attrs.bean.searchUsersAndGroups()}"
+							 oncomplete="showSearchResults('.panelGroupSearchResultsSelector', '.groupSearchFieldSelector');"/>
 
-				<h:inputText id="inputGroupSearch" type="search"
-							 styleClass="groupSearchFieldSelector"
-							 placeholder="Search Users or Groups"
-							 value="#{cc.attrs.bean.searchTerm}" onclick="$(this).select();"
-							 onkeyup="searchIfNeeded('.groupSearchFieldSelector', execSearchGroups, '.panelGroupSearchResultsSelector'); return false;" />
-			</h:form>
+			<h:inputText id="inputGroupSearch" type="search"
+						 styleClass="groupSearchFieldSelector"
+						 placeholder="Search Users or Groups"
+						 value="#{cc.attrs.bean.searchTerm}" onclick="$(this).select();"
+						 onkeyup="searchIfNeeded('.groupSearchFieldSelector', execSearchGroups, '.panelGroupSearchResultsSelector'); return false;" />
+
 			<h:panelGroup id="panelGroupSearchResults">
 				<ui:fragment rendered="#{not empty cc.attrs.bean.searchMembers}">
 					<ul class="dropdown-menu searchResultsDrop panelGroupSearchResultsSelector" style="display: block;">
@@ -73,23 +73,24 @@
 
 		<h:panelGroup id="panelExistingMembers">
 			<ul class="list">
-				<li>
-					<div class="instructorInfo">
-						<utilcomp:userAvatar
-								avatar="#{cc.attrs.bean.creator.avatar}"
-								fullName="#{cc.attrs.bean.creator.name}"
-								width="48" height="48" />
+				<c:if test="#{not empty cc.attrs.bean.creator}">
+					<li>
+						<div class="instructorInfo">
+							<utilcomp:userAvatar
+									avatar="#{cc.attrs.bean.creator.avatar}"
+									fullName="#{cc.attrs.bean.creator.name}"
+									width="48" height="48" />
 
-						<div class="infoWrap">
-							<h3>#{cc.attrs.bean.creator.name}</h3>
-							<span>#{cc.attrs.bean.creator.position}</span>
+							<div class="infoWrap">
+								<h3>#{cc.attrs.bean.creator.name}</h3>
+								<span>#{cc.attrs.bean.creator.position}</span>
+							</div>
 						</div>
-					</div>
-					<div class="assignOpt">
-						Is owner
-					</div>
-				</li>
-
+						<div class="assignOpt">
+							Is owner
+						</div>
+					</li>
+				</c:if>
 				<ui:repeat var="group" value="#{cc.attrs.bean.existingGroups}" varStatus="status">
 					<ui:fragment rendered="#{group.status ne 'REMOVED'}">
 						<li>
@@ -142,6 +143,7 @@
 		<div class="lastRow">
 			<p:commandLink styleClass="btn btn-green"
 						   action="#{cc.attrs.bean.saveVisibilityMembersData()}"
+						   process="#{cc.attrs.process}"
 						   update="#{cc.attrs.toUpdate}">
 				<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 				<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
