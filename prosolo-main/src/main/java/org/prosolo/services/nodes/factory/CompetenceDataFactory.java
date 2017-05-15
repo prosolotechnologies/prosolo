@@ -69,7 +69,7 @@ public class CompetenceDataFactory {
 		return getCompetenceData(user, cc, tags, shouldTrackChanges);
 	}
 	
-	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 tc, 
+	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 tc, int order,
 			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
 		Competence1 competence = tc.getCompetence();
 		CompetenceData1 comp = new CompetenceData1(false);
@@ -82,6 +82,7 @@ public class CompetenceDataFactory {
 		comp.setEnrolled(true);
 		comp.setProgress(tc.getProgress());
 		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
+		comp.setOrder(order);
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),

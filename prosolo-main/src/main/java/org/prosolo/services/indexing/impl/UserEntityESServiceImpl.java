@@ -187,7 +187,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 	
 	@Override
-	public void addCredentialToUserIndex(long credId, long userId, long instructorId, 
+	public void addCredentialToUserIndex(long credId, long userId, long instructorId, int progress,
 			String dateEnrolled) {
 		try {
 			String script = "if (ctx._source[\"credentials\"] == null) { " +
@@ -199,7 +199,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			Map<String, Object> params = new HashMap<>();
 			Map<String, Object> param = new HashMap<>();
 			param.put("id", credId);
-			param.put("progress", 0);
+			param.put("progress", progress);
 			param.put("instructorId", instructorId);
 			param.put("dateEnrolled", dateEnrolled);
 			params.put("cred", param);

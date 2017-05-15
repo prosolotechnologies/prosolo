@@ -7,17 +7,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -270,7 +274,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //				       	   "FROM TargetCompetence1 targetComp " + 
 //				       	   "INNER JOIN fetch targetComp.createdBy user ");
 //			if(loadTags) {
-//				builder.append("LEFT JOIN fetch comp.tags tags ");
+//				builder.append("LEFT JOIN fetch targetComp.tags tags ");
 //			}
 //			builder.append("WHERE targetComp.targetCredential = :targetCred " +
 //				       	   "ORDER BY targetComp.order");
@@ -297,6 +301,64 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //			}
 //			return result;
 			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading competence data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
+			throws DbConnectionException {
+		List<CompetenceData1> result = new ArrayList<>();
+		try {
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT credComp, tComp " +
+				       	   "FROM Credential1 cred " + 
+				       	   "INNER JOIN cred.competences credComp " +
+				       	   "INNER JOIN fetch credComp.competence comp " +
+				       	   "INNER JOIN fetch comp.createdBy user " +
+				       	   "LEFT JOIN comp.targetCompetences tComp " +
+				       			"WITH tComp.user.id = :userId ");
+			if (loadTags) {
+				builder.append("LEFT JOIN fetch comp.tags tags ");
+			}
+			builder.append("WHERE cred.id = :credId " +
+				       	   "ORDER BY credComp.order");
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = persistence.currentManager()
+				.createQuery(builder.toString())
+				.setLong("credId", credId)
+				.setLong("userId", userId)
+				.list();
+
+			if (res != null) {
+				//duplicates need to be filtered because same if there is more than one tag for competence there will be duplicates
+				Set<Long> uniqueComps = new HashSet<>();
+				for (Object[] row : res) {
+					CredentialCompetence1 cc = (CredentialCompetence1) row[0];
+					if (!uniqueComps.contains(cc.getId())) {
+						uniqueComps.add(cc.getId());
+						
+						Competence1 comp = cc.getCompetence();
+						Set<Tag> tags = loadTags ? comp.getTags() : null;
+						User createdBy = comp.getCreatedBy();
+						TargetCompetence1 tComp = (TargetCompetence1) row[1];
+						CompetenceData1 compData = null; 
+						if (tComp != null) {
+							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
+									false);
+						} else {
+							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
+						}
+						result.add(compData);
+					}
+				}
+			}
+			return result;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -333,7 +395,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			TargetCompetence1 targetComp = enrollInCompetence(compId, userId, context);
 			
 			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, targetComp.getCompetence().getTags(), null, false);
+					targetComp, 0, targetComp.getCompetence().getTags(), null, false);
 			
 			if(targetComp.getTargetActivities() != null) {
 				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
@@ -1500,7 +1562,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
 			
 			if (res != null) {
-				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 
+				compData = competenceFactory.getCompetenceData(res.getCompetence().getCreatedBy(), res, 0,
 						res.getCompetence().getTags(), null, true);
 				
 				if(compData != null && loadActivities) {

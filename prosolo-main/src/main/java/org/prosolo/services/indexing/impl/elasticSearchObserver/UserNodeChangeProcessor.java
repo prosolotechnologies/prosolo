@@ -49,10 +49,13 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			Credential1 cred = (Credential1) event.getObject();
 			long instructorId = Long.parseLong(params.get("instructorId"));
 			String dateEnrolledString = params.get("dateEnrolled");
+			String prog = params.get("progress");
+			int progress = prog != null ? Integer.parseInt(prog) : 0;
 			userEntityESService.addCredentialToUserIndex(
 					cred.getId(), 
 					event.getActorId(), 
-					instructorId, 
+					instructorId,
+					progress,
 					dateEnrolledString);
 			//add student to credential index
 			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
