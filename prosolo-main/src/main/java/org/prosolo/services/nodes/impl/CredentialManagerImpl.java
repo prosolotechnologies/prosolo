@@ -38,6 +38,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
+import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -80,6 +81,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private ResourceAccessFactory resourceAccessFactory;
 	//self inject for better control of transaction bondaries
 	@Inject private CredentialManager credManager;
+	@Inject private UserDataFactory userDataFactory;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -3514,6 +3516,27 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential delivery ids");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResourceCreator getCredentialCreator(long credId) throws DbConnectionException {
+		try {
+			String query = "SELECT c.createdBy " +
+					"FROM Credential1 c " +
+					"WHERE c.id = :credId";
+
+			User createdBy =  (User) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.uniqueResult();
+
+			return userDataFactory.getResourceCreator(createdBy);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential creator");
 		}
 	}
 }

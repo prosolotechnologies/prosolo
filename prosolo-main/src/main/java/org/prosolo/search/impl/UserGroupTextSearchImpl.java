@@ -148,12 +148,12 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	@Override
-	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
+	public TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId) {
 		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
 		try {
-			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
-			SearchHit[] groupHits = getCredentialGroups(credId, searchTerm, limit, groupsToExclude);
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, roleId);
+			SearchHit[] groupHits = getCredentialGroups(searchTerm, limit, groupsToExclude);
 			
 			int userLength = userHits.length, groupLength = groupHits.length;
 			int groupNumber = limit / 2 < groupLength ? limit / 2 : groupLength; 
@@ -199,7 +199,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	private SearchHit[] getResourceVisibilityUsers(String searchTerm, int limit, 
-			List<Long> usersToExclude) {
+			List<Long> usersToExclude, long roleId) {
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -221,6 +221,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				for (Long exUserId : usersToExclude) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
 				}
+			}
+
+			if (roleId > 0) {
+				bQueryBuilder.filter(termQuery("roles.id", roleId));
 			}
 			
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
@@ -255,8 +259,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		return new SearchHit[0];
 	}
 	
-	private SearchHit[] getCredentialGroups(long credId,
-			String searchTerm, int limit, List<Long> groupsToExclude) {
+	private SearchHit[] getCredentialGroups(String searchTerm, int limit, List<Long> groupsToExclude) {
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
@@ -268,8 +271,6 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
 			bqBuilder.must(qb);
-			
-			bqBuilder.mustNot(QueryBuilders.termQuery("credentials.id", credId));
 			
 			if (groupsToExclude != null) {
 				for (Long g : groupsToExclude) {
@@ -319,7 +320,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	public TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm, 
 			int limit, List<Long> usersToExclude) {
 		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
-		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, 0);
 			
 		for(SearchHit h : userHits) {
 			response.addFoundNode(extractVisibilityUserResult(h));
@@ -333,7 +334,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude) {
 		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
 		try {
-			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude);
+			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, 0);
 			SearchHit[] groupHits = getCompetenceGroups(compId, searchTerm, limit, groupsToExclude);
 			
 			int userLength = userHits.length, groupLength = groupHits.length;

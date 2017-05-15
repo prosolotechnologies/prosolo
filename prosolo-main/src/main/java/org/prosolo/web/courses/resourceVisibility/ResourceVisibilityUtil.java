@@ -1,14 +1,15 @@
 package org.prosolo.web.courses.resourceVisibility;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.ResourceVisibilityMemberType;
-import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ResourceVisibilityUtil implements Serializable {
 
@@ -25,16 +26,25 @@ public class ResourceVisibilityUtil implements Serializable {
 	
 	private boolean visibleToEveryone;
 	private boolean visibleToEveryoneChanged;
-	
-	private UserGroupPrivilegeData[] privileges;
-	private UserGroupPrivilegeData newMemberPrivilege = UserGroupPrivilegeData.View;
 
-	public void initializeValues(boolean visibleToEveryone) {
+	//privilege for which we are making changes
+	private UserGroupPrivilege privilege;
+
+	public void initializeValuesForEditPrivilege() {
+		this.privilege = UserGroupPrivilege.Edit;
+		initializeValues(false);
+	}
+
+	public void initializeValuesForLearnPrivilege(boolean visibleToEveryone) {
+		this.privilege = UserGroupPrivilege.Learn;
+		initializeValues(visibleToEveryone);
+	}
+
+	private void initializeValues(boolean visibleToEveryone) {
 		searchTerm = "";
 		searchMembers = new ArrayList<>();
 		existingGroups = new ArrayList<>();
 		existingUsers = new ArrayList<>();
-		privileges = UserGroupPrivilegeData.values();
 		usersToExclude = new ArrayList<>();
 		groupsToExclude = new ArrayList<>();
 		this.visibleToEveryone = visibleToEveryone;
@@ -42,46 +52,61 @@ public class ResourceVisibilityUtil implements Serializable {
 	
 	//TODO add searchUsersandgroups
 	public void addNewMember(ResourceVisibilityMember member) {
-		member.setStatus(ObjectStatus.CREATED);
-		member.setPrivilege(newMemberPrivilege);
 		switch(member.getType()) {
 			case Group:
-				existingGroups.add(member);
+				Optional<ResourceVisibilityMember> removedGroupOpt = getGroupIfPreviouslyRemoved(member.getGroupId());
+				if (removedGroupOpt.isPresent()) {
+					//if group was previously removed we just change its status back to 'up to date'
+					removedGroupOpt.get().setStatus(ObjectStatus.UP_TO_DATE);
+				} else {
+					setStatusAndPrivilegeForNewMember(member);
+					existingGroups.add(member);
+				}
 				groupsToExclude.add(member.getGroupId());
 				break;
 			case User:
-				existingUsers.add(member);
+				Optional<ResourceVisibilityMember> removedUserOpt = getUserIfPreviouslyRemoved(member.getUserId());
+				if (removedUserOpt.isPresent()) {
+					//if user was previously removed we just change its status back to 'up to date'
+					removedUserOpt.get().setStatus(ObjectStatus.UP_TO_DATE);
+				} else {
+					setStatusAndPrivilegeForNewMember(member);
+					existingUsers.add(member);
+				}
 				usersToExclude.add(member.getUserId());
 				break;
 		}
-		newMemberPrivilege = UserGroupPrivilegeData.View;
 	}
-	
-	public void setPrivilegeForNewMember(UserGroupPrivilegeData priv) {
-		newMemberPrivilege = priv;
+
+	private void setStatusAndPrivilegeForNewMember(ResourceVisibilityMember member) {
+		member.setStatus(ObjectStatus.CREATED);
+		member.setPrivilege(privilege);
 	}
-	
-	public void setPrivilegeForMember(ResourceVisibilityMember member, UserGroupPrivilegeData priv) {
-		member.setPrivilege(priv);
-		if(member.hasObjectChanged()) {
-			member.setStatus(ObjectStatusTransitions.changeTransition(member.getStatus()));
-		} else {
-			member.setStatus(ObjectStatusTransitions.upToDateTransition(member.getStatus()));
-		}
+
+	public Optional<ResourceVisibilityMember> getUserIfPreviouslyRemoved(long userId) {
+		return existingUsers.stream()
+				.filter(rvm -> rvm.getStatus() == ObjectStatus.REMOVED && rvm.getUserId() == userId)
+				.findFirst();
 	}
-	
+
+	public Optional<ResourceVisibilityMember> getGroupIfPreviouslyRemoved(long groupId) {
+		return existingGroups.stream()
+				.filter(rvm -> rvm.getStatus() == ObjectStatus.REMOVED && rvm.getGroupId() == groupId)
+				.findFirst();
+	}
+
 	public void removeMember(ResourceVisibilityMember member) {
 		member.setStatus(ObjectStatusTransitions.removeTransition(member.getStatus()));
-		if(member.getStatus() != ObjectStatus.REMOVED) {
-			if(member.getType() == ResourceVisibilityMemberType.User) {
-				existingUsers.remove(member);
-			} else {
-				existingGroups.remove(member);
-				groupsToExclude.remove(member.getGroupId());
-			}
-		}
 		if(member.getType() == ResourceVisibilityMemberType.User) {
-			usersToExclude.remove(new Long(member.getUserId()));
+			if (member.getStatus() != ObjectStatus.REMOVED) {
+				existingUsers.remove(member);
+			}
+			usersToExclude.remove(member.getUserId());
+		} else {
+			if (member.getStatus() != ObjectStatus.REMOVED) {
+				existingGroups.remove(member);
+			}
+			groupsToExclude.remove(member.getGroupId());
 		}
 	}
 	
@@ -128,22 +153,6 @@ public class ResourceVisibilityUtil implements Serializable {
 			this.visibleToEveryoneChanged = !this.visibleToEveryoneChanged;
 		}
 		this.visibleToEveryone = visibleToEveryone;
-	}
-
-	public UserGroupPrivilegeData[] getPrivileges() {
-		return privileges;
-	}
-
-	public void setPrivileges(UserGroupPrivilegeData[] privileges) {
-		this.privileges = privileges;
-	}
-
-	public UserGroupPrivilegeData getNewMemberPrivilege() {
-		return newMemberPrivilege;
-	}
-
-	public void setNewMemberPrivilege(UserGroupPrivilegeData newMemberPrivilege) {
-		this.newMemberPrivilege = newMemberPrivilege;
 	}
 
 	public int getLimit() {

@@ -1,72 +1,115 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@ManagedBean(name = "credentialVisibilityBean")
-@Component("credentialVisibilityBean")
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
+
+@Component("credentialUserPrivilegeBean")
 @Scope("view")
-public class CredentialVisibilityBean implements Serializable {
+public class CredentialUserPrivilegeBean implements Serializable {
 
 	private static final long serialVersionUID = -926922726442064817L;
 
-	private static Logger logger = Logger.getLogger(CredentialVisibilityBean.class);
+	private static Logger logger = Logger.getLogger(CredentialUserPrivilegeBean.class);
 	
 	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private CredentialManager credManager;
-	
+	@Inject private ApplicationPagesBean appPagesBean;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private RoleManager roleManager;
+
+	private String credId;
 	private long credentialId;
 	private ResourceCreator creator;
-	
-	private boolean manageSection;
+	private String credentialTitle;
+	//id of a role that user should have in order to be considered when adding privileges
+	private long roleId;
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
+
+	private UserGroupPrivilege privilege;
 	
-	public CredentialVisibilityBean() {
+	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
-	public void init(long credentialId, ResourceCreator creator, boolean manageSection) {
-		this.credentialId = credentialId;
-		this.creator = creator;
-		this.manageSection = manageSection;
-		resVisibilityUtil.initializeValues(credManager.isVisibleToAll(credentialId));
-		try {
-			logger.info("Manage visibility for credential with id " + credentialId);
 
-			loadData();
-		} catch(Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage(e.getMessage());
+	public void initWithLearnPrivilege() {
+		this.privilege = UserGroupPrivilege.Learn;
+		init();
+	}
+
+	public void initWithEditPrivilege() {
+		this.privilege = UserGroupPrivilege.Edit;
+		init();
+	}
+
+	private void init() {
+		credentialId = idEncoder.decodeId(credId);
+		if (credentialId > 0) {
+			try {
+				credentialTitle = credManager.getCredentialTitle(credentialId, CredentialType.Original);
+				if (credentialTitle != null) {
+					this.creator = credManager.getCredentialCreator(credentialId);
+					if (privilege == UserGroupPrivilege.Edit) {
+						resVisibilityUtil.initializeValuesForEditPrivilege();
+					} else {
+						resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
+					}
+					List<Long> roleIds = roleManager.getRoleIdsForName(
+							privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
+
+					if (roleIds.size() == 1) {
+						roleId = roleIds.get(0);
+					}
+
+					logger.info("Manage visibility for credential with id " + credentialId);
+
+					loadData();
+				} else {
+					PageUtil.notFound();
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage(e.getMessage());
+			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 	
 	private void loadData() {
-		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId));
-		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId)); 
-		for(ResourceVisibilityMember rvm : getExistingUsers()) {
+		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
+		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId, privilege));
+		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
+		}
+		for (ResourceVisibilityMember g : getExistingGroups()) {
+			getGroupsToExclude().add(g.getGroupId());
 		}
 	}
 	
@@ -76,12 +119,9 @@ public class CredentialVisibilityBean implements Serializable {
 			searchTerm = "";
 		}
 		TextSearchResponse1<ResourceVisibilityMember> res = null;
-		if(manageSection) {
-			res = userGroupTextSearch.searchCredentialUsersAndGroups(credentialId, searchTerm, getLimit(), 
-					getUsersToExclude(), getGroupsToExclude());
-		} else {
-			res = userGroupTextSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
-		}
+
+		res = userGroupTextSearch.searchCredentialUsersAndGroups(searchTerm, getLimit(),
+				getUsersToExclude(), getGroupsToExclude(), roleId);
 		
 		setSearchMembers(res.getFoundNodes());
 	}
@@ -90,30 +130,33 @@ public class CredentialVisibilityBean implements Serializable {
 		resVisibilityUtil.addNewMember(member);
 		searchUsersAndGroups();
 	}
-	
-	public void setPrivilegeForNewMember(UserGroupPrivilegeData priv) {
-		resVisibilityUtil.setPrivilegeForNewMember(priv);
-	}
-	
-	public void setPrivilegeForMember(ResourceVisibilityMember member, UserGroupPrivilegeData priv) {
-		resVisibilityUtil.setPrivilegeForMember(member, priv);
-	}
-	
+
 	public void removeMember(ResourceVisibilityMember member) {
 		resVisibilityUtil.removeMember(member);
 	}
 	
 	public void saveVisibilityMembersData() {
+		boolean saved = false;
 		try {
 			LearningContextData lcd = PageUtil.extractLearningContextData();
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
-			PageUtil.fireSuccessfulInfoMessage("Credential visibility options successfully updated");
+			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update credential visibility");
+			PageUtil.fireErrorMessage("Error while trying to update user privileges for a credential");
 		} catch (EventException ee) {
 			logger.error(ee);
+		}
+
+		if (saved) {
+			try {
+				loadData();
+			} catch (Exception e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
+			}
 		}
 	}
 
@@ -153,26 +196,6 @@ public class CredentialVisibilityBean implements Serializable {
 		return resVisibilityUtil.isVisibleToEveryone();
 	}
 	
-	public UserGroupPrivilegeData[] getPrivileges() {
-		return resVisibilityUtil.getPrivileges();
-	}
-
-	public void setPrivileges(UserGroupPrivilegeData[] privileges) {
-		resVisibilityUtil.setPrivileges(privileges);
-	}
-
-	public UserGroupPrivilegeData getNewMemberPrivilege() {
-		return resVisibilityUtil.getNewMemberPrivilege();
-	}
-
-	public void setNewMemberPrivilege(UserGroupPrivilegeData newMemberPrivilege) {
-		resVisibilityUtil.setNewMemberPrivilege(newMemberPrivilege);
-	}
-	
-	public boolean isManageSection() {
-		return manageSection;
-	}
-	
 	private List<Long> getUsersToExclude() {
 		return resVisibilityUtil.getUsersToExclude();
 	}
@@ -195,5 +218,21 @@ public class CredentialVisibilityBean implements Serializable {
 	
 	public void setVisibleToEveryone(boolean val) {
 		resVisibilityUtil.setVisibleToEveryone(val);
+	}
+
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public String getCredentialTitle() {
+		return credentialTitle;
+	}
+
+	public long getCredentialId() {
+		return credentialId;
 	}
 }

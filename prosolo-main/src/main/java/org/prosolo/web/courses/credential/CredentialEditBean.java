@@ -1,20 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -44,6 +29,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
+
 @ManagedBean(name = "credentialEditBean")
 @Component("credentialEditBean")
 @Scope("view")
@@ -59,7 +52,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private CompetenceTextSearch compTextSearch;
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
-	@Inject private CredentialVisibilityBean visibilityBean;
+	@Inject private CredentialUserPrivilegeBean visibilityBean;
 
 	private String id;
 	private long decodedId;
@@ -140,10 +133,6 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean isDelivery() {
 		return credentialData.getType() == CredentialType.Delivery;
-	}
-	
-	public void initVisibilityManageData() {
-		visibilityBean.init(decodedId, credentialData.getCreator(), true);
 	}
 	
 	private void setContext() {

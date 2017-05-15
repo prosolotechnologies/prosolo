@@ -72,19 +72,21 @@ public interface UserGroupManager extends AbstractManager {
 	/**
 	 * Returns list of all non default user groups for specified credential
 	 * @param credId
+	 * @param privilege
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId) 
+	List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
 	/**
 	 * Returns all users data from default user groups defined for credential.
 	 * @param credId
+	 * @param privilege
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId) 
+	List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
 	/**
