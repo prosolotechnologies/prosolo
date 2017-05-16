@@ -22,6 +22,8 @@ import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -30,6 +32,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
@@ -54,6 +57,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	private ActivityAssessmentDataFactory activityAssessmentFactory;
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
+	@Inject private Competence1Manager compManager;
 	
 	private static final String PENDING_ASSESSMENTS_QUERY = 
 			"FROM CredentialAssessment AS credentialAssessment " + 
@@ -179,8 +183,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetCredentialId());
 		return createAssessment(targetCredential, assessmentRequestData.getStudentId(), 
-				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(), 
-				assessmentRequestData.getCredentialTitle(), false, context);
+				assessmentRequestData.getAssessorId(), assessmentRequestData.getMessageText(),
+				false, context);
 	}
 	
 	@Override
@@ -189,83 +193,114 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			LearningContextData context) 
 			throws DbConnectionException {
 		return createAssessment(targetCredential, targetCredential.getUser().getId(), assessorId, 
-				null, targetCredential.getCredential().getTitle(), true, context);
+				null, true, context);
 	}
 	
 	private long createAssessment(TargetCredential1 targetCredential, long studentId, long assessorId,
-			String message, String credentialTitle, boolean defaultAssessment, 
-			LearningContextData context) {
+			String message, boolean defaultAssessment, LearningContextData context) {
 		try {
-			//TODO cred-redesign-07
-//			User student = (User) persistence.currentManager().load(User.class, studentId);
-//			User assessor = null;
-//			if(assessorId > 0) {
-//				assessor = (User) persistence.currentManager().load(User.class, assessorId);
-//			}
-//			CredentialAssessment assessment = new CredentialAssessment();
-//			Date creationDate = new Date();
-//			assessment.setMessage(message);
-//			assessment.setDateCreated(creationDate);
-//			assessment.setApproved(false);
-//			assessment.setAssessedStudent(student);
-//			if(assessor != null) {
-//				assessment.setAssessor(assessor);
-//			}
-//			assessment.setTitle(credentialTitle);
-//			assessment.setTargetCredential(targetCredential);
-//			assessment.setDefaultAssessment(defaultAssessment);
-//			saveEntity(assessment);
-//			// create CompetenceAssessment for every competence
-//			//List<CompetenceAssessment> competenceAssessments = new ArrayList<>();
-//			int credPoints = 0;
-//			for (TargetCompetence1 targetCompetence : targetCredential.getTargetCompetences()) {
-//				CompetenceAssessment compAssessment = new CompetenceAssessment();
-//				compAssessment.setApproved(false);
-//				compAssessment.setDateCreated(creationDate);
-//				compAssessment.setCredentialAssessment(assessment);
-//				compAssessment.setTitle(targetCompetence.getTitle());
-//				compAssessment.setTargetCompetence(targetCompetence);
-//				compAssessment.setDefaultAssessment(defaultAssessment);
-//				saveEntity(compAssessment);
-//				//create activity assessments for activities that have automatic score
-//				int compPoints = 0;
-//				for(TargetActivity1 ta : targetCompetence.getTargetActivities()) {
-//					/*
-//					 * if common score is set or activity is completed and autograde is true
-//					 * we create activity assessment with appropriate grade
-//					 */
-//					if(ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
-//						List<Long> participantIds = new ArrayList<>();
-//						participantIds.add(studentId);
-//						if(assessorId > 0) {
-//							participantIds.add(assessorId);
-//						}
-//						int grade = ta.isCompleted() && ta.getActivity().isAutograde() 
-//								? ta.getActivity().getMaxPoints()
-//								: ta.getCommonScore();
-//						createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0, 
-//								defaultAssessment, grade, context);
-//						compPoints += grade;
-//					}
-//				}
-//				if(compPoints > 0) {
-//					compAssessment.setPoints(compPoints);
-//					credPoints += compPoints;
-//				}
-//				//competenceAssessments.add(compAssessment);
-//			}
-//			if(credPoints > 0) {
-//				assessment.setPoints(credPoints);
-//			}
-//			//assessment.setCompetenceAssessments(competenceAssessments);
-//			//saveEntity(assessment);
-//			return assessment.getId();
-			return 0;
+			User student = (User) persistence.currentManager().load(User.class, studentId);
+			User assessor = null;
+			if(assessorId > 0) {
+				assessor = (User) persistence.currentManager().load(User.class, assessorId);
+			}
+			CredentialAssessment assessment = new CredentialAssessment();
+			Date creationDate = new Date();
+			assessment.setMessage(message);
+			assessment.setDateCreated(creationDate);
+			assessment.setApproved(false);
+			assessment.setAssessedStudent(student);
+			if(assessor != null) {
+				assessment.setAssessor(assessor);
+			}
+			//assessment.setTitle(credentialTitle);
+			assessment.setTargetCredential(targetCredential);
+			assessment.setDefaultAssessment(defaultAssessment);
+			saveEntity(assessment);
+
+			int credPoints = 0;
+			//return only enrolled competences for student
+			List<TargetCompetence1> targetCompetences = compManager.getTargetCompetencesForCredentialAndUser(
+					targetCredential.getCredential().getId(), studentId);
+			for (TargetCompetence1 targetCompetence : targetCompetences) {
+				credPoints += createCompetenceAndActivityAssessmentsIfNeeded(targetCompetence, assessment, studentId,
+						assessorId, defaultAssessment, context);
+			}
+			if (credPoints > 0) {
+				assessment.setPoints(credPoints);
+			}
+			return assessment.getId();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating assessment for credential");
+			throw new DbConnectionException("Error while creating assessment for a credential");
 		}
+	}
+
+	/**
+	 * Creates competence assessment and activity assessment for all competence activities if needed and returns
+	 * competence assessment points.
+	 *
+	 * Activity assessment is created for all those completed activities with autograde option and all
+	 * graded external activities.
+	 *
+	 * Competence assessment is created when at least one activity assessment should be created as explained above.
+	 *
+	 * @param tComp
+	 * @param credAssessment
+	 * @param studentId
+	 * @param assessorId
+	 * @param isDefault
+	 * @param context
+	 * @return
+	 * @throws ResourceCouldNotBeLoadedException
+	 * @throws EventException
+	 */
+	private int createCompetenceAndActivityAssessmentsIfNeeded(TargetCompetence1 tComp,
+				CredentialAssessment credAssessment, long studentId, long assessorId, boolean isDefault,
+			    LearningContextData context) throws ResourceCouldNotBeLoadedException, EventException {
+		CompetenceAssessment compAssessment = null;
+		int compPoints = 0;
+		for (TargetActivity1 ta : tComp.getTargetActivities()) {
+			/*
+			 * if common score is set or activity is completed and autograde is true
+			 * we create activity assessment with appropriate grade
+			 */
+			if (ta.getCommonScore() >= 0 || (ta.isCompleted() && ta.getActivity().isAutograde())) {
+				//create competence assessment if not already created
+				if (compAssessment == null) {
+					compAssessment = createCompetenceAssessment(tComp, credAssessment, isDefault);
+				}
+				List<Long> participantIds = new ArrayList<>();
+				participantIds.add(studentId);
+				if (assessorId > 0) {
+					participantIds.add(assessorId);
+				}
+				int grade = ta.isCompleted() && ta.getActivity().isAutograde()
+						? ta.getActivity().getMaxPoints()
+						: ta.getCommonScore();
+				createActivityDiscussion(ta.getId(), compAssessment.getId(), participantIds, 0,
+						isDefault, grade, context);
+				compPoints += grade;
+			}
+		}
+		if (compAssessment != null) {
+			compAssessment.setPoints(compPoints);
+		}
+		return compPoints;
+	}
+
+	private CompetenceAssessment createCompetenceAssessment(TargetCompetence1 tComp,
+				CredentialAssessment credAssessment, boolean isDefault) {
+		CompetenceAssessment compAssessment = new CompetenceAssessment();
+		compAssessment.setApproved(false);
+		compAssessment.setDateCreated(new Date());
+		compAssessment.setCredentialAssessment(credAssessment);
+		//compAssessment.setTitle(targetCompetence.getTitle());
+		compAssessment.setTargetCompetence(tComp);
+		compAssessment.setDefaultAssessment(isDefault);
+		saveEntity(compAssessment);
+		return compAssessment;
 	}
 
 	@Override

@@ -1310,12 +1310,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		activityDiscussion.setTargetActivity(targetActivity);
 		//activityDiscussion.setParticipants(participants);
 		activityDiscussion.setDefaultAssessment(isDefault);
-		
-//		//TODO change when design is implemented
-//		ActivityGrade ag = new ActivityGrade();
-//		ag.setValue(grade);
-//		saveEntity(ag);
-//		activityDiscussion.setGrade(ag);
+
 		if (grade != null) {
 			activityDiscussion.setPoints(grade);
 		}

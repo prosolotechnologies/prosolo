@@ -395,5 +395,17 @@ public interface Competence1Manager {
 	
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
 			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
+
+	/**
+	 * Returns competencies from credential specified by {@code credId} id that user given by {@code userId} id
+	 * started learning.
+	 *
+	 * @param credId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
+			throws DbConnectionException;
 	
 }

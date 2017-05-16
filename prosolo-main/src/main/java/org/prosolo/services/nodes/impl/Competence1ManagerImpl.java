@@ -2766,5 +2766,34 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while publishing competency");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT tComp " +
+					"FROM Credential1 cred " +
+					"INNER JOIN cred.competences credComp " +
+					"INNER JOIN credComp.competence comp " +
+					"INNER JOIN comp.targetCompetences tComp " +
+						"WITH tComp.user.id = :userId " +
+					"WHERE cred.id = :credId " +
+					"ORDER BY credComp.order";
+
+			@SuppressWarnings("unchecked")
+			List<TargetCompetence1> res = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("userId", userId)
+					.list();
+
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user competencies");
+		}
+	}
 	
 }

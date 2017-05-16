@@ -1036,9 +1036,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 	    	}
 			
-			//TODO cred-redesign-07 implement when assessments are refactored
 			//create default assessment for user
-			//assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
 			
 			Map<String, String> params = new HashMap<>();
 			params.put("instructorId", instructorId + "");
