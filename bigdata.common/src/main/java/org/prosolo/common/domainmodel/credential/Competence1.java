@@ -20,6 +20,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.CompetenceUnit;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -35,7 +36,7 @@ public class Competence1 extends BaseEntity {
 	private boolean published;
 	private LearningResourceType type;
 	private List<TargetCompetence1> targetCompetences;
-	
+	private List<CompetenceUnit> competenceUnits;
 	private List<CredentialCompetence1> credentialCompetence;
 	
 	//all existing users have View privilege
@@ -137,4 +138,14 @@ public class Competence1 extends BaseEntity {
 		this.visibleToAll = visibleToAll;
 	}
 	
+	@OneToMany(mappedBy = "competence", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public List<CompetenceUnit> getCompetenceUnits(){
+		return competenceUnits;
+	}
+	
+	public void setCompetenceUnits(List<CompetenceUnit> competenceUnits){
+		this.competenceUnits = competenceUnits;
+	}
+
 }

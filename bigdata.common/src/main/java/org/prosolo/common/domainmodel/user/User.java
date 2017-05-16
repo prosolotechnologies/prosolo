@@ -9,13 +9,16 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 
 
@@ -30,6 +33,7 @@ public class User extends BaseEntity {
 	private String avatarUrl;
 	private Set<TargetLearningGoal> learningGoals;
 	private Set<Role> roles;
+	private Organization organization;
 	
 	@Type(type="encryptedString")
 	private String password;
@@ -48,6 +52,7 @@ public class User extends BaseEntity {
 	private String email;
 	private boolean verified;
 	private String verificationKey;
+	
 	
 	public User() {
 		learningGoals = new HashSet<TargetLearningGoal>();
@@ -237,6 +242,15 @@ public class User extends BaseEntity {
 
 	public void setVerificationKey(String confirmationKey) {
 		this.verificationKey = confirmationKey;
+	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Organization getOrganization(){
+		return organization;
+	}
+	
+	public void setOrganization(Organization organization){
+		this.organization = organization;
 	}
 	
 }
