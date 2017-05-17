@@ -15,7 +15,7 @@
 	xmlns:composite="http://java.sun.com/jsf/composite">
 
 	<composite:interface>
-
+		<composite:attribute name="toUpdate" default=""/>
 	</composite:interface>
 
 
@@ -162,8 +162,8 @@
 											action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
 											type="button" styleClass="btn btn-sm btn-green hidden"
 											name="button"
-											update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId})">
-									Submit
+											update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}) #{cc.attrs.toUpdate}">
+											Submit
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"

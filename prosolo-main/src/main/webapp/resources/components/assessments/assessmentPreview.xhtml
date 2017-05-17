@@ -61,6 +61,7 @@
 					$(inputElem).next('a.btn-green').removeClass('hidden');
 				}
 			}
+		
 		</script>
 		<h:form prependId="false" id="remoteCommandForm">
 			<p:remoteCommand action="#{cc.attrs.bean.markDiscussionRead()}"
@@ -405,7 +406,9 @@
 			</div>
 		</div>
 		
-		<activities:activityCommentModal id="commentModal"/>
+		<activities:activityCommentModal id="commentModal"
+			toUpdate=":#{cc.clientId}:assessCredentialForm:assessCredentialFormGrowl @(.assessmentActivityList.comp_#{activityPrivateConversationBean.activityAssessmentData.compAssessmentId}) :assessmentPreview:assessCredentialForm"
+		/>
 		
 		<activities:activityGradeModal id="activityGradeModal"
 			bean="#{cc.attrs.bean}"
