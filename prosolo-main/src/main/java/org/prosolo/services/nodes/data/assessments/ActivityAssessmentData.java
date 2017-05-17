@@ -116,7 +116,7 @@ public class ActivityAssessmentData {
 		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
 		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
 		data.setTargetActivityId(targetActivity.getId());
-		data.setUserId(data.getUserId());
+		data.setUserId(compAssessment.getCredentialAssessment().getAssessedStudent().getId());
 	}
 
 //	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
