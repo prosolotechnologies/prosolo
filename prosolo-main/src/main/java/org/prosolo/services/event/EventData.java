@@ -1,5 +1,6 @@
 package org.prosolo.services.event;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -15,7 +16,7 @@ public class EventData {
 	private String page; 
 	private String context; 
 	private String service; 
-	private Class<? extends EventObserver>[] observersToExclude; 
+	private Class<? extends EventObserver>[] observersToExclude;
 	private Map<String, String> parameters;
 	
 	//for ChangeProgress event

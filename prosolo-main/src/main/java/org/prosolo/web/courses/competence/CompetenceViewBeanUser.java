@@ -16,7 +16,6 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -46,6 +45,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	private String compId;
 	private long decodedCompId;
 	private String commentId;
+	private boolean justEnrolled;
 	
 	private CompetenceData1 competenceData;
 	private ResourceAccessData access;
@@ -78,19 +78,23 @@ public class CompetenceViewBeanUser implements Serializable {
 				commentBean.loadComments(commentsData);
 				
 				if(decodedCredId > 0) {
-					String credTitle = null;
-					if(competenceData.isEnrolled()) {
-						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
-								loggedUser.getUserId(), false);
-						credTitle = li.getCredentialTitle();
-						//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
-						//nextCompToLearn = li.getNextCompetenceToLearn();
-						//mandatoryOrder = li.isMandatoryFlow();
-					} else {
-						credTitle = credManager.getCredentialTitle(decodedCredId);
-					}
+					String credTitle = credManager.getCredentialTitle(decodedCredId);
+//					if(competenceData.isEnrolled()) {
+////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
+////								loggedUser.getUserId(), false);
+//						//credTitle = li.getCredentialTitle();
+//						//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
+//						//nextCompToLearn = li.getNextCompetenceToLearn();
+//						//mandatoryOrder = li.isMandatoryFlow();
+//					} else {
+//						credTitle = credManager.getCredentialTitle(decodedCredId);
+//					}
 					competenceData.setCredentialId(decodedCredId);
 					competenceData.setCredentialTitle(credTitle);
+				}
+				if (justEnrolled) {
+					PageUtil.fireSuccessfulInfoMessage(
+							"You have enrolled in the competency " + competenceData.getTitle());
 				}
 			} catch (AccessDeniedException ade) {
 				try {
@@ -232,6 +236,14 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public ResourceAccessData getAccess() {
 		return access;
+	}
+
+	public boolean isJustEnrolled() {
+		return justEnrolled;
+	}
+
+	public void setJustEnrolled(boolean justEnrolled) {
+		this.justEnrolled = justEnrolled;
 	}
 
 
