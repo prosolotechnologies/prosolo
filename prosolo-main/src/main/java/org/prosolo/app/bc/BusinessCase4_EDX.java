@@ -696,16 +696,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
-		
-		/* 
-		 * Enrolling students to credentials
-		 */
-		CredentialData cred1DataKevinHall = ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(),  new LearningContextData());
-		
+
+		try {
+			/*
+			 * Enrolling students to credentials
+			 */
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(), new LearningContextData());
+
+		} catch (EventException e) {
+			logger.error(e);
+		}
 		/* 
 		 * Adding instructors
 		 */
@@ -988,15 +992,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		Competence1 comp = ServiceLocator
-				.getInstance()
-				.getService(Competence1Manager.class)
-				.saveNewCompetence(
-						compData,
-						user.getId(),
-						credentialId, null);
+		Competence1 comp;
+		try {
+			comp = ServiceLocator
+					.getInstance()
+					.getService(Competence1Manager.class)
+					.saveNewCompetence(
+							compData,
+							user.getId(),
+							credentialId, null);
+			return comp;
+		} catch (DbConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalDataStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		return comp;
+		return null;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {

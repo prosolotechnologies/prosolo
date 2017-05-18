@@ -206,8 +206,8 @@
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>
 			                        <div class="selectRow">
-			                        	<h:selectOneMenu styleClass="selectpicker pickHours"
-			                        		value="#{activityEditBean.activityData.durationHours}">
+			                        	<h:selectOneMenu id="estimatedTimeHours" styleClass="selectpicker pickHours"
+			                        		value="#{activityEditBean.activityData.durationHours}" validator="estimatedTimeValidator">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
@@ -223,7 +223,7 @@
 			                        		<f:selectItem itemValue="12"/>
 			                        	</h:selectOneMenu>
 			                            <p>hours</p>
-			                            <h:selectOneMenu styleClass="selectpicker pickMinutes"
+			                            <h:selectOneMenu id="estimatedTimeMinutes" styleClass="selectpicker pickMinutes"
 			                        		value="#{activityEditBean.activityData.durationMinutes}">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="5"/>
@@ -240,13 +240,19 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:estimatedTimeHours'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="estimatedTimeHours"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">
 			                        <p>Difficulty level:</p>
 			                        <div class="selectRow">
-			                        	<h:selectOneMenu styleClass="selectpicker pickLevel"
-			                        		value="#{activityEditBean.activityData.difficulty}">
+			                        	<h:selectOneMenu id="difficultyLevelSelect" styleClass="selectpicker pickLevel"
+			                        		value="#{activityEditBean.activityData.difficulty}" validator="difficultyLevelValidator">
+			                        		<f:selectItem itemValue="-1" itemLabel="---" />
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
 			                        		<f:selectItem itemValue="3"/>
@@ -254,6 +260,11 @@
 			                        		<f:selectItem itemValue="5"/>
 			                        	</h:selectOneMenu>
 			                        </div>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:difficultyLevelSelect'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="difficultyLevelSelect"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			          

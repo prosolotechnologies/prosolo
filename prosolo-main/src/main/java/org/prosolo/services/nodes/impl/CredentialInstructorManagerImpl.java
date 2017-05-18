@@ -34,6 +34,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
+import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -301,6 +302,16 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	                result.addEvents(assignStudentToInstructor(instructorToAssign.getInstructorId(), tCred.getId(), 
 	                		formerInstructorId, updateAssessor, actorId, context)
 	                			.getEvents());
+	                /*
+	                this is currently needed only for enrollincredential method to be able to get instructor user id
+	                 */
+	                //TODO observer refactor - when observers are refactored remove this if not needed
+	                CredentialInstructor ci = new CredentialInstructor();
+	                User instUser = new User();
+	                instUser.setId(instructorToAssign.getUser().getId());
+	                ci.setId(instructorToAssign.getInstructorId());
+	                ci.setUser(instUser);
+	                data.addAssignedPair(new StudentInstructorPair(tCred, ci));
 	                instructorToAssign.setNumberOfAssignedStudents(instructorToAssign
 	                		.getNumberOfAssignedStudents() + 1);
 	                if (instructorToAssign.isFull()) {

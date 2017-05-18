@@ -1,36 +1,15 @@
 package org.prosolo.services.nodes.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialInstructor;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
@@ -46,31 +25,16 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.indexing.utils.ElasticsearchUtil;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.CredentialUserAccessSpecification;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.instructor.StudentAssignData;
+import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.CredentialDataFactory;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
@@ -80,9 +44,8 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -285,7 +248,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			String query = "SELECT DISTINCT cred, creator, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId " +
-						   "FROM Credential1 cred " + 
+						   "FROM Credential1 cred " +
 						   "INNER JOIN cred.createdBy creator " +
 						   "LEFT JOIN cred.targetCredentials targetCred " + 
 						   "WITH targetCred.user.id = :user " +
@@ -487,19 +450,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		}
 //	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, long userId)
-			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
+	public RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, 
+			long userId) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
 		CredentialData credData = null;
 		try {
 			credData = getTargetCredentialData(credentialId, userId, true);
 			if (credData == null) {
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.USER)
-						.addPrivilege(UserGroupPrivilege.Learn)
-						.addPrivilege(UserGroupPrivilege.Edit);
+						.addPrivilege(UserGroupPrivilege.Learn);
 				return getCredentialData(credentialId, true, true, userId, req);
 			}
 			
@@ -516,34 +477,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getTargetCredentialData(long credentialId, long userId, 
 			boolean loadCompetences) throws DbConnectionException {
 		CredentialData credData = null;
 		try {
-			//TODO cred-redesign-07
-//			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true);
-//
-//			if (res != null) {
-//				credData = credentialFactory.getCredentialData(res.getCreatedBy(), 
-//						res, res.getTags(), res.getHashtags(), true);
-//				
-//				//retrieve privilege to be able to tell if user can edit credential
-//				UserGroupPrivilege priv = getUserPrivilegeForCredential(credentialId, userId);
-//				credData.setCanEdit(priv == UserGroupPrivilege.Edit);
-//				//target credential can always be accessed
-//				credData.setCanAccess(true);
-//				
-//				if(credData != null && loadCompetences) {
-//					List<CompetenceData1> targetCompData = compManager
-//							.getTargetCompetencesData(res.getId(), false);
-//					credData.setCompetences(targetCompData);
-//				}
-//				return credData;
-//			}
-//			return null;
+			TargetCredential1 res = getTargetCredential(credentialId, userId, true, true, true);
+
+			if (res != null) {
+				credData = credentialFactory.getCredentialData(res.getCredential().getCreatedBy(), 
+						res, res.getCredential().getTags(), res.getCredential().getHashtags(), false);
+				
+				if (credData != null && loadCompetences) {
+					List<CompetenceData1> targetCompData = compManager
+							.getUserCompetencesForCredential(credentialId, userId, true);
+					credData.setCompetences(targetCompData);
+				}
+				return credData;
+			}
 			return null;
 		} catch (Exception e) {
 			logger.error(e);
@@ -552,16 +504,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public TargetCredential1 getTargetCredential(long credentialId, long userId, 
 			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException {
 		User user = (User) persistence.currentManager().load(User.class, userId);
-//		Credential1 cred = (Credential1) persistence.currentManager().load(
-//				Credential1.class, credentialId);
+
 		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT targetCred " +
+				"SELECT targetCred " +
 				"FROM TargetCredential1 targetCred " +
 				"INNER JOIN fetch targetCred.credential cred ");
 		if (loadCreator) {
@@ -573,17 +523,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 		if (loadInstructor) {
 			queryBuilder.append("LEFT JOIN fetch targetCred.instructor inst " +
-								"INNER JOIN fetch inst.user ");
+								"LEFT JOIN fetch inst.user ");
 		}
-		queryBuilder.append("WHERE targetCred.credential.id = :credId " +
+		queryBuilder.append("WHERE cred.id = :credId " +
 				   			"AND targetCred.user = :student");
-//			String query = "SELECT targetCred " +
-//						   "FROM TargetCredential1 targetCred " + 
-//						   "INNER JOIN fetch targetCred.createdBy user " + 
-//						   "LEFT JOIN fetch targetCred.tags tags " +
-//						   "LEFT JOIN fetch targetCred.hashtags hashtags " +
-//						   "WHERE targetCred.credential = :cred " +
-//						   "AND targetCred.user = :student";
 
 		TargetCredential1 res = (TargetCredential1) persistence.currentManager()
 				.createQuery(queryBuilder.toString())
@@ -593,7 +536,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		return res;
 	}
-
+	
+	@Override
+	@Transactional(readOnly = true)
+	public RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
+			long userId) throws ResourceNotFoundException, DbConnectionException {
+		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
+				.addPrivilege(UserGroupPrivilege.Edit)
+				.addPrivilege(UserGroupPrivilege.Instruct);
+		return getCredentialDataForView(credentialId, userId, req);
+	}
+	
+	@Transactional(readOnly = true)
+	private RestrictedAccessResult<CredentialData> getCredentialDataForView(long credentialId, 
+			long userId, ResourceAccessRequirements req) throws ResourceNotFoundException, DbConnectionException {
+		return getCredentialData(credentialId, true, true, userId, req);
+	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
@@ -614,20 +573,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cred.getHashtags(), true);
 			
 			if(loadCompetences) {
-				/*
-				 * always include not published competences
-				 */
-				List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-						credentialId, false, false , false, true, userId);
-				credData.setCompetences(compsData);
+				//if user sent a request, we should always return enrolled competencies if he is enrolled
+				if (req.getAccessMode() == AccessMode.USER) {
+					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, false));
+				} else {
+					/*
+					 * always include not published competences
+					 */
+					credData.setCompetences(compManager.getCredentialCompetencesData(
+							credentialId, false, false, false, true, userId));
+				}
 			}
 			
 			ResourceAccessData access = getResourceAccessData(credentialId, userId, req);
 			return RestrictedAccessResult.of(credData, access);
-		} catch (ResourceNotFoundException rfe) {
-			throw rfe;
-		} catch(IllegalArgumentException iae) {
-			throw iae;
+		} catch (ResourceNotFoundException|IllegalArgumentException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1028,157 +989,79 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
+	//not transactional
 	@Override
-	@Transactional(readOnly = false)
-	public CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
-			throws DbConnectionException {
-		return enrollInCredential(credentialId, userId, 0, context, null).getResult();
+	public void enrollInCredential(long credentialId, long userId, LearningContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> res = credManager.enrollInCredentialAndGetEvents(credentialId, userId, 0, context);
+		for (EventData ev : res.getEvents()) {
+			/*
+			if student assigned to instructor event should be generated, don't invoke nodechangeobserver
+			because instructor will be assigned to student in ES index by enroll course event.
+			 */
+			//TODO observer refactor - these dependencies between different events and/or observers should be avoided
+			if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+				Class<? extends EventObserver>[] toExclude = new Class[] {NodeChangeObserver.class};
+				ev.setObserversToExclude(toExclude);
+			}
+			eventFactory.generateEvent(ev);
+		}
 	}
 	
-	@Deprecated
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
 	@Transactional(readOnly = false)
-	private Result<CredentialData> enrollInCredential(long credentialId, long userId, 
-			long instructorThatForcedEnrollId, LearningContextData context, Class[] observersToExclude) 
-			throws DbConnectionException {
+	public Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId, 
+			long instructorThatForcedEnrollId, LearningContextData context) throws DbConnectionException {
 		try {
-			//TODO cred-redesign-07
-//			Result<CredentialData> result = new Result<>();
-//			
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			
-//			Credential1 cred = getCredential(credentialId, false, 0);
-//			TargetCredential1 targetCred = createTargetCredential(cred, user);
-//			long instructorId = 0;
-//			String page = null;
-//			String lContext = null;
-//			String service = null;
-//			if(context != null) {
-//				page = context.getPage();
-//				lContext = context.getLearningContext();
-//				service = context.getService();
-//			}
-//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED && 
-//					!cred.isManuallyAssignStudents()) {
-//				List<TargetCredential1> targetCredIds = new ArrayList<>();
-//				targetCredIds.add(targetCred);
-//				StudentAssignData res = credInstructorManager.assignStudentsToInstructorAutomatically(
-//						credentialId, targetCredIds, 0, false);
-//				List<StudentInstructorPair> assigned = res.getAssigned();
-//				if(assigned.size() == 1) {
-//					StudentInstructorPair pair = assigned.get(0);
-//					//we need user id, not instructor id
-//					instructorId = pair.getInstructor().getUser().getId();
-//					
-//					User target = new User();
-//					target.setId(instructorId);
-//					User object = new User();
-//					object.setId(userId);
-//					Map<String, String> params = new HashMap<>();
-//					params.put("credId", credentialId + "");
-//					if(instructorThatForcedEnrollId > 0) {
-//						params.put("forcedEnroll", "true");
-//						params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-//					}
-//					result.addFiredEvent(eventFactory.generateEvent(
-//							EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-//							userId, object, target, 
-//							page, lContext, service, 
-//							observersToExclude, params));
-////					eventFactory.generateEvent(EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR, 
-////							userId, object, target, page, lContext, service, new Class[] {NodeChangeObserver.class}, params);
-//				}
-//	    	}
-//			
-//			if(cred.getType() == LearningResourceType.UNIVERSITY_CREATED) {
-//				//create default assessment for user
-//				assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
-//			}
-//			
-//			CredentialData cd = credentialFactory.getCredentialData(targetCred.getCreatedBy(), 
-//					targetCred, targetCred.getTags(), targetCred.getHashtags(), true);
-//			
-//			List<TargetCompetence1> comps = targetCred.getTargetCompetences();
-//			if(comps != null) {
-//				for(TargetCompetence1 tc : comps) {
-//					CompetenceData1 compData = competenceFactory.getCompetenceData(null, tc, null, 
-//							null, true);
-//					cd.getCompetences().add(compData);
-//				}
-//			}
-//			
-//			/*
-//			 * Loaded user instance is not used because that would lead to select query
-//			 * when trying to get name of a user while capturing ENROLL_COURSE event.
-//			 */
-//			User actor = new User();
-//			actor.setId(userId);
-//			Map<String, String> params = new HashMap<>();
-//			params.put("instructorId", instructorId + "");
-//			String dateString = null;
-//			Date date = targetCred.getDateCreated();
-//			if(date != null) {
-//				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//				dateString = df.format(date);
-//			}
-//			params.put("dateEnrolled", dateString);
-//			if(instructorThatForcedEnrollId > 0) {
-//				params.put("forcedEnroll", "true");
-//				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
-//			}
-//			result.addFiredEvent(eventFactory.generateEvent(
-//					EventType.ENROLL_COURSE, 
-//					actor.getId(), cred, null, 
-//					page, lContext, service, 
-//					observersToExclude, params));
-////			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-////					page, lContext, service, params);
-//			
-//			result.setResult(cd);
-//			return result;
-			
-			
-			Result<CredentialData> result = new Result<>();
+			Result<Void> result = new Result<>();
 			
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			
 			Credential1 cred = getCredential(credentialId, false, 0);
 			TargetCredential1 targetCred = createTargetCredential(cred, user);
 			
-			/*
-			 * Loaded user instance is not used because that would lead to select query
-			 * when trying to get name of a user while capturing ENROLL_COURSE event.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+			long instructorId = 0;
+			
+			if (!cred.isManuallyAssignStudents()) {
+				List<TargetCredential1> targetCredIds = new ArrayList<>();
+				targetCredIds.add(targetCred);
+				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
+						credentialId, targetCredIds, 0, false, userId, context);
+				result.addEvents(res.getEvents());
+				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
+				if (assigned.size() == 1) {
+					StudentInstructorPair pair = assigned.get(0);
+					//we need user id, not instructor id
+					instructorId = pair.getInstructor().getUser().getId();
+				}
+	    	}
+			
+			//TODO cred-redesign-07 implement when assessments are refactored
+			//create default assessment for user
+			//assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			
 			Map<String, String> params = new HashMap<>();
-			//params.put("instructorId", instructorId + "");
-			params.put("instructorId", "0");
+			params.put("instructorId", instructorId + "");
 			String dateString = null;
 			Date date = targetCred.getDateCreated();
-			if(date != null) {
+			if (date != null) {
 				dateString = ElasticsearchUtil.getDateStringRepresentation(date);
 			}
 			params.put("dateEnrolled", dateString);
-			
-			String page = null;
-			String lContext = null;
-			String service = null;
-			if(context != null) {
-				page = context.getPage();
-				lContext = context.getLearningContext();
-				service = context.getService();
+			if (instructorThatForcedEnrollId > 0) {
+				params.put("forcedEnroll", "true");
+				params.put("instructorThatEnrolledStudent", instructorThatForcedEnrollId + "");
 			}
-			result.addFiredEvent(eventFactory.generateEvent(
-					EventType.ENROLL_COURSE, 
-					actor.getId(), cred, null, 
-					page, lContext, service, 
-					observersToExclude, params));
-//			eventFactory.generateEvent(EventType.ENROLL_COURSE, actor.getId(), cred, null, 
-//					page, lContext, service, params);
+			params.put("progress", targetCred.getProgress() + "");
+			result.addEvent(eventFactory.generateEventData(
+					EventType.ENROLL_COURSE, userId, cred, null, context, params));
+
+			//generate completion event if progress is 100
+			if (targetCred.getProgress() == 100) {
+				result.addEvent(eventFactory.generateEventData(
+						EventType.Completion, userId, targetCred, null, context, null));
+			}
 			
-			result.setResult(null);
 			return result;
 		} catch(Exception e) {
 			logger.error(e);
@@ -1186,75 +1069,38 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while enrolling in a credential");
 		}
 	}
-	
-	@Deprecated
+
+	//not transactional
 	@Override
-	@Transactional(readOnly = false)
-	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
+	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context)
 			throws DbConnectionException {
-		if(userIds != null) {
+		if (userIds != null) {
 			try {
-				for(long userId : userIds) {
-					enrollInCredential(credId, userId, instructorId, context, null);
+				List<EventData> events = new ArrayList<>();
+				for (long userId : userIds) {
+					events.addAll(credManager.enrollInCredentialAndGetEvents(
+							credId, userId, instructorId, context).getEvents());
 				}
-			} catch(Exception e) {
+				for (EventData ev : events) {
+					/*
+					if student assigned to instructor event should be generated, don't invoke nodechangeobserver
+					because instructor will be assigned to student in ES index by enroll course event.
+					 */
+					//TODO observer refactor - these dependencies between different events and/or observers should be avoided
+					if (ev.getEventType() == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR) {
+						Class<? extends EventObserver>[] toExclude = new Class[] {NodeChangeObserver.class};
+						ev.setObserversToExclude(toExclude);
+					}
+					eventFactory.generateEvent(ev);
+				}
+			} catch (Exception e) {
 				throw new DbConnectionException("Error while enrolling students in a credential");
 			}
 		}
 	}
 	
-	@Deprecated
 	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
-		//TODO cred-redesign-07
-//		TargetCredential1 targetCred = new TargetCredential1();
-//		targetCred.setTitle(cred.getTitle());
-//		targetCred.setDescription(cred.getDescription());
-//		targetCred.setCredential(cred);
-//		targetCred.setUser(user);
-//		Date now = new Date();
-//		targetCred.setDateCreated(now);
-//		targetCred.setDateStarted(now);
-//		targetCred.setLastAction(now);
-//		targetCred.setCredentialType(cred.getType());
-//
-//		if(cred.getTags() != null) {
-//			Set<Tag> tags = new HashSet<>();
-//			for(Tag tag : cred.getTags()) {
-//				tags.add(tag);
-//			}
-//			targetCred.setTags(tags);
-//		}
-//		
-//		if(cred.getHashtags() != null) {
-//			Set<Tag> hashtags = new HashSet<>();
-//			for(Tag tag : cred.getHashtags()) {
-//				hashtags.add(tag);
-//			}
-//			targetCred.setHashtags(hashtags);
-//		}
-//		
-//		targetCred.setDuration(cred.getDuration());
-//		targetCred.setStudentsCanAddCompetences(cred.isStudentsCanAddCompetences());
-//		targetCred.setCompetenceOrderMandatory(cred.isCompetenceOrderMandatory());
-//		targetCred.setCreatedBy(cred.getCreatedBy());
-//		saveEntity(targetCred);
-//		
-//		List<TargetCompetence1> targetComps = compManager.createTargetCompetences(cred.getId(), 
-//				targetCred);
-//		targetCred.setTargetCompetences(targetComps);
-//		
-//		/*
-//		 * set first competence and first activity in first competence as next to learn
-//		 */
-//		targetCred.setNextCompetenceToLearnId(targetComps.get(0).getCompetence().getId());
-//		
-//		if (!targetComps.isEmpty() && !targetComps.get(0).getTargetActivities().isEmpty()) {
-//			targetCred.setNextActivityToLearnId(targetComps.get(0).getTargetActivities()
-//					.get(0).getActivity().getId());
-//		}
-//		return targetCred;
-		
 		TargetCredential1 targetCred = new TargetCredential1();
 		targetCred.setCredential(cred);
 		targetCred.setUser(user);
@@ -1262,28 +1108,58 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		targetCred.setDateCreated(now);
 		targetCred.setDateStarted(now);
 		targetCred.setLastAction(now);
-
-		saveEntity(targetCred);
+		targetCred.setProgress(calculateAndGetCredentialProgress(cred.getId(), user.getId()));
+		//if progress is 100, set completion date
+		if (targetCred.getProgress() == 100) {
+			targetCred.setDateFinished(now);
+		}
 		
 		/*
 		 * set first competence and first activity in first competence as next to learn
 		 */
-		targetCred.setNextCompetenceToLearnId(getIdOfFirstCompetenceInCredential(cred.getId()));
+		targetCred.setNextCompetenceToLearnId(getIdOfFirstCompetenceInCredential(cred.getId(), user.getId()));
+
+		saveEntity(targetCred);
 		
 		return targetCred;
 	}
 	
-	private long getIdOfFirstCompetenceInCredential(long credId) {
+	private long getIdOfFirstCompetenceInCredential(long credId, long userId) {
 		String query = "SELECT credComp.competence.id " +
-					   "FROM CredentialCompetence1 credComp " +
-					   "WHERE credComp.credential.id = :credId " +
-					   "AND credComp.order = :order";
-		Long res = (Long) persistence.currentManager()
-				.createQuery(query)
-				.setLong("credId", credId)
-				.setInteger("order", 1)
-				.uniqueResult();
-		return res != null ? res : 0;
+		       	       "FROM Credential1 cred " + 
+		       	       "INNER JOIN cred.competences credComp " +
+		       	       "INNER JOIN credComp.competence comp " +
+		       	       "LEFT JOIN comp.targetCompetences tComp " +
+		       				"WITH tComp.user.id = :userId " +
+		       		   "WHERE cred.id = :credId AND (tComp is NULL OR tComp.progress < 100) " +
+		       		   "ORDER BY credComp.order";
+	
+		Long nextId = (Long) persistence.currentManager()
+			.createQuery(query)
+			.setLong("credId", credId)
+			.setLong("userId", userId)
+			.setMaxResults(1)
+			.uniqueResult();
+		
+		return nextId != null ? nextId : 0;
+	}
+	
+	private int calculateAndGetCredentialProgress(long credId, long userId) {
+		String query = "SELECT floor(AVG(coalesce(tComp.progress, 0)))" +
+			       	   "FROM Credential1 cred " + 
+			       	   "INNER JOIN cred.competences credComp " +
+			       	   "INNER JOIN credComp.competence comp " +
+			       	   "LEFT JOIN comp.targetCompetences tComp " +
+			       			"WITH tComp.user.id = :userId " +
+			       	   "WHERE cred.id = :credId ";
+
+		Integer progress = (Integer) persistence.currentManager()
+			.createQuery(query)
+			.setLong("credId", credId)
+			.setLong("userId", userId)
+			.uniqueResult();
+		
+		return progress != null ? progress : 0;
 	}
 	
 	@Override
@@ -2609,7 +2485,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public long getNumberOfUsersLearningCredential(long credId) 
@@ -2870,16 +2745,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //		return ev;
 //	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {
 
 		StringBuilder queryBuilder = new StringBuilder(
 				"SELECT DISTINCT tag, COUNT(tag) " +
-				"FROM TargetCompetence1 targetComp " + 
-				"LEFT JOIN targetComp.tags tag " +
-				"WHERE targetComp.targetCredential.id = :credId "+
+				"FROM CredentialCompetence1 cc " +
+				"INNER JOIN cc.competence c " +
+				"INNER JOIN c.tags tag " +
+				"WHERE cc.credential.id = :credId "+
 				"GROUP BY tag");
 		
 		@SuppressWarnings("unchecked")
@@ -2898,7 +2773,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return tags;
 	}
 	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public int getNumberOfTags(long credentialId) throws DbConnectionException {

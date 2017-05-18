@@ -49,7 +49,7 @@ public interface Competence1Manager {
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
-			LearningContextData context) throws DbConnectionException;
+			LearningContextData context) throws DbConnectionException,IllegalDataStateException;
 	
 	/**
 	 * @param data
@@ -94,6 +94,9 @@ public interface Competence1Manager {
 			IllegalDataStateException;
 	
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
+			throws DbConnectionException;
+	
+	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
 			throws DbConnectionException;
 
 	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
@@ -391,6 +394,6 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException;
+			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
 	
 }
