@@ -227,4 +227,7 @@ public interface TextSearch extends AbstractManager {
 	 */
 	TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
+
+	TextSearchResponse1<UserData> searchNewOwner(String searchTerm, int limit,
+			Long usersToExcludeFromSearch);
 }

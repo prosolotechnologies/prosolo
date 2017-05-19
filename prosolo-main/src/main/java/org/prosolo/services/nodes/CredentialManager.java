@@ -418,4 +418,9 @@ public interface CredentialManager extends AbstractManager {
 
 	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
 			throws DbConnectionException;
+
+	void updateTargetCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
 }
