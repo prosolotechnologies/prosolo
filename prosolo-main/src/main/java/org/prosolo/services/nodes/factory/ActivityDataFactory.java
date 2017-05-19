@@ -48,6 +48,7 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
+		data.setMaxPoints(activity.getMaxPoints());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
@@ -98,7 +99,7 @@ public class ActivityDataFactory {
 		if(shouldTrackChanges) {
 			data.startObservingChanges();
 		}
-		
+
 		return data;
 	}
 	
@@ -217,6 +218,8 @@ public class ActivityDataFactory {
 		act.calculateDurationString();
 		act.setType(activity.getType());
 		act.setAutograde(activity.isAutograde());
+		act.setMaxPoints(activity.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activity.getResultType()));
 		
 		act.setActivityType(getActivityType(activity));
 		
@@ -420,7 +423,10 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activ.getDuration() / 60));
 		act.setDurationMinutes((int) (activ.getDuration() % 60));
 		act.calculateDurationString();
-		
+		act.setMaxPoints(activ.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activ.getResultType()));
+		act.getResultData().setResult(activity.getResult());
+
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {

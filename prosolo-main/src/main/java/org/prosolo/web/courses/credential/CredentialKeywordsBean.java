@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -338,34 +339,41 @@ public class CredentialKeywordsBean {
 		return "preview".equals(mode);
 	}
 	public void submitAssessment() {
-		// at this point, assessor should be set either from credential data or
-		// user-submitted peer id
-		if (assessmentRequestData.isAssessorSet()) {
-			populateAssessmentRequestFields();
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-					service);
+		try {
+			// at this point, assessor should be set either from credential data or
+			// user-submitted peer id
+			if (assessmentRequestData.isAssessorSet()) {
+				populateAssessmentRequestFields();
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
+				LearningContextData lcd = new LearningContextData();
+				lcd.setPage(PageUtil.getPostParameter("page"));
+				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+				lcd.setService(PageUtil.getPostParameter("service"));
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
+				String page = PageUtil.getPostParameter("page");
+				String lContext = PageUtil.getPostParameter("learningContext");
+				String service = PageUtil.getPostParameter("service");
+				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
+						service);
 
-			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 
-			if (peersToExcludeFromSearch != null) {
-				peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				if (peersToExcludeFromSearch != null) {
+					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				}
+			} else {
+				logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
+						+ enrolledStudent.getId() + ", but credential has no assessor/instructor set!");
+				PageUtil.fireErrorMessage("No assessor set");
 			}
-		} else {
-			logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
-					+ enrolledStudent.getId() + ", but credential has no assessor/instructor set!");
-			PageUtil.fireErrorMessage("No assessor set");
+			resetAskForAssessmentModal();
+		} catch (EventException e) {
+			logger.error(e);
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while seding assessment request");
 		}
-		resetAskForAssessmentModal();
 	}
 	private void populateAssessmentRequestFields() {
 		assessmentRequestData.setCredentialTitle(enrolledStudent.getTitle());

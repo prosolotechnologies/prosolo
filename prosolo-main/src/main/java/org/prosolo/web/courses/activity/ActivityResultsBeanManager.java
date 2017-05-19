@@ -390,10 +390,11 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				
 				currentResult.getAssessment().setEncodedDiscussionId(encodedDiscussionId);
 			} else {
-				assessmentManager.updateGradeForActivityAssessment(
-						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
-						currentResult.getAssessment().getGrade().getValue(), 
-						loggedUserBean.getUserId(), lcd);
+				//TODO assessment redesign
+//				assessmentManager.updateGradeForActivityAssessment(
+//						idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId()),
+//						currentResult.getAssessment().getGrade().getValue(),
+//						loggedUserBean.getUserId(), lcd);
 			}
 			
 			long credAssessmentId = currentResult.getAssessment().getCredAssessmentId();
@@ -413,7 +414,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	
 	private long createDiscussion(long targetActivityId, long competenceAssessmentId, 
 			LearningContextData context) {
-		try {
+		//try {
 			// creating a set as there might be duplicates with ids
 			Set<Long> participantIds = new HashSet<>();
 			
@@ -428,15 +429,16 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			if (currentResult.getAssessment().getAssessorId() > 0) {
 				participantIds.add(currentResult.getAssessment().getAssessorId());
 			}
-			
-			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					new ArrayList<Long>(participantIds),
-					loggedUserBean.getUserId(), true,  
-					currentResult.getAssessment().getGrade().getValue(), context).getId();
-		} catch (ResourceCouldNotBeLoadedException | EventException e) {
-			logger.error(e);
-			return -1;
-		}
+			//TODO assessment redesign
+//			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+//					new ArrayList<Long>(participantIds),
+//					loggedUserBean.getUserId(), true,
+//					currentResult.getAssessment().getGrade().getValue(), context).getId();
+//		} catch (ResourceCouldNotBeLoadedException | EventException e) {
+//			logger.error(e);
+//			return -1;
+//		}
+		return -1;
 	}
 	
 	private void addComment(long activityAssessmentId, long competenceAssessmentId) {

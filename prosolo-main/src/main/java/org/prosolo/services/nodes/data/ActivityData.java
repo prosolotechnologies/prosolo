@@ -30,6 +30,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private boolean enrolled;
 	private boolean completed;
 	private ActivityResultData resultData;
+	private int maxPoints;
 	private String maxPointsString = ""; // needed because field can also be empty on the html page
 	
 	private int order;
@@ -674,5 +675,12 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setOncePublished(boolean oncePublished) {
 		this.oncePublished = oncePublished;
 	}
-	
+
+	public int getMaxPoints() {
+		return maxPoints;
+	}
+
+	public void setMaxPoints(int maxPoints) {
+		this.maxPoints = maxPoints;
+	}
 }

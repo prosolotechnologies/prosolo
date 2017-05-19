@@ -310,7 +310,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
+	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator,
+		 boolean loadTags, boolean loadActivities)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -319,9 +320,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				       	   "FROM Credential1 cred " + 
 				       	   "INNER JOIN cred.competences credComp " +
 				       	   "INNER JOIN fetch credComp.competence comp " +
-				       	   "INNER JOIN fetch comp.createdBy user " +
 				       	   "LEFT JOIN comp.targetCompetences tComp " +
 				       			"WITH tComp.user.id = :userId ");
+
+			if (loadCreator) {
+				builder.append("INNER JOIN fetch comp.createdBy user ");
+			}
+
 			if (loadTags) {
 				builder.append("LEFT JOIN fetch comp.tags tags ");
 			}
@@ -345,14 +350,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						
 						Competence1 comp = cc.getCompetence();
 						Set<Tag> tags = loadTags ? comp.getTags() : null;
-						User createdBy = comp.getCreatedBy();
+						User createdBy = loadCreator ? comp.getCreatedBy() : null;
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
 						CompetenceData1 compData = null; 
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
 									false);
+							if (loadActivities) {
+								List<ActivityData> activities = activityManager
+										.getTargetActivitiesData(compData.getTargetCompId());
+								compData.setActivities(activities);
+							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
+							if (loadActivities) {
+								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
+										compData.getCompetenceId());
+								compData.setActivities(activities);
+							}
 						}
 						result.add(compData);
 					}

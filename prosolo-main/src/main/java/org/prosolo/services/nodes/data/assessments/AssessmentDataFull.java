@@ -7,11 +7,14 @@ import java.util.List;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
 public class AssessmentDataFull {
 
+	private long credAssessmentId;
 	private String message;
 	private String studentFullName;
 	private String studentAvatarUrl;
@@ -26,6 +29,7 @@ public class AssessmentDataFull {
 	private String initials;
 	private boolean mandatoryFlow;
 	private long duration;
+	private String durationString;
 	private long targetCredentialId;
 	private long credentialId;
 	private boolean defaultAssessment;
@@ -34,42 +38,47 @@ public class AssessmentDataFull {
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder,
-			long userId, DateFormat dateFormat) {
-		//TODO cred-redesign-07
-//		AssessmentDataFull data = new AssessmentDataFull();
-//		data.setMessage(assessment.getMessage());
-//		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
-//		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
-//		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
-//		if(assessment.getAssessor() != null) {
-//			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
-//			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
-//			data.setAssessorId(assessment.getAssessor().getId());
-//		}
-//		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
-//		data.setTitle(assessment.getTargetCredential().getTitle());
-//		data.setApproved(assessment.isApproved());
-//		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
-//		data.setEncodedId(encoder.encodeId(assessment.getId()));
-//		data.setMandatoryFlow(assessment.getTargetCredential().isCompetenceOrderMandatory());
-//		data.setDuration(assessment.getTargetCredential().getDuration());
-//		data.setTargetCredentialId(assessment.getTargetCredential().getId());
-//		data.setDefaultAssessment(assessment.isDefaultAssessment());
-//		data.setPoints(assessment.getPoints());
-//		
-//		int maxPoints = 0;
-//		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, List<CompetenceData1> userComps,
+				UrlIdEncoder encoder, long userId, DateFormat dateFormat) {
+		AssessmentDataFull data = new AssessmentDataFull();
+		data.setCredAssessmentId(assessment.getId());
+		data.setMessage(assessment.getMessage());
+		data.setAssessedStrudentId(assessment.getAssessedStudent().getId());
+		data.setStudentFullName(assessment.getAssessedStudent().getName()+" "+assessment.getAssessedStudent().getLastname());
+		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessedStudent(), ImageFormat.size120x120));
+		if(assessment.getAssessor() != null) {
+			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+			data.setAssessorId(assessment.getAssessor().getId());
+		}
+		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
+		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
+		data.setApproved(assessment.isApproved());
+		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
+		data.setEncodedId(encoder.encodeId(assessment.getId()));
+		data.setMandatoryFlow(assessment.getTargetCredential().getCredential().isCompetenceOrderMandatory());
+		data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
+		data.calculateDurationString();
+		data.setTargetCredentialId(assessment.getTargetCredential().getId());
+		data.setDefaultAssessment(assessment.isDefaultAssessment());
+		data.setPoints(assessment.getPoints());
+
+		int maxPoints = 0;
+		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 //		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
 //			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
 //			maxPoints += compData.getMaxPoints();
 //			compDatas.add(compData);
 //		}
-//		data.setMaxPoints(maxPoints);
-//		data.setCompetenceAssessmentData(compDatas);
-//		data.setInitials(getInitialsFromName(data.getStudentFullName()));
-//		return data;
-		return null;
+		for (CompetenceData1 compData : userComps) {
+			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, dateFormat);
+			maxPoints += cas.getMaxPoints();
+			compDatas.add(cas);
+		}
+		data.setMaxPoints(maxPoints);
+		data.setCompetenceAssessmentData(compDatas);
+		data.setInitials(getInitialsFromName(data.getStudentFullName()));
+		return data;
 	}
 
 	private static String getInitialsFromName(String fullname) {
@@ -84,6 +93,10 @@ public class AssessmentDataFull {
 		} else {
 			return "N/A";
 		}
+	}
+
+	public void calculateDurationString() {
+		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 	
 	public String getMessage() {
@@ -254,5 +267,21 @@ public class AssessmentDataFull {
 		}
 		return null;
 	}
-	
+
+	public String getDurationString() {
+		return durationString;
+	}
+
+	public void setDurationString(String durationString) {
+		this.durationString = durationString;
+	}
+
+	public long getCredAssessmentId() {
+		return credAssessmentId;
+	}
+
+	public void setCredAssessmentId(long credAssessmentId) {
+		this.credAssessmentId = credAssessmentId;
+	}
+
 }

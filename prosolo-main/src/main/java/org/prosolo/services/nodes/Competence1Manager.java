@@ -96,8 +96,8 @@ public interface Competence1Manager {
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
 	
-	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
-			throws DbConnectionException;
+	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
+		  boolean loadActivities) throws DbConnectionException;
 
 	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
 			throws DbConnectionException;

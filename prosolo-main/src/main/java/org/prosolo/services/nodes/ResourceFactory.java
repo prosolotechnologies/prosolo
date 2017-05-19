@@ -189,10 +189,6 @@ public interface ResourceFactory extends AbstractManager {
 	
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 	
-	ActivityAssessment createActivityAssessment(long targetActivityId, long competenceAssessmentId, 
-			List<Long> participantIds, long senderId, boolean isDefault, Integer grade, 
-			Session session) throws ResourceCouldNotBeLoadedException;
-	
 	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
 	
 	/**
