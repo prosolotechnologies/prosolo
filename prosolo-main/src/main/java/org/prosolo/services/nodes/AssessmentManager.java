@@ -109,10 +109,11 @@ public interface AssessmentManager {
 	int calculateCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
 
 	ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
-	
-	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
-			long targetCompId, long targetActId, int score, Session session, 
-			LearningContextData context) throws DbConnectionException;
+
+	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
+																 long compId, long targetCompId, long targetActId,
+																 int score, Session session, LearningContextData context)
+			throws DbConnectionException;
 
 	/**
 	 * Load all credential assessments for the given user, but excluding the specific assessment id

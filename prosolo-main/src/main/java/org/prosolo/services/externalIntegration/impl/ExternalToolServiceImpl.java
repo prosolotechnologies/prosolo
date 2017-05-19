@@ -22,6 +22,10 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -53,6 +57,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private OAuthValidator oauthValidator;
 	@Inject private AssessmentManager assessmentManager;
+	@Inject private EventFactory eventFactory;
 	
 	@Override
 	public boolean checkAuthorization(String authorization, String url, String method, String consumerSecret) throws IOException, OAuthException, URISyntaxException{
@@ -117,6 +122,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		BasicLTIResponse response=null;
 		String messageIdentifier="";
 		String sourceId="";
+
+		Result<Void> res = new Result<>();
+
 		try {
 			System.out.println("SCORE DOC:"+doc.toString());
 			 messageIdentifier=XMLUtils.getXMLElementByPath(
@@ -158,10 +166,11 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							if(calculatedScore != prevScore) {
 								LearningContextData lcd = new LearningContextData();
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
-								assessmentManager
-									.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(
-											userId, 0, ta.getTargetCompetence().getId(), ta.getId(), 
-											calculatedScore, session, lcd);
+								res.addEvents(assessmentManager
+									.updateActivityGradeInAllAssessmentsAndGetEvents(
+											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
+											ta.getTargetCompetence().getId(), ta.getId(),
+											calculatedScore, session, lcd).getEvents());
 							}
 						}
 					}
@@ -172,6 +181,16 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					transaction.rollback();
 				} finally {
 					HibernateUtil.close(session);
+				}
+
+				if (res != null && res.getEvents() != null) {
+					try {
+						for (EventData ev : res.getEvents()) {
+							eventFactory.generateEvent(ev);
+						}
+					} catch (EventException ee) {
+						logger.error(ee);
+					}
 				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"

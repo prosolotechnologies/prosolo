@@ -1050,61 +1050,97 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
-			long targetCompId, long targetActId, int score, Session session, 
-			LearningContextData context) throws DbConnectionException {
+	public Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
+													long compId, long targetCompId, long targetActId, int score,
+													Session session, LearningContextData context)
+			throws DbConnectionException {
 		try {
-			String query = "SELECT ca.id FROM CompetenceAssessment ca " +	
-						   "WHERE ca.targetCompetence.id = :tcId";
-			
-			@SuppressWarnings("unchecked")
-			List<Long> caIds = session
-					.createQuery(query)
-					.setLong("tcId", targetCompId)
-					.list();
-			
-			if(caIds != null) {
-				ActivityAssessment as = null;
-				for(long id : caIds) {
-					as = getActivityAssessment(id, targetActId, session);
+			Result<Void> result = new Result<>();
+
+			List<Long> credAssessmentIds = getCredentialAssessmentIdsForUserAndCompetence(userId, compId, session);
+
+			for (long credAssessmentId : credAssessmentIds) {
+				long caId = getCompetenceAssessmentId(targetCompId, credAssessmentId, session);
+
+				if(caId > 0) {
+					//if comp assessment exists create or update activity assessment only.
+					ActivityAssessment as = null;
+					as = getActivityAssessment(caId, targetActId, session);
 					if(as != null) {
-						as.setPoints(score);
-						ActivityAssessment aa = new ActivityAssessment();
-						aa.setId(as.getId());
-						String lcPage = context != null ? context.getPage() : null; 
-						String lcContext = context != null ? context.getLearningContext() : null; 
-						String lcService = context != null ? context.getService() : null;
-						Map<String, String> params = new HashMap<>();
-						params.put("grade", score + "");
-						eventFactory.generateEvent(EventType.GRADE_ADDED, senderId, aa, null, lcPage, 
-								lcContext, lcService, params);
+						// if activity assessment exists, just update the grade
+						result.addEvents(updateGradeForActivityAssessmentAndGetEvents(
+								credAssessmentId, caId, as.getId(), score, senderId, context).getEvents());
 					} else {
-						String query2 = "SELECT ca FROM CompetenceAssessment compA " +
-										"INNER JOIN compA.credentialAssessment ca " +
-										"WHERE compA.id = :caId";
-						CredentialAssessment ca = (CredentialAssessment) session
-								.createQuery(query2)
-								.setLong("caId", id)
-								.uniqueResult();
-						List<Long> participants = new ArrayList<>();
-						User assessor = ca.getAssessor();
-						if(assessor != null) {
-							participants.add(assessor.getId());
-						}
-						participants.add(userId);
-						as = createActivityDiscussion(targetActId, id, 0, participants, senderId, ca.isDefaultAssessment(),
-								score, false, session, context);
+						// if activity assessment does not exist, create one
+						CredentialAssessment credAssessment = (CredentialAssessment) session.load(
+								CredentialAssessment.class, credAssessmentId);
+
+						result.addEvents(createActivityAssessmentAndGetEvents(
+								targetActId, caId, credAssessmentId,
+								getParticipantIdsForCredentialAssessment(credAssessment), senderId,
+								credAssessment.isDefaultAssessment(), score, true, session, context).getEvents());
 					}
-					session.flush();
-					recalculateScoreForCompetenceAssessment(as.getAssessment().getId(), session);
-					recalculateScoreForCredentialAssessment(as.getAssessment().getCredentialAssessment().getId(), session);
+				} else {
+					//if competence assessment does not exist, create competence and activity assessment
+					CredentialAssessment credAssessment = (CredentialAssessment) session.load(
+							CredentialAssessment.class, credAssessmentId);
+
+					result.addEvents(createCompetenceAndActivityAssessmentAndGetEvents(
+							credAssessmentId, targetCompId, targetActId,
+							getParticipantIdsForCredentialAssessment(credAssessment), senderId, score,
+							credAssessment.isDefaultAssessment(), context).getEvents());
 				}
 			}
+			return result;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activity assessments");
+			throw new DbConnectionException("Error while updating activity grade");
 		}
+	}
+
+	private List<Long> getParticipantIdsForCredentialAssessment(CredentialAssessment credAssessment) {
+		List<Long> participants = new ArrayList<>();
+		User assessor = credAssessment.getAssessor();
+		if (assessor != null) {
+			participants.add(assessor.getId());
+		}
+		participants.add(credAssessment.getAssessedStudent().getId());
+		return participants;
+	}
+
+	@Transactional(readOnly = true)
+	private List<Long> getCredentialAssessmentIdsForUserAndCompetence(long userId, long compId, Session session) {
+		String q1 = "SELECT ca.id FROM CredentialAssessment ca " +
+				"INNER JOIN ca.targetCredential tc " +
+				"INNER JOIN tc.credential c " +
+				"INNER JOIN c.competences credComp " +
+				"WITH credComp.competence.id = :compId " +
+				"WHERE ca.assessedStudent.id = :userId";
+
+		@SuppressWarnings("unchecked")
+		List<Long> credAssessmentIds = session
+				.createQuery(q1)
+				.setLong("userId", userId)
+				.setLong("compId", compId)
+				.list();
+
+		return credAssessmentIds;
+	}
+
+	@Transactional(readOnly = true)
+	public long getCompetenceAssessmentId(long targetCompetenceId, long credAssessmentId, Session session) {
+		String query = "SELECT ca.id FROM CompetenceAssessment ca " +
+				"WHERE ca.targetCompetence.id = :tcId " +
+				"AND ca.credentialAssessment.id = :credAssessmentId";
+
+		Long caId = (Long) session
+				.createQuery(query)
+				.setLong("tcId", targetCompetenceId)
+				.setLong("credAssessmentId", credAssessmentId)
+				.uniqueResult();
+
+		return caId != null ? caId : 0;
 	}
 	
 	@Transactional(readOnly = false)
