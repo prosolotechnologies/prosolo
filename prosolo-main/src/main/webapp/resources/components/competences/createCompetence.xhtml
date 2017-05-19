@@ -30,8 +30,6 @@
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
-	    <script src="#{request.contextPath}/resources/javascript2/rightSideBar.js"></script>
-		
 	    
 	    <div class="whiteBar">
 	
@@ -76,8 +74,9 @@
 	    <div id="#{cc.clientId}">
 		    <script>
 				containerId = '#{cc.clientId}';
+				var isDraft = #{competenceEditBean.draft};
 				
-				function shouldOpenModal(){
+				function shouldOpenCanNotPublishModal(){
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
 					
@@ -90,22 +89,19 @@
 					}
 					return false;
 				}
-
-				function openCanNotPublishModal(){
+				
+				function shouldOpenPublishModal(){
 					var activityListSize = $('.activityItem').length - 1;
 					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
-				
-					if(selectStatus == "DRAFT"){
-						saveChangesBtnClick(selectStatus);
-					}else if(activityListSize == 0 &amp;&amp; selectStatus == "PUBLISHED"){
+					
+					 if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
 						var desc = $("#createCompetence\\:formMain\\:description");
 						var title = $("#createCompetence\\:formMain\\:inputTitle");
 						if(desc.val() &amp;&amp; title.val()){
-							$('#linkActivityNotFound').click();
-							return false;
+							return true;
 						}
 					}
-					return true;
+					return false;
 				}
 			</script>
 			
@@ -274,9 +270,7 @@
 											itemValue="#{status}" itemLabel="#{status.label}" />
 									</h:selectOneMenu>
 									<script>
-										setIsDraft(#{competenceEditBean.draft});
 										$('.selectpicker').selectpicker('refresh');
-			
 									</script>
 									<br />
 							</ui:fragment>
@@ -284,18 +278,16 @@
 								
 								<p:commandLink id="btnSaveChanges"
 									styleClass="btn btn-green"
+									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
 									action="#{competenceEditBean.save}"
-									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenModal()){$('#linkActivityNotFound').click();; return false;} "
-									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
-									>
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog">
 										Save changes
 								</p:commandLink>
 								#{cc.attrs.activities}
 								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0}">
 									<a href="#" data-toggle="modal" data-target="#duplicateComp">Duplicate</a>
 								</ui:fragment>
-								<a id="linkPublishChildResources" href="#" style="display: none;" data-toggle="modal" data-target="#publishModal"></a> 
+								
 								<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModal">
 			        				<div class="modal-dialog" role="document">
 			            				<div class="modal-content">
@@ -308,8 +300,7 @@
 			                				</div>
 			                				<div class="modal-footer">
 			                    				<p:commandLink
-													styleClass="btn btn-green"
-													onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
+													styleClass="btn btn-green saveChangesSelector"
 													action="#{competenceEditBean.save}"
 													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
 													oncomplete="hideModal('publishModal');">
