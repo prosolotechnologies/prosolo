@@ -144,7 +144,6 @@
          	 <ui:fragment rendered="#{!cc.attrs.bean.limitedEdit}">
 	         	 <p:commandLink
 	         	  	styleClass="activityItem addActivity"
-	         	  	onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
 	         	 	action="#{cc.attrs.bean.saveAndNavigateToCreateActivity()}"
 	         	 	onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if($('.activityItem').length == 1){$('#createCompetence\\:formMain\\:selectStatus').val('DRAFT');}"
 	         	 	oncomplete="if (args &amp;&amp; args.validationFailed) { document.getElementById('#{cc.clientId}:hiddenLinkFailure').click();};">
