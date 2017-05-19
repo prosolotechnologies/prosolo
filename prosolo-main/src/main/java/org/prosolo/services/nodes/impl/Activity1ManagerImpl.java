@@ -2138,8 +2138,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					
 					if (returnAssessmentData) {
 						BigInteger assessmentId = (BigInteger) row[9];
+						
+						ActivityAssessmentData ad = new ActivityAssessmentData();
+						ad.setTargetActivityId(tActId);
+						ad.setUserId(userId);
+						ad.setActivityId(actId);
+						ad.setCompetenceId(compId);
+						ad.setCredentialId(credId);
+						
 						if(assessmentId != null) {
-							ActivityAssessmentData ad = new ActivityAssessmentData();
 							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 							ad.setAllRead(((Character) row[11]).charValue() == 'T');
@@ -2156,7 +2163,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ard.setAssessment(ad);							
 						} else {
 							// there is no activity assessment created yet
-							ActivityAssessmentData ad = new ActivityAssessmentData();
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
