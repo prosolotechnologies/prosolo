@@ -65,11 +65,6 @@ public class AssessmentDataFull {
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
-//		for (CompetenceAssessment compAssessment : assessment.getCompetenceAssessments()) {
-//			CompetenceAssessmentData compData = CompetenceAssessmentData.from(compAssessment,encoder, userId, dateFormat);
-//			maxPoints += compData.getMaxPoints();
-//			compDatas.add(compData);
-//		}
 		for (CompetenceData1 compData : userComps) {
 			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, assessment, encoder, userId, dateFormat);
 			maxPoints += cas.getMaxPoints();

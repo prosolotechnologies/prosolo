@@ -23,6 +23,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -135,6 +136,15 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				PageUtil.fireErrorMessage("Error while loading assessment data");
 			}
 		}
+	}
+
+	public boolean allCompetencesStarted() {
+		for (CompetenceAssessmentData cad : fullAssessmentData.getCompetenceAssessmentData()) {
+			if (cad.isReadOnly()) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void approveCredential() {
