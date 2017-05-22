@@ -2,13 +2,11 @@ package org.prosolo.bigdata.events.observers;/**
  * Created by zoran on 31/07/16.
  */
 
-import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.dal.cassandra.impl.UserRecommendationsDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.scala.recommendations.SimilarUsersBasedOnPreferences$;
-import org.prosolo.bigdata.scala.recommendations.SimilarUsersBasedOnPreferencesJob$;
 import org.prosolo.bigdata.streaming.Topic;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 

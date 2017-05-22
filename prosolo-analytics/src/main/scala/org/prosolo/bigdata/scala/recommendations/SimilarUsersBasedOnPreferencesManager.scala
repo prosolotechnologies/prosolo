@@ -10,7 +10,7 @@ import org.prosolo.common.ESIndexNames
 /**
   * Created by zoran on 29/04/17.
   */
-object SimilarUsersBasedOnPreferencesManager extends App{
+object SimilarUsersBasedOnPreferencesManager{
   println("FIND SIMILAR USERS BASED ON PREFERENCES")
   val jobProperties=Settings.getInstance().config.schedulerConfig.jobs.getJobConfig(classOf[SimilarUsersBasedOnPreferencesJob].getName)
   //val clusterAproxSize:Int=jobProperties.jobProperties.getProperty("clusterAproximateSize").toInt;
@@ -27,10 +27,10 @@ object SimilarUsersBasedOnPreferencesManager extends App{
     val totalNumberOfUsers:Long=UserObservationsDBManagerImpl.getInstance().findTotalNumberOfUsers()
     println("TOTAL NUMBER OF USERS:"+totalNumberOfUsers)
 
-    if (totalNumberOfUsers>clusterAproxSize*1.5) SimilarUsersBasedOnPreferencesJob.runKmeans(totalNumberOfUsers,keyspaceName,possibleMaxIterations,clusterAproxSize)
-    else SimilarUsersBasedOnPreferencesJob.createOneCluster(keyspaceName)
+    if (totalNumberOfUsers>clusterAproxSize*1.5) SimilarUsersBasedOnPreferencesSparkJob.runKmeans(totalNumberOfUsers,keyspaceName,possibleMaxIterations,clusterAproxSize)
+    else SimilarUsersBasedOnPreferencesSparkJob.createOneCluster(keyspaceName)
 
-    SimilarUsersBasedOnPreferencesJob.runALSUserRecommender(clusterAproxSize,keyspaceName,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
+    SimilarUsersBasedOnPreferencesSparkJob.runALSUserRecommender(clusterAproxSize,keyspaceName,ESIndexNames.INDEX_RECOMMENDATION_DATA,ESIndexTypes.SIMILAR_USERS)
     println("SIMILAR USERS BASED ON PREFERENCES runJob finished")
   }
 

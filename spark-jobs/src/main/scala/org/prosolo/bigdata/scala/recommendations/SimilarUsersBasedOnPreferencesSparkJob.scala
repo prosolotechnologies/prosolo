@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 /**
   * Created by zoran on 29/04/17.
   */
-object SimilarUsersBasedOnPreferencesJob {
+object SimilarUsersBasedOnPreferencesSparkJob {
   val sc = SparkContextLoader.getSC
   sc.setLogLevel("WARN")
   val sqlContext = SQLContext.getOrCreate(sc)
