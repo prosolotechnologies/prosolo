@@ -172,281 +172,560 @@
 					</ui:fragment>
 
 					<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
-						<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
-							<div class="innerWrapper">
-								<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
-									prependId="false"
-									id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
-									<p:growl />
-									
-									<h2>
-										<a href="#">#{competenceAssessment.title}</a>
-									</h2>
-									
-									<h:panelGroup rendered="#{competenceAssessment.approved}"
-										styleClass="tagApproved" layout="block">
-										Approved
-									</h:panelGroup>
-									
-									<p:commandLink styleClass="linkApprove"
-										actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}"
-										update="@form"
-										rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
-										Approve<span></span>
-									</p:commandLink>
-									
-									<div class="clear"></div>
-								</h:form>
-							</div>
-							
-							<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
-								<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{competenceAssessment.competenceId}"
-									id="activityAssessmentWrapper#{compAssIndex.index}">
-									<ul>
-										<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
-											<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
-												<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
-												<h:link outcome="activity">
-													#{activityAssessment.title}
-													<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-													<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-													<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
-														disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
-												</h:link>
-												<div class="activityOptions">											
-													<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
-														<h:link outcome="activity-response"
-															styleClass="viewResult"
-															rendered="#{cc.attrs.role eq 'USER'}"
-															pt:data-toggle="tooltip" pt:title="View Response">
-															View Response
-															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-															<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-															<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
-															<f:param name="targetActId" value="#{activityAssessment.encodedTargetActivityId}" />
-														</h:link>
-														<h:link outcome="activity-responses"
-															styleClass="viewResult"
-															rendered="#{cc.attrs.role eq 'MANAGER'}"
-															pt:data-toggle="tooltip" pt:title="View Response">
-															View Response
-															<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
-															<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
-															<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
-															<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
-														</h:link>
-													</ui:fragment>
+						<ui:fragment rendered="#{competenceAssessment.competenceAssessmentId gt 0}">
+							<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+								<div class="innerWrapper">
+									<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
+										prependId="false"
+										id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
+										<p:growl />
 
-													<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
-													   pt:data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
-													   action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"	>
-														#{activityAssessment.numberOfMessages}
-													</p:commandLink>
-													
-													<div class="modal fade assessmentCommentsModal"
-														id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
-														tabindex="-1" role="dialog"
-														aria-labelledby="assessmentCommentsModal">
-														
-														<div class="modal-dialog modal-lg">
-															<div class="modal-content">
-																<div class="modal-header alignLeft">
-																	<button
-																		onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')"
-																		type="button" class="close" data-dismiss="modal"
-																		aria-label="Close">
-																		<span aria-hidden="true">×</span>
-																	</button>
-																	<h2 class="modal-title">Comments</h2>
-																</div>
-																
-																<h:form id="newCommentForm-#{activityAssessment.activityId}" prependId="false">
-																	<div class="discussion">
-																		<div class="comments">
-																			<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
-																				<ul class="media-list">
-																					<ui:repeat var="activityMessageData" value="#{activityAssessment.activityDiscussionMessageData}">
-																						<li class="media">
-																							<div class="media-left">
-																								<utilcomp:userAvatar
-																									avatar="#{activityMessageData.senderAvatarUrl}"
-																									fullName="#{activityMessageData.senderFullName}" />
-																							</div>
-																							
-																							<div class="media-body">
-																								<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-																									<div class="commentMain">
-																										<span class="commentTime">
-																											Edited: #{activityMessageData.dateUpdatedFormat}
-																										</span>
-																										
-																										<h3 class="media-heading">
-																											#{activityMessageData.senderFullName}
-																											<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-																												<span>INSTRUCTOR</span>
-																											</ui:fragment>
-																										</h3>
-																										
-																										<p class="commentText">#{activityMessageData.content}</p>
-																										
-																										<div class="editComment hidden">
-																											<p:inputTextarea name="name"
-																												styleClass="contentEditableComment"
-																												style="width:100%;" rows="1"
-																												value="#{activityMessageData.content}"></p:inputTextarea>
-																											<p:commandLink styleClass="btn btn-sm btn-green"
-																												oncomplete="hideEditComment(this)"
-																												update="@form"
-																												actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}"
-																												type="button"
-																												name="button">
-																												Submit
-																											</p:commandLink>
-																											
-																											<a href="javascript:void(0)"
-																												class="btn btn-sm btn-green-stroke"
-																												onclick="hideEditComment(this)">Cancel</a>
-																										</div>
-																										
-																										<div class="commentOptions">
-																											<a href="javascript:void(0)" class="edit"
-																												onclick="showEditComment(this)">
-																												<span class="icon"></span>Edit
-																											</a>
-																										</div>
-																									</div>
-																								</ui:fragment>
-																								
-																								<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-																									<div class="commentMain">
-																										<span class="commentTime">
-																											Edited: #{activityMessageData.dateCreatedFormat}
-																										</span>
-																										<h3 class="media-heading">
-																											#{activityMessageData.senderFullName}
-																											<ui:fragment rendered="#{activityMessageData.senderInsructor}">
-																												<span>INSTRUCTOR</span>
-																											</ui:fragment>
-																										</h3>
-																										<p>#{activityMessageData.content}</p>
-																									</div>
-																									
-																									<div class="media replyInput hidden">
-																										<div class="media-left">
-																											<utilcomp:userAvatar
-																												avatar="#{activityMessageData.senderAvatarUrl}"
-																												fullName="#{activityMessageData.senderFullName}" />
-																										</div>
-																										
-																										<div class="media-body replyComment">
-																											<div class="commentForm">
-																												<textarea placeholder="Add Comment..." onkeyup="displaySubmitButton(this)"></textarea>
-																												<button type="button"
-																													class="btn btn-sm btn-green hidden"
+										<h2>
+											<a href="#">#{competenceAssessment.title}</a>
+										</h2>
+
+										<h:panelGroup rendered="#{competenceAssessment.approved}"
+											styleClass="tagApproved" layout="block">
+											Approved
+										</h:panelGroup>
+
+										<p:commandLink styleClass="linkApprove"
+											actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}"
+											update="@form"
+											rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+											Approve<span></span>
+										</p:commandLink>
+
+										<div class="clear"></div>
+									</h:form>
+								</div>
+
+								<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
+									<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{competenceAssessment.competenceId}"
+										id="activityAssessmentWrapper#{compAssIndex.index}">
+										<ul>
+											<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
+												<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+													<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
+													<h:link outcome="activity">
+														#{activityAssessment.title}
+														<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+														<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+														<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+															disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+													</h:link>
+													<div class="activityOptions">
+														<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+															<h:link outcome="activity-response"
+																styleClass="viewResult"
+																rendered="#{cc.attrs.role eq 'USER'}"
+																pt:data-toggle="tooltip" pt:title="View Response">
+																View Response
+																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																<f:param name="targetActId" value="#{activityAssessment.encodedTargetActivityId}" />
+															</h:link>
+															<h:link outcome="activity-responses"
+																styleClass="viewResult"
+																rendered="#{cc.attrs.role eq 'MANAGER'}"
+																pt:data-toggle="tooltip" pt:title="View Response">
+																View Response
+																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
+															</h:link>
+														</ui:fragment>
+
+														<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+														   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
+														   pt:data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
+														   action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"	>
+															#{activityAssessment.numberOfMessages}
+														</p:commandLink>
+
+														<div class="modal fade assessmentCommentsModal"
+															id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
+															tabindex="-1" role="dialog"
+															aria-labelledby="assessmentCommentsModal">
+
+															<div class="modal-dialog modal-lg">
+																<div class="modal-content">
+																	<div class="modal-header alignLeft">
+																		<button
+																			onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')"
+																			type="button" class="close" data-dismiss="modal"
+																			aria-label="Close">
+																			<span aria-hidden="true">×</span>
+																		</button>
+																		<h2 class="modal-title">Comments</h2>
+																	</div>
+
+																	<h:form id="newCommentForm-#{activityAssessment.activityId}" prependId="false">
+																		<div class="discussion">
+																			<div class="comments">
+																				<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
+																					<ul class="media-list">
+																						<ui:repeat var="activityMessageData" value="#{activityAssessment.activityDiscussionMessageData}">
+																							<li class="media">
+																								<div class="media-left">
+																									<utilcomp:userAvatar
+																										avatar="#{activityMessageData.senderAvatarUrl}"
+																										fullName="#{activityMessageData.senderFullName}" />
+																								</div>
+
+																								<div class="media-body">
+																									<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																										<div class="commentMain">
+																											<span class="commentTime">
+																												Edited: #{activityMessageData.dateUpdatedFormat}
+																											</span>
+
+																											<h3 class="media-heading">
+																												#{activityMessageData.senderFullName}
+																												<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																													<span>INSTRUCTOR</span>
+																												</ui:fragment>
+																											</h3>
+
+																											<p class="commentText">#{activityMessageData.content}</p>
+
+																											<div class="editComment hidden">
+																												<p:inputTextarea name="name"
+																													styleClass="contentEditableComment"
+																													style="width:100%;" rows="1"
+																													value="#{activityMessageData.content}"></p:inputTextarea>
+																												<p:commandLink styleClass="btn btn-sm btn-green"
+																													oncomplete="hideEditComment(this)"
+																													update="@form"
+																													actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}"
+																													type="button"
 																													name="button">
 																													Submit
-																												</button>
+																												</p:commandLink>
+
+																												<a href="javascript:void(0)"
+																													class="btn btn-sm btn-green-stroke"
+																													onclick="hideEditComment(this)">Cancel</a>
+																											</div>
+
+																											<div class="commentOptions">
+																												<a href="javascript:void(0)" class="edit"
+																													onclick="showEditComment(this)">
+																													<span class="icon"></span>Edit
+																												</a>
 																											</div>
 																										</div>
-																									</div>
-																								</ui:fragment>
-																							</div>
-																						</li>
-																					</ui:repeat>
-																				</ul>
-																			</ui:fragment>
-																		</div>
-																		
-																		<div class="addComment">
-																			<utilcomp:userAvatar
-																				avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
-																				fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}" />
-																				
-																			<div class="commentForm">
-																				<p:inputTextarea styleClass="contentEditableComment"
-																					style="width:100%;" rows="1"
-																					value="#{cc.attrs.bean.newCommentValue}"
-																					placeholder="Add Comment..."
-																					onkeyup="displaySubmitButton(this)" />
-																				<p:commandLink update="@form"
-																					actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion()}"
-																					type="button" styleClass="btn btn-green hidden"
-																					name="button">
-																					<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-																					<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_assessment|id:&#34;.concat(util:decodeId(activityAssessment.encodedDiscussionId)).concat(&#34;|context:/name:assessment_comments/&#34;))}"></f:param>
-																					<f:param name="service" value=""></f:param>
-																					Submit
-																				</p:commandLink>
+																									</ui:fragment>
+
+																									<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																										<div class="commentMain">
+																											<span class="commentTime">
+																												Edited: #{activityMessageData.dateCreatedFormat}
+																											</span>
+																											<h3 class="media-heading">
+																												#{activityMessageData.senderFullName}
+																												<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																													<span>INSTRUCTOR</span>
+																												</ui:fragment>
+																											</h3>
+																											<p>#{activityMessageData.content}</p>
+																										</div>
+
+																										<div class="media replyInput hidden">
+																											<div class="media-left">
+																												<utilcomp:userAvatar
+																													avatar="#{activityMessageData.senderAvatarUrl}"
+																													fullName="#{activityMessageData.senderFullName}" />
+																											</div>
+
+																											<div class="media-body replyComment">
+																												<div class="commentForm">
+																													<textarea placeholder="Add Comment..." onkeyup="displaySubmitButton(this)"></textarea>
+																													<button type="button"
+																														class="btn btn-sm btn-green hidden"
+																														name="button">
+																														Submit
+																													</button>
+																												</div>
+																											</div>
+																										</div>
+																									</ui:fragment>
+																								</div>
+																							</li>
+																						</ui:repeat>
+																					</ul>
+																				</ui:fragment>
+																			</div>
+
+																			<div class="addComment">
+																				<utilcomp:userAvatar
+																					avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
+																					fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}" />
+
+																				<div class="commentForm">
+																					<p:inputTextarea styleClass="contentEditableComment"
+																						style="width:100%;" rows="1"
+																						value="#{cc.attrs.bean.newCommentValue}"
+																						placeholder="Add Comment..."
+																						onkeyup="displaySubmitButton(this)" />
+																					<p:commandLink update="@form"
+																						actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion()}"
+																						type="button" styleClass="btn btn-green hidden"
+																						name="button">
+																						<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+																						<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_assessment|id:&#34;.concat(util:decodeId(activityAssessment.encodedDiscussionId)).concat(&#34;|context:/name:assessment_comments/&#34;))}"></f:param>
+																						<f:param name="service" value=""></f:param>
+																						Submit
+																					</p:commandLink>
+																				</div>
 																			</div>
 																		</div>
-																	</div>
-																</h:form>
+																	</h:form>
+																</div>
 															</div>
 														</div>
-													</div> 
-													<ui:fragment rendered="#{activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
-														<p:commandLink 
-										                 	styleClass="grade gradeModalLink_#{activityAssessment.activityId}" 
-										                 	pt:data-toggle="modal" data-target="#assessmentGradeModal1"
-										                 	action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"
-										                 	update=":#{cc.clientId}:activityGradeModal:formGradeModal:panelGradeModal"
-										                 	oncomplete="$('#assessmentGradeModal1').modal('show');">
-										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
-										                 	#{activityAssessment.grade.maxGrade}
-										                </p:commandLink>
-									                </ui:fragment>
+														<ui:fragment rendered="#{activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
+															<p:commandLink
+																styleClass="grade gradeModalLink_#{activityAssessment.activityId}"
+																pt:data-toggle="modal" data-target="#assessmentGradeModal1"
+																action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"
+																update=":#{cc.clientId}:activityGradeModal:formGradeModal:panelGradeModal"
+																oncomplete="$('#assessmentGradeModal1').modal('show');">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</p:commandLink>
+														</ui:fragment>
 
-									                <ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and activityAssessment.automaticGrade}">
-										                <a 
-										                 	class="grade" 
-										                 	disabled="disabled" 
-										                 	data-toggle="tooltip" 
-										                 	title="Grade for this external activity is automatically set upon completion">
-										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
-										                 	#{activityAssessment.grade.maxGrade}
-										                </a>
-										            </ui:fragment>
-									                
-									                <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor() or not activityAssessment.completed or activityAssessment.grade.maxGrade == 0}">
-														<a 
-										                 	class="grade" 
-										                 	disabled="disabled" 
-										                 	data-toggle="tooltip" 
-										                 	title="#{(not cc.attrs.bean.isCurrentUserAssessor())
-										                 				? 'Only assessor can update the grade'
-										                 				: not activityAssessment.completed
-										                 					? 'Not completed activity can not be graded'
-										                 					: 'Points are not set for this activity'}">
-										                 	#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  / 
-										                 	#{activityAssessment.grade.maxGrade}
-										                </a>
-										            </ui:fragment>
-										           
-												</div>
-												
-												<ui:remove>
-												<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
-													<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
-														<a data-original-title="Download Response" 
-															href="#{url}" target="_blank" 
-															class="download" data-toggle="tooltip" title="">Download</a>
-													</ui:repeat>
-												</ui:fragment>
-												</ui:remove>
+														<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and activityAssessment.automaticGrade}">
+															<a
+																class="grade"
+																disabled="disabled"
+																data-toggle="tooltip"
+																title="Grade for this external activity is automatically set upon completion">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</a>
+														</ui:fragment>
+
+														<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor() or not activityAssessment.completed or activityAssessment.grade.maxGrade == 0}">
+															<a
+																class="grade"
+																disabled="disabled"
+																data-toggle="tooltip"
+																title="#{(not cc.attrs.bean.isCurrentUserAssessor())
+																			? 'Only assessor can update the grade'
+																			: not activityAssessment.completed
+																				? 'Not completed activity can not be graded'
+																				: 'Points are not set for this activity'}">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</a>
+														</ui:fragment>
+
+													</div>
+
+													<ui:remove>
+													<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
+														<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
+															<a data-original-title="Download Response"
+																href="#{url}" target="_blank"
+																class="download" data-toggle="tooltip" title="">Download</a>
+														</ui:repeat>
+													</ui:fragment>
+													</ui:remove>
+												</li>
+											</ui:repeat>
+
+											<li class="competenceScore">
+												<div>Competence score:</div>
+												<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
+													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
+												</h:panelGroup>
 											</li>
-										</ui:repeat>
-										
-										<li class="competenceScore">
-											<div>Competence score:</div>
-											<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
-												#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
-											</h:panelGroup>
-										</li>
-									</ul>
-								</h:panelGroup>
-							</ui:fragment>
-						</article>
+										</ul>
+									</h:panelGroup>
+								</ui:fragment>
+							</article>
+						</ui:fragment>
+						<ui:fragment rendered="#{competenceAssessment.competenceAssessmentId eq 0}">
+							<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
+								<div class="innerWrapper">
+									<h:form name="competenceAssessment_#{competenceAssessment.competenceId}_topForm"
+											prependId="false"
+											id="competenceAssessment_#{competenceAssessment.competenceId}_topForm">
+										<p:growl />
+
+										<h2>
+											<a href="#">#{competenceAssessment.title}</a>
+										</h2>
+
+										<h:panelGroup rendered="#{competenceAssessment.approved}"
+													  styleClass="tagApproved" layout="block">
+											Approved
+										</h:panelGroup>
+
+										<p:commandLink styleClass="linkApprove"
+													   actionListener="#{cc.attrs.bean.approveCompetence(competenceAssessment.competenceAssessmentEncodedId)}"
+													   update="@form"
+													   rendered="#{not competenceAssessment.approved and cc.attrs.bean.isCurrentUserAssessor()}">
+											Approve<span></span>
+										</p:commandLink>
+
+										<div class="clear"></div>
+									</h:form>
+								</div>
+
+								<ui:fragment rendered="#{not empty competenceAssessment.activityAssessmentData}">
+									<h:panelGroup layout="block" styleClass="assessmentActivityList comp_#{competenceAssessment.competenceId}"
+												  id="activityAssessmentWrapper#{compAssIndex.index}">
+										<ul>
+											<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{competenceAssessment.activityAssessmentData}">
+												<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+													<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
+													<h:link outcome="activity">
+														#{activityAssessment.title}
+														<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+														<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+														<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
+																 disable="#{empty cc.attrs.bean.fullAssessmentData.credentialId}" />
+													</h:link>
+													<div class="activityOptions">
+														<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+															<h:link outcome="activity-response"
+																	styleClass="viewResult"
+																	rendered="#{cc.attrs.role eq 'USER'}"
+																	pt:data-toggle="tooltip" pt:title="View Response">
+																View Response
+																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																<f:param name="targetActId" value="#{activityAssessment.encodedTargetActivityId}" />
+															</h:link>
+															<h:link outcome="activity-responses"
+																	styleClass="viewResult"
+																	rendered="#{cc.attrs.role eq 'MANAGER'}"
+																	pt:data-toggle="tooltip" pt:title="View Response">
+																View Response
+																<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
+																<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
+																<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"/>
+																<f:param name="user" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStrudentId)}" />
+															</h:link>
+														</ui:fragment>
+
+														<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+																	   onclick="markDiscussionAsSeen('#{activityAssessment.encodedDiscussionId}',this.parentElement.parentElement)"
+																	   pt:data-target="#assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
+																	   action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"	>
+															#{activityAssessment.numberOfMessages}
+														</p:commandLink>
+
+														<div class="modal fade assessmentCommentsModal"
+															 id="assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}"
+															 tabindex="-1" role="dialog"
+															 aria-labelledby="assessmentCommentsModal">
+
+															<div class="modal-dialog modal-lg">
+																<div class="modal-content">
+																	<div class="modal-header alignLeft">
+																		<button
+																				onclick="updateNumberOfMessages('assessmentCommentsModal#{compAssIndex.index}#{actAssIndex.index}')"
+																				type="button" class="close" data-dismiss="modal"
+																				aria-label="Close">
+																			<span aria-hidden="true">×</span>
+																		</button>
+																		<h2 class="modal-title">Comments</h2>
+																	</div>
+
+																	<h:form id="newCommentForm-#{activityAssessment.activityId}" prependId="false">
+																		<div class="discussion">
+																			<div class="comments">
+																				<ui:fragment rendered="#{not empty activityAssessment.activityDiscussionMessageData}">
+																					<ul class="media-list">
+																						<ui:repeat var="activityMessageData" value="#{activityAssessment.activityDiscussionMessageData}">
+																							<li class="media">
+																								<div class="media-left">
+																									<utilcomp:userAvatar
+																											avatar="#{activityMessageData.senderAvatarUrl}"
+																											fullName="#{activityMessageData.senderFullName}" />
+																								</div>
+
+																								<div class="media-body">
+																									<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																										<div class="commentMain">
+																											<span class="commentTime">
+																												Edited: #{activityMessageData.dateUpdatedFormat}
+																											</span>
+
+																											<h3 class="media-heading">
+																												#{activityMessageData.senderFullName}
+																												<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																													<span>INSTRUCTOR</span>
+																												</ui:fragment>
+																											</h3>
+
+																											<p class="commentText">#{activityMessageData.content}</p>
+
+																											<div class="editComment hidden">
+																												<p:inputTextarea name="name"
+																																 styleClass="contentEditableComment"
+																																 style="width:100%;" rows="1"
+																																 value="#{activityMessageData.content}"></p:inputTextarea>
+																												<p:commandLink styleClass="btn btn-sm btn-green"
+																															   oncomplete="hideEditComment(this)"
+																															   update="@form"
+																															   actionListener="#{cc.attrs.bean.editComment(activityMessageData.content,activityMessageData.encodedMessageId)}"
+																															   type="button"
+																															   name="button">
+																													Submit
+																												</p:commandLink>
+
+																												<a href="javascript:void(0)"
+																												   class="btn btn-sm btn-green-stroke"
+																												   onclick="hideEditComment(this)">Cancel</a>
+																											</div>
+
+																											<div class="commentOptions">
+																												<a href="javascript:void(0)" class="edit"
+																												   onclick="showEditComment(this)">
+																													<span class="icon"></span>Edit
+																												</a>
+																											</div>
+																										</div>
+																									</ui:fragment>
+
+																									<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+																										<div class="commentMain">
+																											<span class="commentTime">
+																												Edited: #{activityMessageData.dateCreatedFormat}
+																											</span>
+																											<h3 class="media-heading">
+																												#{activityMessageData.senderFullName}
+																												<ui:fragment rendered="#{activityMessageData.senderInsructor}">
+																													<span>INSTRUCTOR</span>
+																												</ui:fragment>
+																											</h3>
+																											<p>#{activityMessageData.content}</p>
+																										</div>
+
+																										<div class="media replyInput hidden">
+																											<div class="media-left">
+																												<utilcomp:userAvatar
+																														avatar="#{activityMessageData.senderAvatarUrl}"
+																														fullName="#{activityMessageData.senderFullName}" />
+																											</div>
+
+																											<div class="media-body replyComment">
+																												<div class="commentForm">
+																													<textarea placeholder="Add Comment..." onkeyup="displaySubmitButton(this)"></textarea>
+																													<button type="button"
+																															class="btn btn-sm btn-green hidden"
+																															name="button">
+																														Submit
+																													</button>
+																												</div>
+																											</div>
+																										</div>
+																									</ui:fragment>
+																								</div>
+																							</li>
+																						</ui:repeat>
+																					</ul>
+																				</ui:fragment>
+																			</div>
+
+																			<div class="addComment">
+																				<utilcomp:userAvatar
+																						avatar="#{cc.attrs.bean.loggedUserBean.sessionData.avatar}"
+																						fullName="#{cc.attrs.bean.loggedUserBean.sessionData.fullName}" />
+
+																				<div class="commentForm">
+																					<p:inputTextarea styleClass="contentEditableComment"
+																									 style="width:100%;" rows="1"
+																									 value="#{cc.attrs.bean.newCommentValue}"
+																									 placeholder="Add Comment..."
+																									 onkeyup="displaySubmitButton(this)" />
+																					<p:commandLink update="@form"
+																								   actionListener="#{cc.attrs.bean.addCommentToActivityDiscussion()}"
+																								   type="button" styleClass="btn btn-green hidden"
+																								   name="button">
+																						<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+																						<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_assessment|id:&#34;.concat(util:decodeId(activityAssessment.encodedDiscussionId)).concat(&#34;|context:/name:assessment_comments/&#34;))}"></f:param>
+																						<f:param name="service" value=""></f:param>
+																						Submit
+																					</p:commandLink>
+																				</div>
+																			</div>
+																		</div>
+																	</h:form>
+																</div>
+															</div>
+														</div>
+														<ui:fragment rendered="#{activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and !activityAssessment.automaticGrade}">
+															<p:commandLink
+																	styleClass="grade gradeModalLink_#{activityAssessment.activityId}"
+																	pt:data-toggle="modal" data-target="#assessmentGradeModal1"
+																	action="#{cc.attrs.bean.setCurrentAssessment(competenceAssessment, activityAssessment)}"
+																	update=":#{cc.clientId}:activityGradeModal:formGradeModal:panelGradeModal"
+																	oncomplete="$('#assessmentGradeModal1').modal('show');">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</p:commandLink>
+														</ui:fragment>
+
+														<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' and activityAssessment.completed and cc.attrs.bean.isCurrentUserAssessor() and activityAssessment.grade.maxGrade > 0 and activityAssessment.automaticGrade}">
+															<a
+																	class="grade"
+																	disabled="disabled"
+																	data-toggle="tooltip"
+																	title="Grade for this external activity is automatically set upon completion">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</a>
+														</ui:fragment>
+
+														<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor() or not activityAssessment.completed or activityAssessment.grade.maxGrade == 0}">
+															<a
+																	class="grade"
+																	disabled="disabled"
+																	data-toggle="tooltip"
+																	title="#{(not cc.attrs.bean.isCurrentUserAssessor())
+																			? 'Only assessor can update the grade'
+																			: not activityAssessment.completed
+																				? 'Not completed activity can not be graded'
+																				: 'Points are not set for this activity'}">
+																#{activityAssessment.grade.value != null and activityAssessment.grade.assessed ? activityAssessment.grade.value : '-'}  /
+																#{activityAssessment.grade.maxGrade}
+															</a>
+														</ui:fragment>
+
+													</div>
+
+													<ui:remove>
+														<ui:fragment rendered="#{not empty activityAssessment.downloadResourceUrls}">
+															<ui:repeat var="url" value="#{activityAssessment.downloadResourceUrls}">
+																<a data-original-title="Download Response"
+																   href="#{url}" target="_blank"
+																   class="download" data-toggle="tooltip" title="">Download</a>
+															</ui:repeat>
+														</ui:fragment>
+													</ui:remove>
+												</li>
+											</ui:repeat>
+
+											<li class="competenceScore">
+												<div>Competence score:</div>
+												<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
+													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
+												</h:panelGroup>
+											</li>
+										</ul>
+									</h:panelGroup>
+								</ui:fragment>
+							</article>
+						</ui:fragment>
 					</ui:repeat>
 				</div>
 
