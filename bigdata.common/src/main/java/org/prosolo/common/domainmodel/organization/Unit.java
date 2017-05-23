@@ -28,6 +28,7 @@ public class Unit extends BaseEntity {
 	private List<UnitRoleMembership> unitRoleMemberships;
 	private List<CredentialUnit> credentialUnits;
 	private List<CompetenceUnit> competenceUnits;
+	private Unit parentUnit;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	public Organization getOrganization(){
@@ -66,5 +67,14 @@ public class Unit extends BaseEntity {
 	
 	public void setCompetenceUnits(List<CompetenceUnit> competenceUnits){
 		this.competenceUnits = competenceUnits;
+	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Unit getUnit(){
+		return parentUnit;
+	}
+	
+	public void setUnit(Unit parentUnit){
+		this.parentUnit = parentUnit;
 	}
 }
