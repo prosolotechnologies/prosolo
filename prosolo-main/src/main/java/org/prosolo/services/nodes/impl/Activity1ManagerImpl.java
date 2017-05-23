@@ -46,6 +46,7 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;

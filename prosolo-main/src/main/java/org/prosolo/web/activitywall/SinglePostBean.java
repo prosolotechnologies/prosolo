@@ -11,10 +11,12 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -56,38 +58,41 @@ public class SinglePostBean implements Serializable {
 //							SocialStreamSubViewType.STATUS_WALL,
 //							loggedUser.getLocale());
 //				} else {
-					socialActivityData = wallActivityConverter.convertSocialActivityToSocialActivityData(
-							socialActivity, 
-							loggedUser.getUserId(),
-							SocialStreamSubViewType.STATUS_WALL,
-							loggedUser.getLocale());
+					try {
+						socialActivityData = wallActivityConverter.convertSocialActivityToSocialActivityData(
+								socialActivity, 
+								loggedUser.getUserId(),
+								SocialStreamSubViewType.STATUS_WALL,
+								loggedUser.getLocale());
+						socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, loggedUser.getUserId()));
+						socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser.getUserId()));
+						//					socialActivityData.setOptionsDisabled(true);
 
-					socialActivityData.setLiked(likeManager.isLikedByUser(socialActivity, loggedUser.getUserId()));
-					socialActivityData.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser.getUserId()));
-//					socialActivityData.setOptionsDisabled(true);
-//				}
-				
-				// should focus on comment
-				if (commentId > 0) {
-					int commentIndex = -1;
-					
-					for (SocialActivityCommentData comment : socialActivityData.getComments()) {
-						commentIndex++;
-
-						if (comment.getId() == commentId) {
-							break;
+						// should focus on comment
+						if (commentId > 0) {
+							int commentIndex = -1;
+							
+							for (SocialActivityCommentData comment : socialActivityData.getComments()) {
+								commentIndex++;
+								
+								if (comment.getId() == commentId) {
+									break;
+								}
+							}
+							
+							if (commentIndex < socialActivityData.getComments().size() - 2) {
+								socialActivityData.setShowHiddenComments(true);
+							}
 						}
+						
+						// TODO Nikola
+		//				if (loggedUser.getUser().getId() == socialActivity.getMaker().getId()) {
+		//					socialActivityData.setWallOwner(new UserData(loggedUser.getUser()));
+		//				}
+					} catch (MediaDataException e) {
+						logger.error(e);
+						PageUtil.fireErrorMessage("There was a problem initializing post data");
 					}
-					
-					if (commentIndex < socialActivityData.getComments().size() - 2) {
-						socialActivityData.setShowHiddenComments(true);
-					}
-				}
-					
-				// TODO Nikola
-//				if (loggedUser.getUser().getId() == socialActivity.getMaker().getId()) {
-//					socialActivityData.setWallOwner(new UserData(loggedUser.getUser()));
-//				}
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
 			}

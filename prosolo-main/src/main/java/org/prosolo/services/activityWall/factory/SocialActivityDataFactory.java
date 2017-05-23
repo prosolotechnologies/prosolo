@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
@@ -33,6 +34,7 @@ import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
 import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserType;
@@ -43,6 +45,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SocialActivityDataFactory {
+	
+	private static final Logger logger = Logger.getLogger(SocialActivityDataFactory.class);
 
 	@Inject private RichContentDataFactory richContentFactory;
 	@Inject private ObjectDataFactory objectFactory;
@@ -180,7 +184,11 @@ public class SocialActivityDataFactory {
 				rc.setLink(postRichContentLink);
 				rc.setEmbedId(postRichContentEmbedId);
 				
-				ap = richContentFactory.getAttachmentPreview(rc);
+				try {
+					ap = richContentFactory.getAttachmentPreview(rc);
+				} catch (MediaDataException e) {
+					logger.error(e);
+				}
 			}
 		} else if(dType.equals(PostReshareSocialActivity.class.getSimpleName())) {
 			//post reshare
@@ -206,8 +214,12 @@ public class SocialActivityDataFactory {
 				rc.setLink(postObjectRichContentLink);
 				rc.setEmbedId(postObjectRichContentEmbedId);
 				
-				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(rc);
-				originalPost.setAttachmentPreview(attach);
+				try {
+					AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(rc);
+					originalPost.setAttachmentPreview(attach);
+				} catch (MediaDataException e) {
+					logger.error(e);
+				}
 			}
 			sad.setOriginalSocialActivity(originalPost);
 		} else if(dType.equals(CredentialEnrollSocialActivity.class.getSimpleName())) {
@@ -324,7 +336,11 @@ public class SocialActivityDataFactory {
 			sad.setType(SocialActivityType.Post);
 
 			if(pAct.getRichContent() != null) {
-				ap = richContentFactory.getAttachmentPreview(pAct.getRichContent());
+				try {
+					ap = richContentFactory.getAttachmentPreview(pAct.getRichContent());
+				} catch (MediaDataException e) {
+					logger.error(e);
+				}
 			}
 		} else if(act instanceof PostReshareSocialActivity) {
 			//post reshare
@@ -342,8 +358,12 @@ public class SocialActivityDataFactory {
 			originalPost.setActor(new UserData(psa.getActor()));
 			originalPost.setText(psa.getText());
 			if(psa.getRichContent() != null) {
-				AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(psa.getRichContent());
-				originalPost.setAttachmentPreview(attach);
+				try {
+					AttachmentPreview1 attach = richContentFactory.getAttachmentPreview(psa.getRichContent());
+					originalPost.setAttachmentPreview(attach);
+				} catch (MediaDataException e) {
+					logger.error(e);
+				}
 			}
 			sad.setOriginalSocialActivity(originalPost);
 		} else if(act instanceof CredentialEnrollSocialActivity) {
