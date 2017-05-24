@@ -27,6 +27,7 @@ public enum ApplicationPage {
 	EXTERNAL_TOOL_DETAILS("/manage/externalTools/toolDetails.xhtml"),
 	CREDENTIAL_FEEDS("/manage/credential-feeds.xhtml"),
 	USER_ADMINISTRATION("/admin/users.xhtml"),
+	ADMIN_ADMINISTRATION("/admin/adminAdmins.xhtml"),
 	ROLES("/admin/roles.xhtml"),
 	DASHBOARD("/admin/dashboard.xhtml"),
 	ADMIN_SETTINGS("/admin/settings.xhtml"),
