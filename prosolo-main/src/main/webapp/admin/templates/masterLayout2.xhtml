@@ -105,6 +105,11 @@
 									value="Users" outcome="/admin/users" />
 							</li>
 							<li role="presentation"
+								class="#{util:getPagePath(view.viewId)  == 'adminAdmins' ? 'active' : ''}">
+								<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
+									value="Admins" outcome="/admin/adminAdmins" />
+							</li>
+							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
 									value="Roles" outcome="/admin/roles" />
