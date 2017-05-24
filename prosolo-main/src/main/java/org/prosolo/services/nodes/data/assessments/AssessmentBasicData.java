@@ -5,18 +5,34 @@ package org.prosolo.services.nodes.data.assessments;
  */
 public class AssessmentBasicData {
 
-    private long credentialAssessmentId;
-    private long competenceAssessmentId;
-    private long activityAssessmentId;
+    private final long credentialAssessmentId;
+    private final long competenceAssessmentId;
+    private final long activityAssessmentId;
+    private final long assessorId;
 
     private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId) {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
+        this.assessorId = 0;
     }
 
-    public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId) {
+    private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId,
+                                long assessorId) {
+        this.credentialAssessmentId = credentialAssessmentId;
+        this.competenceAssessmentId = competenceAssessmentId;
+        this.activityAssessmentId = activityAssessmentId;
+        this.assessorId = assessorId;
+    }
+
+    public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
+                                         long activityAssessmentId) {
         return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId);
+    }
+
+    public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
+                                         long activityAssessmentId, long assessorId) {
+        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId, assessorId);
     }
 
     public long getCredentialAssessmentId() {
@@ -29,5 +45,9 @@ public class AssessmentBasicData {
 
     public long getActivityAssessmentId() {
         return activityAssessmentId;
+    }
+
+    public long getAssessorId() {
+        return assessorId;
     }
 }

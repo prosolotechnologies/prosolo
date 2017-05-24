@@ -174,5 +174,7 @@ public interface AssessmentManager {
 
 	int getCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
 
+	AssessmentBasicData getDefaultAssessmentBasicData(long credId, long compId, long actId, long userId)
+			throws DbConnectionException;
 
 }

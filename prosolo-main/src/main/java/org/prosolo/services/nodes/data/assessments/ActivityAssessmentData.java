@@ -37,6 +37,7 @@ public class ActivityAssessmentData {
 	private ActivityResultType resultType;
 	//for external activities where acceptGrades = true
 	private boolean automaticGrade;
+	private long targetCompId;
 
 	public ActivityAssessmentData() {
 		grade = new GradeData();
@@ -371,5 +372,12 @@ public class ActivityAssessmentData {
 	public void setAutomaticGrade(boolean automaticGrade) {
 		this.automaticGrade = automaticGrade;
 	}
-	
+
+	public long getTargetCompId() {
+		return targetCompId;
+	}
+
+	public void setTargetCompId(long targetCompId) {
+		this.targetCompId = targetCompId;
+	}
 }

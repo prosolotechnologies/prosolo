@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1376,6 +1378,82 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential assessment score");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public AssessmentBasicData getDefaultAssessmentBasicData(long credId, long compId, long actId, long userId)
+			throws DbConnectionException {
+		try {
+			StringBuilder q = new StringBuilder("SELECT ca.id as caid, ca.assessor as assessor ");
+			if (compId > 0) {
+				q.append(", compAssessment.id as compAssessmentId ");
+
+				if (actId > 0) {
+					q.append(", aa.id as aaid ");
+				}
+			}
+
+			q.append("FROM credential_assessment ca ");
+
+			if (compId > 0) {
+				q.append("LEFT JOIN (competence_assessment compAssessment " +
+						 "INNER JOIN target_competence1 tc " +
+							"ON compAssessment.target_competence = tc.id " +
+						 	"AND tc.competence = :compId) " +
+						 "ON compAssessment.credential_assessment = ca.id ");
+
+				if (actId > 0) {
+					q.append("LEFT JOIN (activity_assessment aa " +
+							 "INNER JOIN target_activity1 ta " +
+								"ON aa.target_activity = ta.id " +
+							 	"AND ta.activity = :actId) " +
+							 "ON aa.competence_assessment = compAssessment.id ");
+				}
+			}
+
+			q.append("INNER JOIN target_credential1 tCred " +
+						"ON ca.target_credential = tCred.id " +
+					 	"AND tCred.credential = :credId " +
+					 "WHERE ca.assessed_student = :userId " +
+					 "AND ca.default_assessment = :boolTrue");
+
+			Query query = persistence.currentManager()
+					.createSQLQuery(q.toString())
+					.setLong("credId", credId)
+					.setLong("userId", userId)
+					.setBoolean("boolTrue", true);
+
+			if (compId > 0) {
+				query.setLong("compId", compId);
+
+				if (actId > 0) {
+					query.setLong("actId", actId);
+				}
+			}
+
+			Object[] res = (Object[]) query.uniqueResult();
+
+			if (res != null) {
+				long credAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[0]);
+				long assessorId = Util.convertBigIntegerToLong((BigInteger) res[1]);
+				long compAssessmentId = 0L;
+				long activityAssessmentId = 0L;
+				if (compId > 0) {
+					compAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[2]);
+
+					if (actId > 0) {
+						activityAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[3]);
+					}
+				}
+				return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId);
+			}
+			return null;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving assessment info");
 		}
 	}
 

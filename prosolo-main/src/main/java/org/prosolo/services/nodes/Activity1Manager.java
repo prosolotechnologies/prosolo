@@ -182,6 +182,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param page
 	 * @param limit
 	 * @param filter
+	 * @param isManager
 	 * @return
 	 * @throws DbConnectionException
 	 */
