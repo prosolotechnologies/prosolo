@@ -72,10 +72,19 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		credentialId = idEncoder.decodeId(credId);
 		if (credentialId > 0) {
 			try {
-				credentialTitle = credManager.getCredentialTitle(credentialId, CredentialType.Original);
+				/*
+				administration of edit privileges is performed for original credentials and administration of
+				learn privileges is performed for deliveries
+				 */
+				CredentialType credType = privilege == UserGroupPrivilege.Edit
+						? CredentialType.Original : CredentialType.Delivery;
+				credentialTitle = credManager.getCredentialTitle(credentialId, credType);
 				if (credentialTitle != null) {
-					this.creator = credManager.getCredentialCreator(credentialId);
 					if (privilege == UserGroupPrivilege.Edit) {
+						/*
+						we only need credential owner info in case we administer Edit privileges for a credential
+					 	*/
+						this.creator = credManager.getCredentialCreator(credentialId);
 						resVisibilityUtil.initializeValuesForEditPrivilege();
 					} else {
 						resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));

@@ -14,7 +14,7 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "user_group"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "user_group", "privilege"})})
 public class CredentialUserGroup extends BaseEntity {
 
 	private static final long serialVersionUID = -2117827525725237618L;
