@@ -992,15 +992,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		Competence1 comp = ServiceLocator
-				.getInstance()
-				.getService(Competence1Manager.class)
-				.saveNewCompetence(
-						compData,
-						user.getId(),
-						credentialId, null);
+		Competence1 comp;
+		try {
+			comp = ServiceLocator
+					.getInstance()
+					.getService(Competence1Manager.class)
+					.saveNewCompetence(
+							compData,
+							user.getId(),
+							credentialId, null);
+			return comp;
+		} catch (DbConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalDataStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		return comp;
+		return null;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {
