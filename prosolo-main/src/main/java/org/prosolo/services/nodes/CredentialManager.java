@@ -1,20 +1,10 @@
 package org.prosolo.services.nodes;
 
-import java.util.Date;
-import java.util.List;
-
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
@@ -24,15 +14,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -40,7 +22,8 @@ import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+import java.util.Date;
+import java.util.List;
 
 public interface CredentialManager extends AbstractManager {
 
@@ -493,5 +476,7 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 
 	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
 
 }

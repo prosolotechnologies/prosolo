@@ -23,14 +23,14 @@ public interface UserGroupTextSearch extends AbstractManager {
 	/**
 	 * Returns combined top {@code limit} users and groups that are not currently assigned to
 	 * credential given by {@code credId}
-	 * @param credId
 	 * @param searchTerm
 	 * @param limit
 	 * @param usersToExclude
+	 * @param roleId - role that users should have in order to be returned
 	 * @return
 	 */
-	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(long credId,
-			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
+	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(
+			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId);
 	
 	TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
 			int limit, List<Long> usersToExclude);
