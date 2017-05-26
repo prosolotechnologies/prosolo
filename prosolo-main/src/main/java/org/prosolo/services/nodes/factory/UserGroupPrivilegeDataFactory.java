@@ -5,6 +5,7 @@ import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated
 public class UserGroupPrivilegeDataFactory {
 
 	public UserGroupPrivilege getUserGroupPrivilege(UserGroupPrivilegeData priv) {
@@ -14,7 +15,7 @@ public class UserGroupPrivilegeDataFactory {
 		switch(priv) {
 			case Edit:
 				return UserGroupPrivilege.Edit;
-			case View:
+			case Learn:
 				return UserGroupPrivilege.Learn;
 		}
 		return UserGroupPrivilege.None;
@@ -22,13 +23,13 @@ public class UserGroupPrivilegeDataFactory {
 	
 	public UserGroupPrivilegeData getUserGroupPrivilegeData(UserGroupPrivilege priv) {
 		if(priv == null) {
-			return UserGroupPrivilegeData.View;
+			return UserGroupPrivilegeData.Learn;
 		} 
 		switch(priv) {
 			case Edit:
 				return UserGroupPrivilegeData.Edit;
 			default:
-				return UserGroupPrivilegeData.View;
+				return UserGroupPrivilegeData.Learn;
 		}
 	}
 
