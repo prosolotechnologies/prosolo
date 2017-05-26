@@ -69,6 +69,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	private long competenceId;
 	private String competenceName;
+	private long targetCompetenceId;
 	
 	private List<ActivityResultData> studentResults;
 	private GradeData gradeOptions;
@@ -682,5 +683,13 @@ public class ActivityData extends StandardObservable implements Serializable {
 
 	public void setMaxPoints(int maxPoints) {
 		this.maxPoints = maxPoints;
+	}
+
+	public long getTargetCompetenceId() {
+		return targetCompetenceId;
+	}
+
+	public void setTargetCompetenceId(long targetCompetenceId) {
+		this.targetCompetenceId = targetCompetenceId;
 	}
 }

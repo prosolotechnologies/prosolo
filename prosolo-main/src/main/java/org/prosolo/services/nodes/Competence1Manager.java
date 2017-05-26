@@ -407,5 +407,7 @@ public interface Competence1Manager {
 	 */
 	List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
 			throws DbConnectionException;
-	
+
+	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
 }

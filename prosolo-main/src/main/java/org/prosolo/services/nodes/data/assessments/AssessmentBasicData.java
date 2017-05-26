@@ -9,20 +9,23 @@ public class AssessmentBasicData {
     private final long competenceAssessmentId;
     private final long activityAssessmentId;
     private final long assessorId;
+    private final boolean isDefault;
 
     private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId) {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
         this.assessorId = 0;
+        this.isDefault = false;
     }
 
     private AssessmentBasicData(long credentialAssessmentId, long competenceAssessmentId, long activityAssessmentId,
-                                long assessorId) {
+                                long assessorId, boolean isDefault) {
         this.credentialAssessmentId = credentialAssessmentId;
         this.competenceAssessmentId = competenceAssessmentId;
         this.activityAssessmentId = activityAssessmentId;
         this.assessorId = assessorId;
+        this.isDefault = isDefault;
     }
 
     public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
@@ -31,8 +34,9 @@ public class AssessmentBasicData {
     }
 
     public static AssessmentBasicData of(long credentialAssessmentId, long competenceAssessmentId,
-                                         long activityAssessmentId, long assessorId) {
-        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId, assessorId);
+                                         long activityAssessmentId, long assessorId, boolean isDefault) {
+        return new AssessmentBasicData(credentialAssessmentId, competenceAssessmentId, activityAssessmentId,
+                assessorId, isDefault);
     }
 
     public long getCredentialAssessmentId() {
@@ -49,5 +53,9 @@ public class AssessmentBasicData {
 
     public long getAssessorId() {
         return assessorId;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
     }
 }

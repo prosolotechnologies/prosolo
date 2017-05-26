@@ -24,6 +24,7 @@ import org.prosolo.search.TextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.services.nodes.CompetenceManager;
@@ -331,15 +332,19 @@ public class CompetenceActivitiesBean implements Serializable {
 	
 	public void addSlideshareLink() {
 		AttachmentPreview ap = resourceResData.getAttachmentPreview();
-		String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(ap.getLink(), null).getEmbedLink();
-		if(embedLink != null) {
-			ap.setEmbedingLink(embedLink);
-			ap.setInitialized(true);
-		} else {
-			ap.setEmbedingLink(null);
-			ap.setInitialized(false);
-			PageUtil.fireErrorMessage(SLIDESHARE_INPUT_COMP_ID, 
-					"Url not valid");
+		try {
+			String embedLink = SlideShareUtils.convertSlideShareURLToEmbededUrl(ap.getLink(), null).getEmbedLink();
+			if(embedLink != null) {
+				ap.setEmbedingLink(embedLink);
+				ap.setInitialized(true);
+			} else {
+				ap.setEmbedingLink(null);
+				ap.setInitialized(false);
+				PageUtil.fireErrorMessage(SLIDESHARE_INPUT_COMP_ID, "Url not valid");
+			}
+		} catch (MediaDataException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage(SLIDESHARE_INPUT_COMP_ID, "There was a problem parsing SlideShare URL");
 		}
 	}
 	

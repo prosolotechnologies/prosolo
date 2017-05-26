@@ -14,4 +14,8 @@ public class Util {
     public static long convertBigIntegerToLong(BigInteger n) {
         return n != null ? n.longValue() : 0;
     }
+
+    public static int unboxIntOrRetrunZero(Integer n) {
+        return n != null ? n.intValue() : 0;
+    }
 }

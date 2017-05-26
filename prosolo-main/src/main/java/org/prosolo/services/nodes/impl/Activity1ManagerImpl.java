@@ -47,6 +47,7 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -2016,8 +2017,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					
 					if (returnAssessmentData && credId > 0) {
 						BigInteger assessmentId = (BigInteger) row[9];
+						
+						ActivityAssessmentData ad = ard.getAssessment();
+						ad.setTargetActivityId(tActId);
+						ad.setUserId(userId);
+						ad.setActivityId(actId);
+						ad.setCompetenceId(compId);
+						ad.setCredentialId(credId);
+						
 						if(assessmentId != null) {
-							ActivityAssessmentData ad = ard.getAssessment();
 							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 							ad.setAllRead(((Character) row[11]).charValue() == 'T');
@@ -2032,17 +2040,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							}
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
-							ard.setAssessment(ad);							
 						} else {
 							// there is no activity assessment created yet
-							ActivityAssessmentData ad = new ActivityAssessmentData();
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
 							gd.setValue(0);
 							ad.setGrade(gd);
 							ad.setTargetCompId(((BigInteger) row[13]).longValue());
-							ard.setAssessment(ad);
 						}
 
 						//load additional assessment data
@@ -2052,6 +2057,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							ard.getAssessment().setCompAssessmentId(abd.getCompetenceAssessmentId());
 							ard.getAssessment().setCredAssessmentId(abd.getCredentialAssessmentId());
 							ard.getAssessment().setAssessorId(abd.getAssessorId());
+							ard.getAssessment().setDefault(abd.isDefault());
 						}
 					}
 				}
@@ -2387,7 +2393,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
-	
+
 	/**
 	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
 	 * 
@@ -2526,5 +2532,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		original.accept(visitor);
 		return visitor.act;
 	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void updateActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Activity1 act " +
+								"SET act.createdBy.id = :newCreatorId " +
+								"WHERE act.createdBy.id = :oldCreatorId";				    
 	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of activities");
+		}
+	}
+
 }

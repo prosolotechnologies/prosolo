@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -17,12 +16,17 @@ public class UserData implements Serializable {
 	
 	private long id;
 	private String fullName;
+	private String name;
+	private String lastName;
+	private String password;
 	private String avatarUrl;
 	private String position;
 	private String email;
 	private boolean followedByCurrentUser;
+	private boolean userSet;
 	private UserType type = UserType.REGULAR_USER;
 	private List<RoleData> roles = new ArrayList<>();
+	private List<Long> roleIds = new ArrayList<>();
 	
 	public UserData() {
 		this.roles = new LinkedList<RoleData>();
@@ -35,6 +39,9 @@ public class UserData implements Serializable {
 		this.avatarUrl = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 		this.position = user.getPosition();
 		this.email = user.getEmail();
+		setName(user.getName());
+		setLastName(user.getLastname());
+		this.password = user.getPassword();		
 	}
 	
 	public UserData(User user, List<Role> roles) {
@@ -65,6 +72,10 @@ public class UserData implements Serializable {
 		this.email = email;
 	}
 	
+	public void addRoleId(long id) {
+		this.roleIds.add(id);
+	}
+	
 	public void setFullName(String name, String lastName) {
 		this.fullName = getFullName(name, lastName);
 	}
@@ -80,6 +91,7 @@ public class UserData implements Serializable {
 	}
 
 	public void setId(long id) {
+		userSet = true;
 		this.id = id;
 	}
 
@@ -89,6 +101,30 @@ public class UserData implements Serializable {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getAvatarUrl() {
@@ -139,6 +175,22 @@ public class UserData implements Serializable {
 		this.roles = roles;
 	}
 	
+	public boolean isUserSet() {
+		return userSet;
+	}
+
+	public void setUserSet(boolean userSet) {
+		this.userSet = userSet;
+	}
+
+	public List<Long> getRoleIds() {
+		return roleIds;
+	}
+
+	public void setRoleIds(List<Long> roleIds) {
+		this.roleIds = roleIds;
+	}
+
 	public String getRolesCSV() {
 		String rolesString = "";
 		if(roles != null) {

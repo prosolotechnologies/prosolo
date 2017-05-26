@@ -9,10 +9,12 @@
   	<module>bigdata.common</module>
   	<module>prosolo-analytics</module>
 	<module>prosolo-main</module>
+      <module>spark-jobs</module>
   </modules>
   <properties>
   	<hibernate.version>4.3.10.Final</hibernate.version>
   	<slf4j.version>1.7.10</slf4j.version>
+
   </properties>
   <dependencies>	
   	<!-- Testing dependencies -->
@@ -22,28 +24,7 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- Hibernate dependencies -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
 
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-c3p0</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
  
 		
 			<!-- Logging dependencies -->
@@ -73,6 +54,17 @@
 			<version>${slf4j.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+	  <!--Jung dependencies-->
+	  <dependency>
+		  <groupId>net.sf.jung</groupId>
+		  <artifactId>jung-graph-impl</artifactId>
+		  <version>2.0.1</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>net.sf.jung</groupId>
+		  <artifactId>jung-algorithms</artifactId>
+		  <version>2.0.1</version>
+	  </dependency>
   </dependencies>
   <build>
         <pluginManagement>

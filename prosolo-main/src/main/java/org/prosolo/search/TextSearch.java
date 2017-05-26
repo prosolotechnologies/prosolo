@@ -1,6 +1,10 @@
 package org.prosolo.search;
 
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.UserData;
+
+import java.util.List;
 
 /**
  * @author Zoran Jeremic

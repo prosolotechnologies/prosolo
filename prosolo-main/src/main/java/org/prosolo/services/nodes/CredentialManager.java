@@ -491,4 +491,7 @@ public interface CredentialManager extends AbstractManager {
 			IllegalDataStateException;
 	
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
+
+	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
 }

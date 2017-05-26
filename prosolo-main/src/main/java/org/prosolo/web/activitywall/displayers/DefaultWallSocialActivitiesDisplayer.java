@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.ActivityWallManager;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.activitywall.util.ActivityWallUtils;
 import org.prosolo.web.activitywall.util.WallActivityConverter;
@@ -179,7 +180,7 @@ public abstract class DefaultWallSocialActivitiesDisplayer {
 		}
 	}
 	
-	public synchronized void addSocialActivity(SocialActivity socialActivity, User loggedUser, Locale locale, boolean optionsDisabled) {
+	public synchronized void addSocialActivity(SocialActivity socialActivity, User loggedUser, Locale locale, boolean optionsDisabled) throws MediaDataException {
 		if (allActivities != null) {
 			SocialActivityData wallActivity = wallActivityConverter.convertSocialActivityToSocialActivityData(socialActivity, loggedUser.getId(), getSubViewType(), locale);
 //			wallActivity.setWallOwner(new UserData(loggedUser.getUser()));

@@ -3164,9 +3164,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
 	}
-	
-	
-	
+
 	@Override
 	@Transactional(readOnly = false)
 	public void archiveCredential(long credId, long userId, LearningContextData context) 
@@ -3497,22 +3495,40 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException {
-		try {	
+		try {
 			String query = "SELECT d.id " +
-						   "FROM Credential1 d " +
-						   "WHERE d.deliveryOf.id = :credId";
-	
+					"FROM Credential1 d " +
+					"WHERE d.deliveryOf.id = :credId";
+
 			@SuppressWarnings("unchecked")
-			List<Long> deliveries =  session
+			List<Long> deliveries = session
 					.createQuery(query)
 					.setLong("credId", credId)
 					.list();
-			
+
 			return deliveries;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential delivery ids");
+		}
+	}
+
+	public void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE Credential1 cred SET " +
+							"cred.createdBy = :newCreatorId " +
+							"WHERE cred.createdBy = :oldCreatorId";
+			
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
 		}
 	}
 }

@@ -1386,7 +1386,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public AssessmentBasicData getDefaultAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException {
 		try {
-			StringBuilder q = new StringBuilder("SELECT ca.id as caid, ca.assessor as assessor ");
+			StringBuilder q = new StringBuilder("SELECT ca.id as caid, ca.assessor as assessor, ca.default_assessment ");
 			if (compId > 0) {
 				q.append(", compAssessment.id as compAssessmentId ");
 
@@ -1438,16 +1438,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (res != null) {
 				long credAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[0]);
 				long assessorId = Util.convertBigIntegerToLong((BigInteger) res[1]);
+				boolean isDefault = (boolean) res[2];
 				long compAssessmentId = 0L;
 				long activityAssessmentId = 0L;
 				if (compId > 0) {
-					compAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[2]);
+					compAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[3]);
 
 					if (actId > 0) {
-						activityAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[3]);
+						activityAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[4]);
 					}
 				}
-				return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId);
+				return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId,
+						isDefault);
 			}
 			return null;
 		} catch(Exception e) {
