@@ -30,7 +30,8 @@ object KMeansClusterer {
         numClusters <- possibleNumClusters
         maxIterations <- possibleMaxIterations
       }yield{
-        kmeans.setK(numClusters)
+        if(numClusters<2) kmeans.setK(2) else  kmeans.setK(numClusters)
+
         kmeans.setMaxIter(maxIterations)
         val kmeansModel=kmeans.fit(dataFrame)
         val WSSSE=kmeansModel.computeCost(dataFrame)
