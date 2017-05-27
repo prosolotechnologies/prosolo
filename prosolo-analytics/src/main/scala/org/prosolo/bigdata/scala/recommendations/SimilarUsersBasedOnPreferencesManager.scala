@@ -19,8 +19,8 @@ object SimilarUsersBasedOnPreferencesManager{
   val maxIt1=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration1").toInt;
   val maxIt2=jobProperties.jobProperties.getProperty("possibleKmeansMaxIteration2").toInt;
   val possibleMaxIterations=Seq(maxIt1, maxIt2)
-  //val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
-  val keyspaceName="prosolo_logs_uta"
+  val keyspaceName=CassandraDDLManagerImpl.getInstance().getSchemaName
+  //val keyspaceName="prosolo_logs_uta"
   println("USING KEYSPACE:"+keyspaceName)
   runJob()
   def runJob() ={
