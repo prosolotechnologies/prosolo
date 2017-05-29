@@ -98,15 +98,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String service = context != null ? context.getService() : null; 
 			eventFactory.generateEvent(EventType.Create, creatorId, cred, null, page, lContext,
 					service, null);
-			Set<Tag> hashtags = cred.getHashtags();
-			if(!hashtags.isEmpty()) {
-				Map<String, String> params = new HashMap<>();
-				String csv = StringUtil.convertTagsToCSV(hashtags);
-				params.put("newhashtags", csv);
-				params.put("oldhashtags", "");
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, creatorId, cred, null, page, 
-						lContext, service, params);
-			}
 
 			return cred;
 		} catch(DbConnectionException dce) {
@@ -762,7 +753,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			
 			fireEditEvent(data, userId, cred, 0, page, lContext, service);
-			if(data.isHashtagsStringChanged()) {
+			//we should generate update hashtags only for deliveries
+			if(data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
 				Map<String, String> params = new HashMap<>();
 				params.put("newhashtags", data.getHashtagsString());
 				params.put("oldhashtags", data.getOldHashtags());
@@ -2391,9 +2383,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			String query=
 					"SELECT tCred, creator, bookmark.id " +
 					"FROM TargetCredential1 tCred " +
-					"LEFT JOIN tCred.createdBy creator " +
-						"WITH tCred.credentialType = :credType " +
 					"INNER JOIN tCred.credential cred " +
+					"LEFT JOIN cred.createdBy creator " +
 					"LEFT JOIN cred.bookmarks bookmark " +
 					   "WITH bookmark.user.id = :userId " +
 					"WHERE tCred.user.id = :userId " +
@@ -2407,7 +2398,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.createQuery(query)
 					.setLong("userId", userid)
 					.setInteger("progress", 100)
-					.setString("credType", LearningResourceType.USER_CREATED.name())
 					.setMaxResults(limitFinal)
 				  	.list();
 			
@@ -3464,7 +3454,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				String csv = StringUtil.convertTagsToCSV(hashtags);
 				params.put("newhashtags", csv);
 				params.put("oldhashtags", "");
-				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, actorId, cred, null, context, null));
+				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, actorId, cred, null, context, params));
 			}
 			
 			//lock competencies so they cannot be unpublished after they are published here which would violate our integrity rule

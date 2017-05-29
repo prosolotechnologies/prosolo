@@ -1,32 +1,11 @@
 package org.prosolo.services.activityWall.factory;
 
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.inject.Inject;
-
-import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialCompleteSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.CredentialEnrollSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.*;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
@@ -40,6 +19,11 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Locale;
 
 @Component
 public class SocialActivityDataFactory {
@@ -90,7 +74,6 @@ public class SocialActivityDataFactory {
 			BigInteger credObjectId,
 			String credObjectTitle,
 			BigInteger credObjectDuration,
-			String credObjectType,
 			BigInteger credObjectActorId,
 			String credObjectActorName,
 			String credObjectActorLastname,
@@ -115,7 +98,6 @@ public class SocialActivityDataFactory {
 			String actObjectDType,
 			String actObjectUrlType,
 			BigInteger actObjectCompId,
-			BigInteger actObjectCredId,
 			BigInteger compObjectId,
 			String compObjectTitle,
 			BigInteger compObjectDuration,
@@ -124,7 +106,6 @@ public class SocialActivityDataFactory {
 			String compObjectActorName,
 			String compObjectActorLastname,
 			String compObjectDescription,
-			BigInteger compObjectCredId,
 			Integer liked,
 			BigInteger commentsNumber,
 			Locale locale) {
@@ -226,7 +207,7 @@ public class SocialActivityDataFactory {
 					ResourceType.Credential, 0, null, null, locale);
 			ap = richContentFactory.getAttachmentPreviewForCredential(credObjectId.longValue(), 
 					credObjectDuration.longValue(), credObjectTitle, credObjectDescription, 
-					LearningResourceType.valueOf(credObjectType), credObjectActorName, 
+					LearningResourceType.UNIVERSITY_CREATED, credObjectActorName,
 					credObjectActorLastname);
 		}
 		else if(dType.equals(CompetenceCompleteSocialActivity.class.getSimpleName())) {
@@ -237,7 +218,7 @@ public class SocialActivityDataFactory {
 			ap = richContentFactory.getAttachmentPreviewForCompetence(compObjectId.longValue(), 
 					compObjectDuration.longValue(), compObjectTitle, compObjectDescription, 
 					LearningResourceType.valueOf(compObjectType), compObjectActorName, 
-					compObjectActorLastname, compObjectCredId.longValue());
+					compObjectActorLastname, 0);
 		} else if(dType.equals(CompetenceCommentSocialActivity.class.getSimpleName())) {
 			//competence comment
 			sad.setType(SocialActivityType.Comment);
@@ -268,7 +249,7 @@ public class SocialActivityDataFactory {
 			ap = richContentFactory.getAttachmentPreviewForActivity(actObjectId.longValue(), 
 					actObjectDuration.longValue(), actObjectTitle, actObjectDescription, 
 					LearningResourceType.valueOf(actObjectType), actType, actObjectActorName, 
-					actObjectActorLastname, actObjectCompId.longValue(), actObjectCredId.longValue());
+					actObjectActorLastname, actObjectCompId.longValue(), 0);
 		}
 		
 		sad.setPredicate(ResourceBundleUtil.getActionName(sad.getType().name(), locale));
