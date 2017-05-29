@@ -3,11 +3,7 @@ package org.prosolo.common.domainmodel.organization;
 import java.util.List;
 
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -31,6 +27,7 @@ public class Unit extends BaseEntity {
 	private Unit parentUnit;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
 	public Organization getOrganization(){
 		return organization;
 	}
@@ -70,11 +67,11 @@ public class Unit extends BaseEntity {
 	}
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	public Unit getUnit(){
+	public Unit getParentUnit(){
 		return parentUnit;
 	}
 	
-	public void setUnit(Unit parentUnit){
+	public void setParentUnit(Unit parentUnit){
 		this.parentUnit = parentUnit;
 	}
 }

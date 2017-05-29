@@ -62,9 +62,8 @@ public class BaseEntity implements Serializable {
 	public void setDateCreated(Date dateCreated) {
 		this.dateCreated = dateCreated;
 	}
-	
-	@Column(nullable=true)
-	@Type(type="true_false")
+
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isDeleted() {
 		return deleted;
 	}
