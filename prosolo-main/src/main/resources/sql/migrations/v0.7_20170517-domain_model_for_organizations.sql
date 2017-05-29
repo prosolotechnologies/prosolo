@@ -1,11 +1,17 @@
 ALTER TABLE `user`
-	ADD COLUMN `organization` bigint(20);
+  ADD KEY `FK_organization` (`organization`);
+
+ALTER TABLE `user`
+  ADD CONSTRAINT `FK_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`);
+
+ALTER TABLE `user`
+	ADD COLUMN `organization` bigint(20) DEFAULT NULL;
 
 CREATE TABLE `organization` (
 	`id` bigint(20) NOT NULL,
 	`created` datetime DEFAULT NULL,
-	`deleted` char(1) DEFAULT NULL,
-    `description` longtext,
+	`deleted` char(1) DEFAULT 'F',
+  `description` longtext,
 	`title` varchar(1000) DEFAULT NULL
 );
 
@@ -15,11 +21,11 @@ ALTER TABLE `organization`
 CREATE TABLE `unit` (
 	`id` bigint(20) NOT NULL,
 	`created` datetime DEFAULT NULL,
-	`deleted` char(1) DEFAULT NULL,
+	`deleted` char(1) DEFAULT 'F',
 	`description` longtext,
 	`title` varchar(1000) DEFAULT NULL,
 	`organization` bigint(20) NOT NULL,
-	`parent_unit` bigint(20) 
+	`parent_unit` bigint(20) DEFAULT NULL
 );
 
 ALTER TABLE `unit`
@@ -31,12 +37,12 @@ ALTER TABLE `unit`
   ADD CONSTRAINT `FK_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`);
 
 ALTER TABLE `unit`
-  ADD CONSTRAINT `parent_unit` FOREIGN KEY (`parent_unit`) REFERENCES `unit` (`id`);
+  ADD CONSTRAINT `FK_parent_unit` FOREIGN KEY (`parent_unit`) REFERENCES `unit` (`id`);
  
 CREATE TABLE `unit_role_membership` (
 	`id` bigint(20) NOT NULL,
 	`created` datetime DEFAULT NULL,
-	`deleted` char(1) DEFAULT NULL,
+	`deleted` char(1) DEFAULT 'F',
 	`description` longtext,
 	`title` varchar(1000) DEFAULT NULL,
 	`role` bigint(20) NOT NULL,
@@ -63,7 +69,7 @@ ALTER TABLE `unit_role_membership`
 CREATE TABLE `credential_unit` (
 	`id` bigint(20) NOT NULL,
 	`created` datetime DEFAULT NULL,
-	`deleted` char(1) DEFAULT NULL,
+	`deleted` char(1) DEFAULT 'F',
 	`description` longtext,
 	`title` varchar(1000) DEFAULT NULL,
 	`credential` bigint(20) NOT NULL,
@@ -85,7 +91,7 @@ ALTER TABLE `credential_unit`
 CREATE TABLE `competence_unit` (
 	`id` bigint(20) NOT NULL,
 	`created` datetime DEFAULT NULL,
-	`deleted` char(1) DEFAULT NULL,
+	`deleted` char(1) DEFAULT 'F',
 	`description` longtext,
 	`title` varchar(1000) DEFAULT NULL,
 	`competence` bigint(20) NOT NULL,
