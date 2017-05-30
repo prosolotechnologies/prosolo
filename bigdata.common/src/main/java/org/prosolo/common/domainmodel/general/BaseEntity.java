@@ -64,6 +64,7 @@ public class BaseEntity implements Serializable {
 	}
 
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	@Type(type="true_false")
 	public boolean isDeleted() {
 		return deleted;
 	}
