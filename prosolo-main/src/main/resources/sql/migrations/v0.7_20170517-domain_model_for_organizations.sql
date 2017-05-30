@@ -1,11 +1,11 @@
 ALTER TABLE `user`
+	ADD COLUMN `organization` bigint(20) DEFAULT NULL;
+
+ALTER TABLE `user`
   ADD KEY `FK_organization` (`organization`);
 
 ALTER TABLE `user`
   ADD CONSTRAINT `FK_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`id`);
-
-ALTER TABLE `user`
-	ADD COLUMN `organization` bigint(20) DEFAULT NULL;
 
 CREATE TABLE `organization` (
 	`id` bigint(20) NOT NULL,
