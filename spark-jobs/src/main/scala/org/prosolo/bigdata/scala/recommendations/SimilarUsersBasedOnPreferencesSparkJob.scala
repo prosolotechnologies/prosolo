@@ -13,10 +13,11 @@ import scala.collection.JavaConverters._
 /**
   * Created by zoran on 29/04/17.
   */
-object SimilarUsersBasedOnPreferencesSparkJob {
+object SimilarUsersBasedOnPreferencesSparkJob{
   val sc = SparkContextLoader.getSC
   sc.setLogLevel("WARN")
   val sqlContext = SQLContext.getOrCreate(sc)
+  println("CREATED SQL CONTEXT")
   /**
     * Performs users clustering, in order to limit data model loading to one specific cluster only.
     * Users are clustered based on the credentials they are assigned to
