@@ -3,7 +3,6 @@ package org.prosolo.web.courses.activity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +15,10 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -41,7 +36,6 @@ import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @ManagedBean(name = "activityResultsBeanManager")
@@ -59,8 +53,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	@Inject private CredentialManager credManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private AssessmentManager assessmentManager;
-	@Inject private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private EventFactory eventFactory;
 	@Inject private ActivityResultBean actResultBean;
 
 	private String actId;
@@ -83,8 +75,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	private boolean hasInstructorCapability;
 
 	private ActivityResultData currentResult;
-	// adding new comment
-	private String newCommentValue;
 	
 	private List<StudentAssessedFilterState> filters = new ArrayList<>();
 	private List<StudentAssessedFilter> appliedFilters = new ArrayList<>();
@@ -208,7 +198,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				decodedActId, filter)).intValue();
 	}
 
-	
 	private void searchStudentResults(boolean calculateNumberOfResults) {
 		try {
 			if (appliedFilters.isEmpty()) {
@@ -341,37 +330,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		return loggedUserBean.getUserId() == result.getAssessment().getAssessorId();
 	}
 	
-	public void editComment(String newContent, String activityMessageEncodedId) {
-		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
-		try {
-			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error editing message with id : " + activityMessageId, e);
-			PageUtil.fireErrorMessage("Error editing message");
-		}
-	}
-	
-	public void addCommentToActivityDiscussion() {
-		long actualDiscussionId;
-		if (StringUtils.isBlank(currentResult.getAssessment().getEncodedDiscussionId())) {
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			actualDiscussionId = createDiscussion(currentResult.getTargetActivityId(), 
-					currentResult.getAssessment().getCompAssessmentId(), lcd);
-			
-			// set discussionId in the appropriate ActivityAssessmentData
-			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
-			
-			currentResult.getAssessment().setEncodedDiscussionId(encodedDiscussionId);
-		} else {
-			actualDiscussionId = idEncoder.decodeId(currentResult.getAssessment().getEncodedDiscussionId());
-		}
-		addComment(actualDiscussionId, currentResult.getAssessment().getCompAssessmentId());
-		cleanupCommentData();
-	}
-	
 	public void updateGrade() {
 		try {
 			long compAssessmentId = currentResult.getAssessment().getCompAssessmentId();
@@ -435,62 +393,6 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			logger.error(e);
 			return -1;
 		}
-	}
-	
-	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
-		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
-					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
-
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			
-			notifyAssessmentCommentAsync(currentResult.getAssessment().getCredAssessmentId(),
-					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()), 
-					page, lContext, service, decodedCredId);
-
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error("Error saving assessment message", e);
-			PageUtil.fireErrorMessage("Error while adding new assessment message");
-		}
-	}
-	
-	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId,
-			long assessmentCommentId, String page, String lContext, 
-			String service, long credentialId) {
-		taskExecutor.execute(() -> {
-			//User recipient = new User();
-			//recipient.setId(recepientId);
-			ActivityDiscussionMessage adm = new ActivityDiscussionMessage();
-			adm.setId(assessmentCommentId);
-			ActivityAssessment aa = new ActivityAssessment();
-			aa.setId(actAssessmentId);
-			Map<String, String> parameters = new HashMap<>();
-			parameters.put("credentialId", credentialId + "");
-			parameters.put("credentialAssessmentId", credAssessmentId + "");
-			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), adm, aa,
-						page, lContext, service, parameters);
-			} catch (Exception e) {
-				logger.error("Eror sending notification for assessment request", e);
-			}
-		});
-	}
-	
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
-			long competenceAssessmentId) {
-		if (isCurrentUserAssessor(currentResult)) {
-			newComment.setSenderInsructor(true);
-		}
-		currentResult.getAssessment().getActivityDiscussionMessageData().add(newComment);
-		currentResult.getAssessment().setNumberOfMessages(
-				currentResult.getAssessment().getNumberOfMessages() + 1);
-	}
-	
-	private void cleanupCommentData() {
-		newCommentValue = "";
 	}
 	
 	public void markDiscussionRead() {
@@ -633,15 +535,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	public void setCurrentResult(ActivityResultData currentResult) {
 		this.currentResult = currentResult;
 	}
-
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
-	}
-
+	
 	public List<StudentAssessedFilterState> getFilters() {
 		return filters;
 	}
