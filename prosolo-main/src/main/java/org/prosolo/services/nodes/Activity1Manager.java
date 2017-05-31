@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -201,6 +202,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param userId
 	 * @param isManager did request come from manage section
 	 * @return
+	 * @throws MediaDataException 
 	 */
 	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
 

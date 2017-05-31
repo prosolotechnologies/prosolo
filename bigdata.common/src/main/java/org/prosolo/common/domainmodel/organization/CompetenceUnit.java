@@ -1,8 +1,6 @@
 package org.prosolo.common.domainmodel.organization;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -14,6 +12,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
  */
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"competence", "unit"})})
 public class CompetenceUnit extends BaseEntity{
 
 	private static final long serialVersionUID = 7719863079065072423L;
@@ -22,6 +21,7 @@ public class CompetenceUnit extends BaseEntity{
 	private Unit unit;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
 	public Competence1 getCompetence(){
 		return competence;
 	}
@@ -31,6 +31,7 @@ public class CompetenceUnit extends BaseEntity{
 	}
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
 	public Unit getUnit(){
 		return unit;
 	}
