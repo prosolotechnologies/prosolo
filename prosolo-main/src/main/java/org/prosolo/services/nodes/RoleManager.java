@@ -13,6 +13,10 @@ import org.prosolo.services.general.AbstractManager;
 public interface RoleManager extends AbstractManager {
 	
 	List<Role> getAllRoles();
+	
+	List<Role> getAdminRoles(String[] names);
+
+	List<Role> getRoles(List<Long> roleIds);
 
 	List<Long> getRoleIdsForName(String name);
 	

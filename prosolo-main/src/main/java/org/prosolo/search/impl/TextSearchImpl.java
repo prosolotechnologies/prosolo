@@ -251,7 +251,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 	@Override
 	@Transactional
 	public TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds) {
+			String term, int page, int limit, boolean paginate, long roleId,List<Long> roleIds, boolean includeSystemUsers, List<Long> excludeIds) {
 		
 		TextSearchResponse1<UserData> response = 
 				new TextSearchResponse1<>();
@@ -273,7 +273,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 			
 			if (!includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
@@ -301,6 +301,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 							.field("id"))
 					.setFetchSource(includes, null);
 			
+			if(roleIds != null && !roleIds.isEmpty()){
+				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
+				for(Long id : roleIds){
+					bqb1.should(termQuery("roles.id", id));
+				}
+				bQueryBuilder.filter(bqb1);
+			}
+			
 			//set as a post filter so it does not influence aggregation results
 			if(roleId > 0) {
 				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
@@ -312,7 +320,14 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 			
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<org.prosolo.common.domainmodel.organization.Role> roles = roleManager.getAllRoles();
+				List<org.prosolo.common.domainmodel.organization.Role> roles;
+
+				if (roleIds == null || roleIds.isEmpty()){
+					roles = roleManager.getAllRoles();
+				} else {
+					roles = roleManager.getRoles(roleIds);
+				}
+
 				for(SearchHit sh : sResponse.getHits()) {
 					Map<String, Object> fields = sh.getSource();
 					User user = new User();
@@ -334,8 +349,8 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 						}
 					}
 					UserData userData = new UserData(user, userRoles);
-					
-					response.addFoundNode(userData);			
+
+					response.addFoundNode(userData);
 				}
 				
 				//get facets
@@ -353,13 +368,13 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 					if(bucket != null) {
 						number = (int) bucket.getDocCount();
 					}
-			    	RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
-			    	roleFilters.add(rf);
-			    	if(role.getId() == roleId) {
-			    		selectedFilter = rf;
-			    	}
+					RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+					roleFilters.add(rf);
+					if(role.getId() == roleId) {
+						selectedFilter = rf;
+					}
 				}
-				
+
 				Map<String, Object> additionalInfo = new HashMap<>();
 				additionalInfo.put("filters", roleFilters);
 				additionalInfo.put("selectedFilter", selectedFilter);

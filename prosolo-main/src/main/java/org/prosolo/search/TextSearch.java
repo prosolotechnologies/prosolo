@@ -168,7 +168,7 @@ public interface TextSearch extends AbstractManager {
 	 * @return
 	 */
 	TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds);
+			String term, int page, int limit, boolean paginate, long roleId,List<Long> roleIds, boolean includeSystemUsers, List<Long> excludeIds);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 

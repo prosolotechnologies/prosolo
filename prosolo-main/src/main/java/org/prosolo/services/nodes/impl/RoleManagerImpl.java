@@ -49,6 +49,36 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 	
 	@Override
+	public List<Role> getAdminRoles(String[] names) {
+		 String query = 
+				 "SELECT role " +
+				 "FROM Role role " +
+				 "WHERE lower(role.title) IN :names";
+		 
+		@SuppressWarnings("unchecked")
+		List<Role> result = persistence.currentManager().createQuery(query)
+				 .setParameterList("names", names)
+				 .list();
+		 
+		 if(result != null && !result.isEmpty()){
+			 return result;
+		 }
+		 return new ArrayList<Role>();
+	}
+
+	@Override
+	public List<Role> getRoles(List<Long> roleIds) {
+		List<Role> roles = getAllRoles();
+		List<Role> resultIds = new ArrayList<>();
+		for(Role r : roles){
+			if(roleIds.contains(r.getId())){
+				resultIds.add(r);
+			}
+		}
+		return resultIds;
+	}
+
+	@Override
 	public List<Role> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
 		
@@ -58,7 +88,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 		return new ArrayList<Role>();
 	}
-
+	
 	@Override
 	public Role createNewRole(String name, String description, boolean systemDefined) {
 		return resourceFactory.createNewRole(

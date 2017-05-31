@@ -113,7 +113,7 @@ public class UsersBean implements Serializable, Paginable {
 		this.users = new ArrayList<UserData>();
 		try {
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), true, null);
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(),null, true, null);
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
 			filters = roleFilters != null ? roleFilters : new ArrayList<>();
