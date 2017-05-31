@@ -1,9 +1,6 @@
 package org.prosolo.common.domainmodel.organization;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -15,6 +12,7 @@ import org.prosolo.common.domainmodel.user.User;
  */
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user", "unit", "role"})})
 public class UnitRoleMembership extends BaseEntity {
 
 	private static final long serialVersionUID = 5292392502819704285L;
@@ -34,6 +32,7 @@ public class UnitRoleMembership extends BaseEntity {
 	}
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
 	public Role getRole(){
 		return role;
 	}
@@ -43,6 +42,7 @@ public class UnitRoleMembership extends BaseEntity {
 	}
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
 	public User getUser(){
 		return user;
 	}
