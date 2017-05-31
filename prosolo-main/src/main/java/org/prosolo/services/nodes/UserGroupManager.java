@@ -106,14 +106,15 @@ public interface UserGroupManager extends AbstractManager {
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
     		throws DbConnectionException;
 	
-	List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId) 
+	List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
-	List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId) 
+	List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
-	
-	void saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users) throws DbConnectionException;
+
+	Result<Void> saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups,
+											  List<ResourceVisibilityMember> users, long actorId,
+											  LearningContextData lcd) throws DbConnectionException;
 	
 	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
 	

@@ -1,14 +1,14 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.competence;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceCreator;
@@ -17,45 +17,49 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
 
-@Component("credentialUserPrivilegeBean")
+@ManagedBean(name = "competenceUserPrivilegeBean")
+@Component("competenceUserPrivilegeBean")
 @Scope("view")
-public class CredentialUserPrivilegeBean implements Serializable {
+public class CompetenceUserPrivilegeBean implements Serializable {
 
-	private static final long serialVersionUID = -926922726442064817L;
+	private static final long serialVersionUID = 6705556179040324163L;
 
-	private static Logger logger = Logger.getLogger(CredentialUserPrivilegeBean.class);
-	
+	private static Logger logger = Logger.getLogger(CompetenceUserPrivilegeBean.class);
+
 	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private CredentialManager credManager;
-	@Inject private ApplicationPagesBean appPagesBean;
+	@Inject private EventFactory eventFactory;
+	@Inject private Competence1Manager compManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
 
-	private String credId;
-	private long credentialId;
+	private String competenceId;
+	private long compId;
 	private ResourceCreator creator;
-	private String credentialTitle;
-	//id of a role that user should have in order to be considered when adding privileges
-	private long roleId;
-	
-	private ResourceVisibilityUtil resVisibilityUtil;
+	private String competenceTitle;
 
 	private UserGroupPrivilege privilege;
-	
-	public CredentialUserPrivilegeBean() {
+
+	//id of a role that user should have in order to be considered when adding privileges
+	private long roleId;
+
+	//private boolean manageSection;
+
+	private ResourceVisibilityUtil resVisibilityUtil;
+
+	public CompetenceUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
 
@@ -70,32 +74,22 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	}
 
 	private void init() {
-		credentialId = idEncoder.decodeId(credId);
-		if (credentialId > 0) {
+		compId = idEncoder.decodeId(competenceId);
+		if (compId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				ResourceAccessData access = credManager.getResourceAccessData(credentialId,
-						loggedUserBean.getUserId(), req);
-				if (!access.isCanAccess()) {
+				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
+				if(!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					/*
-					administration of edit privileges is performed for original credentials and administration of
-					learn privileges is performed for deliveries
-					 */
-					CredentialType credType = privilege == UserGroupPrivilege.Edit
-							? CredentialType.Original : CredentialType.Delivery;
-					credentialTitle = credManager.getCredentialTitle(credentialId, credType);
-					if (credentialTitle != null) {
+					competenceTitle = compManager.getCompetenceTitle(compId);
+					if (competenceTitle != null) {
 						if (privilege == UserGroupPrivilege.Edit) {
-							/*
-							we only need credential owner info in case we administer Edit privileges for a credential
-							*/
-							this.creator = credManager.getCredentialCreator(credentialId);
+							this.creator = compManager.getCompetenceCreator(compId);
 							resVisibilityUtil.initializeValuesForEditPrivilege();
 						} else {
-							resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
+							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
 						}
 						List<Long> roleIds = roleManager.getRoleIdsForName(
 								privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
@@ -104,7 +98,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 							roleId = roleIds.get(0);
 						}
 
-						logger.info("Manage visibility for credential with id " + credentialId);
+						logger.info("Manage visibility for competency with id " + compId);
 
 						loadData();
 					} else {
@@ -119,10 +113,10 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			PageUtil.notFound();
 		}
 	}
-	
+
 	private void loadData() {
-		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
-		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId, privilege));
+		setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId, privilege));
+		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(compId, privilege));
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
 		}
@@ -130,20 +124,26 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			getGroupsToExclude().add(g.getGroupId());
 		}
 	}
-	
+
 	public void searchUsersAndGroups() {
 		String searchTerm = getSearchTerm();
 		if(searchTerm == null) {
 			searchTerm = "";
 		}
 		TextSearchResponse1<ResourceVisibilityMember> res = null;
-
+		//for now we do not consider editing privileges for competence from user section
+//		if(manageSection) {
+//			res = userGroupTextSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(),
+//					getUsersToExclude(), getGroupsToExclude());
+//		} else {
+//			res = userGroupTextSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
+//		}
 		res = userGroupTextSearch.searchUsersAndGroups(searchTerm, getLimit(),
 				getUsersToExclude(), getGroupsToExclude(), roleId);
-		
+
 		setSearchMembers(res.getFoundNodes());
 	}
-	
+
 	public void addNewMember(ResourceVisibilityMember member) {
 		resVisibilityUtil.addNewMember(member);
 		searchUsersAndGroups();
@@ -152,18 +152,18 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	public void removeMember(ResourceVisibilityMember member) {
 		resVisibilityUtil.removeMember(member);
 	}
-	
+
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
 			LearningContextData lcd = PageUtil.extractLearningContextData();
-			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
+			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			saved = true;
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user privileges for a credential");
+			PageUtil.fireErrorMessage("Error while trying to update user privileges for a competency");
 		} catch (EventException ee) {
 			logger.error(ee);
 		}
@@ -213,44 +213,44 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	public boolean isVisibleToEveryone() {
 		return resVisibilityUtil.isVisibleToEveryone();
 	}
-	
+
+	public void setVisibleToEveryone(boolean visibleToEveryone) {
+		resVisibilityUtil.setVisibleToEveryone(visibleToEveryone);
+	}
+
 	private List<Long> getUsersToExclude() {
 		return resVisibilityUtil.getUsersToExclude();
 	}
-	
+
 	private int getLimit() {
 		return resVisibilityUtil.getLimit();
 	}
-	
+
 	private boolean isVisibleToEveryoneChanged() {
 		return resVisibilityUtil.isVisibleToEveryoneChanged();
 	}
-	
+
 	private List<Long> getGroupsToExclude() {
 		return resVisibilityUtil.getGroupsToExclude();
 	}
-	
+
 	public ResourceCreator getCreator() {
 		return creator;
 	}
-	
-	public void setVisibleToEveryone(boolean val) {
-		resVisibilityUtil.setVisibleToEveryone(val);
+
+	public String getCompetenceTitle() {
+		return competenceTitle;
 	}
 
-	public String getCredId() {
-		return credId;
+	public long getCompId() {
+		return compId;
 	}
 
-	public void setCredId(String credId) {
-		this.credId = credId;
+	public String getCompetenceId() {
+		return competenceId;
 	}
 
-	public String getCredentialTitle() {
-		return credentialTitle;
-	}
-
-	public long getCredentialId() {
-		return credentialId;
+	public void setCompetenceId(String competenceId) {
+		this.competenceId = competenceId;
 	}
 }
