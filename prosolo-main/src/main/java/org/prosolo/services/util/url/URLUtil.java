@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
@@ -65,8 +66,9 @@ public class URLUtil {
 	 * @param link
 	 * @param embedId if embedId is not known pass null
 	 * @return
+	 * @throws MediaDataException 
 	 */
-	public static MediaData getSlideshareEmbedLink(String link, String embedId) {
+	public static MediaData getSlideshareEmbedLink(String link, String embedId) throws MediaDataException {
 		return SlideShareUtils.convertSlideShareURLToEmbededUrl(link, embedId);
 	}
 	

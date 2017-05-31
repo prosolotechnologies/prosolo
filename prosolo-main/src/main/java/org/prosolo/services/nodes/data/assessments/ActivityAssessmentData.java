@@ -28,6 +28,7 @@ public class ActivityAssessmentData {
 	private String encodedDiscussionId;
 	private String encodedTargetActivityId;
 	private Long activityId;
+	private Long targetActivityId;
 	private Long competenceId;
 	private Long credentialId;
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
@@ -40,6 +41,7 @@ public class ActivityAssessmentData {
 	private long credAssessmentId;
 	private GradeData grade;
 	private String result;
+	private long userId;
 	//is activity completed
 	private boolean completed;
 	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
@@ -113,6 +115,8 @@ public class ActivityAssessmentData {
 		data.setActivityId(targetActivity.getActivity().getId());
 		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
 		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
+		data.setTargetActivityId(targetActivity.getId());
+		data.setUserId(compAssessment.getCredentialAssessment().getAssessedStudent().getId());
 	}
 
 //	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
@@ -123,6 +127,20 @@ public class ActivityAssessmentData {
 //			}
 //		}
 //	}
+
+	/**
+	 * @return the targetActivityId
+	 */
+	public Long getTargetActivityId() {
+		return targetActivityId;
+	}
+
+	/**
+	 * @param targetActivityId the targetActivityId to set
+	 */
+	public void setTargetActivityId(Long targetActivityId) {
+		this.targetActivityId = targetActivityId;
+	}
 
 	//Taken from ActivityDataFactory
 	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
@@ -315,6 +333,20 @@ public class ActivityAssessmentData {
 
 	public void setAutomaticGrade(boolean automaticGrade) {
 		this.automaticGrade = automaticGrade;
+	}
+
+	/**
+	 * @return the userId
+	 */
+	public Long getUserId() {
+		return userId;
+	}
+
+	/**
+	 * @param userId the userId to set
+	 */
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	
 }

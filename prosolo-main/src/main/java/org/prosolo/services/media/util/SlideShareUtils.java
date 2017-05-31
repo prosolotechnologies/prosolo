@@ -21,19 +21,21 @@ public class SlideShareUtils {
 	 * @param slideShareUrl
 	 * @param embedId - if not known pass null
 	 * @return
+	 * @throws MediaDataException 
 	 */
-	public static MediaData convertSlideShareURLToEmbededUrl(String slideShareUrl, String embedId){
+	public static MediaData convertSlideShareURLToEmbededUrl(String slideShareUrl, String embedId) throws MediaDataException {
 		String presentationId = "";
 		if(embedId != null && !embedId.isEmpty()) {
 			presentationId = embedId;
 		} else {
 			GetRequestClient client = new GetRequestClientImpl();
-			String startingUrl = "http://www.slideshare.net/api/oembed/2?url=";
+			String startingUrl = "https://www.slideshare.net/api/oembed/2?url=";
 			String format = "&format=json";
 			String url = startingUrl + slideShareUrl + format;
-			//http://www.slideshare.net/api/oembed/2?url=http://www.slideshare.net/haraldf/business-quotes-for-2011&format=json
+			//https://www.slideshare.net/api/oembed/2?url=http://www.slideshare.net/haraldf/business-quotes-for-2011&format=json
 			String jsonString = client.sendRestGetRequest(url);
-			if(jsonString==null || jsonString.equals("")){
+			
+			if (jsonString==null || jsonString.equals("")){
 				return null;
 			}
 	
@@ -45,8 +47,8 @@ public class SlideShareUtils {
 					presentationId = String.valueOf(id);
 				}
 			} catch (JSONException e) {
-				logger.error("Exception to convert url:"+slideShareUrl+" json string is:"+jsonString);
 				e.printStackTrace();
+				throw new MediaDataException("Exception retrieving JSON description for:"+slideShareUrl+". Returned json string is:"+jsonString);
 			}
 		}
 		
