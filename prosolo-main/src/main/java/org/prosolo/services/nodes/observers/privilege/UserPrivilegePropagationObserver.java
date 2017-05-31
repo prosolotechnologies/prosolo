@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
@@ -41,8 +42,8 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				EventType.Detach,
 				EventType.USER_GROUP_ADDED_TO_RESOURCE,
 				EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
-				EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE,
-				EventType.Create
+				EventType.Create,
+				EventType.ENROLL_COURSE
 		};
 	}
 
@@ -58,12 +59,6 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 	}
 
 	public void handleEvent(Event event) {
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
 		logger.info("UserPrivilegePropagationObserver triggered with event: " + event.getAction());
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		
@@ -96,21 +91,28 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				case USER_GROUP_ADDED_TO_RESOURCE:
 					if (target instanceof Credential1) {
 						long credUserGroupId = Long.parseLong(params.get("credentialUserGroupId"));
-						res = userGroupManager.propagateUserGroupPrivilegeFromCredentialAndGetEvents(credUserGroupId, 
-								session);
+						UserGroupPrivilege privilege = UserGroupPrivilege.valueOf(params.get("privilege"));
+						//only edit privilege should be propagated when user group is added to credential
+						if (privilege == UserGroupPrivilege.Edit) {
+							res = userGroupManager.propagateUserGroupPrivilegeFromCredentialAndGetEvents(credUserGroupId,
+									session);
+						}
 					}
 					break;
 				//on user group removed from resource remove that group from all competences too
 				case USER_GROUP_REMOVED_FROM_RESOURCE:
 					if (target instanceof Credential1) {
-						res = userGroupManager.removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(target.getId(), 
-								object.getId(), session);
-					}
-					break;
-				//on privilege change, change privilege for inherited competence user group on all credential competences too
-				case RESOURCE_USER_GROUP_PRIVILEGE_CHANGE:
-					if (object instanceof CredentialUserGroup) {
-						res = userGroupManager.propagatePrivilegeChangeFromCredentialAndGetEvents(object.getId(), session);
+						//user group removed should be propagated only if it is added with Edit privilege
+						if (params != null) {
+							String priv = params.get("privilege");
+							if (priv != null) {
+								UserGroupPrivilege privilege = UserGroupPrivilege.valueOf(priv);
+								if (privilege == UserGroupPrivilege.Edit) {
+									res = userGroupManager.removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(
+											target.getId(), object.getId(), session);
+								}
+							}
+						}
 					}
 					break;
 				case Create:
@@ -122,6 +124,8 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 											credObj.getDeliveryOf().getId(), credObj.getId(), session);
 						}
 					}
+				case ENROLL_COURSE:
+
 				default:
 					break;
 			}
