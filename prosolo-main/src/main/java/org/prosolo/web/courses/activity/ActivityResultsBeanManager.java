@@ -277,7 +277,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			ActivityAssessmentData assessment = result.getAssessment();
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
-					assessment.setActivityDiscussionMessageData(assessmentManager
+					assessment.populateDiscussionMessages(assessmentManager
 							.getActivityDiscussionMessages(idEncoder.decodeId(assessment.getEncodedDiscussionId()),
 									assessment.getAssessorId()));
 				}

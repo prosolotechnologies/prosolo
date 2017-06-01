@@ -1,16 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -25,13 +14,17 @@ import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Bojan
@@ -67,8 +60,10 @@ public class ActivityPrivateConversationBean implements Serializable {
 		try {
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
-					assessment.setActivityDiscussionMessageData(assessmentManager.getActivityDiscussionMessages(
-							idEncoder.decodeId(assessment.getEncodedDiscussionId()), assessment.getAssessorId()));
+					assessment.populateDiscussionMessages(assessmentManager
+							.getActivityDiscussionMessages(
+									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
 			}
@@ -88,14 +83,19 @@ public class ActivityPrivateConversationBean implements Serializable {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
+			ActivityDiscussionMessageData msg = null;
 			for (ActivityDiscussionMessageData messageData : activityAssessmentData
 					.getActivityDiscussionMessageData()) {
 				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
-					messageData.setDateUpdated(new Date());
-					messageData.setDateUpdatedFormat(DateUtil.createUpdateTime(messageData.getDateUpdated()));
+					msg = messageData;
 					break;
 				}
 			}
+			msg.setDateUpdated(new Date());
+			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
+			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
+			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -193,7 +193,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
 			newComment.setSenderInsructor(true);
 		}
-		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
+		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
@@ -216,15 +216,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 				logger.error("Eror sending notification for assessment request", e);
 			}
 		});
-	}
-
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
-			long competenceAssessmentId) {
-		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-			newComment.setSenderInsructor(true);
-		}
-		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
-		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
 	private void cleanupCommentData() {

@@ -690,7 +690,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String query = "SELECT msg FROM ActivityDiscussionMessage msg " +
 						   "INNER JOIN fetch msg.sender sender " +
 						   "INNER JOIN fetch sender.participant " +						 
-						   "WHERE msg.discussion.id = :discussionId";
+						   "WHERE msg.discussion.id = :discussionId " +
+					       "ORDER BY msg.lastUpdated DESC";
 			
 			@SuppressWarnings("unchecked")
 			List<ActivityDiscussionMessage> res = persistence.currentManager()

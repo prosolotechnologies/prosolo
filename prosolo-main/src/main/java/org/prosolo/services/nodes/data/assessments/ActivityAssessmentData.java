@@ -6,6 +6,7 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ActivityAssessmentData {
@@ -21,7 +22,7 @@ public class ActivityAssessmentData {
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion; 	// whether user is participant in the discussion
 	private boolean messagesInitialized;
-	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
+	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
 	private List<String> downloadResourceUrls;
 	private long assessorId;
 	private long compAssessmentId;
@@ -88,14 +89,14 @@ public class ActivityAssessmentData {
 				List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
 
 				if (CollectionUtils.isNotEmpty(messages)) {
-					data.setActivityDiscussionMessageData(new ArrayList<>());
 					data.setNumberOfMessages(activityDiscussion.getMessages().size());
 					for (ActivityDiscussionMessage activityMessage : messages) {
 						ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
 								compAssessment, encoder);
-						data.getActivityDiscussionMessageData().add(messageData);
+						data.addDiscussionMessageSorted(messageData);
 					}
 				}
+				data.setMessagesInitialized(true);
 				data.getGrade().setValue(activityDiscussion.getPoints());
 				if(data.getGrade().getValue() < 0) {
 					data.getGrade().setValue(0);
@@ -150,6 +151,23 @@ public class ActivityAssessmentData {
 //		}
 //	}
 
+	public void populateDiscussionMessages(List<ActivityDiscussionMessageData> msgs) {
+		activityDiscussionMessageData.clear();
+		activityDiscussionMessageData.addAll(msgs);
+	}
+
+	public void addDiscussionMessageSorted(ActivityDiscussionMessageData msg) {
+		int index = 0;
+		for (ActivityDiscussionMessageData m : activityDiscussionMessageData) {
+			if (m.getDateUpdated().before(msg.getDateUpdated())) {
+				break;
+			} else {
+				index ++;
+			}
+		}
+		activityDiscussionMessageData.add(index, msg);
+	}
+
 	/**
 	 * @return the targetActivityId
 	 */
@@ -181,10 +199,6 @@ public class ActivityAssessmentData {
 
 	public List<ActivityDiscussionMessageData> getActivityDiscussionMessageData() {
 		return activityDiscussionMessageData;
-	}
-
-	public void setActivityDiscussionMessageData(List<ActivityDiscussionMessageData> activityDiscussionMessageData) {
-		this.activityDiscussionMessageData = activityDiscussionMessageData;
 	}
 
 	public String getTitle() {
