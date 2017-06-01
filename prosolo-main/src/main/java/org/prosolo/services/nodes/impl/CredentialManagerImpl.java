@@ -187,36 +187,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			Result<Void> res = new Result<>();
 			if(deliveryId > 0) {
-				/*
-				 * get ids of all competencies in a credential so right event can be fired for each competency.
-				 * resource visibility change event for each competency must be generated here because later
-				 * reference between delivery and competencies will be lost
-				 */
-				List<Long> compIds = getIdsOfAllCompetencesInACredential(deliveryId, persistence.currentManager());
-				for (long id : compIds) {
-					Competence1 comp = new Competence1();
-					comp.setId(id);
-					res.addEvent(eventFactory.generateEventData(
-							EventType.RESOURCE_VISIBILITY_CHANGE, actorId, comp, null, null, null));
-				}
-				/*
-				 * get ids of user groups added to delivery not including default groups and only groups with
-				 * learn privilege will be returned. That is because user group removed from resource event
-				 * should be generated and this event does not have to be generated for default groups and
-				 * groups with edit privilege (because edit privilege in delivery is inherited from original
-				 * credential). user group removed from resource event for delivery must be generated here because 
-				 * later reference between delivery and user groups will be lost
-				 */
-				List<Long> userGroupIds = userGroupManager.getIdsOfUserGroupsAddedToCredential(deliveryId, false, 
-						UserGroupPrivilege.Learn, persistence.currentManager());
-				for (long id : userGroupIds) {
-					UserGroup ug = new UserGroup();
-					ug.setId(id);
-					Credential1 del = new Credential1();
-					del.setId(deliveryId);
-					res.addEvent(eventFactory.generateEventData(
-							EventType.USER_GROUP_REMOVED_FROM_RESOURCE, actorId, ug, del, null, null));
-				}
 				Credential1 del = new Credential1();
 				del.setId(deliveryId);
 				res.addEvent(eventFactory.generateEventData(EventType.Delete, actorId, del, null, null, null));
@@ -224,7 +194,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				//delete delivery from database
 				deleteById(Credential1.class, deliveryId, persistence.currentManager());
 			}
-			//to force evential exceptions on commit so they can be caught
+			//to force eventual exceptions on commit so they can be caught
 			persistence.flush();
 			return res;
 		} catch (HibernateOptimisticLockingFailureException e) {

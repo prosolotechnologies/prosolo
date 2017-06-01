@@ -62,8 +62,6 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ADD_USER_TO_GROUP,
 			EventType.REMOVE_USER_FROM_GROUP,
 			EventType.RESOURCE_VISIBILITY_CHANGE,
-			EventType.USER_GROUP_ADDED_TO_RESOURCE,
-			EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
 			EventType.VISIBLE_TO_ALL_CHANGED,
 			EventType.STATUS_CHANGED,
 			EventType.ARCHIVE,

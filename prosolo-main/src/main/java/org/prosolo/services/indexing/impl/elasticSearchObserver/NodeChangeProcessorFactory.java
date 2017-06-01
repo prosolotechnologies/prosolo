@@ -116,8 +116,6 @@ public class NodeChangeProcessorFactory {
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Delete);
 			case ADD_USER_TO_GROUP:
 			case REMOVE_USER_FROM_GROUP:
-			case USER_GROUP_ADDED_TO_RESOURCE:
-			case USER_GROUP_REMOVED_FROM_RESOURCE:
 			case USER_GROUP_CHANGE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
 						userGroupManager, competenceESService, session);
