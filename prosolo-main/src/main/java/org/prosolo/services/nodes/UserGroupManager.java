@@ -202,4 +202,7 @@ public interface UserGroupManager extends AbstractManager {
 	Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
 			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException;
 
+	Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
+																	  long actorId, LearningContextData context,
+																	  Session session);
 }

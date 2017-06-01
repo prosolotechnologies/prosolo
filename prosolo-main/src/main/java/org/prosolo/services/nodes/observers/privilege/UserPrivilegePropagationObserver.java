@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -123,9 +124,25 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 									.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
 											credObj.getDeliveryOf().getId(), credObj.getId(), session);
 						}
+					} else if (object instanceof Competence1) {
+						//todo observer refactor - remove this because we should only react to attach event for competence
+						if (params != null) {
+							String credIdString = params.get("credentialId");
+							if (credIdString != null) {
+								long credId = Long.parseLong(credIdString);
+								if (credId > 0) {
+									res = userGroupManager
+											.propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(credId,
+													object.getId(), session);
+								}
+							}
+						}
 					}
+					break;
 				case ENROLL_COURSE:
-
+					res = userGroupManager.addLearnPrivilegeToCredentialCompetencesAndGetEvents(
+							object.getId(), event.getActorId(), 0, null, session);
+					break;
 				default:
 					break;
 			}
