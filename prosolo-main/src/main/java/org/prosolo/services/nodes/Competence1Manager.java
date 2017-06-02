@@ -93,8 +93,8 @@ public interface Competence1Manager {
 	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
 			throws DbConnectionException;
 	
-	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
-			throws DbConnectionException;
+	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
+		  boolean loadActivities) throws DbConnectionException;
 
 	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
 			throws DbConnectionException;
@@ -400,4 +400,19 @@ public interface Competence1Manager {
 			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
 
 	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
+
+	/**
+	 * Returns competencies from credential specified by {@code credId} id that user given by {@code userId} id
+	 * started learning.
+	 *
+	 * @param credId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
+			throws DbConnectionException;
+
+	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
 }

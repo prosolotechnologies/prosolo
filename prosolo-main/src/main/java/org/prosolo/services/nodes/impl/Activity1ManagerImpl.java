@@ -47,6 +47,7 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -62,6 +63,7 @@ import org.prosolo.services.nodes.data.Operation;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -401,7 +403,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * and if not throws {@link ResourceNotFoundException}.
 	 * 
 	 * @param credId
-	 * @param competenceId
+	 * @param compId
 	 * @throws ResourceNotFoundException
 	 */
 	private void checkIfCompetenceIsPartOfACredential(long credId, long compId) 
@@ -1860,25 +1862,33 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId, 
+	public List<ActivityResultData> getStudentsResults(long credId, long compId, long actId,
 			long targetActivityId, long userToExclude, boolean isInstructor, boolean isManager,
 			boolean returnAssessmentData, boolean loadUsersCommentsOnOtherResults, boolean paginate, 
-			int page, int limit, StudentAssessedFilter filter)  throws DbConnectionException, ResourceNotFoundException {
+			int page, int limit, StudentAssessedFilter filter) throws DbConnectionException, ResourceNotFoundException {
 		try {
-			if(credId > 0) {
+			if (credId > 0) {
 				checkIfCompetenceIsPartOfACredential(credId, compId);
 			}
+
+			//if credId is not passed, it cannot be determined if student is assessed
+			if (filter == StudentAssessedFilter.Assessed && credId == 0) {
+				return new ArrayList<>();
+			}
+
 			//TODO change when we upgrade to Hibernate 5.1 - it supports ad hoc joins for unmapped tables
 			StringBuilder query = new StringBuilder(
 			   "SELECT targetAct.id as tActId, act.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id as uId, u.name, u.lastname, u.avatar_url, " +
 		   	   "COUNT(distinct com.id) ");
-			
-			if (returnAssessmentData) {
-				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points ");
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if (returnAssessmentData && credId > 0) {
+				query.append(", ad.id as adId, COUNT(distinct msg.id), p.is_read, act.max_points, targetComp.id ");
 			}
-			
-			if (returnAssessmentData || filter != null) {
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if ((returnAssessmentData || filter != null) && credId > 0) {
 				query.append(", ad.points ");
 			}
 			
@@ -1896,13 +1906,22 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			query.append("INNER JOIN activity1 act " +
 				   		 "ON (targetAct.activity = act.id " +
 						 "AND act.id = :actId) ");
-			
-			if (returnAssessmentData || filter != null) {
-				query.append("LEFT JOIN activity_assessment ad " +
-							"ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if ((returnAssessmentData || filter != null) && credId > 0) {
+				query.append("LEFT JOIN (activity_assessment ad " +
+							 "INNER JOIN competence_assessment compAssessment " +
+								"ON compAssessment.id = ad.competence_assessment " +
+						     "INNER JOIN credential_assessment credAssessment " +
+								"ON credAssessment.id = compAssessment.credential_assessment " +
+						     "INNER JOIN target_credential1 tCred " +
+								"ON tCred.id = credAssessment.target_credential " +
+							    "AND tCred.credential = :credId) " +
+							 "ON targetAct.id = ad.target_activity AND ad.default_assessment = :boolTrue ");
 			}
-			
-			if (returnAssessmentData) {
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if (returnAssessmentData && credId > 0) {
 				query.append("LEFT JOIN activity_discussion_participant p " +
 						 		"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
 						 	 "LEFT JOIN activity_discussion_message msg " +
@@ -1917,7 +1936,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				   			"AND com.parent_comment is NULL) " +
 				   		 "WHERE targetAct.result is not NULL ");
 			
-			if (filter != null) {
+			if (filter != null && credId > 0) {
 				if (filter == StudentAssessedFilter.Assessed) {
 					query.append("AND ad.points IS NOT NULL AND ad.points >= 0 ");
 				} else {
@@ -1931,12 +1950,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				   		
 			query.append("GROUP BY targetAct.id, act.result_type, targetAct.result, targetAct.result_post_date, " +
 			   "u.id, u.name, u.lastname, u.avatar_url ");
-			
-			
-			if (returnAssessmentData) {
-				query.append(", ad.id, p.is_read, act.max_points ");
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if (returnAssessmentData && credId > 0) {
+				query.append(", ad.id, p.is_read, act.max_points, targetComp.id ");
 			}
-			if (returnAssessmentData || filter != null) {
+
+			//if credId is not passed, we can't know for which credential assessment to return data
+			if ((returnAssessmentData || filter != null) && credId > 0) {
 				query.append(", ad.points ");
 			}
 			
@@ -1956,8 +1977,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (userToExclude > 0) {
 				q.setLong("userId", userToExclude);
 			}
-			if (returnAssessmentData || filter != null) {
+			if ((returnAssessmentData || filter != null) && credId > 0) {
 				q.setBoolean("boolTrue", true);
+				q.setLong("credId", credId);
 			}
 			if (targetActivityId > 0) {
 				q.setLong("tActId", targetActivityId);
@@ -1993,33 +2015,49 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					}
 					results.add(ard); 
 					
-					if (returnAssessmentData) {
+					if (returnAssessmentData && credId > 0) {
 						BigInteger assessmentId = (BigInteger) row[9];
+						
+						ActivityAssessmentData ad = ard.getAssessment();
+						ad.setTargetActivityId(tActId);
+						ad.setUserId(userId);
+						ad.setActivityId(actId);
+						ad.setCompetenceId(compId);
+						ad.setCredentialId(credId);
+						
 						if(assessmentId != null) {
-							ActivityAssessmentData ad = new ActivityAssessmentData();
 							ad.setEncodedDiscussionId(idEncoder.encodeId(assessmentId.longValue()));
 							ad.setNumberOfMessages(((BigInteger) row[10]).intValue());
 							ad.setAllRead(((Character) row[11]).charValue() == 'T');
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
-							gd.setValue((Integer) row[13]);
+							gd.setValue((Integer) row[14]);
 							if(gd.getValue() < 0) {
 								gd.setValue(0);
 							} else {
 								gd.setAssessed(true);
 							}
 							ad.setGrade(gd);
-							ard.setAssessment(ad);							
+							ad.setTargetCompId(((BigInteger) row[13]).longValue());
 						} else {
 							// there is no activity assessment created yet
-							ActivityAssessmentData ad = new ActivityAssessmentData();
 							GradeData gd = new GradeData();
 							gd.setMinGrade(0);
 							gd.setMaxGrade((Integer) row[12]);
 							gd.setValue(0);
 							ad.setGrade(gd);
-							ard.setAssessment(ad);
+							ad.setTargetCompId(((BigInteger) row[13]).longValue());
+						}
+
+						//load additional assessment data
+						AssessmentBasicData abd = assessmentManager.getDefaultAssessmentBasicData(credId,
+								compId, 0, ard.getUser().getId());
+						if (abd != null) {
+							ard.getAssessment().setCompAssessmentId(abd.getCompetenceAssessmentId());
+							ard.getAssessment().setCredAssessmentId(abd.getCredentialAssessmentId());
+							ard.getAssessment().setAssessorId(abd.getAssessorId());
+							ard.getAssessment().setDefault(abd.isDefault());
 						}
 					}
 				}
@@ -2073,7 +2111,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = true)
 	public ActivityData getActivityDataWithStudentResultsForManager(long credId, long compId, 
 			long actId, long targetActivityId, boolean isInstructor, boolean isManager, 
-			boolean paginate, int page, int limit, StudentAssessedFilter filter) 
+			boolean paginate, int page, int limit, StudentAssessedFilter filter)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {			
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
@@ -2355,7 +2393,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
-	
+
 	/**
 	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
 	 * 
@@ -2494,5 +2532,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		original.accept(visitor);
 		return visitor.act;
 	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void updateActivityCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Activity1 act " +
+								"SET act.createdBy.id = :newCreatorId " +
+								"WHERE act.createdBy.id = :oldCreatorId";				    
 	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		}catch(Exception e){
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of activities");
+		}
+	}
+
 }

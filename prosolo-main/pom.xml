@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>prosolo</artifactId>
 	<groupId>ca.prosolo</groupId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.6.1-SNAPSHOT</version>
 	<name>ProSolo</name>
 	<packaging>war</packaging>
 	<properties>
@@ -907,6 +907,7 @@
 					<webApp>
 						<contextPath>/</contextPath>
 						<configurationDiscovered>false</configurationDiscovered>
+						<parentLoaderPriority>true</parentLoaderPriority>
 					</webApp>
 					<!-- Enable for JRebel -->
 					<reload>manual</reload>
