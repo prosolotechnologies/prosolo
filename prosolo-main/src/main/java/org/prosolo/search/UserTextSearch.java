@@ -122,4 +122,7 @@ public interface UserTextSearch extends AbstractManager {
 	TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchCompetenceStudents (
 			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
 			CompetenceStudentsSortOption sortOption, int page, int limit);
+
+	TextSearchResponse1<UserData> searchNewOwner(String searchTerm, int limit,
+												 Long usersToExcludeFromSearch);
 }

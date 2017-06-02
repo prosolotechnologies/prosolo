@@ -484,7 +484,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				if (credData != null && loadCompetences) {
 					List<CompetenceData1> targetCompData = compManager
-							.getUserCompetencesForCredential(credentialId, userId, true);
+							.getUserCompetencesForCredential(credentialId, userId, true, true, false);
 					credData.setCompetences(targetCompData);
 				}
 				return credData;
@@ -568,7 +568,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			if(loadCompetences) {
 				//if user sent a request, we should always return enrolled competencies if he is enrolled
 				if (req.getAccessMode() == AccessMode.USER) {
-					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, false));
+					credData.setCompetences(compManager.getUserCompetencesForCredential(credentialId, userId, true, false, false));
 				} else {
 					/*
 					 * always include not published competences
@@ -1030,9 +1030,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 	    	}
 			
-			//TODO cred-redesign-07 implement when assessments are refactored
 			//create default assessment for user
-			//assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
+			assessmentManager.createDefaultAssessment(targetCred, instructorId, context);
 			
 			Map<String, String> params = new HashMap<>();
 			params.put("instructorId", instructorId + "");
@@ -3157,9 +3156,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
 	}
-	
-	
-	
+
 	@Override
 	@Transactional(readOnly = false)
 	public void archiveCredential(long credId, long userId, LearningContextData context) 
@@ -3490,22 +3487,40 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException {
-		try {	
+		try {
 			String query = "SELECT d.id " +
-						   "FROM Credential1 d " +
-						   "WHERE d.deliveryOf.id = :credId";
-	
+					"FROM Credential1 d " +
+					"WHERE d.deliveryOf.id = :credId";
+
 			@SuppressWarnings("unchecked")
-			List<Long> deliveries =  session
+			List<Long> deliveries = session
 					.createQuery(query)
 					.setLong("credId", credId)
 					.list();
-			
+
 			return deliveries;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential delivery ids");
+		}
+	}
+
+	public void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+		try {
+			String query = "UPDATE Credential1 cred SET " +
+					"cred.createdBy = :newCreatorId " +
+					"WHERE cred.createdBy = :oldCreatorId";
+
+			persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating credential duration");
 		}
 	}
 

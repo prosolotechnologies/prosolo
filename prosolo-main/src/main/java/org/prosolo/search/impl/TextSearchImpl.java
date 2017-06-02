@@ -83,7 +83,6 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //			ReminderStatus status, int page, int limit, boolean loadOneMore) {
 //		return null;
 //	}
-	
 //	@Override
 //	public TextSearchResponse searchTags(String searchQuery, int page, int limit,
 //			boolean loadOneMore, Collection<Tag> tagsToExclude) {
@@ -142,5 +141,5 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //		}
 //		return response;
 //	}
-	
+
 }

@@ -19,8 +19,6 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.TimeFrame;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.feeds.FeedEntry;
 
 /**
  * @author Nikola Milikic
@@ -35,9 +33,21 @@ public class FeedsDigest implements Serializable {
 	
 	private long id;
 	private List<FeedEntry> entries;
-	private List<TwitterPostSocialActivity> tweets;
+	@Deprecated
 	private TimeFrame timeFrame;
 	private Date dateCreated;
+	/*
+	 * digest period lower bound
+	 */
+	private Date from;
+	/*
+	 * digest period upper bound
+	 */
+	private Date to;
+	/*
+	 * number of users that got digest via email
+	 */
+	private long numberOfUsersThatGotEmail;
 	
 	public FeedsDigest() {
 	 	this.entries = new ArrayList<FeedEntry>();
@@ -83,13 +93,30 @@ public class FeedsDigest implements Serializable {
 		this.dateCreated = dateCreated;
 	}
 
-	@ManyToMany
-	public List<TwitterPostSocialActivity> getTweets() {
-		return tweets;
+	@Column(name="date_from")
+	public Date getFrom() {
+		return from;
 	}
 
-	public void setTweets(List<TwitterPostSocialActivity> tweets) {
-		this.tweets = tweets;
+	public void setFrom(Date from) {
+		this.from = from;
+	}
+
+	@Column(name="date_to")
+	public Date getTo() {
+		return to;
+	}
+
+	public void setTo(Date to) {
+		this.to = to;
+	}
+
+	public long getNumberOfUsersThatGotEmail() {
+		return numberOfUsersThatGotEmail;
+	}
+
+	public void setNumberOfUsersThatGotEmail(long numberOfUsersThatGotEmail) {
+		this.numberOfUsersThatGotEmail = numberOfUsersThatGotEmail;
 	}
 	
 }

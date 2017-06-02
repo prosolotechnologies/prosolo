@@ -133,13 +133,23 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 				if (idsRead != 3) {
 					logger.error("Can not find ids of a credential, competence or activity");
 				}
-				return "/credentials/" +
-					idEncoder.encodeId(credentialId) + "/" +
-					idEncoder.encodeId(competenceId) + "/" +
-					idEncoder.encodeId(activityId) + "/" +
-					"responses/" + 
-					idEncoder.encodeId(resource.getCommentedResourceId()) + 
-					"?comment=" +  idEncoder.encodeId(resource.getId());
+
+				if (credentialId == 0) {
+					return "/competences/" +
+							idEncoder.encodeId(competenceId) + "/" +
+							idEncoder.encodeId(activityId) + "/" +
+							"responses/" +
+							idEncoder.encodeId(resource.getCommentedResourceId()) +
+							"?comment=" + idEncoder.encodeId(resource.getId());
+				} else {
+					return "/credentials/" +
+							idEncoder.encodeId(credentialId) + "/" +
+							idEncoder.encodeId(competenceId) + "/" +
+							idEncoder.encodeId(activityId) + "/" +
+							"responses/" +
+							idEncoder.encodeId(resource.getCommentedResourceId()) +
+							"?comment=" + idEncoder.encodeId(resource.getId());
+				}
 			default:
 				break;
 		}

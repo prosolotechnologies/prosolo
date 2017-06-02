@@ -5,12 +5,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
@@ -18,31 +19,38 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 	private static Logger logger = Logger
 			.getLogger(CourseDAOImpl.class);
 	
-	public CourseDAOImpl(){
-		setSession(HibernateUtil.getSessionFactory().openSession());
+	public CourseDAOImpl(boolean openLongSession) {
+		if(openLongSession) {
+			setSession(HibernateUtil.getSessionFactory().openSession());
+		}
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public  List<Long> getAllCredentialIds() {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction t = null;
 		String query = 
 			"SELECT cred.id " +
 			"FROM Credential1 cred " +
 			"WHERE cred.deleted = :deleted " +
-			"AND (cred.published = :published " +
-			"OR cred.hasDraft = :hasDraft) " +
-			"AND cred.type = :type";
+			"AND cred.published = :published";
 		List<Long> result =null;
 		try {
-			 result = session.createQuery(query)
+			t = session.beginTransaction();
+			result = session.createQuery(query)
 					 .setBoolean("deleted", false)
 					 .setBoolean("published", true)
-					 .setBoolean("hasDraft", true)
-					 .setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
 					 .list();
+			t.commit();
 		} catch(Exception ex) {
 			logger.error(ex);
 			ex.printStackTrace();
+			if(t != null) {
+				t.rollback();
+			}
+		} finally {
+			session.close();
 		}
 		if (result != null) {
 			return result;
@@ -173,5 +181,67 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 				.uniqueResult();
 		
 		return res != null ? res : 0;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<String> getCredentialHashtags(long id) throws DbConnectionException {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction t = null;
+		List<String> result = null;
+		try {
+			t = session.beginTransaction();
+			result = getCredentialHashtags(id, session);
+			t.commit();
+		} catch(Exception ex) {
+			logger.error(ex);
+			ex.printStackTrace();
+			if(t != null) {
+				t.rollback();
+			}
+			throw new DbConnectionException("Error while retrieving credential hashtags");
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<String> getCredentialHashtags(long id, Session session) {
+		String query = 
+			"SELECT ht.title " +
+			"FROM Credential1 cred " +
+			"INNER JOIN cred.hashtags ht " +
+			"WHERE cred.id = :id";
+
+		List<String> result = session.createQuery(query)
+			.setLong("id", id)
+			.list();
+		if (result != null) {
+			return result;
+		}
+		return new ArrayList<String>();
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Long> getIdsOfCredentialsUserIsLearning(long userId, Session session) 
+		throws DbConnectionException {
+		String query = 
+			"SELECT tCred.credential.id " +
+			"FROM TargetCredential1 tCred " +
+			"WHERE tCred.user.id = :userId";
+		List<Long> result =null;
+		try {
+			result = session.createQuery(query)
+				.setLong("userId", userId)
+				.list();
+			return result;
+		} catch(Exception ex) {
+			logger.error(ex);
+			ex.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user credentials ids");
+		}
 	}
 }

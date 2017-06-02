@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -53,5 +55,7 @@ public interface UserManager extends AbstractManager {
 	User getUserWithRoles(long id) throws DbConnectionException;
 	
 	String getUserEmail(long id) throws DbConnectionException;
+	
+	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException;
 
 }

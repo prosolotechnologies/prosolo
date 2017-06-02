@@ -36,6 +36,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
@@ -343,11 +344,16 @@ public class ActivityWallBean implements Serializable {
 					StringUtil.cleanHtml(link.trim()));
 			
 			if (attachmentPreview != null) {
-				MediaData md = richContentFactory.getMediaData(attachmentPreview);
-				attachmentPreview.setMediaType(md.getMediaType());
-				attachmentPreview.setEmbedingLink(md.getEmbedLink());
-				attachmentPreview.setEmbedId(md.getEmbedId());
-				newSocialActivity.setAttachmentPreview(attachmentPreview);
+				try {
+					MediaData md = richContentFactory.getMediaData(attachmentPreview);
+					attachmentPreview.setMediaType(md.getMediaType());
+					attachmentPreview.setEmbedingLink(md.getEmbedLink());
+					attachmentPreview.setEmbedId(md.getEmbedId());
+					newSocialActivity.setAttachmentPreview(attachmentPreview);
+				} catch (MediaDataException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("There was a problem fetching URL.");
+				}
 			} else {
 				newSocialActivity.getAttachmentPreview().setInvalidLink(true);
 			}
@@ -375,10 +381,14 @@ public class ActivityWallBean implements Serializable {
 				|| uploadFile.getTitle() == null || uploadFile.getTitle().isEmpty()) {
 			FacesContext.getCurrentInstance().validationFailed();
 		} else {
-			MediaData md = richContentFactory.getMediaData(uploadFile);
-			uploadFile.setMediaType(md.getMediaType());
-			uploadFile.setEmbedingLink(md.getEmbedLink());
-			
+			try {
+				MediaData md = richContentFactory.getMediaData(uploadFile);
+				uploadFile.setMediaType(md.getMediaType());
+				uploadFile.setEmbedingLink(md.getEmbedLink());
+			} catch (MediaDataException e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("There was a problem saving file");
+			}
 			newSocialActivity.setAttachmentPreview(uploadFile);
 			
 			uploadFile = new AttachmentPreview1();

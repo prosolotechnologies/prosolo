@@ -16,6 +16,7 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -182,6 +183,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param page
 	 * @param limit
 	 * @param filter
+	 * @param isManager
 	 * @return
 	 * @throws DbConnectionException
 	 */
@@ -238,9 +240,13 @@ public interface Activity1Manager extends AbstractManager {
 	 * @param userId
 	 * @param isManager did request come from manage section
 	 * @return
+	 * @throws MediaDataException 
 	 */
 	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
 	
 	Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
 			LearningContextData context) throws DbConnectionException;
+
+	void updateActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
 }

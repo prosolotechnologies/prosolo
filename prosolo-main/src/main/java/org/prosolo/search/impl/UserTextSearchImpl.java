@@ -1522,4 +1522,71 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		}
 		return null;
 	}
+
+	@Override
+	public TextSearchResponse1<UserData> searchNewOwner(
+			String searchTerm, int limit, Long excludedId) {
+		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+
+				bQueryBuilder.must(qb);
+			}
+
+			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
+					.must(bQueryBuilder);
+
+			bqb.mustNot(termQuery("id", excludedId));
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar"};
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+						.setTypes(ESIndexTypes.USER)
+						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+						.setQuery(bqb)
+						.addSort("lastname", SortOrder.ASC)
+						.addSort("name", SortOrder.ASC)
+						.setFetchSource(includes, null)
+						.setSize(limit);
+
+				SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+
+				if (sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+
+					if (searchHits != null) {
+						for (SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSource();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							UserData userData = new UserData(user);
+
+							response.addFoundNode(userData);
+						}
+
+						return response;
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				spee.printStackTrace();
+				logger.error(spee);
+			}
+		} catch (NoNodeAvailableException e1) {
+			logger.error(e1);
+		}
+		return null;
+	}
 }

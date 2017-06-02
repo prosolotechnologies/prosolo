@@ -23,11 +23,11 @@ import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.outcomes.Outcome;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.portfolio.ExternalCredit;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.CompetenceManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
@@ -200,25 +200,35 @@ public class CompWallActivityConverter {
 			RichContent richContent = ((ResourceActivity) activity).getRichContent();
 			
 			if (richContent != null) {
-				AttachmentPreview attachPreview = WallActivityConverter.createAttachmentPreview(
-						richContent.getTitle(), 
-						richContent.getDescription(), 
-						richContent.getLink(), 
-						richContent.getImageUrl(), 
-						richContent.getContentType(),
-						locale);
-				wallActivity.setAttachmentPreview(attachPreview);
+				AttachmentPreview attachPreview;
+				try {
+					attachPreview = WallActivityConverter.createAttachmentPreview(
+							richContent.getTitle(), 
+							richContent.getDescription(), 
+							richContent.getLink(), 
+							richContent.getImageUrl(), 
+							richContent.getContentType(),
+							locale);
+					wallActivity.setAttachmentPreview(attachPreview);
+				} catch (MediaDataException e) {
+					logger.error(e);
+				}
 			}
 		} else if (activity instanceof UploadAssignmentActivity) {
 			UploadAssignmentActivity uplaodActivity = (UploadAssignmentActivity) activity;
-			AttachmentPreview attachPreview = WallActivityConverter.createAttachmentPreview(
-					uplaodActivity.getTitle(), 
-					uplaodActivity.getDescription(), 
-					null, 
-					null, 
-					ContentType.UPLOAD_ASSIGNMENT,
-					locale);
-			wallActivity.setAttachmentPreview(attachPreview);
+			AttachmentPreview attachPreview;
+			try {
+				attachPreview = WallActivityConverter.createAttachmentPreview(
+						uplaodActivity.getTitle(), 
+						uplaodActivity.getDescription(), 
+						null, 
+						null, 
+						ContentType.UPLOAD_ASSIGNMENT,
+						locale);
+				wallActivity.setAttachmentPreview(attachPreview);
+			} catch (MediaDataException e) {
+				logger.error(e);
+			}
 		}else if(activity instanceof ExternalToolActivity){
 			wallActivity.setActivity(new NodeData(activity));
 		}

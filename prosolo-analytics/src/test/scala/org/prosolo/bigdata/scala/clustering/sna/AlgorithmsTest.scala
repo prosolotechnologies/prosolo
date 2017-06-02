@@ -24,7 +24,7 @@ class AlgorithmsTest {
     val rdd=sc.cassandraTable(dbName, TablesNames.SNA_SOCIAL_INTERACTIONS_COUNT )
       .select("course","source","target","count").where("course=?",1)
     println("COUNT:"+rdd.count())
-    rdd.toArray.foreach(println)
+    //rdd.toArray.foreach(println)
 
 
 

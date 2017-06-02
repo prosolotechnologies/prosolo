@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -69,7 +70,7 @@ public class CredentialKeywordsBean {
 	private List<ActivityData> activities;
 	private String chosenKeywordsString;
 	private List<CompetenceData1> filteredCompetences;
-	private CredentialData enrolledStudent;
+	private CredentialData credentialData;
 	private long numberOfUsersLearningCred;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
@@ -78,16 +79,20 @@ public class CredentialKeywordsBean {
 	private String peerSearchTerm;
 	private List<Long> peersToExcludeFromSearch;
 	private boolean noRandomAssessor = false;
+	
+	private long decodedId;
 
 	public void init() {
-		enrolledStudent = credentialManager.getTargetCredentialData(idEncoder.decodeId(id),
+		decodedId = idEncoder.decodeId(id);
+		setDecodedId(idEncoder.decodeId(id));
+		credentialData = credentialManager.getTargetCredentialData(decodedId,
 				loggedUser.getSessionData().getUserId(), false);
-		if (enrolledStudent != null) {
+		if (credentialData != null) {
 			selectedKeywords = new ArrayList<>();
 			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsForCredentialCompetences(enrolledStudent.getTargetCredId());
-			competences = credentialManager.getTargetCompetencesForKeywordSearch(enrolledStudent.getTargetCredId());
-			activities = credentialManager.getTargetActivityForKeywordSearch(enrolledStudent.getTargetCredId());
+			tags = credentialManager.getTagsForCredentialCompetences(credentialData.getTargetCredId());
+			competences = credentialManager.getTargetCompetencesForKeywordSearch(credentialData.getTargetCredId());
+			activities = credentialManager.getTargetActivityForKeywordSearch(credentialData.getTargetCredId());
 			filterCompetences();
 			logger.info("init");
 		} else {
@@ -129,12 +134,12 @@ public class CredentialKeywordsBean {
 		return id;
 	}
 
-	public CredentialData getEnrolledStudent() {
-		return enrolledStudent;
+	public CredentialData getcredentialData() {
+		return credentialData;
 	}
 
-	public void setEnrolledStudent(CredentialData enrolledStudent) {
-		this.enrolledStudent = enrolledStudent;
+	public void setcredentialData(CredentialData credentialData) {
+		this.credentialData = credentialData;
 	}
 
 	public long getNumberOfUsersLearningCred() {
@@ -212,6 +217,14 @@ public class CredentialKeywordsBean {
 	public void setEventFactory(EventFactory eventFactory) {
 		this.eventFactory = eventFactory;
 	}
+	
+	public long getDecodedId() {
+		return decodedId;
+	}
+
+	public void setDecodedId(long decodedId) {
+		this.decodedId = decodedId;
+	}
 
 	public void addKeyword(TagCountData t) {
 		lastSelected = t;
@@ -281,7 +294,7 @@ public class CredentialKeywordsBean {
 
 	public String getAssessmentIdForUser() {
 		return idEncoder.encodeId(
-				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), enrolledStudent.getTargetCredId()));
+				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
 	}
 
 	public void searchCredentialPeers() {
@@ -291,7 +304,7 @@ public class CredentialKeywordsBean {
 			try {
 				if (peersToExcludeFromSearch == null) {
 					peersToExcludeFromSearch = credentialManager
-							.getAssessorIdsForUserAndCredential(enrolledStudent.getId(), loggedUser.getUserId());
+							.getAssessorIdsForUserAndCredential(credentialData.getId(), loggedUser.getUserId());
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
@@ -307,7 +320,7 @@ public class CredentialKeywordsBean {
 	public void chooseRandomPeerForAssessor() {
 		resetAskForAssessmentModal();
 
-		UserData randomPeer = credentialManager.chooseRandomPeer(enrolledStudent.getId(), loggedUser.getUserId());
+		UserData randomPeer = credentialManager.chooseRandomPeer(credentialData.getId(), loggedUser.getUserId());
 
 		if (randomPeer != null) {
 			assessmentRequestData.setAssessorId(randomPeer.getId());
@@ -338,40 +351,47 @@ public class CredentialKeywordsBean {
 		return "preview".equals(mode);
 	}
 	public void submitAssessment() {
-		// at this point, assessor should be set either from credential data or
-		// user-submitted peer id
-		if (assessmentRequestData.isAssessorSet()) {
-			populateAssessmentRequestFields();
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-					service);
+		try {
+			// at this point, assessor should be set either from credential data or
+			// user-submitted peer id
+			if (assessmentRequestData.isAssessorSet()) {
+				populateAssessmentRequestFields();
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
+				LearningContextData lcd = new LearningContextData();
+				lcd.setPage(PageUtil.getPostParameter("page"));
+				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+				lcd.setService(PageUtil.getPostParameter("service"));
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
+				String page = PageUtil.getPostParameter("page");
+				String lContext = PageUtil.getPostParameter("learningContext");
+				String service = PageUtil.getPostParameter("service");
+				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
+						service);
 
-			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 
-			if (peersToExcludeFromSearch != null) {
-				peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				if (peersToExcludeFromSearch != null) {
+					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				}
+			} else {
+				logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
+						+ credentialData.getId() + ", but credential has no assessor/instructor set!");
+				PageUtil.fireErrorMessage("No assessor set");
 			}
-		} else {
-			logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
-					+ enrolledStudent.getId() + ", but credential has no assessor/instructor set!");
-			PageUtil.fireErrorMessage("No assessor set");
+			resetAskForAssessmentModal();
+		} catch (EventException e) {
+			logger.error(e);
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while sending assessment request");
 		}
-		resetAskForAssessmentModal();
 	}
 	private void populateAssessmentRequestFields() {
-		assessmentRequestData.setCredentialTitle(enrolledStudent.getTitle());
+		assessmentRequestData.setCredentialTitle(credentialData.getTitle());
 		assessmentRequestData.setStudentId(loggedUser.getUserId());
-		assessmentRequestData.setCredentialId(enrolledStudent.getId());
-		assessmentRequestData.setTargetCredentialId(enrolledStudent.getTargetCredId());
+		assessmentRequestData.setCredentialId(credentialData.getId());
+		assessmentRequestData.setTargetCredentialId(credentialData.getTargetCredId());
 	}
 	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
 			String service) {
