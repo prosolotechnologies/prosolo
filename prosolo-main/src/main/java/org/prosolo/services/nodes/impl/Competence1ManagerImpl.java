@@ -2677,6 +2677,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			
 				comp.setPublished(true);
+				if (comp.getDatePublished() == null) {
+					comp.setDatePublished(new Date());
+				}
 
 				Competence1 c = new Competence1();
 				c.setId(comp.getId());
