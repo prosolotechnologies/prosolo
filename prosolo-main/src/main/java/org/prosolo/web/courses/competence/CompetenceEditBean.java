@@ -15,7 +15,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -55,7 +54,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
-	@Inject private CompetenceVisibilityBean visibilityBean;
+	@Inject private CompetenceUserPrivilegeBean visibilityBean;
 
 	private String id;
 	private String credId;

@@ -3023,8 +3023,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while updating credential visibility");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isVisibleToAll(long credId) throws DbConnectionException {

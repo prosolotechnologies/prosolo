@@ -1,13 +1,5 @@
 package org.prosolo.services.nodes.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -32,10 +24,11 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
-import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
-import org.prosolo.services.nodes.factory.UserGroupPrivilegeDataFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.UserGroupManager")
 public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGroupManager {
@@ -463,7 +456,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-    public List<CompetenceUserGroup> getCompetenceUserGroups(long groupId) throws DbConnectionException {
+    public List<CompetenceUserGroup> getCompetenceUserGroups(long groupId)
+			throws DbConnectionException {
     	try {
     		String query = "SELECT compGroup FROM CompetenceUserGroup compGroup " +
 				   	   "WHERE compGroup.userGroup.id = :groupId";
@@ -778,10 +772,21 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		if(credGroup == null) {
 			throw new NullPointerException();
 		}
+		saveNewUserToUserGroup(userId, credGroup.getUserGroup());
+	}
+
+	private void saveNewUserToCompetenceGroup(long userId, CompetenceUserGroup compGroup) {
+		if(compGroup == null) {
+			throw new NullPointerException();
+		}
+		saveNewUserToUserGroup(userId, compGroup.getUserGroup());
+	}
+
+	private void saveNewUserToUserGroup(long userId, UserGroup userGroup) {
 		UserGroupUser userGroupUser = new UserGroupUser();
 		User u = (User) persistence.currentManager().load(User.class, userId);
 		userGroupUser.setUser(u);
-		userGroupUser.setGroup(credGroup.getUserGroup());
+		userGroupUser.setGroup(userGroup);
 		saveEntity(userGroupUser);
 	}
 	
@@ -1012,20 +1017,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-    public List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId) 
+    public List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-    		String query = "SELECT compGroup FROM CompetenceUserGroup compGroup " +
-    					   "INNER JOIN fetch compGroup.userGroup userGroup " +
-    					   "WHERE compGroup.competence.id = :compId " +
-    					   "AND userGroup.defaultGroup = :defaultGroup ";
-			@SuppressWarnings("unchecked")
-			List<CompetenceUserGroup> compGroups = persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-					.setBoolean("defaultGroup", false)
-					.list();
+			List<CompetenceUserGroup> compGroups = getCompetenceUserGroups(compId, false,
+					privilege, persistence.currentManager());
 			if(compGroups != null) {
 				for(CompetenceUserGroup group : compGroups) {
 					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
@@ -1044,7 +1041,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-    public List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId) 
+    public List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
@@ -1053,12 +1050,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					   "LEFT JOIN fetch userGroup.users users " +
 					   "WHERE compGroup.competence.id = :compId " +
 					   "AND userGroup.defaultGroup = :defaultGroup ";
-			@SuppressWarnings("unchecked")
-			List<CompetenceUserGroup> defaultGroups = persistence.currentManager()
+
+			if (privilege != null) {
+				query += "AND compGroup.privilege = :priv ";
+			}
+
+			Query q = persistence.currentManager()
 					.createQuery(query)
 					.setLong("compId", compId)
-					.setBoolean("defaultGroup", true)
-					.list();
+					.setBoolean("defaultGroup", true);
+
+			if (privilege != null) {
+				q.setString("priv", privilege.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<CompetenceUserGroup> defaultGroups = q.list();
+
 			if(defaultGroups != null) {
 				for(CompetenceUserGroup group : defaultGroups) {
 					List<UserGroupUser> users = group.getUserGroup().getUsers();
@@ -1076,7 +1084,47 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while retrieving competence users");
     	}
     }
-	
+
+	@Transactional(readOnly = true)
+	private List<CompetenceUserGroup> getCompetenceUserGroups(long compId, boolean returnDefaultGroups,
+															  UserGroupPrivilege privilege, Session session)
+			throws DbConnectionException {
+		try {
+			StringBuilder query = new StringBuilder (
+							"SELECT compGroup FROM CompetenceUserGroup compGroup " +
+							"INNER JOIN fetch compGroup.userGroup userGroup " +
+							"WHERE compGroup.competence.id = :compId ");
+
+			if (!returnDefaultGroups) {
+				query.append("AND userGroup.defaultGroup = :defaultGroup ");
+			}
+
+			if (privilege != null) {
+				query.append("AND compGroup.privilege = :priv ");
+			}
+
+			Query q = session
+					.createQuery(query.toString())
+					.setLong("compId", compId);
+
+			if (!returnDefaultGroups) {
+				q.setBoolean("defaultGroup", false);
+			}
+			if (privilege != null) {
+				q.setParameter("priv", privilege);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<CompetenceUserGroup> compGroups = q.list();
+
+			return compGroups;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving competency groups");
+		}
+	}
+
 	private Optional<UserGroupUser> getUserGroupUser(long groupId, long userId) {
 		String query = "SELECT groupUser FROM UserGroupUser groupUser " +
 				   	   "WHERE groupUser.user.id = :userId " +
@@ -1088,127 +1136,284 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				.uniqueResult();
 		return groupUser != null ? Optional.of(groupUser) : Optional.empty();
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false)
-    public void saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users) throws DbConnectionException {
-    	try {
-    		saveCompetenceUsers(compId, users);
-    		saveCompetenceGroups(compId, groups);
-    	} catch(DbConnectionException dce) {
-    		throw dce;
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving competence users and groups");
-    	}
-    }
-	
-	@Transactional(readOnly = false)
-    private void saveCompetenceUsers(long compId, List<ResourceVisibilityMember> users) 
-    		throws DbConnectionException {
-    	try {
-    		if (users == null) {
-    			return;
-    		}
-    		for (ResourceVisibilityMember user : users) {
-    			UserGroupUser userGroupUser = null;
-    			CompetenceUserGroup compGroup = null;
-    			switch (user.getStatus()) {
-    				case CREATED:
-    					userGroupUser = new UserGroupUser();
-    					User u = (User) persistence.currentManager().load(User.class, user.getUserId());
-    					userGroupUser.setUser(u);
-    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege());
-    					userGroupUser.setGroup(compGroup.getUserGroup());
-    					saveEntity(userGroupUser);
-    					break;
-    				case CHANGED:
-    					userGroupUser = (UserGroupUser) persistence
-    							.currentManager().load(UserGroupUser.class, user.getId());
-    					compGroup = getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege());
-    					userGroupUser.setGroup(compGroup.getUserGroup());
-    					break;
-    				case REMOVED:
-    					userGroupUser = (UserGroupUser) persistence
-							.currentManager().load(UserGroupUser.class, user.getId());
-    					delete(userGroupUser);
-    					break;
-    				case UP_TO_DATE:
-    					break;
-    					
-    			}
-    		}
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving competence users");
-    	}
-    }
-	
-	@Transactional(readOnly = false)
-    private void saveCompetenceGroups(long compId, List<ResourceVisibilityMember> groups) 
-    		throws DbConnectionException {
-    	try {
-    		if(groups == null) {
-    			return;
-    		}
-    		for(ResourceVisibilityMember group : groups) {
-    			CompetenceUserGroup compGroup = null;
-    			switch(group.getStatus()) {
-    				case CREATED:
-    					compGroup = new CompetenceUserGroup();
-    					Competence1 comp = (Competence1) persistence.currentManager().load(
-    							Competence1.class, compId);
-    					compGroup.setCompetence(comp);
-    					UserGroup userGroup = (UserGroup) persistence.currentManager().load(
-    							UserGroup.class, group.getGroupId());
-    					compGroup.setUserGroup(userGroup);
-    					compGroup.setPrivilege(group.getPrivilege());
-    					saveEntity(compGroup);
-    					break;
-    				case CHANGED:
-    					compGroup = (CompetenceUserGroup) persistence
-    							.currentManager().load(CompetenceUserGroup.class, group.getId());
-    					compGroup.setPrivilege(group.getPrivilege());
-    					break;
-    				case REMOVED:
-    					compGroup = (CompetenceUserGroup) persistence
-							.currentManager().load(CompetenceUserGroup.class, group.getId());
-    					delete(compGroup);
-    					break;
-    				case UP_TO_DATE:
-    					break;
-    					
-    			}
-    		}
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving competence groups");
-    	}
-    }
-	
-	private CompetenceUserGroup getOrCreateDefaultCompetenceUserGroup(long compId, 
-			UserGroupPrivilege priv) {
-		Optional<CompetenceUserGroup> compGroupOptional = getCompetenceDefaultGroup(compId, priv, false);
-		CompetenceUserGroup compGroup = null;
-		if(compGroupOptional.isPresent()) {
-			compGroup = compGroupOptional.get();
-		} else {
-			UserGroup userGroup = new UserGroup();
-			userGroup.setDefaultGroup(true);
-			saveEntity(userGroup);
-			compGroup = new CompetenceUserGroup();
-			compGroup.setUserGroup(userGroup);
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
-					compId);
-			compGroup.setCompetence(comp);
-			compGroup.setPrivilege(priv);
-			saveEntity(compGroup);
+	public Result<Void> saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups,
+													 List<ResourceVisibilityMember> users, long actorId,
+													 LearningContextData lcd) throws DbConnectionException {
+		try {
+			if(groups == null || users == null) {
+				throw new NullPointerException("Invalid argument values");
+			}
+			List<EventData> events = new ArrayList<>();
+			events.addAll(saveCompetenceUsers(compId, users, actorId, lcd).getEvents());
+			events.addAll(saveCompetenceGroups(compId, groups, actorId, lcd).getEvents());
+			Competence1 comp = new Competence1();
+			comp.setId(compId);
+
+			//see if visibility is actually changed
+			boolean visibilityChanged = false;
+			for (ResourceVisibilityMember g : groups) {
+				if (g.getStatus() != ObjectStatus.UP_TO_DATE) {
+					visibilityChanged = true;
+					break;
+				}
+			}
+			if (!visibilityChanged) {
+				for (ResourceVisibilityMember u : users) {
+					if (u.getStatus() != ObjectStatus.UP_TO_DATE) {
+						visibilityChanged = true;
+						break;
+					}
+				}
+			}
+
+			if (visibilityChanged) {
+				events.add(eventFactory.generateEventData(
+						EventType.RESOURCE_VISIBILITY_CHANGE, actorId, comp, null, lcd, null));
+			}
+
+			Result<Void> res = new Result<>();
+			res.setEvents(events);
+			return res;
+		} catch(DbConnectionException dce) {
+			throw dce;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving competency users and groups");
 		}
-		return compGroup;
+	}
+
+	@Transactional(readOnly = false)
+	private Result<Void> saveCompetenceUsers(long compId, List<ResourceVisibilityMember> users, long actorId,
+											 LearningContextData context) throws DbConnectionException {
+		try {
+			Result<Void> res = new Result<>();
+			if (users == null) {
+				return res;
+			}
+			if (!users.isEmpty()) {
+				//store reference to default groups for learn and edit privilege to be reused for different users
+				CompetenceUserGroup learnCompGroup = null;
+				CompetenceUserGroup editCompGroup = null;
+				Map<Long, EventData> userGroupsChangedEvents = new HashMap<>();
+				for (ResourceVisibilityMember user : users) {
+					UserGroupUser userGroupUser = null;
+					switch (user.getStatus()) {
+						case CREATED:
+							Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
+									compId, user.getPrivilege(), actorId, context);
+							res.addEvents(compUserGroupRes.getEvents());
+							CompetenceUserGroup gr = compUserGroupRes.getResult();
+							saveNewUserToCompetenceGroup(user.getUserId(), gr);
+							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
+								editCompGroup = gr;
+							} else {
+								learnCompGroup = gr;
+							}
+							generateUserGroupChangeEventIfNotGenerated(gr.getUserGroup().getId(), actorId,
+									context, userGroupsChangedEvents);
+							break;
+						case CHANGED:
+							userGroupUser = (UserGroupUser) persistence
+									.currentManager().load(UserGroupUser.class, user.getId());
+							CompetenceUserGroup compGroup = null;
+							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
+								if(editCompGroup == null) {
+									Result<CompetenceUserGroup> compUserGroupRes1 =
+											getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege(),
+													actorId, context);
+									res.addEvents(compUserGroupRes1.getEvents());
+									editCompGroup = compUserGroupRes1.getResult();
+								}
+								compGroup = editCompGroup;
+							} else {
+								if (learnCompGroup == null) {
+									Result<CompetenceUserGroup> compUserGroupRes1 =
+											getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege(),
+													actorId, context);
+									res.addEvents(compUserGroupRes1.getEvents());
+									learnCompGroup = compUserGroupRes1.getResult();
+								}
+								compGroup = learnCompGroup;
+							}
+							userGroupUser.setGroup(compGroup.getUserGroup());
+							generateUserGroupChangeEventIfNotGenerated(compGroup.getUserGroup().getId(), actorId,
+									context, userGroupsChangedEvents);
+							break;
+						case REMOVED:
+							userGroupUser = (UserGroupUser) persistence
+									.currentManager().load(UserGroupUser.class, user.getId());
+							delete(userGroupUser);
+							generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId,
+									context, userGroupsChangedEvents);
+							break;
+						case UP_TO_DATE:
+							break;
+					}
+				}
+
+	    		/*
+	    		 * user group change event should not be generated for newly created groups. Since
+	    		 * these groups are default groups user group added to resource event actually means
+	    		 * that group is newly created so user group change event is removed from map for such
+	    		 * user groups.
+	    		 */
+				res.getEvents().stream()
+						.filter(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE)
+						.map(ev -> ev.getObject().getId())
+						.forEach(id -> userGroupsChangedEvents.remove(id));
+
+				//generate all user group change events
+				userGroupsChangedEvents.forEach((key, event) -> res.addEvent(event));
+			}
+			return res;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving credential users");
+		}
+	}
+
+	@Transactional(readOnly = false)
+	private Result<Void> saveCompetenceGroups(long compId, List<ResourceVisibilityMember> groups, long userId,
+											  LearningContextData lcd) throws DbConnectionException {
+		try {
+			Result<Void> res = new Result<>();
+
+			if (groups == null) {
+				return res;
+			}
+
+			for (ResourceVisibilityMember group : groups) {
+				switch(group.getStatus()) {
+					case CREATED:
+						res.addEvents(
+								createNewCompetenceUserGroup(group.getGroupId(), false, compId,
+										group.getPrivilege(), userId, lcd)
+										.getEvents());
+						break;
+					case CHANGED:
+						res.addEvents(
+								changeCompetenceUserGroupPrivilege(compId, group.getId(),
+										group.getPrivilege(), userId, lcd)
+										.getEvents());
+						break;
+					case REMOVED:
+						res.addEvents(
+								removeCompetenceUserGroup(compId, group.getId(), group.getGroupId(), userId, lcd)
+										.getEvents());
+						break;
+					case UP_TO_DATE:
+						break;
+
+				}
+			}
+			return res;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while saving credential groups");
+		}
+	}
+
+	private Result<Void> changeCompetenceUserGroupPrivilege(long compId, long compUserGroupId, UserGroupPrivilege priv,
+															long userId, LearningContextData lcd) {
+		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
+				.currentManager().load(CompetenceUserGroup.class, compUserGroupId);
+		compGroup.setPrivilege(priv);
+
+		Result<Void> res = new Result<>();
+		CompetenceUserGroup cug = new CompetenceUserGroup();
+		cug.setId(compUserGroupId);
+		Competence1 comp = new Competence1();
+		comp.setId(compId);
+		cug.setCompetence(comp);
+		Map<String, String> params = new HashMap<>();
+		params.put("privilege", priv.toString());
+		res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE, userId, cug, null,
+				lcd, params));
+
+		return res;
+	}
+
+	private Result<Void> removeCompetenceUserGroup(long compId, long compUserGroupId, long userGroupId, long userId,
+												   LearningContextData lcd) {
+		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
+				.currentManager().load(CredentialUserGroup.class, compUserGroupId);
+		delete(compGroup);
+
+		Result<Void> res = new Result<>();
+		UserGroup userGroup = new UserGroup();
+		userGroup.setId(userGroupId);
+		Competence1 comp = new Competence1();
+		comp.setId(compId);
+		Map<String, String> params = new HashMap<>();
+		params.put("competenceUserGroupId", compGroup.getId() + "");
+		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, userId, userGroup,
+				comp, lcd, null));
+
+		return res;
+	}
+
+	private Result<CompetenceUserGroup> getOrCreateDefaultCompetenceUserGroup(long compId, UserGroupPrivilege priv,
+																			  long userId, LearningContextData lcd) {
+		Optional<CompetenceUserGroup> compGroupOptional = getCompetenceDefaultGroup(compId, priv, false);
+		Result<CompetenceUserGroup> res = new Result<>();
+		if(compGroupOptional.isPresent()) {
+			res.setResult(compGroupOptional.get());
+		} else {
+			res = createNewCompetenceUserGroup(0, true, compId, priv, userId, lcd);
+		}
+		return res;
+	}
+
+	/**
+	 * Creates and persists new CredentialUserGroup instance based on existing or new user group.
+	 *
+	 * @param userGroupId - 0 if new user group should be created
+	 * @param isDefault - true if it is a default group
+	 * @param compId
+	 * @param priv
+	 * @param userId
+	 * @param lcd
+	 * @return
+	 */
+	private Result<CompetenceUserGroup> createNewCompetenceUserGroup(long userGroupId, boolean isDefault, long compId,
+																	 UserGroupPrivilege priv, long userId,
+																	 LearningContextData lcd) {
+		UserGroup userGroup = null;
+		if(userGroupId > 0) {
+			userGroup = (UserGroup) persistence.currentManager().load(UserGroup.class, userGroupId);
+		} else {
+			userGroup = new UserGroup();
+			userGroup.setDefaultGroup(isDefault);
+			saveEntity(userGroup);
+		}
+		CompetenceUserGroup compGroup = new CompetenceUserGroup();
+		compGroup.setUserGroup(userGroup);
+		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+		compGroup.setCompetence(comp);
+		compGroup.setPrivilege(priv);
+		saveEntity(compGroup);
+
+		UserGroup ug = new UserGroup();
+		ug.setId(userGroup.getId());
+		Competence1 competence = new Competence1();
+		competence.setId(compId);
+		Map<String, String> params = new HashMap<>();
+		params.put("default", isDefault + "");
+		params.put("competenceUserGroupId", compGroup.getId() + "");
+		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, userId, ug, competence,
+				lcd, params);
+
+		Result<CompetenceUserGroup> res = new Result<>();
+		res.setResult(compGroup);
+		res.addEvent(ev);
+
+		return res;
 	}
 	
 	private Optional<CompetenceUserGroup> getCompetenceDefaultGroup(long compId, 

@@ -56,12 +56,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -71,6 +66,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
+import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -102,6 +98,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private UserGroupManager userGroupManager;
 	@Inject private ActivityDataFactory activityFactory;
 	@Inject private ResourceAccessFactory resourceAccessFactory;
+	@Inject private UserDataFactory userDataFactory;
+	@Inject private Competence1Manager self;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -1955,8 +1953,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while trying to retrieve competences ids");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isVisibleToAll(long compId) throws DbConnectionException {
@@ -1973,19 +1970,52 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while retrieving competence visibility");
 		}
 	}
-	
-	@Deprecated
+
+	//nt
+	@Override
+	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
+										   List<ResourceVisibilityMember> users, boolean visibleToAll,
+										   boolean visibleToAllChanged, long actorId, LearningContextData lcd)
+			throws DbConnectionException, EventException {
+		try {
+			List<EventData> events =
+					self.updateCompetenceVisibilityAndGetEvents(compId, groups, users, visibleToAll,
+							visibleToAllChanged, actorId, lcd);
+			for(EventData ev : events) {
+				eventFactory.generateEvent(ev);
+			}
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	@Override
 	@Transactional(readOnly = false)
-	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
-			List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged)
-			throws DbConnectionException {
+	public List<EventData> updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
+																  List<ResourceVisibilityMember> users, boolean visibleToAll,
+																  boolean visibleToAllChanged, long actorId,
+																  LearningContextData lcd) throws DbConnectionException {
 		try {
-			if (visibleToAllChanged) {
-				Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+			List<EventData> events = new ArrayList<>();
+			if(visibleToAllChanged) {
+				Competence1 comp = (Competence1) persistence.currentManager().load(
+						Competence1.class, compId);
+
 				comp.setVisibleToAll(visibleToAll);
+
+				Competence1 competence = new Competence1();
+				competence.setId(compId);
+				competence.setVisibleToAll(visibleToAll);
+
+				events.add(eventFactory.generateEventData(
+						EventType.VISIBLE_TO_ALL_CHANGED,
+						actorId, competence, null, lcd, null));
 			}
-			userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users);
+			events.addAll(userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users, actorId, lcd)
+					.getEvents());
+			return events;
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2700,6 +2730,27 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
+	public ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException {
+		try {
+			String query = "SELECT c.createdBy " +
+					"FROM Competence1 c " +
+					"WHERE c.id = :compId";
+
+			User createdBy =  (User) persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.uniqueResult();
+
+			return userDataFactory.getResourceCreator(createdBy);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving competency creator");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
 			throws DbConnectionException {
 		try {
@@ -2727,12 +2778,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId) 
+	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId)
 			throws DbConnectionException {
-		try {	
+		try {
 				String query = "UPDATE Competence1 comp SET " +
 						"comp.createdBy = :newCreatorId " +
-						"WHERE comp.createdBy = :oldCreatorId";				    
+						"WHERE comp.createdBy = :oldCreatorId";
 	
 				persistence.currentManager()
 					.createQuery(query)

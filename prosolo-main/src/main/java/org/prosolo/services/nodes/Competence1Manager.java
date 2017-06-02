@@ -23,10 +23,7 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -307,10 +304,16 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 	boolean isVisibleToAll(long compId) throws DbConnectionException;
-	
-	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
-    				throws DbConnectionException;
+
+	void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
+							   List<ResourceVisibilityMember> users, boolean visibleToAll,
+							   boolean visibleToAllChanged, long actorId, LearningContextData lcd)
+			throws DbConnectionException, EventException;
+
+	List<EventData> updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
+														   List<ResourceVisibilityMember> users, boolean visibleToAll,
+														   boolean visibleToAllChanged, long actorId,
+														   LearningContextData lcd) throws DbConnectionException;
 	
 	/**
 	 * Returns competence data without tags and activities and with user progress set if exists 
@@ -395,6 +398,8 @@ public interface Competence1Manager {
 	
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
 			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
+
+	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
 
 	/**
 	 * Returns competencies from credential specified by {@code credId} id that user given by {@code userId} id

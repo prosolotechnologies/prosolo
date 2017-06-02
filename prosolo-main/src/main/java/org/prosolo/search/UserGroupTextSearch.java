@@ -29,13 +29,10 @@ public interface UserGroupTextSearch extends AbstractManager {
 	 * @param roleId - role that users should have in order to be returned
 	 * @return
 	 */
-	TextSearchResponse1<ResourceVisibilityMember> searchCredentialUsersAndGroups(
+	TextSearchResponse1<ResourceVisibilityMember> searchUsersAndGroups(
 			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId);
 	
 	TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
 			int limit, List<Long> usersToExclude);
-	
-	TextSearchResponse1<ResourceVisibilityMember> searchCompetenceUsersAndGroups(long compId,
-			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude);
 
 }
