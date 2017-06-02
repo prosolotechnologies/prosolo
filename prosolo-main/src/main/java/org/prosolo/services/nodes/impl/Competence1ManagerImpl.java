@@ -124,18 +124,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * generate events for event data returned
 			 */
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-			for (EventData ev : res.getEvents()) {
-				ev.setPage(page);
-				ev.setContext(lContext);
-				ev.setService(service);
-				eventFactory.generateEvent(ev);
+			String page = context != null ? context.getPage() : null; 
+			String lContext = context != null ? context.getLearningContext() : null; 
+			String service = context != null ? context.getService() : null; 
+			for(EventData ev : res.getEvents()) {
+				//todo observer refactor - generate attach event always when sequential event execution is supported
+				if (credentialId == 0 || ev.getEventType() != EventType.Attach) {
+					ev.setPage(page);
+					ev.setContext(lContext);
+					ev.setService(service);
+					eventFactory.generateEvent(ev);
+				}
 			}
-			
+
+			//todo observer refactor - we do not need credential id as a parameter when attach event
+			//is generated
+			Map<String, String> params = null;
+			if (credentialId > 0) {
+				params = new HashMap<>();
+				params.put("credentialId", credentialId + "");
+			}
 			eventFactory.generateEvent(EventType.Create, creatorId, comp, null, page, lContext,
-					service, null);
+					service, params);
 			
 //			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
 //					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 

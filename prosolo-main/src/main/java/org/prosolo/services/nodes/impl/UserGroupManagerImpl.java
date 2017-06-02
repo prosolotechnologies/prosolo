@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -650,72 +651,56 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     			//store reference to default groups for learn and edit privilege to be reused for different users
     			CredentialUserGroup learnCredGroup = null;
     			CredentialUserGroup editCredGroup = null;
-    			Map<Long, EventData> userGroupsChangedEvents = new HashMap<>(); 
+    			Map<Long, EventData> userGroupsChangedEvents = new HashMap<>();
 	    		for (ResourceVisibilityMember user : users) {
 	    			UserGroupUser userGroupUser = null;
+	    			CredentialUserGroup credGroup;
 	    			switch (user.getStatus()) {
-	    				case CREATED:
-	    					Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
-	    							credId, user.getPrivilege(), actorId, context);
-	    					res.addEvents(credUserGroupRes.getEvents());
-	    					CredentialUserGroup gr = credUserGroupRes.getResult();
-	    					saveNewUserToCredentialGroup(user.getUserId(), gr);
-	    					if (user.getPrivilege() == UserGroupPrivilege.Edit) {
-	    						editCredGroup = gr;
-	    					} else {
-	    						learnCredGroup = gr;
-	    					}
-	    					generateUserGroupChangeEventIfNotGenerated(gr.getUserGroup().getId(), actorId, 
-	    							context, userGroupsChangedEvents);
-	    					break;
-	    				case CHANGED:
-	    					userGroupUser = (UserGroupUser) persistence
-	    							.currentManager().load(UserGroupUser.class, user.getId());
-	    					CredentialUserGroup credGroup = null;
-	    					if (user.getPrivilege() == UserGroupPrivilege.Edit) {
-	    						 if(editCredGroup == null) {
-	    							 Result<CredentialUserGroup> credUserGroupRes1 = 
-	    									 getOrCreateDefaultCredentialUserGroup(credId, user.getPrivilege(), actorId, context);
-	    							 res.addEvents(credUserGroupRes1.getEvents());
-	    							 editCredGroup = credUserGroupRes1.getResult();
-	    						 }
-	    						 credGroup = editCredGroup;
-	    					} else {
-	    						if (learnCredGroup == null) {
-	    							Result<CredentialUserGroup> credUserGroupRes1 = 
-	    									getOrCreateDefaultCredentialUserGroup(credId, user.getPrivilege(), actorId, context);
-	    							res.addEvents(credUserGroupRes1.getEvents());
-	    							learnCredGroup = credUserGroupRes1.getResult();
-	    						 }
-	    						 credGroup = learnCredGroup;
-	    					}
-	    					userGroupUser.setGroup(credGroup.getUserGroup());
-	    					generateUserGroupChangeEventIfNotGenerated(credGroup.getUserGroup().getId(), actorId, 
-	    							context, userGroupsChangedEvents);
-	    					break;
+						case CREATED:
+							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
+								if (editCredGroup == null) {
+									Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
+											credId, user.getPrivilege(), actorId, context);
+									res.addEvents(credUserGroupRes.getEvents());
+									editCredGroup = credUserGroupRes.getResult();
+								}
+								credGroup = editCredGroup;
+							} else {
+								if (learnCredGroup == null) {
+									Result<CredentialUserGroup> credUserGroupRes = getOrCreateDefaultCredentialUserGroup(
+											credId, user.getPrivilege(), actorId, context);
+									res.addEvents(credUserGroupRes.getEvents());
+									learnCredGroup = credUserGroupRes.getResult();
+								}
+								credGroup = learnCredGroup;
+							}
+							saveNewUserToCredentialGroup(user.getUserId(), credGroup);
+							generateUserGroupChangeEventIfNotGenerated(credGroup.getUserGroup().getId(), actorId,
+									context, userGroupsChangedEvents);
+							break;
 	    				case REMOVED:
 	    					userGroupUser = (UserGroupUser) persistence
 								.currentManager().load(UserGroupUser.class, user.getId());
 	    					delete(userGroupUser);
-	    					generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId, 
+	    					generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId,
 	    							context, userGroupsChangedEvents);
 	    					break;
 	    				case UP_TO_DATE:
 	    					break;
 	    			}
 	    		}
-	    		
+
 	    		/*
 	    		 * user group change event should not be generated for newly created groups. Since
 	    		 * these groups are default groups user group added to resource event actually means
-	    		 * that group is newly created so user group change event is removed from map for such 
+	    		 * that group is newly created so user group change event is removed from map for such
 	    		 * user groups.
 	    		 */
 	    		res.getEvents().stream()
 	    			.filter(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE)
 	    			.map(ev -> ev.getObject().getId())
 	    			.forEach(id -> userGroupsChangedEvents.remove(id));
-	    		
+
 	    		//generate all user group change events
 	    		userGroupsChangedEvents.forEach((key, event) -> res.addEvent(event));
     		}
@@ -726,15 +711,15 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while saving credential users");
     	}
     }
-	
-	private void generateUserGroupChangeEventIfNotGenerated(long userGroupId, long actorId, 
+
+	private void generateUserGroupChangeEventIfNotGenerated(long userGroupId, long actorId,
 			LearningContextData context, Map<Long, EventData> userGroupsChangedEvents) {
 		UserGroup ug = new UserGroup();
 		ug.setId(userGroupId);
 		//if event for this user group is not already generated, generate it and put it in the map
 		if(userGroupsChangedEvents.get(userGroupId) == null) {
-			userGroupsChangedEvents.put(userGroupId, 
-					eventFactory.generateEventData(EventType.USER_GROUP_CHANGE, actorId, ug, 
+			userGroupsChangedEvents.put(userGroupId,
+					eventFactory.generateEventData(EventType.USER_GROUP_CHANGE, actorId, ug,
 							null, context, null));
 		}
 	}
@@ -772,22 +757,32 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		if(credGroup == null) {
 			throw new NullPointerException();
 		}
-		saveNewUserToUserGroup(userId, credGroup.getUserGroup());
+		saveNewUserToUserGroup(userId, credGroup.getUserGroup(), persistence.currentManager());
 	}
 
 	private void saveNewUserToCompetenceGroup(long userId, CompetenceUserGroup compGroup) {
+		saveNewUserToCompetenceGroup(userId, compGroup, persistence.currentManager());
+	}
+
+	private void saveNewUserToCompetenceGroup(long userId, CompetenceUserGroup compGroup, Session session) {
 		if(compGroup == null) {
 			throw new NullPointerException();
 		}
-		saveNewUserToUserGroup(userId, compGroup.getUserGroup());
+		saveNewUserToUserGroup(userId, compGroup.getUserGroup(), session);
 	}
 
-	private void saveNewUserToUserGroup(long userId, UserGroup userGroup) {
-		UserGroupUser userGroupUser = new UserGroupUser();
-		User u = (User) persistence.currentManager().load(User.class, userId);
-		userGroupUser.setUser(u);
-		userGroupUser.setGroup(userGroup);
-		saveEntity(userGroupUser);
+	private void saveNewUserToUserGroup(long userId, UserGroup userGroup, Session session) {
+		try {
+			UserGroupUser userGroupUser = new UserGroupUser();
+			User u = (User) session.load(User.class, userId);
+			userGroupUser.setUser(u);
+			userGroupUser.setGroup(userGroup);
+			saveEntity(userGroupUser, session);
+			session.flush();
+		} catch (ConstraintViolationException e) {
+			//it means that user is already added to that group and that is ok, it should not be considered as en error
+			logger.info("User with id: " + userId + " not added to group because he is already part of the group");
+		}
 	}
 	
 	@Override
@@ -877,12 +872,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     									group.getPrivilege(), userId, lcd)
     										.getEvents());
     					break;
-    				case CHANGED:
-    					res.addEvents(
-    							changeCredentialUserGroupPrivilege(credId, group.getId(), 
-    									group.getPrivilege(), userId, lcd)
-    											.getEvents());
-    					break;
     				case REMOVED:
     					res.addEvents(
     							removeCredentialUserGroup(credId, group.getId(), group.getGroupId(), userId, lcd)
@@ -905,7 +894,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			LearningContextData lcd) {
 		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
 				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
-		delete(credGroup);
 		
 		Result<Void> res = new Result<>();
 		UserGroup userGroup = new UserGroup();
@@ -914,31 +902,34 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		cred.setId(credId);
 		Map<String, String> params = new HashMap<>();
 		params.put("credentialUserGroupId", credGroup.getId() + "");
+		params.put("privilege", credGroup.getPrivilege().name());
 		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, userId, userGroup, 
-				cred, lcd, null));
+				cred, lcd, params));
+
+		delete(credGroup);
 		
 		return res;
 	}
 	
-	private Result<Void> changeCredentialUserGroupPrivilege(long credId, long credUserGroupId, UserGroupPrivilege priv, 
-			long userId, LearningContextData lcd) {
-		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
-				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
-		credGroup.setPrivilege(priv);
-		
-		Result<Void> res = new Result<>();
-		CredentialUserGroup cug = new CredentialUserGroup();
-		cug.setId(credUserGroupId);
-		Credential1 cred = new Credential1();
-		cred.setId(credId);
-		cug.setCredential(cred);
-		Map<String, String> params = new HashMap<>();
-		params.put("privilege", priv.toString());
-		res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE, userId, cug, null, 
-				lcd, params));
-		
-		return res;
-	}
+//	private Result<Void> changeCredentialUserGroupPrivilege(long credId, long credUserGroupId, UserGroupPrivilege priv,
+//			long userId, LearningContextData lcd) {
+//		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
+//				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
+//		credGroup.setPrivilege(priv);
+//
+//		Result<Void> res = new Result<>();
+//		CredentialUserGroup cug = new CredentialUserGroup();
+//		cug.setId(credUserGroupId);
+//		Credential1 cred = new Credential1();
+//		cred.setId(credId);
+//		cug.setCredential(cred);
+//		Map<String, String> params = new HashMap<>();
+//		params.put("privilege", priv.toString());
+//		res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE, userId, cug, null,
+//				lcd, params));
+//
+//		return res;
+//	}
 	
 	private Result<CredentialUserGroup> getOrCreateDefaultCredentialUserGroup(long credId, UserGroupPrivilege priv,
 			long userId, LearningContextData lcd) {
@@ -987,6 +978,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("default", isDefault + "");
 		params.put("credentialUserGroupId", credGroup.getId() + "");
+		params.put("privilege", priv.name());
 		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, userId, ug, credential, 
 				lcd, params);
 		
@@ -1198,76 +1190,40 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				//store reference to default groups for learn and edit privilege to be reused for different users
 				CompetenceUserGroup learnCompGroup = null;
 				CompetenceUserGroup editCompGroup = null;
-				Map<Long, EventData> userGroupsChangedEvents = new HashMap<>();
 				for (ResourceVisibilityMember user : users) {
 					UserGroupUser userGroupUser = null;
+					CompetenceUserGroup compGroup = null;
 					switch (user.getStatus()) {
 						case CREATED:
-							Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
-									compId, user.getPrivilege(), actorId, context);
-							res.addEvents(compUserGroupRes.getEvents());
-							CompetenceUserGroup gr = compUserGroupRes.getResult();
-							saveNewUserToCompetenceGroup(user.getUserId(), gr);
 							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
-								editCompGroup = gr;
-							} else {
-								learnCompGroup = gr;
-							}
-							generateUserGroupChangeEventIfNotGenerated(gr.getUserGroup().getId(), actorId,
-									context, userGroupsChangedEvents);
-							break;
-						case CHANGED:
-							userGroupUser = (UserGroupUser) persistence
-									.currentManager().load(UserGroupUser.class, user.getId());
-							CompetenceUserGroup compGroup = null;
-							if (user.getPrivilege() == UserGroupPrivilege.Edit) {
-								if(editCompGroup == null) {
-									Result<CompetenceUserGroup> compUserGroupRes1 =
-											getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege(),
-													actorId, context);
-									res.addEvents(compUserGroupRes1.getEvents());
-									editCompGroup = compUserGroupRes1.getResult();
+								if (editCompGroup == null) {
+									Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
+											compId, user.getPrivilege(), actorId, context);
+									res.addEvents(compUserGroupRes.getEvents());
+									editCompGroup = compUserGroupRes.getResult();
 								}
 								compGroup = editCompGroup;
 							} else {
 								if (learnCompGroup == null) {
-									Result<CompetenceUserGroup> compUserGroupRes1 =
-											getOrCreateDefaultCompetenceUserGroup(compId, user.getPrivilege(),
-													actorId, context);
-									res.addEvents(compUserGroupRes1.getEvents());
-									learnCompGroup = compUserGroupRes1.getResult();
+									Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
+											compId, user.getPrivilege(), actorId, context);
+									res.addEvents(compUserGroupRes.getEvents());
+									learnCompGroup = compUserGroupRes.getResult();
 								}
 								compGroup = learnCompGroup;
 							}
-							userGroupUser.setGroup(compGroup.getUserGroup());
-							generateUserGroupChangeEventIfNotGenerated(compGroup.getUserGroup().getId(), actorId,
-									context, userGroupsChangedEvents);
+
+							saveNewUserToCompetenceGroup(user.getUserId(), compGroup);
 							break;
 						case REMOVED:
 							userGroupUser = (UserGroupUser) persistence
 									.currentManager().load(UserGroupUser.class, user.getId());
 							delete(userGroupUser);
-							generateUserGroupChangeEventIfNotGenerated(userGroupUser.getGroup().getId(), actorId,
-									context, userGroupsChangedEvents);
 							break;
 						case UP_TO_DATE:
 							break;
 					}
 				}
-
-	    		/*
-	    		 * user group change event should not be generated for newly created groups. Since
-	    		 * these groups are default groups user group added to resource event actually means
-	    		 * that group is newly created so user group change event is removed from map for such
-	    		 * user groups.
-	    		 */
-				res.getEvents().stream()
-						.filter(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE)
-						.map(ev -> ev.getObject().getId())
-						.forEach(id -> userGroupsChangedEvents.remove(id));
-
-				//generate all user group change events
-				userGroupsChangedEvents.forEach((key, event) -> res.addEvent(event));
 			}
 			return res;
 		} catch(Exception e) {
@@ -1295,12 +1251,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 										group.getPrivilege(), userId, lcd)
 										.getEvents());
 						break;
-					case CHANGED:
-						res.addEvents(
-								changeCompetenceUserGroupPrivilege(compId, group.getId(),
-										group.getPrivilege(), userId, lcd)
-										.getEvents());
-						break;
 					case REMOVED:
 						res.addEvents(
 								removeCompetenceUserGroup(compId, group.getId(), group.getGroupId(), userId, lcd)
@@ -1319,26 +1269,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
-	private Result<Void> changeCompetenceUserGroupPrivilege(long compId, long compUserGroupId, UserGroupPrivilege priv,
-															long userId, LearningContextData lcd) {
-		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
-				.currentManager().load(CompetenceUserGroup.class, compUserGroupId);
-		compGroup.setPrivilege(priv);
-
-		Result<Void> res = new Result<>();
-		CompetenceUserGroup cug = new CompetenceUserGroup();
-		cug.setId(compUserGroupId);
-		Competence1 comp = new Competence1();
-		comp.setId(compId);
-		cug.setCompetence(comp);
-		Map<String, String> params = new HashMap<>();
-		params.put("privilege", priv.toString());
-		res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE, userId, cug, null,
-				lcd, params));
-
-		return res;
-	}
-
 	private Result<Void> removeCompetenceUserGroup(long compId, long compUserGroupId, long userGroupId, long userId,
 												   LearningContextData lcd) {
 		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
@@ -1353,19 +1283,26 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		Map<String, String> params = new HashMap<>();
 		params.put("competenceUserGroupId", compGroup.getId() + "");
 		res.addEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, userId, userGroup,
-				comp, lcd, null));
+				comp, lcd, params));
 
 		return res;
 	}
 
 	private Result<CompetenceUserGroup> getOrCreateDefaultCompetenceUserGroup(long compId, UserGroupPrivilege priv,
 																			  long userId, LearningContextData lcd) {
-		Optional<CompetenceUserGroup> compGroupOptional = getCompetenceDefaultGroup(compId, priv, false);
+		return getOrCreateDefaultCompetenceUserGroup(compId, priv, userId, lcd, persistence.currentManager());
+	}
+
+	private Result<CompetenceUserGroup> getOrCreateDefaultCompetenceUserGroup(long compId, UserGroupPrivilege priv,
+																			  long userId, LearningContextData lcd,
+																			  Session session) {
+		Optional<CompetenceUserGroup> compGroupOptional = getCompetenceDefaultGroup(compId, priv, false,
+				session);
 		Result<CompetenceUserGroup> res = new Result<>();
 		if(compGroupOptional.isPresent()) {
 			res.setResult(compGroupOptional.get());
 		} else {
-			res = createNewCompetenceUserGroup(0, true, compId, priv, userId, lcd);
+			res = createNewCompetenceUserGroup(0, true, compId, priv, userId, lcd, session);
 		}
 		return res;
 	}
@@ -1384,20 +1321,26 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	private Result<CompetenceUserGroup> createNewCompetenceUserGroup(long userGroupId, boolean isDefault, long compId,
 																	 UserGroupPrivilege priv, long userId,
 																	 LearningContextData lcd) {
+		return createNewCompetenceUserGroup(userGroupId, isDefault, compId, priv, userId, lcd, persistence.currentManager());
+	}
+
+	private Result<CompetenceUserGroup> createNewCompetenceUserGroup(long userGroupId, boolean isDefault, long compId,
+																	 UserGroupPrivilege priv, long userId,
+																	 LearningContextData lcd, Session session) {
 		UserGroup userGroup = null;
 		if(userGroupId > 0) {
-			userGroup = (UserGroup) persistence.currentManager().load(UserGroup.class, userGroupId);
+			userGroup = (UserGroup) session.load(UserGroup.class, userGroupId);
 		} else {
 			userGroup = new UserGroup();
 			userGroup.setDefaultGroup(isDefault);
-			saveEntity(userGroup);
+			saveEntity(userGroup, session);
 		}
 		CompetenceUserGroup compGroup = new CompetenceUserGroup();
 		compGroup.setUserGroup(userGroup);
-		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+		Competence1 comp = (Competence1) session.load(Competence1.class, compId);
 		compGroup.setCompetence(comp);
 		compGroup.setPrivilege(priv);
-		saveEntity(compGroup);
+		saveEntity(compGroup, session);
 
 		UserGroup ug = new UserGroup();
 		ug.setId(userGroup.getId());
@@ -1418,90 +1361,37 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	private Optional<CompetenceUserGroup> getCompetenceDefaultGroup(long compId, 
 			UserGroupPrivilege privilege, boolean returnIfInherited) {
+		return getCompetenceDefaultGroup(compId, privilege, returnIfInherited, persistence.currentManager());
+	}
+
+	private Optional<CompetenceUserGroup> getCompetenceDefaultGroup(long compId,
+																	UserGroupPrivilege privilege,
+																	boolean returnIfInherited,
+																	Session session) {
 		StringBuilder query = new StringBuilder("SELECT compGroup FROM CompetenceUserGroup compGroup " +
-					   "INNER JOIN compGroup.userGroup userGroup " +
-					   "WHERE compGroup.competence.id = :compId " +
-					   "AND compGroup.privilege = :priv " +
-					   "AND userGroup.defaultGroup = :default ");
-		
+				"INNER JOIN compGroup.userGroup userGroup " +
+				"WHERE compGroup.competence.id = :compId " +
+				"AND compGroup.privilege = :priv " +
+				"AND userGroup.defaultGroup = :default ");
+
 		if (!returnIfInherited) {
 			query.append("AND compGroup.inherited = :inherited");
 		}
-		
-		Query q = persistence.currentManager()
+
+		Query q = session
 				.createQuery(query.toString())
 				.setLong("compId", compId)
 				.setParameter("priv", privilege)
 				.setBoolean("default", true)
 				.setMaxResults(1);
-		
+
 		if(!returnIfInherited) {
 			q.setBoolean("inherited", false);
 		}
-		
+
 		CompetenceUserGroup compGroup = (CompetenceUserGroup) q.uniqueResult();
-		
+
 		return compGroup != null ? Optional.of(compGroup) : Optional.empty();
-	}
-	
-	@Override
-	@Transactional(readOnly = false)
-	public Result<Void> propagatePrivilegeChangeFromCredentialAndGetEvents(long credUserGroupId, 
-			Session session) throws DbConnectionException {
-		Result<Void> res = new Result<>();
-		res.addEvents(propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(credUserGroupId, session)
-				.getEvents());
-		CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
-		/*
-		 * if privilege is changed and is now edit, it should be propagated to all deliveries, otherwise we suppose
-		 * privilege was edit before change and this privilege should be removed from all deliveries.
-		 */
-		if(cug.getPrivilege() == UserGroupPrivilege.Edit) {
-			res.addEvents(propagateUserGroupPrivilegeFromCredentialToAllDeliveriesAndGetEvents(credUserGroupId, session)
-					.getEvents());
-		} else {
-			res.addEvents(removeUserGroupPrivilegeFromDeliveriesAndGetEvents(cug.getCredential().getId(), 
-					cug.getUserGroup().getId(), session).getEvents());
-		}
-		return res;
-	}
-	
-	@Transactional(readOnly = false)
-	private Result<Void> propagatePrivilegeChangeToAllCredentialCompetencesAndGetEvents(long credUserGroupId, 
-			Session session) throws DbConnectionException {
-		try {
-			CredentialUserGroup cug = (CredentialUserGroup) session.load(CredentialUserGroup.class, credUserGroupId);
-			String query = "UPDATE CompetenceUserGroup gr " +
-						   "SET gr.privilege = :priv " +
-						   "WHERE gr.userGroup.id = :userGroupId " +
-						   "AND gr.inherited = :inherited " +
-						   "AND gr.inheritedFrom = :credId";
-			session.createQuery(query)
-				.setParameter("priv", cug.getPrivilege())
-				.setLong("userGroupId", cug.getUserGroup().getId())
-				.setBoolean("inherited", true)
-				.setLong("credId", cug.getCredential().getId())
-				.executeUpdate();
-			
-			Result<Void> res = new Result<>();
-			//retrieve compIds so appropriate events can be generated for each competence
-			List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(cug.getCredential().getId(), session);
-			for (long compId : compIds) {
-				/*
-	    		 * generate only resource visibility change event, user group removed from resource event is not needed 
-	    		 * because it is inherited group
-	    		 */
-	    		Competence1 comp = new Competence1();
-	    		comp.setId(compId);
-	    		res.addEvent(eventFactory.generateEventData(
-	    				EventType.RESOURCE_VISIBILITY_CHANGE, 0, comp, null, null, null));
-			}
-			return res;
-		} catch (Exception e) {
-			e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
-		}
 	}
 	
 	@Override
@@ -1609,12 +1499,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		String query = "DELETE FROM CompetenceUserGroup gr " +
     				       "WHERE gr.competence.id = :compId " +
     				       "AND gr.inherited = :inherited " +
-    				       "AND gr.inheritedFrom.id = :credId";
+    				       "AND gr.inheritedFrom.id = :credId " +
+					       "AND gr.privilege = :priv";
     		
     		session.createQuery(query)
     			   .setLong("compId", compId)
     			   .setBoolean("inherited", true)
     			   .setLong("credId", credId)
+				   .setString("priv", UserGroupPrivilege.Edit.name())
     			   .executeUpdate();
     		
     		/*
@@ -1703,7 +1595,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	try {
     		Result<Void> res = new Result<>();
     		//we should propagate all groups, event default
-    		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true, null, session);
+    		List<CredentialUserGroup> credGroups = getCredentialUserGroups(credId, true,
+					UserGroupPrivilege.Edit, session);
     		for (CredentialUserGroup credGroup : credGroups) {
     			res.addEvents(propagateUserGroupPrivilegeFromCredential(credGroup, compId, session).getEvents());
     		}
@@ -1832,5 +1725,32 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while retrieving user groups");
     	}
     }
-	
+
+    @Transactional
+    @Override
+    public Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
+																			 long actorId, LearningContextData context,
+																			 Session session) {
+		Result<Void> res = new Result<>();
+		try {
+			List<Long> compIds = credManager.getIdsOfAllCompetencesInACredential(credId, session);
+			for (long compId : compIds) {
+				Result<CompetenceUserGroup> compUserGroupRes = getOrCreateDefaultCompetenceUserGroup(
+						compId, UserGroupPrivilege.Learn, actorId, context, session);
+				res.addEvents(compUserGroupRes.getEvents());
+				saveNewUserToCompetenceGroup(userId, compUserGroupRes.getResult(), session);
+
+				Competence1 comp = new Competence1();
+				comp.setId(compId);
+				res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_VISIBILITY_CHANGE, actorId,
+						comp, null, context, null));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while creating user privileges");
+		}
+	}
+
 }

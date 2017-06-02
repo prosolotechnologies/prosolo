@@ -119,18 +119,6 @@ public interface UserGroupManager extends AbstractManager {
 	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
 	
 	/**
-	 * This method propagates privilege change for all inherited user groups in all credential competencies
-	 * and returns event data for all events that should be generated
-	 * 
-	 * @param credUserGroupId
-	 * @param session
-	 * @throws DbConnectionException
-	 * @throws EventException
-	 */
-	Result<Void> propagatePrivilegeChangeFromCredentialAndGetEvents(long credUserGroupId, 
-			Session session) throws DbConnectionException;
-	
-	/**
 	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
 	 * and credential deliveries for a credential given by {@code credId} and returns event data for all events 
 	 * that should be generated.
@@ -145,7 +133,7 @@ public interface UserGroupManager extends AbstractManager {
     		Session session) throws DbConnectionException;
 	
 	/**
-	 * This method removes privilege for all user groups that have some privilege in a credential given by {@code credId} id
+	 * This method removes EDIT privilege for all user groups that have EDIT privilege in a credential given by {@code credId} id
 	 * in a competency given by {@code compId} and returns event data for all events that should be generated
 	 * 
 	 * @param compId
@@ -171,7 +159,7 @@ public interface UserGroupManager extends AbstractManager {
     		Session session) throws DbConnectionException;
 	
 	/**
-	 * This method propagates privileges for all user groups that have some privilege in a credential given by {@code credId}
+	 * This method propagates EDIT privileges for all user groups that have EDIT privilege in a credential given by {@code credId}
 	 * to competency specified by {@code compId} and returns event data for all events that should be generated
 	 * 
 	 * @param credId
@@ -214,4 +202,7 @@ public interface UserGroupManager extends AbstractManager {
 	Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
 			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException;
 
+	Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
+																	  long actorId, LearningContextData context,
+																	  Session session);
 }

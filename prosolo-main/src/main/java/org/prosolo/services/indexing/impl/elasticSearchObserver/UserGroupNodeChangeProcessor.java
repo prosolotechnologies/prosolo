@@ -109,25 +109,6 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			for(CompetenceUserGroup g : compGroups) {
 				compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
 			}
-		} else if(type == EventType.USER_GROUP_ADDED_TO_RESOURCE) {
-			Map<String, String> params = event.getParameters();
-			boolean isDefault = Boolean.parseBoolean(params.get("default"));
-			//default groups should not be indexed
-			if(!isDefault) {
-				long groupId = ((UserGroup) object).getId();
-				if(target instanceof Credential1) {
-					groupESService.addCredential(groupId, ((Credential1) target).getId());
-				} else if(target instanceof Competence1) {
-					groupESService.addCompetence(groupId, ((Competence1) target).getId());
-				}
-			}
-		} else if(type == EventType.USER_GROUP_REMOVED_FROM_RESOURCE) {
-			long groupId = ((UserGroup) object).getId();
-			if(target instanceof Credential1) {
-				groupESService.removeCredential(groupId, ((Credential1) target).getId());
-			} else if(target instanceof Competence1) {
-				groupESService.removeCompetence(groupId, ((Competence1) target).getId());
-			}
 		}
 	}
 

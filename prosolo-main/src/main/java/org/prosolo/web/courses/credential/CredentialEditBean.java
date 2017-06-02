@@ -329,7 +329,7 @@ public class CredentialEditBean implements Serializable {
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
 		} catch (DataIntegrityViolationException div) {
-			//if integrity rule is violated it is due to students already started learning, so they hava i reference to
+			//if integrity rule is violated it is due to students already started learning, so they have a reference to this delivery
 			logger.error(div);
 			div.printStackTrace();
 			PageUtil.fireErrorMessage("There are students that started learning this credential so it cannot be deleted");
