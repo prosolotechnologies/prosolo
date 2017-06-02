@@ -227,7 +227,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"sa.credential_object AS credObjectId, " +
 				"credObject.title AS credObjectTitle, " +
 				"credObject.duration AS credObjectDuration, " +
-				"credObject.type AS credObjectType, " +
 				"credObject.created_by AS credObjectActorId, " +
 				"credObjectActor.name AS credObjectActorName, " +
 				"credObjectActor.lastname AS credObjectActorLastname, " +
@@ -256,7 +255,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"actObject.dtype AS actObjectDType, " +
 				"actObject.url_type AS actObjectUrlType, " +
 				"tComp.competence AS actObjectCompetenceId, " +
-				"tCred.credential AS actObjectCredentialId, " +
+				//"tCred.credential AS actObjectCredentialId, " +
 				//competence complete
 				"tCompObject.competence AS compObjectId, " +
 				"compObject.title AS compObjectTitle, " +
@@ -266,7 +265,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"compObjectActor.name AS compObjectActorName, " +
 				"compObjectActor.lastname AS compObjectActorLastname, " +
 				"compObject.description AS compObjectDescription, " +
-				"compObjectTCred.credential AS compObjectCredentialId, " +
 				
 				"IF (annotation.id > 0, true, false) AS liked, \n " +
 				"COUNT(comment.id) AS commentsNumber ";
@@ -298,8 +296,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"		AND sa.target_competence_object = tCompObject.id \n " +
 				"   LEFT JOIN competence1 compObject " +
 				"       ON tCompObject.competence = compObject.id " +
-				"   LEFT JOIN target_credential1 compObjectTCred " +
-				"       ON tCompObject.target_credential = compObjectTCred.id " +
 				"   LEFT JOIN user AS compObjectActor " +
 				"       ON compObject.created_by = compObjectActor.id " +
 				//comment social activity (competence and activity)
@@ -327,8 +323,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"       ON tActObject.activity = actObject.id " +
 				"   LEFT JOIN target_competence1 tComp " +
 				"       ON tActObject.target_competence = tComp.id " +
-				"   LEFT JOIN target_credential1 tCred " +
-				"       ON tComp.target_credential = tCred.id " +
 				"   LEFT JOIN user AS actObjectActor " +
 				"       ON actObject.created_by = actObjectActor.id " +
 				
@@ -398,7 +392,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			"sa.credential_object, " +
 			"credObject.title, " +
 			"credObject.duration, " +
-			"credObject.type, " +
 			"credObject.created_by, " +
 			"credObjectActor.name, " +
 			"credObjectActor.lastname, " +
@@ -423,7 +416,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			"actObject.dtype, " +
 			"actObject.url_type, " +
 			"tComp.competence, " +
-			"tCred.credential, " +
+			//"tCred.credential, " +
 			"tCompObject.competence, " +
 			"compObject.title, " +
 			"compObject.duration, " +
@@ -431,8 +424,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			"compObject.created_by, " +
 			"compObjectActor.name, " +
 			"compObjectActor.lastname, " +
-			"compObject.description, " +
-			"compObjectTCred.credential " +
+			"compObject.description " +
 			(queryById ? "" 
 					   : "ORDER BY sa.last_action DESC, sa.id DESC \n" +
 						 "LIMIT :limit \n" +
@@ -506,43 +498,40 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 							(BigInteger) tuple[38], 
 							(String) tuple[39], 
 							(BigInteger) tuple[40],
-							(String) tuple[41],
-							(BigInteger) tuple[42],
+							(BigInteger) tuple[41],
+							(String) tuple[42],
 							(String) tuple[43],
 							(String) tuple[44],
-							(String) tuple[45],
-							(BigInteger) tuple[46], 
-							(String) tuple[47], 
-							(BigInteger) tuple[48], 
-							(String) tuple[49], 
-							(BigInteger) tuple[50], 
-							(String) tuple[51],
-							(BigInteger) tuple[52],
-							(String) tuple[53],
-							(String) tuple [54],
-							(BigInteger) tuple[55], 
-							(String) tuple[56],
-							(BigInteger) tuple[57],
-							(String) tuple[58],
-							(BigInteger) tuple[59],
+							(BigInteger) tuple[45],
+							(String) tuple[46],
+							(BigInteger) tuple[47],
+							(String) tuple[48],
+							(BigInteger) tuple[49],
+							(String) tuple[50],
+							(BigInteger) tuple[51],
+							(String) tuple[52],
+							(String) tuple [53],
+							(BigInteger) tuple[54],
+							(String) tuple[55],
+							(BigInteger) tuple[56],
+							(String) tuple[57],
+							(BigInteger) tuple[58],
+							(String) tuple[59],
 							(String) tuple[60],
 							(String) tuple[61],
 							(String) tuple[62],
 							(String) tuple[63],
-							(String) tuple[64],
+							(BigInteger) tuple[64],
 							(BigInteger) tuple[65],
-							(BigInteger) tuple[66],
-							(BigInteger) tuple[67], 
-							(String) tuple[68], 
+							(String) tuple[66],
+							(BigInteger) tuple[67],
+							(String) tuple[68],
 							(BigInteger) tuple[69],
 							(String) tuple[70],
-							(BigInteger) tuple[71],
+							(String) tuple[71],
 							(String) tuple[72],
-							(String) tuple[73],
-							(String) tuple[74],
-							(BigInteger) tuple[75],
-							(Integer) tuple[76],
-							(BigInteger) tuple[77],
+							(Integer) tuple[73],
+							(BigInteger) tuple[74],
 							locale);
 				}
 				
@@ -736,8 +725,9 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			String query = "SELECT sa " +
 						   "FROM CompetenceCompleteSocialActivity sa " +
 						   "INNER JOIN fetch sa.actor " +
-						   "INNER JOIN fetch sa.competenceObject obj " +
-						   "INNER JOIN fetch obj.createdBy " +
+						   "INNER JOIN fetch sa.targetCompetenceObject obj " +
+						   "INNER JOIN fetch obj.competence comp " +
+						   "INNER JOIN fetch comp.createdBy " +
 						   "WHERE sa.id = :id";
 			CompetenceCompleteSocialActivity sa = (CompetenceCompleteSocialActivity) session
 					.createQuery(query)
@@ -762,7 +752,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						   "INNER JOIN fetch sa.targetActivityObject obj " +
 						   "INNER JOIN fetch obj.activity act " +
 						   "INNER JOIN fetch obj.targetCompetence tComp " +
-						   "INNER JOIN fetch tComp.targetCredential " +
 						   "INNER JOIN fetch act.createdBy " +
 						   "WHERE sa.id = :id";
 			
@@ -770,7 +759,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					.createQuery(query)
 					.setLong("id", id)
 					.uniqueResult();
-			
 			return sa;
 		} catch(Exception e) {
 			logger.error(e);
@@ -940,7 +928,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	/**
 	 * @param user
 	 * @param text
-	 * @param richContent
+	 * @param post
 	 */
 	private void generateEventForContent(final User user, final String text, final PostSocialActivity1 post) {
 		String addedLink = null;
