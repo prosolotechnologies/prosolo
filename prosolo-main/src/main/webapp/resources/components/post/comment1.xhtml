@@ -134,7 +134,7 @@
 						    		styleClass="loadReplies" 
 						    		action="#{commentBean.loadRepliesIfNotLoaded(cc.attrs.comments, comment)}"
 						    		update="panelChildComments">
-						    		View #{comment.numberOfReplies} replies
+						    		View #{comment.numberOfReplies} #{comment.numberOfReplies > 1 ? 'replies' : 'reply'}
 						    	</p:commandLink>
 							</ui:fragment>
 					    	<ui:repeat var="child" value="#{comment.childComments}">

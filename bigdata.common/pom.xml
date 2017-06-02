@@ -23,6 +23,28 @@
 			<artifactId>servlet-api</artifactId>
 			<version>3.0-alpha-1</version>
 		</dependency-->
+		<!-- Hibernate dependencies -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -149,22 +171,23 @@
 		</exclusion>
 	</exclusions>
 </dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-juli</artifactId>
 			<version>9.0.0.M4</version>
-		</dependency-->
+
+		</dependency>
 <dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
 			<!--version>8.0.14</version-->
-	<version>9.0.0.M6</version>
-			<exclusions>
+	<version>9.0.0.M4</version>
+			<!--exclusions>
 					<exclusion>
 						<artifactId>tomcat-juli</artifactId>
 						<groupId>org.apache.tomcat</groupId>
 				</exclusion>
-			</exclusions>
+			</exclusions-->
 		</dependency>
 
 <dependency>

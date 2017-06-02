@@ -122,7 +122,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			throws DbConnectionException {
 		try {
 			if(credId > 0) {
-				return new CourseDAOImpl().getUserPrivilegeForCredential(credId, userId);
+				return new CourseDAOImpl(true).getUserPrivilegeForCredential(credId, userId);
 			}
 			String query = "SELECT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll " +
 					"FROM CompetenceUserGroup compUserGroup " +

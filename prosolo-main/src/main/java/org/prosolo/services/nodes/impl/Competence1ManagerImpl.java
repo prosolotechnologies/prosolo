@@ -85,12 +85,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private static final long serialVersionUID = -2783669846949034832L;
 
 	private static Logger logger = Logger.getLogger(Competence1ManagerImpl.class);
-	
+
 	@Inject
 	private TagManager tagManager;
 	@Inject
 	private CompetenceDataFactory competenceFactory;
-	@Inject 
+	@Inject
 	private Activity1Manager activityManager;
 	@Inject
 	private EventFactory eventFactory;
@@ -112,7 +112,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			/*
 			 * if competence has no activities, it can't be published
 			 */
-			if(data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
+			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
 				throw new CompetenceEmptyException();
 			}
 			
@@ -120,16 +120,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					data.getDescription(), data.getTagsString(), creatorId, 
 					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
 					data.getDuration(), data.getActivities(), credentialId);
-			
+
 			comp = res.getResult();
-			
+
 			/*
 			 * generate events for event data returned
 			 */
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
-			for(EventData ev : res.getEvents()) {
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+			for (EventData ev : res.getEvents()) {
 				ev.setPage(page);
 				ev.setContext(lContext);
 				ev.setService(service);
@@ -147,7 +147,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //			}
 
 			return comp;
-		} catch(CompetenceEmptyException cee) {
+		} catch (CompetenceEmptyException cee) {
 			logger.error(cee);
 			//cee.printStackTrace();
 			throw new IllegalDataStateException("Can not publish competency without activities.");
@@ -161,17 +161,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public Competence1 deleteCompetence(CompetenceData1 data, long userId) 
-			throws DbConnectionException {
+	public Competence1 deleteCompetence(CompetenceData1 data, long userId) throws DbConnectionException {
 		try {
-			if(data.getCompetenceId() > 0) {
-				Competence1 comp = (Competence1) persistence.currentManager()
-						.load(Competence1.class, data.getCompetenceId());
+			if (data.getCompetenceId() > 0) {
+				Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class,
+						data.getCompetenceId());
 				comp.setDeleted(true);
 				deleteCompetenceActivities(data.getCompetenceId());
 				deleteAllCredentialCompetencesForCompetence(comp.getId());
 				eventFactory.generateEvent(EventType.Delete, userId, comp);
-				
+
 				return comp;
 			}
 			return null;
@@ -184,53 +183,47 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Deprecated
 	private void deleteAllCredentialCompetencesForCompetence(long compId) {
-		Competence1 comp = (Competence1) persistence.currentManager()
-				.load(Competence1.class, compId);
+		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
 		long duration = comp.getDuration();
 
 		List<CredentialCompetence1> res = getAllCredentialCompetencesForCompetence(compId);
 		boolean published = comp.isPublished();
-		for(CredentialCompetence1 cc : res) {
-			//credMap.put(cc.getCredential(), cc.getOrder());
+		for (CredentialCompetence1 cc : res) {
+			// credMap.put(cc.getCredential(), cc.getOrder());
 			Credential1 cred = cc.getCredential();
-			//TODO use hql update to avoid select + update
+			// TODO use hql update to avoid select + update
 			/*
-			 * We should update credentials duration only if competence was published. 
-			 * If it was not published competence duration was not event added to credential
-			 * duration.
+			 * We should update credentials duration only if competence was
+			 * published. If it was not published competence duration was not
+			 * event added to credential duration.
 			 */
-			if(published) {
+			if (published) {
 				cred.setDuration(cred.getDuration() - duration);
 			}
 			shiftOrderOfCompetencesUp(cred.getId(), cc.getOrder());
 			delete(cc);
 		}
-		
+
 	}
-	
+
 	@Deprecated
 	private List<CredentialCompetence1> getAllCredentialCompetencesForCompetence(long compId) {
-		Competence1 comp = (Competence1) persistence.currentManager()
-				.load(Competence1.class, compId);
-		String query = "SELECT credComp " +
-		       	   "FROM CredentialCompetence1 credComp " + 
-		       	   "WHERE credComp.competence = :comp";
+		Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+		String query = "SELECT credComp " + "FROM CredentialCompetence1 credComp "
+				+ "WHERE credComp.competence = :comp";
 
 		@SuppressWarnings("unchecked")
-		List<CredentialCompetence1> res = persistence.currentManager()
-			.createQuery(query)
-			.setEntity("comp", comp)
-			.list();
-		
+		List<CredentialCompetence1> res = persistence.currentManager().createQuery(query).setEntity("comp", comp)
+				.list();
+
 		return res != null ? res : new ArrayList<>();
 	}
 
 	@Deprecated
 	private void shiftOrderOfCompetencesUp(long id, int order) {
-		List<CredentialCompetence1> compsAfterDeleted = getAllCredentialCompetencesAfterSpecified(
-				id, order);
-		for(CredentialCompetence1 cc : compsAfterDeleted) {
-			//TODO use hql update to avoid select + update
+		List<CredentialCompetence1> compsAfterDeleted = getAllCredentialCompetencesAfterSpecified(id, order);
+		for (CredentialCompetence1 cc : compsAfterDeleted) {
+			// TODO use hql update to avoid select + update
 			cc.setOrder(cc.getOrder() - 1);
 		}
 	}
@@ -238,30 +231,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	private List<CredentialCompetence1> getAllCredentialCompetencesAfterSpecified(long credId, int order) {
 		Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
-		String query = "SELECT credComp " +
-		       	   "FROM Credential1 cred " +
-		       	   "LEFT JOIN cred.competences credComp " +
-		       	   "WHERE cred = :cred " +
-		       	   "AND credComp.order > :order";
-		
+		String query = "SELECT credComp " + "FROM Credential1 cred " + "LEFT JOIN cred.competences credComp "
+				+ "WHERE cred = :cred " + "AND credComp.order > :order";
+
 		@SuppressWarnings("unchecked")
-		List<CredentialCompetence1> res = persistence.currentManager()
-			.createQuery(query)
-			.setEntity("cred", cred)
-			.setInteger("order", order)
-			.list();
-		
-		if(res == null) {
+		List<CredentialCompetence1> res = persistence.currentManager().createQuery(query).setEntity("cred", cred)
+				.setInteger("order", order).list();
+
+		if (res == null) {
 			return new ArrayList<>();
 		}
-		
+
 		return res;
 	}
 
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
+	public List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -310,7 +297,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadTags) 
+	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator,
+		 boolean loadTags, boolean loadActivities)
 			throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
@@ -319,9 +307,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				       	   "FROM Credential1 cred " + 
 				       	   "INNER JOIN cred.competences credComp " +
 				       	   "INNER JOIN fetch credComp.competence comp " +
-				       	   "INNER JOIN fetch comp.createdBy user " +
 				       	   "LEFT JOIN comp.targetCompetences tComp " +
 				       			"WITH tComp.user.id = :userId ");
+
+			if (loadCreator) {
+				builder.append("INNER JOIN fetch comp.createdBy user ");
+			}
+
 			if (loadTags) {
 				builder.append("LEFT JOIN fetch comp.tags tags ");
 			}
@@ -345,14 +337,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						
 						Competence1 comp = cc.getCompetence();
 						Set<Tag> tags = loadTags ? comp.getTags() : null;
-						User createdBy = comp.getCreatedBy();
+						User createdBy = loadCreator ? comp.getCreatedBy() : null;
 						TargetCompetence1 tComp = (TargetCompetence1) row[1];
 						CompetenceData1 compData = null; 
 						if (tComp != null) {
 							compData = competenceFactory.getCompetenceData(createdBy, tComp, cc.getOrder(), tags, null, 
 									false);
+							if (loadActivities) {
+								List<ActivityData> activities = activityManager
+										.getTargetActivitiesData(compData.getTargetCompId());
+								compData.setActivities(activities);
+							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, tags, false);
+							if (loadActivities) {
+								List<ActivityData> activities = activityManager.getCompetenceActivitiesData(
+										compData.getCompetenceId());
+								compData.setActivities(activities);
+							}
 						}
 						result.add(compData);
 					}
@@ -369,10 +371,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
+	public List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred)
 			throws DbConnectionException {
 		try {
-			List<CredentialCompetence1> credComps = getCredentialCompetences(credId, 
+			List<CredentialCompetence1> credComps = getCredentialCompetences(credId,
 					false, true, false);
 			List<TargetCompetence1> targetComps =  new ArrayList<>();
 			for(CredentialCompetence1 cc : credComps) {
@@ -380,7 +382,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				//targetComps.add(targetComp);
 			}
 			return targetComps;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while enrolling competences");
@@ -453,7 +455,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while enrolling a competence");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
@@ -504,7 +506,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				List<ActivityData> activities = activityManager.getCompetenceActivitiesData(compId);
 				compData.setActivities(activities);
 			}
-			
+
 			return compData;
 		} catch (ResourceNotFoundException rfe) {
 			throw rfe;
@@ -514,7 +516,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
+
 	/**
 	 * @param credId
 	 * @param compId
@@ -528,9 +530,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			boolean returnIfArchived) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT comp ");
-		/* 
-		 * if credential id is passed need to make sure that competence really is in credential with 
-		 * specified id
+		/*
+		 * if credential id is passed need to make sure that competence really
+		 * is in credential with specified id
 		 */
 		if(credId > 0) {
 			builder.append("FROM CredentialCompetence1 credComp " +
@@ -543,20 +545,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} else {
 			builder.append("FROM Competence1 comp ");
 		}
-//		builder.append("SELECT comp " + 
-//					   "FROM Competence1 comp ");
-		
-		if(loadCreator) {
+		// builder.append("SELECT comp " +
+		// "FROM Competence1 comp ");
+
+		if (loadCreator) {
 			builder.append("INNER JOIN fetch comp.createdBy user ");
 		}
-		if(loadTags) {
+		if (loadTags) {
 			builder.append("LEFT JOIN fetch comp.tags tags ");
 		}
-//		if(loadActivities) {
-//			builder.append("LEFT JOIN fetch comp.activities compAct " +
-//					       "INNER JOIN fetch compAct.activity act ");
-//		}
-		if(credId > 0) {
+		// if(loadActivities) {
+		// builder.append("LEFT JOIN fetch comp.activities compAct " +
+		// "INNER JOIN fetch compAct.activity act ");
+		// }
+		if (credId > 0) {
 			builder.append("WHERE credComp.credential.id = :credId");
 		} else {
 			builder.append("WHERE comp.id = :compId " +
@@ -565,14 +567,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				builder.append("AND comp.archived = :archived ");
 			}
 		}
-		
+
 		logger.info("QUERY: " + builder.toString());
-		Query q = persistence.currentManager()
-			.createQuery(builder.toString())
-			.setLong("compId", compId)
-			.setBoolean("deleted", false);
-		
-		if(credId > 0) {
+		Query q = persistence.currentManager().createQuery(builder.toString()).setLong("compId", compId)
+				.setBoolean("deleted", false);
+
+		if (credId > 0) {
 			q.setLong("credId", credId);
 		}
 		if(!returnIfArchived) {
@@ -582,14 +582,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Competence1 res = (Competence1) q.uniqueResult();
 		return res;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Competence1 updateCompetence(CompetenceData1 data, long userId, LearningContextData context) 
 			throws DbConnectionException, IllegalDataStateException, StaleDataException {
 		try {
 			/*
-			 * if competence has no activities (that are not removed), it can't be published
+			 * if competence has no activities (that are not removed), it can't
+			 * be published
 			 */
 			if(data.isPublished()) {
 				if(data.getActivities() == null) {
@@ -601,13 +602,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					throw new IllegalDataStateException("Competency should have at least one activity");
 				}
 			}
-			
-			Competence1 updatedComp = resourceFactory.updateCompetence(data, userId);		  
-		    
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
-			
+
+			Competence1 updatedComp = resourceFactory.updateCompetence(data, userId);
+
+			String page = context != null ? context.getPage() : null;
+			String lContext = context != null ? context.getLearningContext() : null;
+			String service = context != null ? context.getService() : null;
+
 			fireCompEditEvent(data, userId, updatedComp, page, lContext, service);
 			
 			/* 
@@ -632,20 +633,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private void fireCompEditEvent(CompetenceData1 data, long userId, 
-			Competence1 updatedComp, String page, String context, String service) 
-					throws EventException {
+	private void fireCompEditEvent(CompetenceData1 data, long userId, Competence1 updatedComp, String page,
+			String context, String service) throws EventException {
 		Map<String, String> params = new HashMap<>();
-	    CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
-	    		data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false, 
-	    		data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
-	    Gson gson = new GsonBuilder().create();
-	    String jsonChangeTracker = gson.toJson(changeTracker);
-	    params.put("changes", jsonChangeTracker);
-	 
-	    eventFactory.generateEvent(EventType.Edit, userId, updatedComp, null, page, context, service, params);
+		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
+				data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false,
+				data.isTagsStringChanged(), data.isStudentAllowedToAddActivitiesChanged());
+		Gson gson = new GsonBuilder().create();
+		String jsonChangeTracker = gson.toJson(changeTracker);
+		params.put("changes", jsonChangeTracker);
+
+		eventFactory.generateEvent(EventType.Edit, userId, updatedComp, null, page, context, service, params);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
@@ -735,75 +735,73 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	    
 	    return compToUpdate;
 	}
-	
+
 	private void updateCredDuration(long compId, long newDuration, long oldDuration) {
 		long durationChange = newDuration - oldDuration;
-    	Operation op = null;
-    	if(durationChange == 0) {
-    		return;
-    	}
-    	if(durationChange > 0) {
-    		op = Operation.Add;
-    	} else {
-    		durationChange = -durationChange;
-    		op = Operation.Subtract;
-    	}
-    	credentialManager.updateDurationForCredentialsWithCompetence(compId, 
-				durationChange, op);
+		Operation op = null;
+		if (durationChange == 0) {
+			return;
+		}
+		if (durationChange > 0) {
+			op = Operation.Add;
+		} else {
+			durationChange = -durationChange;
+			op = Operation.Subtract;
+		}
+		credentialManager.updateDurationForCredentialsWithCompetence(compId, durationChange, op);
 	}
-	
-//	@Transactional(readOnly = true)
-//	public long getCompetenceDuration(long compId) throws DbConnectionException {  
-//		try {
-//			String query = "SELECT comp.duration " +
-//					   "FROM Competence1 comp " + 
-//					   "WHERE comp.id = :compId";
-//			
-//			Long duration = (Long) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("compId", compId)
-//					.uniqueResult();
-//			
-//			return duration;
-//		} catch(Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while retrieving competence duration");
-//		}
-//	}
-	
-//	private void updateCredentialsDuration(long compId, long newDuration, long oldDuration) {
-//		long durationChange = newDuration - oldDuration;
-//    	Operation op = null;
-//    	if(durationChange > 0) {
-//    		op = Operation.Add;
-//    	} else {
-//    		durationChange = -durationChange;
-//    		op = Operation.Subtract;
-//    	}
-//		credentialManager.updateDurationForCredentialsWithCompetence(compId, 
-//    			durationChange, op);
-//		
-//	}
+
+	// @Transactional(readOnly = true)
+	// public long getCompetenceDuration(long compId) throws
+	// DbConnectionException {
+	// try {
+	// String query = "SELECT comp.duration " +
+	// "FROM Competence1 comp " +
+	// "WHERE comp.id = :compId";
+	//
+	// Long duration = (Long) persistence.currentManager()
+	// .createQuery(query)
+	// .setLong("compId", compId)
+	// .uniqueResult();
+	//
+	// return duration;
+	// } catch(Exception e) {
+	// logger.error(e);
+	// e.printStackTrace();
+	// throw new DbConnectionException("Error while retrieving competence
+	// duration");
+	// }
+	// }
+
+	// private void updateCredentialsDuration(long compId, long newDuration,
+	// long oldDuration) {
+	// long durationChange = newDuration - oldDuration;
+	// Operation op = null;
+	// if(durationChange > 0) {
+	// op = Operation.Add;
+	// } else {
+	// durationChange = -durationChange;
+	// op = Operation.Subtract;
+	// }
+	// credentialManager.updateDurationForCredentialsWithCompetence(compId,
+	// durationChange, op);
+	//
+	// }
 
 	@Deprecated
 	private void deleteCompetenceActivities(long compId) throws DbConnectionException {
 		try {
-			String query = "DELETE CompetenceActivity1 compAct " +
-			       	       "WHERE compAct.competence.id = :compId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("compId", compId)
-				.executeUpdate();
-			
-		} catch(Exception e) {
+			String query = "DELETE CompetenceActivity1 compAct " + "WHERE compAct.competence.id = :compId";
+
+			persistence.currentManager().createQuery(query).setLong("compId", compId).executeUpdate();
+
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while deleting competence activities");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator, 
@@ -811,8 +809,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					throws DbConnectionException {
 		List<CompetenceData1> result = new ArrayList<>();
 		try {
-			List<CredentialCompetence1> res = getCredentialCompetences(credentialId, 
-					loadCreator, loadTags, includeNotPublished);
+			List<CredentialCompetence1> res = getCredentialCompetences(credentialId, loadCreator, loadTags,
+					includeNotPublished);
 
 			for (CredentialCompetence1 credComp : res) {
 				User creator = loadCreator ? credComp.getCompetence().getCreatedBy() : null;
@@ -826,7 +824,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 							credComp.getCompetence().getId());
 					compData.setActivities(activities);
 				}
-				
+
 				result.add(compData);
 			}
 			return result;
@@ -836,10 +834,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
+	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator,
 			boolean loadTags, boolean includeNotPublished) throws DbConnectionException {
 		return getCredentialCompetences(credentialId, loadCreator, loadTags, includeNotPublished, false);
 	}
@@ -849,33 +847,30 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public List<CredentialCompetence1> getCredentialCompetences(long credentialId, boolean loadCreator, 
 			boolean loadTags, boolean includeNotPublished, boolean usePessimisticLock) throws DbConnectionException {
 		try {
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
-					credentialId);
-			
+			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
+
 			StringBuilder builder = new StringBuilder();
+
 			builder.append("SELECT credComp " + 
 						   "FROM CredentialCompetence1 credComp " +
 						   "INNER JOIN fetch credComp.competence comp ");
 			if(loadCreator) {
 				builder.append("INNER JOIN fetch comp.createdBy user ");
 			}
-			if(loadTags) {
+			if (loadTags) {
 				builder.append("LEFT JOIN fetch comp.tags tags ");
 			}
-	
-			builder.append("WHERE credComp.credential = :credential " + 
-					   "AND comp.deleted = :deleted " + 
-					   "AND credComp.deleted = :deleted ");
-			
-			if(!includeNotPublished) {
+
+			builder.append("WHERE credComp.credential = :credential " + "AND comp.deleted = :deleted "
+					+ "AND credComp.deleted = :deleted ");
+
+			if (!includeNotPublished) {
 				builder.append("AND comp.published = :published ");
 			}
-			
+
 			builder.append("ORDER BY credComp.order");
 
-			Query query = persistence.currentManager()
-					.createQuery(builder.toString())
-					.setEntity("credential", cred)
+			Query query = persistence.currentManager().createQuery(builder.toString()).setEntity("credential", cred)
 					.setBoolean("deleted", false);
 			if (!includeNotPublished) {
 				query.setBoolean("published", true);
@@ -955,33 +950,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Tag> getCompetenceTags(long compId) 
-			throws DbConnectionException {
+	public List<Tag> getCompetenceTags(long compId) throws DbConnectionException {
 		return getCompetenceTags(compId, persistence.currentManager());
 	}
 	
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Tag> getCompetenceTags(long compId, Session session) 
-			throws DbConnectionException {
-		try {		
-			//if left join is used list with null element would be returned.
-			String query = "SELECT tag " +
-					       "FROM Competence1 comp " +
-					       "INNER JOIN comp.tags tag " +
-					       "WHERE comp.id = :compId";					    
+	public List<Tag> getCompetenceTags(long compId, Session session) throws DbConnectionException {
+		try {
+			// if left join is used list with null element would be returned.
+			String query = "SELECT tag " + "FROM Competence1 comp " + "INNER JOIN comp.tags tag "
+					+ "WHERE comp.id = :compId";
 			@SuppressWarnings("unchecked")
-			List<Tag> res = session
-				.createQuery(query)
-				.setLong("compId", compId)
-				.list();
-			if(res == null) {
+			List<Tag> res = session.createQuery(query).setLong("compId", compId).list();
+			if (res == null) {
 				return new ArrayList<>();
 			}
-			
+
 			return res;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading competence tags");
@@ -990,60 +978,48 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		
 	@Deprecated
 	@Transactional(readOnly = false)
-	private void updateTargetCompetenceBasicDataForUncompletedCredentials(long compId) 
-			throws DbConnectionException {
-		try {	
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
-					compId);
-			
+	private void updateTargetCompetenceBasicDataForUncompletedCredentials(long compId) throws DbConnectionException {
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+
 			List<Long> ids = getTargetCompetenceIdsForUncompletedCredentials(compId);
-			
-			if(!ids.isEmpty()) {
-				String query = "UPDATE TargetCompetence1 targetComp " +
-						       "SET targetComp.title = :title, " +
-						       "targetComp.description = :description, " +
-						       "targetComp.studentAllowedToAddActivities = :studentAllowedToAddActivities " +
-						       "WHERE targetComp.id IN (:compIds)";					    
-	
-				persistence.currentManager()
-					.createQuery(query)
-					.setString("title", comp.getTitle())
-					.setString("description", comp.getDescription())
-					.setBoolean("studentAllowedToAddActivities", comp.isStudentAllowedToAddActivities())
-					.setParameterList("compIds", ids)
-					.executeUpdate();
+
+			if (!ids.isEmpty()) {
+				String query = "UPDATE TargetCompetence1 targetComp " + "SET targetComp.title = :title, "
+						+ "targetComp.description = :description, "
+						+ "targetComp.studentAllowedToAddActivities = :studentAllowedToAddActivities "
+						+ "WHERE targetComp.id IN (:compIds)";
+
+				persistence.currentManager().createQuery(query).setString("title", comp.getTitle())
+						.setString("description", comp.getDescription())
+						.setBoolean("studentAllowedToAddActivities", comp.isStudentAllowedToAddActivities())
+						.setParameterList("compIds", ids).executeUpdate();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating user competences");
+			throw new DbConnectionException("Error while updating creator of competences");
 		}
 	}
 	
 	@Deprecated
 	@Transactional(readOnly = true)
 	private List<Long> getTargetCompetenceIdsForUncompletedCredentials(long compId) {
-		try {	
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, 
-					compId);
-			
-			String query = "SELECT comp.id FROM TargetCompetence1 comp " +
-				       	   "INNER JOIN comp.targetCredential cred " +
-				       			"WITH cred.progress != :progress " +
-				       	   "WHERE comp.competence = :comp";					    
+		try {
+			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
+
+			String query = "SELECT comp.id FROM TargetCompetence1 comp " + "INNER JOIN comp.targetCredential cred "
+					+ "WITH cred.progress != :progress " + "WHERE comp.competence = :comp";
 
 			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager()
-				.createQuery(query)
-				.setEntity("comp", comp)
-				.setInteger("progress", 100)
-				.list();
-			
-			if(res == null) {
+			List<Long> res = persistence.currentManager().createQuery(query).setEntity("comp", comp)
+					.setInteger("progress", 100).list();
+
+			if (res == null) {
 				return new ArrayList<>();
 			}
 			return res;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving competence ids");
@@ -1094,8 +1070,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Deprecated
 	@Transactional(readOnly = false)
-	private void updateTargetCompetencesTags(long compId) 
-			throws DbConnectionException {
+	private void updateTargetCompetencesTags(long compId) throws DbConnectionException {
 		try {
 			//TODO cred-redesign-07
 //			List<TargetCompetence1> targetComps = getTargetCompetencesForCompetence(compId, true);
@@ -1116,119 +1091,122 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker) 
+	public void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker)
 			throws DbConnectionException {
-		if(changeTracker.isPublished()) {
-			if(changeTracker.isTagsChanged()) {
+		if (changeTracker.isPublished()) {
+			if (changeTracker.isTagsChanged()) {
 				updateTargetCompetencesTags(compId);
 			}
-			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged() 
+			if (changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()
 					|| changeTracker.isStudentAllowedToAddActivitiesChanged()) {
 				updateTargetCompetenceBasicDataForUncompletedCredentials(compId);
-				
+
 				/**
-				 * not needed because if duration is changed here (when draft version
-				 * of competence is published that means that new activities were added
-				 * to competence and that should not be propagated
+				 * not needed because if duration is changed here (when draft
+				 * version of competence is published that means that new
+				 * activities were added to competence and that should not be
+				 * propagated
 				 */
-//				if(changeTracker.isDurationChanged()) {
-//					recalculateTargetCompetencesAndCredentialsDuration(compId);
-//				}
+				// if(changeTracker.isDurationChanged()) {
+				// recalculateTargetCompetencesAndCredentialsDuration(compId);
+				// }
 			}
 		}
 	}
-	
-//	@Transactional(readOnly = true)
-//	private void recalculateTargetCompetencesAndCredentialsDuration(long compId) {
-//		try {
-//			String query1 = "SELECT cred.id " +
-//					"FROM TargetCompetence1 comp " +
-//					"INNER JOIN comp.targetCredential cred " +
-//						"WITH cred.progress != :progress " +
-//					"WHERE comp.competence.id = :compId";
-//	
-//			@SuppressWarnings("unchecked")
-//			List<Long> credIds = persistence.currentManager()
-//					.createQuery(query1)
-//					.setInteger("progress", 100)
-//					.setLong("compId", compId)
-//					.list();
-//			
-//			if(!credIds.isEmpty()) {
-//				String query2 = "SELECT cred.id, comp.duration " +
-//							    "FROM TargetCredential1 cred " +
-//							    "LEFT JOIN cred.targetCompetences comp " +
-//							    "WHERE cred.id IN (:credIds) " +									    
-//							    "ORDER BY cred.id";
-//			
-//				@SuppressWarnings("unchecked")
-//				List<Object[]> res = persistence.currentManager()
-//						.createQuery(query2)
-//						.setParameterList("credIds", credIds)
-//						.list();
-//				
-//				if(res != null) {
-//					long currentCredId = 0;					
-//					long cumulativeCredDuration = 0;
-//					for(Object[] row : res) {
-//						long credId = (long) row[0];
-//						long duration = (long) row[1];
-//						
-//						if(credId == currentCredId) {
-//							cumulativeCredDuration += duration;
-//						} else {
-//							if(currentCredId != 0) {
-//								credentialManager.updateTargetCredentialDuration(currentCredId, 
-//										cumulativeCredDuration);
-//							}
-//							currentCredId = credId;
-//							cumulativeCredDuration = duration;
-//						}				
-//					}
-//					if(currentCredId != 0) {
-//						credentialManager.updateTargetCredentialDuration(currentCredId, 
-//								cumulativeCredDuration);
-//					}
-//				}
-//			}
-//		} catch(Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while recalculating duration");
-//		}
-//	}
 
-//	@Deprecated
-//	@Override
-//	@Transactional(readOnly = false)
-//	public void publishDraftCompetencesWithoutDraftVersion(List<Long> compIds) 
-//			throws DbConnectionException {
-//		try {
-//			if(compIds == null || compIds.isEmpty()) {
-//				return;
-//			}
-//			
-//			String query = "UPDATE Competence1 comp " +
-//						   "SET comp.published = :published " + 
-//						   "WHERE comp.hasDraft = :hasDraft " +
-//						   "AND comp.id IN :compIds";
-//			persistence.currentManager()
-//				.createQuery(query)
-//				.setBoolean("published", true)
-//				.setBoolean("hasDraft", false)
-//				.setParameterList("compIds", compIds)
-//				.executeUpdate();
-//			
-//			for(Long compId : compIds) {
-//				activityManager.publishActivitiesFromCompetence(compId);
-//			}
-//		} catch(Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while updating competences");
-//		}
-//	}
-	
+	// @Transactional(readOnly = true)
+	// private void recalculateTargetCompetencesAndCredentialsDuration(long
+	// compId) {
+	// try {
+	// String query1 = "SELECT cred.id " +
+	// "FROM TargetCompetence1 comp " +
+	// "INNER JOIN comp.targetCredential cred " +
+	// "WITH cred.progress != :progress " +
+	// "WHERE comp.competence.id = :compId";
+	//
+	// @SuppressWarnings("unchecked")
+	// List<Long> credIds = persistence.currentManager()
+	// .createQuery(query1)
+	// .setInteger("progress", 100)
+	// .setLong("compId", compId)
+	// .list();
+	//
+	// if(!credIds.isEmpty()) {
+	// String query2 = "SELECT cred.id, comp.duration " +
+	// "FROM TargetCredential1 cred " +
+	// "LEFT JOIN cred.targetCompetences comp " +
+	// "WHERE cred.id IN (:credIds) " +
+	// "ORDER BY cred.id";
+	//
+	// @SuppressWarnings("unchecked")
+	// List<Object[]> res = persistence.currentManager()
+	// .createQuery(query2)
+	// .setParameterList("credIds", credIds)
+	// .list();
+	//
+	// if(res != null) {
+	// long currentCredId = 0;
+	// long cumulativeCredDuration = 0;
+	// for(Object[] row : res) {
+	// long credId = (long) row[0];
+	// long duration = (long) row[1];
+	//
+	// if(credId == currentCredId) {
+	// cumulativeCredDuration += duration;
+	// } else {
+	// if(currentCredId != 0) {
+	// credentialManager.updateTargetCredentialDuration(currentCredId,
+	// cumulativeCredDuration);
+	// }
+	// currentCredId = credId;
+	// cumulativeCredDuration = duration;
+	// }
+	// }
+	// if(currentCredId != 0) {
+	// credentialManager.updateTargetCredentialDuration(currentCredId,
+	// cumulativeCredDuration);
+	// }
+	// }
+	// }
+	// } catch(Exception e) {
+	// logger.error(e);
+	// e.printStackTrace();
+	// throw new DbConnectionException("Error while recalculating duration");
+	// }
+	// }
+
+	// @Deprecated
+	// @Override
+	// @Transactional(readOnly = false)
+	// public void publishDraftCompetencesWithoutDraftVersion(List<Long>
+	// compIds)
+	// throws DbConnectionException {
+	// try {
+	// if(compIds == null || compIds.isEmpty()) {
+	// return;
+	// }
+	//
+	// String query = "UPDATE Competence1 comp " +
+	// "SET comp.published = :published " +
+	// "WHERE comp.hasDraft = :hasDraft " +
+	// "AND comp.id IN :compIds";
+	// persistence.currentManager()
+	// .createQuery(query)
+	// .setBoolean("published", true)
+	// .setBoolean("hasDraft", false)
+	// .setParameterList("compIds", compIds)
+	// .executeUpdate();
+	//
+	// for(Long compId : compIds) {
+	// activityManager.publishActivitiesFromCompetence(compId);
+	// }
+	// } catch(Exception e) {
+	// logger.error(e);
+	// e.printStackTrace();
+	// throw new DbConnectionException("Error while updating competences");
+	// }
+	// }
+
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
@@ -1246,110 +1224,103 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(comp.getDatePublished() != null) {
 				throw new IllegalDataStateException("After competence is first published, new activities can not be added. Only limited edits allowed.");
 			}
-			
+
 			CompetenceActivity1 ca = new CompetenceActivity1();
 			ca.setActivity(act);
 			ca.setCompetence(comp);
 			ca.setOrder(comp.getActivities().size() + 1);
 			saveEntity(ca);
+
 			/* 
 			 * If duration of added activity is greater than 0 update competence duration
 			*/
 			if(act.getDuration() > 0) {
 				comp.setDuration(comp.getDuration() + act.getDuration());
-				credentialManager.updateDurationForCredentialsWithCompetence(compId, 
-						act.getDuration(), Operation.Add);
+				credentialManager.updateDurationForCredentialsWithCompetence(compId, act.getDuration(), Operation.Add);
 			}
-			
+
 			return null;
+
 		} catch(IllegalDataStateException idse) {
 			logger.error(idse);
 			throw idse;
-		} catch(Exception e) { 
+		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while adding activity to competence");
 		}
-		
+
 	}
-	
-//	private Competence1 createDraftVersionOfCompetence(long originalCompId) {
-//		Competence1 originalComp = getCompetence(0, originalCompId, false, true, 0, 
-//				LearningResourceReturnResultType.PUBLISHED_VERSION, false);
-//		
-//		Competence1 draftComp = new Competence1();
-//		draftComp.setDraft(true);
-//		draftComp.setPublished(false);
-//		draftComp.setCreatedBy(originalComp.getCreatedBy());
-//		draftComp.setTitle(originalComp.getTitle());
-//		draftComp.setDescription(originalComp.getDescription());
-//		draftComp.setStudentAllowedToAddActivities(originalComp.isStudentAllowedToAddActivities());
-//		draftComp.setDuration(originalComp.getDuration());
-//		draftComp.setType(originalComp.getType());
-//	    
-//		if(originalComp.getTags() != null) {
-//			for(Tag tag : originalComp.getTags()) {
-//				draftComp.getTags().add(tag);
-//			}
-//		}
-//	    
-//		saveEntity(draftComp);	
-//
-//		List<CompetenceActivity1> activities = activityManager
-//				.getCompetenceActivities(originalCompId, true);
-//	    if(activities != null) {
-//    		for(CompetenceActivity1 ca : activities) {
-//    			CompetenceActivity1 ca1 = new CompetenceActivity1();
-//				ca1.setOrder(ca.getOrder());
-//				ca1.setCompetence(draftComp);
-//				ca1.setActivity(ca.getActivity());
-//				saveEntity(ca1);
-//				draftComp.getActivities().add(ca1);
-//    		}	
-//	    }
-//	    
-//		return draftComp;
-//	}
-	
+
+	// private Competence1 createDraftVersionOfCompetence(long originalCompId) {
+	// Competence1 originalComp = getCompetence(0, originalCompId, false, true,
+	// 0,
+	// LearningResourceReturnResultType.PUBLISHED_VERSION, false);
+	//
+	// Competence1 draftComp = new Competence1();
+	// draftComp.setDraft(true);
+	// draftComp.setPublished(false);
+	// draftComp.setCreatedBy(originalComp.getCreatedBy());
+	// draftComp.setTitle(originalComp.getTitle());
+	// draftComp.setDescription(originalComp.getDescription());
+	// draftComp.setStudentAllowedToAddActivities(originalComp.isStudentAllowedToAddActivities());
+	// draftComp.setDuration(originalComp.getDuration());
+	// draftComp.setType(originalComp.getType());
+	//
+	// if(originalComp.getTags() != null) {
+	// for(Tag tag : originalComp.getTags()) {
+	// draftComp.getTags().add(tag);
+	// }
+	// }
+	//
+	// saveEntity(draftComp);
+	//
+	// List<CompetenceActivity1> activities = activityManager
+	// .getCompetenceActivities(originalCompId, true);
+	// if(activities != null) {
+	// for(CompetenceActivity1 ca : activities) {
+	// CompetenceActivity1 ca1 = new CompetenceActivity1();
+	// ca1.setOrder(ca.getOrder());
+	// ca1.setCompetence(draftComp);
+	// ca1.setActivity(ca.getActivity());
+	// saveEntity(ca1);
+	// draftComp.getActivities().add(ca1);
+	// }
+	// }
+	//
+	// return draftComp;
+	// }
+
 	@Override
 	@Transactional(readOnly = false)
-	public void updateDurationForCompetenceWithActivity(long actId, long duration, Operation op) 
+	public void updateDurationForCompetenceWithActivity(long actId, long duration, Operation op)
 			throws DbConnectionException {
 		try {
 			Optional<Long> compId = getCompetenceIdForActivity(actId);
-			
-			if(compId.isPresent()) {
+
+			if (compId.isPresent()) {
 				long competenceId = compId.get();
 				String opString = op == Operation.Add ? "+" : "-";
-				String query = "UPDATE Competence1 comp SET " +
-							   "comp.duration = comp.duration " + opString + " :duration " +
-							   "WHERE comp.id = :compId";
-				
-				persistence.currentManager()
-					.createQuery(query)
-					.setLong("duration", duration)
-					.setLong("compId", competenceId)
-					.executeUpdate();
-				
-				credentialManager.updateDurationForCredentialsWithCompetence(competenceId, 
-						duration, op);
+				String query = "UPDATE Competence1 comp SET " + "comp.duration = comp.duration " + opString
+						+ " :duration " + "WHERE comp.id = :compId";
+
+				persistence.currentManager().createQuery(query).setLong("duration", duration)
+						.setLong("compId", competenceId).executeUpdate();
+
+				credentialManager.updateDurationForCredentialsWithCompetence(competenceId, duration, op);
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating competence duration");
 		}
 	}
-	
+
 	private Optional<Long> getCompetenceIdForActivity(long actId) {
-		String query = "SELECT comp.id FROM CompetenceActivity1 cAct " +
-				"INNER JOIN cAct.competence comp " +
-				"WHERE cAct.activity.id = :actId";
-		
-		Long res = (Long) persistence.currentManager()
-			.createQuery(query)
-			.setLong("actId", actId)	
-			.uniqueResult();
+		String query = "SELECT comp.id FROM CompetenceActivity1 cAct " + "INNER JOIN cAct.competence comp "
+				+ "WHERE cAct.activity.id = :actId";
+
+		Long res = (Long) persistence.currentManager().createQuery(query).setLong("actId", actId).uniqueResult();
 
 		return res == null ? Optional.empty() : Optional.of(res);
 	}
@@ -1359,43 +1330,35 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	public void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException {
 		try {
-			String query = "UPDATE TargetCompetence1 comp SET " +
-						   "comp.duration = :duration " +
-						   "WHERE comp.id = :compId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("duration", duration)
-				.setLong("compId", id)
-				.executeUpdate();
-		} catch(Exception e) {
+			String query = "UPDATE TargetCompetence1 comp SET " + "comp.duration = :duration "
+					+ "WHERE comp.id = :compId";
+
+			persistence.currentManager().createQuery(query).setLong("duration", duration).setLong("compId", id)
+					.executeUpdate();
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating competence duration");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public String getCompetenceTitle(long id) throws DbConnectionException {
 		try {
-			String query = "SELECT comp.title " +
-						   "FROM Competence1 comp " +
-						   "WHERE comp.id = :compId";
-			
-			String title = (String) persistence.currentManager()
-				.createQuery(query)
-				.setLong("compId", id)
-				.uniqueResult();
-			
+			String query = "SELECT comp.title " + "FROM Competence1 comp " + "WHERE comp.id = :compId";
+
+			String title = (String) persistence.currentManager().createQuery(query).setLong("compId", id)
+					.uniqueResult();
+
 			return title;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving competence title");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public LearningInfo getCompetenceLearningInfo(long compId, long userId) throws DbConnectionException {
@@ -1429,59 +1392,47 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public void updateProgressForTargetCompetenceWithActivity(long targetActId) 
-			throws DbConnectionException {
+	public void updateProgressForTargetCompetenceWithActivity(long targetActId) throws DbConnectionException {
 		try {
-			String query1 = "SELECT comp.id " +
-							"FROM TargetActivity1 act " +
-							"INNER JOIN act.targetCompetence comp " +
-							"WHERE act.id = :actId";
-			
-			Long targetCompId =  (Long) persistence.currentManager()
-					.createQuery(query1)
-					.setLong("actId", targetActId)
+			String query1 = "SELECT comp.id " + "FROM TargetActivity1 act " + "INNER JOIN act.targetCompetence comp "
+					+ "WHERE act.id = :actId";
+
+			Long targetCompId = (Long) persistence.currentManager().createQuery(query1).setLong("actId", targetActId)
 					.uniqueResult();
-			
+
 			TargetCompetence1 targetComp = (TargetCompetence1) persistence.currentManager()
 					.load(TargetCompetence1.class, targetCompId);
-			
-			String query = "SELECT CASE act.completed " +
-							   "WHEN true then 100 " +
-							   "else 0 " + 
-							   "END " +
-						   "FROM TargetActivity1 act " +
-						   "WHERE act.targetCompetence = :comp";
-			
+
+			String query = "SELECT CASE act.completed " + "WHEN true then 100 " + "else 0 " + "END "
+					+ "FROM TargetActivity1 act " + "WHERE act.targetCompetence = :comp";
+
 			@SuppressWarnings("unchecked")
-			List<Integer> res =  persistence.currentManager()
-				.createQuery(query)
-				.setEntity("comp", targetComp)
-				.list();
-			
-			if(res != null) {
+			List<Integer> res = persistence.currentManager().createQuery(query).setEntity("comp", targetComp).list();
+
+			if (res != null) {
 				int cumulativeProgress = 0;
-				for(Integer p : res) {
+				for (Integer p : res) {
 					cumulativeProgress += p.intValue();
 				}
 				int newProgress = cumulativeProgress / res.size();
-				targetComp.setProgress(newProgress); 
+				targetComp.setProgress(newProgress);
 				persistence.currentManager().flush();
-				
+
 				credentialManager.updateProgressForTargetCredentialWithCompetence(targetCompId);
 			}
-			
-//			String query = "UPDATE TargetCompetence1 comp SET " +
-//			   "comp.progress = comp.progress + :progress / " +
-//			   		"(SELECT count(act.id) FROM TargetActivity1 act " +
-//			   		"WHERE act.targetCompetence = comp) " +
-//			   "WHERE comp.id = :compId";
-		} catch(Exception e) {
+
+			// String query = "UPDATE TargetCompetence1 comp SET " +
+			// "comp.progress = comp.progress + :progress / " +
+			// "(SELECT count(act.id) FROM TargetActivity1 act " +
+			// "WHERE act.targetCompetence = comp) " +
+			// "WHERE comp.id = :compId";
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating competence progress");
 		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
@@ -1509,7 +1460,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			return RestrictedAccessResult.of(compData, access);
 		} catch(ResourceNotFoundException rnfe) {
 			throw rnfe;
-		} catch(IllegalArgumentException iae) {
+		} catch (IllegalArgumentException iae) {
 			throw iae;
 		} catch (Exception e) {
 			logger.error(e);
@@ -1517,9 +1468,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
+
 	/**
-	 * Returns full target competence data when id of a target competence is not known.
+	 * Returns full target competence data when id of a target competence is not
+	 * known.
+	 * 
 	 * @param credId
 	 * @param compId
 	 * @param userId
@@ -1583,27 +1536,30 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
+	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId)
 			throws DbConnectionException, CompetenceEmptyException {
 		try {
-			//get all draft competences
+			// get all draft competences
 			List<EventData> events = new ArrayList<>();
 			List<Competence1> comps = getDraftCompetencesFromList(compIds, creatorId);
-			//publish competences that this user can edit only
+			// publish competences that this user can edit only
 			User user = new User();
 			user.setId(creatorId);
-			
-			//store ids of competences that can be edited and that are published so list can be 
-			//passed to publishActivities method
+
+			// store ids of competences that can be edited and that are
+			// published so list can be
+			// passed to publishActivities method
 			List<Long> publishedComps = new ArrayList<>();
-			for(Competence1 c : comps) {
+			for (Competence1 c : comps) {
 				/*
-				 * check if competence has at least one activity - if not, it can't be published
+				 * check if competence has at least one activity - if not, it
+				 * can't be published
 				 */
 				int numberOfActivities = c.getActivities().size();
-				if(numberOfActivities == 0) {
+				if (numberOfActivities == 0) {
 					throw new CompetenceEmptyException();
 				}
+
 				//check if user can edit this competence
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
 				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
@@ -1612,9 +1568,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					EventData ev = new EventData();
 					ev.setActorId(creatorId);
 					ev.setEventType(EventType.STATUS_CHANGED);
-				    ev.setObject(c);
+					ev.setObject(c);
 					events.add(ev);
-					
+
 					publishedComps.add(c.getId());
 				}
 			}
@@ -1628,22 +1584,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //				comp.setDuration(getRecalculatedDuration(id));
 //			}
 //			events.addAll(actEvents);
+
 			return events;
-		} catch(CompetenceEmptyException cee) {
+		} catch (CompetenceEmptyException cee) {
 			logger.error(cee);
-			//cee.printStackTrace();
+			// cee.printStackTrace();
 			throw cee;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competences");
 		}
 	}
-	
+
 	/**
-	 * Return all draft competences that satisfy condition:
-	 * for user role if competence creator id equals {@code userId},
-	 * for manager role if competence is created by university
+	 * Return all draft competences that satisfy condition: for user role if
+	 * competence creator id equals {@code userId}, for manager role if
+	 * competence is created by university
+	 * 
 	 * @param compIds
 	 * @param userId
 	 * @param role
@@ -1652,23 +1610,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Transactional(readOnly = true)
 	private List<Competence1> getDraftCompetencesFromList(List<Long> compIds, long userId) {
-		StringBuilder queryB = new StringBuilder("SELECT comp FROM Competence1 comp " +
-					   "WHERE comp.id IN (:ids) " +
-					   "AND comp.published = :published ");
-		
-		Query q = persistence.currentManager()
-				.createQuery(queryB.toString())
-				.setParameterList("ids", compIds)
+		StringBuilder queryB = new StringBuilder(
+				"SELECT comp FROM Competence1 comp " + "WHERE comp.id IN (:ids) " + "AND comp.published = :published ");
+
+		Query q = persistence.currentManager().createQuery(queryB.toString()).setParameterList("ids", compIds)
 				.setBoolean("published", false);
-		
+
 		@SuppressWarnings("unchecked")
 		List<Competence1> comps = q.list();
-		if(comps == null) {
+		if (comps == null) {
 			return new ArrayList<>();
 		}
 		return comps;
 	}
-	
+
 //	private Competence1 publishDraftVersion(Competence1 originalComp, Competence1 draftComp) {
 //		originalComp.setTitle(draftComp.getTitle());
 //		originalComp.setDescription(draftComp.getDescription());
@@ -1714,36 +1669,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@SuppressWarnings({ "unchecked"})
 	@Transactional
 	@Override
-	public List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException {
+	public List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile)
+			throws DbConnectionException {
 		List<TargetCompetence1> result = new ArrayList<>();
 		List<Long> listOfCredentialIds = new ArrayList<>();
 		try {
 			String query;
-			query = "SELECT targetCredential1.id " +
-					"FROM TargetCredential1  targetCredential1 " + 
-					"WHERE targetCredential1.user.id = :userId ";
-			
-			listOfCredentialIds = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-				  	.list();
-			
-			query =
-					"SELECT targetComptence1 " +
-					"FROM TargetCompetence1 targetComptence1 " +
-					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
-				    "AND targetComptence1.progress = :progress "+ 
-					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
-			
-			if(!listOfCredentialIds.isEmpty()) {
-				result = persistence.currentManager()
-						.createQuery(query)
-						.setParameterList("listOfCredentialIds", listOfCredentialIds)
-						.setInteger("progress", 100)
-						.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					  	.list();
+			query = "SELECT targetCredential1.id " + "FROM TargetCredential1  targetCredential1 "
+					+ "WHERE targetCredential1.user.id = :userId ";
+
+			listOfCredentialIds = persistence.currentManager().createQuery(query).setLong("userId", userId).list();
+
+			query = "SELECT targetComptence1 " + "FROM TargetCompetence1 targetComptence1 "
+					+ "WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) "
+					+ "AND targetComptence1.progress = :progress "
+					+ "AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
+
+			if (!listOfCredentialIds.isEmpty()) {
+				result = persistence.currentManager().createQuery(query)
+						.setParameterList("listOfCredentialIds", listOfCredentialIds).setInteger("progress", 100)
+						.setBoolean("hiddenFromProfile", hiddenFromProfile).list();
 			}
-			  	
+
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();
@@ -1761,30 +1708,22 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		List<Long> listOfCredentialIds = new ArrayList<>();
 		try {
 			String query;
-			query = "SELECT targetCredential1.id " +
-					"FROM TargetCredential1  targetCredential1 " + 
-					"WHERE targetCredential1.user.id = :userId ";
-			
-			listOfCredentialIds = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-				  	.list();
-			
-			query =
-					"SELECT targetComptence1 " +
-					"FROM TargetCompetence1 targetComptence1 " +
-					"WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) " + 
-				    "AND targetComptence1.progress != 100 "+ 
-					"AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
-			
-			if(!listOfCredentialIds.isEmpty()) {
-				result = persistence.currentManager()
-						.createQuery(query)
+			query = "SELECT targetCredential1.id " + "FROM TargetCredential1  targetCredential1 "
+					+ "WHERE targetCredential1.user.id = :userId ";
+
+			listOfCredentialIds = persistence.currentManager().createQuery(query).setLong("userId", userId).list();
+
+			query = "SELECT targetComptence1 " + "FROM TargetCompetence1 targetComptence1 "
+					+ "WHERE targetComptence1.targetCredential.id in (:listOfCredentialIds) "
+					+ "AND targetComptence1.progress != 100 "
+					+ "AND targetComptence1.hiddenFromProfile = :hiddenFromProfile";
+
+			if (!listOfCredentialIds.isEmpty()) {
+				result = persistence.currentManager().createQuery(query)
 						.setParameterList("listOfCredentialIds", listOfCredentialIds)
-						.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					  	.list();
+						.setBoolean("hiddenFromProfile", hiddenFromProfile).list();
 			}
-			  	
+
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			throw new DbConnectionException();
@@ -1795,21 +1734,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<Competence1> getAllCompetences(Session session) 
-			throws DbConnectionException {
+	public List<Competence1> getAllCompetences(Session session) throws DbConnectionException {
 		try {
-			String query=
-					"SELECT comp " +
-					"FROM Competence1 comp " +
-					"WHERE comp.deleted = :deleted";
-			  	
+			String query = "SELECT comp " + "FROM Competence1 comp " + "WHERE comp.deleted = :deleted";
+
 			@SuppressWarnings("unchecked")
-			List<Competence1> result = session
-					.createQuery(query)
-					.setBoolean("deleted", false)
-				  	.list();
-			
-			if(result == null) {
+			List<Competence1> result = session.createQuery(query).setBoolean("deleted", false).list();
+
+			if (result == null) {
 				return new ArrayList<>();
 			}
 			return result;
@@ -1819,85 +1751,88 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while retrieving competences");
 		}
 	}
-	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CompetenceData1 getCompetenceForManager(long competenceId, boolean loadCreator, 
-//			boolean loadActivities, Mode mode) throws DbConnectionException {
-//		try {
-//			StringBuilder queryBuilder = new StringBuilder();
-//			queryBuilder.append("SELECT comp " +
-//					   "FROM Competence1 comp " + 
-//					   "LEFT JOIN fetch comp.tags tags ");
-//
-//			if(loadCreator) {
-//				queryBuilder.append("INNER JOIN fetch comp.createdBy ");
-//			}
-//			
-//			StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
-//			queryBuilder1.append("WHERE comp.id = :compId " +
-//					"AND comp.deleted = :deleted " +
-//					"AND comp.draft = :draft ");
-//			if(mode == Mode.Edit) {
-//				queryBuilder1.append("AND comp.type = :type ");
-//			} else {
-//				queryBuilder1.append("AND (comp.type = :type  OR (comp.published = :published " +
-//					"OR comp.hasDraft = :hasDraft))");
-//			}
-//						   
-//			Query q = persistence.currentManager()
-//					.createQuery(queryBuilder1.toString())
-//					.setLong("compId", competenceId)
-//					.setBoolean("deleted", false)
-//					.setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
-//					.setBoolean("draft", false);
-//			
-//			if(mode == Mode.View) {
-//				q.setBoolean("published", true)
-//				 .setBoolean("hasDraft", true);
-//			}
-//			
-//			Competence1 res = (Competence1) q.uniqueResult();
-//			
-//			if(res != null) {
-//				CompetenceData1 cd = null;
-//				if(res.isHasDraft() && (mode == Mode.Edit  || (mode == Mode.View 
-//						&& res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
-//					String query2 = queryBuilder.toString() + 
-//							" WHERE comp = :draftVersion";
-//					Competence1 draftComp = (Competence1) persistence.currentManager()
-//							.createQuery(query2)
-//							.setEntity("draftVersion", res.getDraftVersion())
-//							.uniqueResult();
-//					if(draftComp != null) {
-//						User creator = loadCreator ? draftComp.getCreatedBy() : null;
-//						cd = competenceFactory.getCompetenceData(creator, draftComp, 
-//								draftComp.getTags(), true);
-//					}	
-//				} else {
-//					User creator = loadCreator ? res.getCreatedBy() : null;
-//					cd = competenceFactory.getCompetenceData(creator, res, res.getTags(), true);
-//				}
-//				if(cd != null && loadActivities) {
-//					List<ActivityData> activities = activityManager
-//							.getCompetenceActivitiesData(cd.getCompetenceId());
-//					cd.setActivities(activities);
-//				}
-//				
-//				List<CredentialData> credentials = credentialManager
-//						.getCredentialsWithIncludedCompetenceBasicData(res.getId());
-//				cd.setCredentialsWithIncludedCompetence(credentials);
-//				return cd;
-//			}
-//			
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading competence data");
-//		}
-//	}
-	
+
+	// @Override
+	// @Transactional(readOnly = true)
+	// public CompetenceData1 getCompetenceForManager(long competenceId, boolean
+	// loadCreator,
+	// boolean loadActivities, Mode mode) throws DbConnectionException {
+	// try {
+	// StringBuilder queryBuilder = new StringBuilder();
+	// queryBuilder.append("SELECT comp " +
+	// "FROM Competence1 comp " +
+	// "LEFT JOIN fetch comp.tags tags ");
+	//
+	// if(loadCreator) {
+	// queryBuilder.append("INNER JOIN fetch comp.createdBy ");
+	// }
+	//
+	// StringBuilder queryBuilder1 = new StringBuilder(queryBuilder.toString());
+	// queryBuilder1.append("WHERE comp.id = :compId " +
+	// "AND comp.deleted = :deleted " +
+	// "AND comp.draft = :draft ");
+	// if(mode == Mode.Edit) {
+	// queryBuilder1.append("AND comp.type = :type ");
+	// } else {
+	// queryBuilder1.append("AND (comp.type = :type OR (comp.published =
+	// :published " +
+	// "OR comp.hasDraft = :hasDraft))");
+	// }
+	//
+	// Query q = persistence.currentManager()
+	// .createQuery(queryBuilder1.toString())
+	// .setLong("compId", competenceId)
+	// .setBoolean("deleted", false)
+	// .setParameter("type", LearningResourceType.UNIVERSITY_CREATED)
+	// .setBoolean("draft", false);
+	//
+	// if(mode == Mode.View) {
+	// q.setBoolean("published", true)
+	// .setBoolean("hasDraft", true);
+	// }
+	//
+	// Competence1 res = (Competence1) q.uniqueResult();
+	//
+	// if(res != null) {
+	// CompetenceData1 cd = null;
+	// if(res.isHasDraft() && (mode == Mode.Edit || (mode == Mode.View
+	// && res.getType() == LearningResourceType.UNIVERSITY_CREATED))) {
+	// String query2 = queryBuilder.toString() +
+	// " WHERE comp = :draftVersion";
+	// Competence1 draftComp = (Competence1) persistence.currentManager()
+	// .createQuery(query2)
+	// .setEntity("draftVersion", res.getDraftVersion())
+	// .uniqueResult();
+	// if(draftComp != null) {
+	// User creator = loadCreator ? draftComp.getCreatedBy() : null;
+	// cd = competenceFactory.getCompetenceData(creator, draftComp,
+	// draftComp.getTags(), true);
+	// }
+	// } else {
+	// User creator = loadCreator ? res.getCreatedBy() : null;
+	// cd = competenceFactory.getCompetenceData(creator, res, res.getTags(),
+	// true);
+	// }
+	// if(cd != null && loadActivities) {
+	// List<ActivityData> activities = activityManager
+	// .getCompetenceActivitiesData(cd.getCompetenceId());
+	// cd.setActivities(activities);
+	// }
+	//
+	// List<CredentialData> credentials = credentialManager
+	// .getCredentialsWithIncludedCompetenceBasicData(res.getId());
+	// cd.setCredentialsWithIncludedCompetence(credentials);
+	// return cd;
+	// }
+	//
+	// return null;
+	// } catch (Exception e) {
+	// logger.error(e);
+	// e.printStackTrace();
+	// throw new DbConnectionException("Error while loading competence data");
+	// }
+	// }
+
 	@Transactional(readOnly = true)
 	@Override
 	public UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
@@ -2026,16 +1961,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = true)
 	public boolean isVisibleToAll(long compId) throws DbConnectionException {
 		try {
-			String query=
-					"SELECT comp.visibleToAll " +
-					"FROM Competence1 comp " +
-					"WHERE comp.id = :compId";
-			  	
-			Boolean result = (Boolean) persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-				  	.uniqueResult();
-			
+			String query = "SELECT comp.visibleToAll " + "FROM Competence1 comp " + "WHERE comp.id = :compId";
+
+			Boolean result = (Boolean) persistence.currentManager().createQuery(query).setLong("compId", compId)
+					.uniqueResult();
+
 			return result == null ? false : result;
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -2047,13 +1977,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Deprecated
 	@Override
 	@Transactional(readOnly = false)
-	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
-    				throws DbConnectionException {
+	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
+			List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged)
+			throws DbConnectionException {
 		try {
-			if(visibleToAllChanged) {
-				Competence1 comp = (Competence1) persistence.currentManager().load(
-						Competence1.class, compId);
+			if (visibleToAllChanged) {
+				Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
 				comp.setVisibleToAll(visibleToAll);
 			}
 			userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users);
@@ -2063,7 +1992,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while updating credential visibility");
 		}
 	}
-	
+
 	private long getRecalculatedDuration(long compId) {
 		String query = "SELECT sum(a.duration) FROM CompetenceActivity1 ca " +
 					   "INNER JOIN ca.activity a " +
@@ -2072,12 +2001,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Long res = (Long) persistence.currentManager()
 				.createQuery(query)
 				.setLong("compId", compId)
-				.setBoolean("published", true)
 				.uniqueResult();
-		
+
 		return res != null ? res : 0;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getCompetenceDataWithProgressIfExists(long compId, long userId) 
@@ -2749,6 +2677,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			
 				comp.setPublished(true);
+				if (comp.getDatePublished() == null) {
+					comp.setDatePublished(new Date());
+				}
 
 				Competence1 c = new Competence1();
 				c.setId(comp.getId());
@@ -2766,5 +2697,53 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while publishing competency");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TargetCompetence1> getTargetCompetencesForCredentialAndUser(long credId, long userId)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT tComp " +
+					"FROM Credential1 cred " +
+					"INNER JOIN cred.competences credComp " +
+					"INNER JOIN credComp.competence comp " +
+					"INNER JOIN comp.targetCompetences tComp " +
+						"WITH tComp.user.id = :userId " +
+					"WHERE cred.id = :credId " +
+					"ORDER BY credComp.order";
+
+			@SuppressWarnings("unchecked")
+			List<TargetCompetence1> res = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("userId", userId)
+					.list();
+
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading user competencies");
+		}
+	}
+
+	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId) 
+			throws DbConnectionException {
+		try {	
+				String query = "UPDATE Competence1 comp SET " +
+						"comp.createdBy = :newCreatorId " +
+						"WHERE comp.createdBy = :oldCreatorId";				    
 	
+				persistence.currentManager()
+					.createQuery(query)
+					.setLong("newCreatorId", newCreatorId)
+					.setLong("oldCreatorId", oldCreatorId)
+					.executeUpdate();
+		} catch (Exception e){
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+
 }

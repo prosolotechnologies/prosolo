@@ -81,23 +81,20 @@
 						</ul>
 					</ui:fragment>
 
-					<div class="resultOptions">
+					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
 						<span>Private conversation:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							pt:data-toggle="modal"
-							data-target="##{cc.attrs.privateConvModalId}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{cc.attrs.bean.loadActivityDiscussion(cc.attrs.resultData)}"
+							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 							#{cc.attrs.resultData.assessment.numberOfMessages}
 						</p:commandLink>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and not cc.attrs.resultData.assessment.automaticGrade}">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade gt 0 and not cc.attrs.resultData.assessment.automaticGrade}">
 							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
 								pt:data-toggle="modal"
-								data-target="##{cc.attrs.assessmentGradeModalId}"
 								action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
 								update="#{cc.attrs.toUpdateAssessmentGradeModal}"
 								oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
@@ -106,25 +103,30 @@
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
 						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.automaticGrade}">
-							<a 
-			                 	class="grade" 
-			                 	disabled="disabled" 
-			                 	data-toggle="tooltip" 
-			                 	title="Grade for this external activity is automatically set upon completion">
-			                 	#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ?
-								cc.attrs.resultData.assessment.grade.value : '-'} /
+
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade > 0 and cc.attrs.resultData.assessment.automaticGrade}">
+							<a
+									class="grade"
+									disabled="disabled"
+									data-toggle="tooltip"
+									title="Grade for this external activity is automatically set upon completion">
+								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
-			                </a>
+							</a>
 						</ui:fragment>
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<a class="grade" disabled="disabled" data-toggle="tooltip"
-								title="You cannot grade this student because you are not his instructor">
-								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ?
-								cc.attrs.resultData.assessment.grade.value : '-'} /
-								#{cc.attrs.resultData.assessment.grade.maxGrade} </a>
+						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) or cc.attrs.resultData.assessment.grade.maxGrade == 0}">
+							<a
+									class="grade"
+									disabled="disabled"
+									data-toggle="tooltip"
+									title="#{(not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData))
+																			? 'Only assessor can update the grade'
+																			: 'Points are not set for this activity'}">
+								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
+								#{cc.attrs.resultData.assessment.grade.maxGrade}
+							</a>
 						</ui:fragment>
-					</div>
+					</h:panelGroup>
 				</c:if>
 
 				<div class="activityResultFooter">
@@ -260,40 +262,52 @@
 						</ul>
 					</ui:fragment>
 
-					<div class="resultOptions">
+					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
 						<span>Private conversation:</span>
 						<p:commandLink
 							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							pt:data-toggle="modal"
-							data-target="##{cc.attrs.privateConvModalId}"
 							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedDiscussionId}',this.parentElement)"
-							action="#{cc.attrs.bean.loadActivityDiscussion(cc.attrs.resultData)}"
+							action="#{activityPrivateConversationBean.init(cc.attrs.resultData.assessment)}"
 							update="#{cc.attrs.toUpdateConvModal}"
 							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
 		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
-		                 </p:commandLink>
+						</p:commandLink>
 
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade gt 0 and not cc.attrs.resultData.assessment.automaticGrade}">
 							<p:commandLink styleClass="grade #{cc.attrs.gradeLink}"
-								pt:data-toggle="modal"
-								data-target="##{cc.attrs.assessmentGradeModalId}"
-								action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
-								update="#{cc.attrs.toUpdateAssessmentGradeModal}"
-								oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
-								#{not empty cc.attrs.resultData.assessment.grade.value ? cc.attrs.resultData.assessment.grade.value : '-'}
+										   pt:data-toggle="modal"
+										   action="#{cc.attrs.bean.setCurrentResult(cc.attrs.resultData)}"
+										   update="#{cc.attrs.toUpdateAssessmentGradeModal}"
+										   oncomplete="$('##{cc.attrs.assessmentGradeModalId}').modal('show');">
+								#{not empty cc.attrs.resultData.assessment.grade.value and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}
 								/
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</p:commandLink>
 						</ui:fragment>
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<a class="grade" disabled="disabled" data-toggle="tooltip"
-								title="Only student's instructor can give grades"> #{not
-								empty cc.attrs.resultData.assessment.grade.value ?
-								cc.attrs.resultData.assessment.grade.value : '-'} /
+
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.grade.maxGrade > 0 and cc.attrs.resultData.assessment.automaticGrade}">
+							<a
+									class="grade"
+									disabled="disabled"
+									data-toggle="tooltip"
+									title="Grade for this external activity is automatically set upon completion">
+								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
 								#{cc.attrs.resultData.assessment.grade.maxGrade}
 							</a>
 						</ui:fragment>
-					</div>
+						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) or cc.attrs.resultData.assessment.grade.maxGrade == 0}">
+							<a
+									class="grade"
+									disabled="disabled"
+									data-toggle="tooltip"
+									title="#{(not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData))
+																			? 'Only assessor can update the grade'
+																			: 'Points are not set for this activity'}">
+								#{cc.attrs.resultData.assessment.grade.value != null and cc.attrs.resultData.assessment.grade.assessed ? cc.attrs.resultData.assessment.grade.value : '-'}  /
+								#{cc.attrs.resultData.assessment.grade.maxGrade}
+							</a>
+						</ui:fragment>
+					</h:panelGroup>
 				</c:if>
 				
 				<div class="activityResultFooter">

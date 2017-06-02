@@ -1,16 +1,9 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.mllib.linalg.{SparseVector, Vectors}
 import org.apache.spark.sql.{DataFrame, Row, SQLContext}
-import org.jblas.DoubleMatrix
 import com.datastax.spark.connector._
-import com.datastax.spark.connector.cql.CassandraConnector
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.{CassandraDDLManagerImpl, TablesNames}
-import org.prosolo.bigdata.dal.cassandra.impl.SimpleCassandraClientImpl.TableNames
-import org.prosolo.common.config.CommonSettings
+
 
 /**
   * Created by zoran on 19/07/16.
@@ -60,6 +53,10 @@ object UserFeaturesDataManager {
     */
   def combineUserCredentialVectors(sqlContext: SQLContext, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
     import sqlContext.implicits._
+
+    println("TEMPORARY DISABLED. SHOULD BE FIXED")
+    usersWithCredentialsDF
+/*
     //Combine One-Hot Encoded credential vectors for each item
     val usersWithcredentialsOneHotEncodedCombinedDF=resultsDF.map{
       case Row(userid: Long, credential:String, credentialIndex: Double, credentialsOneHotEncoded: SparseVector)=>
@@ -74,7 +71,7 @@ object UserFeaturesDataManager {
 
     joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined").show(35)
    // joinedResultsWithcredentialsOneHotEncodedCombinedDF
-    joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined")
+    joinedResultsWithcredentialsOneHotEncodedCombinedDF.select($"usersWithCredentials.userid",$"credentials",$"credentialsOneHotEncodedCombined")*/
   }
 
   def interpretKMeansClusteringResults(sqlContext: SQLContext,clusteringResults:DataFrame): Unit ={

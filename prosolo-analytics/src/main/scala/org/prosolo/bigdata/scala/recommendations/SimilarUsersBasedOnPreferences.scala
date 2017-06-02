@@ -51,6 +51,7 @@ println("FIND SIMILAR USERS BASED ON PREFERENCES")
     println("CREATE ONE CLUSTER ONLY")
     println("KEYSPACE:"+keyspaceName+" ")
     if(sqlContext==null)println("SQL CONTEXT IS NULL")
+    import sqlContext.implicits._
     val usersInTheSystemDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
     usersInTheSystemDF.show

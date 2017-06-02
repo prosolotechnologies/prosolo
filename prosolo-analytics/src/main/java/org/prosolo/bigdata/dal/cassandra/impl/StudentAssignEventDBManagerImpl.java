@@ -40,14 +40,14 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 	}
 
 	private void prepareStatements() {
-		String updateStudentsAssignedAssigned = "UPDATE " + TablesNames.STUDENT_ASSIGN_EVENT + " " +
+		String updateStudentsAssignedAssigned = "UPDATE " + TablesNames.STUDENT_ASSIGN_EVENTS + " " +
 				"USING TTL 97200 " +
 				"SET assigned = assigned + ? " +
 				"WHERE courseId=? AND timestamp=? and instructorId=?;";
 		this.preparedStatements.put(UPDATE_STUDENT_ASSINGED_ASSIGNED, this.getSession()
 				.prepare(updateStudentsAssignedAssigned));
 		
-		String updateStudentsAssignedUnassigned = "UPDATE " + TablesNames.STUDENT_ASSIGN_EVENT + " " +
+		String updateStudentsAssignedUnassigned = "UPDATE " + TablesNames.STUDENT_ASSIGN_EVENTS + " " +
 				"USING TTL 97200 " +
 				"SET unassigned = unassigned + ? " +
 				"WHERE courseId=? AND timestamp=? and instructorId=?;";
@@ -90,7 +90,7 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 		Long res = null;
 		try {
 			BoundStatement statement = new BoundStatement(preparedStatements.get(GET_CURRENT_TIMESTAMP));
-			statement.setString(0, TablesNames.STUDENT_ASSIGN_EVENT);
+			statement.setString(0, TablesNames.STUDENT_ASSIGN_EVENTS);
 			Row row = this.getSession().execute(statement).one();
 			res = (row == null) ? -1 : row.getLong(0);
 		} catch(Exception e) {
@@ -105,7 +105,7 @@ public class StudentAssignEventDBManagerImpl extends SimpleCassandraClientImpl i
 		try {
 			BoundStatement statement = new BoundStatement(preparedStatements.get(UPDATE_CURRENT_TIMESTAMP));
 			statement.setLong(0, bucket);
-			statement.setString(1, TablesNames.STUDENT_ASSIGN_EVENT);
+			statement.setString(1, TablesNames.STUDENT_ASSIGN_EVENTS);
 		    this.getSession().execute(statement);
 		    return true;
 		} catch(Exception e) {
