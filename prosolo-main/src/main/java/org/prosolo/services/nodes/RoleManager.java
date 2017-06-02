@@ -18,8 +18,6 @@ public interface RoleManager extends AbstractManager {
 
 	List<Role> getRoles(List<Long> roleIds);
 
-	List<Role> getAdminRoles(String[] names);
-
 	List<Long> getRoleIdsForName(String name);
 	
 	Role createNewRole(String name, String description, boolean systemDefined);

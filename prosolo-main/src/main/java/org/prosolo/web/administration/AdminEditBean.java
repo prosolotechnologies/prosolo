@@ -64,8 +64,6 @@ public class AdminEditBean implements Serializable {
 	@Autowired
 	private TextSearch textSearch;
 
-	private UIInput passwordInput;
-
 	private String id;
 	private long decodedId;
 	private AccountData accountData;
@@ -192,15 +190,6 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
-
-	public UIInput getPasswordInput() {
-		return passwordInput;
-	}
-
-	public void setPasswordInput(UIInput passwordInput) {
-		this.passwordInput = passwordInput;
-	}
-
 	public UserData getUser() {
 		return admin;
 	}
@@ -223,10 +212,6 @@ public class AdminEditBean implements Serializable {
 
 	public void setAllRoles(SelectItem[] allRoles) {
 		this.allRoles = allRoles;
-	}
-
-	public UserData getUserToDelete() {
-		return userToDelete;
 	}
 
 	public void setUserToDelete() {
@@ -302,6 +287,7 @@ public class AdminEditBean implements Serializable {
 	public void setSearchTerm(String searchTerm) {
 		this.searchTerm = searchTerm;
 	}
+
 
 	public void sendNewPassword() {
 

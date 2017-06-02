@@ -134,7 +134,7 @@ public class AdminsBean implements Serializable,Paginable{
 			/*for(Role role : roles){
 				roleIds.add(role.getId());
 			}*/
-			
+
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), roleIds, true, null);
 			admins = res.getFoundNodes();
