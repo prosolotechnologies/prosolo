@@ -24,6 +24,7 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.CredentialUnit;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
@@ -44,6 +45,8 @@ public class Credential1 extends BaseEntity {
 	private List<TargetCredential1> targetCredentials;
 	private List<CredentialInstructor> credInstructors;
 	private List<Announcement> announcements;
+
+	private List<CredentialUnit> credentialUnits;
 	
 	private List<CredentialBookmark> bookmarks;
 	
@@ -316,4 +319,13 @@ public class Credential1 extends BaseEntity {
 		this.inheritedUserGroupsFromThisCredential = inheritedUserGroupsFromThisCredential;
 	}
 
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public List<CredentialUnit> getCredentialUnits(){
+		return credentialUnits;
+	}
+	
+	public void setCredentialUnits(List<CredentialUnit> credentialUnits){
+		this.credentialUnits = credentialUnits;
+	}
 }

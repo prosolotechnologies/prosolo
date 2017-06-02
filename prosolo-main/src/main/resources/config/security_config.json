@@ -72,6 +72,13 @@
             ]
         },
         {
+            "name": "admins.view",
+            "description": "Access the page for managing admins",
+            "roles": [
+                "Admin"
+            ]
+        },
+        {
             "name": "roles.view",
             "description": "Access the page for managing roles/capabilities",
             "roles": [
