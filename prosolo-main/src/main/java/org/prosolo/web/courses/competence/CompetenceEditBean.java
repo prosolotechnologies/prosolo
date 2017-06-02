@@ -15,13 +15,14 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -29,6 +30,9 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageSection;
@@ -50,7 +54,7 @@ public class CompetenceEditBean implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
-	@Inject private CompetenceVisibilityBean visibilityBean;
+	@Inject private CompetenceUserPrivilegeBean visibilityBean;
 
 	private String id;
 	private String credId;
@@ -60,6 +64,7 @@ public class CompetenceEditBean implements Serializable {
 	private boolean addToCredential;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private List<ActivityData> activitiesToRemove;
 	private List<ActivityData> activitySearchResults;
 	private String activitySearchTerm;
@@ -104,6 +109,7 @@ public class CompetenceEditBean implements Serializable {
 					competenceData.getCredentialsWithIncludedCompetence().add(cd);
 				}
 			}
+			initializeStatuses();
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -112,9 +118,29 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public void initVisibilityManageData() {
-		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
 	}
+	
+	//competence is draft when it has never been published or when date of first publish is null
+	public boolean isDraft() {
+		return competenceData.getDatePublished() == null;
+	}
+	
+	/**
+	 * if this method returns true only limited edits are allowed
+	 * 
+	 * @return
+	 */
+	public boolean isLimitedEdit() {
+		//if competence was once published 'big' changes are not allowed
+		return competenceData.getDatePublished() != null;
+	}
+	
+//	public void initVisibilityManageData() {
+//		visibilityBean.init(decodedId, competenceData.getCreator(), manageSection);
+//	}
 	
 	private void setContext() {
 		if(decodedCredId > 0) {
@@ -127,14 +153,12 @@ public class CompetenceEditBean implements Serializable {
 	
 	private void loadCompetenceData(long credId, long id) {
 		try {
-			competenceData = compManager.getCompetenceData(credId, id, true, true, true, 
-					loggedUser.getUserId(), UserGroupPrivilege.Edit, true);
-			if(!competenceData.isCanAccess()) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(credId, id, 
+					loggedUser.getUserId(), mode);
+			unpackResult(res);
+			if(!access.isCanAccess()) {
+				PageUtil.accessDenied();
 			} else {
 				List<ActivityData> activities = competenceData.getActivities();
 				for(ActivityData bad : activities) {
@@ -146,16 +170,31 @@ public class CompetenceEditBean implements Serializable {
 			}
 		} catch(ResourceNotFoundException rnfe) {
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Competence can not be found");
+			PageUtil.fireErrorMessage("Competency can not be found");
 		}
 	}
 
 	private void initializeValues() {
 		activitiesToRemove = new ArrayList<>();
 		activitiesToExcludeFromSearch = new ArrayList<>();
+	}
+	
+	private void initializeStatuses() {
 		compStatusArray = Arrays.stream(PublishedStatus.values()).filter(
-				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
-				.toArray(PublishedStatus[]::new);
+				s -> shouldIncludeStatus(s)).toArray(PublishedStatus[]::new);
+	}
+	
+	private boolean shouldIncludeStatus(PublishedStatus status) {
+		//draft status should not be included when competence is published or unpublished
+		if(status == PublishedStatus.DRAFT && (competenceData.getStatus() == PublishedStatus.PUBLISHED
+				|| competenceData.getStatus() == PublishedStatus.UNPUBLISHED)) {
+			return false;
+		}
+		//unpublished status should not be included when competence is draft
+		if(status == PublishedStatus.UNPUBLISHED && competenceData.getStatus() == PublishedStatus.DRAFT) {
+			return false;
+		}
+		return true;
 	}
 
 	public boolean hasMoreActivities(int index) {
@@ -166,11 +205,14 @@ public class CompetenceEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void preview() {
-		saveCompetenceData(true);
-	}
+//	public void preview() {
+//		saveCompetenceData(true);
+//	}
 	
 	public void saveAndNavigateToCreateActivity() {
+		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
+		// we will manually set field 'published 'to false
+		competenceData.setPublished(false);
 		boolean saved = saveCompetenceData(false);
 		if(saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -181,7 +223,8 @@ public class CompetenceEditBean implements Serializable {
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() + "/competences/" + id + "/newActivity");
+				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() 
+						+ "/competences/" + id + "/newActivity");
 				
 				if(credId != null && !credId.isEmpty()) {
 					builder.append("?credId=" + credId);
@@ -204,7 +247,7 @@ public class CompetenceEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?compAdded=true");
+						"/credentials/" + credId +"/edit?compAdded=true&tab=competences");
 			} catch (IOException e) {
 				logger.error(e);
 			}
@@ -235,16 +278,32 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
+				competenceData.setVersion(comp.getVersion());
 				competenceData.startObservingChanges();
 				setContext();
 			}
 			if(reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
 				loadCompetenceData(decodedCredId, decodedId);
+				initializeStatuses();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException | CompetenceEmptyException e) {
+		} catch(StaleDataException sde) {
+			logger.error(sde);
+			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
+			//reload data
+			reloadCompetence();
+			return false;
+		} catch(IllegalDataStateException idse) {
+			logger.error(idse);
+			PageUtil.fireErrorMessage(idse.getMessage());
+			if (competenceData.getCompetenceId() > 0) {
+		        //reload data
+		        reloadCompetence();
+			}
+			return false;
+		} catch(DbConnectionException e) {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -252,23 +311,78 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public void delete() {
+//	public void delete() {
+//		try {
+//			if(competenceData.getCompetenceId() > 0) {
+//				/*
+//				 * passing decodedId because we need to pass id of
+//				 * original competence and not id of a draft version
+//				 */
+//				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
+//				competenceData = new CompetenceData1(false);
+//				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+//			} else {
+//				PageUtil.fireErrorMessage("Competence is not saved so it can't be deleted");
+//			}
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			PageUtil.fireErrorMessage(e.getMessage());
+//		}
+//	}
+	
+	public void archive() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			if(competenceData.getCompetenceId() > 0) {
-				/*
-				 * passing decodedId because we need to pass id of
-				 * original competence and not id of a draft version
-				 */
-				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
-				competenceData = new CompetenceData1(false);
-				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-			} else {
-				PageUtil.fireErrorMessage("Competence is not saved so it can't be deleted");
-			}
-		} catch(Exception e) {
+			compManager.archiveCompetence(decodedId, loggedUser.getUserId(), ctx);
+			competenceData.setArchived(true);
+			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
+		} catch(DbConnectionException e) {
 			logger.error(e);
-			e.printStackTrace();
-			PageUtil.fireErrorMessage(e.getMessage());
+			PageUtil.fireErrorMessage("Error while trying to archive competency");
+		}
+	}
+	
+	public void restore() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
+		try {
+			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserId(), ctx);
+			competenceData.setArchived(false);
+			PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while trying to restore competency");
+		}
+	}
+	
+	public void duplicate() {
+		LearningContextData ctx = PageUtil.extractLearningContextData();
+		try {
+			long compId = compManager.duplicateCompetence(decodedId, 
+					loggedUser.getUserId(), ctx);
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + "/manage/competences/" 
+						+ idEncoder.encodeId(compId) + "/edit");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		} catch(DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while trying to duplicate competence");
+		} catch(EventException ee) {
+			logger.error(ee);
+		}
+	}
+	
+	private void reloadCompetence() {
+		try {
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(decodedCredId, decodedId, 
+					loggedUser.getUserId(), mode);
+			unpackResult(res);
+		} catch(DbConnectionException e) {
+			logger.error(e);
 		}
 	}
 	

@@ -28,6 +28,17 @@ public class CredentialAssessment extends BaseEntity {
 	private boolean defaultAssessment;
 	private int points;
 
+	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
+		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
+			for (CompetenceAssessment ca : competenceAssessments) {
+				if (ca.getTargetCompetence().getCompetence().getId() == compId){
+					return ca;
+				}
+			}
+		}
+		return null;
+	}
+
 	@Column(length = 90000)
 	public String getMessage() {
 		return message;

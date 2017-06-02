@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -26,7 +29,6 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
@@ -291,6 +293,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Competence1 comp2cred1 = null;
@@ -440,6 +444,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -540,6 +546,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Competence1 comp2cred2 = null;
@@ -565,6 +573,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred2, cred2.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -597,6 +607,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred3, cred2.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 		
@@ -629,6 +641,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred4, cred4.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		Credential1 cred5 = createCredential(
@@ -660,6 +674,8 @@ public class BusinessCase4_EDX extends BusinessCase {
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e1) {
 			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -680,16 +696,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}
-		
-		/* 
-		 * Enrolling students to credentials
-		 */
-		CredentialData cred1DataKevinHall = ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(),  new LearningContextData());
-		ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(),  new LearningContextData());
-		
+
+		try {
+			/*
+			 * Enrolling students to credentials
+			 */
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(), new LearningContextData());
+			ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(), new LearningContextData());
+
+		} catch (EventException e) {
+			logger.error(e);
+		}
 		/* 
 		 * Adding instructors
 		 */
@@ -698,15 +718,15 @@ public class BusinessCase4_EDX extends BusinessCase {
 			Map<String, String> params = new HashMap<>();
 			params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
 	
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userPhillAmstrong, cred1, null, null, null, params);
 			
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userKarenWhite, cred1, null, null, null, params);
 			
-			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0);
+			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 
 					userNickPowell.getId(), userErikaAmes, cred1, null, null, null, params);
 			
@@ -728,21 +748,20 @@ public class BusinessCase4_EDX extends BusinessCase {
 		 * Kevin Hall learning cred1
 		 */
 		
-		int activitiesToComplete = 3;
-		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
-			for (ActivityData actData : compData.getActivities()) {
-				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
-						actData.getTargetActivityId(), 
-						compData.getCompetenceId(), 
-						cred1.getId(), 
-						userKevinHall.getId(),
-						 new LearningContextData());
-				
-				if (activitiesToComplete-- == 0) {
-					break comLoop;
-				}
-			}
-		}
+//		int activitiesToComplete = 3;
+//		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
+//			for (ActivityData actData : compData.getActivities()) {
+//				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
+//						actData.getTargetActivityId(), 
+//						compData.getCompetenceId(), 
+//						userKevinHall.getId(),
+//						 new LearningContextData());
+//				
+//				if (activitiesToComplete-- == 0) {
+//					break comLoop;
+//				}
+//			}
+//		}
 		
 		/*
 		 * Commenting on activities/ competences
@@ -844,33 +863,35 @@ public class BusinessCase4_EDX extends BusinessCase {
 		return newComment;
 	}
 	
-	private void publishCredential(Credential1 cred, User creator) {
-		CredentialManager credentialManager = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class);
-		
-		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
-				true, creator.getId(), UserGroupPrivilege.Edit);
-		
-		if (credentialData == null) {
-			CredentialData credentialData1 = credentialManager.getCredentialData(cred.getId(), false, 
-					true, creator.getId(), UserGroupPrivilege.Edit);
-			System.out.println(credentialData1);
-		}
-		
-		if (credentialData != null) {
-			credentialData.setPublished(true);
-			
-			credentialManager.updateCredential(credentialData, creator.getId(), null);
-			
-			try {
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
-			} catch (EventException e) {
-				e.printStackTrace();
-			}
-		} else {
-			logger.error("Could not load credential " + cred.getId());
-		}
+	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
+//		CredentialManager credentialManager = ServiceLocator
+//				.getInstance()
+//				.getService(CredentialManager.class);
+//		
+//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false, 
+//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//		CredentialData credentialData = res.getResource();
+//		
+//		if (credentialData == null) {
+//			RestrictedAccessResult<CredentialData> res1 = credentialManager.getCredentialData(cred.getId(), false, 
+//					true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//			CredentialData credentialData1 = res.getResource();
+//			System.out.println(credentialData1);
+//		}
+//		
+//		if (credentialData != null) {
+//			//credentialData.setPublished(true);
+//			
+//			credentialManager.updateCredential(credentialData, creator.getId(), null);
+//			
+//			try {
+//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.Edit, creator.getId(), cred);
+//			} catch (EventException e) {
+//				e.printStackTrace();
+//			}
+//		} else {
+//			logger.error("Could not load credential " + cred.getId());
+//		}
 	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
@@ -897,21 +918,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 	}
 
 	private Activity1 createActivity(User userNickPowell, String title, String description, String url, ActivityType type, 
-			long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink) {
+			long compId, int durationHours, int durationMinutes, ActivityResultType resultType, String... nameLink) 
+		throws DbConnectionException, IllegalDataStateException, EventException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
 		actData.setDescription(description);
-		actData.setPublished(true);
 		actData.setActivityType(type);
 		actData.setStudentCanSeeOtherResponses(true);
 		
 		switch (type) {
 		case VIDEO:
+			actData.setVideoLink(url);
+			break;
 		case SLIDESHARE:
-			actData.setLink(url);
+			actData.setSlidesLink(url);
 			break;
 		case TEXT:
 			actData.setText(url);
+			break;
+		default:
 			break;
 		}
 		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
@@ -948,8 +973,6 @@ public class BusinessCase4_EDX extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
-		credentialData.setPublished(false);
-		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
@@ -969,15 +992,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		Competence1 comp = ServiceLocator
-				.getInstance()
-				.getService(Competence1Manager.class)
-				.saveNewCompetence(
-						compData,
-						user.getId(),
-						credentialId, null);
+		Competence1 comp;
+		try {
+			comp = ServiceLocator
+					.getInstance()
+					.getService(Competence1Manager.class)
+					.saveNewCompetence(
+							compData,
+							user.getId(),
+							credentialId, null);
+			return comp;
+		} catch (DbConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalDataStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		return comp;
+		return null;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {

@@ -72,26 +72,26 @@ public class SearchTagsBean implements Serializable {
 	}
 
 	public void fetchTags(String searchQuery, Collection<Tag> tagsToExclude, boolean loadOneMore, boolean viewed) {
-		TextSearchResponse searchResponse = textSearch.searchTags(
-				searchQuery,
-				this.page, 
-				this.limit,
-				loadOneMore,
-				tagsToExclude);
-		
-		@SuppressWarnings("unchecked")
-		List<Tag> foundTags = (List<Tag>) searchResponse.getFoundNodes();
-		tagsSize = (int) searchResponse.getHitsNumber();
-		
-		// if there is more than limit, set moreToLoad to true
-		if (loadOneMore && foundTags.size() == limit+1) {
-			foundTags = foundTags.subList(0, foundTags.size()-1);
-			moreToLoad = true;
-		} else {
-			moreToLoad = false;
-		}
-		
-		tags.addAll(foundTags);
+//		TextSearchResponse searchResponse = textSearch.searchTags(
+//				searchQuery,
+//				this.page, 
+//				this.limit,
+//				loadOneMore,
+//				tagsToExclude);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<Tag> foundTags = (List<Tag>) searchResponse.getFoundNodes();
+//		tagsSize = (int) searchResponse.getHitsNumber();
+//		
+//		// if there is more than limit, set moreToLoad to true
+//		if (loadOneMore && foundTags.size() == limit+1) {
+//			foundTags = foundTags.subList(0, foundTags.size()-1);
+//			moreToLoad = true;
+//		} else {
+//			moreToLoad = false;
+//		}
+//		
+//		tags.addAll(foundTags);
 	}
 
 	public boolean hasMoreResult() {

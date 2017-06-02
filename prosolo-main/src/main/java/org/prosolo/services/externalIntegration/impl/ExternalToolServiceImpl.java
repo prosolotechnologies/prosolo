@@ -16,12 +16,16 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.externalIntegration.BasicLTIResponse;
 import org.prosolo.services.externalIntegration.ExternalToolService;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -53,6 +57,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private OAuthValidator oauthValidator;
 	@Inject private AssessmentManager assessmentManager;
+	@Inject private EventFactory eventFactory;
 	
 	@Override
 	public boolean checkAuthorization(String authorization, String url, String method, String consumerSecret) throws IOException, OAuthException, URISyntaxException{
@@ -117,6 +122,9 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		BasicLTIResponse response=null;
 		String messageIdentifier="";
 		String sourceId="";
+
+		Result<Void> res = new Result<>();
+
 		try {
 			System.out.println("SCORE DOC:"+doc.toString());
 			 messageIdentifier=XMLUtils.getXMLElementByPath(
@@ -140,8 +148,8 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				Transaction transaction = null;
 				try {
 					transaction = session.beginTransaction();
-					ExternalToolTargetActivity1 ta = (ExternalToolTargetActivity1) session.get(
-							ExternalToolTargetActivity1.class, targetActivityId);
+					TargetActivity1 ta = (TargetActivity1) session.get(
+							TargetActivity1.class, targetActivityId);
 					ExternalToolActivity1 act = (ExternalToolActivity1) session.get(
 							ExternalToolActivity1.class, activityId);
 					
@@ -149,7 +157,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 						int maxPoints = act.getMaxPoints();
 						int scaledGrade = (int) Math.round(score * maxPoints);
 						resourceFactory.createSimpleOutcome(scaledGrade, targetActivityId, session);
-						int calculatedScore = calculateScoreBasedOnCalculationType(ta, 
+						int calculatedScore = calculateScoreBasedOnCalculationType(ta, act.getScoreCalculation(),
 							scaledGrade);
 						if(calculatedScore >= 0) {
 							int prevScore = ta.getCommonScore();
@@ -158,10 +166,11 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 							if(calculatedScore != prevScore) {
 								LearningContextData lcd = new LearningContextData();
 								lcd.setLearningContext("name:external_activity_grade|id:" + ta.getId());
-								assessmentManager
-									.createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(
-											userId, 0, ta.getTargetCompetence().getId(), ta.getId(), 
-											calculatedScore, session, lcd);
+								res.addEvents(assessmentManager
+									.updateActivityGradeInAllAssessmentsAndGetEvents(
+											userId, 0, ta.getTargetCompetence().getCompetence().getId(),
+											ta.getTargetCompetence().getId(), ta.getId(),
+											calculatedScore, session, lcd).getEvents());
 							}
 						}
 					}
@@ -172,6 +181,16 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 					transaction.rollback();
 				} finally {
 					HibernateUtil.close(session);
+				}
+
+				if (res != null && res.getEvents() != null) {
+					try {
+						for (EventData ev : res.getEvents()) {
+							eventFactory.generateEvent(ev);
+						}
+					} catch (EventException ee) {
+						logger.error(ee);
+					}
 				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"
@@ -190,13 +209,13 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 		return response;
 	}
 	
-	private int calculateScoreBasedOnCalculationType(ExternalToolTargetActivity1 ta, int newScore) {
+	private int calculateScoreBasedOnCalculationType(TargetActivity1 ta, ScoreCalculation scoreCalculation, 
+			int newScore) {
 		int previousScore = ta.getCommonScore();
 		int numberOfAttempts = ta.getNumberOfAttempts();
 		if(numberOfAttempts == 0) {
 			return newScore;
 		}
-		ScoreCalculation scoreCalculation = ta.getScoreCalculation();
 		if(scoreCalculation == null) {
 			return -1;
 		}

@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,27 +14,32 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
+/**
+ * Activity1 is versioned entity so special care should be taken of its version field value in all situations
+ * in order to avoid strange or inconsistent behavior.
+ * 
+ * @author stefanvuckovic
+ *
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Activity1 extends BaseEntity {
 
 	private static final long serialVersionUID = 15293664172196082L;
 	
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private long duration;
-	private boolean published;
 	private Set<ResourceLink> links;
 	private Set<ResourceLink> files;
-	/**
-	 * @deprecated since v0.5
-	 */
-	@Deprecated
-	private boolean uploadAssignment;
+	
 	private ActivityResultType resultType;
 	private LearningResourceType type;
 	private int maxPoints;
@@ -51,20 +57,28 @@ public class Activity1 extends BaseEntity {
 	
 	private User createdBy;
 	
-	/**
-	 * Deprecated since 0.5. Should be removed as 'maxPoints' is introduced and that field is sufficient.
-	 */
-	@Deprecated
-	private GradingOptions gradingOptions;
-	
 	private boolean visibleForUnenrolledStudents = false;
 	
 	private int difficulty;
 	private boolean autograde;
 	
+	private List<CompetenceActivity1> competenceActivities;
+	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
+	}
+	
+	/**
+	 * This method allows visitor to visit activity object. This pattern is used so activity hierarchy
+	 * can be handled the right way when using Hibernate.
+	 * 
+	 * All Activity1 subclasses should override this method.
+	 * 
+	 * @param visitor
+	 */
+	public void accept(ActivityVisitor visitor) {
+		
 	}
 
 	public long getDuration() {
@@ -73,14 +87,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
-	}
-
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		this.published = published;
 	}
 	
 	public int getMaxPoints() {
@@ -109,14 +115,6 @@ public class Activity1 extends BaseEntity {
 		this.files = files;
 	}
 
-	public boolean isUploadAssignment() {
-		return uploadAssignment;
-	}
-
-	public void setUploadAssignment(boolean uploadAssignment) {
-		this.uploadAssignment = uploadAssignment;
-	}
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	public User getCreatedBy() {
 		return createdBy;
@@ -142,15 +140,6 @@ public class Activity1 extends BaseEntity {
 
 	public void setResultType(ActivityResultType resultType) {
 		this.resultType = resultType;
-	}
-
-	@OneToOne
-	public GradingOptions getGradingOptions() {
-		return gradingOptions;
-	}
-
-	public void setGradingOptions(GradingOptions gradingOptions) {
-		this.gradingOptions = gradingOptions;
 	}
 
 	@Type(type = "true_false")
@@ -200,6 +189,24 @@ public class Activity1 extends BaseEntity {
 
 	public void setAutograde(boolean autograde) {
 		this.autograde = autograde;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
+	public List<CompetenceActivity1> getCompetenceActivities() {
+		return competenceActivities;
+	}
+
+	public void setCompetenceActivities(List<CompetenceActivity1> competenceActivities) {
+		this.competenceActivities = competenceActivities;
 	}
 	
 }

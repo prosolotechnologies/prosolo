@@ -9,6 +9,8 @@ import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -70,19 +72,21 @@ public interface UserGroupManager extends AbstractManager {
 	/**
 	 * Returns list of all non default user groups for specified credential
 	 * @param credId
+	 * @param privilege
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId) 
+	List<ResourceVisibilityMember> getCredentialVisibilityGroups(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
 	/**
 	 * Returns all users data from default user groups defined for credential.
 	 * @param credId
+	 * @param privilege
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId) 
+	List<ResourceVisibilityMember> getCredentialVisibilityUsers(long credId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
 	/**
@@ -92,39 +96,113 @@ public interface UserGroupManager extends AbstractManager {
 	 * @param credId
 	 * @param groups
 	 * @param users
+	 * @param actorId - actor that issued a request
+	 * @param lcd
 	 * @throws DbConnectionException
 	 */
-	void saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
-	    	List<ResourceVisibilityMember> users) throws DbConnectionException;
+	Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
+	    	List<ResourceVisibilityMember> users, long actorId, LearningContextData lcd) throws DbConnectionException;
 	
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session) 
     		throws DbConnectionException;
 	
-	List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId) 
+	List<ResourceVisibilityMember> getCompetenceVisibilityGroups(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
 	
-	List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId) 
+	List<ResourceVisibilityMember> getCompetenceVisibilityUsers(long compId, UserGroupPrivilege privilege)
     		throws DbConnectionException;
-	
-	void saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users) throws DbConnectionException;
+
+	Result<Void> saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups,
+											  List<ResourceVisibilityMember> users, long actorId,
+											  LearningContextData lcd) throws DbConnectionException;
 	
 	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
 	
 	/**
-	 * Adds user to a default credential user group according to the privilege specified by
-	 * {@code privilege} parameter.
+	 * This method removes privilege for user group specified by {@code userGroupId} id from all competencies
+	 * and credential deliveries for a credential given by {@code credId} and returns event data for all events 
+	 * that should be generated.
 	 * 
-	 * If user is already a member of a DEFAULT credential group with ANY privilege, he is not
-	 * added again.
-	 * If there is no default credential user group, it is created.
-	 * 
-	 * @param userId
 	 * @param credId
-	 * @param privilege
+	 * @param userGroupId
+	 * @param session
+	 * @return
 	 * @throws DbConnectionException
 	 */
-	void addUserToADefaultCredentialGroupIfNotAlreadyMember(long userId, long credId,
-    		UserGroupPrivilege privilege) throws DbConnectionException;
+	Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method removes EDIT privilege for all user groups that have EDIT privilege in a credential given by {@code credId} id
+	 * in a competency given by {@code compId} and returns event data for all events that should be generated
+	 * 
+	 * @param compId
+	 * @param credId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(long compId, long credId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method propagates privilege for user group from a credential to all competencies 
+	 * that are part of that credential and all credential deliveries and returns event data 
+	 * for all events that should be generated
+	 * 
+	 * @param credUserGroupId - id of a CredentialUserGroup instance
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * This method propagates EDIT privileges for all user groups that have EDIT privilege in a credential given by {@code credId}
+	 * to competency specified by {@code compId} and returns event data for all events that should be generated
+	 * 
+	 * @param credId
+	 * @param compId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(long credId, long compId, 
+    		Session session) throws DbConnectionException;
+	
+	/**
+	 * Propagates edit privileges from credential specified by {@code credId} id to all credential deliveries
+	 * and returns events that should be generated.
+	 * 
+	 * @param credId
+	 * @param deliveryId
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId, 
+    		long deliveryId, Session session) throws DbConnectionException ;
+	
+	/**
+	 * 
+	 * @param credId
+	 * @param returnDefaultGroups
+	 * @param privilege - pass null if ids should be returned for groups with any privilege
+	 * @param session
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<Long> getIdsOfUserGroupsAddedToCredential(long credId, boolean returnDefaultGroups, 
+    		UserGroupPrivilege privilege, Session session) throws DbConnectionException;
+	
+	Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, UserGroupPrivilege privilege, 
+			long actorId, LearningContextData context) throws DbConnectionException;
+	
+	Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
+			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException;
 
+	Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
+																	  long actorId, LearningContextData context,
+																	  Session session);
 }

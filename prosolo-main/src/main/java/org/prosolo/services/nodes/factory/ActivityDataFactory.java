@@ -11,14 +11,12 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolTargetActivity1;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.TextTargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivityType;
-import org.prosolo.common.domainmodel.credential.UrlTargetActivity1;
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.MediaDataException;
@@ -45,6 +43,7 @@ public class ActivityDataFactory {
 		}
 		ActivityData data = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		data.setVersion(activity.getVersion());
 		data.setCompetenceActivityId(competenceActivity.getId());
 		data.setActivityId(activity.getId());
 		data.setOrder(competenceActivity.getOrder());
@@ -53,11 +52,10 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
-		data.setPublished(activity.isPublished());
+		data.setMaxPoints(activity.getMaxPoints());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
-		data.setActivityStatus();
 		data.getResultData().setResultType(getResultType(activity.getResultType()));
 		data.setDateCreated(activity.getDateCreated());
 		data.setType(activity.getType());
@@ -96,6 +94,8 @@ public class ActivityDataFactory {
 		
 		data.setCompetenceId(competenceActivity.getCompetence().getId());
 		
+		data.setOncePublished(competenceActivity.getCompetence().getDatePublished() != null);
+		
 		populateTypeSpecificData(data, activity);
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
@@ -103,7 +103,7 @@ public class ActivityDataFactory {
 		if(shouldTrackChanges) {
 			data.startObservingChanges();
 		}
-		
+
 		return data;
 	}
 	
@@ -146,54 +146,66 @@ public class ActivityDataFactory {
 		ca.setOrder(order);
 		return getActivityData(ca, links, files, shouldTrackChanges);
 	}
-	
-	private void populateTypeSpecificData(ActivityData act, Activity1 activity) throws MediaDataException {
-		if(activity instanceof TextActivity1) {
-			TextActivity1 ta = (TextActivity1) activity;
-			act.setActivityType(ActivityType.TEXT);
-			act.setText(ta.getText());
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					try {
-						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-					if(urlAct.getCaptions() != null) {
-						List<ResourceLinkData> captions = new ArrayList<>();
-						for(ResourceLink rl : urlAct.getCaptions()) {
-							ResourceLinkData rlData = new ResourceLinkData();
-							rlData.setId(rl.getId());
-							rlData.setLinkName(rl.getLinkName());
-							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-							rlData.setUrl(rl.getUrl());
-							rlData.setStatus(ObjectStatus.UP_TO_DATE);
-							captions.add(rlData);
-						}
-						act.setCaptions(captions);
-					}
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), null)
-							.getEmbedLink());
-					break;
+
+	private void populateTypeSpecificData(ActivityData act, Activity1 activity) {
+		activity.accept(new ActivityVisitor() {
+			
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				act.setActivityType(ActivityType.EXTERNAL_TOOL);
+				act.setLaunchUrl(activity.getLaunchUrl());
+				act.setSharedSecret(activity.getSharedSecret());
+				act.setConsumerKey(activity.getConsumerKey());
+				act.setAcceptGrades(activity.isAcceptGrades());
+				act.setOpenInNewWindow(activity.isOpenInNewWindow());
+				act.setScoreCalculation(activity.getScoreCalculation());
 			}
-			act.setLink(urlAct.getUrl());
-			act.setLinkName(urlAct.getLinkName());
-		} else if(activity instanceof ExternalToolActivity1) {
-			ExternalToolActivity1 extAct = (ExternalToolActivity1) activity;
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-			act.setLaunchUrl(extAct.getLaunchUrl());
-			act.setSharedSecret(extAct.getSharedSecret());
-			act.setConsumerKey(extAct.getConsumerKey());
-			act.setAcceptGrades(extAct.isAcceptGrades());
-			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-			act.setScoreCalculation(extAct.getScoreCalculation());
-		}
+			
+			@Override
+			public void visit(UrlActivity1 activity) {
+				switch(activity.getUrlType()) {
+					case Video:
+						act.setActivityType(ActivityType.VIDEO);
+						try {
+							act.setEmbedId(URLUtil.getYoutubeEmbedId(activity.getUrl()));
+						} catch(Exception e) {
+							e.printStackTrace();
+						}
+						if(activity.getCaptions() != null) {
+							List<ResourceLinkData> captions = new ArrayList<>();
+							for(ResourceLink rl : activity.getCaptions()) {
+								ResourceLinkData rlData = new ResourceLinkData();
+								rlData.setId(rl.getId());
+								rlData.setLinkName(rl.getLinkName());
+								rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
+								rlData.setUrl(rl.getUrl());
+								rlData.setStatus(ObjectStatus.UP_TO_DATE);
+								captions.add(rlData);
+							}
+							act.setCaptions(captions);
+						}
+						act.setVideoLink(activity.getUrl());
+						break;
+					case Slides:
+						act.setActivityType(ActivityType.SLIDESHARE);
+						try {
+							act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
+									.getEmbedLink());
+						} catch (MediaDataException e) {
+							logger.error(e);
+						}
+						act.setSlidesLink(activity.getUrl());
+						break;
+				}
+				act.setLinkName(activity.getLinkName());
+			}
+			
+			@Override
+			public void visit(TextActivity1 activity) {
+				act.setActivityType(ActivityType.TEXT);
+				act.setText(activity.getText());
+			}
+		});
 	}
 	
 	public ActivityData getBasicActivityData(CompetenceActivity1 competenceActivity, 
@@ -204,6 +216,7 @@ public class ActivityDataFactory {
 
 		ActivityData act = new ActivityData(false);
 		Activity1 activity = competenceActivity.getActivity();
+		act.setVersion(activity.getVersion());
 		act.setCompetenceActivityId(competenceActivity.getId());
 		act.setActivityId(activity.getId());
 		act.setOrder(competenceActivity.getOrder());
@@ -211,9 +224,10 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activity.getDuration() / 60));
 		act.setDurationMinutes((int) (activity.getDuration() % 60));
 		act.calculateDurationString();
-		act.setPublished(activity.isPublished());
 		act.setType(activity.getType());
 		act.setAutograde(activity.isAutograde());
+		act.setMaxPoints(activity.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activity.getResultType()));
 		
 		act.setActivityType(getActivityType(activity));
 		
@@ -226,22 +240,47 @@ public class ActivityDataFactory {
 		return act;
 	}
 
+	/**
+	 * 
+	 * @param activity
+	 * @return
+	 * @throws NullPointerException if {@code activity} is null
+	 */
 	public ActivityType getActivityType(Activity1 activity) {
-		if(activity instanceof TextActivity1) {
-			return ActivityType.TEXT;
-		} else if(activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch(urlAct.getUrlType()) {
-				case Video:
-					return ActivityType.VIDEO;
-				case Slides:
-					return ActivityType.SLIDESHARE;
-			}
-		} else if(activity instanceof ExternalToolActivity1) {
-			return ActivityType.EXTERNAL_TOOL;
+		if(activity == null) {
+			throw new NullPointerException();
 		}
 		
-		return null;
+		class ActivityTypeVisitor implements ActivityVisitor {
+			
+			private ActivityType type;
+			
+			@Override
+			public void visit(TextActivity1 activity) {
+				type = ActivityType.TEXT;
+			}
+
+			@Override
+			public void visit(UrlActivity1 activity) {
+				switch(activity.getUrlType()) {
+					case Video:
+						type = ActivityType.VIDEO;
+						break;
+					case Slides:
+						type = ActivityType.SLIDESHARE;
+						break;
+				}
+			}
+
+			@Override
+			public void visit(ExternalToolActivity1 activity) {
+				type = ActivityType.EXTERNAL_TOOL;
+			}
+		}
+		
+		ActivityTypeVisitor typeVisitor = new ActivityTypeVisitor();
+		activity.accept(typeVisitor);
+		return typeVisitor.type;
 	}
 	
 	/**
@@ -275,29 +314,32 @@ public class ActivityDataFactory {
 	 * @param shouldTrackChanges
 	 * @param isManager did request come from manage section
 	 * @return
+	 * @throws NullPointerException if {@code targetActivity} or {@code targetActivity.getActivity()} is null
+	 * 
 	 */
 	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges, boolean isManager) {
-		if (targetActivity == null) {
-			return null;
+			Set<ResourceLink> files, boolean shouldTrackChanges, int order, boolean isManager) {
+		if (targetActivity == null || targetActivity.getActivity() == null) {
+			throw new NullPointerException();
 		}
+		Activity1 activity = targetActivity.getActivity();
 		ActivityData data = new ActivityData(false);
-		data.setActivityId(targetActivity.getActivity().getId());
+		data.setActivityId(activity.getId());
 		data.setTargetActivityId(targetActivity.getId());
-		data.setOrder(targetActivity.getOrder());
-		data.setTitle(targetActivity.getTitle());
-		data.setDescription(targetActivity.getDescription());
-		data.setDurationHours((int) (targetActivity.getDuration() / 60));
-		data.setDurationMinutes((int) (targetActivity.getDuration() % 60));
+		data.setOrder(order);
+		data.setTitle(activity.getTitle());
+		data.setDescription(activity.getDescription());
+		data.setDurationHours((int) (activity.getDuration() / 60));
+		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
 		data.setCompleted(targetActivity.isCompleted());
 		data.setEnrolled(true);
-		data.setType(targetActivity.getLearningResourceType());
+		data.setType(activity.getType());
 		data.setResultData(getActivityResultData(targetActivity, isManager));
-		data.setCreatorId(targetActivity.getCreatedBy().getId());
-		data.setMaxPointsString(String.valueOf(targetActivity.getActivity().getMaxPoints()));
-		data.setStudentCanEditResponse(targetActivity.getActivity().isStudentCanEditResponse());
-		data.setStudentCanSeeOtherResponses(targetActivity.getActivity().isStudentCanSeeOtherResponses());
+		data.setCreatorId(activity.getCreatedBy().getId());
+		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
+		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
+		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -335,8 +377,9 @@ public class ActivityDataFactory {
 		
 		//or add targetCompetenceId to activitydata
 		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
-		data.setCompetenceName(targetActivity.getTargetCompetence().getTitle());
-		populateTypeSpecificData(data, targetActivity);
+		//TODO cred-redesign-07 - do we need next line - it issues additional db queries
+		data.setCompetenceName(targetActivity.getTargetCompetence().getCompetence().getTitle());
+		populateTypeSpecificData(data, targetActivity.getActivity());
 
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -348,17 +391,7 @@ public class ActivityDataFactory {
 	}
 	
 	private ActivityResultData getActivityResultData(TargetActivity1 activity, boolean isManager) {
-		// TODO: Stefan - all code up to the last calling getActivityResultData() is not needed
-		ActivityResultData ard = new ActivityResultData(false);
-		ard.setTargetActivityId(activity.getId());
-		ard.setResultType(getResultType(activity.getResultType()));
-		ard.setResult(activity.getResult());
-		if(ard.getResult() != null && !ard.getResult().isEmpty() 
-				&& ard.getResultType() == ActivityResultType.FILE_UPLOAD) {
-			ard.setAssignmentTitle(ard.getResult().substring(ard.getResult().lastIndexOf("/") + 1));
-		}
-		ard.setResultPostDate(activity.getResultPostDate());
-		return getActivityResultData(activity.getId(), activity.getResultType(), activity.getResult(), 
+		return getActivityResultData(activity.getId(), activity.getActivity().getResultType(), activity.getResult(), 
 				activity.getResultPostDate(), null, 0, false, isManager);
 	}
 	
@@ -383,78 +416,32 @@ public class ActivityDataFactory {
 		ard.setResultComments(commData);
 		return ard;
 	}
-
-	private void populateTypeSpecificData(ActivityData act, TargetActivity1 activity) {
-		if(activity instanceof TextTargetActivity1) {
-			TextTargetActivity1 ta = (TextTargetActivity1) activity;
-			act.setActivityType(ActivityType.TEXT);
-			act.setText(ta.getText());
-		} else if(activity instanceof UrlTargetActivity1) {
-			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-			switch(urlAct.getType()) {
-				case Video:
-					act.setActivityType(ActivityType.VIDEO);
-					try {
-						act.setEmbedId(URLUtil.getYoutubeEmbedId(urlAct.getUrl()));
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-					if(urlAct.getCaptions() != null) {
-						List<ResourceLinkData> captions = new ArrayList<>();
-						for(ResourceLink rl : urlAct.getCaptions()) {
-							ResourceLinkData rlData = new ResourceLinkData();
-							rlData.setId(rl.getId());
-							rlData.setLinkName(rl.getLinkName());
-							rlData.setUrl(rl.getUrl());
-							rlData.setFetchedTitle(rl.getUrl().substring(rl.getUrl().lastIndexOf("/") + 1));
-							rlData.setStatus(ObjectStatus.UP_TO_DATE);
-							captions.add(rlData);
-						}
-						act.setCaptions(captions);
-					}
-					break;
-				case Slides:
-					act.setActivityType(ActivityType.SLIDESHARE);
-					try {
-						act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(urlAct.getUrl(), null).getEmbedLink());
-					} catch (MediaDataException e) {
-						logger.error(e);
-					}
-					break;
-			}
-			act.setLink(urlAct.getUrl());
-			act.setLinkName(urlAct.getLinkName());
-		} else if(activity instanceof ExternalToolTargetActivity1) {
-			ExternalToolTargetActivity1 extAct = (ExternalToolTargetActivity1) activity;
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-			act.setLaunchUrl(extAct.getLaunchUrl());
-			act.setSharedSecret(extAct.getSharedSecret());
-			act.setConsumerKey(extAct.getConsumerKey());
-			act.setOpenInNewWindow(extAct.isOpenInNewWindow());
-		}
-	}
 	
 	public ActivityData getBasicActivityData(TargetActivity1 activity, boolean shouldTrackChanges) {
 		if(activity == null) {
 			return null;
 		}
 		ActivityData act = new ActivityData(false);
-		act.setActivityId(activity.getActivity().getId());
+		Activity1 activ = activity.getActivity();
+		act.setActivityId(activ.getId());
 		act.setTargetActivityId(activity.getId());
-		act.setTitle(activity.getTitle());
+		act.setTitle(activ.getTitle());
 		act.setCompleted(activity.isCompleted());
 		act.setEnrolled(true);
-		act.setDurationHours((int) (activity.getDuration() / 60));
-		act.setDurationMinutes((int) (activity.getDuration() % 60));
+		act.setDurationHours((int) (activ.getDuration() / 60));
+		act.setDurationMinutes((int) (activ.getDuration() % 60));
 		act.calculateDurationString();
-		
+		act.setMaxPoints(activ.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activ.getResultType()));
+		act.getResultData().setResult(activity.getResult());
+		act.setTargetCompetenceId(activity.getTargetCompetence().getId());
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {
 			act.startObservingChanges();
 		}
 		
-		act.setActivityType(determineActivityType(activity));
+		act.setActivityType(getActivityType(activ));
 
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
@@ -465,30 +452,11 @@ public class ActivityDataFactory {
 		return act;
 	}
 
-	private ActivityType determineActivityType(TargetActivity1 activity) {
-		if(activity instanceof TextTargetActivity1) {
-			return ActivityType.TEXT;
-		} else if(activity instanceof UrlTargetActivity1) {
-			UrlTargetActivity1 urlAct = (UrlTargetActivity1) activity;
-			switch(urlAct.getType()) {
-				case Video:
-					return ActivityType.VIDEO;
-				case Slides:
-					return ActivityType.SLIDESHARE;
-			}
-		} else if(activity instanceof ExternalToolTargetActivity1) {
-			return ActivityType.EXTERNAL_TOOL;
-		}
-		
-		return null;
-	}
-
 	private void populateCommonData(Activity1 activity, ActivityData data) {
 		activity.setId(data.getActivityId());
 		activity.setTitle(data.getTitle());
 		activity.setDescription(data.getDescription());
 		activity.setDuration(data.getDurationHours() * 60 + data.getDurationMinutes());
-		activity.setPublished(data.isPublished());
 		activity.setResultType(getResultType(data.getResultData().getResultType()));
 		activity.setDateCreated(data.getDateCreated());
 		activity.setType(data.getType());
@@ -517,11 +485,12 @@ public class ActivityDataFactory {
 				UrlActivity1 urlAct = new UrlActivity1();
 				if(activityData.getActivityType() == ActivityType.VIDEO) {
 					urlAct.setUrlType(UrlActivityType.Video);
+					urlAct.setUrl(activityData.getVideoLink());
 				} else {
 					urlAct.setUrlType(UrlActivityType.Slides);
+					urlAct.setUrl(activityData.getSlidesLink());
 				}
 				populateCommonData(urlAct, activityData);
-				urlAct.setUrl(activityData.getLink());
 				urlAct.setLinkName(activityData.getLinkName());
 				return urlAct;
 			case EXTERNAL_TOOL:

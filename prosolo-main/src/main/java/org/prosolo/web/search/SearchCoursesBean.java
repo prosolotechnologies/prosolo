@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -16,14 +15,12 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.search.TextSearch;
-import org.prosolo.search.impl.TextSearchResponse;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.data.CourseData;
-import org.prosolo.web.courses.util.CourseDataConverter;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.prosolo.web.search.data.SortingOption;
 import org.prosolo.web.util.page.PageUtil;
@@ -39,7 +36,7 @@ public class SearchCoursesBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(SearchCoursesBean.class);
 	
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private CourseManager courseManager;
 	@Inject private LoggingNavigationBean loggingNavigationBean;
 	@Inject private LoggedUserBean loggedUserBean;
@@ -81,7 +78,7 @@ public class SearchCoursesBean implements Serializable {
 			boolean showAll = loggedUserBean.hasCapability("COURSE.VIEW");
 			if(!showAll) {
 				long personalizedForUserId = loggedUserBean.getUserId();
-				List<Long> ids = textSearch.getInstructorCourseIds(personalizedForUserId);
+				List<Long> ids = userTextSearch.getInstructorCourseIds(personalizedForUserId);
 				personalizedCourseIds = (ids == null ? new ArrayList<>() : ids);
 			} else {
 				personalizedCourseIds = new ArrayList<>();
@@ -134,45 +131,45 @@ public class SearchCoursesBean implements Serializable {
 	public void fetchCourses(String searchQuery, CreatorType creatorType, Collection<Course> coursesToExclude, 
 			int limit, boolean loadOneMore, boolean published) {
 		
-		TextSearchResponse searchResponse = textSearch.searchCourses(
-				searchQuery,
-				creatorType,
-				this.page, 
-				limit,
-				loadOneMore,
-				coursesToExclude,
-				published,
-				filterTags,
-				personalizedCourseIds,
-				this.sortTitleAsc,
-				this.sortDateAsc);
-		
-		@SuppressWarnings("unchecked")
-		List<Course> foundCourses = (List<Course>) searchResponse.getFoundNodes();
-		size = (int) searchResponse.getHitsNumber();
-		// if there is more than limit, set moreToLoad to true
-		if (loadOneMore && foundCourses.size() == limit+1) {
-			foundCourses = foundCourses.subList(0, foundCourses.size()-1);
-			moreToLoad = true;
-		} else {
-			moreToLoad = false;
-		}
-
-		courses.addAll(CourseDataConverter.convertToCoursesData(foundCourses));
-		
-		if(foundCourses != null && !foundCourses.isEmpty()) {
-			Map<Long, List<Long>> counts = courseManager.getCoursesParticipants(foundCourses);
-			
-			if (counts != null) {
-				for (CourseData courseData : this.courses) {
-					List<Long> memberIds = counts.get(courseData.getId());
-					
-					if (memberIds != null) {
-						courseData.setMemberIds(memberIds);
-					}
-				}
-			}
-		}
+//		TextSearchResponse searchResponse = textSearch.searchCourses(
+//				searchQuery,
+//				creatorType,
+//				this.page, 
+//				limit,
+//				loadOneMore,
+//				coursesToExclude,
+//				published,
+//				filterTags,
+//				personalizedCourseIds,
+//				this.sortTitleAsc,
+//				this.sortDateAsc);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<Course> foundCourses = (List<Course>) searchResponse.getFoundNodes();
+//		size = (int) searchResponse.getHitsNumber();
+//		// if there is more than limit, set moreToLoad to true
+//		if (loadOneMore && foundCourses.size() == limit+1) {
+//			foundCourses = foundCourses.subList(0, foundCourses.size()-1);
+//			moreToLoad = true;
+//		} else {
+//			moreToLoad = false;
+//		}
+//
+//		courses.addAll(CourseDataConverter.convertToCoursesData(foundCourses));
+//		
+//		if(foundCourses != null && !foundCourses.isEmpty()) {
+//			Map<Long, List<Long>> counts = courseManager.getCoursesParticipants(foundCourses);
+//			
+//			if (counts != null) {
+//				for (CourseData courseData : this.courses) {
+//					List<Long> memberIds = counts.get(courseData.getId());
+//					
+//					if (memberIds != null) {
+//						courseData.setMemberIds(memberIds);
+//					}
+//				}
+//			}
+//		}
 	}
 
 	public boolean hasMore() {

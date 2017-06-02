@@ -84,26 +84,26 @@ public class SearchActivitiesBean implements Serializable {
 	}
 
 	public void fetchActivities(String searchQuery, long[] compsToExclude, boolean loadOneMore, boolean viewed) {
-		TextSearchResponse searchResponse = textSearch.searchActivities(
-				searchQuery,
-				this.page, 
-				this.limit,
-				loadOneMore,
-				compsToExclude);
-		
-		@SuppressWarnings("unchecked")
-		List<Activity> foundActivities = (List<Activity>) searchResponse.getFoundNodes();
-		activitiesSize = (int) searchResponse.getHitsNumber();
-		
-		// if there is more than limit, set moreToLoad to true
-		if (loadOneMore && foundActivities.size() == limit+1) {
-			foundActivities = foundActivities.subList(0, foundActivities.size()-1);
-			moreToLoad = true;
-		} else {
-			moreToLoad = false;
-		}
-		
-		activities.addAll(convertToActivitiesData(foundActivities, viewed));
+//		TextSearchResponse searchResponse = textSearch.searchActivities(
+//				searchQuery,
+//				this.page, 
+//				this.limit,
+//				loadOneMore,
+//				compsToExclude);
+//		
+//		@SuppressWarnings("unchecked")
+//		List<Activity> foundActivities = (List<Activity>) searchResponse.getFoundNodes();
+//		activitiesSize = (int) searchResponse.getHitsNumber();
+//		
+//		// if there is more than limit, set moreToLoad to true
+//		if (loadOneMore && foundActivities.size() == limit+1) {
+//			foundActivities = foundActivities.subList(0, foundActivities.size()-1);
+//			moreToLoad = true;
+//		} else {
+//			moreToLoad = false;
+//		}
+//		
+//		activities.addAll(convertToActivitiesData(foundActivities, viewed));
 	}
 
 	public boolean hasMoreActivities() {

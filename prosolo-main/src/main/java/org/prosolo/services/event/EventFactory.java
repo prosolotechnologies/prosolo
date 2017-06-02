@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +84,20 @@ public class EventFactory {
 			String page, String context, String service, Map<String, String> parameters) throws EventException {
 		return generateEvent(eventType, actorId, object, target, page, context, service, null, parameters);
 	}
+	
+	@Transactional(readOnly = false)
+	public Event generateEvent(EventType eventType, long actorId, LearningContextData lContext, BaseEntity object, BaseEntity target, 
+			Map<String, String> parameters) throws EventException {
+		String page = null;
+		String context = null;
+		String service = null;
+		if(lContext != null) {
+			page = lContext.getPage();
+			context = lContext.getLearningContext();
+			service = lContext.getService();
+		}
+		return generateEvent(eventType, actorId, object, target, page, context, service, null, parameters);
+	}
 
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, long actorId, BaseEntity object, BaseEntity target, 
@@ -100,6 +115,16 @@ public class EventFactory {
 	
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventData event) throws EventException {
+		if(event.getEventType() == EventType.ChangeProgress) {
+			return generateChangeProgressEvent(
+					event.getActorId(), 
+					event.getObject(), 
+					event.getProgress(), 
+					event.getPage(), 
+					event.getContext(), 
+					event.getService(), 
+					event.getParameters());
+		}
 		return generateEvent(event.getEventType(), 
 				event.getActorId(), 
 				event.getObject(), 
@@ -132,6 +157,22 @@ public class EventFactory {
 		genericEvent.setObserversToExclude(observersToExclude);
 		genericEvent.setParameters(parameters);
 		return genericEvent;
+	}
+	
+	public EventData generateEventData(EventType type, long userId, BaseEntity object, BaseEntity target, 
+			LearningContextData context, Map<String, String> params) {
+		EventData event = new EventData();
+		event.setEventType(type);
+		event.setActorId(userId);
+		event.setObject(object);
+		event.setTarget(target);
+		if(context != null) {
+			event.setPage(context.getPage());
+			event.setContext(context.getLearningContext());
+			event.setService(context.getService());
+		}
+		event.setParameters(params);
+		return event;
 	}
 	
 }

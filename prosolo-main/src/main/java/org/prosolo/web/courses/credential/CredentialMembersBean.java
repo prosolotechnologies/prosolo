@@ -3,35 +3,32 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.search.TextSearch;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ResourceAccessData;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -53,16 +50,13 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	@Inject
 	private UrlIdEncoder idEncoder;
-	@Inject
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject 
 	private CredentialInstructorManager credInstructorManager;
 	@Inject
 	private CredentialManager credManager;
 	@Inject 
 	private LoggedUserBean loggedUserBean;
-	@Inject 
-	private EventFactory eventFactory;
 	@Inject
 	private StudentEnrollBean studentEnrollBean;
 
@@ -73,7 +67,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private String searchTerm = "";
 	private CredentialMembersSortOption sortOption = CredentialMembersSortOption.DATE;
 	private PaginationData paginationData = new PaginationData();
-	private CredentialMembersSearchFilter instructorAssignFilter;
+	private CredentialMembersSearchFilter searchFilter;
 	
 	private List<InstructorData> credentialInstructors;
 	private StudentData studentToAssignInstructor;
@@ -93,58 +87,48 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
-		instructorAssignFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
+		CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
+		int size = values.length;
+		searchFilters = new CredentialMembersSearchFilter[size];
+		for(int i = 0; i < size; i++) {
+			CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
+			searchFilters[i] = filter;
+		}
+		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilterValue.All, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
-				String title = credManager.getCredentialTitleForCredentialWithType(
-						decodedId, LearningResourceType.UNIVERSITY_CREATED);
+				String title = credManager.getCredentialTitle(decodedId, CredentialType.Delivery);
 				if(title != null) {
-					access = credManager.getCredentialAccessRights(decodedId, 
-							loggedUserBean.getUserId(), UserGroupPrivilege.View);
+					//user needs instruct or edit privilege to be able to access this page
+					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+							ResourceAccessRequirements.of(AccessMode.MANAGER)
+													  .addPrivilege(UserGroupPrivilege.Instruct)
+													  .addPrivilege(UserGroupPrivilege.Edit));
 					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+						PageUtil.accessDenied();
 					} else {
 						credentialTitle = title;
-						boolean showAll = loggedUserBean.hasCapability("COURSE.MEMBERS.VIEW");
-						if(!showAll) {
+						/*
+						 * if user can't edit resource, it means that he can only instruct and that is why
+						 * he can only see his students
+						 */
+						if(!access.isCanEdit()) {
 							personalizedForUserId = loggedUserBean.getUserId();
 						}
 						searchCredentialMembers();
-						if(searchFilters == null) {
-							CredentialMembersSearchFilterValue[] values = CredentialMembersSearchFilterValue.values();
-							int size = values.length;
-							searchFilters = new CredentialMembersSearchFilter[size];
-							for(int i = 0; i < size; i++) {
-								CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
-								searchFilters[i] = filter;
-							}
-						}
 						studentEnrollBean.init(decodedId, context);
 					}
 				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.notFound();
 				}	
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 
@@ -167,20 +151,20 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialMembers() {
-		TextSearchResponse1<StudentData> searchResponse = textSearch.searchCredentialMembers(
-				searchTerm, 
-				instructorAssignFilter.getFilter(), 
-				this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
-				decodedId, personalizedForUserId, sortOption);
+		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchResponse = 
+				userTextSearch.searchCredentialMembers(
+					searchTerm, 
+					searchFilter.getFilter(), 
+					this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
+					decodedId, personalizedForUserId, sortOption);
 
 		this.paginationData.update((int) searchResponse.getHitsNumber());
 		members = searchResponse.getFoundNodes();
 		
-		Map<String, Object> additional = searchResponse.getAdditionalInfo();
-		if (additional != null) {
-			searchFilters = (CredentialMembersSearchFilter[]) additional.get("filters");
-			instructorAssignFilter = (CredentialMembersSearchFilter) additional.get("selectedFilter");
+		for(CredentialMembersSearchFilter filter : searchFilters) {
+			filter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(filter.getFilter()));
 		}
+		searchFilter.setNumberOfResults(searchResponse.getNumberOfResultsForFilter(searchFilter.getFilter()));
 	}
 	
 	public void addStudentsAndResetData() {
@@ -192,7 +176,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
 		for (CredentialMembersSearchFilter f : searchFilters) {
 			if (f.getFilter() == CredentialMembersSearchFilterValue.All) {
-				instructorAssignFilter = f;
+				searchFilter = f;
 				this.paginationData.update((int) f.getNumberOfResults());
 				break;
 			}
@@ -207,7 +191,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 	
 	public void loadCredentialInstructors() {
-		TextSearchResponse1<InstructorData> searchResponse = textSearch.searchInstructors(
+		TextSearchResponse1<InstructorData> searchResponse = userTextSearch.searchInstructors(
 				instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
 		
 		if (searchResponse != null) {
@@ -218,54 +202,39 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	//assign student to an instructor
 	public void selectInstructor(InstructorData instructor) {
 		try {
-			EventType event = null;
-			Map<String, String> params = new HashMap<>();
+			String page = PageUtil.getPostParameter("page");
+			String service = PageUtil.getPostParameter("service");
+			LearningContextData ctx = new LearningContextData(page, context, service);
+			String action = null;
 			if(studentToAssignInstructor.getInstructor() == null 
 					|| studentToAssignInstructor.getInstructor().getInstructorId() 
 						!= instructor.getInstructorId()) {
+				long formerInstructoruserId = studentToAssignInstructor.getInstructor() != null
+						? studentToAssignInstructor.getInstructor().getUser().getId()
+						: 0;
 				credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getUser().getId(), 
-						instructor.getInstructorId(), decodedId);
+						instructor.getInstructorId(), decodedId, formerInstructoruserId, 
+						loggedUserBean.getUserId(), ctx);
 				if(studentToAssignInstructor.getInstructor() == null) {
-					event = EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR;
+					action = "assigned";
 				} else {
-					event = EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR;
-					params.put("reassignedFromInstructorUserId", 
-							studentToAssignInstructor.getInstructor().getUser().getId() + "");
+					action = "reassigned";
 				}
+				studentToAssignInstructor.setInstructor(instructor);
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
-						studentToAssignInstructor.getUser().getId(), decodedId);
-				event = EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR;
-			}
-
-			String page = PageUtil.getPostParameter("page");
-			String service = PageUtil.getPostParameter("service");
-			try {
-				User target = new User();
-				target.setId(instructor.getUser().getId());
-				User object = new User();
-				object.setId(studentToAssignInstructor.getUser().getId());
-				params.put("credId", decodedId + "");
-				eventFactory.generateEvent(event, loggedUserBean.getUserId(), object, target, 
-						page, context, service, params);
-			} catch (EventException e) {
-				logger.error(e);
-			}
-			String action = null;
-			if(event == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR 
-					|| event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
-				studentToAssignInstructor.setInstructor(instructor);
-				action = (event == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR ? "re" : "") + "assigned";
-			} else {
+						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserId(), ctx);
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
 			}
-			
+
 			studentToAssignInstructor = null;
 			credentialInstructors = null;
 			PageUtil.fireSuccessfulInfoMessage("Instructor successfully " + action);
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 	}
 
@@ -286,7 +255,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 	
 	public void applySearchFilter(CredentialMembersSearchFilter filter) {
-		this.instructorAssignFilter = filter;
+		this.searchFilter = filter;
 		this.paginationData.setPage(1);
 		searchCredentialMembers();
 	}
@@ -418,12 +387,12 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.decodedId = decodedId;
 	}
 
-	public CredentialMembersSearchFilter getInstructorAssignFilter() {
-		return instructorAssignFilter;
+	public CredentialMembersSearchFilter getSearchFilter() {
+		return searchFilter;
 	}
 
-	public void setInstructorAssignFilter(CredentialMembersSearchFilter instructorAssignFilter) {
-		this.instructorAssignFilter = instructorAssignFilter;
+	public void setSearchFilter(CredentialMembersSearchFilter searchFilter) {
+		this.searchFilter = searchFilter;
 	}
 
 	public String getCredentialTitle() {

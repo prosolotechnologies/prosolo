@@ -25,4 +25,7 @@ public class ConnectionConfig {
 	
 	@Element(name = "autocommit")
 	public String autocommit;
+	
+	@Element(name = "isolation")
+	public int isolation;
 }

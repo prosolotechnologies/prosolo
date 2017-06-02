@@ -1,5 +1,7 @@
 package org.prosolo.web.util;
 
+
+
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
 import org.jsoup.safety.Whitelist;

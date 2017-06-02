@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
+
 @Entity
 public class ExternalToolActivity1 extends Activity1 {
 
@@ -19,6 +21,11 @@ public class ExternalToolActivity1 extends Activity1 {
 	
 	public ExternalToolActivity1() {
 		
+	}
+	
+	@Override
+	public void accept(ActivityVisitor visitor) {
+		visitor.visit(this);
 	}
 	
 	public String getLaunchUrl() {

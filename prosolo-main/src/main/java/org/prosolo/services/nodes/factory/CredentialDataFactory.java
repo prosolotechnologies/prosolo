@@ -1,14 +1,15 @@
 package org.prosolo.services.nodes.factory;
 
-import java.text.SimpleDateFormat;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -18,54 +19,50 @@ import org.springframework.stereotype.Component;
 @Component
 public class CredentialDataFactory {
 
+	@Inject private CredentialDeliveryStatusFactory deliveryStatusFactory;
+	
 	public CredentialData getCredentialData(User createdBy, Credential1 credential, Set<Tag> tags,
 			Set<Tag> hashtags, boolean shouldTrackChanges) {
-		if(credential == null) {
+		if (credential == null) {
 			return null;
 		}
 		CredentialData cred = new CredentialData(false);
+		cred.setVersion(credential.getVersion());
 		cred.setId(credential.getId());
+		cred.setType(credential.getType());
 		cred.setTitle(credential.getTitle());
 		cred.setDescription(credential.getDescription());
-		if(tags != null) {
+		cred.setArchived(credential.isArchived());
+		if (tags != null) {
 			cred.setTags(credential.getTags());
 			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
 		}
-		if(hashtags != null) {
+		if (hashtags != null) {
 			cred.setHashtags(credential.getHashtags());
 			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
 		}
-		cred.setType(credential.getType());
-		cred.setPublished(credential.isPublished());
-		cred.setCredentialStatus(credential.isPublished(), credential.getScheduledPublishDate());
 		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		//cred.setDraft(credential.isDraft());
-		//cred.setHasDraft(credential.isHasDraft());
 		cred.setDuration(credential.getDuration());
 		cred.calculateDurationString();
-		if(createdBy != null) {
+		if (createdBy != null) {
 			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
 					getFullName(createdBy.getName(), createdBy.getLastname()),
 					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
 					createdBy.getPosition());
 			cred.setCreator(creator);
 		}
-		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
 		cred.setAutomaticallyAssingStudents(!credential.isManuallyAssignStudents());
 		cred.setDefaultNumberOfStudentsPerInstructor(credential.getDefaultNumberOfStudentsPerInstructor());
 
-		cred.setScheduledPublishDate(credential.getScheduledPublishDate());
-		if(credential.getScheduledPublishDate() != null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-			String formattedDate = sdf.format(credential.getScheduledPublishDate());
-			cred.setScheduledPublishDateValue(formattedDate);
+		if (credential.getType() == CredentialType.Delivery) {
+			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
+			cred.setDeliveryStart(credential.getDeliveryStart());
+			cred.setDeliveryEnd(credential.getDeliveryEnd());
+			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
+					cred.getDeliveryStart(), cred.getDeliveryEnd()));
 		}
-		cred.setScheduledPublishDateStringView(DateUtil.parseDateWithShortMonthName(
-				credential.getScheduledPublishDate()));
-		//cred.setVisible(credential.isVisible());
-		//cred.setVisibility(credential.isVisible(), credential.getScheduledPublicDate());
 		
-		if(shouldTrackChanges) {
+		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
 		return cred;
@@ -73,39 +70,20 @@ public class CredentialDataFactory {
 	
 	public CredentialData getCredentialData(User createdBy, TargetCredential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges) {
-		if(credential == null) {
+		if (credential == null || credential.getCredential() == null) {
 			return null;
 		}
-		CredentialData cred = new CredentialData(false);
-		cred.setId(credential.getCredential().getId());
-		cred.setTitle(credential.getTitle());
-		cred.setDescription(credential.getDescription());
-		if(tags != null) {
-			cred.setTags(credential.getTags());
-			cred.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getTags()));
-		}
-		if(hashtags != null) {
-			cred.setHashtags(credential.getHashtags());
-			cred.setHashtagsString(AnnotationUtil.getAnnotationsAsSortedCSV(credential.getHashtags()));
-		}
-		cred.setType(credential.getCredentialType());
-		cred.setMandatoryFlow(credential.isCompetenceOrderMandatory());
-		cred.setDuration(credential.getDuration());
-		cred.calculateDurationString();
-		if(createdBy != null) {
-			ResourceCreator creator = new ResourceCreator(createdBy.getId(), 
-					getFullName(createdBy.getName(), createdBy.getLastname()),
-					AvatarUtils.getAvatarUrlInFormat(createdBy.getAvatarUrl(), ImageFormat.size120x120),
-					createdBy.getPosition());
-			cred.setCreator(creator);
-		}
-		cred.setStudentsCanAddCompetences(credential.isStudentsCanAddCompetences());
+		Credential1 c = credential.getCredential();
+		//get credential specific data
+		CredentialData cred = getCredentialData(createdBy, c, tags, hashtags, false);
+		
+		//set target credential specific data
 		cred.setEnrolled(true);
 		cred.setTargetCredId(credential.getId());
 		cred.setProgress(credential.getProgress());
 		cred.setNextCompetenceToLearnId(credential.getNextCompetenceToLearnId());
-		cred.setNextActivityToLearnId(credential.getNextActivityToLearnId());
-		if(credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
+		
+		if (credential.getInstructor() != null && credential.getInstructor().getUser() != null) {
 			cred.setInstructorPresent(true);
 			cred.setInstructorId(credential.getInstructor().getUser().getId());
 			cred.setInstructorAvatarUrl(
@@ -115,7 +93,7 @@ public class CredentialDataFactory {
 					+ " " 
 					+ credential.getInstructor().getUser().getLastname());
 		}
-		if(shouldTrackChanges) {
+		if (shouldTrackChanges) {
 			cred.startObservingChanges();
 		}
 		return cred;
@@ -135,11 +113,10 @@ public class CredentialDataFactory {
 	 */
 	public CredentialData getCredentialDataWithProgress(User createdBy, Credential1 credential,
 			Set<Tag> tags, Set<Tag> hashtags, boolean shouldTrackChanges, int progress,
-			long nextCompToLearnId, long nextActToLearnId) {
+			long nextCompToLearnId) {
 		CredentialData cred = getCredentialData(createdBy, credential, tags, hashtags, shouldTrackChanges);
 		cred.setProgress(progress);
 		cred.setNextCompetenceToLearnId(nextCompToLearnId);
-		cred.setNextActivityToLearnId(nextActToLearnId);
 		cred.setEnrolled(true);
 		return cred;
 	}

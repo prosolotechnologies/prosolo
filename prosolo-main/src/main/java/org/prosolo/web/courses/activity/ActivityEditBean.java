@@ -2,7 +2,6 @@ package org.prosolo.web.courses.activity;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,16 @@ import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -30,11 +32,15 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -65,19 +71,21 @@ public class ActivityEditBean implements Serializable {
 	private long decodedCredId;
 	
 	private ActivityData activityData;
+	private ResourceAccessData access;
 	private String competenceName;
 	private ResourceLinkData resLinkToAdd;
 	private String credentialTitle;
 	
 	private ActivityType[] activityTypes;
 	
-	private PublishedStatus[] actStatusArray;
-	
 	private ActivityResultType[] resultTypes;
 	
 	private String context;
 	
+	private boolean manageSection;
+	
 	public void init() {
+		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
 		decodedCredId = idEncoder.decodeId(credId);
 		try {
@@ -109,6 +117,16 @@ public class ActivityEditBean implements Serializable {
 		
 	}
 	
+	private void unpackResult(RestrictedAccessResult<ActivityData> res) {
+		activityData = res.getResource();
+		access = res.getAccess();
+	}
+	
+	public boolean isLimitedEdit() {
+		//if competence with this activity was once published, only limited edit is allowed
+		return activityData.isOncePublished();
+	}
+	
 	private void setContext() {
 		if(decodedCredId > 0) {
 			context = "name:CREDENTIAL|id:" + decodedCredId;
@@ -123,9 +141,6 @@ public class ActivityEditBean implements Serializable {
 	
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
-		actStatusArray = Arrays.stream(PublishedStatus.values()).filter(
-				s -> s != PublishedStatus.SCHEDULED_PUBLISH && s != PublishedStatus.SCHEDULED_UNPUBLISH)
-				.toArray(PublishedStatus[]::new);
 		resultTypes = ActivityResultType.values();
 	}
 
@@ -140,10 +155,14 @@ public class ActivityEditBean implements Serializable {
 
 	private void loadActivityData(long credId, long compId, long actId) {
 		try {
-			activityData = activityManager.getActivityData(credId, compId, actId, 
-					loggedUser.getUserId(), true, UserGroupPrivilege.Edit);
+			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
+			ResourceAccessRequirements req = ResourceAccessRequirements.of(mode)
+					.addPrivilege(UserGroupPrivilege.Edit);
+			RestrictedAccessResult<ActivityData> res = activityManager.getActivityData(credId, compId, actId, 
+					loggedUser.getUserId(), true, req);
+			unpackResult(res);
 			
-			if(!activityData.isCanAccess()) {
+			if(!access.isCanAccess()) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
 				} catch (IOException e) {
@@ -318,9 +337,9 @@ public class ActivityEditBean implements Serializable {
 	 * ACTIONS
 	 */
 	
-	public void preview() {
-		saveActivityData(true);
-	}
+//	public void preview() {
+//		saveActivityData(true);
+//	}
 	
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;
@@ -335,7 +354,7 @@ public class ActivityEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?actAdded=true");
+						"/competences/" + compId + "/edit?actAdded=true&tab=activities");
 				if(credId != null && !credId.isEmpty()) {
 					url.append("&credId=" + credId);
 				}
@@ -357,21 +376,13 @@ public class ActivityEditBean implements Serializable {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			
-			//youtube captions
-//			if(activityData.getActivityType() == ActivityType.VIDEO) {
-//				Captions c = new Captions();
-//				c.downloadVideoCaption(activityData.getEmbedId());
-//			}
-			
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, 
-							loggedUser.getUserId(), lcd);
+					activityManager.updateActivity(activityData, loggedUser.getUserId(), lcd);
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, 
-						loggedUser.getUserId(), lcd);
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserId(), lcd);
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -386,7 +397,10 @@ public class ActivityEditBean implements Serializable {
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(DbConnectionException e) {
+		} catch(EventException ee) {
+			logger.error(ee);
+			return true;
+		} catch(DbConnectionException|IllegalDataStateException|StaleDataException e) {
 			logger.error(e);
 			e.printStackTrace();
 			/*
@@ -401,17 +415,29 @@ public class ActivityEditBean implements Serializable {
 	public void delete() {
 		try {
 			if(activityData.getActivityId() > 0) {
-				/*
-				 * passing decodedId because we need to pass id of
-				 * original competence and not id of a draft version
-				 */
-				activityManager.deleteActivity(decodedId, activityData, loggedUser.getUserId());
-				activityData = new ActivityData(false);
-				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
+				//activityData = new ActivityData(false);
+				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+				try {
+					/*
+					 * this will not work if there are multiple levels of directories in current view path
+					 * example: /credentials/create-credential will return /credentials as a section but this
+					 * may not be what we really want.
+					 */
+					StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+							"/competences/" + compId + "/edit?actAdded=true");
+					if(credId != null && !credId.isEmpty()) {
+						url.append("&credId=" + credId);
+					}
+					extContext.redirect(url.toString());
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			} else {
 				PageUtil.fireErrorMessage("Activity is not saved so it can't be deleted");
 			}
-		} catch(Exception e) {
+		} catch(DbConnectionException|IllegalDataStateException e) {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -457,14 +483,6 @@ public class ActivityEditBean implements Serializable {
 
 	public void setActivityTypes(ActivityType[] activityTypes) {
 		this.activityTypes = activityTypes;
-	}
-
-	public PublishedStatus[] getActStatusArray() {
-		return actStatusArray;
-	}
-
-	public void setActStatusArray(PublishedStatus[] actStatusArray) {
-		this.actStatusArray = actStatusArray;
 	}
 
 	public ResourceLinkData getResLinkToAdd() {

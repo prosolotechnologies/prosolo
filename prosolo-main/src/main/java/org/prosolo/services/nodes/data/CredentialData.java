@@ -1,16 +1,14 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -19,8 +17,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 
 	private static final long serialVersionUID = -8784334832131740545L;
 	
-	private static Logger logger = Logger.getLogger(CredentialData.class);
+	//private static Logger logger = Logger.getLogger(CredentialData.class);
 	
+	/*
+	 * this is special version field that should not be changed. it should be copied from 
+	 * a database record and never be changed again.
+	 */
+	private long version = -1;
 	private long id;
 	private String title;
 	private String description;
@@ -28,18 +31,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private String tagsString;
 	private Set<Tag> hashtags;
 	private String hashtagsString = "";
-	private PublishedStatus status;
-	private String typeString;
-	private LearningResourceType type;
 	private boolean mandatoryFlow;
 	private long duration;
 	private String durationString;
 	private ResourceCreator creator;
 	private List<CompetenceData1> competences;
-	//true if this is data for draft version of credential
-	//private boolean draft;
-	//private boolean hasDraft;
-	private boolean studentsCanAddCompetences;
 	private boolean automaticallyAssingStudents;
 	private int defaultNumberOfStudentsPerInstructor;
 	
@@ -48,7 +44,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private long targetCredId;
 	private int progress;
 	private long nextCompetenceToLearnId;
-	private long nextActivityToLearnId;
 	
 	private boolean bookmarkedByCurrentUser;
 	private long instructorId;
@@ -57,45 +52,27 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private Date date;
 	private boolean instructorPresent;
 	
-	//private boolean visible;
-	private boolean published;
-	private Date scheduledPublishDate;
-	private String scheduledPublishDateValue;
-	private String scheduledPublishDateStringView;
+	private boolean archived;
 	
-	private boolean canEdit;
-	private boolean canAccess;
+	//for delivery
+	private long deliveryOfId;
+	private Date deliveryStart;
+	private Date deliveryEnd;
+	private CredentialType type;
+	//is delivery active
+	private CredentialDeliveryStatus deliveryStatus;
+	private long numberOfStudents;
+	private long numberOfInstructors;
+	
+	//for original
+	private List<CredentialData> deliveries;
 	
 	public CredentialData(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
+		//this.status = PublishedStatus.UNPUBLISH;
 		competences = new ArrayList<>();
 		this.listenChanges = listenChanges;
 	}
-	
-	public void setCredentialStatus() {
-		setCredentialStatus(published, scheduledPublishDate);
-	}
-	
-	public void setCredentialStatus(boolean published, Date scheduledPublicDate) {
-		if(published) {
-			if(scheduledPublicDate == null) {
-				this.status = PublishedStatus.PUBLISHED;
-			} else {
-				this.status = PublishedStatus.SCHEDULED_UNPUBLISH;
-			}
-		} else {
-			if(scheduledPublicDate == null) {
-				this.status = PublishedStatus.UNPUBLISH;
-			} else {
-				this.status = PublishedStatus.SCHEDULED_PUBLISH;
-			}
-		}
-	}
-	
-//	public boolean isCredVisible() {
-//		return this.visibility == ResourceVisibility.PUBLISHED ? true : false;
-//	}
-	
+
 	/**
 	 * This method needed to be overriden to deal with collection of competences because
 	 * super method does not take into account collections
@@ -113,40 +90,25 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return changed;
 	}
 	
+	public String getDeliveryStartString() {
+		return getDateString(deliveryStart);
+	}
+	
+	public String getDeliveryEndString() {
+		return getDateString(deliveryEnd);
+	}
+	
+	public String getDateString(Date date) {
+		String str = DateUtil.parseDateWithShortMonthName(date);
+		return str != null ? str : "-";
+	}
+	
 	public boolean hasMoreCompetences(int index) {
 		return index < competences.size() - 1;
 	}
 	
-//	/**
-//	 * Returns true if credential is draft and it is not a draft version, so it
-//	 * means that it is original version that is created as draft - has never been published
-//	 * @return
-//	 */
-//	public boolean isFirstTimeDraft() {
-//		return !published && !draft && !hasDraft;
-//	}
-	
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
-	}
-	
-	//setting published flag based on course status
-	private void setPublished() {
-		if(status == PublishedStatus.PUBLISHED || status == PublishedStatus.UNPUBLISH) {
-			setPublished(status == PublishedStatus.PUBLISHED ? true : false);
-		}
-	}
-	
-	private void setCredentialTypeFromString() {
-		type = LearningResourceType.valueOf(typeString.toUpperCase());
-	}
-	
-	public boolean isUniversityCreated() {
-		return type == LearningResourceType.UNIVERSITY_CREATED;
-	}
-	
-	public boolean isUserCreated() {
-		return type == LearningResourceType.USER_CREATED;
 	}
 	
 	public boolean isCompleted() {
@@ -171,15 +133,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.description = description;
 	}
 
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		observeAttributeChange("published", this.published, published);
-		this.published = published;
-	}
-
 	public String getTagsString() {
 		return tagsString;
 	}
@@ -198,23 +151,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.hashtagsString = hashtagsString;
 	}
 
-	public PublishedStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(PublishedStatus status) {
-		this.status = status;
-		setPublished();
-	}
-
-	public LearningResourceType getType() {
-		return type;
-	}
-
-	public void setType(LearningResourceType type) {
-		this.type = type;
-	}
-
 	public boolean isMandatoryFlow() {
 		return mandatoryFlow;
 	}
@@ -222,15 +158,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setMandatoryFlow(boolean mandatoryFlow) {
 		observeAttributeChange("mandatoryFlow", this.mandatoryFlow, mandatoryFlow);
 		this.mandatoryFlow = mandatoryFlow;
-	}
-
-	public String getTypeString() {
-		return typeString;
-	}
-
-	public void setTypeString(String typeString) {
-		this.typeString = typeString;
-		setCredentialTypeFromString();
 	}
 
 	public long getId() {
@@ -305,22 +232,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.hashtags = hashtags;
 	}
 
-//	public boolean isDraft() {
-//		return draft;
-//	}
-//
-//	public void setDraft(boolean draft) {
-//		this.draft = draft;
-//	}
-
-	public boolean isStudentsCanAddCompetences() {
-		return studentsCanAddCompetences;
-	}
-
-	public void setStudentsCanAddCompetences(boolean studentsCanAddCompetences) {
-		this.studentsCanAddCompetences = studentsCanAddCompetences;
-	}
-
 	public boolean isAutomaticallyAssingStudents() {
 		return automaticallyAssingStudents;
 	}
@@ -349,28 +260,12 @@ public class CredentialData extends StandardObservable implements Serializable {
 		calculateDurationString();
 	}
 
-//	public boolean isHasDraft() {
-//		return hasDraft;
-//	}
-//
-//	public void setHasDraft(boolean hasDraft) {
-//		this.hasDraft = hasDraft;
-//	}
-
 	public boolean isBookmarkedByCurrentUser() {
 		return bookmarkedByCurrentUser;
 	}
 
 	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
 		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
-	}
-
-	public long getNextActivityToLearnId() {
-		return nextActivityToLearnId;
-	}
-
-	public void setNextActivityToLearnId(long nextActivityToLearnId) {
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public long getNextCompetenceToLearnId() {
@@ -420,61 +315,67 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setInstructorPresent(boolean instructorPresent) {
 		this.instructorPresent = instructorPresent;
 	}
-
-	public Date getScheduledPublishDate() {
-		return scheduledPublishDate;
+	
+	public boolean isArchived() {
+		return archived;
 	}
 
-	public void setScheduledPublishDate(Date scheduledPublishDate) {
-		observeAttributeChange("scheduledPublicDate", this.scheduledPublishDate, scheduledPublishDate, 
-				(Date d1, Date d2) -> d1 == null ? d2 == null : d2 == null ? false : d1.compareTo(d2) == 0);
-		this.scheduledPublishDate = scheduledPublishDate;
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	public long getVersion() {
+		return version;
 	}
 
-	public String getScheduledPublishDateValue() {
-		return scheduledPublishDateValue;
-	}
-
-	public void setScheduledPublishDateValue(String scheduledPublishDateValue) {
-		this.scheduledPublishDateValue = scheduledPublishDateValue;
-		if(StringUtils.isNotBlank(scheduledPublishDateValue)) {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-			Date d = null;
-			try {
-				d = sdf.parse(scheduledPublishDateValue);
-			} catch(Exception e) {
-				logger.error(String.format("Could not parse scheduled publish time : %s", scheduledPublishDateValue), e);
-			}
-			setScheduledPublishDate(d);
+	/**
+	 * Setting version is only allowed if version is -1. Generally version should not 
+	 * be changed except when data is being populated.
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		if(this.version == -1) {
+			this.version = version;
 		}
 	}
-	
-	public boolean isCanEdit() {
-		return canEdit;
-	}
-
-	public void setCanEdit(boolean canEdit) {
-		this.canEdit = canEdit;
-	}
-	
-	public boolean isCanAccess() {
-		return canAccess;
-	}
-
-	public void setCanAccess(boolean canAccess) {
-		this.canAccess = canAccess;
-	}
-	
-//	public boolean isVisible() {
-//		return visible;
-//	}
-//
-//	public void setVisible(boolean visible) {
-//		this.visible = visible;
-//	}
 
 	//change tracking get methods
 	
+	public long getDeliveryOfId() {
+		return deliveryOfId;
+	}
+
+	public void setDeliveryOfId(long deliveryOfId) {
+		this.deliveryOfId = deliveryOfId;
+	}
+
+	public Date getDeliveryStart() {
+		return deliveryStart;
+	}
+
+	public void setDeliveryStart(Date deliveryStart) {
+		observeAttributeChange("deliveryStart", this.deliveryStart, deliveryStart);
+		this.deliveryStart = deliveryStart;
+	}
+
+	public Date getDeliveryEnd() {
+		return deliveryEnd;
+	}
+
+	public void setDeliveryEnd(Date deliveryEnd) {
+		observeAttributeChange("deliveryEnd", this.deliveryEnd, deliveryEnd);
+		this.deliveryEnd = deliveryEnd;
+	}
+
+	public CredentialType getType() {
+		return type;
+	}
+
+	public void setType(CredentialType type) {
+		this.type = type;
+	}
+
 	public boolean isTitleChanged() {
 		return changedAttributes.containsKey("title");
 	}
@@ -495,10 +396,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return (String) changedAttributes.get("hashtagsString");
 	}
 
-	public boolean isPublishedChanged() {
-		return changedAttributes.containsKey("published");
-	}
-
 	public boolean isStatusChanged() {
 		return changedAttributes.containsKey("status");
 	}
@@ -514,13 +411,45 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
 	}
-
-	public String getScheduledPublishDateStringView() {
-		return scheduledPublishDateStringView;
+	
+	public boolean isDeliveryStartChanged() {
+		return changedAttributes.containsKey("deliveryStart");
+	}
+	
+	public boolean isDeliveryEndChanged() {
+		return changedAttributes.containsKey("deliveryEnd");
 	}
 
-	public void setScheduledPublishDateStringView(String scheduledPublishDateStringView) {
-		this.scheduledPublishDateStringView = scheduledPublishDateStringView;
+	public List<CredentialData> getDeliveries() {
+		return deliveries;
+	}
+
+	public void setDeliveries(List<CredentialData> deliveries) {
+		this.deliveries = deliveries;
+	}
+
+	public CredentialDeliveryStatus getDeliveryStatus() {
+		return deliveryStatus;
+	}
+
+	public void setDeliveryStatus(CredentialDeliveryStatus deliveryStatus) {
+		this.deliveryStatus = deliveryStatus;
+	}
+
+	public long getNumberOfStudents() {
+		return numberOfStudents;
+	}
+
+	public void setNumberOfStudents(long numberOfStudents) {
+		this.numberOfStudents = numberOfStudents;
+	}
+
+	public long getNumberOfInstructors() {
+		return numberOfInstructors;
+	}
+
+	public void setNumberOfInstructors(long numberOfInstructors) {
+		this.numberOfInstructors = numberOfInstructors;
 	}
 
 }

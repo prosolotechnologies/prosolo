@@ -19,6 +19,7 @@ import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseInstructor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.CourseManager;
@@ -45,7 +46,7 @@ public class InstructorEditBean implements Serializable {
 	
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CourseManager courseManager;
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private RoleManager roleManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
@@ -175,18 +176,18 @@ public class InstructorEditBean implements Serializable {
 	
 	public void searchUnassignedStudents() {
 		try {
-			unassignedStudents = new ArrayList<>();
-			
-			Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
-			
-			if (unassignedUsers != null) {
-				for (Map<String, Object> user : unassignedUsers) {
-					BasicUserData data = new BasicUserData(user);
-					unassignedStudents.add(data);
-				}
-			}
+//			unassignedStudents = new ArrayList<>();
+//			
+//			Map<String, Object> result = textSearch.searchUnassignedCourseMembers(studentSearchTerm, decodedCourseId);
+//			@SuppressWarnings("unchecked")
+//			List<Map<String, Object>> unassignedUsers = (List<Map<String, Object>>) result.get("data");
+//			
+//			if (unassignedUsers != null) {
+//				for (Map<String, Object> user : unassignedUsers) {
+//					BasicUserData data = new BasicUserData(user);
+//					unassignedStudents.add(data);
+//				}
+//			}
 		} catch(Exception e) {
 			logger.error(e);
 		}

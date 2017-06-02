@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -44,6 +45,7 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.Attach,
 			EventType.Edit_Profile,
 			EventType.ENROLL_COURSE,
+			EventType.ENROLL_COMPETENCE,
 			EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR,
 			EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR,
 			EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,
@@ -60,10 +62,11 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ADD_USER_TO_GROUP,
 			EventType.REMOVE_USER_FROM_GROUP,
 			EventType.RESOURCE_VISIBILITY_CHANGE,
-			EventType.USER_GROUP_ADDED_TO_RESOURCE,
-			EventType.USER_GROUP_REMOVED_FROM_RESOURCE,
 			EventType.VISIBLE_TO_ALL_CHANGED,
-			EventType.STATUS_CHANGED
+			EventType.STATUS_CHANGED,
+			EventType.ARCHIVE,
+			EventType.RESTORE,
+			EventType.USER_GROUP_CHANGE
 		};
 	}
 
@@ -77,6 +80,7 @@ public class NodeChangeObserver extends EventObserver {
 			Competence1.class, 
 			CredentialBookmark.class,
 			TargetCredential1.class,
+			TargetCompetence1.class,
 			UserGroup.class
 		};
 	}

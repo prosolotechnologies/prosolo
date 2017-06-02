@@ -1,39 +1,43 @@
 package org.prosolo.services.nodes;
 
-import java.util.List;
-
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
-import org.prosolo.bigdata.common.exceptions.CredentialEmptyException;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceAccessData;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.TagCountData;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.springframework.dao.DataIntegrityViolationException;
 
-import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+import java.util.Date;
+import java.util.List;
 
 public interface CredentialManager extends AbstractManager {
 
+	/**
+	 * Saves new credential.
+	 * 
+	 * This method should be used for saving original credential only and not for delivery.
+	 * 
+	 * @param data
+	 * @param creatorId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
 			throws DbConnectionException;
 	
@@ -47,6 +51,12 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	Credential1 deleteCredential(long credId, long userId) throws DbConnectionException;
 	
+	void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
+			DataIntegrityViolationException, EventException;
+	
+	Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException, 
+			DataIntegrityViolationException, StaleDataException;
+	
 	/**
 	 * Returns user target credential data if user is enrolled in a credential, or credential data 
 	 * if that is not the case.
@@ -54,27 +64,35 @@ public interface CredentialManager extends AbstractManager {
 	 * @param userId
 	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
 	 */
-	CredentialData getFullTargetCredentialOrCredentialData(long credentialId, long userId)
+	RestrictedAccessResult<CredentialData> getFullTargetCredentialOrCredentialData(long credentialId, long userId)
 			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
-	 * Returns credential data with specified id. 
-	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER is passed for {@code returnType}
-	 * parameter credential will be returned even if it is first time draft if creator of credential
-	 * is user specified by {@code userId}.
-	 * If LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_MANAGER is passed for {@code returnType}
-	 * parameter credential will be returned even if it is first time draft if credential is created by
-	 * university.
+	 * Returns credential data with specified id.
+	 *
+	 * If {@code req.getAccessMode()} equals {@code AccessMode.User} competencies that are returned if competencies
+	 * should be loaded are user competencies with progress if exists. Otherwise credential competencies without user
+	 * progress are returned
+	 * 
 	 * @param credentialId
 	 * @param loadCreatorData
 	 * @param loadCompetences
 	 * @param userId
-	 * @param privilege - privilege needed to be able to access that credential
+	 * @param req
 	 * @return
-	 * @throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException
+	 * @throws ResourceNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws DbConnectionException
 	 */
-	CredentialData getCredentialData(long credentialId, boolean loadCreatorData, boolean loadCompetences, 
-			long userId, UserGroupPrivilege privilege) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	RestrictedAccessResult<CredentialData> getCredentialData(long credentialId, boolean loadCreatorData,
+			boolean loadCompetences, long userId, ResourceAccessRequirements req) 
+					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
+	
+	RestrictedAccessResult<CredentialData> getCredentialDataForManagerView(long credentialId, 
+			long userId) throws ResourceNotFoundException, DbConnectionException;
+	
+	RestrictedAccessResult<CredentialData> getCredentialForEdit(long credId, long userId) 
+			throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
 	 * Returns Credential data for id: {@code credentialId} with user's progress
@@ -97,6 +115,19 @@ public interface CredentialManager extends AbstractManager {
 	CredentialData getBasicCredentialData(long credentialId, long userId) 
 			throws DbConnectionException;
 	
+	/**
+	 * Returns basic credential data with info whether credential is bookmarked by user or not, but only
+	 * if credential is of type given by {@code type} parameter. Otherwise, null is returned.
+	 * 
+	 * @param credentialId
+	 * @param userId
+	 * @param type
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialData getBasicCredentialData(long credentialId, long userId, CredentialType type) 
+			throws DbConnectionException;
+	
 //	/** Returns credential data for edit. If there is a draft version for a credential
 //	 *  that version data will be returned
 //	 *  
@@ -110,17 +141,19 @@ public interface CredentialManager extends AbstractManager {
 //	CredentialData getCredentialDataForEdit(long credentialId, long creatorId, boolean loadCompetences) 
 //			throws DbConnectionException;
 	
-	Credential1 updateCredential(CredentialData data, long userId, 
-			LearningContextData context) throws DbConnectionException, CredentialEmptyException, 
-			CompetenceEmptyException;
+	Credential1 updateCredential(CredentialData data, long userId, LearningContextData context) 
+			throws DbConnectionException, StaleDataException, IllegalDataStateException;
 	
-	Result<Credential1> updateCredentialData(CredentialData data, long creatorId);
+	Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException, IllegalDataStateException;
 	
-	CredentialData enrollInCredential(long credentialId, long userId, LearningContextData context) 
-			throws DbConnectionException;
+	void enrollInCredential(long credentialId, long userId, LearningContextData context) 
+			throws DbConnectionException, EventException;
 	
 	void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context) 
 			throws DbConnectionException;
+	
+	Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId, 
+			long instructorThatForcedEnrollId, LearningContextData context) throws DbConnectionException;
 	
 	/**
 	 * Adds competence to credential, updates credential duration. If credential is published, draft version 
@@ -200,11 +233,12 @@ public interface CredentialManager extends AbstractManager {
 
 	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
 	
-	void updateCredentialAndCompetenceProgressAndNextActivityToLearn(long credId, 
-			long targetCompId, long targetActId, long userId, LearningContextData contextData) 
-					throws DbConnectionException;
+	List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData) 
+			throws DbConnectionException;
 	
 	String getCredentialTitle(long id) throws DbConnectionException;
+	
+	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
 	
 	String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException;
 	
@@ -233,7 +267,7 @@ public interface CredentialManager extends AbstractManager {
 	 * Method for getting all completed credentials (credentials that has progress == 100)
 	 * 
 	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
 	 * @return
 	 * @throws DbConnectionException
 	 */
@@ -253,16 +287,13 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Updated hidden_from_profile_field
 	 * @param id
-	 * @param duration
+	 * @param hiddenFromProfile
 	 * @throws DbConnectionException
 	 */
 	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
-
-	String getCredentialTitleForCredentialWithType(long id, LearningResourceType type) 
-			throws DbConnectionException;
 	
 	TargetCredential1 getTargetCredential(long credentialId, long userId, 
-			boolean loadCreator, boolean loadTags) throws DbConnectionException;
+			boolean loadCreator, boolean loadTags, boolean loadInstructor) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
 	
@@ -292,16 +323,13 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) throws DbConnectionException;
 	
-	List<Long> getTargetCredentialIdsForUsers(List<Long> userIds, long credId) 
+	List<TargetCredential1> getTargetCredentialsForUsers(List<Long> userIds, long credId) 
 			throws DbConnectionException;
 	
 	boolean saveNewCredentialFeed(long credId, String feedLink) 
 			throws DbConnectionException, EntityAlreadyExistsException;
 	
 	void removeFeed(long credId, long feedSourceId) throws DbConnectionException;
-	
-	CredentialData getTargetCredentialTitleAndLearningOrderInfo(long credId, long userId) 
-			throws DbConnectionException;
 
 	List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
 			throws DbConnectionException;
@@ -313,7 +341,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException;
 	
-	CredentialData getTargetCredentialNextCompAndActivityToLearn(long credId, long userId) 
+	long getTargetCredentialNextCompToLearn(long credId, long userId) 
 			throws DbConnectionException;
 	
 	long getNumberOfUsersLearningCredential(long credId) 
@@ -331,8 +359,12 @@ public interface CredentialManager extends AbstractManager {
 			boolean justUncompleted) throws DbConnectionException;
 	
 	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged) 
-    				throws DbConnectionException;
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
+    		LearningContextData lcd) throws DbConnectionException, EventException;
+	
+	List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
+    		LearningContextData lcd) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 	
@@ -348,17 +380,6 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 
 	UserData chooseRandomPeer(long credId, long userId);
-
-	/**
-	 * Returns titles of a credential and competence with given ids.
-	 * 
-	 * @param credId
-	 * @param compId
-	 * @return array of two strings where first element is credential title and the second element is competence title.
-	 * @throws DbConnectionException
-	 */
-	
-	Object[] getCredentialAndCompetenceTitle(long credId, long compId) throws DbConnectionException;
 	
 	
 	/**
@@ -374,7 +395,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns list of CompetenceData for given credentials.
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return list of simple data types from TargetCompetence
 	 * @throws DbConnectionException
 	 */
@@ -383,7 +404,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns titles of a tag and number of tag occurrences for given credential
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return array of two elements where first element is tag title and the second element is competence title.
 	 * @throws DbConnectionException
 	 */
@@ -392,7 +413,7 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * Returns list of ActivityData for given credentials.
 	 * 
-	 * @param credId
+	 * @param credentialId
 	 * @return list of simple data types from TargetActivity(title, id, duration and competenceId)
 	 * @throws DbConnectionException
 	 */
@@ -418,9 +439,44 @@ public interface CredentialManager extends AbstractManager {
 
 	CredentialData getTargetCredentialData(long credentialId, long userId, boolean loadCompetences)
 			throws DbConnectionException;
-
-	void updateTargetCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+	
+	LearningInfo getCredentialLearningInfo(long credId, long userId, boolean loadCompLearningInfo) 
+			throws DbConnectionException;
+	
+	List<CredentialData> getActiveDeliveries(long credId) throws DbConnectionException;
+	
+	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
+			long userId) throws DbConnectionException;
+	
+	void archiveCredential(long credId, long userId, LearningContextData context) throws DbConnectionException;
+	
+	void restoreArchivedCredential(long credId, long userId, LearningContextData context) throws DbConnectionException;
+	
+	long countNumberOfCredentials(CredentialSearchFilterManager searchFilter, long userId, UserGroupPrivilege priv) 
+			throws DbConnectionException, NullPointerException;
+	
+	List<CredentialData> searchCredentialsForManager(CredentialSearchFilterManager searchFilter, int limit, int page, 
+			LearningResourceSortOption sortOption, long userId) throws DbConnectionException, NullPointerException;
+	
+	UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) throws DbConnectionException;
+	
+	ResourceAccessData getResourceAccessData(long credId, long userId, ResourceAccessRequirements req) 
+			throws DbConnectionException;
+	
+	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
+	
+	Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
+			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
+			IllegalDataStateException, EventException;
+	
+	Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
+			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException,
+			IllegalDataStateException;
+	
+	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 
 	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
 
 }

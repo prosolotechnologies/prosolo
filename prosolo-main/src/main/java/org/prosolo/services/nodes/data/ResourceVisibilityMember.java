@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.data;
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.web.util.AvatarUtils;
@@ -22,7 +23,7 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	private String avatar;
 	private String position;
 	
-	private UserGroupPrivilegeData privilege;
+	private UserGroupPrivilege privilege;
 	
 	private ObjectStatus status = ObjectStatus.UP_TO_DATE;
 	
@@ -31,7 +32,7 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	}
 	
 	public ResourceVisibilityMember(long resourceGroupId, long groupId, String groupName, 
-			long userCount, UserGroupPrivilegeData priv, boolean listenChanges) {
+			long userCount, UserGroupPrivilege priv, boolean listenChanges) {
 		this.id = resourceGroupId;
 		this.groupId = groupId;
 		this.name = groupName;
@@ -41,7 +42,7 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 		this.listenChanges = listenChanges;
 	}
 	
-	public ResourceVisibilityMember(long userGroupUserId, User user, UserGroupPrivilegeData priv,
+	public ResourceVisibilityMember(long userGroupUserId, User user, UserGroupPrivilege priv,
 			boolean listenChanges) {
 		this.id = userGroupUserId;
 		this.userId = user.getId();
@@ -101,11 +102,11 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 		this.position = position;
 	}
 
-	public UserGroupPrivilegeData getPrivilege() {
+	public UserGroupPrivilege getPrivilege() {
 		return privilege;
 	}
 
-	public void setPrivilege(UserGroupPrivilegeData privilege) {
+	public void setPrivilege(UserGroupPrivilege privilege) {
 		observeAttributeChange("privilege", this.privilege, privilege);
 		this.privilege = privilege;
 	}

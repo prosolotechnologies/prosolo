@@ -1,0 +1,72 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://www.prosolo.com/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<composite:interface>
+		<composite:attribute name="compId" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+
+	 <div id="#{cc.clientId}">
+		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+		 <ul class="nav nav-tabs headerSubmenu">
+		 	<ui:fragment rendered="#{cc.attrs.compId le 0}">
+				<li role="presentation" class="active">
+					<a href="javascript:void(0);" data-toggle="tooltip"
+					   title="Competency must be saved first">Competency Details
+					</a>
+				</li>
+		 	</ui:fragment>
+		 	<ui:fragment rendered="#{cc.attrs.compId gt 0}">
+				<li
+					role="presentation"
+					class="#{page  == 'create-competence'
+						|| page  == 'competence' ? 'active' : ''}">
+					<h:link
+						value="Competency Details"
+						outcome="create-competence">
+						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
+				<li
+						role="presentation"
+						class="#{page  == 'competence-visibility' ? 'active' : ''}">
+					<h:link
+							value="Who can learn"
+							outcome="competence-visibility">
+						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
+				<li
+						role="presentation"
+						class="#{util:getPagePath(view.viewId)  == 'competence-students' ? 'active' : ''}">
+					<h:link
+							value="Students"
+							outcome="competence-students">
+						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
+				<li
+						role="presentation"
+						class="#{page  == 'competence-privacy' ? 'active' : ''}">
+					<h:link
+							value="Editors"
+							outcome="competence-privacy">
+						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
+		 	</ui:fragment>
+	     </ul>
+     </div>
+	</composite:implementation>
+</ui:component>

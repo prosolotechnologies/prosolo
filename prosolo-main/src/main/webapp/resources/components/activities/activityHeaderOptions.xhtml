@@ -18,7 +18,6 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="canEdit" default="" />
-		<composite:attribute name="isPreview" default="" />
 		<composite:attribute name="toUpdateOnActivityComplete" default="" />
 	</composite:interface>
 	
@@ -29,7 +28,7 @@
 				<h:panelGroup layout="block" id="panelComplete" styleClass="whiteBarLeft">
 					<p:commandLink
 						rendered="#{cc.attrs.activity.enrolled 
-							and !cc.attrs.isPreview and !cc.attrs.activity.completed
+							and !cc.attrs.activity.completed
 							and (cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder) and (cc.attrs.activity.resultData.resultType eq 'NONE' or  ! empty cc.attrs.activity.resultData.result)}"
 						styleClass="btn btn-green btn-sm item"
 						value="Mark as Complete"
@@ -41,7 +40,7 @@
 					</p:commandLink>
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
-							and !cc.attrs.isPreview and !cc.attrs.activity.completed 
+							and !cc.attrs.activity.completed 
 							and !(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}">
 						<a href="javascript:void(0);" 
 							class="btn btn-green btn-sm item" 
@@ -53,7 +52,7 @@
 					</ui:fragment>
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
-							and !cc.attrs.isPreview and !cc.attrs.activity.completed
+							and !cc.attrs.activity.completed
 							and (cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder) and cc.attrs.activity.resultData.resultType ne 'NONE' and empty cc.attrs.activity.resultData.result}">
 						<a href="javascript:void(0);" 
 							class="btn btn-green btn-sm item" 
@@ -65,11 +64,11 @@
 					</ui:fragment>
 					
 					<ui:fragment rendered="#{cc.attrs.activity.enrolled 
-						and !cc.attrs.isPreview and cc.attrs.activity.completed}">
+						and cc.attrs.activity.completed}">
 						<div class="tagCompleted item">Completed</div>
 						
 						<h:link
-							rendered="#{cc.attrs.bean.nextCompToLearn ne 0}"
+							rendered="#{cc.attrs.bean.nextCompToLearn ne 0 and cc.attrs.bean.nextActivityToLearn ne 0}"
                 			value="Continue"
                 			styleClass="btn btn-green btn-sm item"
                 			outcome="activity"
@@ -88,7 +87,7 @@
 					<div class="duration item">#{cc.attrs.activity.durationString}</div>
 					
 					<h:link 
-						rendered="#{cc.attrs.canEdit and !cc.attrs.isPreview}"
+						rendered="#{cc.attrs.canEdit}"
 						value="Edit Activity"
 						styleClass="btn btn-green-stroke btn-sm item"
 						outcome="create-activity">

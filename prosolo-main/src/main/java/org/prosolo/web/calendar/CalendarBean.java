@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.ScheduleEntryMoveEvent;
@@ -29,7 +30,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.reminders.dal.PersonalCalendarManager;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
@@ -53,7 +54,7 @@ public class CalendarBean implements Serializable {
 	
 	@Autowired private RemindersBean remindersBean;
 	@Autowired private LearningGoalDialogBean learningGoalDialogBean; 
-	@Autowired private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Autowired private LoggedUserBean loggedUser;
 	@Autowired private PersonalCalendarManager personalCalendarManager;
 	@Autowired private EventFactory eventFactory;
@@ -174,7 +175,7 @@ public class CalendarBean implements Serializable {
 		}
 		userSearchResults.clear();
 		
-		TextSearchResponse usersResponse = textSearch.searchUsers(keyword, 0, 4, false, totalListToExclude);
+		TextSearchResponse usersResponse = userTextSearch.searchUsers(keyword, 0, 4, false, totalListToExclude);
 		
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();

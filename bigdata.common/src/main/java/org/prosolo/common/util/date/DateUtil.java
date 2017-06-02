@@ -333,7 +333,17 @@ public class DateUtil {
 
 	    return dfFr.format(date);
 	}
-	
+
+	public static String formatDate(Date date, String format) {
+		if (date == null || format == null) {
+			return null;
+		}
+
+		DateFormat dfFr = new SimpleDateFormat(format);
+
+		return dfFr.format(date);
+	}
+
 	//java 8 date time
 	
 	public static Date toDate(LocalDateTime ldt) {
