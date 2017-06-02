@@ -1342,7 +1342,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	private Result<Void> removeCompetenceUserGroup(long compId, long compUserGroupId, long userGroupId, long userId,
 												   LearningContextData lcd) {
 		CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence
-				.currentManager().load(CredentialUserGroup.class, compUserGroupId);
+				.currentManager().load(CompetenceUserGroup.class, compUserGroupId);
 		delete(compGroup);
 
 		Result<Void> res = new Result<>();

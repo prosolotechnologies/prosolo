@@ -45,33 +45,33 @@
     	</div>
 
     	<div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="whiteBox manageVisibility">
-                    <div class="innerWrapper">
-                        <h2>Who can learn</h2>
-                        <p>Select which students/student groups can enroll the competency:</p>
-                    </div>
-
-                    <h:form id="formMain">
-                        <div class="checkbox checkLine checkAll">
-                            <h:selectBooleanCheckbox id="checkVisibleAll"
-                                                     value="#{competenceUserPrivilegeBean.visibleToEveryone}">
-                            </h:selectBooleanCheckbox>
-                            <h:outputLabel for="checkVisibleAll">Enrollment open to everyone</h:outputLabel>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="whiteBox manageVisibility">
+                        <div class="innerWrapper">
+                            <h2>Who can learn</h2>
+                            <p>Select which students/student groups can enroll the competency:</p>
                         </div>
 
-                        <ls:userPrivileges
-                                bean="#{competenceUserPrivilegeBean}"
-                                process=":formMain:checkVisibleAll"
-                                toUpdate=":growlMain"
-                                learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
-                        />
-                    </h:form>
+                        <h:form id="formMain">
+                            <div class="checkbox checkLine checkAll">
+                                <h:selectBooleanCheckbox id="checkVisibleAll"
+                                                         value="#{competenceUserPrivilegeBean.visibleToEveryone}">
+                                </h:selectBooleanCheckbox>
+                                <h:outputLabel for="checkVisibleAll">Enrollment open to everyone</h:outputLabel>
+                            </div>
+
+                            <ls:userPrivileges
+                                    bean="#{competenceUserPrivilegeBean}"
+                                    process=":formMain:checkVisibleAll"
+                                    toUpdate=":growlMain"
+                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+                            />
+                        </h:form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
     </ui:define>
 </ui:composition>
