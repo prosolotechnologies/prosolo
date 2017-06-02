@@ -28,7 +28,20 @@
 		</ul>
 	</ui:define>
 	<ui:define name="content">
-	
+		<link rel="stylesheet" type="text/css" media="all"
+			href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<script
+			src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<script>
+			try {
+				Typekit.load({
+					async : true
+				});
+			} catch (e) {
+			}
+		</script>
+
 		<div class="whiteBar"></div>
 
 		<div class="container">
@@ -40,9 +53,10 @@
 							<h:outputText
 								value="#{userEditBean.user.name} #{userEditBean.user.lastName} - Personal Info" />
 						</H2>
-						<h:form id="formMain">
+
+						<div class="formWrapper">
+							<h:form id="formMain">
 							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-							<div class="formWrapper">
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
@@ -108,20 +122,107 @@
 										</h:panelGroup>
 									</div>
 								</div>
+
 								<div class="formLine">
 									<label>&#160;</label>
-									<div class="formLineRight">
+									<div class="formLineRight adminUserEditButtons">
 										<p:commandLink styleClass="btn btn-green"
-											action="#{userEditBean.saveUser()}" update=":formMain">
-	                                	Save Changes
-	                                </p:commandLink>
+													   action="#{userEditBean.saveUser()}" update=":formMain">
+											Save Changes
+										</p:commandLink>
+										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+													   action="#{userEditBean.setUserToDelete()}"
+													   update=":formDelete"
+													   oncomplete="$('#deleteUser').modal('show');">
+											Delete
+										</p:commandLink>
 									</div>
 								</div>
-							</div>
-						</h:form>
+							</h:form>
+
+
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<h:form id="formDelete">
+			<div class="modal fade deleteUserModal" id="deleteUser" tabindex="-1"
+				role="dialog" aria-labelledby="delUser">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header alignLeft">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&#215;</span>
+							</button>
+							<h2 class="modal-title">Delete user?</h2>
+						</div>
+						<div class="modal-body alignLeft">
+							<p>Are you sure you want to delete #{userEditBean.user.name}
+								#{userEditBean.user.lastName}?</p>
+							<p>Transfer content ownership to:</p>
+							<div class="inputWrapper">
+								<h:panelGroup layuot="block" id="selectNewOwner">
+									<h:panelGroup rendered="#{userEditBean.newOwner.userSet}">
+										<utilcomp:userAvatar
+											avatar="#{userEditBean.newOwner.avatarUrl}"
+											fullName="#{userEditBean.newOwner.fullName}" />
+										<h3>#{userEditBean.newOwner.fullName}</h3>
+										<div class="assignOpt">
+										<p:commandLink styleClass="removeX"
+										action="#{userEditBean.userReset()}"
+										update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
+										</div>
+									</h:panelGroup>
+
+									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
+										onkeyup="searchListener(execSearchUsers);"
+										value="#{userEditBean.searchTerm}" id="newName"
+										placeholder="Type name..." name="newName" autocomplete="off" />
+
+									<p:remoteCommand name="execSearchUsers" process="newName"
+										action="#{userEditBean.resetAndSearch()}"
+										update="usersListPanel" />
+
+									<h:panelGroup id="usersListPanel">
+										<h:panelGroup
+											rendered="#{not userEditBean.newOwner.userSet and userEditBean.users != null and userEditBean.users.size() > 0}">
+											<ul id="usersList" class="dropdown-menu searchResultsDrop"
+												style="display: block;">
+												<ui:repeat value="#{userEditBean.users}" var="user"
+													varStatus="iterator">
+													<li><p:commandLink style="cursor: pointer;"
+															id="userlink-#{user.id}"
+															action="#{userEditBean.setNewOwner(user)}"
+															update=":formDelete:selectNewOwner :formDelete:formDeleteBtn">
+															<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																fullName="#{user.fullName}" />
+															<h3>#{user.fullName}</h3>
+														</p:commandLink></li>
+												</ui:repeat>
+											</ul>
+										</h:panelGroup>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+						</div>
+						<BR />
+						<div class="modal-footer alignLeft">
+							<h:panelGroup id="formDeleteBtn">
+								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
+									action="#{userEditBean.delete()}"
+									rendered="#{userEditBean.newOwner.userSet}"
+									update=":formMain"
+									oncomplete="$('#deleteUser').modal('hide');">
+	                                	Delete
+	                                </p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</h:panelGroup>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
 	</ui:define>
 </ui:composition>

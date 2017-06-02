@@ -18,6 +18,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.logging.ComponentName;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
@@ -140,7 +141,11 @@ public class PostDialog implements Serializable {
 			this.text = resource.getTitle();
 		}
 		
-		this.attachPreview = WallActivityConverter.createAttachmentPreviewForResource(new NodeData(resourceToShare), loggedUser.getLocale());
+		try {
+			this.attachPreview = WallActivityConverter.createAttachmentPreviewForResource(new NodeData(resourceToShare), loggedUser.getLocale());
+		} catch (MediaDataException e) {
+			logger.error(e);
+		}
 
 		this.context = context;
 		

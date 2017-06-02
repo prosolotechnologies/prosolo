@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -18,6 +19,7 @@ import org.prosolo.common.domainmodel.credential.UrlActivityType;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
@@ -32,8 +34,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActivityDataFactory {
 	
+	private static final Logger logger = Logger.getLogger(ActivityDataFactory.class);
+	
 	public ActivityData getActivityData(CompetenceActivity1 competenceActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges) {
+			Set<ResourceLink> files, boolean shouldTrackChanges) throws MediaDataException {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
 			return null;
 		}
@@ -48,6 +52,7 @@ public class ActivityDataFactory {
 		data.setDurationHours((int) (activity.getDuration() / 60));
 		data.setDurationMinutes((int) (activity.getDuration() % 60));
 		data.calculateDurationString();
+		data.setMaxPoints(activity.getMaxPoints());
 		data.setMaxPointsString(activity.getMaxPoints() > 0 ? String.valueOf(activity.getMaxPoints()) : "");
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
@@ -98,7 +103,7 @@ public class ActivityDataFactory {
 		if(shouldTrackChanges) {
 			data.startObservingChanges();
 		}
-		
+
 		return data;
 	}
 	
@@ -132,7 +137,7 @@ public class ActivityDataFactory {
 	}
 
 	public ActivityData getActivityData(Activity1 act, long compId, int order, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges) {
+			Set<ResourceLink> files, boolean shouldTrackChanges) throws MediaDataException {
 		CompetenceActivity1 ca = new CompetenceActivity1();
 		ca.setActivity(act);
 		Competence1 comp = new Competence1();
@@ -141,7 +146,7 @@ public class ActivityDataFactory {
 		ca.setOrder(order);
 		return getActivityData(ca, links, files, shouldTrackChanges);
 	}
-	
+
 	private void populateTypeSpecificData(ActivityData act, Activity1 activity) {
 		activity.accept(new ActivityVisitor() {
 			
@@ -183,8 +188,12 @@ public class ActivityDataFactory {
 						break;
 					case Slides:
 						act.setActivityType(ActivityType.SLIDESHARE);
-						act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
-								.getEmbedLink());
+						try {
+							act.setEmbedId(SlideShareUtils.convertSlideShareURLToEmbededUrl(activity.getUrl(), null)
+									.getEmbedLink());
+						} catch (MediaDataException e) {
+							logger.error(e);
+						}
 						act.setSlidesLink(activity.getUrl());
 						break;
 				}
@@ -217,6 +226,8 @@ public class ActivityDataFactory {
 		act.calculateDurationString();
 		act.setType(activity.getType());
 		act.setAutograde(activity.isAutograde());
+		act.setMaxPoints(activity.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activity.getResultType()));
 		
 		act.setActivityType(getActivityType(activity));
 		
@@ -420,7 +431,10 @@ public class ActivityDataFactory {
 		act.setDurationHours((int) (activ.getDuration() / 60));
 		act.setDurationMinutes((int) (activ.getDuration() % 60));
 		act.calculateDurationString();
-		
+		act.setMaxPoints(activ.getMaxPoints());
+		act.getResultData().setResultType(getResultType(activ.getResultType()));
+		act.getResultData().setResult(activity.getResult());
+		act.setTargetCompetenceId(activity.getTargetCompetence().getId());
 		act.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if(shouldTrackChanges) {

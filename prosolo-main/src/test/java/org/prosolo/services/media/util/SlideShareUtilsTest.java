@@ -7,8 +7,8 @@ import org.junit.Test;
 public class SlideShareUtilsTest {
 
   @Test
-  public void convertSlideShareURLToEmbededUrl() {
+  public void convertSlideShareURLToEmbededUrl() throws MediaDataException  {
 	  String slideShareUrl="http://www.slideshare.net/jeremycod/consuming-restful-web-services-in-php";
-    SlideShareUtils.convertSlideShareURLToEmbededUrl(slideShareUrl, null);
+	  SlideShareUtils.convertSlideShareURLToEmbededUrl(slideShareUrl, null);
   }
 }

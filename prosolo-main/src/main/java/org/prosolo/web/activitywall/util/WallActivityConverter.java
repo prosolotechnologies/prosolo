@@ -30,6 +30,7 @@ import org.prosolo.services.activityWall.impl.util.SocialActivityConverterUtil;
 import org.prosolo.services.annotation.DislikeManager;
 import org.prosolo.services.annotation.LikeManager;
 import org.prosolo.services.interaction.CommentingManager;
+import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.media.util.VideoUtils;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
@@ -82,7 +83,7 @@ public class WallActivityConverter {
 	}
 	
 	public static AttachmentPreview createAttachmentPreview(String title, String description, String link,
-		String imageUrl, ContentType contentType, Locale locale) {
+		String imageUrl, ContentType contentType, Locale locale) throws MediaDataException {
 	
 		if (contentType == null) {
 			contentType = ContentType.LINK;
@@ -117,7 +118,7 @@ public class WallActivityConverter {
 		return attachmentPreview;
 	}
 	
-	public static AttachmentPreview initializeAttachmentPreview(AttachmentPreview attachmentPreview, Locale locale) {
+	public static AttachmentPreview initializeAttachmentPreview(AttachmentPreview attachmentPreview, Locale locale) throws MediaDataException {
 		if (VideoUtils.isEmbedableVideo(attachmentPreview.getLink())) {
 			String embedLink = VideoUtils.convertEmbedingLinkForYouTubeVideos(attachmentPreview, attachmentPreview.getLink());
 			
@@ -254,7 +255,7 @@ public class WallActivityConverter {
 //		}
 //	}
 
-	public static AttachmentPreview createAttachmentPreviewForResource(NodeData resource, Locale locale) {
+	public static AttachmentPreview createAttachmentPreviewForResource(NodeData resource, Locale locale) throws MediaDataException {
 		AttachmentPreview attachmentPreview = new AttachmentPreview();
 		
 		attachmentPreview.setContentType(ContentType.RESOURCE);
@@ -289,22 +290,26 @@ public class WallActivityConverter {
 		
 		if (soialActivitiesData != null && !soialActivitiesData.isEmpty()) {
 			for (SocialActivityData socialActivityData : soialActivitiesData) {
-				SocialActivityData initializedSocialActivityData = initiailizeSocialActivityData(socialActivityData, loggedUser.getId(), subviewType, locale);
-				
-				if (initializedSocialActivityData != null) {
+				SocialActivityData initializedSocialActivityData;
+				try {
+					initializedSocialActivityData = initiailizeSocialActivityData(socialActivityData, loggedUser.getId(), subviewType, locale);
+					if (initializedSocialActivityData != null) {
 //					wallActivity.setLiked(likeManager.isLikedByUser(socialActivity.getSocialActivity().getId(), loggedUser));
 //					wallActivity.setDisliked(dislikeManager.isDislikedByUser(socialActivity, loggedUser));
 //					wallActivity.setShared(postManager.isSharedByUser(socialActivity, loggedUser));
 //					initializedSocialActivityData.setOptionsDisabled(optionsDisabled);
-					
-					wallActivities.add(initializedSocialActivityData);
+						
+						wallActivities.add(initializedSocialActivityData);
+					}
+				} catch (MediaDataException e) {
+					logger.error(e);
 				}
 			}
 		}
 		return wallActivities;
 	}
 	
-	public SocialActivityData initiailizeSocialActivityData(SocialActivityData socialActivityData, long userId, SocialStreamSubViewType subViewType, Locale locale) {
+	public SocialActivityData initiailizeSocialActivityData(SocialActivityData socialActivityData, long userId, SocialStreamSubViewType subViewType, Locale locale) throws MediaDataException {
 		if (socialActivityData != null) {
 			socialActivityData = HibernateUtil.initializeAndUnproxy(socialActivityData);
 			
@@ -447,12 +452,16 @@ public class WallActivityConverter {
 		List<SocialActivityData> socialActivitiesData = new ArrayList<SocialActivityData>();
 		
 		for (SocialActivity socialActivity : socialActivities) {
-			socialActivitiesData.add(convertSocialActivityToSocialActivityData(socialActivity, userId, subViewType, locale));
+			try {
+				socialActivitiesData.add(convertSocialActivityToSocialActivityData(socialActivity, userId, subViewType, locale));
+			} catch (MediaDataException e) {
+				logger.error(e);
+			}
 		}
 		return socialActivitiesData;
 	}
 	
-	public SocialActivityData convertSocialActivityToSocialActivityData(SocialActivity socialActivity, long userId, SocialStreamSubViewType subViewType, Locale locale) {
+	public SocialActivityData convertSocialActivityToSocialActivityData(SocialActivity socialActivity, long userId, SocialStreamSubViewType subViewType, Locale locale) throws MediaDataException {
 		SocialActivityData socialActivityData = new SocialActivityData(socialActivity);
 		
 		// initializing liked and disliked

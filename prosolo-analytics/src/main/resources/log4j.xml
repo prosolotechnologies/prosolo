@@ -67,6 +67,11 @@
 		<appender-ref ref="console" />
 		<appender-ref ref="analytics.file" />
 	</logger>
+	<logger name="org.prosolo.bigdata.jobs" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+		<appender-ref ref="analytics.file" />
+	</logger>
 	<logger name="org.prosolo.bigdata.api" additivity="false">
 		<level value="DEBUG" />
 		<appender-ref ref="console" />

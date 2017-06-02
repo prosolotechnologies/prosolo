@@ -17,12 +17,13 @@
 		<jersey2.version>2.23</jersey2.version>
 		<jaxrs.version>2.0.1</jaxrs.version>
 		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>1.6.1</spark.version>
+		<spark.version>2.1.0</spark.version>
 		<scala.version>2.11.6</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.4</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
-	    <spark-cassandra-connector.version>1.5.0</spark-cassandra-connector.version>
+	    <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
+		<cassandra-java-driver.version>3.0.0</cassandra-java-driver.version>
 	</properties>
 	<repositories>
 		<!-- boilerpipe repo -->
@@ -93,6 +94,11 @@
 		<dependency>
 			<groupId>org.prosolo</groupId>
 			<artifactId>bigdata.common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.prosolo</groupId>
+			<artifactId>spark-jobs</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
@@ -420,23 +426,6 @@
 			<version>${mahout.version}</version>
 		</dependency>
 
-		<!--Jahmm dependencies-->
-		<!--dependency>
-			<groupId>be.ac.ulg.montefiore.run.jahmm</groupId>
-			<artifactId>jahmm</artifactId>
-			<version>0.6.2</version>
-		</dependency-->
-		<!--Jung dependencies-->
-		<dependency>
-			<groupId>net.sf.jung</groupId>
-			<artifactId>jung-graph-impl</artifactId>
-			<version>2.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.jung</groupId>
-			<artifactId>jung-algorithms</artifactId>
-			<version>2.0.1</version>
-		</dependency>
 
 		<!--JSON dependencies-->
 		<dependency>
@@ -476,33 +465,31 @@
 			<groupId>com.datastax.spark</groupId>
 			<artifactId>spark-cassandra-connector_2.11</artifactId>
 			<version>${spark-cassandra-connector.version}</version>
-			<!--exclusions>
-			<-exclusion>
+			<exclusions>
+			<!--exclusion>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-handler</artifactId>
-			</exclusion>
-			</exclusions-->
+			</exclusion-->
+			</exclusions>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-core</artifactId>
-			<version>3.1.0</version>
-			<!--classifier>shaded</classifier-->
-			<!-- Because the shaded JAR uses the original POM, you still need
-                 to exclude this dependency explicitly: -->
+			<version>${cassandra-java-driver.version}</version>
+
 			<exclusions>
-				<!--exclusion>
+				<exclusion>
 					<groupId>io.netty</groupId>
 					<artifactId>*</artifactId>
-				</exclusion-->
+				</exclusion>
 				<exclusion>
 					<artifactId>guava</artifactId>
 					<groupId>com.google.guava</groupId>
 				</exclusion>
 			</exclusions>
-			<!--version>2.1.4</version-->
-		</dependency>
+			<version>2.1.4</version>
+		</dependency-->
 		<!--dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport-native-epoll</artifactId>
@@ -515,11 +502,13 @@
 			<version>${spark.version}</version>
 		</dependency-->
 		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark_2.11 -->
+		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark-20_2.11 -->
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch-spark_2.11</artifactId>
-			<version>2.3.3</version>
+			<artifactId>elasticsearch-spark-20_2.11</artifactId>
+			<version>5.3.0</version>
 		</dependency>
+
 		<!-- Used for hashing database ids in urls -->
 		<dependency>
 			<groupId>org.hashids</groupId>
@@ -533,11 +522,7 @@
 			<version>4.1.4.Final</version>
 		</dependency-->
 
-		<!--dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-juli</artifactId>
-			<version>9.0.0.M4</version>
-		</dependency-->
+
 
 
 	</dependencies>
@@ -578,9 +563,9 @@
 					<version>2.19.1</version>
 				</plugin>
 				<plugin>
-					<groupId>org.scala-tools</groupId>
-					<artifactId>maven-scala-plugin</artifactId>
-					<version>2.15.2</version>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>[3.2.2,)</version>
 				</plugin>
 					<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
@@ -650,7 +635,7 @@
 					</webAppConfig>
 					<webApp>
 						<contextPath>/</contextPath>
-
+						<parentLoaderPriority>true</parentLoaderPriority>
 					</webApp>
 					<httpConnector>
 						<port>8082</port>
