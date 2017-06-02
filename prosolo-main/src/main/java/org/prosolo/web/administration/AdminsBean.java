@@ -126,14 +126,9 @@ public class AdminsBean implements Serializable,Paginable{
 	public void loadAdmins(){
 		this.admins = new ArrayList<UserData>();
 		try{
-			/*String[] rolesArray = new String[]{"Admin","Super Admin"};
-			List<Role> roles = roleManager.getAdminRoles(rolesArray);*/
 			List<Long> roleIds = new ArrayList<>();
 			roleIds.add((long)4);
 			roleIds.add((long)5);
-			/*for(Role role : roles){
-				roleIds.add(role.getId());
-			}*/
 
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), roleIds, true, null);
@@ -154,14 +149,6 @@ public class AdminsBean implements Serializable,Paginable{
 
 	public List<UserData> getAdmins() {
 		return this.admins;
-	}
-
-	public UserData getUserToDelete() {
-		return userToDelete;
-	}
-
-	public void setUserToDelete(UserData userToDelete) {
-		this.userToDelete = userToDelete;
 	}
 
 	public String getSearchTerm() {

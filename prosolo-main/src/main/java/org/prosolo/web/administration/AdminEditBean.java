@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
