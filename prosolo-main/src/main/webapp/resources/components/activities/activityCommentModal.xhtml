@@ -22,31 +22,31 @@
 	<composite:implementation>
 		<h:outputStylesheet library="css2" name="bootstrap-slider.css" />
 		<script
-			src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
+				src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
 
 		<script>
 
-			//comment form hide/show
-			function displaySubmitButtonPrivateConvModal(inputElem) {
-				if ($(inputElem).val().length == 0) {
-					$(inputElem).next('a.btn-green').addClass('hidden');
-				} else {
-					$(inputElem).next('a.btn-green').removeClass('hidden');
-				}
-			}
+            //comment form hide/show
+            function displaySubmitButtonPrivateConvModal(inputElem) {
+                if ($(inputElem).val().length == 0) {
+                    $(inputElem).next('a.btn-green').addClass('hidden');
+                } else {
+                    $(inputElem).next('a.btn-green').removeClass('hidden');
+                }
+            }
 		</script>
 
 		<h:form id="formPrivateConversation">
 			<div class="modal fade assessmentCommentsModal"
-				id="assessmentCommentsModal1" tabindex="-1" role="dialog"
-				aria-labelledby="assessmentCommentsModal">
+				 id="assessmentCommentsModal1" tabindex="-1" role="dialog"
+				 aria-labelledby="assessmentCommentsModal">
 				<div class="modal-dialog modal-lg">
 					<h:panelGroup id="panelModalPrivateConversation" layout="block"
-						styleClass="modal-content">
+								  styleClass="modal-content">
 						<ui:fragment rendered="#{not empty activityPrivateConversationBean.activityAssessmentData}">
 							<div class="modal-header alignLeft">
 								<button type="button" class="close" data-dismiss="modal"
-									aria-label="Close">
+										aria-label="Close">
 									<span aria-hidden="true">&#215;</span>
 								</button>
 								<h2 class="modal-title">Comments</h2>
@@ -54,20 +54,20 @@
 							<div class="discussion">
 								<div class="comments">
 									<ui:fragment
-										rendered="#{not empty activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
+											rendered="#{not empty activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
 										<ul class="media-list">
 											<ui:repeat var="activityMessageData"
-												value="#{activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
+													   value="#{activityPrivateConversationBean.activityAssessmentData.activityDiscussionMessageData}">
 												<li class="media">
 													<div class="media-left">
 														<utilcomp:userAvatar
-															avatar="#{activityMessageData.senderAvatarUrl}"
-															fullName="#{activityMessageData.senderFullName}" />
+																avatar="#{activityMessageData.senderAvatarUrl}"
+																fullName="#{activityMessageData.senderFullName}" />
 													</div>
 
 													<div class="media-body">
 														<ui:fragment
-															rendered="#{activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
+																rendered="#{activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateUpdatedFormat} </span>
@@ -75,7 +75,7 @@
 																<h3 class="media-heading">
 																	#{activityMessageData.senderFullName}
 																	<ui:fragment
-																		rendered="#{activityMessageData.senderInsructor}">
+																			rendered="#{activityMessageData.senderInsructor}">
 																		<span>INSTRUCTOR</span>
 																	</ui:fragment>
 																</h3>
@@ -83,40 +83,40 @@
 																<p class="commentText">#{activityMessageData.content}</p>
 																<div class="editComment hidden">
 																	<p:inputTextarea name="name"
-																		styleClass="contentEditableComment"
-																		style="width:100%;" rows="1"
-																		value="#{activityMessageData.content}"></p:inputTextarea>
+																					 styleClass="contentEditableComment"
+																					 style="width:100%;" rows="1"
+																					 value="#{activityMessageData.content}"></p:inputTextarea>
 																	<p:commandLink styleClass="btn btn-sm btn-green"
-																		oncomplete="hideEditPrivateConversationComment(this);"
-																		update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
-																		actionListener="#{activityPrivateConversationBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
-																		type="button" name="button">
-																Submit
-															</p:commandLink>
+																				   oncomplete="hideEditPrivateConversationComment(this);"
+																				   update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
+																				   actionListener="#{activityPrivateConversationBean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
+																				   type="button" name="button">
+																		Submit
+																	</p:commandLink>
 
 																	<a href="javascript:void(0)"
-																		class="btn btn-sm btn-green-stroke"
-																		onclick="hideEditPrivateConversationComment(this)">Cancel</a>
+																	   class="btn btn-sm btn-green-stroke"
+																	   onclick="hideEditPrivateConversationComment(this)">Cancel</a>
 																</div>
 
 																<div class="commentOptions">
 																	<a href="javascript:void(0)" class="edit"
-																		onclick="showEditComment(this)"> <span
-																		class="icon"></span>Edit
+																	   onclick="showEditComment(this)"> <span
+																			class="icon"></span>Edit
 																	</a>
 																</div>
 															</div>
 														</ui:fragment>
 
 														<ui:fragment
-															rendered="#{not activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
+																rendered="#{not activityPrivateConversationBean.isCurrentUserMessageSender(activityMessageData)}">
 															<div class="commentMain">
 																<span class="commentTime"> Edited:
 																	#{activityMessageData.dateCreatedFormat} </span>
 																<h3 class="media-heading">
 																	#{activityMessageData.senderFullName}
 																	<ui:fragment
-																		rendered="#{activityMessageData.senderInsructor}">
+																			rendered="#{activityMessageData.senderInsructor}">
 																		<span>INSTRUCTOR</span>
 																	</ui:fragment>
 																</h3>
@@ -126,16 +126,16 @@
 															<div class="media replyInput hidden">
 																<div class="media-left">
 																	<utilcomp:userAvatar
-																		avatar="#{activityMessageData.senderAvatarUrl}"
-																		fullName="#{activityMessageData.senderFullName}" />
+																			avatar="#{activityMessageData.senderAvatarUrl}"
+																			fullName="#{activityMessageData.senderFullName}" />
 																</div>
 
 																<div class="media-body replyComment">
 																	<div class="commentForm">
 																		<textarea placeholder="Add Comment..."
-																			onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
+																				  onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
 																		<button type="button"
-																			class="btn btn-sm btn-green hidden" name="button">
+																				class="btn btn-sm btn-green hidden" name="button">
 																			Submit</button>
 																	</div>
 																</div>
@@ -149,25 +149,25 @@
 								</div>
 								<div class="addComment">
 									<utilcomp:userAvatar avatar="#{loggeduser.avatar}"
-										fullName="#{loggeduser.fullName}" />
+														 fullName="#{loggeduser.fullName}" />
 
 									<div class="commentForm">
 										<p:inputTextarea styleClass="contentEditableComment"
-											style="width:100%;" rows="1"
-											value="#{activityPrivateConversationBean.newCommentValue}"
-											placeholder="Add Comment..."
-											onkeyup="displaySubmitButtonPrivateConvModal(this)" />
+														 style="width:100%;" rows="1"
+														 value="#{activityPrivateConversationBean.newCommentValue}"
+														 placeholder="Add Comment..."
+														 onkeyup="displaySubmitButtonPrivateConvModal(this)" />
 
 										<p:commandLink
-											action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
-											type="button" styleClass="btn btn-sm btn-green hidden"
-											name="button"
-											update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}) #{cc.attrs.toUpdate}">
+												action="#{activityPrivateConversationBean.addCommentToActivityDiscussion()}"
+												type="button" styleClass="btn btn-sm btn-green hidden"
+												name="button"
+												update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}) #{cc.attrs.toUpdate}">
 											Submit
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{learningContext}" />
 											<f:param name="service"
-												value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}" />
+													 value="name:result_private_conversation_dialog|id:#{activityPrivateConversationBean.activityAssessmentData.targetActivityId}" />
 										</p:commandLink>
 
 									</div>

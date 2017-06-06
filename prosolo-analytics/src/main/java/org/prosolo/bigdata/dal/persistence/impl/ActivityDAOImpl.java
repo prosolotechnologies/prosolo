@@ -226,26 +226,27 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 	@Override
 	public void publishActivitiesForCompetences(List<Long> compIds) 
 			throws DbConnectionException {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction t = null;
-		try {
-			t = session.beginTransaction();
-			//get all draft activities
-			List<Activity1> acts = getDraftActivitiesFromCompetences(compIds, session);
-			for(Activity1 a : acts) {
-				a.setPublished(true);
-			}
-			t.commit();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			if(t != null) {
-				t.rollback();
-			}
-			throw new DbConnectionException("Error while publishing activities");
-		} finally {
-			session.close();
-		}
+		//TODO cred-redesign-07
+//		Session session = HibernateUtil.getSessionFactory().openSession();
+//		Transaction t = null;
+//		try {
+//			t = session.beginTransaction();
+//			//get all draft activities
+//			List<Activity1> acts = getDraftActivitiesFromCompetences(compIds, session);
+//			for(Activity1 a : acts) {
+//				a.setPublished(true);
+//			}
+//			t.commit();
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//			if(t != null) {
+//				t.rollback();
+//			}
+//			throw new DbConnectionException("Error while publishing activities");
+//		} finally {
+//			session.close();
+//		}
 	}
 	
 	private List<Activity1> getDraftActivitiesFromCompetences(List<Long> compIds, Session session) {

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -32,7 +32,7 @@ public class UsersGroupsBean implements Serializable {
 
 	protected static Logger logger = Logger.getLogger(UsersGroupsBean.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private UserGroupTextSearch userGroupTextSearch;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
@@ -123,7 +123,7 @@ public class UsersGroupsBean implements Serializable {
 	public void loadGroups() {
 		this.groups = new ArrayList<UserGroupData>();
 		try {
-			TextSearchResponse1<UserGroupData> res = textSearch.searchUserGroupsForUser(searchTerm, 
+			TextSearchResponse1<UserGroupData> res = userGroupTextSearch.searchUserGroupsForUser(searchTerm, 
 					user.getId(), 0, 0);
 			groups = res.getFoundNodes();
 		} catch(Exception e) {

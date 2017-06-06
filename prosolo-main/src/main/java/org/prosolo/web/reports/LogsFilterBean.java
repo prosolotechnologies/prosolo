@@ -6,15 +6,15 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.web.util.ResourceDataUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
 @author Zoran Jeremic Feb 1, 2014
@@ -27,7 +27,7 @@ public class LogsFilterBean implements Serializable {
 
 	private static final long serialVersionUID = -5452146059271122076L;
 
-	@Autowired private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	//@Autowired private LoggingDBManager loggingDBManager;
 	
 	private List<UserData> usersList;
@@ -66,7 +66,7 @@ public class LogsFilterBean implements Serializable {
 		}
 		
 		userSearchResults.clear();
-		TextSearchResponse usersResponse = textSearch.searchUsers(searchText, 0, 4, false, totalListToExclude);	
+		TextSearchResponse usersResponse = userTextSearch.searchUsers(searchText, 0, 4, false, totalListToExclude);	
 		
 		@SuppressWarnings("unchecked")
 		List<User> result = (List<User>) usersResponse.getFoundNodes();

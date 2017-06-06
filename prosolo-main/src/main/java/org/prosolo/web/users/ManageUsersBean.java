@@ -8,7 +8,7 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.nodes.data.UserData;
@@ -27,7 +27,7 @@ public class ManageUsersBean implements Serializable, Paginable {
 
 	protected static Logger logger = Logger.getLogger(ManageUsersBean.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UsersGroupsBean usersGroupsBean;
 	
@@ -81,8 +81,9 @@ public class ManageUsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
 		try {
-			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(),null, false, null);
+			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(),
+					false, null);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");

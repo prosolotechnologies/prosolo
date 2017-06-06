@@ -1,0 +1,52 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<composite:interface>
+		<composite:attribute name="competence" required="true" />
+	    <composite:attribute name="duplicateActionMethodName" required="true"/>
+		<composite:attribute name="duplicateAction" required="true" method-signature="void #{cc.attrs.duplicateActionMethodName}()"/>
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="service" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div id="#{cc.clientId}">
+			<div class="modal fade" id="duplicateComp" tabindex="-1" role="dialog" aria-labelledby="duplicateCompetence">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+							<h2 class="modal-title" id="duplicateCompetence">Duplicate Competency?</h2>
+						</div>
+						<div class="modal-body">
+							<p>You will create a new competency with the same structure as the original one in terms of activities and other content. The new competency will be empty in terms of students, student results and comments.</p>
+						</div>
+						<div class="modal-footer">
+							<p:commandLink styleClass="btn btn-green"
+								value="Duplicate Competence"
+								action="#{cc.attrs.duplicateAction}"
+								process="@this"
+								update="#{cc.attrs.toUpdate}">
+								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}" />
+								<f:param name="service" value="name:duplicate_dialog" />
+							</p:commandLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

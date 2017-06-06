@@ -3,7 +3,6 @@
  */
 package org.prosolo.services.event;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +25,9 @@ import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
 import org.prosolo.services.logging.UserActivityObserver;
 import org.prosolo.services.nodes.observers.assessments.ActivityAssessmentAutogradeObserver;
+import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObserver;
 import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
-import org.prosolo.services.nodes.observers.learningResources.LearningResourceChangeObserver;
+import org.prosolo.services.nodes.observers.privilege.UserPrivilegePropagationObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
 import org.prosolo.services.reporting.UserActivityStatisticsObserver;
@@ -56,7 +56,7 @@ public class CentralEventDispatcher {
 	@Autowired private MessagesObserver messagesObserver;
 	@Autowired private RecommendationObserver recommendationObserver;
 	@Autowired private InterfaceCacheObserver interfaceCacheUpdater;
-	@Autowired private NodeChangeObserver nodeChangeObserver;
+	//@Autowired private NodeChangeObserver nodeChangeObserver;
 	@Autowired private CourseInteractionObserver courseInteractionObserver;
 	@Autowired private LoggingEventsObserver loggingEventsObserver;
 	@Autowired private UserActivityObserver userActivityObserver;
@@ -65,9 +65,11 @@ public class CentralEventDispatcher {
 	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
-	@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
+	//@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
 	@Inject private CredentialLastActionObserver credentialLastActionObserver;
 	@Inject private ActivityAssessmentAutogradeObserver autogradeObserver;
+	//@Inject private UserPrivilegePropagationObserver userPrivilegeObservationObserver;
+	@Inject private IndexingComplexSequentialObserver indexingComplexObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
@@ -79,7 +81,7 @@ public class CentralEventDispatcher {
 			observers.add(messagesObserver);
 			observers.add(recommendationObserver);
 			observers.add(interfaceCacheUpdater);
-			observers.add(nodeChangeObserver);
+			//observers.add(nodeChangeObserver);
 			observers.add(courseInteractionObserver);
 			observers.add(loggingEventsObserver);
 			observers.add(userActivityObserver);
@@ -89,9 +91,11 @@ public class CentralEventDispatcher {
 			observers.add(twitterHashtagStatisticsObserver);
 			//observers.add(socialInteractionStatisticsObserver);
 			//observers.add(activityStartObserver);
-			observers.add(learningResourceChangeObserver);
+			//observers.add(learningResourceChangeObserver);
 			observers.add(credentialLastActionObserver);
 			observers.add(autogradeObserver);
+			//observers.add(userPrivilegeObservationObserver);
+			observers.add(indexingComplexObserver);
 		}
 		return observers;
 	}
@@ -104,48 +108,41 @@ public class CentralEventDispatcher {
 	 *            event that should be propagated to the EventObservers
 	 */
 	public void dispatchEvent(Event event) {
-		List<Class<? extends EventObserver>> observers = null;
-		
-		if (event.getObserversToExclude() != null) {
-			observers = Arrays.asList(event.getObserversToExclude());
-		}
-		dispatchEvent(event, observers, null);
+		dispatchEvent(event, null);
 	}
 	
-	public void dispatchEvent(Event event, List<Class<? extends EventObserver>> observersToSkip, List<Class<? extends EventObserver>> observersToInvoke) {
+	public void dispatchEvent(Event event, List<Class<? extends EventObserver>> observersToInvoke) {
 		for (EventObserver observer : getObservers()) {
+			if(EventProcessingUtil.shouldInvokeObserver(observer, event)) {
 			
-			if (observersToSkip != null && observersToSkip.contains(observer.getClass())) {
-				continue;
+				if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
+					tpe.runTask(new EventProcessor(observer, event));
+				}
+	//			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
+	//				if(observer instanceof LoggingEventsObserver) {
+	//					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
+	//				} else {
+	//					if(observer instanceof TimeSpentOnActivityObserver) {
+	//						if(loggingEventsObserverTask != null) {
+	//							try {
+	//								loggingEventsObserverTask.get();
+	//								tpe.runTask(new EventProcessor(observer, event));
+	//							} catch (InterruptedException e) {
+	//								logger.error(e);
+	//								e.printStackTrace();
+	//							} catch (ExecutionException e) {
+	//								logger.error(e);
+	//								e.printStackTrace();
+	//							}
+	//						}
+	//					} else {
+	//						Future<EventObserver> observerFuture = tpe.submitTask(new EventProcessor(observer, event));
+	//						
+	//						processedObservers.put(observer, observerFuture);
+	//					}
+	//				}
+	//			}
 			}
-			
-			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
-				tpe.runTask(new EventProcessor(observer, event));
-			}
-//			if (observersToInvoke == null || observersToInvoke.contains(observer.getClass())) {
-//				if(observer instanceof LoggingEventsObserver) {
-//					loggingEventsObserverTask = tpe.submitTask(new EventProcessor(observer, event));
-//				} else {
-//					if(observer instanceof TimeSpentOnActivityObserver) {
-//						if(loggingEventsObserverTask != null) {
-//							try {
-//								loggingEventsObserverTask.get();
-//								tpe.runTask(new EventProcessor(observer, event));
-//							} catch (InterruptedException e) {
-//								logger.error(e);
-//								e.printStackTrace();
-//							} catch (ExecutionException e) {
-//								logger.error(e);
-//								e.printStackTrace();
-//							}
-//						}
-//					} else {
-//						Future<EventObserver> observerFuture = tpe.submitTask(new EventProcessor(observer, event));
-//						
-//						processedObservers.put(observer, observerFuture);
-//					}
-//				}
-//			}
 		}
 	}
 
@@ -176,43 +173,11 @@ public class CentralEventDispatcher {
 			EventType[] eventClasses = observer.getSupportedEvents();
 			Class<?>[] resourceClasses = observer.getResourceClasses();
 			
-			if (shouldProcessEvent(event, eventClasses, resourceClasses)) {
+			if (EventProcessingUtil.shouldProcessEvent(event, eventClasses, resourceClasses)) {
 				observer.handleEvent(event);
 			}
 		}
 	}
 	
-	public static boolean shouldProcessEvent(Event event, EventType[] eventClasses, Class<?>[] resourceClasses) {
-		if (eventClasses == null || isInEventTypeArray(eventClasses, event.getAction())) {
-			if (resourceClasses == null || event.getObject() == null ||
-				(resourceClasses != null && event.getObject() != null && 
-					isInClassArray(resourceClasses, event.getObject().getClass())) ||
-				(resourceClasses != null && event.getTarget() != null && 
-					isInClassArray(resourceClasses, event.getTarget().getClass()))) {
-						return true;
-			}
-		}
-		
-		return false;
-	}
 	
-	private static  boolean isInEventTypeArray(EventType[] supportedEvents, EventType event) {
-		for (int i = 0; i < supportedEvents.length; i++) {
-			if (supportedEvents[i].equals(event))
-				return true;
-		}
-		return false;
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static boolean isInClassArray(Class[] classesArray, Class clazz) {
-		for (int i = 0; i < classesArray.length; i++) {
-			if (classesArray[i] == null || 
-					classesArray[i].equals(clazz) || 
-					classesArray[i].isAssignableFrom(clazz) || 
-					clazz.isAssignableFrom(classesArray[i]))
-				return true;
-		}
-		return false;
-	}
 }

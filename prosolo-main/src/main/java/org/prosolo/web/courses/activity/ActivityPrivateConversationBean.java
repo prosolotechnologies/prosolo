@@ -1,16 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -24,12 +13,18 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
 import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
+import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Bojan
@@ -65,8 +60,10 @@ public class ActivityPrivateConversationBean implements Serializable {
 		try {
 			if (!assessment.isMessagesInitialized()) {
 				if (assessment.getEncodedDiscussionId() != null && !assessment.getEncodedDiscussionId().isEmpty()) {
-					assessment.setActivityDiscussionMessageData(assessmentManager.getActivityDiscussionMessages(
-							idEncoder.decodeId(assessment.getEncodedDiscussionId()), assessment.getAssessorId()));
+					assessment.populateDiscussionMessages(assessmentManager
+							.getActivityDiscussionMessages(
+									idEncoder.decodeId(assessment.getEncodedDiscussionId()),
+									assessment.getAssessorId()));
 				}
 				assessment.setMessagesInitialized(true);
 			}
@@ -86,14 +83,19 @@ public class ActivityPrivateConversationBean implements Serializable {
 		long activityMessageId = idEncoder.decodeId(activityMessageEncodedId);
 		try {
 			assessmentManager.editCommentContent(activityMessageId, loggedUserBean.getUserId(), newContent);
+			ActivityDiscussionMessageData msg = null;
 			for (ActivityDiscussionMessageData messageData : activityAssessmentData
 					.getActivityDiscussionMessageData()) {
 				if (messageData.getEncodedMessageId().equals(activityMessageEncodedId)) {
-					messageData.setDateUpdated(new Date());
-					messageData.setDateUpdatedFormat(DateUtil.createUpdateTime(messageData.getDateUpdated()));
+					msg = messageData;
 					break;
 				}
 			}
+			msg.setDateUpdated(new Date());
+			msg.setDateUpdatedFormat(DateUtil.createUpdateTime(msg.getDateUpdated()));
+			//because comment is edit now, it should be added as first in a list because list is sorted by last edit date
+			activityAssessmentData.getActivityDiscussionMessageData().remove(msg);
+			activityAssessmentData.getActivityDiscussionMessageData().add(0, msg);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error editing message with id : " + activityMessageId, e);
 			PageUtil.fireErrorMessage("Error editing message");
@@ -101,72 +103,98 @@ public class ActivityPrivateConversationBean implements Serializable {
 	}
 
 	public void addCommentToActivityDiscussion() {
-		long actualDiscussionId;
-		if (StringUtils.isBlank(activityAssessmentData.getEncodedDiscussionId())) {
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			actualDiscussionId = createDiscussion(activityAssessmentData.getTargetActivityId(),
-					activityAssessmentData.getCompAssessmentId(), lcd);
-
-			// set discussionId in the appropriate ActivityAssessmentData
-			String encodedDiscussionId = idEncoder.encodeId(actualDiscussionId);
-
-			activityAssessmentData.setEncodedDiscussionId(encodedDiscussionId);
-		} else {
-			actualDiscussionId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
-		}
-		addComment(actualDiscussionId, activityAssessmentData.getCompAssessmentId());
-		cleanupCommentData();
-	}
-
-	private long createDiscussion(long targetActivityId, long competenceAssessmentId, LearningContextData context) {
 		try {
-			// creating a set as there might be duplicates with ids
-			Set<Long> participantIds = new HashSet<>();
-
-			// adding the student as a participant
-			participantIds.add(activityAssessmentData.getUserId());
-
-			// adding the logged in user (the message poster) as a participant.
-			// It can happen that some other user,
-			// that is not the student or the assessor has started the thread
-			// (i.e. any user with MANAGE priviledge)
-			participantIds.add(loggedUserBean.getUserId());
-
-			// if assessor is set, add him to the discussion
-			if (activityAssessmentData.getAssessorId() > 0) {
-				participantIds.add(activityAssessmentData.getAssessorId());
+			if (StringUtils.isBlank(activityAssessmentData.getEncodedDiscussionId())) {
+				LearningContextData lcd = new LearningContextData();
+				lcd.setPage(PageUtil.getPostParameter("page"));
+				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+				lcd.setService(PageUtil.getPostParameter("service"));
+				createAssessment(activityAssessmentData.getTargetActivityId(),
+						activityAssessmentData.getCompAssessmentId(),
+						activityAssessmentData.getTargetCompId(), false, lcd);
 			}
-
-			return assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), true,
-					activityAssessmentData.getGrade().getValue(), context).getId();
-		} catch (ResourceCouldNotBeLoadedException | EventException e) {
+			addComment();
+			cleanupCommentData();
+		} catch (EventException e) {
 			logger.error(e);
-			return -1;
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
 		}
 	}
 
-	private void addComment(long activityAssessmentId, long competenceAssessmentId) {
+	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
+								  boolean updateGrade, LearningContextData context)
+			throws ResourceCouldNotBeLoadedException, EventException {
+		Integer grade = updateGrade
+				? activityAssessmentData != null ? activityAssessmentData.getGrade().getValue() : null
+				: null;
+
+		// creating a set as there mighvityt be duplicates with ids
+		Set<Long> participantIds = new HashSet<>();
+
+		// adding the student as a participant
+		participantIds.add(activityAssessmentData.getUserId());
+
+		// adding the logged in user (the message poster) as a participant. It can happen that some other user,
+		// that is not the student or the assessor has started the thread (i.e. any user with MANAGE priviledge)
+		participantIds.add(loggedUserBean.getUserId());
+
+		// if assessor is set, add him to the discussion
+		if (activityAssessmentData.getAssessorId() > 0) {
+			participantIds.add(activityAssessmentData.getAssessorId());
+		}
+
+		if (competenceAssessmentId > 0) {
+			//if competence assessment exists create activity assessment only
+			activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+					assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+							activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
+							loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
+							context).getId()));
+		} else {
+			//if competence assessment does not exist create competence assessment and activity assessment
+			AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
+					activityAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
+					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
+					activityAssessmentData.isDefault(), context);
+			activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
+			activityAssessmentData.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+			//if competence assessment data is set, set id there too
+			if (activityAssessmentData.getCompAssessment() != null) {
+				activityAssessmentData.getCompAssessment().setCompetenceAssessmentId(
+						assessmentInfo.getCompetenceAssessmentId());
+			}
+		}
+	}
+
+	private void addComment() {
 		try {
-			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(activityAssessmentId,
-					loggedUserBean.getUserId(), newCommentValue);
-			addNewCommentToAssessmentData(newComment, activityAssessmentId, competenceAssessmentId);
+			long activityAssessmentId = idEncoder.decodeId(activityAssessmentData.getEncodedDiscussionId());
+			ActivityDiscussionMessageData newComment = assessmentManager.addCommentToDiscussion(
+					activityAssessmentId, loggedUserBean.getUserId(), newCommentValue);
+
+			addNewCommentToAssessmentData(newComment);
 
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 
-			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(), activityAssessmentId,
-					idEncoder.decodeId(newComment.getEncodedMessageId()), page, lContext, service,
-					activityAssessmentData.getCredentialId());
-
+			notifyAssessmentCommentAsync(activityAssessmentData.getCredAssessmentId(),
+					activityAssessmentId, idEncoder.decodeId(newComment.getEncodedMessageId()),
+					page, lContext, service, activityAssessmentData.getCredentialId());
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error saving assessment message", e);
 			PageUtil.fireErrorMessage("Error while adding new assessment message");
 		}
+	}
+
+	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment) {
+		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
+			newComment.setSenderInsructor(true);
+		}
+		activityAssessmentData.getActivityDiscussionMessageData().add(0, newComment);
+		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
 	private void notifyAssessmentCommentAsync(long credAssessmentId, long actAssessmentId, long assessmentCommentId,
@@ -188,15 +216,6 @@ public class ActivityPrivateConversationBean implements Serializable {
 				logger.error("Eror sending notification for assessment request", e);
 			}
 		});
-	}
-
-	private void addNewCommentToAssessmentData(ActivityDiscussionMessageData newComment, long actualDiscussionId,
-			long competenceAssessmentId) {
-		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-			newComment.setSenderInsructor(true);
-		}
-		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
-		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
 	}
 
 	private void cleanupCommentData() {

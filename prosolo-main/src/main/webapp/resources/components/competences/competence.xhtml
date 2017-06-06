@@ -20,13 +20,23 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<ui:param name="isPreview" value="#{cc.attrs.bean.isPreview()}" />
+		<div id="#{cc.clientId}">
+		
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.competenceData.canEdit}"></ui:param>
+     		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
+     	<ui:param name="startedLearning"
+			value="#{cc.attrs.bean.competenceData.enrolled}"></ui:param>
      	
      	<c:choose>
-		    <c:when test="#{cc.attrs.bean.competenceData.enrolled}">
-		         <c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:target_competence|id:#{cc.attrs.bean.competenceData.targetCompId}//"/>
+		    <c:when test="#{startedLearning}">
+		    	<c:choose>
+		    	 	 <c:when test="#{cc.attrs.bean.decodedCredId ne 0}">
+		    	 	 	<c:set var="learningContext" value="name:credential|id:#{cc.attrs.bean.decodedCredId}|context:/name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:target_competence|id:#{cc.attrs.bean.competenceData.targetCompId}//"/>
+			         </c:when>
+			         <c:otherwise>
+			         	<c:set var="learningContext" value="name:competence|id:#{cc.attrs.bean.decodedCompId}|context:/name:target_competence|id:#{cc.attrs.bean.competenceData.targetCompId}/"/>
+		         	 </c:otherwise>
+			    </c:choose>
 		    </c:when>
 		    <c:otherwise>
 		    	 <c:choose>
@@ -40,15 +50,24 @@
 		    </c:otherwise>
 		</c:choose>
      	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-     	<div id="#{cc.clientId}">
 		    <div class="whiteBar">
 		        <div class="container">
 		            <div class="whiteBarContent">
 		                <div class="whiteBarLeft">
-		                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.enrolled and 
-		                		cc.attrs.bean.competenceData.progress lt 100 and !isPreview}">
+		                	<p:commandLink
+									rendered="#{cc.attrs.bean.access.canLearn and cc.attrs.role == 'USER' and !startedLearning}"
+									styleClass="btn btn-green btn-sm"
+									action="#{cc.attrs.bean.enrollInCompetence()}"
+									update=":#{cc.clientId}">
+			                     	Start
+			                     	<f:param name="learningContext" value="#{learningContext}" />
+			                     	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							</p:commandLink>
+		                	
+		                	<ui:fragment rendered="#{startedLearning and 
+		                		cc.attrs.bean.competenceData.progress lt 100}">
 		                		<h:link rendered="#{cc.attrs.bean.competenceNextToLearn or !cc.attrs.bean.mandatoryOrder}"
-		                			value="#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}"
+		                			value="Resume"
 		                			styleClass="btn btn-green btn-sm"
 		                			outcome="activity"
 		                			onclick="sendLogPageNavigation('/activity.xhtml', 
@@ -64,8 +83,8 @@
 			                			class="btn btn-green btn-sm" 
 			                			disabled="disabled" 
 			                			data-toggle="tooltip" 
-			                			title="In order to start this competence, previous tasks need to be completed.">
-			                			#{cc.attrs.bean.competenceData.progress != 0 ? 'Resume' : 'Start'}
+			                			title="In order to start this competency, previous tasks need to be completed.">
+			                			'Resume'
 			                		</a>
 		                		</ui:fragment>
 		                	
@@ -78,7 +97,7 @@
 			                    </div>
 		                	</ui:fragment>
 		                	
-		                	<ui:fragment rendered="#{cc.attrs.bean.competenceData.enrolled and 
+		                	<ui:fragment rendered="#{startedLearning and 
 		                		cc.attrs.bean.competenceData.progress == 100}">
 		                		<div class="tagCompleted">Completed</div>
 		                	</ui:fragment>
@@ -87,7 +106,7 @@
 		                <div class="whiteBarRight">
 		                    <div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
 		                    <h:link 
-		                    	rendered="#{canEdit and !isPreview}"
+		                    	rendered="#{canEdit}"
 		                    	value="Edit Competence"
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
@@ -122,8 +141,8 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	
 		    			<li>
-			            	<a href="javascript:void(0);">Competences</a>
-			            </li>          
+			            	<h:link value="Competencies" outcome="competenceLibrary"/>
+			            </li>
 			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
 			        </ol>
 		    	</ui:fragment>
@@ -142,8 +161,7 @@
 			                    		bean="#{cc.attrs.bean}"
 			                    		isEdit="false"
 			                    		showMarkedIfCompleted="true"
-			                    		isPreview="#{isPreview}"
-			                    		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
+			                    		readOnly="#{!cc.attrs.bean.access.canAccess}"
 			                />
 		               </div>
 		               <post:comments 
@@ -152,8 +170,8 @@
 		               		commentsContainerDivId="commentsContainerDiv"
 		               		growlToUpdate=":#{cc.clientId}:growlMain"
 		               		learningContext="#{learningContext}"
-		               		readOnly="#{!cc.attrs.bean.competenceData.canAccess}"
-		               		rendered="#{cc.attrs.bean.competenceData.enrolled or cc.attrs.role eq 'MANAGER'}"
+		               		readOnly="#{!cc.attrs.bean.access.canAccess}"
+		               		rendered="#{startedLearning or cc.attrs.role eq 'MANAGER'}"
 		               />
 		            </div>
 		            <div class="col-md-4">

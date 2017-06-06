@@ -63,12 +63,12 @@ public class BasicCourseData {
 	
 	//setting course status based on published flag
 	public void setCourseStatus() {
-		this.courseStatus = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
+		//this.courseStatus = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
 	}
 	
 	//setting published flag based on course status
 	public void setPublished() {
-		this.published = courseStatus == PublishedStatus.PUBLISHED ? true : false;
+		//this.published = courseStatus == PublishedStatus.PUBLISHED ? true : false;
 	}
 
 	public List<Tag> getTags() {

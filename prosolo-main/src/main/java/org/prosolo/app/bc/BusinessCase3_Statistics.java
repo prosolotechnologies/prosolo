@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
@@ -21,13 +24,14 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -41,6 +45,9 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -189,6 +196,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred1, cred1.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 
@@ -241,6 +250,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 	
 
@@ -285,8 +296,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_Prob_Simul");
 
 			publishCredential(cred2, cred2.getCreatedBy());
+			
+			addCompetenceToCredential(cred2, comp1cred1, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
+			ex.printStackTrace();
 		}
 		
 		
@@ -317,6 +333,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 			
@@ -348,6 +366,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -367,8 +387,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			
 			publishCredential(cred3, cred3.getCreatedBy());
+			
+			addCompetenceToCredential(cred3, comp1cred1, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 		
@@ -441,6 +465,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
  
@@ -468,8 +494,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"http://explorable.com/partial-correlation-analysis.html");
 
 			publishCredential(cred4, cred4.getCreatedBy());
+			
+			addCompetenceToCredential(cred4, comp1cred1, userNickPowell);
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 			
@@ -516,8 +546,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred5, cred5.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
-		
+		 
 		
 		///////////////////////////////////////
 		// CREDENTIAL Statistics 2 – Inference and Association
@@ -557,6 +589,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred6, cred6.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 
 		
@@ -597,6 +631,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred7, cred7.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 
@@ -639,6 +675,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred8, cred8.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 		
@@ -692,6 +730,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred9, cred9.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
  
 
@@ -739,6 +779,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred10, cred10.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		
 
@@ -785,6 +827,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 			
 			
@@ -821,50 +865,51 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
 		} catch (EventException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
  	}
 	
-	private void publishCredential(Credential1 cred, User creator) {
-		//to make sure that all documents will be indexed in ES before we try to update them.
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {
-			logger.error(e);
-		}
-		CredentialManager credentialManager = ServiceLocator
-				.getInstance()
-				.getService(CredentialManager.class);
-		
-		CredentialData credentialData = credentialManager.getCredentialData(cred.getId(), false, 
-				true, creator.getId(), UserGroupPrivilege.None);
-		
-		credentialData.setPublished(true);
-		credentialManager.updateCredential(credentialData, creator.getId(), null);
-	}
-
-//	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
-//		EventData ev = ServiceLocator
-//				.getInstance()
-//				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
-//						user.getId());
+	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
+		//we no longer have published status for credential
+//		//to make sure that all documents will be indexed in ES before we try to update them.
 //		try {
-//			if(ev != null) {
-//				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(ev);
-//			}
-//		} catch (EventException e) {
+//			Thread.sleep(1500);
+//		} catch (InterruptedException e) {
 //			logger.error(e);
-//			e.printStackTrace();
 //		}
-//		
 //		CredentialManager credentialManager = ServiceLocator
 //				.getInstance()
 //				.getService(CredentialManager.class);
 //		
-//		CredentialData credentialData = credentialManager.getCredentialDataForEdit(credential.getId(), user.getId(), true);
-//		credentialData.setPublished(true);
-//		
-//		credentialManager.updateCredential(credential.getId(), credentialData, user, org.prosolo.services.nodes.data.Role.User);
-//	}
+//		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false, 
+//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
+//		CredentialData credentialData = res.getResource();
+//		if(credentialData != null) {
+//			//credentialData.setPublished(true);
+//			credentialManager.updateCredential(credentialData, creator.getId(), null);
+//		}
+	}
+
+	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
+		List<EventData> ev = ServiceLocator
+				.getInstance()
+				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
+						user.getId());
+		try {
+			if(ev != null) {
+				for(EventData e : ev) {
+					ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(e);
+				}
+			}
+		} catch (EventException e) {
+			logger.error(e);
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+	}
 
 	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
 			String avatar, Role roleUser) {
@@ -889,10 +934,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return null;
 	}
 
-	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links) {
+	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links)
+		throws DbConnectionException, EventException, IllegalDataStateException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
-		actData.setPublished(true);
 		actData.setActivityType(ActivityType.TEXT);
 		actData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		actData.setCompetenceId(compId);
@@ -924,8 +969,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		credentialData.setTitle(title);
 		credentialData.setDescription(description);
 		credentialData.setTagsString(tags);
-		credentialData.setPublished(false);
-		credentialData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
@@ -945,15 +988,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		compData.setPublished(false);
 		compData.setType(LearningResourceType.UNIVERSITY_CREATED);
 		
-		Competence1 comp = ServiceLocator
-				.getInstance()
-				.getService(Competence1Manager.class)
-				.saveNewCompetence(
-						compData,
-						user.getId(),
-						credentialId, null);
+		Competence1 comp;
+		try {
+			comp = ServiceLocator
+					.getInstance()
+					.getService(Competence1Manager.class)
+					.saveNewCompetence(
+							compData,
+							user.getId(),
+							credentialId, null);
+			return comp;
+		} catch (DbConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalDataStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		return comp;
+		return null;
 	}
 
 	private InputStream getAvatarInputStream(String avatarName) {

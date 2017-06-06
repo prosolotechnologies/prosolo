@@ -10,7 +10,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Competence - #{competenceEditBean.pageHeaderTitle}
@@ -35,11 +36,18 @@
 	    </h:panelGroup>
     </ui:define>
     
+    <ui:define name="navLinks">
+		<mngComp:competenceHeaderNavLinks
+				id="headerNavLinks"
+				compId="#{competenceEditBean.competenceData.competenceId}"
+		/>
+	</ui:define>
+    
 	<ui:define name="content">
 		<competences:createCompetence
 			role="MANAGER"
 			id="createCompetence"
-			toUpdate=":panelTitle"
+			toUpdate=":panelTitle :headerNavLinks"
 			actAdded="#{param['actAdded']}"
 		/>
 	</ui:define>

@@ -2,12 +2,14 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
 
@@ -18,6 +20,11 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceData1.class);
 	
+	/*
+	 * this is special version field that should not be changed. it should be copied from 
+	 * a database record and never be changed again.
+	 */
+	private long version = -1;
 	private long credentialCompetenceId;
 	private long competenceId;
 	private String title;
@@ -47,15 +54,22 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private ObjectStatus objectStatus;
 	
 	private boolean published;
+	private boolean archived;
 	
 	private List<CredentialData> credentialsWithIncludedCompetence;
 	private long instructorId;
 	
-	private boolean canEdit;
-	private boolean canAccess;
+	private boolean bookmarkedByCurrentUser;
+	
+	private Date datePublished;
+	
+	private long numberOfStudents;
+	
+	//by default competence can be unpublished
+	private boolean canUnpublish = true;
 	
 	public CompetenceData1(boolean listenChanges) {
-		this.status = PublishedStatus.UNPUBLISH;
+		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
 		this.listenChanges = listenChanges;
@@ -72,6 +86,36 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 			}
 		}
 		return changed;
+	}
+	
+	public String getFormattedDatePublished() {
+		String date = DateUtil.formatDate(datePublished, "MMM dd, yyyy");
+		return date != null ? date : "-";
+	}
+	
+	public boolean isScheduledPublish() {
+		if(datePublished != null && datePublished.after(new Date())) {
+			return true;
+		}
+		return false;
+	}
+	
+	public void addActivity(ActivityData activity) {
+		if(activity != null) {
+			activities.add(activity);
+		}
+	}
+	
+	public boolean isUniversityCreated() {
+		return type == LearningResourceType.UNIVERSITY_CREATED;
+	}
+	
+	public boolean isUserCreated() {
+		return type == LearningResourceType.USER_CREATED;
+	}
+	
+	public boolean isCompleted() {
+		return progress == 100;
 	}
 	
 	private void setCompetenceTypeFromString() {
@@ -102,9 +146,14 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		}
 	}
 	
-	//setting competence status based on published flag
+	/**
+	 * setting competence status based on published flag and datePublished field, so these two field must be set
+	 * before calling this method.
+	 */
 	public void setCompStatus() {
-		this.status = this.published ? PublishedStatus.PUBLISHED : PublishedStatus.UNPUBLISH;
+		this.status = this.published 
+				? PublishedStatus.PUBLISHED 
+				: this.datePublished != null ? PublishedStatus.UNPUBLISHED : PublishedStatus.DRAFT;
 	}
 	
 	//setting published flag based on competence status
@@ -344,22 +393,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.instructorId = instructorId;
 	}
 	
-	public boolean isCanEdit() {
-		return canEdit;
-	}
-
-	public void setCanEdit(boolean canEdit) {
-		this.canEdit = canEdit;
-	}
-	
-	public boolean isCanAccess() {
-		return canAccess;
-	}
-
-	public void setCanAccess(boolean canAccess) {
-		this.canAccess = canAccess;
-	}
-	
 	//change tracking get methods
 	
 	public boolean isTitleChanged() {
@@ -396,6 +429,62 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	
 	public boolean isScheduledPublicDateChanged() {
 		return changedAttributes.containsKey("scheduledPublicDate");
+	}
+
+	public boolean isBookmarkedByCurrentUser() {
+		return bookmarkedByCurrentUser;
+	}
+
+	public void setBookmarkedByCurrentUser(boolean bookmarkedByCurrentUser) {
+		this.bookmarkedByCurrentUser = bookmarkedByCurrentUser;
+	}
+
+	public Date getDatePublished() {
+		return datePublished;
+	}
+
+	public void setDatePublished(Date datePublished) {
+		this.datePublished = datePublished;
+	}
+
+	public long getNumberOfStudents() {
+		return numberOfStudents;
+	}
+
+	public void setNumberOfStudents(long numberOfStudents) {
+		this.numberOfStudents = numberOfStudents;
+	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * Setting version is only allowed if version is -1. Generally version should not 
+	 * be changed except when data is being populated.
+	 * 
+	 * @param version
+	 */
+	public void setVersion(long version) {
+		if(this.version == -1) {
+			this.version = version;
+		}
+	}
+
+	public boolean isCanUnpublish() {
+		return canUnpublish;
+	}
+
+	public void setCanUnpublish(boolean canUnpublish) {
+		this.canUnpublish = canUnpublish;
 	}
 
 }

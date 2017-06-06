@@ -3,6 +3,8 @@ package org.prosolo.common.domainmodel.credential;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
+
 @Entity
 public class TextActivity1 extends Activity1 {
 
@@ -12,6 +14,11 @@ public class TextActivity1 extends Activity1 {
 	
 	public TextActivity1() {
 		
+	}
+	
+	@Override
+	public void accept(ActivityVisitor visitor) {
+		visitor.visit(this);
 	}
 
     @Column(length = 21845, columnDefinition="Text")

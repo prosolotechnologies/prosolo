@@ -12,8 +12,10 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
+import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
 import org.prosolo.services.nodes.data.assessments.AssessmentData;
 import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
@@ -21,10 +23,11 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public interface AssessmentManager {
 
-	long requestAssessment(AssessmentRequestData assessmentRequestData, LearningContextData context);
+	long requestAssessment(AssessmentRequestData assessmentRequestData,
+						   LearningContextData context) throws DbConnectionException, EventException;
 
-	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId, 
-			LearningContextData context) throws DbConnectionException;
+	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId,
+								 LearningContextData context) throws DbConnectionException, EventException;
 	
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
@@ -35,13 +38,17 @@ public interface AssessmentManager {
 
 	void approveCredential(long credentialAssessmentId, long targetCredentialId, String reviewText);
 
-	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId, boolean isDefault, Integer grade, LearningContextData context) 
-					throws ResourceCouldNotBeLoadedException, EventException;
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
+												long credAssessmentId, List<Long> participantIds,
+												long senderId, boolean isDefault, Integer grade,
+												boolean recalculatePoints, LearningContextData context)
+			throws ResourceCouldNotBeLoadedException, EventException;
 	
-	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId, List<Long> participantIds,
-			long senderId, boolean isDefault, Integer grade, Session session, 
-			LearningContextData context) throws ResourceCouldNotBeLoadedException, EventException;
+	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
+												long credAssessmentId, List<Long> participantIds,
+												long senderId, boolean isDefault, Integer grade,
+												boolean recalculatePoints, Session session, LearningContextData context)
+			throws ResourceCouldNotBeLoadedException, EventException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
 			throws ResourceCouldNotBeLoadedException;
@@ -82,25 +89,31 @@ public interface AssessmentManager {
 	
 	void updateDefaultAssessmentsAssessor(List<Long> targetCredIds, long assessorId) 
 			throws DbConnectionException;
-	
-	void updateGradeForActivityAssessment(long activityDiscussionId, Integer value, 
-			long userId, LearningContextData context) throws DbConnectionException;
+
+	void updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
+										  long activityAssessmentId, Integer points, long userId,
+										  LearningContextData context) throws DbConnectionException, EventException;
 	
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
-	int recalculateScoreForCompetenceAssessment(long compAssessmentId);
-	
-	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session);
+	int calculateCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
 
-	int recalculateScoreForCredentialAssessment(long credAssessmentId);
+	int recalculateScoreForCompetenceAssessment(long compAssessmentId) throws DbConnectionException;
 	
-	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session);
+	int recalculateScoreForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
+
+	int recalculateScoreForCredentialAssessment(long credAssessmentId) throws DbConnectionException;
 	
+	int recalculateScoreForCredentialAssessment(long credAssessmentId, Session session) throws DbConnectionException;
+
+	int calculateCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
+
 	ActivityAssessment getDefaultActivityDiscussion(long targetActId, Session session) throws DbConnectionException;
-	
-	void createOrUpdateActivityAssessmentsForExistingCompetenceAssessments(long userId, long senderId, 
-			long targetCompId, long targetActId, int score, Session session, 
-			LearningContextData context) throws DbConnectionException;
+
+	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
+																 long compId, long targetCompId, long targetActId,
+																 int score, Session session, LearningContextData context)
+			throws DbConnectionException;
 
 	/**
 	 * Load all credential assessments for the given user, but excluding the specific assessment id
@@ -129,6 +142,39 @@ public interface AssessmentManager {
 	List<Long> getParticipantIds(long activityAssessmentId);
 	
 	Long getAssessedStudentIdForActivityAssessment(long activityAssessmentId) 
+			throws DbConnectionException;
+
+	AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
+															  long targetActivityId, List<Long> participantIds,
+															  long senderId, Integer grade, boolean isDefault,
+															  LearningContextData context)
+			throws DbConnectionException, EventException;
+
+	Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
+											  String message, boolean defaultAssessment, LearningContextData context);
+
+	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
+																	long credAssessmentId, List<Long> participantIds,
+																	long senderId, boolean isDefault, Integer grade,
+																	boolean recalculatePoints, Session session,
+																	LearningContextData context)
+			throws ResourceCouldNotBeLoadedException;
+
+	Result<Void> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId,
+															  long compAssessmentId, long activityAssessmentId, Integer points,
+															  long userId, LearningContextData context) throws DbConnectionException;
+
+	Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
+																				  long targetActivityId, List<Long> participantIds,
+																				  long senderId, Integer grade, boolean isDefault,
+																				  LearningContextData context)
+			throws DbConnectionException;
+
+	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
+
+	int getCredentialAssessmentScore(long credAssessmentId) throws DbConnectionException;
+
+	AssessmentBasicData getDefaultAssessmentBasicData(long credId, long compId, long actId, long userId)
 			throws DbConnectionException;
 
 }

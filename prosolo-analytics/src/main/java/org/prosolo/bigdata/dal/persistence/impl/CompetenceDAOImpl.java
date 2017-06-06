@@ -138,7 +138,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 					.setLong("userId", userId)
 					.setLong("compId", compId)
 					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.View)
+					.setParameter("viewPriv", UserGroupPrivilege.Learn)
 					.setMaxResults(1)
 					.uniqueResult();
 			
@@ -153,7 +153,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			boolean visibleToAll = (boolean) res[2];
 			return owner == userId 
 				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.View : priv;
+				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

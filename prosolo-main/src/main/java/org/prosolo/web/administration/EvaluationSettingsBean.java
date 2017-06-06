@@ -9,13 +9,14 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.nodes.RoleManager;
@@ -43,7 +44,7 @@ public class EvaluationSettingsBean implements Serializable {
 	private static Logger logger = Logger.getLogger(EvaluationSettingsBean.class.getName());
 	
 	@Autowired private RoleManager roleManager;
-	@Autowired private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	
 	private boolean usersChanged = false;
 	
@@ -95,7 +96,8 @@ public class EvaluationSettingsBean implements Serializable {
 		userSearchResults.clear();
 		
 		if (!keyword.isEmpty() && (keyword != null)) {
-			TextSearchResponse usersResponse = textSearch.searchUsers(keyword.toString(), 0, 4, false, totalListToExclude);	
+			TextSearchResponse usersResponse = userTextSearch
+					.searchUsers(keyword.toString(), 0, 4, false, totalListToExclude);	
 			
 			@SuppressWarnings("unchecked")
 			List<User> result = (List<User>) usersResponse.getFoundNodes();

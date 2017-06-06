@@ -386,11 +386,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 	
 	private void assignNewOwner(long newCreatorId, long oldCreatorId){
-		credentialManager.updateTargetCredentialCreator(newCreatorId, oldCreatorId);
 		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
 		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);
-		competence1Manager.updateTargetCompetenceCreator(newCreatorId, oldCreatorId);
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
-		activity1Manager.updateTargetActivityCreator(newCreatorId, oldCreatorId);
 	}
 }

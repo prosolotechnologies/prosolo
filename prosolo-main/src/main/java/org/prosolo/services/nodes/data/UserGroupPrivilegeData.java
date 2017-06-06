@@ -2,7 +2,7 @@ package org.prosolo.services.nodes.data;
 
 public enum UserGroupPrivilegeData {
 
-	View("Can View"),
+	Learn("Can View"),
 	Edit("Can Edit");
 	
 	private String label;

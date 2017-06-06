@@ -68,6 +68,30 @@
 				}
 			},
 			
+			"competences": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"dateEnrolled":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"dateCompleted":{
+						"store": false,
+						"type": "date",
+						"format": "yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
 			"credentialsWithInstructorRole": {
 				"properties": {
 					"id": {

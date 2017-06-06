@@ -64,7 +64,7 @@
 			        <ui:fragment rendered="#{empty param['credId']}">
 			    		<ol class="breadcrumb">	 
 			    			<li>
-				            	<a href="javascript:void(0);">Competences</a>
+				            	<h:link value="Competencies" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
 				            	<h:link 
@@ -86,6 +86,9 @@
 			    <div class="container">
 			        <div class="row">
 			            <div class="col-md-8">
+			            	<h:panelGroup layout="block" rendered="#{activityEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
+			            		Activity is a part of a published competency... Only limited edits allowed.
+			            	</h:panelGroup>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade in active" id="info">
 			                        <div class="whiteBox">
@@ -114,7 +117,16 @@
 			                                    <div class="formLineRight">
 			                                    	<h:inputTextarea id="description"
 			                                    		styleClass="pasteable"
-			                                    		value="#{activityEditBean.activityData.description}" />
+			                                    		value="#{activityEditBean.activityData.description}"
+			                                    		required="true"
+			                                    		requiredMessage="Description is required"/>
+													<h:panelGroup 
+                    									layout="block" 
+                    									rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}" 
+                    									styleClass="alert alert-danger" 
+                    									pt:role="alert">
+                        								<h:message for="description"></h:message>
+                    								</h:panelGroup>
 			                                    		
 			                                    	<script>
 			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
@@ -128,7 +140,7 @@
 			                                    	layout="block" 
 			                                    	id="panelSelectActivity" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{activityEditBean.isCreateUseCase()}">
+			                                    	rendered="#{not activityEditBean.limitedEdit}">
 			                                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
 			                                        	<ui:repeat var="type" value="#{activityEditBean.activityTypes}">
 			                                        		<li role="presentation" class="#{activityEditBean.isActivityTypeSelected(type) ? 'active' : ''}">
@@ -139,11 +151,11 @@
 			                                        				pt:data-toggle="tab"
 			                                        				process="@this"
 			                                        				action="#{activityEditBean.updateType(type)}"
-			                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel :#{cc.clientId}:formMain:panelStatus"
-			                                        				oncomplete="bindPasteEventForUpdatingStatus();">
+			                                        				update=":#{cc.clientId}:formMain:panelSelectActivity :#{cc.clientId}:formMain:activityPanel"
+			                                        				oncomplete="">
 			                                        			</p:commandLink>
 			                                        		</li>
-			                                        	</ui:repeat>   
+			                                        	</ui:repeat>    
 			                                        </ul>
 			                                    </h:panelGroup>
 			                                    
@@ -151,7 +163,7 @@
 			                                    	layout="block" 
 			                                    	id="panelActivityType" 
 			                                    	styleClass="formLineRight"
-			                                    	rendered="#{!activityEditBean.isCreateUseCase()}">
+			                                    	rendered="#{activityEditBean.limitedEdit}">
 			                                         <ul class="addedItems">
 			                                             <li>
 			                                                 #{activityEditBean.activityData.activityType.label}
@@ -169,11 +181,12 @@
 			                                	uploadCaptionModalId="addSubtitles"
 			                                	prepareAddingResLinkMethodName="prepareAddingResourceLink"
 			                                	prepareAddingResLinkMethod="#{activityEditBean.prepareAddingResourceLink}"
-			                                	toUpdate=":#{cc.clientId}:formMain:panelStatus"
+			                                	toUpdate=""
 			                                	toUpdateModalUploadFile=":#{cc.clientId}:formModalUploadFile"
 			                                	toUpdateModalAddLink=":#{cc.clientId}:formModalAddUrl"
 			                                	toUpdateModalUploadCaption=":#{cc.clientId}:formModalUploadCaption"
 			                                	mainForm=":#{cc.clientId}:formMain"
+			                                	limitedEdit="#{activityEditBean.limitedEdit}"
 			                                />
 			                            </div>
 			                        </div>
@@ -181,39 +194,20 @@
 			                </div>
 			            </div>
 			            <div class="col-md-4">
-			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{activityEditBean.activityData.published ? 'display:none' : ''}">
-			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                    Your activity is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
-			                </div>
-			                
 			                <div class="whiteBox publishBox">
 			                    <h2>Publish</h2>
-			                    <p:commandLink
-			                    	id="linkPreview"
-									value="Preview #{activityEditBean.activityData.status eq 'UNPUBLISH' ? 'Draft' : ''}"
-									styleClass="linkPreview"
-									action="#{activityEditBean.preview()}"
-									update=":#{cc.clientId}:formMain"
-									oncomplete="if(args &amp;&amp; !args.validationFailed) {bindPasteEventForUpdatingStatus(); document.getElementsByClassName('hiddenLinkPreview')[0].click();}">
-									<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
-									<f:param name="learningContext" value="name:preview"></f:param>
-								</p:commandLink>
-								<h:link
-									style="display: none;"
-									styleClass="hiddenLinkPreview"
-									target="_blank"
-									outcome="activity">
-									<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-									<f:param name="compId" value="#{param['compId']}"></f:param>
-									<f:param name="actId" value="#{param['id']}"></f:param>
-									<f:param name="mode" value="preview"></f:param>
-								</h:link>
+			                    <h:link
+			                    	outcome="activity"
+			                    	value="Preview"
+			                    	class="linkPreview">
+									<f:param name="actId" value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>	                    
+			                    </h:link>
 			                    <div class="clear"></div>
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>
 			                        <div class="selectRow">
-			                        	<h:selectOneMenu styleClass="selectpicker pickHours"
-			                        		value="#{activityEditBean.activityData.durationHours}">
+			                        	<h:selectOneMenu id="estimatedTimeHours" styleClass="selectpicker pickHours"
+			                        		value="#{activityEditBean.activityData.durationHours}" validator="estimatedTimeValidator">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
@@ -229,7 +223,7 @@
 			                        		<f:selectItem itemValue="12"/>
 			                        	</h:selectOneMenu>
 			                            <p>hours</p>
-			                            <h:selectOneMenu styleClass="selectpicker pickMinutes"
+			                            <h:selectOneMenu id="estimatedTimeMinutes" styleClass="selectpicker pickMinutes"
 			                        		value="#{activityEditBean.activityData.durationMinutes}">
 			                        		<f:selectItem itemValue="0"/>
 			                        		<f:selectItem itemValue="5"/>
@@ -246,13 +240,19 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:estimatedTimeHours'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="estimatedTimeHours"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">
 			                        <p>Difficulty level:</p>
 			                        <div class="selectRow">
-			                        	<h:selectOneMenu styleClass="selectpicker pickLevel"
-			                        		value="#{activityEditBean.activityData.difficulty}">
+			                        	<h:selectOneMenu id="difficultyLevelSelect" styleClass="selectpicker pickLevel"
+			                        		value="#{activityEditBean.activityData.difficulty}" validator="difficultyLevelValidator">
+			                        		<f:selectItem itemValue="-1" itemLabel="---" />
 			                        		<f:selectItem itemValue="1"/>
 			                        		<f:selectItem itemValue="2"/>
 			                        		<f:selectItem itemValue="3"/>
@@ -260,18 +260,13 @@
 			                        		<f:selectItem itemValue="5"/>
 			                        	</h:selectOneMenu>
 			                        </div>
+			                        <h:panelGroup layout="block"
+			                        	rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:difficultyLevelSelect'))}" 
+										styleClass="alert alert-danger" pt:role="alert">
+										<h:message for="difficultyLevelSelect"></h:message>
+									</h:panelGroup>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
-			                    <h:panelGroup id="panelStatus">
-				                    <h:selectOneMenu id="selectStatus"
-					                	styleClass="selectpicker"
-					               		value="#{activityEditBean.activityData.status}"
-					               		onchange="onStatusChange();">
-					               		<f:selectItems value="#{activityEditBean.actStatusArray}" var="status"
-				    						itemValue="#{status}" itemLabel="#{status.label}" />
-					                </h:selectOneMenu>
-					                <script>$('.selectpicker').selectpicker('refresh');</script>
-					            </h:panelGroup>
 			          
 			                    <div class="publishRow">
 			                    	<p:commandLink 
@@ -279,11 +274,18 @@
 					              	  	onclick="copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:description');copyTextFromTinyMCEToTextarea('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');"
 					              	  	action="#{activityEditBean.save()}"
 					              	  	update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-					              	  	oncomplete="bindPasteEventForUpdatingStatus();">
+					              	  	oncomplete="">
 					              	  	<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 				              	  		Save changes
 					              	</p:commandLink>
-			                        <a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
+					        
+					        		<ui:fragment rendered="#{activityEditBean.limitedEdit}">
+					        			<a href="javascript:void(0);" disabled="disabled" class="linkRed">Delete</a>
+					        		</ui:fragment>
+					        		<ui:fragment rendered="#{not activityEditBean.limitedEdit}">
+					        			<a href="#" class="linkRed" data-toggle="modal" data-target="#deleteModal">Delete</a>
+					        		</ui:fragment>
+			                        
 			                        
 			                    </div>
 			                </div>
@@ -343,7 +345,7 @@
 		                    		styleClass="btn btn-green"
 		                    		value="Save"
 		                    		action="#{activityEditBean.addUploadedFile()}"
-		                    		update=":#{cc.clientId}:formModalUploadFile:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelFiles :#{cc.clientId}:formMain:panelStatus"
+		                    		update=":#{cc.clientId}:formModalUploadFile:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelFiles"
 		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFile').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -430,7 +432,7 @@
 		                    		styleClass="btn btn-green"
 		                    		value="Save"
 		                    		action="#{activityEditBean.addLink()}"
-		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks :#{cc.clientId}:formMain:panelStatus"
+		                    		update="errorMessages :#{cc.clientId}:formMain:activityPanel:panelLinks"
 		                    		oncomplete="if(args &amp;&amp; !args.validationFailed) { $('#addURL').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -488,7 +490,7 @@
 		                    		styleClass="btn btn-green"
 		                    		value="Add"
 		                    		action="#{activityEditBean.addUploadedCaption()}"
-		                    		update=":#{cc.clientId}:formModalUploadCaption:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelCaptions :#{cc.clientId}:formMain:panelStatus"
+		                    		update=":#{cc.clientId}:formModalUploadCaption:panelUploadFile :#{cc.clientId}:formMain:activityPanel:panelCaptions"
 		                    		oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addSubtitles').modal('hide'); }">               
 		                    	</p:commandLink>
 		                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>

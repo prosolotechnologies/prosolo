@@ -81,7 +81,8 @@ public class HibernateUtil {
         return sessionFactory;
     }
     public static DataSource dataSource() {
-		MySQLConfig mySQLConfig=CommonSettings.getInstance().config.mysqlConfig;
+    	Config config = CommonSettings.getInstance().config;
+		MySQLConfig mySQLConfig=config.mysqlConfig;
 		String username = mySQLConfig.user;
 		String password = mySQLConfig.password;
 		String host = mySQLConfig.host;
@@ -113,6 +114,7 @@ public class HibernateUtil {
 		}else{
 			p.setRemoveAbandoned(true);
 		}
+		p.setDefaultTransactionIsolation(config.hibernateConfig.connection.isolation);
 		p.setJdbcInterceptors(
 	            "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"
 	            + "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;"

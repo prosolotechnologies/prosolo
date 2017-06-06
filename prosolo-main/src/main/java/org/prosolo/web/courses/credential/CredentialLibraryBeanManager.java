@@ -4,7 +4,6 @@
 package org.prosolo.web.courses.credential;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +14,12 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.credential.CredentialSearchFilter;
-import org.prosolo.search.util.credential.CredentialSortOption;
+import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
@@ -40,39 +40,29 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	private static Logger logger = Logger.getLogger(CredentialLibraryBeanManager.class);
 
-	@Inject private TextSearch textSearch;
+	@Inject private CredentialTextSearch credentialTextSearch;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private CredentialManager credentialManager;
 	@Inject private LoggingService loggingService;
+	@Inject private CredentialManager credManager;
 
 	private List<CredentialData> credentials;
+	private CredentialData selectedCred;
 	
 	//search
 	private String searchTerm = "";
-	private CredentialSearchFilter searchFilter = CredentialSearchFilter.ALL;
-	private CredentialSortOption sortOption = CredentialSortOption.ALPHABETICALLY;
+	private CredentialSearchFilterManager searchFilter = CredentialSearchFilterManager.ACTIVE;
+	private LearningResourceSortOption sortOption = LearningResourceSortOption.ALPHABETICALLY;
 	private PaginationData paginationData = new PaginationData();
 	
-	private CredentialSortOption[] sortOptions;
-	private CredentialSearchFilter[] searchFilters;
+	private LearningResourceSortOption[] sortOptions;
+	private CredentialSearchFilterManager[] searchFilters;
 
 	private String context = "name:library";
 
 	public void init() {
-		sortOptions = CredentialSortOption.values();
-		searchFilters = Arrays.stream(CredentialSearchFilter.values()).filter(
-				f -> shouldIncludeSearchFilter(f))
-				.toArray(CredentialSearchFilter[]::new);
+		sortOptions = LearningResourceSortOption.values();
+		searchFilters = CredentialSearchFilterManager.values();
 		searchCredentials(false);
-	}
-	
-	public boolean shouldIncludeSearchFilter(CredentialSearchFilter f) {
-		boolean isInstructor = loggedUserBean.hasCapability("BASIC.INSTRUCTOR.ACCESS");
-		boolean canCreateContent = loggedUserBean.hasCapability("MANAGE.CONTENT.EDIT");
-		return f != CredentialSearchFilter.ENROLLED && 
-			   f != CredentialSearchFilter.BY_OTHER_STUDENTS &&
-			   (f != CredentialSearchFilter.YOUR_CREDENTIALS || isInstructor) &&
-			   (f != CredentialSearchFilter.FROM_CREATOR || canCreateContent);
 	}
 	
 	public void searchCredentials(boolean userSearch) {
@@ -102,22 +92,26 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
+	
+	public void selectCredential(CredentialData cred) {
+		this.selectedCred = cred;
+	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = textSearch.searchCredentials(
-				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
-				loggedUserBean.getUserId(), searchFilter, sortOption, false, true);
+		TextSearchResponse1<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
+				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
+				loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
 		this.paginationData.update((int) response.getHitsNumber());
 	}
 	
-	public void applySearchFilter(CredentialSearchFilter filter) {
+	public void applySearchFilter(CredentialSearchFilterManager filter) {
 		this.searchFilter = filter;
 		this.paginationData.setPage(1);
 		searchCredentials(true);
 	}
 	
-	public void applySortOption(CredentialSortOption sortOption) {
+	public void applySortOption(LearningResourceSortOption sortOption) {
 		this.sortOption = sortOption;
 		this.paginationData.setPage(1);
 		searchCredentials(true);
@@ -135,23 +129,80 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	 * ACTIONS
 	 */
 	
-	public void bookmarkCredential(CredentialData cred) {
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData context = new LearningContextData(page, lContext, service);
-			if(cred.isBookmarkedByCurrentUser()) {
-				credentialManager.deleteCredentialBookmark(cred.getId(), 
-						loggedUserBean.getUserId(), context);
-			} else {
-				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserId(),
-						context);
+//	public void bookmarkCredential(CredentialData cred) {
+//		try {
+//			String page = PageUtil.getPostParameter("page");
+//			String lContext = PageUtil.getPostParameter("learningContext");
+//			String service = PageUtil.getPostParameter("service");
+//			LearningContextData context = new LearningContextData(page, lContext, service);
+//			if(cred.isBookmarkedByCurrentUser()) {
+//				credentialManager.deleteCredentialBookmark(cred.getId(), 
+//						loggedUserBean.getUserId(), context);
+//			} else {
+//				credentialManager.bookmarkCredential(cred.getId(), loggedUserBean.getUserId(),
+//						context);
+//			}
+//			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
+//		} catch(DbConnectionException e) {
+//			PageUtil.fireErrorMessage(e.getMessage());
+//		}
+//	}
+	
+	public void archive() {
+		if(selectedCred != null) {
+			LearningContextData ctx = PageUtil.extractLearningContextData();
+			boolean archived = false;
+			try {
+				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				archived = true;
+				searchTerm = null;
+				paginationData.setPage(1);
+			} catch(DbConnectionException e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while trying to archive credential");
 			}
-			cred.setBookmarkedByCurrentUser(!cred.isBookmarkedByCurrentUser());
-		} catch(DbConnectionException e) {
-			PageUtil.fireErrorMessage(e.getMessage());
+			if(archived) {
+				try {
+					reloadDataFromDB();
+					PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+				} catch(DbConnectionException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error while refreshing data");
+				}
+			}
 		}
+	}
+	
+	public void restore() {
+		if(selectedCred != null) {
+			LearningContextData ctx = PageUtil.extractLearningContextData();
+			boolean success = false;
+			try {
+				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				success = true;
+				searchTerm = null;
+				paginationData.setPage(1);
+			} catch(DbConnectionException e) {
+				logger.error(e);
+				PageUtil.fireErrorMessage("Error while trying to restore credential");
+			}
+			if(success) {
+				try {
+					reloadDataFromDB();
+					PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+				} catch(DbConnectionException e) {
+					logger.error(e);
+					PageUtil.fireErrorMessage("Error while refreshing data");
+				}
+			}
+		}
+	}
+	
+	private void reloadDataFromDB() {
+		paginationData.update((int) credManager.countNumberOfCredentials(searchFilter, 
+				loggedUserBean.getUserId(), UserGroupPrivilege.Edit));
+		credentials = credManager.searchCredentialsForManager(searchFilter, paginationData.getLimit(), 
+				paginationData.getPage() - 1, sortOption, loggedUserBean.getUserId());
 	}
 
 	/*
@@ -166,11 +217,11 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		this.searchTerm = searchTerm;
 	}
 
-	public CredentialSortOption getSortOption() {
+	public LearningResourceSortOption getSortOption() {
 		return sortOption;
 	}
 
-	public void setSortOption(CredentialSortOption sortOption) {
+	public void setSortOption(LearningResourceSortOption sortOption) {
 		this.sortOption = sortOption;
 	}
 
@@ -186,28 +237,32 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 		return credentials;
 	}
 
-	public CredentialSortOption[] getSortOptions() {
+	public LearningResourceSortOption[] getSortOptions() {
 		return sortOptions;
 	}
 
-	public void setSortOptions(CredentialSortOption[] sortOptions) {
+	public void setSortOptions(LearningResourceSortOption[] sortOptions) {
 		this.sortOptions = sortOptions;
 	}
 
-	public CredentialSearchFilter[] getSearchFilters() {
-		return searchFilters;
-	}
-
-	public void setSearchFilters(CredentialSearchFilter[] searchFilters) {
-		this.searchFilters = searchFilters;
-	}
-
-	public CredentialSearchFilter getSearchFilter() {
+	public CredentialSearchFilterManager getSearchFilter() {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(CredentialSearchFilter searchFilter) {
+	public void setSearchFilter(CredentialSearchFilterManager searchFilter) {
 		this.searchFilter = searchFilter;
+	}
+
+	public CredentialSearchFilterManager[] getSearchFilters() {
+		return searchFilters;
+	}
+
+	public void setSearchFilters(CredentialSearchFilterManager[] searchFilters) {
+		this.searchFilters = searchFilters;
+	}
+
+	public CredentialData getSelectedCred() {
+		return selectedCred;
 	}
 	
 }

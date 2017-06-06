@@ -26,6 +26,7 @@ public class CompetenceDataFactory {
 		}
 		CompetenceData1 comp = new CompetenceData1(false);
 		Competence1 competence = credComp.getCompetence();
+		comp.setVersion(competence.getVersion());
 		comp.setCompetenceId(competence.getId());
 		comp.setCredentialCompetenceId(credComp.getId());
 		comp.setOrder(credComp.getOrder());
@@ -33,8 +34,10 @@ public class CompetenceDataFactory {
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
 		comp.setPublished(competence.isPublished());
+		comp.setArchived(competence.isArchived());
 		comp.setType(competence.getType());
 		comp.setStudentAllowedToAddActivities(competence.isStudentAllowedToAddActivities());
+		comp.setDatePublished(competence.getDatePublished());
 		comp.setCompStatus();
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
@@ -66,19 +69,20 @@ public class CompetenceDataFactory {
 		return getCompetenceData(user, cc, tags, shouldTrackChanges);
 	}
 	
-	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 competence, 
+	public CompetenceData1 getCompetenceData(User user, TargetCompetence1 tc, int order,
 			Set<Tag> tags, Credential1 cred, boolean shouldTrackChanges) {
+		Competence1 competence = tc.getCompetence();
 		CompetenceData1 comp = new CompetenceData1(false);
-		comp.setCompetenceId(competence.getCompetence().getId());
-		comp.setOrder(competence.getOrder());
+		comp.setCompetenceId(competence.getId());
 		comp.setTitle(competence.getTitle());
 		comp.setDescription(competence.getDescription());
 		comp.setDuration(competence.getDuration());
 		comp.setType(competence.getType());
-		comp.setTargetCompId(competence.getId());
+		comp.setTargetCompId(tc.getId());
 		comp.setEnrolled(true);
-		comp.setProgress(competence.getProgress());
-		comp.setNextActivityToLearnId(competence.getNextActivityToLearnId());
+		comp.setProgress(tc.getProgress());
+		comp.setNextActivityToLearnId(tc.getNextActivityToLearnId());
+		comp.setOrder(order);
 		if(user != null) {
 			ResourceCreator creator = new ResourceCreator(user.getId(), 
 					getFullName(user.getName(), user.getLastname()),
@@ -104,6 +108,26 @@ public class CompetenceDataFactory {
 	
 	private String getFullName(String name, String lastName) {
 		return name + (lastName != null ? " " + lastName : "");
+	}
+	
+	/**
+	 * If you want to create data object based on data from competence object and additionally set
+	 * progress for that data this method should be called.
+	 * @param createdBy
+	 * @param competence
+	 * @param tags
+	 * @param progress
+	 * @param nextActToLearnId
+	 * @param shouldTrackChanges
+	 * @return
+	 */
+	public CompetenceData1 getCompetenceDataWithProgress(User createdBy, Competence1 competence,
+			Set<Tag> tags, int progress, long nextActToLearnId, boolean shouldTrackChanges) {
+		CompetenceData1 comp = getCompetenceData(createdBy, competence, tags, shouldTrackChanges);
+		comp.setProgress(progress);
+		comp.setNextActivityToLearnId(nextActToLearnId);
+		comp.setEnrolled(true);
+		return comp;
 	}
 	
 }

@@ -1,0 +1,92 @@
+<ui:component
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:comp="http://java.sun.com/jsf/composite/components"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+
+	<composite:interface>
+		<composite:attribute name="credentialId" type="java.lang.Long" required="true" />
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="learningContext" default="" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
+		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+	   
+	    <h:form id="formDeliveryStart">
+			<div class="modal fade newDeliveryModal" id="newDeliveryModal" tabindex="-1" role="dialog" aria-labelledby="newDeliveryModal">
+	            <div class="modal-dialog">
+	                <h:panelGroup id="newDeliveryModalContent" layout="block" styleClass="modal-content">
+	                    <div class="modal-header alignLeft">
+	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+	                        <h2 class="modal-title">Start New Delivery</h2>
+	                    </div>
+	                    <div class="containerInner30">
+	                        <div class="row">
+	                        	<div class="col-md-12">
+                                     <p>
+                                     By starting a delivery you will create a snapshot of the current credential structure. After starting a delivery, go to the Visibility tab to set the target group of students that can enroll it.
+                                     <br/><br/>
+                                     <small>All unpublished competencies, that are part of the credential, will be published. It is advisable to go through each unpublished competency individually, review them, and publish manually. Delivery start and end dates can be set now or defined later.</small>
+                                     </p>
+                                </div>
+                                
+	                            <div class="col-md-6 startDate">
+	                                <label>Start:</label>
+	                                <div class="datePickerRow">
+	                                	<h:inputText id="datetimepicker1" placeholder="Date and Time" styleClass="datePickerSelector deliveryStartSelector"
+		                                   	value="#{deliveryStartBean.start}">
+		                                   	<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
+			                            </h:inputText>
+	                                </div>
+	                            </div>
+	                            <div class="col-md-6 endDate">
+	                                <label>End:</label>
+	                                <div class="datePickerRow">
+	                                	<h:inputText id="datetimepicker2" placeholder="Date and Time" styleClass="datePickerSelector deliveryEndSelector"
+	                                		value="#{deliveryStartBean.end}">
+	                                		<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
+		                        		</h:inputText>
+	                                </div>
+	                                <small>If not set, delivery is unlimited.</small>
+	                            </div>
+	                            
+	                        </div>
+	                    </div>
+	
+	                    <div class="modal-footer alignLeft">
+                    		<p:commandLink
+                       	  		value="Start"
+                       	  		styleClass="btn btn-green"
+                        	  	action="#{deliveryStartBean.createDelivery(cc.attrs.credentialId)}"
+        	  					update="#{cc.attrs.toUpdate}">
+        	  					<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+        	  					<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+        	  					<f:param name="service" value="name:start_delivery" />
+	       	  				</p:commandLink>
+	                    	<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+	                    </div>
+	                    
+	                    <script>
+	                    	$(function() {
+	                    		initializeDatePickers();
+	                    	});
+	                    </script>
+	                </h:panelGroup>
+	            </div>
+	        </div>
+	     </h:form>
+	  
+	</composite:implementation>
+</ui:component>

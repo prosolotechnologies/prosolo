@@ -7,6 +7,7 @@ import javax.faces.bean.ManagedBean;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -97,6 +98,19 @@ public class StyleUtilBean implements Serializable {
 				return "iconActivitySlide";
 			case EXTERNAL_TOOL:
 				return "iconActivityExternal";
+			default:
+				return "";	
+		}
+	}
+	
+	public String getStyleClassBasedOnDeliveryStatus(CredentialDeliveryStatus status) {
+		switch(status) {
+			case PENDING:
+				return "statusOrange";
+			case ACTIVE:
+				return "statusGreen";
+			case ENDED:
+				return "statusRed";
 			default:
 				return "";	
 		}

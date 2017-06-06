@@ -1,16 +1,21 @@
 package org.prosolo.services.nodes.data;
 
+import java.util.Date;
+
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 
 public class StudentData {
 
 	private UserData user;
 	private InstructorData instructor;
-	private int credProgress;
+	private int progress;
 	private boolean assigned;
 	private long assessmentId;
 	private boolean enrolled;
+	private Date dateEnrolled;
+	private Date dateCompleted;
 	
 	public StudentData() {
 
@@ -18,6 +23,16 @@ public class StudentData {
 	
 	public StudentData(User user) {
 		this.user = new UserData(user);
+	}
+	
+	public String getFormattedEnrollDate() {
+		String date = DateUtil.formatDate(dateEnrolled, "MMM dd, yyyy");
+		return date != null ? date : "-";
+	}
+	
+	public String getFormattedCompletionDate() {
+		String date = DateUtil.formatDate(dateCompleted, "MMM dd, yyyy");
+		return date != null ? date : "-";
 	}
 
 //	public UserData(User user, Map<String, Object> instructor, int progress, String profileType, String profileTitle) {
@@ -37,14 +52,6 @@ public class StudentData {
 
 	public void setInstructor(InstructorData instructor) {
 		this.instructor = instructor;
-	}
-
-	public int getCredProgress() {
-		return credProgress;
-	}
-
-	public void setCredProgress(int credProgress) {
-		this.credProgress = credProgress;
 	}
 
 	public UserData getUser() {
@@ -77,6 +84,30 @@ public class StudentData {
 
 	public void setEnrolled(boolean enrolled) {
 		this.enrolled = enrolled;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	public Date getDateEnrolled() {
+		return dateEnrolled;
+	}
+
+	public void setDateEnrolled(Date dateEnrolled) {
+		this.dateEnrolled = dateEnrolled;
+	}
+
+	public Date getDateCompleted() {
+		return dateCompleted;
+	}
+
+	public void setDateCompleted(Date dateCompleted) {
+		this.dateCompleted = dateCompleted;
 	}
 	
 }

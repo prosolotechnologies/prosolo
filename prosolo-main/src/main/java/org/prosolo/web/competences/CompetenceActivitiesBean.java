@@ -50,6 +50,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @ManagedBean(name = "competenceActivitiesBean")
 @Component("competenceActivitiesBean")
 @Scope("view")
@@ -136,32 +137,32 @@ public class CompetenceActivitiesBean implements Serializable {
 	}
 
 	public void searchActivities() {
-		searchResults = new ArrayList<>();
-		if(actSearchTerm != null && !actSearchTerm.isEmpty()) {
-			int size = activitiesToExclude.size();
-			long [] toExclude = new long[size];
-			for(int i = 0; i < size; i++) {
-				toExclude[i] = activitiesToExclude.get(i);
-			}
-			TextSearchResponse searchResponse = textSearch.searchActivities(
-					actSearchTerm, 
-					0, 
-					1000,
-					false, 
-					toExclude);
-			
-			@SuppressWarnings("unchecked")
-			List<Activity> acts = (List<Activity>) searchResponse.getFoundNodes();
-			if(acts != null) {
-				for(Activity a : acts) {
-					ActivityDataMapper mapper = ActivityMapperFactory.getActivityDataMapper(a);
-					if(mapper != null) {
-						ActivityData ad = mapper.mapToActivityData();
-						searchResults.add(ad);
-					}
-				}
-			}
-		} 
+//		searchResults = new ArrayList<>();
+//		if(actSearchTerm != null && !actSearchTerm.isEmpty()) {
+//			int size = activitiesToExclude.size();
+//			long [] toExclude = new long[size];
+//			for(int i = 0; i < size; i++) {
+//				toExclude[i] = activitiesToExclude.get(i);
+//			}
+//			TextSearchResponse searchResponse = textSearch.searchActivities(
+//					actSearchTerm, 
+//					0, 
+//					1000,
+//					false, 
+//					toExclude);
+//			
+//			@SuppressWarnings("unchecked")
+//			List<Activity> acts = (List<Activity>) searchResponse.getFoundNodes();
+//			if(acts != null) {
+//				for(Activity a : acts) {
+//					ActivityDataMapper mapper = ActivityMapperFactory.getActivityDataMapper(a);
+//					if(mapper != null) {
+//						ActivityData ad = mapper.mapToActivityData();
+//						searchResults.add(ad);
+//					}
+//				}
+//			}
+//		} 
 	}
 	
 	public void addActivityFromSearch(ActivityData act) {

@@ -1,10 +1,13 @@
 package org.prosolo.services.interaction.data.factory;
 
 import java.util.Date;
+import java.util.List;
 
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.interaction.data.CommentSortData;
+import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.stereotype.Component;
 
@@ -58,6 +61,22 @@ public class CommentDataFactory {
 		cd.setFormattedDate(DateUtil.getTimeAgoFromNow(dateCreated));
 		cd.setNumberOfReplies(numberOfReplies);
 		return cd;
+	}
+	
+	public CommentSortData getCommentSortData(CommentsData commentsData) {
+		List<CommentData> comms = commentsData.getComments();
+		Date previousDate = null;
+		int previousLikeCount = 0;
+		long previousId = 0;
+		if (comms != null && !comms.isEmpty()) {
+			CommentData comment = comms.get(0);
+			previousDate = comment.getDateCreated();
+			previousLikeCount = comment.getLikeCount();
+			previousId = comment.getCommentId();
+		}
+		return new CommentSortData(commentsData.getSortOption().getSortField(), 
+				commentsData.getSortOption().getSortOption(), previousDate, previousLikeCount,
+				previousId);
 	}
 
 }

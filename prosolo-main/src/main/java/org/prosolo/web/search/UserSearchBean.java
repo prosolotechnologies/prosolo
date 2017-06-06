@@ -7,9 +7,9 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
-import org.prosolo.search.TextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
@@ -25,7 +25,7 @@ public class UserSearchBean implements Serializable {
 	private static final long serialVersionUID = -1442084449890830994L;
 	
 	@Inject private LoggedUserBean loggedUser;
-	@Inject private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Inject private LoggingNavigationBean loggingNavigationBean;
 	
 	private String query;
@@ -70,8 +70,8 @@ public class UserSearchBean implements Serializable {
 	}
  
 	public void fetchUsers(String query, List<Long> excludeUsers) {
-		TextSearchResponse1<UserData> usersResponse = textSearch.getUsersWithRoles(
-				query, 0, 0, false, 0,null, false, excludeUsers);
+		TextSearchResponse1<UserData> usersResponse = userTextSearch.getUsersWithRoles(
+				query, 0, 0, false, 0, false, excludeUsers);
 		
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();
