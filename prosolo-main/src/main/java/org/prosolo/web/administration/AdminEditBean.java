@@ -64,8 +64,6 @@ public class AdminEditBean implements Serializable {
 	@Autowired
 	private TextSearch textSearch;
 
-	private UIInput passwordInput;
-
 	private String id;
 	private long decodedId;
 	private AccountData accountData;
@@ -76,7 +74,6 @@ public class AdminEditBean implements Serializable {
 	private SelectItem[] allRoles;
 	private List<UserData> admins;
 	private String searchTerm;
-	private RoleFilter filter;
 
 	public void initPassword() {
 		logger.debug("initializing");
@@ -126,7 +123,7 @@ public class AdminEditBean implements Serializable {
 	private void prepareRoles() {
 		try {
 			String[] rolesArray = new String[]{"Admin","Super Admin"};
-			List<Role> adminRoles = roleManager.getAdminRoles(rolesArray);
+			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 			if (adminRoles != null) {
 				allRoles = new SelectItem[adminRoles.size()];
 
@@ -192,15 +189,6 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
-
-	public UIInput getPasswordInput() {
-		return passwordInput;
-	}
-
-	public void setPasswordInput(UIInput passwordInput) {
-		this.passwordInput = passwordInput;
-	}
-
 	public UserData getUser() {
 		return admin;
 	}
@@ -241,39 +229,6 @@ public class AdminEditBean implements Serializable {
 		admins = null;
 		newOwner.setUserSet(false);
 	}
-
-	public RoleFilter getFilter() {
-		return filter;
-	}
-
-	public void setFilter(RoleFilter filter) {
-		this.filter = filter;
-	}
-
-	public UserData getNewOwner() {
-		return newOwner;
-	}
-
-	public void setNewOwner(UserData userData) {
-		newOwner.setId(userData.getId());
-		newOwner.setAvatarUrl(userData.getAvatarUrl());
-		newOwner.setFullName(userData.getFullName());
-	}
-
-	public void savePassChangeForAnotherUser() {
-		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
-			return;
-		}
-		try {
-			userManager.changePassword(admin.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error updating the password");
-		}
-	}
-
 
 	public AccountData getAccountData() {
 		return accountData;

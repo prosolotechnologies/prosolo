@@ -104,11 +104,8 @@
 		                        <div class="formLine">
 		                            <label>&#160;</label>
 		                            <div class="formLineRight">
-		                            	<p:commandLink styleClass="btn btn-green" rendered="#{empty adminEditBean.id}" value="Create"
+		                            	<p:commandLink styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Edit'}"
 											action="#{adminEditBean.saveUser()}" update=":formMain">
-										</p:commandLink>
-										<p:commandLink styleClass="btn btn-green" rendered="#{not empty adminEditBean.id}" value="Edit"
-													   action="#{adminEditBean.saveUser()}" update=":formMain">
 										</p:commandLink>
 		                            </div>
 		                        </div>
