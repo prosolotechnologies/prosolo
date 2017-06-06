@@ -12,15 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.impl.RoleManagerImpl;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -45,7 +43,7 @@ public class AdminsBean implements Serializable,Paginable{
 	protected static Logger logger = Logger.getLogger(AdminsBean.class);
 	
 	@Inject
-	private TextSearch textSearch;
+	private UserTextSearch textSearch;
 	@Inject
 	private UrlIdEncoder idEncoder;
 	@Inject

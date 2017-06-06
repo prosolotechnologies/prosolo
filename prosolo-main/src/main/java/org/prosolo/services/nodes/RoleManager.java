@@ -14,7 +14,7 @@ public interface RoleManager extends AbstractManager {
 	
 	List<Role> getAllRoles();
 	
-	List<Role> getAdminRoles(String[] names);
+	List<Role> getRolesByNames(String[] names);
 
 	List<Role> getRoles(List<Long> roleIds);
 

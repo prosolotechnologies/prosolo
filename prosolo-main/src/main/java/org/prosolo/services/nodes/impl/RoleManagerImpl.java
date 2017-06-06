@@ -49,11 +49,11 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public List<Role> getAdminRoles(String[] names) {
+	public List<Role> getRolesByNames(String[] names) {
 		 String query = 
 				 "SELECT role " +
 				 "FROM Role role " +
-				 "WHERE lower(role.title) IN :names";
+				 "WHERE role.title IN :names";
 		 
 		@SuppressWarnings("unchecked")
 		List<Role> result = persistence.currentManager().createQuery(query)
