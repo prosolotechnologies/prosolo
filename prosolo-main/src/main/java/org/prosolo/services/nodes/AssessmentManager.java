@@ -125,13 +125,17 @@ public interface AssessmentManager {
 	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
 
 	/**
-	 * Returns true if the given user is an assessor of the target activity.
+	 * Returns true if the given user is an assessor of at least one credential containing activity given by
+	 * {@code activityId}.
 	 * 
-	 * @param userId
-	 * @param targetActivityId
+	 * @param userId - user for whom we check if he is assessor
+	 * @param assessedUserId - user that is learning a resource
+	 * @param activityId
+	 * @param countDefaultAssessment - should default assessment where assigned instructor is assessor be returned
 	 * @return
 	 */
-	boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId);
+	boolean isUserAssessorOfUserActivity(long userId, long assessedUserId, long activityId,
+										 boolean countDefaultAssessment) throws DbConnectionException;
 
 	/**
 	 * Returns ids of all participant in the activity assessment discussion.

@@ -8,10 +8,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -231,22 +228,24 @@ public interface Activity1Manager extends AbstractManager {
 	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);
 
 	/**
-	 * Returns activity data for the given target activity id and for the specified user to see it. 
+	 * Returns activity response and other activity data for the given target activity id and for the specified user to see it.
 	 * Method checks whether the user should see the target activity data. Target activity data should 
-	 * see only an owner of target activity or a user who is assessing this target activity (credential
-	 * this target activity is a part of).
+	 * see only a user who is assessing this user activity (credential
+	 * this activity is a part of) and user that posted a response for this activity if 'studentsCanSeeOtherResponses'
+	 * flag is checked for activity.
 	 * 
 	 * @param targetActId
-	 * @param userId
-	 * @param isManager did request come from manage section
+	 * @param userToViewId
 	 * @return
-	 * @throws MediaDataException 
 	 */
-	ActivityData getActivityDataForUserToView(long targetActId, long userId, boolean isManager);
+	ActivityData getActivityResponseForUserToView(long targetActId, long userToViewId)
+			throws DbConnectionException;
 	
 	Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
 			LearningContextData context) throws DbConnectionException;
 
 	void updateActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	List<Long> getIdsOfCredentialsWithActivity(long actId, CredentialType type) throws DbConnectionException;
 
 }

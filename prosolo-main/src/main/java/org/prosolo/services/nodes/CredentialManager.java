@@ -399,7 +399,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return list of simple data types from TargetCompetence
 	 * @throws DbConnectionException
 	 */
-	List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
+	List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
 
 	/**
 	 * Returns titles of a tag and number of tag occurrences for given credential
@@ -417,7 +417,7 @@ public interface CredentialManager extends AbstractManager {
 	 * @return list of simple data types from TargetActivity(title, id, duration and competenceId)
 	 * @throws DbConnectionException
 	 */
-	List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException;
+	List<ActivityData> getActivitiesForKeywordSearch(long credentialId) throws DbConnectionException;
 	/**
 	 * Returns list of ids of all users that currently do not have instructor assigned for credential
 	 * with {@code credId} id, except users which ids are contained in {@code usersToExclude} list.

@@ -35,11 +35,9 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.nodes.factory.CompetenceDataFactory;
-import org.prosolo.services.nodes.factory.CredentialDataFactory;
-import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
-import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -82,6 +80,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//self inject for better control of transaction bondaries
 	@Inject private CredentialManager credManager;
 	@Inject private UserDataFactory userDataFactory;
+	@Inject private ActivityDataFactory activityDataFactory;
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -254,62 +253,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
-//			long userId) throws DbConnectionException {
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT draftCred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
-//						   "FROM Credential1 cred " + 
-//						   "LEFT JOIN cred.draftVersion draftCred " +
-//						   "LEFT JOIN cred.targetCredentials targetCred " + 
-//						   "WITH targetCred.user.id = :user " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", originalVersionId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				Integer paramProgress = (Integer) res[1];
-//				Long paramBookmarkId = (Long) res[2];
-//				Long nextCompId = (Long) res[3];
-//				Long nextActId = (Long) res[4];
-//				
-//				if(paramProgress != null) {
-//					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
-//							null, null, false, paramProgress.intValue(), nextCompId.longValue(),
-//							nextActId.longValue());
-//				} else {
-//					credData = credentialFactory.getCredentialData(null, cred, 
-//							null, null, false);
-//				}
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				
-//				/*
-//				 * id of original credential version is set
-//				 */
-//				credData.setId(originalVersionId);
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
-	
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
@@ -367,51 +310,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
-	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getDraftVersionBasicCredentialData(long originalVersionId, 
-//			long userId) throws DbConnectionException {
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT draftCred, bookmark.id " +
-//						   "FROM Credential1 cred " + 
-//						   "LEFT JOIN cred.draftVersion draftCred " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", originalVersionId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				Long paramBookmarkId = (Long) res[1];
-//		
-//				credData = credentialFactory.getCredentialData(null, cred, 
-//						null, null, false);
-//
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				/*
-//				 * id of original credential version is set
-//				 */
-//				credData.setId(originalVersionId);
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -618,90 +516,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
-
-	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getCredentialDataForEdit(long credentialId, long creatorId, 
-//			boolean loadCompetences) throws DbConnectionException {
-//		return getCurrentVersionOfCredentialBasedOnRole(credentialId, creatorId, false, 
-//				loadCompetences, Role.User);
-//	}
-//	
-//	@Transactional(readOnly = true)
-//	private CredentialData getCurrentVersionOfCredentialBasedOnRole(long credentialId, long creatorId, 
-//			boolean loadCreator, boolean loadCompetences, Role role) throws DbConnectionException {
-//		try {	
-//			StringBuilder commonQueryBuilder = new StringBuilder("SELECT cred " +
-//					   "FROM Credential1 cred " + 
-//					   "LEFT JOIN fetch cred.tags tags " +
-//					   "LEFT JOIN fetch cred.hashtags hashtags ");
-//			
-//			if(loadCreator) {
-//				commonQueryBuilder.append("INNER JOIN fetch cred.createdBy ");
-//			}
-//			
-//			StringBuilder queryBuilder = new StringBuilder(commonQueryBuilder.toString() + 
-//					"WHERE cred.id = :credentialId " +
-//					"AND cred.deleted = :deleted " +
-//					"AND cred.draft = :draft ");
-//			
-//			if(role == Role.User) {
-//				queryBuilder.append("AND cred.type = :type " +
-//									"AND cred.createdBy.id = :user");
-//			} else {
-//				queryBuilder.append("AND cred.type = :type");
-//			}
-//						   
-//			Query q = persistence.currentManager()
-//					.createQuery(queryBuilder.toString())
-//					.setLong("credentialId", credentialId)
-//					.setBoolean("deleted", false)
-//					.setBoolean("draft", false);
-//			
-//			if(role == Role.User) {
-//				q.setParameter("type", LearningResourceType.USER_CREATED);
-//				q.setLong("user", creatorId);
-//			} else {
-//				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
-//			}
-//					
-//			Credential1 res = (Credential1) q.uniqueResult();
-//			
-//			if(res != null) {
-//				CredentialData credData = null;
-//				if(res.isHasDraft()) {
-//					String query2 = commonQueryBuilder.toString() + 
-//							" WHERE cred = :draftVersion";
-//					Credential1 draftCred = (Credential1) persistence.currentManager()
-//							.createQuery(query2)
-//							.setEntity("draftVersion", res.getDraftVersion())
-//							.uniqueResult();
-//					if(draftCred != null) {
-//						User creator = loadCreator ? draftCred.getCreatedBy() : null;
-//						credData = credentialFactory.getCredentialData(creator, draftCred, 
-//								draftCred.getTags(), draftCred.getHashtags(), true);
-//					}	
-//				} else {
-//					User creator = loadCreator ? res.getCreatedBy() : null;
-//					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
-//							res.getHashtags(), true);
-//				}
-//				if(credData != null && loadCompetences) {
-//					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-//							credData.getId(), true, false, false, true);
-//					credData.setCompetences(compsData);
-//				}
-//				return credData;
-//			}
-//			
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
@@ -2629,82 +2443,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
-//	public void publishCredential(Credential1 cred, long creatorId, Role role) {
-//		try {
-//			if(cred.isHasDraft()) {
-//				Credential1 draftC = cred.getDraftVersion();
-//				/*
-//				 * check if credential has at least one competence
-//				 */
-//				int compNo = draftC.getCompetences().size();
-//				if(compNo == 0) {
-//					throw new CredentialEmptyException();
-//				}
-//				long draftCompId = draftC.getId();
-//				List<EventData> events = publishDraftVersion(cred, draftC, creatorId, role);
-//				fireCredPublishedAgainEditEvent(creatorId, cred, draftCompId, null, null, null);
-//			} else {
-//				/*
-//				 * check if credential has at least one competence
-//				 */
-//				int compNo = cred.getCompetences().size();
-//				if(compNo == 0) {
-//					throw new CredentialEmptyException();
-//				}
-//				cred.setPublished(true);
-//				eventFactory.generateEvent(fireFirstTimePublishCredEvent(creatorId, cred));
-//			}
-//		} catch(Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//		}
-//	}
-//	
-//	private List<EventData> publishDraftVersion(Credential1 originalCred, Credential1 draftCred, long creatorId, Role role) {
-//		originalCred.setTitle(draftCred.getTitle());
-//		originalCred.setDescription(draftCred.getDescription());
-//		originalCred.setCompetenceOrderMandatory(draftCred.isCompetenceOrderMandatory());
-//		originalCred.setStudentsCanAddCompetences(draftCred.isStudentsCanAddCompetences());
-//		originalCred.setDuration(draftCred.getDuration());
-//		originalCred.setManuallyAssignStudents(draftCred.isManuallyAssignStudents());
-//		originalCred.setDefaultNumberOfStudentsPerInstructor(draftCred.getDefaultNumberOfStudentsPerInstructor());
-//	    
-//		
-//		originalCred.setTags(draftCred.getTags());
-//    	originalCred.setHashtags(draftCred.getHashtags());
-//
-//		List<CredentialCompetence1> comps = compManager
-//				.getCredentialCompetences(draftCred.getId(), false, false, true);
-//		deleteCredentialCompetences(originalCred.getId());
-//		List<Long> compIds = new ArrayList<>();
-//	    if(comps != null) {
-//    		for(CredentialCompetence1 cc : comps) {
-//    			CredentialCompetence1 cc1 = new CredentialCompetence1();
-//				cc1.setOrder(cc.getOrder());
-//				cc1.setCredential(originalCred);
-//				cc1.setCompetence(cc.getCompetence());
-//				saveEntity(cc1);
-//				originalCred.getCompetences().add(cc1);
-//				compIds.add(cc1.getCompetence().getId());
-//    		}	
-//	    }
-//	    List<EventData> events = compManager.publishCompetences(compIds, creatorId, role);
-//	    
-//	    originalCred.setHasDraft(false);
-//	    originalCred.setDraftVersion(null);
-//	    originalCred.setPublished(true);
-//    	delete(draftCred);
-//    	
-//    	return events;
-//	}
-//	
-//	private EventData fireFirstTimePublishCredEvent(long userId, Credential1 updatedCred) {
-//		EventData ev = new EventData();
-//		ev.setEventType(EventType.Create);
-//		ev.setActorId(userId);
-//		ev.setObject(updatedCred);
-//		return ev;
-//	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -2741,70 +2479,64 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getTagsForCredentialCompetences(credentialId).size();
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
-		//TODO cred-redesign-07
-//		StringBuilder queryBuilder = new StringBuilder(
-//				"SELECT DISTINCT targetComp " +
-//				"FROM TargetCompetence1 targetComp " + 
-//				"LEFT JOIN FETCH targetComp.tags tag "+
-//				"WHERE targetComp.targetCredential.id = :credId " +
-//				"ORDER BY targetComp.title");
-//		
-//		@SuppressWarnings("unchecked")
-//		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
-//				.createQuery(queryBuilder.toString())
-//				.setLong("credId", credentialId)
-//				.list();
-//		List<CompetenceData1> data = new ArrayList<>();
-//		for(TargetCompetence1 competence : competences){
-//			CompetenceData1 cd = new CompetenceData1(false);
-//			cd.setTitle(competence.getTitle());
-//			cd.setDuration(competence.getDuration());
-//			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
-//			cd.setCredentialId(competence.getTargetCredential().getId());
-//			cd.setCompetenceId(competence.getCompetence().getId());
-//			cd.setTargetCompId(competence.getId());
-//			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
-//			data.add(cd);
-//		}
-//		return data;
-		return null;
+	public List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
+		String query = "SELECT DISTINCT comp " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN FETCH comp.tags tag " +
+				"INNER JOIN comp.credentialCompetences cComp " +
+				"WHERE cComp.credential.id = :credId " +
+				"ORDER BY comp.title";
+
+		@SuppressWarnings("unchecked")
+		List<Competence1> competences= (List<Competence1>) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credentialId)
+				.list();
+
+		List<CompetenceData1> data = new ArrayList<>();
+		for (Competence1 competence : competences) {
+			CompetenceData1 cd = new CompetenceData1(false);
+			cd.setTitle(competence.getTitle());
+			cd.setDuration(competence.getDuration());
+			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
+			cd.setCredentialId(credentialId);
+			cd.setCompetenceId(competence.getId());
+			data.add(cd);
+		}
+		return data;
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException {
-		//TODO cred-redesign-07
-//		StringBuilder queryBuilder = new StringBuilder(
-//				"SELECT DISTINCT targetAct " +
-//				"FROM TargetCompetence1 targetComp " + 
-//				"JOIN targetComp.targetActivities targetAct "+
-//				"WHERE targetComp.targetCredential.id = :credId " +
-//				"ORDER BY targetAct.title");
-//		
-//		@SuppressWarnings("unchecked")
-//		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
-//				.createQuery(queryBuilder.toString())
-//				.setLong("credId", credentialId)
-//				.list();
-//		List<ActivityData> data = new ArrayList<>();
-//		for(TargetActivity1 tActivity : activities){
-//			ActivityData ad = new ActivityData(false);
-//			ad.setTitle(tActivity.getTitle());
-//			ad.setTargetActivityId(tActivity.getId());
-//			ad.setDurationHours((int) (tActivity.getDuration() / 60));
-//			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
-//			ad.calculateDurationString();
-//			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
-//			ad.setActivityId(tActivity.getActivity().getId());
-//			data.add(ad);
-//		}
-//		return data;
-		return null;
+	public List<ActivityData> getActivitiesForKeywordSearch(long credentialId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT DISTINCT cAct " +
+							"FROM Activity1 act " +
+							"INNER JOIN act.competenceActivities cAct " +
+							"INNER JOIN cAct.competence comp " +
+							"INNER JOIN comp.credentialCompetences cComp " +
+							"WITH cComp.credential.id = :credId " +
+							"ORDER BY act.title";
+
+			@SuppressWarnings("unchecked")
+			List<CompetenceActivity1> activities = (List<CompetenceActivity1>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credentialId)
+					.list();
+
+			List<ActivityData> data = new ArrayList<>();
+			for (CompetenceActivity1 cAct : activities) {
+				data.add(activityDataFactory.getActivityData(cAct, null, null, false));
+			}
+			return data;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activities");
+		}
 	}
 	
 	@Deprecated

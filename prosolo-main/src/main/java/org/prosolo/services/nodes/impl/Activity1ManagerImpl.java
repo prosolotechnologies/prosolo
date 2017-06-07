@@ -20,17 +20,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.ResourceLink;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivityType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -76,6 +66,7 @@ import org.prosolo.web.util.AvatarUtils;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.security.x509.X500Name;
 
 @Service("org.prosolo.services.nodes.Activity1Manager")
 public class Activity1ManagerImpl extends AbstractManagerImpl implements Activity1Manager {
@@ -2192,42 +2183,51 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional (readOnly = true)
-	public ActivityData getActivityDataForUserToView(long targetActId, long userToViewId,
-			boolean isManager) {
-		String query = 
-				"SELECT targetAct, targetComp.user " +
-				"FROM TargetActivity1 targetAct " +
-				"INNER JOIN FETCH targetAct.activity act " +
-				"INNER JOIN targetAct.targetCompetence targetComp " + 
-				"WHERE targetAct.id = :targetActivityId";
-			
+	public ActivityData getActivityResponseForUserToView(long targetActId, long userToViewId)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetAct, targetComp.user " +
+							"FROM TargetActivity1 targetAct " +
+							"INNER JOIN FETCH targetAct.activity act " +
+							"INNER JOIN targetAct.targetCompetence targetComp " +
+							"WHERE targetAct.id = :targetActivityId";
+
 			Object[] result = (Object[]) persistence.currentManager()
-				.createQuery(query.toString())
-				.setLong("targetActivityId", targetActId)
-				.uniqueResult();
-			
+					.createQuery(query.toString())
+					.setLong("targetActivityId", targetActId)
+					.uniqueResult();
+
 			if (result != null) {
 				TargetActivity1 targetActivity = (TargetActivity1) result[0];
 				User user = (User) result[1];
-				
-				// check whether userToViewId is owner of TargetActivity 
+
 				/*
-				 * TODO with this condition only owner and assessor can access the resource but this method should return result
-				 * in other cases too - when user commented on someone else's result.
- 				 */
-				
-				//if (user.getId() == userToViewId || assessmentManager.isUserAssessorOfTargetActivity(userToViewId, targetActId)) {
-				ActivityData activityData = activityFactory.getActivityData(targetActivity, null, 
-						null, false, 0, isManager);
-				
-				UserData ud = new UserData(user.getId(), user.getFullName(), 
-						AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);
-				
-				activityData.getResultData().setUser(ud);
-				return activityData;
-				//}
-			} 
+				 * check if user can view activity response (he posted a response for this activity or he is assessor
+				 * for target activity
+				 */
+				boolean hasUserPostedResponse = hasUserPostedResponseForActivity(
+						targetActivity.getActivity().getId(), userToViewId);
+				boolean isUserAssessor = assessmentManager.isUserAssessorOfUserActivity(userToViewId, user.getId(),
+						targetActivity.getActivity().getId(), false);
+				if ((hasUserPostedResponse && targetActivity.getActivity().isStudentCanSeeOtherResponses())
+						|| isUserAssessor) {
+					ActivityData activityData = activityFactory.getActivityData(targetActivity, null,
+							null, false, 0, false);
+
+					UserData ud = new UserData(user.getId(), user.getFullName(),
+							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);
+
+					activityData.getResultData().setUser(ud);
+					return activityData;
+				}
+			}
 			return null;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activity response");
+		}
 	}
 	
 //	@Override
@@ -2551,6 +2551,60 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of activities");
+		}
+	}
+
+	@Transactional (readOnly = true)
+	private boolean hasUserPostedResponseForActivity(long actId, long userId) {
+		String query =
+				"SELECT tAct.result " +
+						"FROM TargetActivity1 tAct " +
+						"INNER JOIN tAct.targetCompetence targetComp " +
+						"WHERE tAct.activity.id = :actId " +
+						"AND targetComp.user.id = :userId";
+
+		String result = (String) persistence.currentManager()
+				.createQuery(query.toString())
+				.setLong("actId", actId)
+				.setLong("userId", userId)
+				.uniqueResult();
+
+		return result != null;
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public List<Long> getIdsOfCredentialsWithActivity(long actId, CredentialType type) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT cred.id " +
+					"FROM Activity1 act " +
+					"INNER JOIN act.competenceActivities cAct " +
+					"INNER JOIN cAct.competence comp " +
+					"INNER JOIN comp.credentialCompetences cComp " +
+					"INNER JOIN cComp.credential cred " +
+					"WHERE act.id = :actId ";
+
+			if (type != null) {
+				query += "AND cred.type = :type";
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("actId", actId);
+
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Long> result = q.list();
+
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving credential ids");
 		}
 	}
 

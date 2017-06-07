@@ -93,8 +93,8 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 					if (target instanceof Credential1) {
 						long credUserGroupId = Long.parseLong(params.get("credentialUserGroupId"));
 						UserGroupPrivilege privilege = UserGroupPrivilege.valueOf(params.get("privilege"));
-						//only edit privilege should be propagated when user group is added to credential
-						if (privilege == UserGroupPrivilege.Edit) {
+						//only edit and instruct privileges should be propagated when user group is added to credential
+						if (privilege == UserGroupPrivilege.Edit || privilege == UserGroupPrivilege.Instruct) {
 							res = userGroupManager.propagateUserGroupPrivilegeFromCredentialAndGetEvents(credUserGroupId,
 									session);
 						}

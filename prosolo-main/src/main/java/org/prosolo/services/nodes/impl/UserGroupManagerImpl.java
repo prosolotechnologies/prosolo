@@ -804,8 +804,12 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					.setString("priv", privilege.name())
 					.setBoolean("isDefault", true)
 					.uniqueResult();
-			
-			return removeUserFromGroupAndGetEvents(ugu, actorId, context);
+
+			if (ugu != null) {
+				return removeUserFromGroupAndGetEvents(ugu, actorId, context);
+			} else {
+				return new Result<>();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
