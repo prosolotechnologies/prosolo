@@ -73,7 +73,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 		try {
 			getCompetenceSearchResults();
 			
-			if(userSearch) {
+			if (userSearch) {
 				String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
 				LearningContextData lcd = new LearningContextData(page, context, null);
 				Map<String, String> params = new HashMap<>();

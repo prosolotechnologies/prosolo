@@ -5,6 +5,8 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
+import java.util.Date;
+
 public interface CompetenceESService  extends AbstractBaseEntityESService {
 
 	void saveCompetenceNode(Competence1 comp, Session session);
@@ -39,7 +41,7 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	
 	void updateCompetenceUsersWithPrivileges(long compId, Session session);
 	
-	void updateStatus(long compId, boolean published);
+	void updateStatus(long compId, boolean published, Date datePublished);
 	
 	void addBookmarkToCompetenceIndex(long compId, long userId);
 	

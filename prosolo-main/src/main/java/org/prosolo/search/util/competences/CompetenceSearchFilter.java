@@ -5,6 +5,7 @@ public enum CompetenceSearchFilter {
 	ACTIVE("Active"), 
 	PUBLISHED("Published"),
 	DRAFT("Drafts"),
+	UNPUBLISHED("Unpublished"),
 	ARCHIVED("Archived");
 	
 	private String label;

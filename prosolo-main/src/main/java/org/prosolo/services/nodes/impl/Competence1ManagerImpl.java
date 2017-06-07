@@ -2324,13 +2324,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						"FROM Competence1 c " +
 						"WHERE c.id IN (:ids) ");
 			
-			switch(searchFilter) {
+			switch (searchFilter) {
 				case ACTIVE:
 					query.append("AND c.archived = :boolFalse");
 					break;
 				case DRAFT:
 					query.append("AND c.archived = :boolFalse " +
-								 "AND c.published = :boolFalse");
+							"AND c.published = :boolFalse " +
+							"AND c.datePublished IS NULL ");
+					break;
+				case UNPUBLISHED:
+					query.append("AND c.archived = :boolFalse " +
+							"AND c.published = :boolFalse " +
+							"AND c.datePublished IS NOT NULL ");
 					break;
 				case PUBLISHED:
 					query.append("AND c.archived = :boolFalse " +
@@ -2345,9 +2351,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.createQuery(query.toString())
 					.setParameterList("ids", ids);
 			
-			switch(searchFilter) {
+			switch (searchFilter) {
 				case ACTIVE:
 				case DRAFT:
+				case UNPUBLISHED:
 					q.setBoolean("boolFalse", false);
 					break;
 				case PUBLISHED:
@@ -2395,13 +2402,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						"FROM Competence1 c " +
 						"WHERE c.id IN (:ids) ");
 			
-			switch(searchFilter) {
+			switch (searchFilter) {
 				case ACTIVE:
 					query.append("AND c.archived = :boolFalse ");
 					break;
 				case DRAFT:
 					query.append("AND c.archived = :boolFalse " +
-								 "AND c.published = :boolFalse ");
+								 "AND c.published = :boolFalse " +
+								 "AND c.datePublished IS NULL ");
+					break;
+				case UNPUBLISHED:
+					query.append("AND c.archived = :boolFalse " +
+								 "AND c.published = :boolFalse " +
+					 			 "AND c.datePublished IS NOT NULL ");
 					break;
 				case PUBLISHED:
 					query.append("AND c.archived = :boolFalse " +
@@ -2418,9 +2431,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						.createQuery(query.toString())
 						.setParameterList("ids", ids);
 					
-			switch(searchFilter) {
+			switch (searchFilter) {
 				case ACTIVE:
 				case DRAFT:
+				case UNPUBLISHED:
 					q.setBoolean("boolFalse", false);
 					break;
 				case PUBLISHED:
@@ -2717,12 +2731,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			
 				comp.setPublished(true);
+				Date newDatePublished = null;
 				if (comp.getDatePublished() == null) {
-					comp.setDatePublished(new Date());
+					newDatePublished = new Date();
+					comp.setDatePublished(newDatePublished);
 				}
 
 				Competence1 c = new Competence1();
 				c.setId(comp.getId());
+				c.setPublished(true);
+				c.setDatePublished(newDatePublished);
 				res.addEvent(eventFactory.generateEventData(EventType.STATUS_CHANGED, actorId, c, null, null, null));
 			}
 			

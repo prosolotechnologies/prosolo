@@ -34,7 +34,7 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
 			if(event.getAction() == EventType.STATUS_CHANGED) {
-				competenceESService.updateStatus(comp.getId(), comp.isPublished());
+				competenceESService.updateStatus(comp.getId(), comp.isPublished(), comp.getDatePublished());
 			} else if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
 				competenceESService.updateCompetenceUsersWithPrivileges(comp.getId(), session);
 			} else if(event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {

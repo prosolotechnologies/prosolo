@@ -25,6 +25,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -234,12 +235,15 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 	
 	@Override
-	public void updateStatus(long compId, boolean published) {
+	public void updateStatus(long compId, boolean published, Date datePublished) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
-			    .startObject()
-		        .field("published", published)
-		        .endObject();
+			    .startObject();
+			doc.field("published", published);
+			if (published && datePublished != null) {
+				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(datePublished));
+			}
+			doc.endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
