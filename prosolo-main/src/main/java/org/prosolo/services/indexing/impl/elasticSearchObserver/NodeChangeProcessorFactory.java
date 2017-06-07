@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
@@ -42,11 +41,12 @@ public class NodeChangeProcessorFactory {
 			case Registered:
 			case Edit_Profile:
 			case ENROLL_COURSE:
+			case ENROLL_COMPETENCE:
 			case COURSE_WITHDRAWN:
 			case ACTIVATE_COURSE:
 			case ChangeProgress:
 				 return new UserNodeChangeProcessor(event, session, userEntityESService, 
-						 credentialESService, EventUserRole.Subject);
+						 credentialESService, competenceESService, EventUserRole.Subject);
 			case Create:
 			case Create_Draft:
 			case Edit:
@@ -63,10 +63,7 @@ public class NodeChangeProcessorFactory {
 			case STATUS_CHANGED:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
-							credentialESService, EventUserRole.Object);
-				} else if (node instanceof TargetLearningGoal) {
-					return new UserNodeChangeProcessor(event, session, userEntityESService, 
-							credentialESService, EventUserRole.Subject);
+							credentialESService, competenceESService, EventUserRole.Object);
 				} else if(node instanceof Credential1) {
 					NodeOperation operation = null;
 					if(type == EventType.Create || type == EventType.Create_Draft) {
@@ -85,11 +82,10 @@ public class NodeChangeProcessorFactory {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager, competenceESService);
+							credentialESService, userGroupManager, competenceESService, session);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
-				
 			case Delete:
 			case Delete_Draft:
 				if(node instanceof Credential1) {
@@ -100,7 +96,7 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Delete, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager, competenceESService);
+							credentialESService, userGroupManager, competenceESService, session);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -109,22 +105,42 @@ public class NodeChangeProcessorFactory {
 				//} 
 				return null;
 			case Bookmark:
-				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Save);
+				return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, 
+						NodeOperation.Save);
 			case RemoveBookmark:
-				return new BookmarkNodeChangeProcessor(event, credentialESService, NodeOperation.Delete);
+				return new BookmarkNodeChangeProcessor(event, credentialESService, competenceESService, 
+						NodeOperation.Delete);
 			case Follow:
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Save);
 			case Unfollow:
 				return new FollowUserProcessor(event, userEntityESService, NodeOperation.Delete);
 			case ADD_USER_TO_GROUP:
 			case REMOVE_USER_FROM_GROUP:
-			case USER_GROUP_ADDED_TO_RESOURCE:
-			case USER_GROUP_REMOVED_FROM_RESOURCE:
+			case USER_GROUP_CHANGE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
-						userGroupManager, competenceESService);
+						userGroupManager, competenceESService, session);
+			case ARCHIVE:
+				if (node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Archive, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService, 
+							NodeOperation.Archive, session);
+				}
+				break;
+			case RESTORE:
+				if (node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService, 
+							NodeOperation.Restore, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService, 
+							NodeOperation.Restore, session);
+				}
+				break;
 			default:
 				return null;
 		}
+		return null;
 	}
 	
 }

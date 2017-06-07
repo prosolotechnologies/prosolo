@@ -32,66 +32,68 @@ public class ActivityRestService {
 	@Produces("application/json")
 	public String getCompletedActivities(@PathParam("competence") long competenceId) {
 		try {
-			List<TargetActivity1> activities = ServiceLocator.getInstance()
-					.getService(Activity1Manager.class)
-						.getTargetActivities(competenceId);
-			
-			List<ActivityJsonData> jsonActivities = new ArrayList<>();
-			for(TargetActivity1 ta : activities) {
-				long timeSpent = ta.getTimeSpent();
-				if(timeSpent != 0 || ta.isCompleted()) {
-					//TODO uncomment when fixed
-//					long activityId = ta.getActivity().getId();
-//					List<Long> usersTimes = ServiceLocator.getInstance()
-//							.getService(ActivityManager.class)
-//								.getTimeSpentOnActivityForAllUsersSorted(activityId);
+			//TODO cred-redesign-07 this service should probably be deleted as it is moved to analytics app
+//			List<TargetActivity1> activities = ServiceLocator.getInstance()
+//					.getService(Activity1Manager.class)
+//						.getTargetActivities(competenceId);
+//			
+//			List<ActivityJsonData> jsonActivities = new ArrayList<>();
+//			for(TargetActivity1 ta : activities) {
+//				long timeSpent = ta.getTimeSpent();
+//				if(timeSpent != 0 || ta.isCompleted()) {
+//					//TODO uncomment when fixed
+////					long activityId = ta.getActivity().getId();
+////					List<Long> usersTimes = ServiceLocator.getInstance()
+////							.getService(ActivityManager.class)
+////								.getTimeSpentOnActivityForAllUsersSorted(activityId);
+////					
+////					int timeSpentGroup = ServiceLocator.getInstance()
+////							.getService(ActivityTimeSpentPercentileService.class)
+////							.getPercentileGroup(usersTimes, timeSpent);
+////					
+////					ActivityJsonData jsonActivity = new ActivityJsonData();
+////					jsonActivity.setId(ta.getId());
+////					jsonActivity.setName(ta.getTitle());
+////					jsonActivity.setCompleted(ta.isCompleted());
+//					//jsonActivity.setTimeNeeded(timeSpentGroup);
 //					
-//					int timeSpentGroup = ServiceLocator.getInstance()
-//							.getService(ActivityTimeSpentPercentileService.class)
-//							.getPercentileGroup(usersTimes, timeSpent);
-//					
-//					ActivityJsonData jsonActivity = new ActivityJsonData();
-//					jsonActivity.setId(ta.getId());
-//					jsonActivity.setName(ta.getTitle());
-//					jsonActivity.setCompleted(ta.isCompleted());
-					//jsonActivity.setTimeNeeded(timeSpentGroup);
-					
-					//to be changed when complexity algorithm is implemented
-//					int min = 1;
-//					int max = 5;
-//					
-//					Random r = new Random();
-//					double randomVal = min + (max - min) * r.nextDouble();
-//					jsonActivity.setComplexity(randomVal);
-//					jsonActivities.add(jsonActivity);
-				} 
-				//TODO comment all when fixed
-				ActivityJsonData jsonActivity = new ActivityJsonData();
-				jsonActivity.setId(ta.getId());
-				jsonActivity.setName(ta.getTitle());
-				jsonActivity.setCompleted(ta.isCompleted());
-				
-				//TODO return to time spent calculations when fixed
-				//Random random = new Random();
-				//int randomNumber = random.nextInt(maxTime - minTime + 1) + minTime;
-				//to be changed when complexity algorithm is implemented
-				int min = 1;
-				int max = 5;
-				jsonActivity.setTimeNeeded(ThreadLocalRandom.current().nextInt(min, max + 1));
-				jsonActivity.setComplexity(ThreadLocalRandom.current().nextInt(min, max + 1));
-//				Random r = new Random();
-//				double randomVal = min + (max - min) * r.nextDouble();
-//				jsonActivity.setComplexity(randomVal);
-				jsonActivities.add(jsonActivity);
-			}
-			
-			final GsonBuilder builder = new GsonBuilder();
-		    final Gson gson = builder.create();
-		   // Type listType = new TypeToken<ArrayList<Competence>>() {}.getType();
-		   // gson.toJson(activities, typeOfSrc)
-		    String s = gson.toJson(jsonActivities);
-		   // System.out.println(s);
-		    return s;
+//					//to be changed when complexity algorithm is implemented
+////					int min = 1;
+////					int max = 5;
+////					
+////					Random r = new Random();
+////					double randomVal = min + (max - min) * r.nextDouble();
+////					jsonActivity.setComplexity(randomVal);
+////					jsonActivities.add(jsonActivity);
+//				} 
+//				//TODO comment all when fixed
+//				ActivityJsonData jsonActivity = new ActivityJsonData();
+//				jsonActivity.setId(ta.getId());
+//				jsonActivity.setName(ta.getTitle());
+//				jsonActivity.setCompleted(ta.isCompleted());
+//				
+//				//TODO return to time spent calculations when fixed
+//				//Random random = new Random();
+//				//int randomNumber = random.nextInt(maxTime - minTime + 1) + minTime;
+//				//to be changed when complexity algorithm is implemented
+//				int min = 1;
+//				int max = 5;
+//				jsonActivity.setTimeNeeded(ThreadLocalRandom.current().nextInt(min, max + 1));
+//				jsonActivity.setComplexity(ThreadLocalRandom.current().nextInt(min, max + 1));
+////				Random r = new Random();
+////				double randomVal = min + (max - min) * r.nextDouble();
+////				jsonActivity.setComplexity(randomVal);
+//				jsonActivities.add(jsonActivity);
+//			}
+//			
+//			final GsonBuilder builder = new GsonBuilder();
+//		    final Gson gson = builder.create();
+//		   // Type listType = new TypeToken<ArrayList<Competence>>() {}.getType();
+//		   // gson.toJson(activities, typeOfSrc)
+//		    String s = gson.toJson(jsonActivities);
+//		   // System.out.println(s);
+//		    return s;
+			return null;
 		} catch (DbConnectionException dbce) {
 			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		} catch (NumberFormatException nfe) {

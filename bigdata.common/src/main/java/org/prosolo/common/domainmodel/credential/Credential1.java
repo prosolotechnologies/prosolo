@@ -16,7 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -32,35 +32,21 @@ public class Credential1 extends BaseEntity {
 
 	private static final long serialVersionUID = 4974054331339101656L;
 
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private User createdBy;
 	private Set<Tag> tags;
 	private Set<Tag> hashtags;
-	private boolean published;
-	private Date scheduledPublishDate;
 	private List<CredentialCompetence1> competences;
 	private boolean competenceOrderMandatory;
 	private long duration;
-	private boolean studentsCanAddCompetences;
 	private boolean manuallyAssignStudents;
 	private int defaultNumberOfStudentsPerInstructor;
-	private LearningResourceType type;
-	//private Credential1 draftVersion;
-	//private Credential1 originalVersion;
 	private List<TargetCredential1> targetCredentials;
+	private List<CredentialInstructor> credInstructors;
 	private List<Announcement> announcements;
+
 	private List<CredentialUnit> credentialUnits;
-	/** 
-	 * means that this credential instance is just a draft
-	 * version of some other credential
-	 */
-	//private boolean draft;
-	/**
-	 * tells if credential has draft version of
-	 * credential which means that credential was
-	 * published once but is changed and has draft
-	 * version
-	 */
-	//private boolean hasDraft;
 	
 	private List<CredentialBookmark> bookmarks;
 	
@@ -71,7 +57,15 @@ public class Credential1 extends BaseEntity {
 	private boolean visibleToAll;
 	
 	// when credential is cloned, this reference to the original
-	private Credential1 basedOn;
+	private Credential1 deliveryOf;
+	private Date deliveryStart;
+	private Date deliveryEnd;
+	private CredentialType type;
+	
+	private boolean archived;
+	
+	private List<CredentialUserGroup> userGroups;
+	private List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential;
 	
 	public Credential1() {
 		tags = new HashSet<>();
@@ -110,16 +104,6 @@ public class Credential1 extends BaseEntity {
 		this.hashtags = hashTags;
 	}
 
-	@Type(type="true_false")
-	@Column(columnDefinition = "char(1) DEFAULT 'F'")
-	public boolean isPublished() {
-		return published;
-	}
-
-	public void setPublished(boolean published) {
-		this.published = published;
-	}
-
 	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<CredentialCompetence1> getCompetences() {
@@ -146,14 +130,6 @@ public class Credential1 extends BaseEntity {
 		this.duration = duration;
 	}
 
-	public boolean isStudentsCanAddCompetences() {
-		return studentsCanAddCompetences;
-	}
-
-	public void setStudentsCanAddCompetences(boolean studentsCanAddCompetences) {
-		this.studentsCanAddCompetences = studentsCanAddCompetences;
-	}
-
 	public boolean isManuallyAssignStudents() {
 		return manuallyAssignStudents;
 	}
@@ -168,16 +144,6 @@ public class Credential1 extends BaseEntity {
 
 	public void setDefaultNumberOfStudentsPerInstructor(int defaultNumberOfStudentsPerInstructor) {
 		this.defaultNumberOfStudentsPerInstructor = defaultNumberOfStudentsPerInstructor;
-	}
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	public LearningResourceType getType() {
-		return type;
-	}
-
-	public void setType(LearningResourceType type) {
-		this.type = type;
 	}
 
 //	@OneToOne(fetch = FetchType.LAZY)
@@ -227,7 +193,7 @@ public class Credential1 extends BaseEntity {
 		this.targetCredentials = targetCredentials;
 	}
 
-	@OneToMany(mappedBy = "credential")
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	public List<CredentialBookmark> getBookmarks() {
 		return bookmarks;
 	}
@@ -263,15 +229,6 @@ public class Credential1 extends BaseEntity {
 		this.announcements = announcements;
 	}
 
-	@Column(name="scheduled_publish_date")
-	public Date getScheduledPublishDate() {
-		return scheduledPublishDate;
-	}
-
-	public void setScheduledPublishDate(Date scheduledPublishDate) {
-		this.scheduledPublishDate = scheduledPublishDate;
-	}
-
 	@Type(type = "true_false")
 	@Column(columnDefinition = "char(1) DEFAULT 'F'")
 	public boolean isVisibleToAll() {
@@ -282,13 +239,84 @@ public class Credential1 extends BaseEntity {
 		this.visibleToAll = visibleToAll;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY)
-	public Credential1 getBasedOn() {
-		return basedOn;
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Credential1 getDeliveryOf() {
+		return deliveryOf;
 	}
 
-	public void setBasedOn(Credential1 basedOn) {
-		this.basedOn = basedOn;
+	public void setDeliveryOf(Credential1 deliveryOf) {
+		this.deliveryOf = deliveryOf;
+	}
+	
+	public Date getDeliveryStart() {
+		return deliveryStart;
+	}
+
+	public void setDeliveryStart(Date deliveryStart) {
+		this.deliveryStart = deliveryStart;
+	}
+
+	public Date getDeliveryEnd() {
+		return deliveryEnd;
+	}
+
+	public void setDeliveryEnd(Date deliveryEnd) {
+		this.deliveryEnd = deliveryEnd;
+	}
+
+	@Enumerated(EnumType.STRING)
+	public CredentialType getType() {
+		return type;
+	}
+
+	public void setType(CredentialType type) {
+		this.type = type;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CredentialInstructor> getCredInstructors() {
+		return credInstructors;
+	}
+
+	public void setCredInstructors(List<CredentialInstructor> credInstructors) {
+		this.credInstructors = credInstructors;
+	}
+
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CredentialUserGroup> getUserGroups() {
+		return userGroups;
+	}
+
+	public void setUserGroups(List<CredentialUserGroup> userGroups) {
+		this.userGroups = userGroups;
+	}
+
+	@OneToMany(mappedBy = "inheritedFrom", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	public List<CompetenceUserGroup> getInheritedUserGroupsFromThisCredential() {
+		return inheritedUserGroupsFromThisCredential;
+	}
+
+	public void setInheritedUserGroupsFromThisCredential(List<CompetenceUserGroup> inheritedUserGroupsFromThisCredential) {
+		this.inheritedUserGroupsFromThisCredential = inheritedUserGroupsFromThisCredential;
 	}
 
 	@OneToMany(mappedBy = "credential", cascade = CascadeType.REMOVE, orphanRemoval = true)

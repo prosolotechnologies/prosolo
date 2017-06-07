@@ -7,10 +7,11 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.event.ValueChangeEvent;
+import javax.inject.Inject;
 
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
@@ -29,7 +30,7 @@ public class SearchPeopleBean implements Serializable{
 	private static final long serialVersionUID = 859431879196489582L;
 	
 	@Autowired private LoggedUserBean loggedUser;
-	@Autowired private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 	@Autowired private FollowResourceManager followResourceManager;
 	@Autowired private LoggingNavigationBean loggingNavigationBean;
 	
@@ -90,7 +91,7 @@ public class SearchPeopleBean implements Serializable{
 	public void refreshCurrentSearch() {
 		List<Long> excludeUsers = new ArrayList<Long>();
 		excludeUsers.add(loggedUser.getUserId());
-		TextSearchResponse usersResponse=textSearch.searchUsers(
+		TextSearchResponse usersResponse=userTextSearch.searchUsers(
 				query,
 				-1, 
 				limit,
@@ -114,7 +115,7 @@ public class SearchPeopleBean implements Serializable{
 	}
  
 	public void fetchUsers(String query, List<Long> excludeUsers, int limit, boolean loadOneMore) {
-		TextSearchResponse usersResponse = textSearch.searchUsers(
+		TextSearchResponse usersResponse = userTextSearch.searchUsers(
 				query, 
 				this.page, 
 				limit, 

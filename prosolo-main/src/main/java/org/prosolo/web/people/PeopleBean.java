@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -39,8 +39,7 @@ public class PeopleBean implements Paginable, Serializable {
 	private PeopleActionBean peopleActionBean;
 	@Inject
 	private FollowResourceManager followResourceManager;
-	@Inject
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
 
 	private List<UserData> followingUsers;
 
@@ -123,7 +122,7 @@ public class PeopleBean implements Paginable, Serializable {
 	}
 	
 	public void fetchFollowingUsers() {
-		TextSearchResponse1<UserData> searchResponse = textSearch.searchPeopleUserFollows(
+		TextSearchResponse1<UserData> searchResponse = userTextSearch.searchPeopleUserFollows(
 				searchTerm, 
 				paginationData.getPage() - 1, paginationData.getLimit(), 
 				loggedUser.getUserId());

@@ -8,15 +8,16 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.CommentBean;
@@ -43,10 +44,11 @@ public class CompetenceViewBeanUser implements Serializable {
 	private long decodedCredId;
 	private String compId;
 	private long decodedCompId;
-	private String mode;
 	private String commentId;
+	private boolean justEnrolled;
 	
 	private CompetenceData1 competenceData;
+	private ResourceAccessData access;
 	private CommentsData commentsData;
 
 	private long nextCompToLearn;
@@ -57,23 +59,17 @@ public class CompetenceViewBeanUser implements Serializable {
 		if (decodedCompId > 0) {
 			try {
 				decodedCredId = idEncoder.decodeId(credId);
-				if(decodedCredId > 0) {
-					competenceData = competenceManager.getFullTargetCompetenceOrCompetenceData(
-							decodedCredId, decodedCompId, loggedUser.getUserId());
-				} else {
-					if("preview".equals(mode)) {
-						competenceData = competenceManager.getCompetenceData(
-								decodedCredId, decodedCompId, true, true, true, loggedUser.getUserId(), 
-								UserGroupPrivilege.Edit, false);
-
-						ResourceCreator rc = new ResourceCreator();
-						rc.setFullName(loggedUser.getFullName());
-						rc.setAvatarUrl(loggedUser.getAvatar());
-						competenceData.setCreator(rc);
-					} else {
-						competenceData = competenceManager.getCompetenceData(0, decodedCompId, true, 
-								true, true, loggedUser.getUserId(), UserGroupPrivilege.View, false);
-					}
+				
+				RestrictedAccessResult<CompetenceData1> res = competenceManager
+						.getFullTargetCompetenceOrCompetenceData(decodedCredId, decodedCompId, 
+								loggedUser.getUserId());
+				unpackResult(res);
+				
+				/*
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 */
+				if (!access.isCanRead()) {
+					throw new AccessDeniedException();
 				}
 				
 				commentsData = new CommentsData(CommentedResourceType.Competence, 
@@ -82,31 +78,37 @@ public class CompetenceViewBeanUser implements Serializable {
 				commentBean.loadComments(commentsData);
 				
 				if(decodedCredId > 0) {
-					String credTitle = null;
-					if(competenceData.isEnrolled()) {
-						CredentialData cd = credManager
-								.getTargetCredentialTitleAndLearningOrderInfo(decodedCredId, 
-										loggedUser.getUserId());
-						if(cd != null) {
-							credTitle = cd.getTitle();
-							nextCompToLearn = cd.getNextCompetenceToLearnId();
-							mandatoryOrder = cd.isMandatoryFlow();
-						}
-//							credTitle = credManager.getTargetCredentialTitle(decodedCredId,
-//									loggedUser.getUser().getId());
-					} else {
-						credTitle = credManager.getCredentialTitle(decodedCredId);
-					}
+					String credTitle = credManager.getCredentialTitle(decodedCredId);
+//					if(competenceData.isEnrolled()) {
+////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
+////								loggedUser.getUserId(), false);
+//						//credTitle = li.getCredentialTitle();
+//						//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
+//						//nextCompToLearn = li.getNextCompetenceToLearn();
+//						//mandatoryOrder = li.isMandatoryFlow();
+//					} else {
+//						credTitle = credManager.getCredentialTitle(decodedCredId);
+//					}
 					competenceData.setCredentialId(decodedCredId);
 					competenceData.setCredentialTitle(credTitle);
 				}
-			} catch(ResourceNotFoundException rnfe) {
+				if (justEnrolled) {
+					PageUtil.fireSuccessfulInfoMessage(
+							"You have enrolled in the competency " + competenceData.getTitle());
+				}
+			} catch (AccessDeniedException ade) {
+				try {
+					FacesContext.getCurrentInstance().getExternalContext().dispatch("/accessDenied.xhtml");
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} catch (ResourceNotFoundException rnfe) {
 				try {
 					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
 				} catch (IOException e) {
 					logger.error(e);
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
@@ -118,6 +120,11 @@ public class CompetenceViewBeanUser implements Serializable {
 				logger.error(ioe);
 			}
 		}
+	}
+	
+	private void unpackResult(RestrictedAccessResult<CompetenceData1> res) {
+		competenceData = res.getResource();
+		access = res.getAccess();
 	}
 	
 	public boolean isCompetenceNextToLearn() {
@@ -134,23 +141,30 @@ public class CompetenceViewBeanUser implements Serializable {
 	}
 	
 	public String getLabelForCompetence() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(isCurrentUserCreator() && !competenceData.isEnrolled() && !competenceData.isPublished()) {
+ 		if(access.isCanEdit() && !competenceData.isEnrolled() && !competenceData.isPublished()) {
  			return "(Unpublished)";
  		} else {
  			return "";
  		}
  	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
 
 	/*
 	 * ACTIONS
 	 */
 	
+	public void enrollInCompetence() {
+		try {
+			LearningContextData context = PageUtil.extractLearningContextData();
+			
+			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
+					competenceData.getCompetenceId(), loggedUser.getUserId(), context);
+			access.userEnrolled();
+			PageUtil.fireSuccessfulInfoMessage("Successfully enrolled in a competency");
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+		}
+	}
 	
 	/*
 	 * GETTERS / SETTERS
@@ -196,14 +210,6 @@ public class CompetenceViewBeanUser implements Serializable {
 		this.competenceData = competenceData;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
 	public CommentsData getCommentsData() {
 		return commentsData;
 	}
@@ -227,5 +233,18 @@ public class CompetenceViewBeanUser implements Serializable {
 	public void setMandatoryOrder(boolean mandatoryOrder) {
 		this.mandatoryOrder = mandatoryOrder;
 	}
+
+	public ResourceAccessData getAccess() {
+		return access;
+	}
+
+	public boolean isJustEnrolled() {
+		return justEnrolled;
+	}
+
+	public void setJustEnrolled(boolean justEnrolled) {
+		this.justEnrolled = justEnrolled;
+	}
+
 
 }

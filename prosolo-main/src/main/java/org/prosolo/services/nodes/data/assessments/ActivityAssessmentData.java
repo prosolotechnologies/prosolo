@@ -1,24 +1,13 @@
 package org.prosolo.services.nodes.data.assessments;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.proxy.HibernateProxy;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TextActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivity1;
-import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.nodes.data.ActivityDiscussionMessageData;
-import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.GradeData;
+import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ActivityAssessmentData {
 	
@@ -26,15 +15,14 @@ public class ActivityAssessmentData {
 	private String title;
 	private int numberOfMessages;
 	private String encodedDiscussionId;
-	private String encodedTargetActivityId;
-	private Long activityId;
-	private Long targetActivityId;
-	private Long competenceId;
-	private Long credentialId;
+	private long activityId;
+	private long targetActivityId;
+	private long competenceId;
+	private long credentialId;
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion; 	// whether user is participant in the discussion
 	private boolean messagesInitialized;
-	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new ArrayList<>();
+	private List<ActivityDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
 	private List<String> downloadResourceUrls;
 	private long assessorId;
 	private long compAssessmentId;
@@ -44,80 +32,90 @@ public class ActivityAssessmentData {
 	private long userId;
 	//is activity completed
 	private boolean completed;
-	private org.prosolo.common.domainmodel.credential.ActivityResultType resultType;
+	private ActivityResultType resultType;
 	//for external activities where acceptGrades = true
 	private boolean automaticGrade;
+	private long targetCompId;
+
+	private boolean isDefault;
+
+	//reference to competence assessment
+	private CompetenceAssessmentData compAssessment;
 
 	public ActivityAssessmentData() {
 		grade = new GradeData();
 	}
-	
-	public static ActivityAssessmentData from(TargetActivity1 targetActivity, CompetenceAssessment compAssessment,
-			UrlIdEncoder encoder, long userId) {
+
+	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
+											  CredentialAssessment credAssessment, UrlIdEncoder encoder, long userId) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
-		populateTypeSpecificData(data, targetActivity.getActivity());
-		populateIds(data,targetActivity,compAssessment);
-		//populateDownloadResourceLink(targetActivity,data);
-		data.setResultType(targetActivity.getResultType());
-		data.setResult(targetActivity.getResult());
-		data.setTitle(targetActivity.getTitle());
-		data.setCompleted(targetActivity.isCompleted());
-		data.setEncodedTargetActivityId(encoder.encodeId(targetActivity.getId()));
-//		data.getGrade().setMinGrade(targetActivity.getActivity().getGradingOptions().getMinGrade());
-//		data.getGrade().setMaxGrade(targetActivity.getActivity().getGradingOptions().getMaxGrade());
+		populateTypeSpecificData(data, actData);
+		data.setActivityId(actData.getActivityId());
+		data.setUserId(credAssessment.getAssessedStudent().getId());
+		data.setTargetCompId(actData.getTargetCompetenceId());
+		//populateIds(data,targetActivity,compAssessment);
+		data.setResultType(actData.getResultData().getResultType());
+		data.setResult(actData.getResultData().getResult());
+		data.setTitle(actData.getTitle());
+		data.setCompleted(actData.isCompleted());
+		data.setTargetActivityId(actData.getTargetActivityId());
 		data.getGrade().setMinGrade(0);
-		data.getGrade().setMaxGrade(targetActivity.getActivity().getMaxPoints());
-		data.setCompAssessmentId(compAssessment.getId());
-		data.setCredAssessmentId(compAssessment.getCredentialAssessment().getId());
-		ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(targetActivity.getActivity().getId());
-		
-		if (activityDiscussion != null) {
-			data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
-			
-			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
-			
-			if (currentParticipant != null) {
-				data.setParticipantInDiscussion(true);
-				data.setAllRead(currentParticipant.isRead());
-			} else {
-				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-				data.setAllRead(false);
-				data.setParticipantInDiscussion(false);
-			}
-			
-			List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
-			
-			if (CollectionUtils.isNotEmpty(messages)) {
-				data.setActivityDiscussionMessageData(new ArrayList<>());
-				data.setNumberOfMessages(activityDiscussion.getMessages().size());
-				for (ActivityDiscussionMessage activityMessage : messages) {
-					ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
-							compAssessment, encoder);
-					data.getActivityDiscussionMessageData().add(messageData);
+		data.getGrade().setMaxGrade(actData.getMaxPoints());
+		data.setDefault(credAssessment.isDefaultAssessment());
+		data.setCredAssessmentId(credAssessment.getId());
+		data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
+		if (credAssessment.getAssessor() != null) {
+			data.setAssessorId(credAssessment.getAssessor().getId());
+		}
+		//if competence assessment exists
+		if (compAssessment != null) {
+			data.setCompAssessmentId(compAssessment.getId());
+
+			ActivityAssessment activityDiscussion = compAssessment.getDiscussionByActivityId(actData.getActivityId());
+			if (activityDiscussion != null) {
+				data.setEncodedDiscussionId(encoder.encodeId(activityDiscussion.getId()));
+
+				ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
+
+				if (currentParticipant != null) {
+					data.setParticipantInDiscussion(true);
+					data.setAllRead(currentParticipant.isRead());
+				} else {
+					// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+					data.setAllRead(false);
+					data.setParticipantInDiscussion(false);
+				}
+
+				List<ActivityDiscussionMessage> messages = activityDiscussion.getMessages();
+
+				if (CollectionUtils.isNotEmpty(messages)) {
+					data.setNumberOfMessages(activityDiscussion.getMessages().size());
+					for (ActivityDiscussionMessage activityMessage : messages) {
+						ActivityDiscussionMessageData messageData = ActivityDiscussionMessageData.from(activityMessage,
+								compAssessment, encoder);
+						data.addDiscussionMessageSorted(messageData);
+					}
+				}
+				data.setMessagesInitialized(true);
+				data.getGrade().setValue(activityDiscussion.getPoints());
+				if(data.getGrade().getValue() < 0) {
+					data.getGrade().setValue(0);
+				} else {
+					data.getGrade().setAssessed(true);
 				}
 			}
-//			data.getGrade().setValue(activityDiscussion.getGrade().getValue());
-			data.getGrade().setValue(activityDiscussion.getPoints());
-			if(data.getGrade().getValue() < 0) {
-				data.getGrade().setValue(0);
-			} else {
-				data.getGrade().setAssessed(true);
-			}
 		}
-		//there are no discussions/messages for this activity, set it as 'all read'
-		else {
-			data.setParticipantInDiscussion(false);
-		}
+
 		return data;
 	}
 
-	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
-		data.setActivityId(targetActivity.getActivity().getId());
-		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
-		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
-		data.setTargetActivityId(targetActivity.getId());
-		data.setUserId(compAssessment.getCredentialAssessment().getAssessedStudent().getId());
-	}
+//	private static void populateIds(ActivityAssessmentData data, TargetActivity1 targetActivity, CompetenceAssessment compAssessment) {
+//		data.setActivityId(targetActivity.getActivity().getId());
+//		data.setCompetenceId(compAssessment.getTargetCompetence().getCompetence().getId());
+//		data.setCredentialId(compAssessment.getCredentialAssessment().getTargetCredential().getCredential().getId());
+//		data.setTargetActivityId(targetActivity.getId());
+//		data.setUserId(compAssessment.getCredentialAssessment().getAssessedStudent().getId());
+//	}
 
 //	private static void populateDownloadResourceLink(TargetActivity1 targetActivity, ActivityAssessmentData data) {
 //		if(CollectionUtils.isNotEmpty(targetActivity.getFiles()) && targetActivity.isUploadAssignment()) {
@@ -127,6 +125,48 @@ public class ActivityAssessmentData {
 //			}
 //		}
 //	}
+
+//	//Taken from ActivityDataFactory
+//	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
+//		if (activity instanceof HibernateProxy) {
+//			activity = HibernateUtil.initializeAndUnproxy(activity);
+//		}
+//
+//		if (activity instanceof TextActivity1) {
+//			act.setActivityType(ActivityType.TEXT);
+//		} else if (activity instanceof UrlActivity1) {
+//			UrlActivity1 urlAct = (UrlActivity1) activity;
+//			switch (urlAct.getUrlType()) {
+//			case Video:
+//				act.setActivityType(ActivityType.VIDEO);
+//				break;
+//			case Slides:
+//				act.setActivityType(ActivityType.SLIDESHARE);
+//				break;
+//			}
+//		} else if (activity instanceof ExternalToolActivity1) {
+//			ExternalToolActivity1 extAct = (ExternalToolActivity1) activity;
+//			act.setActivityType(ActivityType.EXTERNAL_TOOL);
+//			act.setAutomaticGrade(extAct.isAcceptGrades());
+//		}
+//	}
+
+	public void populateDiscussionMessages(List<ActivityDiscussionMessageData> msgs) {
+		activityDiscussionMessageData.clear();
+		activityDiscussionMessageData.addAll(msgs);
+	}
+
+	public void addDiscussionMessageSorted(ActivityDiscussionMessageData msg) {
+		int index = 0;
+		for (ActivityDiscussionMessageData m : activityDiscussionMessageData) {
+			if (m.getDateUpdated().before(msg.getDateUpdated())) {
+				break;
+			} else {
+				index ++;
+			}
+		}
+		activityDiscussionMessageData.add(index, msg);
+	}
 
 	/**
 	 * @return the targetActivityId
@@ -142,28 +182,10 @@ public class ActivityAssessmentData {
 		this.targetActivityId = targetActivityId;
 	}
 
-	//Taken from ActivityDataFactory
-	private static void populateTypeSpecificData(ActivityAssessmentData act, Activity1 activity) {
-		if (activity instanceof HibernateProxy) {
-			activity = HibernateUtil.initializeAndUnproxy(activity);
-		}
-
-		if (activity instanceof TextActivity1) {
-			act.setActivityType(ActivityType.TEXT);
-		} else if (activity instanceof UrlActivity1) {
-			UrlActivity1 urlAct = (UrlActivity1) activity;
-			switch (urlAct.getUrlType()) {
-			case Video:
-				act.setActivityType(ActivityType.VIDEO);
-				break;
-			case Slides:
-				act.setActivityType(ActivityType.SLIDESHARE);
-				break;
-			}
-		} else if (activity instanceof ExternalToolActivity1) {
-			ExternalToolActivity1 extAct = (ExternalToolActivity1) activity;
-			act.setActivityType(ActivityType.EXTERNAL_TOOL);
-			act.setAutomaticGrade(extAct.isAcceptGrades());
+	private static void populateTypeSpecificData(ActivityAssessmentData act, ActivityData ad) {
+		act.setActivityType(ad.getActivityType());
+		if (act.getActivityType() == ActivityType.EXTERNAL_TOOL) {
+			act.setAutomaticGrade(ad.isAcceptGrades());
 		}
 	}
 
@@ -177,10 +199,6 @@ public class ActivityAssessmentData {
 
 	public List<ActivityDiscussionMessageData> getActivityDiscussionMessageData() {
 		return activityDiscussionMessageData;
-	}
-
-	public void setActivityDiscussionMessageData(List<ActivityDiscussionMessageData> activityDiscussionMessageData) {
-		this.activityDiscussionMessageData = activityDiscussionMessageData;
 	}
 
 	public String getTitle() {
@@ -229,14 +247,6 @@ public class ActivityAssessmentData {
 
 	public void setDownloadResourceUrls(List<String> downloadResourceUrls) {
 		this.downloadResourceUrls = downloadResourceUrls;
-	}
-
-	public String getEncodedTargetActivityId() {
-		return encodedTargetActivityId;
-	}
-
-	public void setEncodedTargetActivityId(String encodedTargetActivityId) {
-		this.encodedTargetActivityId = encodedTargetActivityId;
 	}
 
 	public Long getActivityId() {
@@ -311,11 +321,11 @@ public class ActivityAssessmentData {
 		this.result = result;
 	}
 
-	public org.prosolo.common.domainmodel.credential.ActivityResultType getResultType() {
+	public ActivityResultType getResultType() {
 		return resultType;
 	}
 
-	public void setResultType(org.prosolo.common.domainmodel.credential.ActivityResultType resultType) {
+	public void setResultType(ActivityResultType resultType) {
 		this.resultType = resultType;
 	}
 
@@ -335,6 +345,14 @@ public class ActivityAssessmentData {
 		this.automaticGrade = automaticGrade;
 	}
 
+	public long getTargetCompId() {
+		return targetCompId;
+	}
+
+	public void setTargetCompId(long targetCompId) {
+		this.targetCompId = targetCompId;
+	}
+
 	/**
 	 * @return the userId
 	 */
@@ -348,5 +366,21 @@ public class ActivityAssessmentData {
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	
+
+
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(boolean aDefault) {
+		isDefault = aDefault;
+	}
+
+	public CompetenceAssessmentData getCompAssessment() {
+		return compAssessment;
+	}
+
+	public void setCompAssessment(CompetenceAssessmentData compAssessment) {
+		this.compAssessment = compAssessment;
+	}
 }

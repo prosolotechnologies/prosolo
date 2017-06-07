@@ -47,11 +47,9 @@ public class LogsDataManagerImpl extends AbstractManagerImpl implements LogsData
     @Transactional(readOnly = true)
     public Long getUserOfTargetActivity(long targetId){
         String query =
-                "SELECT user.id " +
+                "SELECT tComp.user.id " +
                         "FROM TargetActivity1 ta "+
-                        "LEFT JOIN ta.targetCompetence tComp "+
-                        "LEFT JOIN tComp.targetCredential tCredential "+
-                        "LEFT JOIN tCredential.user user "+
+                        "INNER JOIN ta.targetCompetence tComp "+
                         "WHERE ta.id = :targetId";
         System.out.println("Query:"+query+" for targetID:"+targetId);
         return  (Long) persistence.currentManager().createQuery(query)

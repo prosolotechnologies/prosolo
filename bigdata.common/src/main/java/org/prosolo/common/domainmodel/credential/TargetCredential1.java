@@ -1,28 +1,17 @@
 package org.prosolo.common.domainmodel.credential;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -43,33 +32,17 @@ public class TargetCredential1 extends BaseEntity {
 	private String clusterName;
 	
 	private int progress;
-	private List<TargetCompetence1> targetCompetences;
 	
 	private boolean hiddenFromProfile;
 	
-	private LearningResourceType credentialType;
-	private Set<Tag> tags;
-	private Set<Tag> hashtags;
-	private long duration;
-	private boolean studentsCanAddCompetences;
-	private boolean competenceOrderMandatory;
-	
-	private User createdBy;
-	
 	private long nextCompetenceToLearnId;
-	private long nextActivityToLearnId;
 	
 	private String finalReview;
 	
 	private Date lastAction;
 	
-	//private String description;
-	//private String title;
-	
 	public TargetCredential1() {
-		tags = new HashSet<>();
-		hashtags = new HashSet<>();
-		targetCompetences = new ArrayList<>();
+		
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -133,16 +106,6 @@ public class TargetCredential1 extends BaseEntity {
 		this.progress = progress;
 	}
 
-	@OneToMany(mappedBy = "targetCredential")
-	@LazyCollection(LazyCollectionOption.EXTRA)
-	public List<TargetCompetence1> getTargetCompetences() {
-		return targetCompetences;
-	}
-
-	public void setTargetCompetences(List<TargetCompetence1> targetCompetences) {
-		this.targetCompetences = targetCompetences;
-	}
-
 	public boolean isHiddenFromProfile() {
 		return hiddenFromProfile;
 	}
@@ -167,74 +130,6 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setDateFinished(Date dateFinished) {
 		this.dateFinished = dateFinished;
-	}
-	
-	@ManyToMany
-	public Set<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
-	}
-
-	@ManyToMany
-	public Set<Tag> getHashtags() {
-		return hashtags;
-	}
-
-	public void setHashtags(Set<Tag> hashTags) {
-		this.hashtags = hashTags;
-	}
-
-	public long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
-
-	public boolean isStudentsCanAddCompetences() {
-		return studentsCanAddCompetences;
-	}
-
-	public void setStudentsCanAddCompetences(boolean studentsCanAddCompetences) {
-		this.studentsCanAddCompetences = studentsCanAddCompetences;
-	}
-	
-	@Enumerated(EnumType.STRING)
-	public LearningResourceType getCredentialType() {
-		return credentialType;
-	}
-
-	public void setCredentialType(LearningResourceType credentialType) {
-		this.credentialType = credentialType;
-	}
-
-	public boolean isCompetenceOrderMandatory() {
-		return competenceOrderMandatory;
-	}
-
-	public void setCompetenceOrderMandatory(boolean competenceOrderMandatory) {
-		this.competenceOrderMandatory = competenceOrderMandatory;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	public User getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public long getNextActivityToLearnId() {
-		return nextActivityToLearnId;
-	}
-
-	public void setNextActivityToLearnId(long nextActivityToLearnId) {
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public long getNextCompetenceToLearnId() {

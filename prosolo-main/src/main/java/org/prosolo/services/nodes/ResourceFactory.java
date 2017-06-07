@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.Activity;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
 import org.prosolo.common.domainmodel.activities.events.EventType;
@@ -120,10 +122,6 @@ public interface ResourceFactory extends AbstractManager {
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
 
-	Credential1 createCredential(String title, String description, String tagsString, String hashtagsString, 
-			long creatorId, LearningResourceType type, boolean compOrderMandatory, boolean published, 
-			long duration, boolean manuallyAssign, List<CompetenceData1> comps, Date scheduledDate);
-
 	/**
 	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
 	 * and events data that can be accessed using {@link Result#getEvents()}
@@ -144,9 +142,10 @@ public interface ResourceFactory extends AbstractManager {
 			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
 			long credentialId);
 
-	Result<Credential1> updateCredential(CredentialData data, long creatorId);
+	Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException, IllegalDataStateException;
 
-	Competence1 updateCompetence(CompetenceData1 data, long userId);
+	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
+			IllegalDataStateException;
 	
 	long deleteCredentialBookmark(long credId, long userId);
 	
@@ -159,13 +158,13 @@ public interface ResourceFactory extends AbstractManager {
 	 * @param activityData
 	 * @param userId
 	 * @return
-	 * @throws DbConnectionException
+	 * @throws DbConnectionException, IllegalDataStateException
 	 */
 	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
-    		long userId) throws DbConnectionException;
+    		long userId) throws DbConnectionException, IllegalDataStateException;
 
-	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data, long userId) 
-			throws DbConnectionException;
+	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
+			throws DbConnectionException, StaleDataException;
 	
 	Comment1 saveNewComment(CommentData data, long userId, CommentedResourceType resource) 
 			throws DbConnectionException;
@@ -190,8 +189,27 @@ public interface ResourceFactory extends AbstractManager {
 	
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 	
-	ActivityAssessment createActivityAssessment(long targetActivityId, long competenceAssessmentId, 
-			List<Long> participantIds, long senderId, boolean isDefault, Integer grade, 
-			Session session) throws ResourceCouldNotBeLoadedException;
+	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
+	
+	/**
+	 * Saves new credential.
+	 * 
+	 * This method should be used for saving original credential only and not for delivery.
+	 * 
+	 * @param title
+	 * @param description
+	 * @param tagsString
+	 * @param hashtagsString
+	 * @param creatorId
+	 * @param compOrderMandatory
+	 * @param duration
+	 * @param manuallyAssign
+	 * @param comps
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Credential1 createCredential(String title, String description, String tagsString, 
+    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
+    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException;
 
 }

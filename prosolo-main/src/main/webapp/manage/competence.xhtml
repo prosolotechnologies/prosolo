@@ -10,7 +10,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
 		Competence - #{competenceViewBeanManager.competenceData.title}
@@ -20,7 +21,6 @@
 		<f:metadata>
 			<f:viewParam name="credId" value="#{competenceViewBeanManager.credId}" default="null"/>
 			<f:viewParam name="compId" value="#{competenceViewBeanManager.compId}" default="null"/>
-			<f:viewParam name="mode" value="#{competenceViewBeanManager.mode}" default="null"/>
 			<f:viewParam name="comment" value="#{competenceViewBeanManager.commentId}" default="null"/>
 			<f:viewAction action="#{competenceViewBeanManager.init()}" />
 		</f:metadata>
@@ -30,6 +30,13 @@
     	<h1>#{competenceViewBeanManager.competenceData.title}
     		<span>#{competenceViewBeanManager.getLabelForCompetence()}</span></h1>
     </ui:define>
+    
+    <ui:define name="navLinks">
+		<mngComp:competenceHeaderNavLinks
+				id="headerNavLinks"
+				compId="#{competenceViewBeanManager.competenceData.competenceId}"
+		/>
+	</ui:define>
     
 	<ui:define name="content">
     	<competences:competence

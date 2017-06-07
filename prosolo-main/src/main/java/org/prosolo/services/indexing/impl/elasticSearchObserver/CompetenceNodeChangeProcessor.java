@@ -39,21 +39,26 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 				competenceESService.updateCompetenceUsersWithPrivileges(comp.getId(), session);
 			} else if(event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				competenceESService.updateVisibleToAll(comp.getId(), comp.isVisibleToAll());
-			}
-			if(params != null) {
-				String jsonChangeTracker = params.get("changes");
+			} else {
 				if(params != null) {
-					Gson gson = new GsonBuilder().create();
-					CompetenceChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
-							 CompetenceChangeTracker.class);
-					competenceESService.updateCompetenceNode(comp, changeTracker,
-							session);
+					String jsonChangeTracker = params.get("changes");
+					if(params != null) {
+						Gson gson = new GsonBuilder().create();
+						CompetenceChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
+								 CompetenceChangeTracker.class);
+						competenceESService.updateCompetenceNode(comp, changeTracker,
+								session);
+					}
 				}
 			}
 		} else if(operation == NodeOperation.Save) {
 			competenceESService.saveCompetenceNode(comp, session);
 		} else if(operation == NodeOperation.Delete) {
 			competenceESService.deleteNodeFromES(comp);
+		} else if(operation == NodeOperation.Archive) {
+			competenceESService.archiveCompetence(comp.getId());
+		} else if(operation == NodeOperation.Restore) {
+			competenceESService.restoreCompetence(comp.getId());
 		}
 	}
 

@@ -58,8 +58,7 @@
 	</h:form>
 	
 	<ui:param name="learningContext" value="name:credential|id:#{activityResultsBeanManager.decodedCredId}|context:/name:competence|id:#{activityResultsBeanManager.decodedCompId}|context:/name:activity|id:#{activityResultsBeanManager.decodedActId}|context:/name:RESULTS///" />
-	<ui:param name="canEdit" value="#{activityResultsBeanManager.activity.type == 'UNIVERSITY_CREATED' 
-     		and request.isUserInRole('MANAGE.CONTENT.EDIT')}" />
+	<ui:param name="canEdit" value="#{request.isUserInRole('MANAGE.CONTENT.EDIT') and activityResultsBeanManager.access.canEdit}" />
      		
 	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
     <div class="whiteBar">
@@ -69,12 +68,12 @@
 				activity="#{activityResultsBeanManager.activity}"
 				learningContext="#{learningContext}"
 				canEdit="#{canEdit}"
-				isPreview="false"
 			/>
         </div>
     </div>
 
     <div class="container">
+        <ui:fragment rendered="#{activityResultsBeanManager.credentialId != 0}">
         <ol class="breadcrumb">
             <li>
             	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
@@ -108,7 +107,7 @@
             		outcome="/manage/activity"
             		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
 							'#{facesContext.viewRoot.viewId}', 
-							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
+							'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanManager.decodedActId).concat(&#34;/&#34;))}', 
 							'');">
 					<f:param name="actId" value="#{param['actId']}"></f:param>
             		<f:param name="compId" value="#{param['compId']}"></f:param>
@@ -120,6 +119,40 @@
             	Responses
             </li>
         </ol>
+       </ui:fragment>
+       <ui:fragment rendered="#{activityResultsBeanManager.credentialId == 0}">
+       		<ol class="breadcrumb">	 
+    			<li>
+    				<h:link value="Competencies" outcome="competenceLibrary"/>
+	            </li> 
+    			<li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.competenceTitle}"
+	            		outcome="/manage/competence"
+	            		onclick="sendLogPageNavigation('/manage/competence.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanManger.decodedCompId).concat(&#34;/&#34;))}', 
+								'');">
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>         
+	            <li>
+	            	<h:link 
+	            		value="#{activityResultsBeanManager.activity.title}"
+	            		outcome="/manage/activity"
+	            		onclick="sendLogPageNavigation('/manage/activity.xhtml', 
+								'#{facesContext.viewRoot.viewId}', 
+								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanManager.decodedActId).concat(&#34;/&#34;))}', 
+								'');">
+						<f:param name="actId" value="#{param['actId']}"></f:param>
+	            		<f:param name="compId" value="#{param['compId']}"></f:param>
+	            	</h:link>
+	            </li>
+	            <li class="active">
+	            	Responses
+	            </li>
+	        </ol>
+       </ui:fragment>
     </div>
 
     <div class="container">
@@ -147,7 +180,7 @@
 		           			privateConvModalId="assessmentCommentsModal1"
 		           			toUpdateConvModal=":commentModal:formPrivateConversation:panelModalPrivateConversation"
 		           			otherResultCommentModalId="assessmentCommentsModal1b"
-		           			toUpdateOtherResultCommentModal=":commentModal:formCommentOnOtherResult:panelModalAssessmentComments"
+							toUpdateOtherResultCommentModal=":formCommentOnOtherResult:panelModalAssessmentComments"
 		           			privateConvNumberOfMsgsLink="privateConvMsgsNoLink_#{result.targetActivityId}"
 		           			assessmentGradeModalId="assessmentGradeModal1"
 		           			gradeLink="gradeLink_#{result.targetActivityId}"
@@ -200,6 +233,7 @@
     </div>
     <activities:activityCommentModal 
     	id="commentModal"
+		toUpdate=":growlMain"
     />
    
     

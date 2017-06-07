@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.credential;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -23,24 +25,43 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.CompetenceUnit;
 import org.prosolo.common.domainmodel.user.User;
 
+/**
+ * Competence1 is versioned entity so special care should be taken of its version field value in all situations
+ * in order to avoid strange or inconsistent behavior.
+ * 
+ * @author stefanvuckovic
+ *
+ */
 @Entity
 public class Competence1 extends BaseEntity {
 
 	private static final long serialVersionUID = 412852664415717013L;
 	
+	//version field that is used for optimistic locking purposes
+	private long version;
 	private User createdBy;
 	private long duration;
 	private List<CompetenceActivity1> activities;
 	private Set<Tag> tags;
 	private boolean studentAllowedToAddActivities;
 	private boolean published;
+	private boolean archived;
 	private LearningResourceType type;
 	private List<TargetCompetence1> targetCompetences;
+	
+	private List<CredentialCompetence1> credentialCompetences;
+
 	private List<CompetenceUnit> competenceUnits;
-	private List<CredentialCompetence1> credentialCompetence;
 	
 	//all existing users have View privilege
 	private boolean visibleToAll;
+	
+	//if competence is original version this will be null
+	private Competence1 originalVersion;
+	//this is date of the first publish
+	private Date datePublished;
+	
+	private List<CompetenceBookmark> bookmarks;
 	
 	public Competence1() {
 		tags = new HashSet<>();
@@ -100,15 +121,6 @@ public class Competence1 extends BaseEntity {
 	public void setPublished(boolean published) {
 		this.published = published;
 	}
-	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "competence")
-	public List<CredentialCompetence1> getCredentialCompetence() {
-		return credentialCompetence;
-	}
-
-	public void setCredentialCompetence(List<CredentialCompetence1> credentialCompetence) {
-		this.credentialCompetence = credentialCompetence;
-	}
 
 	@OneToMany(mappedBy = "competence")
 	public List<TargetCompetence1> getTargetCompetences() {
@@ -137,7 +149,61 @@ public class Competence1 extends BaseEntity {
 	public void setVisibleToAll(boolean visibleToAll) {
 		this.visibleToAll = visibleToAll;
 	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "competence")
+	public List<CredentialCompetence1> getCredentialCompetences() {
+		return credentialCompetences;
+	}
+
+	public void setCredentialCompetences(List<CredentialCompetence1> credentialCompetences) {
+		this.credentialCompetences = credentialCompetences;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Competence1 getOriginalVersion() {
+		return originalVersion;
+	}
+
+	public void setOriginalVersion(Competence1 originalVersion) {
+		this.originalVersion = originalVersion;
+	}
+
+	public Date getDatePublished() {
+		return datePublished;
+	}
+
+	public void setDatePublished(Date datePublished) {
+		this.datePublished = datePublished;
+	}
 	
+	@OneToMany(mappedBy = "competence")
+	public List<CompetenceBookmark> getBookmarks() {
+		return bookmarks;
+	}
+
+	public void setBookmarks(List<CompetenceBookmark> bookmarks) {
+		this.bookmarks = bookmarks;
+	}
+
+	@Type(type = "true_false")
+	@Column(columnDefinition = "char(1) DEFAULT 'F'")
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	@Version
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
 	@OneToMany(mappedBy = "competence", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<CompetenceUnit> getCompetenceUnits(){
@@ -147,5 +213,6 @@ public class Competence1 extends BaseEntity {
 	public void setCompetenceUnits(List<CompetenceUnit> competenceUnits){
 		this.competenceUnits = competenceUnits;
 	}
+
 
 }

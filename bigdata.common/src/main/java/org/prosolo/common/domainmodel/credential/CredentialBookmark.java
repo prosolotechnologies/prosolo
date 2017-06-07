@@ -4,11 +4,14 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "user"})})
 public class CredentialBookmark extends BaseEntity {
 
 	private static final long serialVersionUID = 6838726786954071128L;

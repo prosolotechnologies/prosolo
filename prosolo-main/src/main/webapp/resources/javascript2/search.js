@@ -16,6 +16,14 @@ function searchIfNeeded(inputField, functionToExecute) {
 	}
 }
 
+function searchIfNeeded(inputField, functionToExecute, searchResultsPanel) {
+    if ($(inputField).val().length != 0) {
+        searchListener(functionToExecute);
+    } else {
+        $(searchResultsPanel).first().stop(true, true).slideUp(10);
+	}
+}
+
 function showSearchResults(searchPanel, searchField) {
 	if( $(searchField).val().length === 0 ) {
 		$(searchPanel).first().stop(true, true).slideUp(10);

@@ -1,0 +1,71 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:post="http://java.sun.com/jsf/composite/components/post"
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
+
+	<composite:interface>
+		<composite:attribute name="competence" required="true" />
+		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="role" default="USER" />
+		<composite:attribute name="learningContext" />
+		<composite:attribute name="service" default=""/>
+		<composite:attribute name="toUpdate" default=""/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="col-md-6">
+            <article class="whiteBox summaryCard">
+                <h2>
+                	<h:link outcome="competence">
+                		<f:param name="compId" value="#{util:encodeId(cc.attrs.competence.competenceId)}"/>
+                		#{cc.attrs.competence.title} <span>#{cc.attrs.competence.published ? '' : '(Unpublished)'}</span>
+                	</h:link>
+                </h2>
+                <div class="clear"></div>
+                <p class="cardDescription">#{util:cleanHTMLTags(cc.attrs.competence.description)}</p>
+                <div class="metaBox">
+                    <div class="metaLeft">
+                    	<c:if test="#{cc.attrs.role == 'USER'}">
+                    		<competences:competenceLearningProgress
+                    			competence="#{cc.attrs.competence}"
+                    			bean="#{cc.attrs.bean}"
+                    			learningContext="#{cc.attrs.learningContext}"
+                    			toUpdate="#{cc.attrs.toUpdate}"
+                    		/>
+                    	</c:if>
+                    </div>
+                    <div class="metaRight">
+                    	<ui:fragment rendered="#{cc.attrs.competence.userCreated}">
+                    		<a href="" class="madeByUser" data-toggle="tooltip"
+    						title="Made by #{cc.attrs.competence.creator.name}">made by user</a>
+                    	</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.competence.universityCreated}">
+                    		<a href="" class="madeByUniversity" data-toggle="tooltip"
+            					title="Made by University">made by university</a>
+                    	</ui:fragment>
+                        <div class="duration">#{cc.attrs.competence.durationString}</div>
+                    </div>
+                </div>
+                <p:commandLink
+                	value="bookmark"
+                	styleClass="bookmarkStar #{cc.attrs.competence.bookmarkedByCurrentUser ? 'active' : ''}"
+                	pt:data-toggle="tooltip"
+                	pt:title="Bookmark"
+                	action="#{bookmarkBean.bookmarkCompetence(cc.attrs.competence)}"
+                	update="@this">
+                	<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                    <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(cc.attrs.competence.competenceId))}"/>
+                </p:commandLink>
+            </article>
+        </div>
+	</composite:implementation>
+</ui:component>

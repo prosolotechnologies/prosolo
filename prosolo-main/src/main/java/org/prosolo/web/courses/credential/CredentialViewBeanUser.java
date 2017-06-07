@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
@@ -18,20 +19,22 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -65,18 +68,18 @@ public class CredentialViewBeanUser implements Serializable {
 	private ThreadPoolTaskExecutor taskExecutor;
 	@Autowired
 	private EventFactory eventFactory;
-	@Autowired
-	private TextSearch textSearch;
+	@Inject private UserTextSearch userTextSearch;
+	@Inject private Competence1Manager compManager;
 	
 
 	private String id;
 	private long decodedId;
-	private String mode;
 	private boolean justEnrolled;
 
 	private long numberOfUsersLearningCred;
 
 	private CredentialData credentialData;
+	private ResourceAccessData access;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
 
 	private boolean noRandomAssessor = false;
@@ -87,83 +90,88 @@ public class CredentialViewBeanUser implements Serializable {
 	private List<Long> peersToExcludeFromSearch;
 	
 	private int numberOfTags;
-	private CredentialData enrolledStudent;
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				if ("preview".equals(mode)) {
-					credentialData = credentialManager.getCredentialData(decodedId, false, true, loggedUser.getUserId(),
-							UserGroupPrivilege.Edit);
-					ResourceCreator rc = new ResourceCreator();
-					rc.setFullName(loggedUser.getFullName());
-					rc.setAvatarUrl(loggedUser.getAvatar());
-					credentialData.setCreator(rc);
+				retrieveUserCredentialData();
+				
+				/*
+				 * if user does not have at least access to resource in read only mode throw access denied exception.
+				 */
+				if (!access.isCanRead()) {
+					PageUtil.accessDenied();
 				} else {
-					credentialData = credentialManager.getFullTargetCredentialOrCredentialData(decodedId,
-							loggedUser.getUserId());
 					if (justEnrolled) {
 						PageUtil.fireSuccessfulInfoMessage(
 								"You have enrolled in the credential " + credentialData.getTitle());
 					}
-				}
-
-				if (credentialData.isEnrolled()) {
-					numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
-					numberOfTags = credentialManager.getNumberOfTags(credentialData.getTargetCredId());
+	
+					if (credentialData.isEnrolled()) {
+						numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
+						numberOfTags = credentialManager.getNumberOfTags(credentialData.getId());
+					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();
 				PageUtil.fireErrorMessage("Error while retrieving credential data");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 
-	public boolean isCurrentUserCreator() {
-		return credentialData == null || credentialData.getCreator() == null ? false
-				: credentialData.getCreator().getId() == loggedUser.getUserId();
+	private void retrieveUserCredentialData() {
+		RestrictedAccessResult<CredentialData> res = credentialManager
+				.getFullTargetCredentialOrCredentialData(decodedId, loggedUser.getUserId());
+		unpackResult(res);
 	}
 
-	public String getLabelForCredential() {
-		if (isPreview()) {
-			return "(Preview)";
-		} else if (isCurrentUserCreator() && !credentialData.isEnrolled() && !credentialData.isPublished()) {
-			return "(Unpublished)";
-		} else {
-			return "";
-		}
+	private void unpackResult(RestrictedAccessResult<CredentialData> res) {
+		credentialData = res.getResource();
+		access = res.getAccess();
 	}
 
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
+//	public boolean isCurrentUserCreator() {
+//		return credentialData == null || credentialData.getCreator() == null ? false
+//				: credentialData.getCreator().getId() == loggedUser.getUserId();
+//	}
 
 	/*
 	 * ACTIONS
 	 */
+	
+	public void enrollInCompetence(CompetenceData1 comp) {
+		try {
+			LearningContextData context = PageUtil.extractLearningContextData();
+			
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), context);
+			
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				extContext.redirect(extContext.getRequestContextPath() + 
+						"/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		} catch(Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while enrolling in a competency");
+		}
+	}
 
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
+		//TODO this must be implemented in a different way because if user is enrolled in a credential, it doesn't mean he is enrolled in competence
 		if (!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
 			if (cd.isEnrolled()) {
 				activities = activityManager.getTargetActivitiesData(cd.getTargetCompId());
 			} else {
-				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
 			}
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
@@ -176,13 +184,16 @@ public class CredentialViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			CredentialData cd = credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
-			credentialData = cd;
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
+			//reload user credential data after enroll
+			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
+		} catch (EventException e) {
+			logger.error(e);
 		}
 	}
 
@@ -227,8 +238,8 @@ public class CredentialViewBeanUser implements Serializable {
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
-				TextSearchResponse1<UserData> result = textSearch.searchPeersWithoutAssessmentRequest(peerSearchTerm, 3,
-						decodedId, peersToExcludeFromSearch);
+				TextSearchResponse1<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+						peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -253,34 +264,41 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 
 	public void submitAssessment() {
-		// at this point, assessor should be set either from credential data or
-		// user-submitted peer id
-		if (assessmentRequestData.isAssessorSet()) {
-			populateAssessmentRequestFields();
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
-			assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
-			long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
-					service);
+		try {
+			// at this point, assessor should be set either from credential data or
+			// user-submitted peer id
+			if (assessmentRequestData.isAssessorSet()) {
+				populateAssessmentRequestFields();
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
+				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
+				LearningContextData lcd = new LearningContextData();
+				lcd.setPage(PageUtil.getPostParameter("page"));
+				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
+				lcd.setService(PageUtil.getPostParameter("service"));
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
+				String page = PageUtil.getPostParameter("page");
+				String lContext = PageUtil.getPostParameter("learningContext");
+				String service = PageUtil.getPostParameter("service");
+				notifyAssessmentRequestedAsync(assessmentId, assessmentRequestData.getAssessorId(), page, lContext,
+						service);
 
-			PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
+				PageUtil.fireSuccessfulInfoMessage("Assessment request sent");
 
-			if (peersToExcludeFromSearch != null) {
-				peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				if (peersToExcludeFromSearch != null) {
+					peersToExcludeFromSearch.add(assessmentRequestData.getAssessorId());
+				}
+			} else {
+				logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
+						+ credentialData.getId() + ", but credential has no assessor/instructor set!");
+				PageUtil.fireErrorMessage("No assessor set");
 			}
-		} else {
-			logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for credential : "
-					+ credentialData.getId() + ", but credential has no assessor/instructor set!");
-			PageUtil.fireErrorMessage("No assessor set");
+			resetAskForAssessmentModal();
+		} catch (EventException e) {
+			logger.error(e);
+		} catch (Exception e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while seding assessment request");
 		}
-		resetAskForAssessmentModal();
 	}
 
 	private void notifyAssessmentRequestedAsync(final long assessmentId, long assessorId, String page, String lContext,
@@ -353,14 +371,6 @@ public class CredentialViewBeanUser implements Serializable {
 		this.decodedId = decodedId;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
 	public boolean isJustEnrolled() {
 		return justEnrolled;
 	}
@@ -419,6 +429,10 @@ public class CredentialViewBeanUser implements Serializable {
 
 	public int getNumberOfTags() {
 		return numberOfTags;
+	}
+
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 
 }

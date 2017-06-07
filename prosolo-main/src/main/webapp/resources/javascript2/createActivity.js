@@ -22,16 +22,16 @@ function attachListenerForFetchingPageTitle() {
     });
 }
 
-function onStatusChange() {
-	var status = $('#' + containerId + '\\:formMain\\:selectStatus').val();
-	if(status === "UNPUBLISH") {
-		$('#noteDraft').show();
-		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview Draft');
-	} else {
-		$('#noteDraft').hide();
-		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview');
-	}
-}
+//function onStatusChange() {
+//	var status = $('#' + containerId + '\\:formMain\\:selectStatus').val();
+//	if(status === "UNPUBLISH") {
+//		$('#noteDraft').show();
+//		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview Draft');
+//	} else {
+//		$('#noteDraft').hide();
+//		$('#' + containerId + '\\:formMain\\:linkPreview').text('Preview');
+//	}
+//}
 
 function acceptGradesChanged(acceptGradeCheckboxId, scoreCalcTypeId, autogradeCheckboxId, 
 		autogradeCheckboxLabelId) {

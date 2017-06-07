@@ -10,13 +10,13 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -39,30 +39,23 @@ public class CredentialViewBeanManager implements Serializable {
 
 	private String id;
 	private long decodedId;
-	private String mode;
 	
 	private CredentialData credentialData;
+	private ResourceAccessData access;
 
 	public void init() {	
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
 			try {
-				if("preview".equals(mode)) {
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
-									UserGroupPrivilege.Edit);
-				} else {
-					credentialData = credentialManager
-							.getCredentialData(decodedId, true, true, loggedUser.getUserId(), 
-									UserGroupPrivilege.View);
+				RestrictedAccessResult<CredentialData> res = credentialManager
+						.getCredentialDataForManagerView(decodedId, loggedUser.getUserId());
+				unpackResult(res);
+				if(!access.isCanAccess()) {
+					PageUtil.accessDenied();
 				}
-			} catch(ResourceNotFoundException rnfe) {
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			} catch(Exception e) {
+			} catch (ResourceNotFoundException rnfe) {
+				PageUtil.notFound();
+			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();
 				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
@@ -77,25 +70,15 @@ public class CredentialViewBeanManager implements Serializable {
 		}
 	}
 	
-	public boolean isCurrentUserCreator() {
-		return credentialData == null || credentialData.getCreator() == null ? false : 
-			credentialData.getCreator().getId() == loggedUser.getUserId();
+	private void unpackResult(RestrictedAccessResult<CredentialData> res) {
+		credentialData = res.getResource();
+		access = res.getAccess();
 	}
 	
-	public String getLabelForCredential() {
- 		if(isPreview()) {
- 			return "(Preview)";
- 		} else if(!credentialData.isPublished() && 
- 				credentialData.getType() == LearningResourceType.UNIVERSITY_CREATED) {
- 			return "(Unpublished)";
- 		} else {
- 			return "";
- 		}
- 	}
-	
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
+//	public boolean isCurrentUserCreator() {
+//		return credentialData == null || credentialData.getCreator() == null ? false : 
+//			credentialData.getCreator().getId() == loggedUser.getUserId();
+//	}
 	
 	/*
 	 * ACTIONS
@@ -104,7 +87,7 @@ public class CredentialViewBeanManager implements Serializable {
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
 		if(!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = activityManager
-					.getCompetenceActivitiesData(cd.getCompetenceId(), isPreview());
+					.getCompetenceActivitiesData(cd.getCompetenceId());
 			cd.setActivities(activities);
 			cd.setActivitiesInitialized(true);
 		}
@@ -142,12 +125,8 @@ public class CredentialViewBeanManager implements Serializable {
 		this.decodedId = decodedId;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
+	public ResourceAccessData getAccess() {
+		return access;
 	}
 
 }

@@ -10,7 +10,8 @@
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs">
+	xmlns:dialogs="http://java.sun.com/jsf/composite/components/dialogs"
+	xmlns:compDialogs="http://java.sun.com/jsf/composite/components/dialogs/competences">
 
 	<composite:interface>
 		<composite:attribute name="role" type="java.lang.String" default="USER"/>
@@ -29,7 +30,7 @@
 		<script src="#{request.contextPath}/resources/javascript2/createCompetence.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
-		
+	    
 	    <div class="whiteBar">
 	
 	    </div>
@@ -58,7 +59,7 @@
 	        <ui:fragment rendered="#{empty param['credId']}">
 	    		<ol class="breadcrumb">	 
 	    			<li>
-		            	<a href="javascript:void(0);">Competences</a>
+		            	<h:link value="Competencies" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
@@ -73,6 +74,35 @@
 	    <div id="#{cc.clientId}">
 		    <script>
 				containerId = '#{cc.clientId}';
+				var isDraft = #{competenceEditBean.draft};
+				
+				function shouldOpenCanNotPublishModal(){
+					var activityListSize = $('.activityItem').length - 1;
+					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
+					
+					 if(activityListSize == 0 &amp;&amp; selectStatus == "PUBLISHED"){
+						var desc = $("#createCompetence\\:formMain\\:description");
+						var title = $("#createCompetence\\:formMain\\:inputTitle");
+						if(desc.val() &amp;&amp; title.val()){
+							return true;
+						}
+					}
+					return false;
+				}
+				
+				function shouldOpenPublishModal(){
+					var activityListSize = $('.activityItem').length - 1;
+					var selectStatus = $("#createCompetence\\:formMain\\:selectStatus").val();
+					
+					 if(isDraft &amp;&amp; activityListSize > 0 &amp;&amp; selectStatus == "PUBLISHED"){
+						var desc = $("#createCompetence\\:formMain\\:description");
+						var title = $("#createCompetence\\:formMain\\:inputTitle");
+						if(desc.val() &amp;&amp; title.val()){
+							return true;
+						}
+					}
+					return false;
+				}
 			</script>
 			
 			<h:form id="formMain">
@@ -82,10 +112,13 @@
 			    <div class="container">
 			        <div class="row">
 			            <div class="col-md-8">
+			            	<h:panelGroup layout="block" rendered="#{competenceEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
+			            		Competency is published... Only limited edits are allowed.
+			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Competence Info</a></li>
-			                        <li role="presentation" class="#{cc.attrs.actAdded ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab">Activities</a></li>
+			                        <li role="presentation" class="#{!cc.attrs.actAdded ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">Competence Info</a></li>
+			                        <li role="presentation" class="#{cc.attrs.actAdded ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
@@ -133,8 +166,16 @@
 			                                        <h:inputTextarea
 			                                        	id="description"
 			                                        	styleClass="pasteable"
-			                                        	value="#{competenceEditBean.competenceData.description}" />
-			                                        	
+			                                        	value="#{competenceEditBean.competenceData.description}" 
+			                                        	required="true"
+			                                        	requiredMessage="Description is required"/>
+			                                        <h:panelGroup 
+                    									layout="block" 
+                    									rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}" 
+                    									styleClass="alert alert-danger" 
+                    									pt:role="alert">
+                        								<h:message for="description"></h:message>
+                    								</h:panelGroup>
 			                                        <script>
 			                                    		initTinyMCE('#createCompetence\\:formMain\\:description');
 			                                    	</script>
@@ -156,7 +197,7 @@
 			                                    <label>Other</label>
 			                                    <div class="formLineRight">                           
 			                                        <div class="checkbox checkLine">
-														<h:selectBooleanCheckbox 
+														<h:selectBooleanCheckbox disabled="#{competenceEditBean.limitedEdit}"
 															id="selectAllowStudentsToAddActivities"
 															value="#{competenceEditBean.competenceData.studentAllowedToAddActivities}">
 														</h:selectBooleanCheckbox>
@@ -178,7 +219,6 @@
 			                    		bean="#{competenceEditBean}"
 			                    		isEdit="true"
 			                    		showMarkedIfCompleted="false"
-			                    		isPreview="false"
 			                    		encodedCompetenceId="#{param['id']}"
 			                    		encodedCredentialId="#{param['credId']}"
 			                    		toUpdate=""
@@ -189,61 +229,135 @@
 			                </div>
 			            </div>
 			            <div class="col-md-4">
-							<h:panelGroup layout="block" rendered="#{!competenceEditBean.createUseCase}" styleClass="whiteBox publishBox visibilityBox">
-			                    <h2>Visibility</h2>
-			                    <div class="clear"></div>
-			                    <p:commandLink 
-			                    	styleClass="btn btn-green-stroke" 
-			                    	pt:data-toggle="modal" 
-			                    	action="#{competenceEditBean.initVisibilityManageData()}"
-			                    	update=":#{cc.clientId}:resourceVisibilityModal:formManageVisibility:panelManageVisibility"
-			                    	oncomplete="$('#manageVisibility').modal('show');">
-			                    	Manage Visibility
-			                    </p:commandLink>
-			                </h:panelGroup>			            
 			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                    Your competence is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                   	Competency is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
 			                </div>
 			                
-			            	<courses:rightSideBar
-			            		id="compSideBar"
-			            		publishValues="#{competenceEditBean.compStatusArray}" 
-			            		publishValue="#{competenceEditBean.competenceData.status}"
-			            		saveAction="#{competenceEditBean.save}"
-			            		onclickSave="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description');"
-			            		toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
-			            		previewAction="#{competenceEditBean.preview}"
-			            		linkPreviewClass="hiddenLinkPreview"
-			            		resource="COMPETENCE"
-			            		role="#{cc.attrs.role}"
-			            		resourceLowerCase="competence"
-								childResourcePlural="activities"/>
-			            		
-			            	<h:link
-								style="display: none;"
-								styleClass="hiddenLinkPreview"
-								target="_blank"
-								outcome="competence">
-								<f:param name="credId" value="#{param['credId']}" disable="#{empty param['credId']}"></f:param>
-								<f:param name="compId" value="#{param['id']}"></f:param>
-								<f:param name="mode" value="preview"></f:param>
-							</h:link>
-			            </div>
-			        </div>
-	
-		    	</div>
+			                <div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.canUnpublish ? 'display:none' : ''}">
+			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                    You are not allowed to unpublish a competency as it is a part of one or more active credential deliveries. Only when all deliveries of a credential with this competency have ended, a competency can be unpublished.
+			                </div>
+			                
+			                <div id="#{cc.clientId}" class="whiteBox publishBox">
+								<h2>Publish</h2>
+			
+								<h:link outcome="/manage/competence" value="Preview" class="linkPreview">
+									<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}"></f:param>
+								</h:link>
+								<div class="clear"></div>
+			
+								<label>Status:</label>
+			
+            					<ui:fragment>
+									<h:selectOneMenu disabled="#{not competenceEditBean.competenceData.canUnpublish}"
+										id="selectStatus" styleClass="selectpicker" 
+										value="#{competenceEditBean.competenceData.status}"
+										onchange="onStatusChange();">
+										<f:selectItems value="#{competenceEditBean.compStatusArray}" var="status"
+											itemValue="#{status}" itemLabel="#{status.label}" />
+									</h:selectOneMenu>
+									<script>
+										$('.selectpicker').selectpicker('refresh');
+									</script>
+									<br />
+							</ui:fragment>
+							<div class="publishRow">
+								
+								<p:commandLink id="btnSaveChanges"
+									styleClass="btn btn-green"
+									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
+									action="#{competenceEditBean.save}"
+									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog">
+										Save changes
+								</p:commandLink>
+								#{cc.attrs.activities}
+								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0}">
+									<a href="#" data-toggle="modal" data-target="#duplicateComp">Duplicate</a>
+								</ui:fragment>
+								
+								<div class="modal fade" id="publishModal" tabindex="-1" role="dialog" aria-labelledby="publishModal">
+			        				<div class="modal-dialog" role="document">
+			            				<div class="modal-content">
+			                				<div class="modal-header">
+			                    				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+			                    				<h2 class="modal-title" id="duplicateCredential">Save changes</h2>
+			                				</div>
+			                				<div class="modal-body">
+			                					<p>Are you sure you want to publish this competency? Once published, only small edits can be made on this competency.Competency will be available for enrollment to all students with proper privileges. But also, competency structure can be seen by all users.</p>
+			                				</div>
+			                				<div class="modal-footer">
+			                    				<p:commandLink
+													styleClass="btn btn-green saveChangesSelector"
+													action="#{competenceEditBean.save}"
+													update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+													oncomplete="hideModal('publishModal');">
+													<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+													<f:param name="service" value="name:publish_resource_dialog"></f:param>
+													Publish
+												</p:commandLink>
+			                    				<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+			                				</div>
+			            				</div>
+			        				</div>
+	    						</div>
+	    		
+	    						<a id="linkActivityNotFound" href="#" style="display: none;" data-toggle="modal" data-target="#activityNotFoundModal"></a>
+								<div class="modal fade" id="activityNotFoundModal" tabindex="-1" role="dialog" aria-labelledby="activityNotFoundModal">
+			        				<div class="modal-dialog" role="document">
+			            				<div class="modal-content">
+			                				<div class="modal-header">
+			                    				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+			                    				<h2 class="modal-title" id="duplicateCredential">Competency can not be published</h2>
+			                				</div>
+			                				<div class="modal-body">
+			                					<p>You can not publish a competency without activities. Please add activities to your competency.</p>
+			                				</div>
+			                				<div class="modal-footer">
+			                    				<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+			                				</div>
+			            				</div>
+			        				</div>
+	    						</div>
+	  
+	    						<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and not competenceEditBean.competenceData.archived}">
+									<a href="#" class="linkRed" data-toggle="modal" data-target="#archiveModal">Archive</a> 
+								</ui:fragment> 
+								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0 and competenceEditBean.competenceData.archived}">
+									<a href="#" data-toggle="modal" data-target="#restoreModal">Restore</a> 
+								</ui:fragment>    
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		    	
-		    	<script>  
-		        	var type = null;
-		        	if('#{cc.attrs.role}' === "USER") {
-		        		type = "user_created";
-		        	} else {
-		        		type = "university_created";
-		        	}
-					document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
-		        </script>
+		    <script>  
+				var type = null;
+				if('#{cc.attrs.role}' === "USER") {
+					type = "user_created";
+				} else {
+					type = "university_created";
+				}
+				document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
+			</script>
 		    </h:form>
+	    	<script>  
+	        	var type = null;
+	        	if('#{cc.attrs.role}' === "USER") {
+	        		type = "user_created";
+	        	} else {
+	        		type = "university_created";
+	        	}
+				document.getElementById('#{cc.clientId}:formMain:hiddenType').value = type;
+				
+				$(function(){
+					var tabParamValue = getQueryParam('tab');
+					if(tabParamValue == 'activities'){
+						$('.nav.nav-tabs.pageSubmenu a[href="#activities"]').tab('show');
+					};
+				})
+	        </script>
 	    
 		    <h:form id="formRemoveActivityModal">
 		    	<div class="modal fade" id="modalRemoveActivity" tabindex="-1" role="dialog" aria-labelledby="removeActivity">
@@ -271,21 +385,34 @@
 		            </div>
 		        </div>
 		    </h:form>
-	    
-			<courses:deleteModalDialog  
-				deleteActionMethodName="delete"      	
-				deleteAction="#{competenceEditBean.delete}"
-				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}" 
-				modalDeleteTitle="Competence"
-				modalDeleteText="competence"/>
+			
+			<dialogs:archiveResource
+	    		id="archiveDialog"
+				archiveActionMethodName="archive"  	
+				archiveAction="#{competenceEditBean.archive}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
+				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 				
-			<dialogs:resourceVisibility
-				id="resourceVisibilityModal"
-				bean="#{competenceVisibilityBean}"
-				resource="Competence"
-				toUpdate=":#{cc.clientId}:formMain:growlMain"
-				learningContext="#{cc.attrs.learningContext}"
-			/>
+			<dialogs:restoreResource
+	    		id="restoreDialog"
+				restoreActionMethodName="restore"  	
+				restoreAction="#{competenceEditBean.restore}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				title="Competency" 
+				resourceType="competency"
+				resourceTypePlural="competencies"
+				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
+				
+	 		<compDialogs:duplicateCompetence   
+	 			id="duplicateDialog"   
+	 			competence="#{competenceEditBean.competenceData}"
+				duplicateActionMethodName="duplicate"  	
+				duplicateAction="#{competenceEditBean.duplicate}"
+				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
+				learningContext=""/>
 			
 		</div>
 	</composite:implementation>

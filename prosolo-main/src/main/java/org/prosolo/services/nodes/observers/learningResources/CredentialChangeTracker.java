@@ -10,10 +10,10 @@ public class CredentialChangeTracker extends LearningResourceChangeTracker {
 		
 	}
 	
-	public CredentialChangeTracker(boolean published, boolean statusChanged, boolean titleChanged, 
+	public CredentialChangeTracker(boolean titleChanged, 
 			boolean descriptionChanged, boolean durationChanged, boolean tagsChanged, 
 			boolean hashtagsChanged, boolean mandatoryFlowChanged) {
-		super(published, statusChanged, titleChanged, descriptionChanged, durationChanged);
+		super(false, false, titleChanged, descriptionChanged, durationChanged);
 		this.tagsChanged = tagsChanged;
 		this.hashtagsChanged = hashtagsChanged;
 		this.mandatoryFlowChanged = mandatoryFlowChanged;

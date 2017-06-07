@@ -3,7 +3,6 @@ package org.prosolo.services.indexing;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 
 public interface CredentialESService  extends AbstractBaseEntityESService {
 
@@ -19,7 +18,7 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 	 * originalVersionId is needed. Otherwise 0 should be passed.
 	 * @param changeTracker
 	 */
-	void updateCredentialNode(Credential1 cred, CredentialChangeTracker changeTracker, Session session);
+	void updateCredentialNode(Credential1 cred, Session session);
 	
 	void addBookmarkToCredentialIndex(long credId, long userId);
 	
@@ -42,5 +41,9 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 	void addInstructorToCredentialIndex(long credId, long userId);
 	
 	void removeInstructorFromCredentialIndex(long credId, long userId);
+	
+	void archiveCredential(long credId);
+	
+	void restoreCredential(long credId);
 
 }
