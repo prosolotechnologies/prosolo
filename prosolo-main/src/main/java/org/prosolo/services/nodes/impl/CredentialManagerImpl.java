@@ -1213,27 +1213,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
 			throws DbConnectionException {
 		try {
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-//			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
-//					       "FROM CredentialCompetence1 credComp " +
-//					       "INNER JOIN credComp.credential cred " +
-//					       "LEFT JOIN cred.originalVersion originalCred " +
-//					       "WHERE credComp.competence = :comp " +
-//					       "AND cred.hasDraft = :boolFalse " +
-//					       "AND cred.deleted = :boolFalse";
 			String query = "SELECT cred.id, cred.title " +
 				       "FROM CredentialCompetence1 credComp " +
 				       "INNER JOIN credComp.credential cred " +
-				       		"WITH cred.published = :boolTrue " +
-				       "WHERE credComp.competence = :comp " +
+				       "WHERE credComp.competence.id = :compId " +
 				       "AND cred.deleted = :boolFalse";
 			@SuppressWarnings("unchecked")
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
-					.setEntity("comp", comp)
-					.setBoolean("boolTrue", true)
+					.setLong("compId", compId)
 					.setBoolean("boolFalse", false)
 					.list();
+
 			if(res == null) {
 				return new ArrayList<>();
 			}

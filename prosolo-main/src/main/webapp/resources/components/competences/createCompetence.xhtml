@@ -126,21 +126,21 @@
 			                        <div class="whiteBox">
 			                            <h2>Competence Info</h2>
 			                            <div class="formWrapper">
-			                                <div class="formLine">
+			                                <h:panelGroup layout="block" rendered="#{not empty competenceEditBean.competenceData.credentialsWithIncludedCompetence}" styleClass="formLine">
 			                                    <label>Parent credential(s)</label>
 			                                    <div class="formLineRight">
 			                                        <ul class="addedItems">
 			                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
 			                                        		<li>
 			                                        			<h:link value="#{cred.title}"
-			                                        				outcome="credential.xhtml">
+			                                        				outcome="credential">
 			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
 			                                        			</h:link>
 				                                            </li>
 			                                        	</ui:repeat>                                     
 			                                        </ul>
 			                                    </div>
-			                                </div>
+											</h:panelGroup>
 			                                <div class="formLine">
 			                                    <label>Title</label>
 			                                    <div class="formLineRight">

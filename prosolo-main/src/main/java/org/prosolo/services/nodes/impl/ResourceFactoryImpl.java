@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
+import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
@@ -973,6 +974,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		
 		     logger.info("New competence is created with id " + comp.getId());
 		     result.setResult(comp);
+
 		     return result;
    	} catch(Exception e) {
    		e.printStackTrace();

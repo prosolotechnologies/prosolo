@@ -85,7 +85,7 @@ public class CompetenceEditBean implements Serializable {
 			manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 			initializeValues();
 			decodedCredId = idEncoder.decodeId(credId);
-			if(id == null) {
+			if (id == null) {
 				competenceData = new CompetenceData1(false);
 				if(decodedCredId > 0) {
 					addToCredential = true;
@@ -96,10 +96,10 @@ public class CompetenceEditBean implements Serializable {
 				loadCompetenceData(decodedCredId, decodedId);
 			}
 			setContext();
-			if(decodedCredId > 0) {
+			if (decodedCredId > 0) {
 				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
 						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
-				if(res.isPresent()) {
+				if (res.isPresent()) {
 					credTitle = res.get().getTitle();
 				} else {
 					credTitle = credManager.getCredentialTitle(decodedCredId);
@@ -157,11 +157,14 @@ public class CompetenceEditBean implements Serializable {
 			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(credId, id, 
 					loggedUser.getUserId(), mode);
 			unpackResult(res);
-			if(!access.isCanAccess()) {
+			if (!access.isCanAccess()) {
 				PageUtil.accessDenied();
 			} else {
+				List<CredentialData> credentialsWithCompetence = credManager
+						.getCredentialsWithIncludedCompetenceBasicData(id);
+				competenceData.getCredentialsWithIncludedCompetence().addAll(credentialsWithCompetence);
 				List<ActivityData> activities = competenceData.getActivities();
-				for(ActivityData bad : activities) {
+				for (ActivityData bad : activities) {
 					activitiesToExcludeFromSearch.add(bad.getActivityId());
 				}
 				currentNumberOfActivities = activities.size();
@@ -260,13 +263,13 @@ public class CompetenceEditBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			String learningContext = context;
-			if(lContext != null && !lContext.isEmpty()) {
+			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			if(competenceData.getCompetenceId() > 0) {
+			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
-				if(competenceData.hasObjectChanged()) {
+				if (competenceData.hasObjectChanged()) {
 					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
 				}
@@ -282,25 +285,29 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.startObservingChanges();
 				setContext();
 			}
-			if(reloadData && competenceData.hasObjectChanged()) {
+			if (reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
 				loadCompetenceData(decodedCredId, decodedId);
 				initializeStatuses();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(StaleDataException sde) {
+		} catch (StaleDataException sde) {
 			logger.error(sde);
 			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
 			//reload data
-			reloadCompetence();
+			initializeValues();
+			loadCompetenceData(decodedCredId, decodedId);
+			initializeStatuses();
 			return false;
-		} catch(IllegalDataStateException idse) {
+		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
 			if (competenceData.getCompetenceId() > 0) {
 		        //reload data
-		        reloadCompetence();
+				initializeValues();
+				loadCompetenceData(decodedCredId, decodedId);
+				initializeStatuses();
 			}
 			return false;
 		} catch(DbConnectionException e) {
@@ -372,17 +379,6 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while trying to duplicate competence");
 		} catch(EventException ee) {
 			logger.error(ee);
-		}
-	}
-	
-	private void reloadCompetence() {
-		try {
-			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
-			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(decodedCredId, decodedId, 
-					loggedUser.getUserId(), mode);
-			unpackResult(res);
-		} catch(DbConnectionException e) {
-			logger.error(e);
 		}
 	}
 	

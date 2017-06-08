@@ -104,7 +104,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
-			LearningContextData context) throws DbConnectionException,IllegalDataStateException {
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		Competence1 comp = null;
 		try {
 			/*
@@ -600,13 +600,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 * if competence has no activities (that are not removed), it can't
 			 * be published
 			 */
-			if(data.isPublished()) {
-				if(data.getActivities() == null) {
+			if (data.isPublished()) {
+				if (data.getActivities() == null) {
 					throw new IllegalDataStateException("Competency should have at least one activity");
 				}
 				long numberOfActivities = data.getActivities().stream().filter(
 						act -> act.getObjectStatus() != ObjectStatus.REMOVED).count();
-				if(numberOfActivities == 0) {
+				if (numberOfActivities == 0) {
 					throw new IllegalDataStateException("Competency should have at least one activity");
 				}
 			}
