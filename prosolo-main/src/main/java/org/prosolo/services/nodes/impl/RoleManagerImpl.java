@@ -47,7 +47,25 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 		return new ArrayList<Long>();
 	}
-	
+
+	@Override
+	public List<Role> getRolesByNames(String[] names) {
+		String query =
+				"SELECT role " +
+				"FROM Role role " +
+				"WHERE role.title IN :names";
+
+		@SuppressWarnings("unchecked")
+		List<Role> result = persistence.currentManager().createQuery(query)
+				.setParameterList("names", names)
+				.list();
+
+		if(result != null && !result.isEmpty()){
+			return result;
+		}
+		return new ArrayList<Role>();
+	}
+
 	@Override
 	public List<Role> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
