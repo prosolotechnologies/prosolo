@@ -126,7 +126,7 @@
 			                        <div class="whiteBox">
 			                            <h2>Competence Info</h2>
 			                            <div class="formWrapper">
-			                                <h:panelGroup layout="block" rendered="#{not empty competenceEditBean.competenceData.credentialsWithIncludedCompetence}" styleClass="formLine">
+			                                <h:panelGroup layout="block" rendered="#{not competenceEditBean.createUseCase or competenceEditBean.decodedCredId gt 0}" styleClass="formLine">
 			                                    <label>Parent credential(s)</label>
 			                                    <div class="formLineRight">
 			                                        <ul class="addedItems">

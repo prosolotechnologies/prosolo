@@ -216,8 +216,8 @@ public class CompetenceEditBean implements Serializable {
 		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
 		// we will manually set field 'published 'to false
 		competenceData.setPublished(false);
-		boolean saved = saveCompetenceData(false);
-		if(saved) {
+		boolean saved = saveCompetenceData(false, false);
+		if (saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				StringBuilder builder = new StringBuilder();
@@ -240,7 +240,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		boolean saved = saveCompetenceData(!addToCredential);
+		boolean saved = saveCompetenceData(!addToCredential, !addToCredential);
 		if(saved && addToCredential) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -257,7 +257,7 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public boolean saveCompetenceData(boolean reloadData) {
+	public boolean saveCompetenceData(boolean reloadData, boolean canRedirect) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -272,25 +272,44 @@ public class CompetenceEditBean implements Serializable {
 				if (competenceData.hasObjectChanged()) {
 					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
+
+					if (reloadData) {
+						initializeValues();
+						loadCompetenceData(decodedCredId, decodedId);
+						initializeStatuses();
+					}
 				}
+
+				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				//competenceData.setDuration(4);
-				Competence1 comp = compManager.saveNewCompetence(competenceData, 
+				Competence1 comp = compManager.saveNewCompetence(competenceData,
 						loggedUser.getUserId(), credentialId, lcd);
-				competenceData.setCompetenceId(comp.getId());
-				decodedId = competenceData.getCompetenceId();
-				id = idEncoder.encodeId(decodedId);
-				competenceData.setVersion(comp.getVersion());
-				competenceData.startObservingChanges();
-				setContext();
+
+				//if competence is saved for the first time and redirect is true, redirect to competence edit page
+				if (canRedirect) {
+					PageUtil.fireSuccessfulInfoMessageAcrossPages("Changes are saved");
+
+					ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+					StringBuilder builder = new StringBuilder();
+					/*
+					 * this will not work if there are multiple levels of directories in current view path
+					 * example: /credentials/create-credential will return /credentials as a section but this
+					 * may not be what we really want.
+					 */
+					builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix()
+							+ "/competences/" + idEncoder.encodeId(comp.getId()) + "/edit");
+
+					if (credId != null && !credId.isEmpty()) {
+						builder.append("?credId=" + credId);
+					}
+					PageUtil.redirect(builder.toString());
+				} else {
+					decodedId = comp.getId();
+					id = idEncoder.encodeId(decodedId);
+				}
 			}
-			if (reloadData && competenceData.hasObjectChanged()) {
-				initializeValues();
-				loadCompetenceData(decodedCredId, decodedId);
-				initializeStatuses();
-			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+
 			return true;
 		} catch (StaleDataException sde) {
 			logger.error(sde);
@@ -549,4 +568,7 @@ public class CompetenceEditBean implements Serializable {
 		this.credTitle = credTitle;
 	}
 
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
 }
