@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.TextSearch;
+import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
@@ -62,7 +63,7 @@ public class AdminEditBean implements Serializable {
 	private PasswordResetManager passwordResetManager;
 
 	@Autowired
-	private TextSearch textSearch;
+	private UserTextSearch textSearch;
 
 	private String id;
 	private long decodedId;
@@ -242,11 +243,11 @@ public class AdminEditBean implements Serializable {
 		this.admins = admins;
 	}
 
-	public TextSearch getTextSearch() {
+	public UserTextSearch getTextSearch() {
 		return textSearch;
 	}
 
-	public void setTextSearch(TextSearch textSearch) {
+	public void setTextSearch(UserTextSearch textSearch) {
 		this.textSearch = textSearch;
 	}
 
