@@ -2,6 +2,8 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
@@ -103,6 +105,11 @@ public class ActivityPrivateConversationBean implements Serializable {
 	}
 
 	public void addCommentToActivityDiscussion() {
+		//retry if illegaldatastateexception is thrown
+		addCommentToActivityDiscussion(true);
+	}
+
+	public void addCommentToActivityDiscussion(boolean retry) {
 		try {
 			if (StringUtils.isBlank(activityAssessmentData.getEncodedDiscussionId())) {
 				LearningContextData lcd = new LearningContextData();
@@ -115,9 +122,17 @@ public class ActivityPrivateConversationBean implements Serializable {
 			}
 			addComment();
 			cleanupCommentData();
+		} catch (IllegalDataStateException e) {
+			if (retry) {
+				//if this exception is thrown, data is repopulated and we should retry adding comment
+				addCommentToActivityDiscussion(false);
+			} else {
+				logger.error("Error after retry: " + e);
+				PageUtil.fireErrorMessage("Error while saving a comment. Please refresh the page and try again.");
+			}
 		} catch (EventException e) {
 			logger.error(e);
-		} catch (Exception e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
 		}
@@ -125,12 +140,12 @@ public class ActivityPrivateConversationBean implements Serializable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade, LearningContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws DbConnectionException, IllegalDataStateException, EventException {
 		Integer grade = updateGrade
 				? activityAssessmentData != null ? activityAssessmentData.getGrade().getValue() : null
 				: null;
 
-		// creating a set as there mighvityt be duplicates with ids
+		// creating a set as there might be duplicates with ids
 		Set<Long> participantIds = new HashSet<>();
 
 		// adding the student as a participant
@@ -145,26 +160,53 @@ public class ActivityPrivateConversationBean implements Serializable {
 			participantIds.add(activityAssessmentData.getAssessorId());
 		}
 
-		if (competenceAssessmentId > 0) {
-			//if competence assessment exists create activity assessment only
-			activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
-					assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-							activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
-							loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
-							context).getId()));
-		} else {
-			//if competence assessment does not exist create competence assessment and activity assessment
-			AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
-					activityAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
-					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-					activityAssessmentData.isDefault(), context);
-			activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
-			activityAssessmentData.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
-			//if competence assessment data is set, set id there too
-			if (activityAssessmentData.getCompAssessment() != null) {
-				activityAssessmentData.getCompAssessment().setCompetenceAssessmentId(
-						assessmentInfo.getCompetenceAssessmentId());
+		try {
+			if (competenceAssessmentId > 0) {
+				//if competence assessment exists create activity assessment only
+				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+								activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
+								loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
+								context).getId()));
+			} else {
+				//if competence assessment does not exist create competence assessment and activity assessment
+				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
+						activityAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
+						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
+						activityAssessmentData.isDefault(), context);
+				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
+		} catch (IllegalDataStateException e) {
+			/*
+				this means that assessment is created in the meantime - this should be handled better because this
+				exception does not have to mean that this is the case. Return to this when exceptions are rethinked.
+			 */
+			/*
+				if competence assessment is already set, get activity assessment id and set it, otherwise get both
+				competence assessment and activity assessment ids.
+			 */
+			if (competenceAssessmentId > 0) {
+				activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+						assessmentManager.getActivityAssessmentId(competenceAssessmentId, targetActivityId)));
+			} else {
+				AssessmentBasicData assessmentInfo = assessmentManager.getCompetenceAndActivityAssessmentIds(
+						targetCompetenceId, targetActivityId, activityAssessmentData.getCredAssessmentId());
+				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
+			}
+			logger.error(e);
+			//rethrow exception so caller of this method can react in appropriate way
+			throw e;
+		}
+	}
+
+	private void populateCompetenceAndActivityAssessmentIds(AssessmentBasicData assessmentInfo) {
+		activityAssessmentData.setEncodedDiscussionId(idEncoder.encodeId(
+				assessmentInfo.getActivityAssessmentId()));
+		activityAssessmentData.setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+		//if competence assessment data is set, set id there too
+		if (activityAssessmentData.getCompAssessment() != null) {
+			activityAssessmentData.getCompAssessment().setCompetenceAssessmentId(
+					assessmentInfo.getCompetenceAssessmentId());
 		}
 	}
 
