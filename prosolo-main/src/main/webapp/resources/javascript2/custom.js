@@ -19,9 +19,9 @@ var custom = {
 function displaySubmitButton(inputElem) {
     if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
     		($(inputElem).is('div') && $(inputElem).html().length == 0)) {
-        $(inputElem).next('button.btn-green').addClass('hidden');
+        $(inputElem).parent().find('.submitBtn').addClass('hidden');
     } else {
-        $(inputElem).next('button.btn-green').removeClass('hidden');
+    	$(inputElem).parent().find('.submitBtn').removeClass('hidden');
     }
 }
 

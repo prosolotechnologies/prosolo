@@ -329,7 +329,7 @@
 								
 								<p:commandLink
 									action="#{activityResultsBeanManager.addCommentToActivityDiscussion()}"
-									type="button" styleClass="btn btn-sm btn-green hidden"
+									type="button" styleClass="btn btn-sm btn-green submitBtn hidden"
 									name="button"
 									update=":formPrivateConversation:panelModalPrivateConversation @(.privateConvMsgsNoLink_#{activityResultsBeanManager.currentResult.targetActivityId})">
 									Submit
@@ -413,7 +413,7 @@
 											strip-br="true" contenteditable="true"
 											onkeyup="displaySubmitButton(this);"></div>
 			
-										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+										<p:commandButton styleClass="btn btn-sm btn-green submitBtn hidden"
 											value="Submit"
 											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
 											update="panelModalAssessmentComments :growlMain">
@@ -488,7 +488,7 @@
 											strip-br="true" contenteditable="true"
 											onkeyup="displaySubmitButton(this);"></div>
 			
-										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+										<p:commandButton styleClass="btn btn-sm btn-green submitBtn hidden"
 											value="Submit"
 											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
 											update="panelModalAssessmentComments :growlMain">

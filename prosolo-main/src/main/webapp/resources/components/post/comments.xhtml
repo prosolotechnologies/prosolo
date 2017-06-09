@@ -100,7 +100,7 @@
 									strip-br="true" contenteditable="true"
 									onkeyup="displaySubmitButton(this);"></div>
 	
-								<p:commandButton styleClass="btn btn-sm btn-green hidden"
+								<p:commandButton styleClass="btn btn-sm btn-green submitBtn hidden"
 									value="Submit" action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
 									update="formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave}"
 									oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');">
