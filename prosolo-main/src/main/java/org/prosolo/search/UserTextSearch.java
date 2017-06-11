@@ -3,6 +3,7 @@ package org.prosolo.search;
 import java.util.Collection;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse;
 import org.prosolo.search.impl.TextSearchResponse1;
@@ -72,7 +73,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Long> roleIds, boolean includeSystemUsers, List<Long> excludeIds);
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds);
 	
 	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 

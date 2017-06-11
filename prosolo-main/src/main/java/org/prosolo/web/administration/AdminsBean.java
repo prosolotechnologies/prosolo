@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.roles.RoleFilter;
@@ -121,15 +122,14 @@ public class AdminsBean implements Serializable,Paginable{
 	}
 
 	@SuppressWarnings("unchecked")
-	public void loadAdmins(){
+	private void loadAdmins(){
 		this.admins = new ArrayList<UserData>();
 		try{
-			List<Long> roleIds = new ArrayList<>();
-			roleIds.add((long)4);
-			roleIds.add((long)5);
+			String[] rolesArray = new String[]{"Admin","Super Admin"};
+			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
 			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), roleIds, true, null);
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), adminRoles, true, null);
 			admins = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
 			filters = roleFilters != null ? roleFilters : new ArrayList<>();

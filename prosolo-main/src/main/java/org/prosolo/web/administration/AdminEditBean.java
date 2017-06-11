@@ -175,9 +175,9 @@ public class AdminEditBean implements Serializable {
 		try {
 			boolean shouldChangePassword = this.admin.getPassword() != null && !this.admin.getPassword().isEmpty();
 			User updatedUser = userManager.updateUser(this.admin.getId(), this.admin.getName(), this.admin.getLastName(),
-					this.admin.getEmail(), true, shouldChangePassword, this.admin.getPassword(), this.admin.getPosition(),
-					admin.getRoleIds(), loggedUser.getUserId());
-			admin = new UserData(updatedUser);
+					this.admin.getEmail(), true, false, this.admin.getPassword(), this.admin.getPosition(),
+					this.admin.getRoleIds(), loggedUser.getUserId());
+
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
 			PageUtil.fireSuccessfulInfoMessage("Admin user successfully updated");
@@ -254,6 +254,15 @@ public class AdminEditBean implements Serializable {
 		this.searchTerm = searchTerm;
 	}
 
+	public UserData getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(UserData userData) {
+		newOwner.setId(userData.getId());
+		newOwner.setAvatarUrl(userData.getAvatarUrl());
+		newOwner.setFullName(userData.getFullName());
+	}
 
 	public void sendNewPassword() {
 
@@ -305,6 +314,20 @@ public class AdminEditBean implements Serializable {
 
 	public void resetAndSearch() {
 		loadAdmins();
+	}
+
+	public void savePassChangeForAnotherAdmin() {
+		if (accountData.getNewPassword().length() < 6) {
+			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
+			return;
+		}
+		try {
+			userManager.changePassword(admin.getId(), accountData.getNewPassword());
+			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error updating the password");
+		}
 	}
 
 }

@@ -43,6 +43,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
@@ -164,7 +165,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	@Transactional
 	public TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId,List<Long> roleIds, boolean includeSystemUsers, List<Long> excludeIds) {
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds) {
 
 		TextSearchResponse1<UserData> response =
 				new TextSearchResponse1<>();
@@ -214,10 +215,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							.field("id"))
 					.setFetchSource(includes, null);
 
-			if(roleIds != null && !roleIds.isEmpty()){
+			if(adminRoles != null && !adminRoles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Long id : roleIds){
-					bqb1.should(termQuery("roles.id", id));
+				for(Role r : adminRoles){
+					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				bQueryBuilder.filter(bqb1);
 			}
@@ -235,10 +236,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				List<org.prosolo.common.domainmodel.organization.Role> roles;
 
-				if (roleIds == null || roleIds.isEmpty()){
+				if (adminRoles == null || adminRoles.isEmpty()){
 					roles = roleManager.getAllRoles();
 				} else {
-					roles = roleManager.getRoles(roleIds);
+					roles = adminRoles;
 				}
 
 				for(SearchHit sh : sResponse.getHits()) {

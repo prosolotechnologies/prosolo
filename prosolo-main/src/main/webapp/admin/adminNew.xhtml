@@ -18,6 +18,7 @@
 		<f:metadata>
 			<f:viewParam name="id" value="#{adminEditBean.id}" />
 			<f:viewAction action="#{adminEditBean.init()}" />
+			<f:viewAction action="#{userEditBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
@@ -48,7 +49,6 @@
 							<h2>New Admin</h2>
 						</ui:fragment>
 						<ui:fragment rendered="#{not empty adminEditBean.id}">
-							<h2>Edit Admin</h2>
 							<h2>
 								<h:outputText value="#{adminEditBean.user.name} #{adminEditBean.user.lastName} - Personal Info" />
 							</h2>
@@ -121,16 +121,18 @@
 										</h:panelGroup>
 									</div>
 								</div>
-								<div class="formLine">
-									<label>&#160;</label>
-									<div class="formLineRight">
-										<p>Email with password setup instructions will be sent to user.</p>
+								<ui:fragment rendered="#{empty adminEditBean.id}">
+									<div class="formLine">
+										<label>&#160;</label>
+										<div class="formLineRight">
+											<p>Email with password setup instructions will be sent to user.</p>
+										</div>
 									</div>
-								</div>
+								</ui:fragment>
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Edit'}"
+										<p:commandLink styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Save Changes'}"
 													   action="#{adminEditBean.saveUser()}" update=":formMain">
 										</p:commandLink>
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
@@ -158,23 +160,29 @@
 									aria-label="Close">
 								<span aria-hidden="true">&#215;</span>
 							</button>
-							<h2 class="modal-title">Delete admin user?</h2>
+							<h2 class="modal-title">Delete admin?</h2>
 						</div>
 						<div class="modal-body alignLeft">
-							<p>Are you sure you want to delete #{adminEditBean.user.name}
-								#{adminEditBean.user.lastName}?</p>
+							<p>Are you sure you want to delete #{setUserToDelete.user.name}
+								#{setUserToDelete.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
 								<h:panelGroup layuot="block" id="selectNewOwner">
 									<h:panelGroup rendered="#{adminEditBean.newOwner.userSet}">
-										<utilcomp:userAvatar
-												avatar="#{adminEditBean.newOwner.avatarUrl}"
-												fullName="#{adminEditBean.newOwner.fullName}" />
-										<h3>#{adminEditBean.newOwner.fullName}</h3>
+										<div class="instructorInfo">
+											<utilcomp:userAvatar
+													avatar="#{adminEditBean.newOwner.avatarUrl}"
+													fullName="#{adminEditBean.newOwner.fullName}" />
+											<div class="infoWrap">
+												<h3>#{adminEditBean.newOwner.fullName}</h3>
+												<span>#{adminEditBean.newOwner.position}</span>
+											</div>
+
 										<div class="assignOpt">
 											<p:commandLink styleClass="removeX"
 														   action="#{adminEditBean.userReset()}"
 														   update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
+										</div>
 										</div>
 									</h:panelGroup>
 
@@ -192,15 +200,15 @@
 												rendered="#{not adminEditBean.newOwner.userSet and adminEditBean.admins != null and adminEditBean.admins.size() > 0}">
 											<ul id="usersList" class="dropdown-menu searchResultsDrop"
 												style="display: block;">
-												<ui:repeat value="#{adminEditBean.admins}" var="admin"
+												<ui:repeat value="#{adminEditBean.admins}" var="user"
 														   varStatus="iterator">
 													<li><p:commandLink style="cursor: pointer;"
-																	   id="userlink-#{admin.id}"
-																	   action="#{adminEditBean.setNewOwner(admin)}"
+																	   id="userlink-#{user.id}"
+																	   action="#{adminEditBean.setNewOwner(user)}"
 																	   update=":formDelete:selectNewOwner :formDelete:formDeleteBtn">
-														<utilcomp:userAvatar avatar="#{admin.avatarUrl}"
-																			 fullName="#{admin.fullName}" />
-														<h3>#{admin.fullName}</h3>
+														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																			 fullName="#{user.fullName}" />
+														<h3>#{user.fullName}</h3>
 													</p:commandLink></li>
 												</ui:repeat>
 											</ul>
@@ -216,7 +224,7 @@
 											   action="#{adminEditBean.delete()}"
 											   rendered="#{adminEditBean.newOwner.userSet}"
 											   update=":formMain"
-											   oncomplete="$('#deleteAdmin').modal('hide');">
+											   oncomplete="$('#deleteUser').modal('hide');">
 									Delete
 								</p:commandLink>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>

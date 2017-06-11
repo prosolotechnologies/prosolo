@@ -67,18 +67,6 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public List<Role> getRoles(List<Long> roleIds) {
-		List<Role> roles = getAllRoles();
-		List<Role> resultRoles = new ArrayList<>();
-		for(Role r : roles){
-			if(roleIds.contains(r.getId())){
-				resultRoles.add(r);
-			}
-		}
-		return resultRoles;
-	}
-
-	@Override
 	public List<Role> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
 		
