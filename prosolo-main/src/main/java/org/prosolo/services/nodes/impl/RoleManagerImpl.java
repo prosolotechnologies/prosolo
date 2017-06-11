@@ -54,7 +54,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 				 "SELECT role " +
 				 "FROM Role role " +
 				 "WHERE role.title IN :names";
-		 
+
 		@SuppressWarnings("unchecked")
 		List<Role> result = persistence.currentManager().createQuery(query)
 				 .setParameterList("names", names)
