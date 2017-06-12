@@ -39,14 +39,18 @@ public interface Competence1Manager {
 	 * you don't want to add competence to credential, just pass
 	 * 0 for {@code credentialId}
 	 * @param data
-	 * @param createdBy
+	 * @param userId
 	 * @param credentialId
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	Competence1 saveNewCompetence(CompetenceData1 data, long userId, long credentialId, 
-			LearningContextData context) throws DbConnectionException,IllegalDataStateException;
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+
+	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
+													  LearningContextData context) throws DbConnectionException,
+			IllegalDataStateException;
 	
 	/**
 	 * @param data

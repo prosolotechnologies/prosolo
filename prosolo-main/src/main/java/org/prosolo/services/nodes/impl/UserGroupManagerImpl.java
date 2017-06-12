@@ -766,7 +766,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	private void saveNewUserToCompetenceGroup(long userId, CompetenceUserGroup compGroup, Session session) {
-		if(compGroup == null) {
+		if (compGroup == null) {
 			throw new NullPointerException();
 		}
 		saveNewUserToUserGroup(userId, compGroup.getUserGroup(), session);
@@ -1329,7 +1329,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 																	 UserGroupPrivilege priv, long userId,
 																	 LearningContextData lcd, Session session) {
 		UserGroup userGroup = null;
-		if(userGroupId > 0) {
+		if (userGroupId > 0) {
 			userGroup = (UserGroup) session.load(UserGroup.class, userGroupId);
 		} else {
 			userGroup = new UserGroup();
@@ -1763,6 +1763,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			Result<CredentialUserGroup> res = createNewCredentialUserGroup(
 					0, isDefault, credId, privilege, actorId, context);
 			saveNewUserToCredentialGroup(userId, res.getResult());
+			return Result.of(res.getEvents());
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving user privilege");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> createCompetenceUserGroupAndSaveNewUser(long userId, long compId, UserGroupPrivilege privilege,
+																boolean isDefault, long actorId, LearningContextData context)
+			throws DbConnectionException {
+		try {
+			Result<CompetenceUserGroup> res = createNewCompetenceUserGroup(
+					0, isDefault, compId, privilege, actorId, context);
+			saveNewUserToCompetenceGroup(userId, res.getResult());
 			return Result.of(res.getEvents());
 		} catch (Exception e) {
 			logger.error(e);

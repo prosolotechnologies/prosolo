@@ -212,4 +212,8 @@ public interface UserGroupManager extends AbstractManager {
 														 boolean isDefault, long actorId, LearningContextData context)
 			throws DbConnectionException;
 
+	Result<Void> createCompetenceUserGroupAndSaveNewUser(long userId, long compId, UserGroupPrivilege privilege,
+														 boolean isDefault, long actorId, LearningContextData context)
+			throws DbConnectionException;
+
 }

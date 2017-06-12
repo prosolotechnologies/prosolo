@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -80,7 +79,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
 	//self inject for better control of transaction bondaries
-	@Inject private CredentialManager credManager;
+	@Inject private CredentialManager self;
 	@Inject private UserDataFactory userDataFactory;
 
 
@@ -88,8 +87,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//nt
 	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context)
 			throws DbConnectionException, EventException {
-		//self invocation
-		Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(data, creatorId, context);
+		//self-invocation
+		Result<Credential1> res = self.saveNewCredentialAndGetEvents(data, creatorId, context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -132,6 +131,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			res.addEvent(eventFactory.generateEventData(
 					EventType.Create, creatorId, cred, null, context, null));
 
+			//add Edit privilege to the credential creator
 			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(creatorId, cred.getId(),
 					UserGroupPrivilege.Edit, true, creatorId, context).getEvents());
 
@@ -201,7 +201,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
 			DataIntegrityViolationException, EventException {
 		//self invocation so spring can intercept the call and start transaction
-		Result<Void> res = credManager.deleteDeliveryAndGetEvents(deliveryId, actorId);
+		Result<Void> res = self.deleteDeliveryAndGetEvents(deliveryId, actorId);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -993,7 +993,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	public void enrollInCredential(long credentialId, long userId, LearningContextData context)
 			throws DbConnectionException, EventException {
-		Result<Void> res = credManager.enrollInCredentialAndGetEvents(credentialId, userId, 0, context);
+		Result<Void> res = self.enrollInCredentialAndGetEvents(credentialId, userId, 0, context);
 		for (EventData ev : res.getEvents()) {
 			/*
 			if student assigned to instructor event should be generated, don't invoke nodechangeobserver
@@ -1077,7 +1077,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			try {
 				List<EventData> events = new ArrayList<>();
 				for (long userId : userIds) {
-					events.addAll(credManager.enrollInCredentialAndGetEvents(
+					events.addAll(self.enrollInCredentialAndGetEvents(
 							credId, userId, instructorId, context).getEvents());
 				}
 				for (EventData ev : events) {
@@ -2989,7 +2989,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
     		LearningContextData lcd) throws DbConnectionException, EventException {
 		try {
 			List<EventData> events = 
-					credManager.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll, 
+					self.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll,
 							visibleToAllChanged, actorId, lcd);
 			for(EventData ev : events) {
 				eventFactory.generateEvent(ev);
@@ -3408,7 +3408,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
 			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
 			IllegalDataStateException, EventException {
-		Result<Credential1> res = credManager.createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId, 
+		Result<Credential1> res = self.createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId,
 				context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);

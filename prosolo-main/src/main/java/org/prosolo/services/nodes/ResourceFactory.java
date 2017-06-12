@@ -112,26 +112,6 @@ public interface ResourceFactory extends AbstractManager {
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
 
-	/**
-	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
-	 * and events data that can be accessed using {@link Result#getEvents()}
-	 * @param title
-	 * @param description
-	 * @param tagsString
-	 * @param creatorId
-	 * @param studentAllowedToAddActivities
-	 * @param type
-	 * @param published
-	 * @param duration
-	 * @param activities
-	 * @param credentialId
-	 * @return
-	 */
-	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
-			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId);
-
 	Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException, IllegalDataStateException;
 
 	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
