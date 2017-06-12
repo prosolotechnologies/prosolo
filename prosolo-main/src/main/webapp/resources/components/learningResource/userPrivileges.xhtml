@@ -73,24 +73,6 @@
 
 		<h:panelGroup id="panelExistingMembers">
 			<ul class="list">
-				<c:if test="#{not empty cc.attrs.bean.creator}">
-					<li>
-						<div class="instructorInfo">
-							<utilcomp:userAvatar
-									avatar="#{cc.attrs.bean.creator.avatar}"
-									fullName="#{cc.attrs.bean.creator.name}"
-									width="48" height="48" />
-
-							<div class="infoWrap">
-								<h3>#{cc.attrs.bean.creator.name}</h3>
-								<span>#{cc.attrs.bean.creator.position}</span>
-							</div>
-						</div>
-						<div class="assignOpt">
-							Is owner
-						</div>
-					</li>
-				</c:if>
 				<ui:repeat var="group" value="#{cc.attrs.bean.existingGroups}" varStatus="status">
 					<ui:fragment rendered="#{group.status ne 'REMOVED'}">
 						<li>
@@ -128,7 +110,10 @@
 							</div>
 
 							<div class="assignOpt">
-								<p:commandLink styleClass="removeX" process="@this"
+								<h:panelGroup layout="block" rendered="#{cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId}" styleClass="assignOpt">
+									Is owner
+								</h:panelGroup>
+								<p:commandLink rendered="#{cc.attrs.bean.creatorId eq 0 or cc.attrs.bean.creatorId ne user.userId}" styleClass="removeX" process="@this"
 											   action="#{cc.attrs.bean.removeMember(user)}"
 											   update=":#{cc.clientId}:panelExistingMembers">
 									Close

@@ -11,7 +11,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -47,7 +46,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private String competenceId;
 	private long compId;
-	private ResourceCreator creator;
+	private long creatorId;
 	private String competenceTitle;
 
 	private UserGroupPrivilege privilege;
@@ -86,7 +85,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 					competenceTitle = compManager.getCompetenceTitle(compId);
 					if (competenceTitle != null) {
 						if (privilege == UserGroupPrivilege.Edit) {
-							this.creator = compManager.getCompetenceCreator(compId);
+							this.creatorId = compManager.getCompetenceCreator(compId).getId();
 							resVisibilityUtil.initializeValuesForEditPrivilege();
 						} else {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
@@ -234,8 +233,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		return resVisibilityUtil.getGroupsToExclude();
 	}
 
-	public ResourceCreator getCreator() {
-		return creator;
+	public long getCreatorId() {
+		return creatorId;
 	}
 
 	public String getCompetenceTitle() {
