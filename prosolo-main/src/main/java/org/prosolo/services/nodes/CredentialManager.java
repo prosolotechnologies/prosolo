@@ -39,6 +39,9 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+			throws DbConnectionException, EventException;
+
+	Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, long creatorId, LearningContextData context)
 			throws DbConnectionException;
 	
 	/**

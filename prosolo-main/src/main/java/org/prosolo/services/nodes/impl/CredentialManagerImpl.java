@@ -82,28 +82,64 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//self inject for better control of transaction bondaries
 	@Inject private CredentialManager credManager;
 	@Inject private UserDataFactory userDataFactory;
-	
+
+
+	@Override
+	//nt
+	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context)
+			throws DbConnectionException, EventException {
+		//self invocation
+		Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(data, creatorId, context);
+		for (EventData ev : res.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+		return res.getResult();
+	}
+
 	@Override
 	@Transactional(readOnly = false)
-	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context) 
+	public Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, long creatorId, LearningContextData context)
 			throws DbConnectionException {
-		Credential1 cred = null;
 		try {
-			cred = resourceFactory.createCredential(data.getTitle(), data.getDescription(),
-					data.getTagsString(), data.getHashtagsString(), creatorId, data.isMandatoryFlow(), 
-					data.getDuration(), !data.isAutomaticallyAssingStudents(), data.getCompetences());
-			
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
-			eventFactory.generateEvent(EventType.Create, creatorId, cred, null, page, lContext,
-					service, null);
+			Credential1 cred = new Credential1();
+			cred.setCreatedBy(loadResource(User.class, creatorId));
+			cred.setType(CredentialType.Original);
+			cred.setTitle(data.getTitle());
+			cred.setDescription(data.getDescription());
+			cred.setDateCreated(new Date());
+			cred.setCompetenceOrderMandatory(data.isMandatoryFlow());
+			cred.setDuration(data.getDuration());
+			cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getHashtagsString())));
+			cred.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 
-			return cred;
-		} catch(DbConnectionException dce) {
-			logger.error(dce);
-			dce.printStackTrace();
-			throw dce;
+			saveEntity(cred);
+
+			if(data.getCompetences() != null) {
+				for(CompetenceData1 cd : data.getCompetences()) {
+					CredentialCompetence1 cc = new CredentialCompetence1();
+					cc.setOrder(cd.getOrder());
+					cc.setCredential(cred);
+					Competence1 comp = (Competence1) persistence.currentManager().load(
+							Competence1.class, cd.getCompetenceId());
+					cc.setCompetence(comp);
+					saveEntity(cc);
+				}
+			}
+
+			Result<Credential1> res = new Result<>();
+
+			res.addEvent(eventFactory.generateEventData(
+					EventType.Create, creatorId, cred, null, context, null));
+
+			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(creatorId, cred.getId(),
+					UserGroupPrivilege.Edit, true, creatorId, context).getEvents());
+
+			res.setResult(cred);
+
+			logger.info("New credential is created with id " + cred.getId());
+
+			return res;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();

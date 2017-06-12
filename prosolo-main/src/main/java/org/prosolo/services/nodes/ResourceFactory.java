@@ -1,11 +1,5 @@
 package org.prosolo.services.nodes;
 
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -16,7 +10,6 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
@@ -24,21 +17,12 @@ import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.course.CourseCompetence;
 import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -53,6 +37,12 @@ import org.prosolo.services.nodes.data.activity.ActivityData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.web.competences.data.ActivityFormData;
 import org.prosolo.web.competences.data.ActivityType;
+
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public interface ResourceFactory extends AbstractManager {
 
@@ -190,26 +180,5 @@ public interface ResourceFactory extends AbstractManager {
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 	
 	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
-	
-	/**
-	 * Saves new credential.
-	 * 
-	 * This method should be used for saving original credential only and not for delivery.
-	 * 
-	 * @param title
-	 * @param description
-	 * @param tagsString
-	 * @param hashtagsString
-	 * @param creatorId
-	 * @param compOrderMandatory
-	 * @param duration
-	 * @param manuallyAssign
-	 * @param comps
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException;
 
 }

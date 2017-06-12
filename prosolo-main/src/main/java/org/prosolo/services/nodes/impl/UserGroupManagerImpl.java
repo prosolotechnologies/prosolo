@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
+import com.sun.corba.se.spi.orbutil.fsm.Guard;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -754,7 +755,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 	
 	private void saveNewUserToCredentialGroup(long userId, CredentialUserGroup credGroup) {
-		if(credGroup == null) {
+		if (credGroup == null) {
 			throw new NullPointerException();
 		}
 		saveNewUserToUserGroup(userId, credGroup.getUserGroup(), persistence.currentManager());
@@ -935,7 +936,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			long userId, LearningContextData lcd) {
 		Optional<CredentialUserGroup> credGroupOptional = getCredentialDefaultGroup(credId, priv);
 		Result<CredentialUserGroup> res = new Result<>();
-		if(credGroupOptional.isPresent()) {
+		if (credGroupOptional.isPresent()) {
 			res.setResult(credGroupOptional.get());
 		} else {
 			res = createNewCredentialUserGroup(0, true, credId, priv, userId, lcd);
@@ -957,7 +958,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	private Result<CredentialUserGroup> createNewCredentialUserGroup(long userGroupId, boolean isDefault, long credId, 
 			UserGroupPrivilege priv, long userId, LearningContextData lcd) {
 		UserGroup userGroup = null;
-		if(userGroupId > 0) {
+		if (userGroupId > 0) {
 			userGroup = (UserGroup) persistence.currentManager().load(UserGroup.class, userGroupId);
 		} else {
 			userGroup = new UserGroup();
@@ -1750,6 +1751,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while creating user privileges");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> createCredentialUserGroupAndSaveNewUser(long userId, long credId, UserGroupPrivilege privilege,
+														boolean isDefault, long actorId, LearningContextData context)
+			throws DbConnectionException {
+		try {
+			Result<CredentialUserGroup> res = createNewCredentialUserGroup(
+					0, isDefault, credId, privilege, actorId, context);
+			saveNewUserToCredentialGroup(userId, res.getResult());
+			return Result.of(res.getEvents());
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving user privilege");
 		}
 	}
 
