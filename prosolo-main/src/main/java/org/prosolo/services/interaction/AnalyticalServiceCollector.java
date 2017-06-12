@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 /**
 @author Zoran Jeremic Apr 12, 2015

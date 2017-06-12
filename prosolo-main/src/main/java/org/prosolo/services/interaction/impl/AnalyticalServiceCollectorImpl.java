@@ -7,7 +7,7 @@ import java.util.Map;
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;

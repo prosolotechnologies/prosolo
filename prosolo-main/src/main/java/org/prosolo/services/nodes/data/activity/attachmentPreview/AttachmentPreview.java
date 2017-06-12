@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.content.ContentType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 /**
  * @author "Nikola Milikic"

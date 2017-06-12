@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.nodes.ActivityManager;
 import org.prosolo.web.ApplicationBean;

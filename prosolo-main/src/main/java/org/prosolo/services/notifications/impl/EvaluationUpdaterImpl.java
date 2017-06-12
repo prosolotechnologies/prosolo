@@ -28,7 +28,7 @@ import org.prosolo.web.goals.LearnBean;
 import org.prosolo.web.goals.cache.CompetenceDataCache;
 import org.prosolo.web.goals.cache.GoalDataCache;
 import org.prosolo.web.portfolio.PortfolioBean;
-import org.prosolo.web.portfolio.data.AchievedCompetenceData;
+import org.prosolo.web.profile.data.AchievedCompetenceData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

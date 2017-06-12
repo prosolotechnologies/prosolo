@@ -5,24 +5,14 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
-import org.prosolo.common.domainmodel.content.Post;
-import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.activityWall.SocialActivityHandler;
-import org.prosolo.services.activityWall.impl.data.SocialActivityData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.interaction.PostManager;
-import org.prosolo.services.interaction.impl.PostManagerImpl.PostEvent;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.upload.UploadManager;
@@ -63,169 +53,6 @@ public class PostActionBean implements Serializable {
 		attachmentPreview.reset();
 	}
 	
-	public void createNewPost() {
-		createNewPostWithData(this.newPostData, "statusWall.newPost", null, null, null);
-	}
-	
-	public void createNewPostWithData(NewPostData newPostData, String context, String page, 
-			String learningContext, String service) {
-		try {
-			System.out.println("Create new post with data");
-			
-			PostEvent postEvent = postManager.createNewPost(
-					loggedUser.getUserId(), 
-					newPostData.getText(), 
-					newPostData.getVisibility(), 
-					newPostData.getAttachmentPreview(),
-					StringUtil.convertToArrayOfLongs(this.newPostData.getMentionedUsers()),
-					true,
-					context,
-					page, 
-					learningContext,
-					service);
-		
-			Post post = postEvent.getPost();
-			
-			if (post != null) {
-				logger.debug("User \"" +loggedUser.getUserId()+")" +
-						" posted status \""+newPostData.getText()+"\" )"+post.getId()+")");
-				
-				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
-				
-				PageUtil.fireSuccessfulInfoMessage("New status posted!");
-				
-				init();
-			}
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e.getMessage());
-		}
-	}
-	
-	//public void reshareActivity(NewPostData newPostData, Activity originalActivity) {
-//		try {
-//			User user = loggedUser.getUser();
-//			PostEvent postEvent = postManager.createPostReshare(
-//					user, 
-//					newPostData.getText(), 
-//					newPostData.getVisibility(), 
-//					newPostData.getAttachmentPreview(), 
-//					originalActivity, 
-//					true);
-//			
-//			Post post = postEvent.getPost();
-//			
-//			if (post != null) {
-//				logger.debug("User \"" + loggedUser.getUser().getName()+" "+loggedUser.getUser().getLastname()+"\" ("+loggedUser.getUser().getUri()+")" +
-//						" reposted new status \""+newPostData.getText()+"\" )"+post.getUri()+")");
-//				
-//				propagateSocialActivity(postEvent.getEvent(), originalActivity.getMaker());
-//				
-//				PageUtil.fireSuccessfulInfoMessage("Post reshared!");
-//			}
-//		} catch (EventException e) {
-//			logger.error(e);
-//		}
-	//}
-	
-	public void shareResource(Node resource, String text, String context, String page,
-			String learningContext, String service) {
-		
-		try {
-			PostEvent postEvent = postManager.shareResource(
-				loggedUser.getUserId(), 
-				text, 
-				VisibilityType.PUBLIC, 
-				resource, 
-				true,
-				context,
-				page,
-				learningContext, 
-				service);
-			
-			Post post = postEvent.getPost();
-			
-			if (post != null) {
-				logger.debug("User \"" + loggedUser.getUserId() +
-						" reposted new status \""+newPostData.getText()+"\" )"+post.getId()+")");
-				
-				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
-				
-				PageUtil.fireSuccessfulInfoMessage("New status posted!");
-			}
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
-	}
-	
-	//changed for new context approach
-	public void resharePost(NewPostData newPostData, SocialActivity originalSocialActivity, String context,
-			String page, String learningContext, String service) {
-		try {
-			PostEvent postEvent = postManager.reshareSocialActivity(
-					loggedUser.getUserId(), 
-					newPostData.getText(), 
-					newPostData.getVisibility(), 
-					newPostData.getAttachmentPreview(), 
-					originalSocialActivity, 
-					true,
-					page, 
-					learningContext,
-					service);
-			
-			Post post = postEvent.getPost();
-			
-			if (post != null) {
-				logger.debug("User " + loggedUser.getUserId() +
-						" reposted new status \""+newPostData.getText()+"\" ("+post.getId()+")");
-				
-				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
-				
-				originalSocialActivity = postEvent.getOriginalSocialActivity();
-//				originalSocialActivity = HibernateUtil.initializeAndUnproxy(originalSocialActivity);
-				
-				// update share count of original social activity
-				HttpSession userSession = applicationBean.getUserSession(loggedUser.getUserId());
-				socialActivityHandler.updateSocialActivity(
-						originalSocialActivity, 
-						userSession, 
-						(Session) postManager.getPersistence().currentManager());
-				
-				socialActivityHandler.disableSharing(
-						originalSocialActivity, 
-						userSession, 
-						(Session) postManager.getPersistence().currentManager());
-				
-				PageUtil.fireSuccessfulInfoMessage("New status posted!");
-			}
-		} catch (EventException e) {
-			logger.error(e);
-		} catch (ResourceCouldNotBeLoadedException ex) {
-			logger.error(ex);
-		} 
-	}
-	
-	public void resharePost(SocialActivityData wallData) {
-		try {
-			SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, wallData.getSocialActivity().getId());
-			
-			PostEvent postEvent = postManager.resharePost(loggedUser.getUserId(), socialActivity, true);
-			
-			Post post = postEvent.getPost();
-			if (post != null) {
-				logger.debug("User \"" +loggedUser.getUserId() +
-						" reposted new status \""+newPostData.getText()+"\" ("+post.getId()+")");
-				
-				socialActivityHandler.propagateSocialActivity(postEvent.getEvent());
-				
-				PageUtil.fireSuccessfulInfoMessage("New status posted!");
-			}
-		} catch (EventException e) {
-			logger.error(e);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
-	}
-
 	public void handleFileUpload(FileUploadEvent event) {
     	UploadedFile uploadedFile = event.getFile();
     	

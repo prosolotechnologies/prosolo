@@ -2,17 +2,17 @@ package org.prosolo.services.interaction.impl;/**
  * Created by zoran on 29/12/15.
  */
 
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+import static org.prosolo.common.domainmodel.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.events.EventType.Like;
+import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,7 +30,7 @@ import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.core.spring.SpringConfig;
 import org.prosolo.services.nodes.CourseManager;

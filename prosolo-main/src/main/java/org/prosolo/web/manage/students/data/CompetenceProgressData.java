@@ -18,8 +18,6 @@ public class CompetenceProgressData implements Serializable{
 	private long rejectedSubmissionNumber;
 	private boolean trophyWon;
 	
-	private List<EvaluationSubmissionData> submissions;
-	
 	public boolean isTrophyWon() {
 		return trophyWon;
 	}
@@ -85,13 +83,4 @@ public class CompetenceProgressData implements Serializable{
 		this.rejectedSubmissionNumber = rejectedSubmissionNumber;
 	}
 
-	public List<EvaluationSubmissionData> getSubmissions() {
-		return submissions;
-	}
-
-	public void setSubmissions(List<EvaluationSubmissionData> submissions) {
-		this.submissions = submissions;
-	}
-	
-	
 }

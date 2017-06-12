@@ -19,9 +19,6 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptService.ScriptType;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -107,10 +104,6 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 	 
 		if (node instanceof User) {
 			indexType = ESIndexTypes.USER;
-		} else if (node instanceof Activity || node instanceof TargetActivity) {
-			indexType = ESIndexTypes.ACTIVITY;
-		} else if (node instanceof Tag) {
-			indexType = ESIndexTypes.TAGS;
 		} else if (node instanceof Credential1) {
 			indexType = ESIndexTypes.CREDENTIAL;
 		} else if (node instanceof Competence1) {

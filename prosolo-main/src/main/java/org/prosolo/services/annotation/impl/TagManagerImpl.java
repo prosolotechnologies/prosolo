@@ -13,9 +13,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.annotation.TagManager;
@@ -92,68 +89,6 @@ public class TagManagerImpl extends AbstractManagerImpl implements TagManager {
 	@Transactional
 	public Set<Tag> parseCSVTagsAndSave(String csvString) {
 		return getOrCreateTags(StringUtil.convertCSVToList(csvString));
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public Set<Tag> getTagsForResource(BaseEntity resource) {
-		String queryString = null;
-
-		if (resource instanceof Node) {
-			queryString = 
-				"SELECT DISTINCT tag " +
-				"FROM Node node " +
-				"LEFT JOIN node.tags tag " +
-				"WHERE node = :resource ";
-		} else if (resource instanceof Course) {
-			queryString = 
-				"SELECT DISTINCT tag " +
-				"FROM Course course " +
-				"LEFT JOIN course.tags tag " +
-				"WHERE course = :resource ";
-		}
-		
-		Query query = persistence.currentManager().createQuery(queryString).
-			setEntity("resource", resource);
-		
-		@SuppressWarnings("unchecked")
-		List<Tag> result = query.list();
-		
-		if (result != null && !result.isEmpty()) {
-			return new HashSet<Tag>(result);
-		}
-		return null;
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public Set<Tag> getHashtagsForResource(BaseEntity resource) {
-		String queryString = null;
-		
-		if (resource instanceof Node) {
-			queryString = 
-				"SELECT DISTINCT hashtag " +
-				"FROM Node node " +
-				"LEFT JOIN node.hashtags hashtag " +
-				"WHERE node = :resource ";
-		} else if (resource instanceof Course) {
-			queryString = 
-				"SELECT DISTINCT hashtag " +
-				"FROM Course course " +
-				"LEFT JOIN course.hashtags hashtag " +
-				"WHERE course = :resource ";
-		}
-		
-		Query query = persistence.currentManager().createQuery(queryString).
-				setEntity("resource", resource);
-		
-		@SuppressWarnings("unchecked")
-		List<Tag> result = query.list();
-		
-		if (result != null && !result.isEmpty()) {
-			return new HashSet<Tag>(result);
-		}
-		return null;
 	}
 	
 	@Override

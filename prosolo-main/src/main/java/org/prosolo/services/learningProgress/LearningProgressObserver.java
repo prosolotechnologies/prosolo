@@ -4,8 +4,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.services.event.Event;
