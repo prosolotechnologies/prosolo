@@ -1,6 +1,5 @@
 package org.prosolo.services.indexing;
 
-import java.io.IOException;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -8,7 +7,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -22,11 +20,8 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Zoran Jeremic 2013-06-29
@@ -64,28 +59,6 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 		delete(id, indexName, indexType);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends Node> T get(String id) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		T entity = null;
-		try {
-			GetResponse getResponse = ElasticSearchFactory.getClient()
-					.prepareGet("nodes", "nodes", id).execute().actionGet();
-			
-			if (getResponse.isExists()) {
-				entity = (T) objectMapper.readValue(getResponse.getSourceAsBytes(), Node.class);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Can not read entity " + id);
-		} catch (NoNodeAvailableException e) {
-			logger.error(e);
-		} catch (ElasticsearchException e) {
-			logger.error(e);
-		}
-
-		return entity;
-	}
-	
 	@Override
 	public void indexNode(XContentBuilder builder, String indexId, String indexName, String indexType) {
 		Client client = ElasticSearchFactory.getClient();

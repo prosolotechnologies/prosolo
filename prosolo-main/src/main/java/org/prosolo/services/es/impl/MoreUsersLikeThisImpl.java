@@ -2,13 +2,14 @@ package org.prosolo.services.es.impl;
 
 import org.prosolo.services.es.MoreUsersLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zoran Jeremic
  * @Deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.es.MoreUsersLikeThis")
+@Service("org.prosolo.services.es.MoreUsersLikeThis")
 //@Transactional
 public class MoreUsersLikeThisImpl extends AbstractManagerImpl implements MoreUsersLikeThis{
 

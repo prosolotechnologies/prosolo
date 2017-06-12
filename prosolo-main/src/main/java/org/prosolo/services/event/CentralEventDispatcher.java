@@ -13,19 +13,13 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.activityWall.observer.SocialStreamObserver;
-import org.prosolo.services.indexing.impl.UploadsObserver;
-import org.prosolo.services.interaction.impl.CourseInteractionObserver;
 import org.prosolo.services.interaction.impl.MessagesObserver;
-import org.prosolo.services.interfaceSettings.InterfaceCacheObserver;
-import org.prosolo.services.learningProgress.LearningProgressObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
-import org.prosolo.services.logging.UserActivityObserver;
 import org.prosolo.services.nodes.observers.assessments.ActivityAssessmentAutogradeObserver;
 import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObserver;
 import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
-import org.prosolo.services.reporting.UserActivityStatisticsObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,37 +39,21 @@ public class CentralEventDispatcher {
 	private EventThreadPoolExecutor tpe = new EventThreadPoolExecutor();
 	
 	@Autowired private SocialStreamObserver socialStreamObserver;
-	@Autowired private UploadsObserver uploadsObserver;
 	@Autowired private NotificationObserver notificationObserver;
 	@Autowired private MessagesObserver messagesObserver;
-	@Autowired private InterfaceCacheObserver interfaceCacheUpdater;
-	//@Autowired private NodeChangeObserver nodeChangeObserver;
-	@Autowired private CourseInteractionObserver courseInteractionObserver;
 	@Autowired private LoggingEventsObserver loggingEventsObserver;
-	@Autowired private UserActivityObserver userActivityObserver;
-	@Autowired private LearningProgressObserver learningProgressObserver;
-	@Autowired private UserActivityStatisticsObserver userActivityStatisticsObserver;
 	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
-	//@Autowired private SocialInteractionStatisticsObserver socialInteractionStatisticsObserver;
-	//@Autowired private LearningResourceChangeObserver learningResourceChangeObserver;
 	@Inject private CredentialLastActionObserver credentialLastActionObserver;
 	@Inject private ActivityAssessmentAutogradeObserver autogradeObserver;
-	//@Inject private UserPrivilegePropagationObserver userPrivilegeObservationObserver;
 	@Inject private IndexingComplexSequentialObserver indexingComplexObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
 			observers = new HashSet<EventObserver>();
 			observers.add(socialStreamObserver);
-			observers.add(uploadsObserver);
 			observers.add(notificationObserver);
 			observers.add(messagesObserver);
-			observers.add(interfaceCacheUpdater);
-			observers.add(courseInteractionObserver);
 			observers.add(loggingEventsObserver);
-			observers.add(userActivityObserver);
-			observers.add(learningProgressObserver);
-			observers.add(userActivityStatisticsObserver);
 			observers.add(twitterHashtagStatisticsObserver);
 			observers.add(credentialLastActionObserver);
 			observers.add(autogradeObserver);

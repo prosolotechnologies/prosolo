@@ -1,12 +1,14 @@
 package org.prosolo.services.importing;
 
+import org.springframework.stereotype.Service;
+
 /**
  * 
  * @author Zoran Jeremic
  * @deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.importing.ResourcesImporter")
+@Service("org.prosolo.services.importing.ResourcesImporter")
 public class ResourcesImporter {  
 	
 //	private static Logger logger = Logger.getLogger(ResourcesImporter.class);

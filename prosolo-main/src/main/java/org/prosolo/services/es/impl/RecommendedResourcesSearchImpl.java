@@ -1,13 +1,14 @@
 package org.prosolo.services.es.impl;
 
 import org.prosolo.services.es.RecommendedResourcesSearch;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zoran Jeremic
  * @Deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.es.RecommendedResourcesSearch")
+@Service("org.prosolo.services.es.RecommendedResourcesSearch")
 public class RecommendedResourcesSearchImpl implements RecommendedResourcesSearch {
 
 //	private Logger logger = Logger.getLogger(RecommendedResourcesSearchImpl.class);

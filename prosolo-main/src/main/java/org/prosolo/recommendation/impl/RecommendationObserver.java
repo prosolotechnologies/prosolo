@@ -1,12 +1,14 @@
 package org.prosolo.recommendation.impl;
 
+import org.springframework.stereotype.Service;
+
 /**
  * @author Zoran Jeremic
  * @version 0.5
  * @deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.recommendation.RecommendationObserver")
+@Service("org.prosolo.recommendation.RecommendationObserver")
 public class RecommendationObserver 
 	//extends EventObserver 
 {

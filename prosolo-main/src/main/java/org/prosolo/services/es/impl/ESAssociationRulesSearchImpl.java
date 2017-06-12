@@ -1,13 +1,14 @@
 package org.prosolo.services.es.impl;
 
 import org.prosolo.services.es.ESAssociationRulesSearch;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zoran Jeremic
  * @Deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.es.ESAssociationRulesSearch")
+@Service("org.prosolo.services.es.ESAssociationRulesSearch")
 public class ESAssociationRulesSearchImpl implements ESAssociationRulesSearch {
 	
 //	private Logger logger = Logger.getLogger(ESAssociationRulesSearchImpl.class);

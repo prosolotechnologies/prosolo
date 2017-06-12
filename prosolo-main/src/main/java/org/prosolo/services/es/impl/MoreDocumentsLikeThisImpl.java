@@ -2,13 +2,14 @@ package org.prosolo.services.es.impl;
  
 import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zoran Jeremic
  * @Deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.es.MoreDocumentsLikeThis")
+@Service("org.prosolo.services.es.MoreDocumentsLikeThis")
 public class MoreDocumentsLikeThisImpl extends AbstractManagerImpl implements
 		MoreDocumentsLikeThis {
 	

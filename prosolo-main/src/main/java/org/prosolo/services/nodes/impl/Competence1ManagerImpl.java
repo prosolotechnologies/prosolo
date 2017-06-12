@@ -7,21 +7,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
 import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -56,7 +52,13 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -2804,6 +2806,108 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT tags " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN comp.tags tags  " +
+				"WHERE comp.id = :compId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("compId", competenceId)
+			.list();
+		
+		return res;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		try {
+			String query = 
+				"UPDATE TargetCompetence1 targetComptence1 " +
+				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetComptence1.id = :compId ";
+	
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress = 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
 		}
 	}
 

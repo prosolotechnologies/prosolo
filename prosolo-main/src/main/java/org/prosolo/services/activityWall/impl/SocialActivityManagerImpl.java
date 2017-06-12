@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1074,6 +1076,28 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving social actiity");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Set<Long> getUsersInMyNetwork(long userId) {
+		Set<Long> myNetwork = new HashSet<Long>();
+
+		String query = 
+				"SELECT DISTINCT followedUser.id " +
+				"FROM FollowedUserEntity fUser " +
+				"LEFT JOIN fUser.followedUser followedUser " +
+				"WHERE fUser.user = :userId ";
+
+		@SuppressWarnings("unchecked")
+		List<Long> users = persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.list();
+
+		if (users != null && !users.isEmpty()) {
+			myNetwork.addAll(users);
+		}
+		return myNetwork;
 	}
 	
 }

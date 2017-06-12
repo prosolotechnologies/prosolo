@@ -479,4 +479,8 @@ public interface CredentialManager extends AbstractManager {
 
 	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
 
+	List<Tag> getTagsForCredential(long credentialId) throws DbConnectionException;
+
+	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
+
 }

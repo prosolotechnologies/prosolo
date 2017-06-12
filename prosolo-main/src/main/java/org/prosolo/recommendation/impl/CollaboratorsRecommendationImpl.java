@@ -1,14 +1,17 @@
 package org.prosolo.recommendation.impl;
 
+import org.prosolo.recommendation.CollaboratorsRecommendation;
+import org.springframework.stereotype.Service;
+
 /**
  * @author Zoran Jeremic
  * @version 0.5
  * @deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.recommendation.CollaboratorsRecommendation")
+@Service("org.prosolo.recommendation.CollaboratorsRecommendation")
 public class CollaboratorsRecommendationImpl 
-	//implements CollaboratorsRecommendation 
+	implements CollaboratorsRecommendation 
 {
 	
 //	private static Logger logger = Logger.getLogger(CollaboratorsRecommendationImpl.class);

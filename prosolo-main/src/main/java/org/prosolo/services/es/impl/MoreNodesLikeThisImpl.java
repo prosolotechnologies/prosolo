@@ -1,11 +1,13 @@
 package org.prosolo.services.es.impl;
 
+import org.springframework.stereotype.Service;
+
 /**
  * @author Zoran Jeremic
  * @Deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.es.MoreNodesLikeThis")
+@Service("org.prosolo.services.es.MoreNodesLikeThis")
 //@Transactional
 public class MoreNodesLikeThisImpl 
 //extends AbstractManagerImpl implements MoreNodesLikeThis

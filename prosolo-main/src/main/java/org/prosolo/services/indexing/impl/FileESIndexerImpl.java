@@ -5,13 +5,14 @@ import org.prosolo.services.es.MoreDocumentsLikeThis;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.TikaExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zoran Jeremic
  * @deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.indexing.FileESIndexer")
+@Service("org.prosolo.services.indexing.FileESIndexer")
 public class FileESIndexerImpl implements FileESIndexer {
 	
 	private static Logger logger = Logger.getLogger(FileESIndexerImpl.class);

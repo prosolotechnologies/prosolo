@@ -2,13 +2,15 @@ package org.prosolo.services.importing;
 
 import java.io.Serializable;
 
+import org.springframework.stereotype.Service;
+
 /**
  * 
  * @author Zoran Jeremic
  * @deprecated since 0.7
  */
 @Deprecated
-//@Service("org.prosolo.services.importing.CourseBackupManager")
+@Service("org.prosolo.services.importing.CourseBackupManager")
 public class CourseBackupManager implements Serializable {
 	private static final long serialVersionUID = 5670398708965275103L;
 
