@@ -201,8 +201,19 @@ public interface UserGroupManager extends AbstractManager {
 	Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, UserGroupPrivilege privilege,
 															  long actorId, LearningContextData context) throws DbConnectionException;
 
-	Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId,
-																  UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException;
+
+
+	Result<Void> removeUserFromDefaultCredentialGroupAndGetEvents(long userId, long credId,
+																  UserGroupPrivilege privilege, long actorId,
+																  LearningContextData context) throws DbConnectionException;
+
+	Result<Void> saveUserToDefaultCompetenceGroupAndGetEvents(long userId, long compId,
+															  UserGroupPrivilege privilege, long actorId,
+															  LearningContextData context) throws DbConnectionException;
+
+	Result<Void> removeUserFromDefaultCompetenceGroupAndGetEvents(long userId, long compId,
+																  UserGroupPrivilege privilege, long actorId,
+																  LearningContextData context) throws DbConnectionException;
 
 	Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
 																	  long actorId, LearningContextData context,

@@ -2815,19 +2815,45 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId)
+	private List<Long> getCompetenceIdsForOwner(long ownerId) {
+		String query = "SELECT comp.id " +
+				"FROM Competence1 comp " +
+				"WHERE comp.createdBy.id = :ownerId";
+
+		return persistence.currentManager()
+				.createQuery(query)
+				.setLong("ownerId", ownerId)
+				.list();
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId)
 			throws DbConnectionException {
 		try {
-				String query = "UPDATE Competence1 comp SET " +
-						"comp.createdBy = :newCreatorId " +
-						"WHERE comp.createdBy = :oldCreatorId";
-	
-				persistence.currentManager()
-					.createQuery(query)
-					.setLong("newCreatorId", newCreatorId)
-					.setLong("oldCreatorId", oldCreatorId)
-					.executeUpdate();
-		} catch (Exception e){
+			Result<Void> result = new Result<>();
+			List<Long> competencesWithOldOwner = getCompetenceIdsForOwner(oldCreatorId);
+
+			String query = "UPDATE Competence1 comp SET " +
+					"comp.createdBy = :newCreatorId " +
+					"WHERE comp.createdBy = :oldCreatorId";
+
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+
+			for (long id : competencesWithOldOwner) {
+				//remove Edit privilege from old owner
+				result.addEvents(userGroupManager.removeUserFromDefaultCompetenceGroupAndGetEvents(
+						oldCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+				//add edit privilege to new owner
+				result.addEvents(userGroupManager.saveUserToDefaultCompetenceGroupAndGetEvents(
+						newCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+			}
+			return result;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");

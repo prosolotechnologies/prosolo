@@ -478,7 +478,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 
-	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+	Result<Void> updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 
 	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
 

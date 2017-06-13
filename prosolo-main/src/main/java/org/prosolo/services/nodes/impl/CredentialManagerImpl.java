@@ -3511,8 +3511,32 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	public void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+	private List<CredentialData> getCredentialIdsAndTypeForOwner(long ownerId) {
+		String query = "SELECT cred.id, cred.type " +
+				"FROM Credential1 cred " +
+				"WHERE cred.createdBy.id = :ownerId";
+
+		List<Object[]> res = persistence.currentManager()
+				.createQuery(query)
+				.setLong("ownerId", ownerId)
+				.list();
+		List<CredentialData> data = new ArrayList<>();
+		for (Object[] row : res) {
+			CredentialData cd = new CredentialData(false);
+			cd.setId((Long) row[0]);
+			cd.setType((CredentialType) row[1]);
+			data.add(cd);
+		}
+		return data;
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
 		try {
+			Result<Void> result = new Result<>();
+			List<CredentialData> credentialsWithOldOwner = getCredentialIdsAndTypeForOwner(oldCreatorId);
+
 			String query = "UPDATE Credential1 cred SET " +
 					"cred.createdBy = :newCreatorId " +
 					"WHERE cred.createdBy = :oldCreatorId";
@@ -3522,6 +3546,22 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("newCreatorId", newCreatorId)
 					.setLong("oldCreatorId", oldCreatorId)
 					.executeUpdate();
+
+			for (CredentialData cd : credentialsWithOldOwner) {
+				/*
+					privilege should be removed from old owner and added to new owner only for original credentials,
+					deliveries only inherit those privileges from original.
+				 */
+				if (cd.getType() == CredentialType.Original) {
+					//remove Edit privilege from old owner
+					result.addEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
+							oldCreatorId, cd.getId(), UserGroupPrivilege.Edit, 0, null).getEvents());
+					//add edit privilege to new owner
+					result.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
+							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, 0, null).getEvents());
+				}
+			}
+			return result;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
