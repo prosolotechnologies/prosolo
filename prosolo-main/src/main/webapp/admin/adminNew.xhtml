@@ -88,8 +88,9 @@
 								<div class="formLine">
 									<label>Email</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextAdminEmail" required="true"
-													 name="emailAddress" requiredMessage="Email is required"
+										<h:inputText id="inputTextAdminEmail"
+													 name="emailAddress"
+													 validator="emailValidator"
 													 value="#{adminEditBean.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"

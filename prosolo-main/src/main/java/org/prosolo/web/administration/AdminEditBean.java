@@ -1,5 +1,6 @@
 package org.prosolo.web.administration;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,9 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -60,6 +63,9 @@ public class AdminEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
+	@Inject
+	@Qualifier("taskExecutor")
+	private ThreadPoolTaskExecutor taskExecutor;
 
 	@Autowired
 	private UserTextSearch textSearch;
@@ -170,6 +176,8 @@ public class AdminEditBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Admin user successfully saved");
 
 			sendNewPassword();
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			extContext.redirect("/admin/admins");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -190,7 +198,7 @@ public class AdminEditBean implements Serializable {
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("Admin user successfully updated");
+			PageUtil.fireSuccessfulInfoMessage("User is updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to update admin data");
@@ -277,20 +285,25 @@ public class AdminEditBean implements Serializable {
 
 	public void sendNewPassword() {
 
-		User userNewPass = userManager.getUser(admin.getEmail());
-		if (userNewPass != null) {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery");
+		User user = userManager.getUser(admin.getEmail());
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if (user != null) {
+					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+							CommonSettings.getInstance().config.appConfig.domain + "recovery");
 
-			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage",
-						"Password instructions have been sent to given email ");
-			} else {
-				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+					if (resetLinkSent) {
+						PageUtil.fireSuccessfulInfoMessage("resetMessage",
+								"Password instructions have been sent to given email ");
+					} else {
+						PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+					}
+				} else {
+					PageUtil.fireErrorMessage("resetMessage", "User already registrated");
+				}
 			}
-		} else {
-			PageUtil.fireErrorMessage("resetMessage", "User already registrated");
-		}
+		});
 	}
 
 	public void delete() {
@@ -329,7 +342,7 @@ public class AdminEditBean implements Serializable {
 
 	public void savePassChangeForAnotherAdmin() {
 		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
+			PageUtil.fireErrorMessage("The password is too short. It has to contain more than 6 characters.");
 			return;
 		}
 		try {

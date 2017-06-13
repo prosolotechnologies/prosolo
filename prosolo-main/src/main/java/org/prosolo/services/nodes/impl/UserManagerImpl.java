@@ -241,7 +241,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 						"FROM ResetKey resetKey " +
 						"WHERE resetKey.uid = :resetKey " +
 					")";
-			
+
 			persistence.currentManager()
 				.createQuery(query)
 				.setString("resetKey", resetKey)
