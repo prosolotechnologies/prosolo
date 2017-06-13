@@ -31,28 +31,6 @@ function toggleReplyInput(replyBtn) {
     return false;
 }
 
-function showEditResponse(editBtn, responseContainer) {
-    $(editBtn).parent().prev().find('.editComment').toggleClass('hidden');
-    $(editBtn).parent().prev().find('.commentText').toggleClass('hidden');
-    $(responseContainer).hide();
-    $(editBtn).addClass('hidden');
-    return false;
-}
-
-function hideEditResponse(cancelBtn) {
-    var editCommentContainer = $(cancelBtn).parent().parent();
-    var commentContainer = editCommentContainer.prev('.commentText');
-
-    editCommentContainer.addClass('hidden');
-    commentContainer.removeClass('hidden');
-
-    var editableDiv = editCommentContainer.find('.contentEditableComment').first();
-	editableDiv.html(commentContainer.text());
-
-    editCommentContainer.parent().next('.activityResultFooter').find('a.edit').removeClass('hidden');
-    return false;
-}
-
 function showEditComment(editBtn) {
     $(editBtn).parent().prev('.editComment').toggleClass('hidden');
     $(editBtn).parent().prevAll('.commentText').toggleClass('hidden');

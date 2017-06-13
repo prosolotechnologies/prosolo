@@ -1,7 +1,8 @@
 package org.prosolo.bigdata.scala.clustering.kmeans
 
-import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
+//import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 
 /**
   * Created by zoran on 19/07/16.
@@ -29,7 +30,8 @@ object KMeansClusterer {
         numClusters <- possibleNumClusters
         maxIterations <- possibleMaxIterations
       }yield{
-        kmeans.setK(numClusters)
+        if(numClusters<2) kmeans.setK(2) else  kmeans.setK(numClusters)
+
         kmeans.setMaxIter(maxIterations)
         val kmeansModel=kmeans.fit(dataFrame)
         val WSSSE=kmeansModel.computeCost(dataFrame)

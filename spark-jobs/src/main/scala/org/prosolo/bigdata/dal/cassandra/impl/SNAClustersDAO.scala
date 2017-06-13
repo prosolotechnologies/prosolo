@@ -22,7 +22,6 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
     DBManager.connector.withSessionDo { session ⇒
       session.execute(query, timestamp, tableName.toString)
     }
-
   }
 
   def getSocialInteractions(credentialId: java.lang.Long): List[Row] ={
@@ -30,7 +29,6 @@ class SNAClustersDAO (val dbName:String) extends Entity with Serializable{
     DBManager.connector.withSessionDo {
       session =>
         val rs = session.execute(query,credentialId)
-
         val rows= rs.all().map {
           case row =>
             row

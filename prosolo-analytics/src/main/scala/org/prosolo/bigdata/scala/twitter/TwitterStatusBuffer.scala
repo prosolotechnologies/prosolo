@@ -14,11 +14,8 @@ import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
-import org.prosolo.common.domainmodel.annotation.Tag
 import scala.collection.JavaConversions._
-import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
-import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount
 import org.prosolo.bigdata.utils.DateUtil
 
 /**
@@ -27,8 +24,6 @@ import org.prosolo.bigdata.utils.DateUtil
 object TwitterStatusBuffer {
   val buffer: ListBuffer[Status] = ListBuffer()
   val profanityFilter: BadWordsCensor = new BadWordsCensor
-  //val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
-  //val twitterStreamingDao:TwitterStreamingDAO=new TwitterStreamingDAOImpl
 
   /** heartbeat scheduler timer. */
   private[this] val timer = new Timer("Statuses Updates Monitor", true)
