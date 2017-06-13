@@ -1,21 +1,12 @@
 package org.prosolo.services.nodes;
 
-import java.util.List;
-
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -24,12 +15,10 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+
+import java.util.List;
 
 public interface Competence1Manager {
 
@@ -238,21 +227,6 @@ public interface Competence1Manager {
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
 	/**
-	 * this is the method that should be called when you want to publish competences
-	 * 
-	 * Returns List of data for events that should be generated after transaction commits.
-	 * 
-	 * @param credId
-	 * @param compIds
-	 * @param creatorId
-	 * @param role
-	 * @throws DbConnectionException
-	 * @throws CompetenceEmptyException
-	 */
-	List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
-			throws DbConnectionException, CompetenceEmptyException;
-	
-	/**
 	 * Method for getting all completed competences (competences that has progress == 100)
 	 * and a hiddenFromProfile flag set to a certain value
 	 * @return 
@@ -400,8 +374,8 @@ public interface Competence1Manager {
 	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
 			throws DbConnectionException;
 	
-	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId)
+			throws DbConnectionException, IllegalDataStateException;
 
 	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
 

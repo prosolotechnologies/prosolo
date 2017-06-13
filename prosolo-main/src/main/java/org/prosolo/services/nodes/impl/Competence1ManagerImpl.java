@@ -1,45 +1,18 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.persistence.criteria.Root;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -51,19 +24,9 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
@@ -72,8 +35,10 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.inject.Inject;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
 public class Competence1ManagerImpl extends AbstractManagerImpl implements Competence1Manager {
@@ -131,7 +96,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			 * if competence has no activities, it can't be published
 			 */
 			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new CompetenceEmptyException();
+				throw new IllegalDataStateException("Can not publish competency without activities.");
 			}
 
 			Result<Competence1> result = new Result<>();
@@ -182,10 +147,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.info("New competence is created with id " + comp.getId());
 			result.setResult(comp);
 			return result;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
 			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1567,70 +1532,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId)
-			throws DbConnectionException, CompetenceEmptyException {
-		try {
-			// get all draft competences
-			List<EventData> events = new ArrayList<>();
-			List<Competence1> comps = getDraftCompetencesFromList(compIds, creatorId);
-			// publish competences that this user can edit only
-			User user = new User();
-			user.setId(creatorId);
-
-			// store ids of competences that can be edited and that are
-			// published so list can be
-			// passed to publishActivities method
-			List<Long> publishedComps = new ArrayList<>();
-			for (Competence1 c : comps) {
-				/*
-				 * check if competence has at least one activity - if not, it
-				 * can't be published
-				 */
-				int numberOfActivities = c.getActivities().size();
-				if (numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
-				}
-
-				//check if user can edit this competence
-				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
-				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
-				if(access.isCanEdit()) {
-					c.setPublished(true);
-					EventData ev = new EventData();
-					ev.setActorId(creatorId);
-					ev.setEventType(EventType.STATUS_CHANGED);
-					ev.setObject(c);
-					events.add(ev);
-
-					publishedComps.add(c.getId());
-				}
-			}
-			
-//			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
-//					creatorId, publishedComps);
-//			persistence.currentManager().flush();
-//			for(long id : publishedComps) {
-//				Competence1 comp = (Competence1) persistence.currentManager()
-//						.load(Competence1.class, id);
-//				comp.setDuration(getRecalculatedDuration(id));
-//			}
-//			events.addAll(actEvents);
-
-			return events;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
-			// cee.printStackTrace();
-			throw cee;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing competences");
-		}
-	}
 
 	/**
 	 * Return all draft competences that satisfy condition: for user role if
@@ -2737,8 +2638,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * check if competence has at least one activity - if not, it can't be published
 				 */
 				int numberOfActivities = comp.getActivities().size();
-				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
+				if (numberOfActivities == 0) {
+					throw new IllegalDataStateException("Can not publish competency without activities.");
 				}
 			
 				comp.setPublished(true);
@@ -2752,11 +2653,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 			
 			return res;
-		} catch(CompetenceEmptyException cee) {
-			logger.error(cee);
-			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
-		} catch(Exception e) {
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+			throw e;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competency");

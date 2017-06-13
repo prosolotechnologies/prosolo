@@ -1,13 +1,7 @@
 package org.prosolo.bigdata.spark.scala.clustering
 
-import org.apache.spark.rdd.RDD
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
-import com.datastax.spark.connector._
-import org.apache.spark.SparkContext
-
 import scala.collection.JavaConverters._
-import com.datastax.driver.core.Row
-import org.apache.spark.rdd.RDD
 import play.api.libs.json.Json
 import com.datastax.spark.connector._
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
@@ -26,9 +20,6 @@ object UserProfileInteractionsSparkJob {
 
   def runSparkJob(credentialsIds:java.util.List[java.lang.Long],dbName:String):Unit={
     val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
-   /* val credentialsRDD: RDD[Long] = sc.parallelize(credentialsIdsScala.map {
-      Long2long
-    })*/
     credentialsIdsScala.foreach { credentialid =>
       println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)
       runStudentInteractionsGeneralOverviewAnalysis(credentialid,dbName)
@@ -46,9 +37,6 @@ object UserProfileInteractionsSparkJob {
   val mapOut = socialInteractionsCountDataRDD.map(t => {(t._1, ("OUT", t._2, t._3))}).groupByKey() //groups by studentid -> interactions TO to other students and count
     val mapIn = socialInteractionsCountDataRDD.map(t => (t._2, ("IN", t._1, t._3))).groupByKey() //groups by studentid -> interactions FROM other students and count
     val interUnions = mapOut.union(mapIn).reduceByKey(_ ++ _)
-   // mapOut.collect.foreach(println)
-   // mapIn.collect.foreach(println)
-  //  interUnions.collect.foreach(println)
     val calculatedpercentage = interUnions.map(studinteractions => {
       val total = studinteractions._2.foldLeft(0l)((s: Long, t: Tuple3[String, Long, Long]) => s + t._3)
       val newtuple = studinteractions._2.map(t => {
@@ -68,29 +56,17 @@ object UserProfileInteractionsSparkJob {
       case(student, interactions) =>
         val studentinteractionbypeer=new StudentInteractionsInCourse(credentialId,student,interactions)
         studentinteractionbypeer
-      //dbManager.insertStudentInteractionsByPeer(credentialId, student, interactions)
     }
     println("CALCULATED PERCENTAGE OF INTERACTIONS BY PEERS:" + calculatedInteractionsForDB.collect.size+" :"+calculatedInteractionsForDB.collect.mkString(", "))
 
     calculatedInteractionsForDB.saveToCassandra(dbName,TablesNames.SNA_STUDENT_INTERACTION_BYPEERS_OVERVIEW)
-
-
-
-    // println("CALCULATED PERCENTAGE OF INTERACTIONS:" + calculatedpercentage.collect.mkString(", "))
-
   }
   case class StudentInteractionsInCourse(course:Long, student:Long, interactions:List[String])
 
   def runStudentInteractionsByTypeOverviewAnalysis(credentialId: Long,dbName:String) = {
-
-    //val rows: java.util.List[Row] = dbManager.getSocialInteractionsByType(credentialId)
     val socialInteractionsbytype_table=sc.cassandraTable(dbName, TablesNames.SNA_STUDENT_INTERACTION_BYTYPE_FOR_STUDENT ).where("course=?",credentialId)
     val socialInteractionsCountDataRDD = socialInteractionsbytype_table.map(row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"),  row.getLong("touser") ))
     println("FOUND ROWS:"+socialInteractionsCountDataRDD.collect.size+" for credential:"+credentialId)
-    // val socialInteractionsCountData:Array[Tuple4[Long,String,Long,Long]]=rows.asScala.toArray.map{row: Row=>new Tuple4(row.getLong("student"), row.getString("interactiontype"), row.getLong("fromuser"), row.getLong("touser"))}
-    //  println("data:"+socialInteractionsCountData.size)
-    // val socialInteractionsCountDataRDD = sc.parallelize(socialInteractionsCountData)
-
     val socialInteractionsCountDataByStudent=socialInteractionsCountDataRDD.map(t=>(t._1,(t._2,t._3,t._4))).groupByKey
     println(socialInteractionsCountDataByStudent.collect.mkString(", "))
     val calculatedpercentage=socialInteractionsCountDataByStudent.map(studinteractions=>{

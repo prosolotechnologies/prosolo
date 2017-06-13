@@ -1,11 +1,9 @@
 package org.prosolo.bigdata.scala.es
 
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.elasticsearch.spark.rdd.EsSpark
-import org.prosolo.bigdata.common.enums.ESIndexTypes
-import org.prosolo.common.ESIndexNames
+import org.prosolo.bigdata.scala.spark.SparkContextLoader
+
 //import org.prosolo.bigdata.es.ESIndexNames
-import org.prosolo.common.config.CommonSettings
 
 /**
   * Created by zoran on 24/07/16.
@@ -17,7 +15,7 @@ case class UserRecommendations(id:Long, recommendedUsers:Array[Recommendations])
 case class Recommendations(id:Long, score:Double)
 object RecommendationsESIndexer {
   val mapping=Map("es.mapping.id"->"id")
-  def storeRecommendedUsersForUser(userId:Long, sortedSims: Array[(Int, Double)]): Unit ={
+  def storeRecommendedUsersForUser(userId:Long, sortedSims: Array[(Int, Double) ],indexRecommendationDataName:String, similarUsersIndexType:String): Unit ={
     val recommendations=sortedSims.map{
       case (user,similarity)=>
          Recommendations(user,similarity)
@@ -26,7 +24,7 @@ object RecommendationsESIndexer {
 
     val sc=SparkContextLoader.getSC
     val rdd=sc.makeRDD(Seq(UserRecommendations(userId,recommendations)))
-     val resource=ESIndexNames.INDEX_RECOMMENDATION_DATA+"/"+ESIndexTypes.SIMILAR_USERS
+     val resource=indexRecommendationDataName+"/"+similarUsersIndexType
     //val resource="spark/docs"
     EsSpark.saveToEs(rdd, resource,mapping)
   }

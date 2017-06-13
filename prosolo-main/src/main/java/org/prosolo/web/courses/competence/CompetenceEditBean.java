@@ -237,7 +237,7 @@ public class CompetenceEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?compAdded=true&tab=competences");
+						"/credentials/" + credId +"/edit?tab=competences");
 			} catch (IOException e) {
 				logger.error(e);
 			}
