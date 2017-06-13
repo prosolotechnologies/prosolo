@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:comp="http://java.sun.com/jsf/composite/components"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	  xmlns:util="http://www.prosolo.com/util"
+	  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:insert name="metadata" />
 
@@ -19,32 +19,32 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 		<link rel="icon" href="#{request.contextPath}/favicon.ico"
-			type="image/x-icon" />
+			  type="image/x-icon" />
 		<title><ui:insert name="windowTitle" /></title>
 	</f:facet>
 
 	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+		  href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+		  href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
 	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
+		  href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
 	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+		  href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
 	<link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+		  href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
 
 	<script
-		src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
+			src="#{request.contextPath}/resources/javascript/prosolo.logging.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script
-		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+			src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
 	<script
-		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+			src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
 	<script
-		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+			src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
 	<script
-		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+			src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
 </h:head>
 
 <h:body id="admin">
@@ -55,37 +55,37 @@
 			<div class="headerTop">
 				<div class="headerTopLeft">
 					<c:if
-						test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access')}">
+							test="#{loggeduser.hasCapability('basic.user.access') or loggeduser.hasCapability('basic.manager.access')}">
 						<div class="dropdown roleChanger">
 							<a data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="true">role changer</a>
+							   aria-expanded="true">role changer</a>
 							<ul class="dropdown-menu dropdown-menu-left bullet pull-left"
 								aria-labelledby="dropdownRoleMenu">
 								<li><h:link
 										rendered="#{loggeduser.hasCapability('basic.user.access')}"
 										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
 										outcome="/index">
-										<span></span>Student
-									</h:link></li>
+									<span></span>Student
+								</h:link></li>
 								<li><h:link
 										rendered="#{loggeduser.hasCapability('basic.manager.access')}"
 										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
 										outcome="/manage/credentialLibrary">
-										<span></span>Manage
-									</h:link></li>
+									<span></span>Manage
+								</h:link></li>
 								<li class="selected"><h:link
 										rendered="#{loggeduser.hasCapability('basic.admin.access')}"
 										onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
 										outcome="/admin/users">
-										<span></span>Admin
-									</h:link></li>
+									<span></span>Admin
+								</h:link></li>
 							</ul>
 						</div>
 					</c:if>
 
 					<h:link id="logo"
-						onclick="sendLogPageNavigation('index','mainmenu');"
-						outcome="/admin/users">
+							onclick="sendLogPageNavigation('index','mainmenu');"
+							outcome="/admin/users">
 						ProSolo
 					</h:link>
 
@@ -95,36 +95,37 @@
 								<li role="presentation"
 									class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
 									<h:link
-										onclick="sendLogPageNavigation('dashboard','mainmenu');"
-										value="Dashboard" outcome="/admin/dashboard" />
+											onclick="sendLogPageNavigation('dashboard','mainmenu');"
+											value="Dashboard" outcome="/admin/dashboard" />
 								</li>
 							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'users' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('users','mainmenu');"
-									value="Users" outcome="/admin/users" />
+										value="Users" outcome="/admin/users" />
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'adminAdmins' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'adminAdmins'  ? 'active' : ''}
+								#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
-									value="Admins" outcome="/admin/adminAdmins" />
+										value="Admins" outcome="/admin/adminAdmins" />
 							</li>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
-									value="Roles" outcome="/admin/roles" />
+										value="Roles" outcome="/admin/roles" />
 							</li>
 							<ui:remove>
 								<li role="presentation"
 									class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
 									<h:link onclick="sendLogPageNavigation('twitter','mainmenu');"
-										value="Twitter" outcome="/admin/users" />
+											value="Twitter" outcome="/admin/users" />
 								</li>
 							</ui:remove>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('other','mainmenu');"
-									value="Other" outcome="/admin/other" />
+										value="Other" outcome="/admin/other" />
 							</li>
 						</ul>
 					</nav>
@@ -132,44 +133,44 @@
 				<div class="headerTopRight">
 					<h:form id="messagePollingForm">
 						<p:poll interval="#{topInboxBean.refreshRate}" process="@this"
-							update=":messagesLink :notificationsIcon :notificationsContainer"
-							widgetVar="messagesPoll" autoStart="true" />
+								update=":messagesLink :notificationsIcon :notificationsContainer"
+								widgetVar="messagesPoll" autoStart="true" />
 					</h:form>
 
 					<h:link id="messagesLink"
-						class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
-						onclick="sendLogPageNavigation('messages','mainmenu');"
-						outcome="/admin/messages">
+							class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
+							onclick="sendLogPageNavigation('messages','mainmenu');"
+							outcome="/admin/messages">
 						Messages
 						<span
-							class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+								class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
 							unreadDot </span>
 					</h:link>
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="notificationsIcon"
-							styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}"
-							pt:data-toggle="dropdown" pt:aria-haspopup="true"
-							pt:aria-expanded="true"
-							action="#{topNotificationsBean1.markNotificationsAsRead}"
-							process="@this" update="notificationLoop @this">
-							
+									   styleClass="iconNotifications #{topNotificationsBean1.unreadNotificationsNo > 0 ? 'active' : ''}"
+									   pt:data-toggle="dropdown" pt:aria-haspopup="true"
+									   pt:aria-expanded="true"
+									   action="#{topNotificationsBean1.markNotificationsAsRead}"
+									   process="@this" update="notificationLoop @this">
+
 							Notifications
-							
+
 							<h:panelGroup id="unreadNotificationsDot">
 								<span id="unreadNotificationsSpanId"
-									class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									  class="#{topNotificationsBean1.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 
 						<h:panelGroup layout="block" id="notificationsContainer"
-							class="dropdown-menu bullet pull-center"
-							aria-labelledby="dropdownMenuNotifications">
+									  class="dropdown-menu bullet pull-center"
+									  aria-labelledby="dropdownMenuNotifications">
 
 							<ui:repeat id="notificationLoop" var="notificationData"
-								value="#{topNotificationsBean1.notificationDatas}">
+									   value="#{topNotificationsBean1.notificationDatas}">
 								<li
-									class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' : 
+										class="#{(notificationData.notificationType eq 'Follow_User') ? 'notifFollowed' :
 										(notificationData.notificationType eq 'Comment') ? 'notifComment':
 										(notificationData.notificationType eq 'AnnouncementPublished') ? 'notifAnnouncement' :
 										(notificationData.notificationType eq 'Comment_Like') ? 'notifLikeComment':
@@ -178,9 +179,9 @@
 											notificationData.notificationType eq 'Assessment_Approved' or 
 											notificationData.notificationType eq 'Assessment_Comment') ? 'notifAssessment': 'notifLearning'}">
 									<h:outputLink
-										value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
+											value="#{topNotificationsBean1.domainPrefix}#{notificationData.link}">
 										<span class="icon"></span>
-										<h3>#{notificationData.actor.fullName}</h3> 
+										<h3>#{notificationData.actor.fullName}</h3>
 										#{notificationData.predicate}
 										<h3>#{notificationData.objectTitle}</h3>
 										<span class="timestamp">#{notificationData.datePretty}</span>
@@ -189,15 +190,15 @@
 							</ui:repeat>
 
 							<li class="linkAllNotifications"><h:link value="View all"
-									onclick="sendLogPageNavigation('notifications','mainmenu');"
-									outcome="/notifications" /></li>
+																	 onclick="sendLogPageNavigation('notifications','mainmenu');"
+																	 outcome="/notifications" /></li>
 						</h:panelGroup>
 					</div>
 
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="true"> <utilcomp:userAvatar
+							   aria-expanded="true"> <utilcomp:userAvatar
 									avatar="#{loggeduser.avatar}" fullName="#{loggeduser.fullName}" />
 
 								<span class="arrowDown">arrowDown</span>
@@ -206,10 +207,10 @@
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right"
 								aria-labelledby="dropdownMenu1">
 								<li><h:link value="Account Settings"
-										onclick="sendLogPageNavigation('settings','mainmenu');"
-										outcome="/admin/settings" /></li>
+											onclick="sendLogPageNavigation('settings','mainmenu');"
+											outcome="/admin/settings" /></li>
 								<li><h:commandLink id="userLogout" value="Sign Out"
-										action="#{loggeduser.userLogout()}" /></li>
+												   action="#{loggeduser.userLogout()}" /></li>
 							</ul>
 						</div>
 					</h:form>
@@ -228,7 +229,7 @@
 		<h:form>
 			<!-- If idle 300 seconds, run 'idleDialog' -->
 			<p:idleMonitor timeout="3600000"
-				onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
+						   onidle="sendLogPageNavigation('login','SESSIONTIMEOUT');">
 				<p:ajax event="idle" listener="#{loggeduser.userLogout()}"></p:ajax>
 			</p:idleMonitor>
 		</h:form>
