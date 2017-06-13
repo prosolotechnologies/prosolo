@@ -32,6 +32,8 @@ public interface UserManager extends AbstractManager {
 			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException;
 
 	void addTopicPreferences(User user, Collection<Tag> tags);
+
+	String getUserPosition(long id);
 	
 	String getPassword(long userId) throws ResourceCouldNotBeLoadedException;
 	
