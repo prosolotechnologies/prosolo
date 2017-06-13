@@ -1,8 +1,10 @@
 package org.prosolo.web.administration;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -16,10 +18,8 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.search.TextSearch;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
@@ -71,7 +71,7 @@ public class AdminEditBean implements Serializable {
 
 	private UserData admin;
 	private UserData newOwner = new UserData();
-	private SelectItem[] allRoles;
+	private List<RoleCheckboxData> allRoles;
 	private List<UserData> admins;
 	private String searchTerm;
 
@@ -124,13 +124,16 @@ public class AdminEditBean implements Serializable {
 		try {
 			String[] rolesArray = new String[]{"Admin","Super Admin"};
 			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+			allRoles = new ArrayList<>();
 			if (adminRoles != null) {
-				allRoles = new SelectItem[adminRoles.size()];
+				//allRoles = new SelectItem[adminRoles.size()];
 
 				for (int i = 0; i < adminRoles.size(); i++) {
 					Role r = adminRoles.get(i);
-					SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-					allRoles[i] = selectItem;
+					/*SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
+					allRoles[i] = selectItem;*/
+					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(),this.admin.hasRoleId(r.getId()),r.getId());
+					allRoles.add(roleCheckboxData);
 				}
 			}
 		} catch (DbConnectionException e) {
@@ -147,10 +150,17 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
+	private List<Long> getSelectedRoles(){
+		return allRoles.stream()
+				.filter(r -> r.isSelected())
+				.map(RoleCheckboxData::getId)
+				.collect(Collectors.toList());
+	}
+
 	private void createNewAdminUser() {
 		try {
 			User adminUser = userManager.createNewUser(this.admin.getName(), this.admin.getLastName(), this.admin.getEmail(),
-					true, this.admin.getPassword(), this.admin.getPosition(), null, null, this.admin.getRoleIds());
+					true, this.admin.getPassword(), this.admin.getPosition(), null, null,getSelectedRoles());
 
 			this.admin.setId(adminUser.getId());
 
@@ -176,7 +186,7 @@ public class AdminEditBean implements Serializable {
 			boolean shouldChangePassword = this.admin.getPassword() != null && !this.admin.getPassword().isEmpty();
 			User updatedUser = userManager.updateUser(this.admin.getId(), this.admin.getName(), this.admin.getLastName(),
 					this.admin.getEmail(), true, false, this.admin.getPassword(), this.admin.getPosition(),
-					this.admin.getRoleIds(), loggedUser.getUserId());
+					getSelectedRoles(), loggedUser.getUserId());
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
@@ -187,6 +197,19 @@ public class AdminEditBean implements Serializable {
 		} catch (EventException e) {
 			logger.error(e);
 		}
+	}
+
+	public void setUserToDelete() {
+		newOwner.setUserSet(false);
+		searchTerm = "";
+		admins = null;
+		this.userToDelete = admin;
+	}
+
+	public void userReset() {
+		searchTerm = "";
+		admins = null;
+		newOwner.setUserSet(false);
 	}
 
 	public UserData getUser() {
@@ -205,25 +228,12 @@ public class AdminEditBean implements Serializable {
 		this.id = id;
 	}
 
-	public SelectItem[] getAllRoles() {
+	public List<RoleCheckboxData> getAllRoles() {
 		return allRoles;
 	}
 
-	public void setAllRoles(SelectItem[] allRoles) {
+	public void setAllRoles(List<RoleCheckboxData> allRoles) {
 		this.allRoles = allRoles;
-	}
-
-	public void setUserToDelete() {
-		newOwner.setUserSet(false);
-		searchTerm = "";
-		admins = null;
-		this.userToDelete = admin;
-	}
-
-	public void userReset() {
-		searchTerm = "";
-		admins = null;
-		newOwner.setUserSet(false);
 	}
 
 	public AccountData getAccountData() {
@@ -262,6 +272,7 @@ public class AdminEditBean implements Serializable {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
 		newOwner.setFullName(userData.getFullName());
+		newOwner.setPosition(userManager.getUserPosition(userData.getId()));
 	}
 
 	public void sendNewPassword() {
@@ -330,5 +341,41 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
+	public class RoleCheckboxData{
+
+		private String label;
+		private boolean selected;
+		private long id;
+
+		public RoleCheckboxData(String label, boolean selected, long id) {
+			this.label = label;
+			this.selected = selected;
+			this.id = id;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+
+		public long getId() {
+			return id;
+		}
+
+		public void setId(long id) {
+			this.id = id;
+		}
+	}
 }
 
