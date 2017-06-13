@@ -1,76 +1,29 @@
 package org.prosolo.services.nodes.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.CompetenceActivity;
-import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.common.domainmodel.activities.ResourceActivity;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
+import org.prosolo.common.domainmodel.activities.*;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.competences.Competence;
 import org.prosolo.common.domainmodel.competences.CompetenceType;
 import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.course.CourseEnrollment;
-import org.prosolo.common.domainmodel.course.CourseInstructor;
-import org.prosolo.common.domainmodel.course.CoursePortfolio;
-import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.course.Status;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.ResourceLink;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivity1;
+import org.prosolo.common.domainmodel.course.*;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.general.Node;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.AnonUser;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.common.domainmodel.user.UserType;
+import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.TransactionDebugUtil;
@@ -85,12 +38,7 @@ import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CourseManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceLinkData;
@@ -106,6 +54,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 /**
  * @author Nikola Milikic
@@ -891,95 +846,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while loading learning goals");
 		}
 	}
-    
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException {
-    	try {
-			 Credential1 cred = new Credential1();
-		     cred.setCreatedBy(loadResource(User.class, creatorId));
-		     cred.setType(CredentialType.Original);
-		     cred.setTitle(title);
-		     cred.setDescription(description);
-		     cred.setDateCreated(new Date());
-		     cred.setCompetenceOrderMandatory(compOrderMandatory);
-		     cred.setDuration(duration);
-		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-		     cred.setManuallyAssignStudents(manuallyAssign);
-		     
-		     saveEntity(cred);
-		     
-		     if(comps != null) {
-				for(CompetenceData1 cd : comps) {
-					CredentialCompetence1 cc = new CredentialCompetence1();
-					cc.setOrder(cd.getOrder());
-					cc.setCredential(cred);
-					Competence1 comp = (Competence1) persistence.currentManager().load(
-							Competence1.class, cd.getCompetenceId());
-					cc.setCompetence(comp);
-					saveEntity(cc);
-				}
-			 }
-		
-		     logger.info("New credential is created with id " + cred.getId());
-		     return cred;
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving credential");
-    	}
-    }
-    
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
-			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId) {
-    	try {
-    		 Result<Competence1> result = new Result<>();
-			 Competence1 comp = new Competence1();
-			 comp.setTitle(title);
-			 comp.setDateCreated(new Date());
-			 comp.setDescription(description);
-		     comp.setCreatedBy(loadResource(User.class, creatorId));
-		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
-		     comp.setType(type);
-		     comp.setPublished(published);
-		     comp.setDuration(duration);
-		     comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     saveEntity(comp);
-		     
-		     if(activities != null) {
-				for(org.prosolo.services.nodes.data.ActivityData bad : activities) {
-					CompetenceActivity1 ca = new CompetenceActivity1();
-					ca.setOrder(bad.getOrder());
-					ca.setCompetence(comp);
-					Activity1 act = (Activity1) persistence.currentManager().load(
-							Activity1.class, bad.getActivityId());
-					ca.setActivity(act);
-					saveEntity(ca);
-				}
-			 }
-				
-		     if(credentialId > 0) {
-		    	 List<EventData> events = credentialManager.addCompetenceToCredential(credentialId, comp, 
-		    			 creatorId);
-		    	 result.addEvents(events);
-		     }
-		
-		     logger.info("New competence is created with id " + comp.getId());
-		     result.setResult(comp);
-		     return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while saving competency");
-        }
-    }
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
