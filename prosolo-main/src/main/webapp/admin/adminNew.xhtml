@@ -22,6 +22,12 @@
 		</f:metadata>
 	</ui:define>
 
+	<ui:define name="resourceTitle" rendered="#{not empty adminEditBean.id}">
+		<h1>
+			<h:outputText value="#{adminEditBean.user.name} #{adminEditBean.user.lastName}" />
+		</h1>
+	</ui:define>
+
 	<ui:define name="navLinks">
 		<ui:fragment rendered="#{not empty adminEditBean.id}">
 			<ul class="nav nav-tabs headerSubmenu">
@@ -47,11 +53,6 @@
 					<div class="whiteBox">
 						<ui:fragment rendered="#{empty adminEditBean.id}">
 							<h2>New Admin</h2>
-						</ui:fragment>
-						<ui:fragment rendered="#{not empty adminEditBean.id}">
-							<h2>
-								<h:outputText value="#{adminEditBean.user.name} #{adminEditBean.user.lastName} - Personal Info" />
-							</h2>
 						</ui:fragment>
 						<h:form id="formMain">
 							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
@@ -107,18 +108,23 @@
 								<div class="formLine">
 									<label>Role</label>
 									<div class="formLineRight">
-										<h:selectManyCheckbox id="selectRoles"
-															  value="#{adminEditBean.user.roleIds}" layout="pageDirection"
-															  styleClass="checkbox checkLine" required="true"
-															  requiredMessage="At least one role should be selected">
-											<f:selectItems value="#{adminEditBean.allRoles}" var="role"
-														   itemValue="role" />
-										</h:selectManyCheckbox>
+
+										<ui:repeat value="#{adminEditBean.allRoles}" var="role">
+											<div class="checkbox checkLine">
+												<h:selectBooleanCheckbox id="selectRoles" label="#{role.label}"
+																		 value="#{role.selected}"
+																		 ></h:selectBooleanCheckbox>
+												<h:outputLabel value="#{role.label}" for="selectRoles"></h:outputLabel>
+											</div>
+										</ui:repeat>
+										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="#{adminEditBean.user.position}">
+										</h:inputHidden>
 										<h:panelGroup layout="block"
-													  rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}"
+													  rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
 													  styleClass="alert alert-danger" pt:role="alert">
-											<h:message for="selectRoles"></h:message>
+											<h:message for="hiddenInput"></h:message>
 										</h:panelGroup>
+
 									</div>
 								</div>
 								<ui:fragment rendered="#{empty adminEditBean.id}">
@@ -163,27 +169,33 @@
 							<h2 class="modal-title">Delete admin?</h2>
 						</div>
 						<div class="modal-body alignLeft">
-							<p>Are you sure you want to delete #{setUserToDelete.user.name}
-								#{setUserToDelete.user.lastName}?</p>
+							<p>Are you sure you want to delete #{adminEditBean.user.name}
+								#{adminEditBean.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
 								<h:panelGroup layuot="block" id="selectNewOwner">
 									<h:panelGroup rendered="#{adminEditBean.newOwner.userSet}">
-										<div class="instructorInfo">
-											<utilcomp:userAvatar
-													avatar="#{adminEditBean.newOwner.avatarUrl}"
-													fullName="#{adminEditBean.newOwner.fullName}" />
-											<div class="infoWrap">
-												<h3>#{adminEditBean.newOwner.fullName}</h3>
-												<span>#{adminEditBean.newOwner.position}</span>
-											</div>
+										<ul class="list">
+											<li>
+												<div class="instructorInfo">
+													<utilcomp:userAvatar
+															avatar="#{adminEditBean.newOwner.avatarUrl}"
+															fullName="#{adminEditBean.newOwner.fullName}"
+															width="48"
+															height="48"/>
+													<div class="infoWrap">
+														<h3>#{adminEditBean.newOwner.fullName}</h3>
+														<span>#{adminEditBean.newOwner.position}</span>
+													</div>
 
-										<div class="assignOpt">
-											<p:commandLink styleClass="removeX"
-														   action="#{adminEditBean.userReset()}"
-														   update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
-										</div>
-										</div>
+													<div class="assignOpt">
+														<p:commandLink styleClass="removeX"
+																	   action="#{adminEditBean.userReset()}"
+																	   update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
+													</div>
+												</div>
+											</li>
+										</ul>
 									</h:panelGroup>
 
 									<h:inputText rendered="#{not adminEditBean.newOwner.userSet}"
