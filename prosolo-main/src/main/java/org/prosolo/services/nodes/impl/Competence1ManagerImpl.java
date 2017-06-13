@@ -1873,7 +1873,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT DISTINCT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll, comp.type, comp.published, comp.datePublished " +
+			String query = "SELECT DISTINCT compUserGroup.privilege, comp.visibleToAll, comp.type, comp.published, comp.datePublished " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
 					"RIGHT JOIN compUserGroup.competence comp " +
@@ -1888,32 +1888,30 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setLong("compId", compId)
 					.list();
 			
-			long owner = 0;
 			boolean visibleToAll = false;
 			LearningResourceType type = null;
 			boolean published = false;
 			Date datePublished = null;
 			boolean first = true;
 			Set<UserGroupPrivilege> privs = new HashSet<>();
-			for(Object[] row : res) {
-				if(row != null) {
+			for (Object[] row : res) {
+				if (row != null) {
 					UserGroupPrivilege priv = (UserGroupPrivilege) row[0];
-					if(priv == null) {
+					if (priv == null) {
 						priv = UserGroupPrivilege.None;
 					}
 					privs.add(priv);
-					if(first) {
-						owner = (long) row[1];
-						visibleToAll = (boolean) row[2];
-						type = (LearningResourceType) row[3];
-						published = (boolean) row[4];
-						datePublished = (Date) row[5];
+					if (first) {
+						visibleToAll = (boolean) row[1];
+						type = (LearningResourceType) row[2];
+						published = (boolean) row[3];
+						datePublished = (Date) row[4];
 						first = false;
 					}
 				}
 			}
-			return CompetenceUserAccessSpecification.of(privs, visibleToAll, owner == userId, published, 
-					datePublished, type);
+			return CompetenceUserAccessSpecification.of(
+					privs, visibleToAll, published, datePublished, type);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);

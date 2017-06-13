@@ -2891,7 +2891,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT DISTINCT credUserGroup.privilege, cred.createdBy.id, cred.visibleToAll, cred.type, cred.deliveryStart, cred.deliveryEnd " +
+			String query = "SELECT DISTINCT credUserGroup.privilege, cred.visibleToAll, cred.type, cred.deliveryStart, cred.deliveryEnd " +
 					"FROM CredentialUserGroup credUserGroup " +
 					"INNER JOIN credUserGroup.userGroup userGroup " +
 					"RIGHT JOIN credUserGroup.credential cred " +
@@ -2906,31 +2906,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.setLong("credId", credId)
 					.list();
 			
-			long owner = 0;
 			boolean visibleToAll = false;
 			CredentialType type = null;
 			Date deliveryStart = null;
 			Date deliveryEnd = null;
 			boolean first = true;
 			Set<UserGroupPrivilege> privs = new HashSet<>();
-			for(Object[] row : res) {
-				if(row != null) {
+			for (Object[] row : res) {
+				if (row != null) {
 					UserGroupPrivilege priv = (UserGroupPrivilege) row[0];
-					if(priv == null) {
+					if (priv == null) {
 						priv = UserGroupPrivilege.None;
 					}
 					privs.add(priv);
-					if(first) {
-						owner = (long) row[1];
-						visibleToAll = (boolean) row[2];
-						type = (CredentialType) row[3];
-						deliveryStart = (Date) row[4];
-						deliveryEnd = (Date) row[5];
+					if (first) {
+						visibleToAll = (boolean) row[1];
+						type = (CredentialType) row[2];
+						deliveryStart = (Date) row[3];
+						deliveryEnd = (Date) row[4];
 						first = false;
 					}
 				}
 			}
-			return CredentialUserAccessSpecification.of(privs, visibleToAll, owner == userId, type, 
+			return CredentialUserAccessSpecification.of(privs, visibleToAll, type,
 					deliveryStart, deliveryEnd);
 		} catch(Exception e) {
 			e.printStackTrace();
