@@ -33,17 +33,20 @@
 						pt:role="button"
 						styleClass="btn btn-green btn-sm item" 
 						action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+						update=":growlMain"
 					/>
 					<p:commandLink value="Reindex Users"
 						pt:role="button"
 						styleClass="btn btn-green btn-sm item"
 						action="#{bulkDataAdministration.deleteAndReindexUsers}"
+						update=":growlMain"
 					/>
-					<p:commandLink value="Fix"
-								   pt:role="button"
-								   styleClass="btn btn-green btn-sm item"
-								   action="#{productionFixBean.fix()}"
-								   update=":growlMain"
+					
+					<p:commandLink value="Fix UTA students"
+					   pt:role="button"
+					   styleClass="btn btn-green btn-sm item"
+					   action="#{productionFixBean.fix()}"
+					   update=":growlMain"
 					/>
                     <div class="searchBox">
                     	<h:form>

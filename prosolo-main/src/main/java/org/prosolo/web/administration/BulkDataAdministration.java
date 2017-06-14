@@ -16,8 +16,8 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.app.AfterContextLoader;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.RichContent;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -30,7 +30,6 @@ import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.FileESIndexer;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.indexing.UserGroupESService;
@@ -70,13 +69,13 @@ public class BulkDataAdministration implements Serializable {
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private UserGroupESService userGroupESService;
 
-	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
+	private static Logger logger = Logger.getLogger(BulkDataAdministration.class.getName());
 
 	public void deleteAndReindexElasticSearch() {
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+//
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
 				try {
 					logger.info("Delete and reindex elasticsearch started");
 					deleteAndInitElasticSearchIndexes();
@@ -85,8 +84,9 @@ public class BulkDataAdministration implements Serializable {
 				} catch (IndexingServiceNotAvailable e) {
 					logger.error(e);
 				}
-			}
-		}).start();
+				PageUtil.fireSuccessfulInfoMessage("ElasticSearch complete reindexing completed");
+//			}
+//		}).start();
 	}
 
 	public void deleteAndReindexDocuments(){
@@ -106,9 +106,9 @@ public class BulkDataAdministration implements Serializable {
 	}
 
 	public void deleteAndReindexUsers() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
 				try {
 					logger.info("Delete and reindex users started");
 					deleteAndInitIndex(ESIndexNames.INDEX_USERS);
@@ -117,8 +117,9 @@ public class BulkDataAdministration implements Serializable {
 				} catch (IndexingServiceNotAvailable e) {
 					logger.error(e);
 				}
-			}
-		}).start();
+				PageUtil.fireSuccessfulInfoMessage("ElasticSearch user reindexing completed");
+//			}
+//		}).start();
 	}
 
 	private void deleteAndInitElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -271,5 +272,5 @@ public class BulkDataAdministration implements Serializable {
 			HibernateUtil.close(session);
 		}
 	}
-
+	
 }

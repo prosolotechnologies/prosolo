@@ -1,15 +1,15 @@
 package org.prosolo.web.administration;
 
+import java.io.Serializable;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.productionFixes.ProductionFixesService;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-import java.io.Serializable;
 
 @ManagedBean(name = "productionFixBean")
 @Component("productionFixBean")
@@ -22,13 +22,15 @@ public class ProductionFixBean implements Serializable {
 
 	@Inject private ProductionFixesService productionFixesService;
 
-
 	//production fixes
-
+	
 	public void fix() {
 		try {
-			productionFixesService.deleteUsersCredentials();
-		} catch (DbConnectionException e) {
+			logger.info("Started UTA fix");
+			productionFixesService.fixUtaStudentCourses();
+			logger.info("Completed UTA fix");
+			PageUtil.fireSuccessfulInfoMessage("UTA student fix completed");
+		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while applying the fix");
 		}

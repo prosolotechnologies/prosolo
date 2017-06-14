@@ -36,6 +36,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -46,7 +47,6 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
-import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -325,6 +325,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			CompetenceActivity1 compActivity) throws DbConnectionException {
 		try {
 			Activity1 act = compActivity.getActivity();
+			act = HibernateUtil.initializeAndUnproxy(act);
 			TargetActivity1 targetAct = null;
 			if(act instanceof TextActivity1) {
 				TextActivity1 ta = (TextActivity1) act;
@@ -2466,5 +2467,31 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		}*/
 //		return targetActivity;
 //	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public TargetActivity1 getTargetActivity(long actId, long userId) {
+		String query = 
+			"SELECT targetAct " +
+			"FROM TargetActivity1 targetAct " +
+			"JOIN targetAct.activity activity " + 
+			"JOIN targetAct.targetCompetence targetComp " + 
+			"JOIN targetComp.targetCredential targetCred " + 
+			"JOIN targetCred.user user " + 
+			"WHERE activity.id = :actId " +
+				"AND user.id = :userId";
+		
+		TargetActivity1 result = (TargetActivity1) persistence.currentManager()
+			.createQuery(query.toString())
+			.setLong("actId", actId)
+			.setLong("userId", userId)
+			.uniqueResult();
+		
+		if (result == null) {
+			System.out.println();
+		}
+		
+		return result;
+	}
 	
 }

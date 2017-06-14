@@ -155,4 +155,12 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws MediaDataException 
 	 */
 	ActivityData getActivityDataForUserToView(long targetActId, long userId);
+
+	/**
+	 * Returns target activity for the given activity and of specific user.
+	 * @param actId id of a activity the target activity references to
+	 * @param userId id of a user the target activity belongs to
+	 * @return
+	 */
+	TargetActivity1 getTargetActivity(long actId, long userId);
 }

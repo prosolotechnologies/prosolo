@@ -73,7 +73,7 @@ public class TargetCompetence1 extends BaseEntity {
 		this.competence = competence;
 	}
 
-	@OneToMany(mappedBy = "targetCompetence", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@OneToMany(mappedBy = "targetCompetence")
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<TargetActivity1> getTargetActivities() {
 		return targetActivities;
