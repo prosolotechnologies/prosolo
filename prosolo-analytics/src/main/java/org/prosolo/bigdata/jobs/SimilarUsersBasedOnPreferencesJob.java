@@ -4,6 +4,7 @@ package org.prosolo.bigdata.jobs;/**
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.scala.recommendations.SimilarUsersBasedOnPreferences$;
+import org.prosolo.bigdata.scala.recommendations.SimilarUsersBasedOnPreferencesManager$;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -18,7 +19,9 @@ public class SimilarUsersBasedOnPreferencesJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         logger.info("STARTING SIMILAR USERS BASED ON PREFERENCES JOB");
-        SimilarUsersBasedOnPreferences$ similarUsersBasedOnPreferences=SimilarUsersBasedOnPreferences$.MODULE$;
+        //SimilarUsersBasedOnPreferences$ similarUsersBasedOnPreferences=SimilarUsersBasedOnPreferences$.MODULE$;
+        //similarUsersBasedOnPreferences.runJob();
+        SimilarUsersBasedOnPreferencesManager$ similarUsersBasedOnPreferences=SimilarUsersBasedOnPreferencesManager$.MODULE$;
         similarUsersBasedOnPreferences.runJob();
         logger.info("SIMILAR USERS BASED ON PREFERENCES JOB FINISHED");
 

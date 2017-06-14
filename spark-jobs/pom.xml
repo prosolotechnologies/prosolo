@@ -65,9 +65,34 @@
                 <artifactId>xbean-asm5-shaded</artifactId>
                 <groupId>org.apache.xbean</groupId>
             </exclusion>
+            <exclusion>
+                <artifactId>json4s-jackson_2.11</artifactId>
+                <groupId>org.json4s</groupId>
+            </exclusion>
 
         </exclusions>
     </dependency>
+    <dependency>
+        <groupId>org.json4s</groupId>
+        <artifactId>json4s-jackson_2.11</artifactId>
+        <version>3.2.10</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.json4s</groupId>
+        <artifactId>json4s-native_2.11</artifactId>
+        <version>3.2.10</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.json4s</groupId>
+        <artifactId>json4s-core_2.11</artifactId>
+        <version>3.2.10</version>
+        <scope>provided</scope>
+    </dependency>
+
+
+
     <!--dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-streaming_2.11</artifactId>
@@ -78,6 +103,16 @@
         <artifactId>spark-sql_2.11</artifactId>
         <version>${spark.version}</version>
         <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-mllib_2.11</artifactId>
+        <version>${spark.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-spark-20_2.11</artifactId>
+        <version>5.3.0</version>
     </dependency>
     <!--dependency>
         <groupId>org.apache.spark</groupId>
@@ -125,6 +160,12 @@
         <artifactId>mail</artifactId>
         <version>1.4.5</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
+    <dependency>
+        <groupId>org.jblas</groupId>
+        <artifactId>jblas</artifactId>
+        <version>1.2.4</version>
+    </dependency>
     <!--dependency>
         <groupId>com.datastax.cassandra</groupId>
         <artifactId>cassandra-driver-core</artifactId>
@@ -140,6 +181,17 @@
         <groupId>com.typesafe.play</groupId>
         <artifactId>play-json_2.11</artifactId>
         <version>2.5.0-M1</version>
+    </dependency>
+    <!--Jung dependencies-->
+    <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-graph-impl</artifactId>
+        <version>2.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.jung</groupId>
+        <artifactId>jung-algorithms</artifactId>
+        <version>2.0.1</version>
     </dependency>
 
 </dependencies>

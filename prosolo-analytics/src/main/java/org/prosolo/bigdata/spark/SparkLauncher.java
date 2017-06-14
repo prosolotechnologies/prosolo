@@ -2,12 +2,10 @@ package org.prosolo.bigdata.spark;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.StreamingContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.prosolo.bigdata.scala.spark.SparkContextLoader$;
 
 /**
  * @author Zoran Jeremic May 10, 2015
