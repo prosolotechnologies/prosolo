@@ -1,16 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.TextSearch;
@@ -30,6 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 @ManagedBean(name = "adminUsers")
 @Component("adminUsers")
 @Scope("view")
@@ -45,7 +44,7 @@ public class UsersBean implements Serializable, Paginable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private AuthenticationService authService;
 	@Inject private LoggedUserBean loggedUserBean;
-	
+
 	private String roleId;
 	
 	private List<UserData> users;
@@ -150,6 +149,7 @@ public class UsersBean implements Serializable, Paginable {
 			logger.error(e);
 		}
 	}
+
 
 	/*
 	 * GETTERS / SETTERS

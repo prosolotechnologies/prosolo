@@ -39,6 +39,12 @@
 						styleClass="btn btn-green btn-sm item"
 						action="#{bulkDataAdministration.deleteAndReindexUsers}"
 					/>
+					<p:commandLink value="Fix"
+								   pt:role="button"
+								   styleClass="btn btn-green btn-sm item"
+								   action="#{productionFixBean.fix()}"
+								   update=":growlMain"
+					/>
                     <div class="searchBox">
                     	<h:form>
                     		<p:remoteCommand 

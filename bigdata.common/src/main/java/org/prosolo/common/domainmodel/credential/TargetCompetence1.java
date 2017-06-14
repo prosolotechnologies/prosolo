@@ -6,15 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -81,7 +73,7 @@ public class TargetCompetence1 extends BaseEntity {
 		this.competence = competence;
 	}
 
-	@OneToMany(mappedBy = "targetCompetence")
+	@OneToMany(mappedBy = "targetCompetence", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<TargetActivity1> getTargetActivities() {
 		return targetActivities;

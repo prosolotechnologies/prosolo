@@ -2,13 +2,7 @@ package org.prosolo.common.domainmodel.assessment;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -46,7 +40,7 @@ public class CompetenceAssessment extends BaseEntity {
 		this.approved = approved;
 	}
 
-	@OneToMany(mappedBy = "assessment")
+	@OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
 	public List<ActivityAssessment> getActivityDiscussions() {
 		return activityDiscussions;

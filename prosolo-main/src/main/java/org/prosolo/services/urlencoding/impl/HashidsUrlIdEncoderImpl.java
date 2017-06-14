@@ -52,7 +52,7 @@ public class HashidsUrlIdEncoderImpl implements UrlIdEncoder {
 	public static void main(String[] args) {
 		long id = 32768;
 		System.out.println(new HashidsUrlIdEncoderImpl().encodeId(id));
-		String encodedId = "wmwOklJm";
+		String encodedId = "QmD6A6y7";
 		System.out.println(new HashidsUrlIdEncoderImpl().decodeId(encodedId));
 	}
 }
