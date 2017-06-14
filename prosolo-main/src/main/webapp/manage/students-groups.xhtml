@@ -171,9 +171,11 @@
 								</ul>
 							</h:panelGroup>
 							
-							<utilcomp:pagination id="pagination" bean="#{groupUsersBean}"
-								links="#{groupUsersBean.paginationLinks}"
-								toUpdate=":formManageUsers:panelUsers" />
+							<utilcomp:pagination id="pagination"
+							    bean="#{groupUsersBean}"
+								toUpdate=":formManageUsers:panelUsers"
+							 	updateUrl="false"
+							/>
 								
 							<div class="modal-footer alignLeft">
 								<p:commandLink id="done"

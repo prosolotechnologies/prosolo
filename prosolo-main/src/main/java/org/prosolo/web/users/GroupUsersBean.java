@@ -51,6 +51,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	public void init(long groupId) {
 		this.groupId = groupId;
 		this.searchTerm = "";
+		this.paginationData.setPage(1);
 		usersToRemoveFromGroup = new ArrayList<>();
 		usersToAddToGroup = new ArrayList<>();
 		loadUsers();
