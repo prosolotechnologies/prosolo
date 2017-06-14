@@ -10,8 +10,6 @@ import org.prosolo.bigdata.feeds.FeedsAgregator
 import scala.collection.mutable.Buffer
 import org.apache.spark.rdd.RDD
 import scala.collection.JavaConverters._
-//import org.prosolo.bigdata.dal.persistence.HibernateUtil
-import org.hibernate.Session
 
 /**
  * @author zoran
@@ -26,21 +24,13 @@ object DigestManager {
     cal.add(Calendar.DATE,0)
      val yesterday:Date=cal.getTime
     println("THIS IS TODAY. CHANGE TO YESTERDAY...")
-    //val yesterday:Date=new Date()
     val diggestGeneratorDAO=new DiggestGeneratorDAOImpl
-  // val session=HibernateUtil.getSessionFactory().openSession()
-   // diggestGeneratorDAO.setSession(session)
     val sc=SparkContextLoader.getSC
     
     val usersIds:java.util.List[java.lang.Long] = diggestGeneratorDAO.getAllUsersIds
     val usersIdsScala:Seq[java.lang.Long]=usersIds.asScala.toSeq
      val scalaUsersIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(usersIds) //disabled for testing
    val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds.map{Long2long})//temporary dispabled for testing
-     
-   // val scalaUsersIds=Seq[Long](2,8,15,14,6)//Just for testing purposes    //testing
-    //val usersRDD:RDD[Long]=sc.parallelize(scalaUsersIds)
-     
-     
      val coursesIds:java.util.List[java.lang.Long] = diggestGeneratorDAO.getAllActiveCoursesIds()
     val coursesIdsScala:Seq[java.lang.Long]=coursesIds.asScala.toSeq
      //val scalaCoursesIds:Buffer[java.lang.Long]= scala.collection.JavaConversions.asScalaBuffer(coursesIdsScala)

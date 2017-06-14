@@ -354,8 +354,8 @@ public class ActivityEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?actAdded=true&tab=activities");
-				if(credId != null && !credId.isEmpty()) {
+						"/competences/" + compId + "/edit?tab=activities");
+				if (credId != null && !credId.isEmpty()) {
 					url.append("&credId=" + credId);
 				}
 				extContext.redirect(url.toString());
@@ -426,8 +426,8 @@ public class ActivityEditBean implements Serializable {
 					 * may not be what we really want.
 					 */
 					StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-							"/competences/" + compId + "/edit?actAdded=true");
-					if(credId != null && !credId.isEmpty()) {
+							"/competences/" + compId + "/edit?tab=activities");
+					if (credId != null && !credId.isEmpty()) {
 						url.append("&credId=" + credId);
 					}
 					extContext.redirect(url.toString());

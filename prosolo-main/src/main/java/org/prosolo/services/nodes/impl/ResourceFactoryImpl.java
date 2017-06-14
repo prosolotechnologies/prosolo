@@ -974,11 +974,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 		     logger.info("New competence is created with id " + comp.getId());
 		     result.setResult(comp);
 		     return result;
-   	} catch(Exception e) {
-   		e.printStackTrace();
-   		logger.error(e);
-   		throw new DbConnectionException("Error while saving competence");
-   	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            throw new DbConnectionException("Error while saving competency");
+        }
     }
 
     @Override

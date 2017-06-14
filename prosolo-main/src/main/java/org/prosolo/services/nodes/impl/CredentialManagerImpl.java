@@ -3102,8 +3102,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//not transactional
 	@Override
 	public Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
-			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
-			IllegalDataStateException, EventException {
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException {
 		Result<Credential1> res = credManager.createCredentialDeliveryAndGetEvents(credentialId, start, end, actorId, 
 				context);
 		for (EventData ev : res.getEvents()) {
@@ -3116,8 +3115,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional (readOnly = false)
 	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
-			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException,
-			IllegalDataStateException {
+			long actorId, LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Credential1> res = new Result<>();
 			//if end date is before start throw exception
@@ -3147,7 +3145,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			res.addEvent(eventFactory.generateEventData(EventType.Create, actorId, cred, null, context, null));
 			Set<Tag> hashtags = cred.getHashtags();
-			if(!hashtags.isEmpty()) {
+			if (!hashtags.isEmpty()) {
 				Map<String, String> params = new HashMap<>();
 				String csv = StringUtil.convertTagsToCSV(hashtags);
 				params.put("newhashtags", csv);
@@ -3176,7 +3174,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			res.setResult(cred);
 			
 			return res;
-		} catch (CompetenceEmptyException|IllegalDataStateException e) {
+		} catch (IllegalDataStateException e) {
 			throw e;
 		} catch (Exception e) {
 			logger.error(e);

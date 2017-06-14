@@ -1970,6 +1970,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			if ((returnAssessmentData || filter != null) && credId > 0) {
 				q.setBoolean("boolTrue", true);
+
 				q.setLong("credId", credId);
 			}
 			if (targetActivityId > 0) {

@@ -39,6 +39,10 @@ public class AssessmentBasicData {
                 assessorId, isDefault);
     }
 
+    public static AssessmentBasicData empty() {
+        return new AssessmentBasicData(0, 0, 0);
+    }
+
     public long getCredentialAssessmentId() {
         return credentialAssessmentId;
     }

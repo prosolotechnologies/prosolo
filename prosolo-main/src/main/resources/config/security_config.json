@@ -15,6 +15,10 @@
         {
             "name": "Admin",
             "description": "Admin"
+        },
+        {
+            "name": "Super Admin",
+            "description": "Super Admin"
         }
     ],
     "capabilities": [

@@ -65,13 +65,6 @@ class ProfilesDAO (val dbName:String) extends Entity with Serializable{
             (row.getString("sequence"), row.getLong("userid"))
         }
         rows.toList
-       /* Option(rs.one()) match {
-          case Some(row) if !row.isNull(0) ⇒ {
-            println("ROW TEST SEQUENCE:" + row.getString("sequence"))
-            Some(row.getString("sequence"), row.getLong("userid"))
-          }
-          case _ ⇒ None
-        }*/
     }
   }
   def findUserProfileObservationsByDate(date: java.lang.Long, courseId:java.lang.Long):List[Row] ={
