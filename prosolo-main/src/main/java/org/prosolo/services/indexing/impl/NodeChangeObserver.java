@@ -66,7 +66,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.STATUS_CHANGED,
 			EventType.ARCHIVE,
 			EventType.RESTORE,
-			EventType.USER_GROUP_CHANGE
+			EventType.USER_GROUP_CHANGE,
+			EventType.OWNER_CHANGE
 		};
 	}
 
