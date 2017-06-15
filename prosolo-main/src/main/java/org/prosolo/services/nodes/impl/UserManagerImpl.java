@@ -163,8 +163,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			String query =
 					"SELECT user.position " +
-							"FROM User user " +
-							"WHERE user.id = :id ";
+							" FROM User user " +
+							" WHERE user.id = :id ";
 
 			String position = (String) persistence.currentManager().createQuery(query).
 					setLong("id", id).

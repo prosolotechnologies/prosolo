@@ -190,7 +190,7 @@ public class UserEditBean implements Serializable {
 			}
 		}
 	
-	private void updateUser() {
+	private void  updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null 
 					&& !this.user.getPassword().isEmpty();
@@ -394,5 +394,6 @@ public class UserEditBean implements Serializable {
 	public void resetAndSearch() {
 		loadUsers();
 	}
-
 }
+
+

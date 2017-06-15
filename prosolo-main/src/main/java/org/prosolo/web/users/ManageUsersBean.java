@@ -82,7 +82,7 @@ public class ManageUsersBean implements Serializable, Paginable {
 		this.users = new ArrayList<UserData>();
 		try {
 			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), 
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
 					false, null);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();

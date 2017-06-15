@@ -43,6 +43,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
@@ -164,7 +165,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	@Transactional
 	public TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds) {
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds) {
 
 		TextSearchResponse1<UserData> response =
 				new TextSearchResponse1<>();
@@ -187,6 +188,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 
 			if (!includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
@@ -214,6 +216,14 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							.field("id"))
 					.setFetchSource(includes, null);
 
+			if(adminRoles != null && !adminRoles.isEmpty()){
+				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
+				for(Role r : adminRoles){
+					bqb1.should(termQuery("roles.id", r.getId()));
+				}
+				bQueryBuilder.filter(bqb1);
+			}
+
 			//set as a post filter so it does not influence aggregation results
 			if(roleId > 0) {
 				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
@@ -225,7 +235,14 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<org.prosolo.common.domainmodel.organization.Role> roles = roleManager.getAllRoles();
+				List<org.prosolo.common.domainmodel.organization.Role> roles;
+
+				if (adminRoles == null || adminRoles.isEmpty()){
+					roles = roleManager.getAllRoles();
+				} else {
+					roles = adminRoles;
+				}
+
 				for(SearchHit sh : sResponse.getHits()) {
 					Map<String, Object> fields = sh.getSource();
 					User user = new User();
@@ -266,11 +283,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					if(bucket != null) {
 						number = (int) bucket.getDocCount();
 					}
-			    	RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
-			    	roleFilters.add(rf);
-			    	if(role.getId() == roleId) {
-			    		selectedFilter = rf;
-			    	}
+					RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+					roleFilters.add(rf);
+					if(role.getId() == roleId) {
+						selectedFilter = rf;
+					}
 				}
 
 				Map<String, Object> additionalInfo = new HashMap<>();

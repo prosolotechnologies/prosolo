@@ -1,11 +1,13 @@
 package org.prosolo.web.administration;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -17,10 +19,8 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.search.TextSearch;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.TextSearchResponse1;
-import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
@@ -32,7 +32,9 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -61,6 +63,9 @@ public class AdminEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
+	@Inject
+	@Qualifier("taskExecutor")
+	private ThreadPoolTaskExecutor taskExecutor;
 
 	@Autowired
 	private UserTextSearch textSearch;
@@ -72,7 +77,7 @@ public class AdminEditBean implements Serializable {
 
 	private UserData admin;
 	private UserData newOwner = new UserData();
-	private SelectItem[] allRoles;
+	private List<RoleCheckboxData> allRoles;
 	private List<UserData> admins;
 	private String searchTerm;
 
@@ -125,13 +130,16 @@ public class AdminEditBean implements Serializable {
 		try {
 			String[] rolesArray = new String[]{"Admin","Super Admin"};
 			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+			allRoles = new ArrayList<>();
 			if (adminRoles != null) {
-				allRoles = new SelectItem[adminRoles.size()];
+				//allRoles = new SelectItem[adminRoles.size()];
 
 				for (int i = 0; i < adminRoles.size(); i++) {
 					Role r = adminRoles.get(i);
-					SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-					allRoles[i] = selectItem;
+					/*SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
+					allRoles[i] = selectItem;*/
+					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(),this.admin.hasRoleId(r.getId()),r.getId());
+					allRoles.add(roleCheckboxData);
 				}
 			}
 		} catch (DbConnectionException e) {
@@ -148,10 +156,17 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
+	private List<Long> getSelectedRoles(){
+		return allRoles.stream()
+				.filter(r -> r.isSelected())
+				.map(RoleCheckboxData::getId)
+				.collect(Collectors.toList());
+	}
+
 	private void createNewAdminUser() {
 		try {
 			User adminUser = userManager.createNewUser(this.admin.getName(), this.admin.getLastName(), this.admin.getEmail(),
-					true, this.admin.getPassword(), this.admin.getPosition(), null, null, this.admin.getRoleIds());
+					true, this.admin.getPassword(), this.admin.getPosition(), null, null,getSelectedRoles());
 
 			this.admin.setId(adminUser.getId());
 
@@ -161,6 +176,8 @@ public class AdminEditBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Admin user successfully saved");
 
 			sendNewPassword();
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			extContext.redirect("/admin/admins");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -176,18 +193,31 @@ public class AdminEditBean implements Serializable {
 		try {
 			boolean shouldChangePassword = this.admin.getPassword() != null && !this.admin.getPassword().isEmpty();
 			User updatedUser = userManager.updateUser(this.admin.getId(), this.admin.getName(), this.admin.getLastName(),
-					this.admin.getEmail(), true, shouldChangePassword, this.admin.getPassword(), this.admin.getPosition(),
-					admin.getRoleIds(), loggedUser.getUserId());
-			admin = new UserData(updatedUser);
+					this.admin.getEmail(), true, false, this.admin.getPassword(), this.admin.getPosition(),
+					getSelectedRoles(), loggedUser.getUserId());
+
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("Admin user successfully updated");
+			PageUtil.fireSuccessfulInfoMessage("User is updated");
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to update admin data");
 		} catch (EventException e) {
 			logger.error(e);
 		}
+	}
+
+	public void setUserToDelete() {
+		newOwner.setUserSet(false);
+		searchTerm = "";
+		admins = null;
+		this.userToDelete = admin;
+	}
+
+	public void userReset() {
+		searchTerm = "";
+		admins = null;
+		newOwner.setUserSet(false);
 	}
 
 	public UserData getUser() {
@@ -206,29 +236,12 @@ public class AdminEditBean implements Serializable {
 		this.id = id;
 	}
 
-	public SelectItem[] getAllRoles() {
+	public List<RoleCheckboxData> getAllRoles() {
 		return allRoles;
 	}
 
-	public void setAllRoles(SelectItem[] allRoles) {
+	public void setAllRoles(List<RoleCheckboxData> allRoles) {
 		this.allRoles = allRoles;
-	}
-
-	public UserData getUserToDelete() {
-		return userToDelete;
-	}
-
-	public void setUserToDelete() {
-		newOwner.setUserSet(false);
-		searchTerm = "";
-		admins = null;
-		this.userToDelete = admin;
-	}
-
-	public void userReset() {
-		searchTerm = "";
-		admins = null;
-		newOwner.setUserSet(false);
 	}
 
 	public AccountData getAccountData() {
@@ -259,22 +272,38 @@ public class AdminEditBean implements Serializable {
 		this.searchTerm = searchTerm;
 	}
 
+	public UserData getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(UserData userData) {
+		newOwner.setId(userData.getId());
+		newOwner.setAvatarUrl(userData.getAvatarUrl());
+		newOwner.setFullName(userData.getFullName());
+		newOwner.setPosition(userManager.getUserPosition(userData.getId()));
+	}
+
 	public void sendNewPassword() {
 
-		User userNewPass = userManager.getUser(admin.getEmail());
-		if (userNewPass != null) {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery");
+		User user = userManager.getUser(admin.getEmail());
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if (user != null) {
+					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+							CommonSettings.getInstance().config.appConfig.domain + "recovery");
 
-			if (resetLinkSent) {
-				PageUtil.fireSuccessfulInfoMessage("resetMessage",
-						"Password instructions have been sent to given email ");
-			} else {
-				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+					if (resetLinkSent) {
+						PageUtil.fireSuccessfulInfoMessage("resetMessage",
+								"Password instructions have been sent to given email ");
+					} else {
+						PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+					}
+				} else {
+					PageUtil.fireErrorMessage("resetMessage", "User already registrated");
+				}
 			}
-		} else {
-			PageUtil.fireErrorMessage("resetMessage", "User already registrated");
-		}
+		});
 	}
 
 	public void delete() {
@@ -311,5 +340,55 @@ public class AdminEditBean implements Serializable {
 		loadAdmins();
 	}
 
+	public void savePassChangeForAnotherAdmin() {
+		if (accountData.getNewPassword().length() < 6) {
+			PageUtil.fireErrorMessage("The password is too short. It has to contain more than 6 characters.");
+			return;
+		}
+		try {
+			userManager.changePassword(admin.getId(), accountData.getNewPassword());
+			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error updating the password");
+		}
+	}
+
+	public class RoleCheckboxData{
+
+		private String label;
+		private boolean selected;
+		private long id;
+
+		public RoleCheckboxData(String label, boolean selected, long id) {
+			this.label = label;
+			this.selected = selected;
+			this.id = id;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+
+		public long getId() {
+			return id;
+		}
+
+		public void setId(long id) {
+			this.id = id;
+		}
+	}
 }
 

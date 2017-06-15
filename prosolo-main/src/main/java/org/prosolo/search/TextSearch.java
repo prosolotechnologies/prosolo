@@ -12,7 +12,7 @@ import java.util.List;
  */
 
 public interface TextSearch extends AbstractManager {
-	
+
 //	TextSearchResponse searchActivities(
 //			String searchString, int page, int limit, boolean loadOneMore,
 //			long[] activitiesToExclude);
