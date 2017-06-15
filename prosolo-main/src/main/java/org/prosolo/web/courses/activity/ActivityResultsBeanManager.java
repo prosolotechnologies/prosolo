@@ -2,6 +2,8 @@ package org.prosolo.web.courses.activity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -328,6 +330,10 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 	}
 
 	public void updateGrade() {
+		updateGrade(true);
+	}
+
+	public void updateGrade(boolean retry) {
 		try {
 			LearningContextData lcd = new LearningContextData();
 			lcd.setPage(PageUtil.getPostParameter("page"));
@@ -348,7 +354,17 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			currentResult.getAssessment().getGrade().setAssessed(true);
 
 			PageUtil.fireSuccessfulInfoMessage("Grade updated");
-		} catch(Exception e) {
+		} catch (IllegalDataStateException e) {
+			if (retry) {
+				//if this exception is thrown, data is repopulated and we should retry updating grade
+				updateGrade(false);
+			} else {
+				logger.error("Error after retry: " + e);
+				PageUtil.fireErrorMessage("Error while updating grade. Please refresh the page and try again.");
+			}
+		} catch (EventException e) {
+			logger.info(e);
+		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while updating grade");
@@ -357,7 +373,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
 								  boolean updateGrade, LearningContextData context)
-			throws ResourceCouldNotBeLoadedException, EventException {
+			throws DbConnectionException, IllegalDataStateException, EventException {
 		Integer grade = updateGrade
 				? currentResult != null ? currentResult.getAssessment().getGrade().getValue() : null
 				: null;
@@ -377,21 +393,44 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 			participantIds.add(currentResult.getAssessment().getAssessorId());
 		}
 
-		if (competenceAssessmentId > 0) {
-			//if competence assessment exists create activity assessment only
-			currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
-					assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
-							currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
-							loggedUserBean.getUserId(), true, grade, true,
-							context).getId()));
-		} else {
-			//if competence assessment does not exist create competence assessment and activity assessment
-			AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
-					currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
-					new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-					true, context);
-			currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
-			currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+		try {
+			if (competenceAssessmentId > 0) {
+				//if competence assessment exists create activity assessment only
+				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
+						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
+								currentResult.getAssessment().getCredAssessmentId(), new ArrayList<Long>(participantIds),
+								loggedUserBean.getUserId(), true, grade, true,
+								context).getId()));
+			} else {
+				//if competence assessment does not exist create competence assessment and activity assessment
+				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
+						currentResult.getAssessment().getCredAssessmentId(), targetCompetenceId, targetActivityId,
+						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
+						true, context);
+				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
+				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+			}
+		} catch (IllegalDataStateException e) {
+			/*
+				this means that assessment is created in the meantime - this should be handled better because this
+				exception does not have to mean that this is the case. Return to this when exceptions are rethinked.
+			 */
+			/*
+				if competence assessment is already set, get activity assessment id and set it, otherwise get both
+				competence assessment and activity assessment ids.
+			 */
+			if (competenceAssessmentId > 0) {
+				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(
+						assessmentManager.getActivityAssessmentId(competenceAssessmentId, targetActivityId)));
+			} else {
+				AssessmentBasicData assessmentInfo = assessmentManager.getCompetenceAndActivityAssessmentIds(
+						targetCompetenceId, targetActivityId, currentResult.getAssessment().getCredAssessmentId());
+				currentResult.getAssessment().setEncodedDiscussionId(idEncoder.encodeId(assessmentInfo.getActivityAssessmentId()));
+				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
+			}
+			logger.error(e);
+			//rethrow exception so caller of this method can react in appropriate way
+			throw e;
 		}
 	}
 	

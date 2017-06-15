@@ -2,13 +2,7 @@ package org.prosolo.common.domainmodel.assessment;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -16,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential_assessment", "target_competence"})})
 public class CompetenceAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = 4528017184503484059L;

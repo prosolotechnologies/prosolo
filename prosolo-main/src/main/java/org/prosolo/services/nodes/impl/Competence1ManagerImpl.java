@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -106,14 +105,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
-			LearningContextData context) throws DbConnectionException,IllegalDataStateException {
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		Competence1 comp = null;
 		try {
 			/*
 			 * if competence has no activities, it can't be published
 			 */
 			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new CompetenceEmptyException();
+				throw new IllegalDataStateException("Can not publish competency without activities.");
 			}
 			
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
@@ -157,10 +156,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //			}
 
 			return comp;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
 			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1542,70 +1541,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId)
-			throws DbConnectionException, CompetenceEmptyException {
-		try {
-			// get all draft competences
-			List<EventData> events = new ArrayList<>();
-			List<Competence1> comps = getDraftCompetencesFromList(compIds, creatorId);
-			// publish competences that this user can edit only
-			User user = new User();
-			user.setId(creatorId);
-
-			// store ids of competences that can be edited and that are
-			// published so list can be
-			// passed to publishActivities method
-			List<Long> publishedComps = new ArrayList<>();
-			for (Competence1 c : comps) {
-				/*
-				 * check if competence has at least one activity - if not, it
-				 * can't be published
-				 */
-				int numberOfActivities = c.getActivities().size();
-				if (numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
-				}
-
-				//check if user can edit this competence
-				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
-				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
-				if(access.isCanEdit()) {
-					c.setPublished(true);
-					EventData ev = new EventData();
-					ev.setActorId(creatorId);
-					ev.setEventType(EventType.STATUS_CHANGED);
-					ev.setObject(c);
-					events.add(ev);
-
-					publishedComps.add(c.getId());
-				}
-			}
-			
-//			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
-//					creatorId, publishedComps);
-//			persistence.currentManager().flush();
-//			for(long id : publishedComps) {
-//				Competence1 comp = (Competence1) persistence.currentManager()
-//						.load(Competence1.class, id);
-//				comp.setDuration(getRecalculatedDuration(id));
-//			}
-//			events.addAll(actEvents);
-
-			return events;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
-			// cee.printStackTrace();
-			throw cee;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing competences");
-		}
-	}
 
 	/**
 	 * Return all draft competences that satisfy condition: for user role if
@@ -2714,8 +2649,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * check if competence has at least one activity - if not, it can't be published
 				 */
 				int numberOfActivities = comp.getActivities().size();
-				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
+				if (numberOfActivities == 0) {
+					throw new IllegalDataStateException("Can not publish competency without activities.");
 				}
 			
 				comp.setPublished(true);
@@ -2729,11 +2664,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 			
 			return res;
-		} catch(CompetenceEmptyException cee) {
-			logger.error(cee);
-			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
-		} catch(Exception e) {
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+			throw e;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competency");

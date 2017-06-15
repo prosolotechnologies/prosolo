@@ -3,7 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -238,21 +237,6 @@ public interface Competence1Manager {
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
 	/**
-	 * this is the method that should be called when you want to publish competences
-	 * 
-	 * Returns List of data for events that should be generated after transaction commits.
-	 * 
-	 * @param credId
-	 * @param compIds
-	 * @param creatorId
-	 * @param role
-	 * @throws DbConnectionException
-	 * @throws CompetenceEmptyException
-	 */
-	List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
-			throws DbConnectionException, CompetenceEmptyException;
-	
-	/**
 	 * Method for getting all completed competences (competences that has progress == 100)
 	 * and a hiddenFromProfile flag set to a certain value
 	 * @return 
@@ -400,8 +384,8 @@ public interface Competence1Manager {
 	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
 			throws DbConnectionException;
 	
-	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId)
+			throws DbConnectionException, IllegalDataStateException;
 
 	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
 
