@@ -165,10 +165,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Transactional
 	public TextSearchResponse1<UserData> getUsersWithRoles(
 			String term, int page, int limit, boolean paginate, long roleId, boolean includeSystemUsers, List<Long> excludeIds) {
-		
-		TextSearchResponse1<UserData> response = 
+
+		TextSearchResponse1<UserData> response =
 				new TextSearchResponse1<>();
-		
+
 		try {
 			int start = 0;
 			int size = 1000;
@@ -176,30 +176,30 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				start = setStart(page, limit);
 				size = limit;
 			}
-			
+
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-			
+
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
 					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 					.field("name").field("lastname");
-			
+
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			bQueryBuilder.should(qb);
-			
+
 			if (!includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
 			if (excludeIds != null) {
 				for (Long exUserId : excludeIds) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
 				}
 			}
-			
+
 			SearchResponse sResponse = null;
-			
+
 			String[] includes = {"id", "name", "lastname", "avatar", "roles", "position"};
 			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
 					.setTypes(ESIndexTypes.USER)
@@ -213,16 +213,16 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.addAggregation(AggregationBuilders.count("docCount")
 							.field("id"))
 					.setFetchSource(includes, null);
-			
+
 			//set as a post filter so it does not influence aggregation results
 			if(roleId > 0) {
 				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
 				srb.setPostFilter(bqb);
 			}
-			
+
 			//System.out.println(srb.toString());
 			sResponse = srb.execute().actionGet();
-			
+
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				List<org.prosolo.common.domainmodel.organization.Role> roles = roleManager.getAllRoles();
@@ -247,15 +247,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						}
 					}
 					UserData userData = new UserData(user, userRoles);
-					
-					response.addFoundNode(userData);			
+
+					response.addFoundNode(userData);
 				}
-				
+
 				//get facets
 				ValueCount docCount = sResponse.getAggregations().get("docCount");
 				Terms terms = sResponse.getAggregations().get("roles");
 				List<Terms.Bucket> buckets = terms.getBuckets();
-				
+
 				List<RoleFilter> roleFilters = new ArrayList<>();
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
@@ -272,11 +272,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			    		selectedFilter = rf;
 			    	}
 				}
-				
+
 				Map<String, Object> additionalInfo = new HashMap<>();
 				additionalInfo.put("filters", roleFilters);
 				additionalInfo.put("selectedFilter", selectedFilter);
-				
+
 				response.setAdditionalInfo(additionalInfo);
 			}
 		} catch (Exception e1) {
@@ -1525,7 +1525,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public TextSearchResponse1<UserData> searchNewOwner(
-			String searchTerm, int limit, Long excludedId) {
+			String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch) {
 		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
@@ -1544,7 +1544,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
 					.must(bQueryBuilder);
 
-			bqb.mustNot(termQuery("id", excludedId));
+			if(adminsToExcludeFromSearch == null) {
+				bqb.mustNot(termQuery("id", excludedId));
+			}else{
+				for(UserData admin : adminsToExcludeFromSearch){
+					bQueryBuilder.mustNot(termQuery("id", admin.getId()));
+				}
+			}
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar"};
@@ -1589,4 +1595,5 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		}
 		return null;
 	}
+
 }

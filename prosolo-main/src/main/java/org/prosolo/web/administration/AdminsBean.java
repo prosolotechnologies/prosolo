@@ -22,20 +22,20 @@ import org.springframework.stereotype.Component;
 public class AdminsBean implements Serializable,Paginable{
 
 	private static final long serialVersionUID = -941411747259924715L;
-	
+
 	protected static Logger logger = Logger.getLogger(AdminsBean.class);
-	
-	
+
+
 	public void init(){
 		logger.debug("Hello from adminAdmins bean logger");
 		System.out.println("Hello from adminAdmins bean");
 	}
-	
+
 
 	@Override
 	public void changePage(int page) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -44,5 +44,5 @@ public class AdminsBean implements Serializable,Paginable{
 		return null;
 	}
 
-	
+
 }

@@ -299,7 +299,7 @@ public class AdminEditBean implements Serializable {
 			admins = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = textSearch.searchNewOwner(searchTerm, 3, admin.getId());
+				TextSearchResponse1<UserData> result = textSearch.searchNewOwner(searchTerm, 3, admin.getId(),null);
 				admins = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

@@ -1,0 +1,141 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+    <ui:define name="windowTitle">New Organization</ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{organizationEditBean.init()}" />
+            <f:viewAction action="#{userEditBean.init()}" />
+            <f:viewAction action="#{adminUsers.init()}" />
+            <f:viewAction action="#{adminEditBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>New Organization</h1>
+    </ui:define>
+
+    <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+        <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+        <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+        <div class="whiteBar">
+
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="whiteBox">
+                        <h:form id="formMain">
+                        <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+                        <div class="formWrapper editOrgForm">
+                            <div class="formLine">
+                                <label>Name</label>
+                                <div class="formLineRight">
+                                    <h:inputText id="inputTextOrganizationName"
+                                                 required="true"
+                                                 requiredMessage="Organization name is required"
+                                                 value="#{organizationEditBean.organization.title}"/>
+                                    <h:panelGroup  layout="block"
+                                                    rendered="#{not empty facesContext.getMessageList('formMain:inputTextOrganizationName')}"
+                                                    styleClass="alert alert-danger" pt:role="alert">
+                                                    <h:message for="inputTextOrganizationName"></h:message>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                            <div class="formLine">
+                                <label>Admin(s)</label>
+                                <div class="formLineRight">
+                                    <div class="inputWrapper">
+                                        <h:panelGroup layuot="block" id="selectNewOwner">
+
+
+                                            <h:inputText onkeyup="searchListener(execSearchUsers);"
+                                                         value="#{organizationEditBean.searchTerm}" id="newName"
+                                                         placeholder="Type name..." name="newName" autocomplete="off" />
+
+                                            <p:remoteCommand name="execSearchUsers" process="newName"
+                                                             action="#{organizationEditBean.resetAndSearch()}"
+                                                             update=":formMain:usersListPanel" />
+
+
+
+                                            <h:panelGroup id="usersListPanel">
+                                                <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.admins.size() > 0}">
+                                                    <ul id="usersList" class="dropdown-menu searchResultsDrop"
+                                                        style="display: block;">
+                                                        <ui:repeat value="#{organizationEditBean.admins}" var="user"
+                                                                   varStatus="iterator">
+
+                                                            <li>
+                                                                <p:commandLink style="cursor: pointer;"
+                                                                               id="userlink-#{user.id}"
+                                                                               process="@this"
+                                                                               action="#{organizationEditBean.setAdministrator(user)}"
+                                                                               update=":formMain:selectNewOwner"
+                                                                               rendered="#{not organizationEditBean.adminsChoosen.contains(user)}">
+                                                                    <utilcomp:userAvatar avatar="#{user.avatarUrl}"
+                                                                                         fullName="#{user.fullName}" />
+                                                                    <h3>#{user.fullName}</h3>
+                                                                </p:commandLink>
+                                                            </li>
+
+                                                        </ui:repeat>
+                                                    </ul>
+                                                </h:panelGroup>
+                                            </h:panelGroup>
+
+                                            <ui:fragment rendered="#{not empty organizationEditBean.adminsChoosen}">
+                                                <ul class="list">
+                                                    <ui:repeat value="#{organizationEditBean.adminsChoosen}" var="admin">
+                                                        <ul class="list">
+                                                            <li>
+                                                                <div class="instructorInfo">
+                                                                    <utilcomp:userAvatar
+                                                                            avatar="#{admin.avatarUrl}"
+                                                                            fullName="#{admin.fullName}"
+                                                                            width="48"
+                                                                            height="48"/>
+                                                                    <div class="infoWrap">
+                                                                        <h3>#{admin.fullName}</h3>
+                                                                        <span>#{admin.position}</span>
+                                                                    </div>
+
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </ui:repeat>
+                                                </ul>
+                                            </ui:fragment>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="formLine">
+                                <label>&#160;</label>
+                                <div class="formLineRight">
+                                    <p:commandLink styleClass="btn btn-green" value="Create"
+                                                   action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                    </p:commandLink>
+                                </div>
+                            </div>
+                        </div>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+
+</ui:composition>

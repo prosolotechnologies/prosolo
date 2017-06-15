@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -22,6 +24,7 @@ public class UserData implements Serializable {
 	private String avatarUrl;
 	private String position;
 	private String email;
+	private Organization organization;
 	private boolean followedByCurrentUser;
 	private boolean userSet;
 	private UserType type = UserType.REGULAR_USER;
@@ -202,6 +205,14 @@ public class UserData implements Serializable {
 			}
 		}
 		return rolesString;
+	}
+
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 	
 }

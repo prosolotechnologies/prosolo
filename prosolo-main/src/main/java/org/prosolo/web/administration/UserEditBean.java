@@ -51,7 +51,6 @@ public class UserEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
-
 	@Inject
 	private UserTextSearch userTextSearch;
 
@@ -384,7 +383,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId());
+				TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId(),null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
