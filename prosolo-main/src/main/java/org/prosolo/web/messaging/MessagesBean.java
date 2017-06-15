@@ -21,7 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;

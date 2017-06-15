@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;

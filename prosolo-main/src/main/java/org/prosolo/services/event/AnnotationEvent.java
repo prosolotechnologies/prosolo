@@ -1,6 +1,6 @@
 package org.prosolo.services.event;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 
 //@Entity
 public class AnnotationEvent extends Event {

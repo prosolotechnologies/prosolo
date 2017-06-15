@@ -3,12 +3,12 @@ package org.prosolo.services.activityWall.observer.processor;
 import java.util.Date;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.CredentialCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CredentialEnrollSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.event.Event;

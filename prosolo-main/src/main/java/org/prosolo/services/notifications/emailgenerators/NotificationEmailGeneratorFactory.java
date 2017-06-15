@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.services.interfaceSettings.eventProcessors.InterfaceEventProcessorFactory;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class NotificationEmailGeneratorFactory {
 	@Inject
 	private DefaultManager defaultManager;
 	
-	private static Logger logger = Logger.getLogger(InterfaceEventProcessorFactory.class);
+	private static Logger logger = Logger.getLogger(NotificationEmailGeneratorFactory.class);
 	
 	public NotificationEmailGenerator getNotificationEmailContentGenerator(String name, String actor, String predicate, long objectId, ResourceType objectType, String objectTitle,
 			String date, String link, NotificationType type, Session session) {

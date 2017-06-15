@@ -8,7 +8,7 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;

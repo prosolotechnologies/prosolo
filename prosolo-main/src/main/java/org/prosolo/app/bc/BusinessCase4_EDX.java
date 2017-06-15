@@ -17,7 +17,6 @@ import java.util.UUID;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
@@ -26,11 +25,10 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
@@ -38,7 +36,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.MessagingManager;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -679,23 +676,23 @@ public class BusinessCase4_EDX extends BusinessCase {
 		}
 		
 		
-		try {
-			ServiceLocator
-					.getInstance()
-					.getService(PostManager.class)
-					.createNewPost(userNickPowell.getId(),
-							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-
-			ServiceLocator
-					.getInstance()
-					.getService(PostManager.class)
-					.createNewPost(
-							userNickPowell.getId(),
-							"Can anybody recommend me a good book for SPSS basics? Thanks!",
-							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		}
+//		try {
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(userNickPowell.getId(),
+//							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(
+//							userNickPowell.getId(),
+//							"Can anybody recommend me a good book for SPSS basics? Thanks!",
+//							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+//			logger.error(e);
+//		}
 
 		try {
 			/*
