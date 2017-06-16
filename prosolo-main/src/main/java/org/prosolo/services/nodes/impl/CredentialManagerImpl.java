@@ -7,9 +7,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.*;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -2666,6 +2666,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getTagsForCredential(long credentialId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT tags " +
+				"FROM Credential1 cred " +
+				"LEFT JOIN cred.tags tags " +
+				"WHERE cred.id = :credId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("credId", credentialId)
+			.list();
+		
+		return res;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT hashtags " +
+				"FROM Credential1 cred " +
+				"LEFT JOIN cred.hashtags hashtags  " +
+				"WHERE cred.id = :credId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("credId", credentialId)
+			.list();
+		
+		return res;
+	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {

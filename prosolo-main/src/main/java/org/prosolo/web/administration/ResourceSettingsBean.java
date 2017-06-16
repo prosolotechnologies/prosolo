@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.admin.ResourceSettingsManager;
-import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.administration.data.ResourceSettingsData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -37,9 +36,6 @@ public class ResourceSettingsBean implements Serializable {
 	
 	@Autowired private RoleManager roleManager;
 	@Autowired private ResourceSettingsManager resourceSettingsManager;
-	
-	
-	@Autowired private CourseManager courseManager;
 	
 	private ResourceSettingsData settings;
 	
@@ -118,12 +114,4 @@ public class ResourceSettingsBean implements Serializable {
 		return settings;
 	}
 	
-	/*
-	 * USED ONLY BY A SYSTEM USER ONCE
-	 */
-	public void fixCourses() {
-		logger.info("Executing course reference fix by a system user");
-		courseManager.fixCourseReferences();
-		logger.info("Finished reference fix");
-	}
 }

@@ -1,113 +1,44 @@
 package org.prosolo.services.nodes;
 
+import java.io.InputStream;
+import java.util.List;
+
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.course.CourseCompetence;
-import org.prosolo.common.domainmodel.course.CreatorType;
-import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.general.Node;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
-import org.prosolo.common.domainmodel.user.*;
+import org.prosolo.common.domainmodel.user.AnonUser;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.activity.ActivityData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
-import org.prosolo.web.competences.data.ActivityFormData;
-import org.prosolo.web.competences.data.ActivityType;
-
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public interface ResourceFactory extends AbstractManager {
 
     public Role createNewRole(String name, String description, boolean systemDefined);
 
-    LearningGoal createNewLearningGoal(long userId, String name, String description, Date deadline, 
-            Collection<Tag> keywords, Collection<Tag> hashtags) throws EventException;
-
-    TargetLearningGoal createNewTargetLearningGoal(LearningGoal goal, User currentUser, boolean progressActivityDependent) throws EventException;
-
-    
-    TargetCompetence createNewTargetCompetence(long userId, Competence comp, VisibilityType visibilityType) throws ResourceCouldNotBeLoadedException;
-    
-    Activity createNewResourceActivity(long userId, String title,
-            String description, AttachmentPreview attachmentPreview, VisibilityType vis,
-            Collection<Tag> tags, boolean save) throws EventException, ResourceCouldNotBeLoadedException;
-
-    Competence createCompetence(long userId, String title, String description, int validity, int duration, 
-            Collection<Tag> tags, List<Competence> prerequisites, List<Competence> corequisites, Date dateCreated) throws ResourceCouldNotBeLoadedException;
-
-    Course createCourse(String title, String description, Course basedOn, List<CourseCompetence> competences, 
-            Collection<Tag> tags, Collection<Tag> hashtags, long makerId, CreatorType creatorType, boolean studentsCanAddNewCompetences, boolean pubilshed) throws ResourceCouldNotBeLoadedException;
-
-    Course updateCourse(Course course, String title, String description, List<CourseCompetence> competences, 
-            Collection<Tag> tags, Collection<Tag> hashtags, List<String> blogs, boolean studentsCanAddNewCompetences, boolean pubilshed) throws EventException;
-
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
-
-    TargetActivity createNewTargetActivity(Activity activity, long userId);
-
-    TargetActivity createNewTargetActivity(User maker, String title, String description, AttachmentPreview attachmentPreview, VisibilityType vis,
-            Collection<Tag> tags, boolean save) throws EventException;
-
-    Activity createNewActivity(User currentUser, String title, String description, ActivityType activityType, 
-            boolean mandatory, AttachmentPreview attachmentPreview, int maxNumberOfFiles, boolean uploadsVisibility, 
-            int duration, VisibilityType vis) throws EventException;
-
-    Event generateEvent(EventType eventType, User actor, Node object, Node target, Node reason,
-            Class<? extends EventObserver>[] observersToExclude) throws EventException;
 
     User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
             String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
 
-    Activity createNewActivity(long userId,
-            ActivityFormData activityFormData, VisibilityType vis)
-            throws EventException, ResourceCouldNotBeLoadedException;
-
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
-    
-    Map<String, Object> enrollUserInCourse(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
-    
-    Map<String, Object> enrollUserInCourseInSameTransaction(long userId, Course course, TargetLearningGoal targetGoal, String context) throws ResourceCouldNotBeLoadedException;
-    
-    Map<String, Object> assignStudentsToInstructorAutomatically(long courseId, List<Long> courseEnrollmentIds,
-            long instructorToExcludeId);
-    
-    Map<String, Object> enrollUserInCourse(User user, Course course) throws EventException, ResourceCouldNotBeLoadedException;
-    
-    Course updateCourse(long courseId, String title, String description, Collection<Tag> tags, 
-            Collection<Tag> hashtags, boolean published) throws DbConnectionException;
-
-    Activity createNewActivity(ActivityData activityData) throws DbConnectionException;
-    
-    void deleteCompetenceActivityInSeparateTransaction(long competenceActivityId) 
-    		throws DbConnectionException;
     
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
 import org.prosolo.services.event.EventFactory;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;

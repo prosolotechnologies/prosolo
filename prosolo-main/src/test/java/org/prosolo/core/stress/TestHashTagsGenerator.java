@@ -16,7 +16,6 @@ import org.hibernate.Session;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.user.LearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -184,51 +183,51 @@ public class TestHashTagsGenerator extends TestContext {
 			
 			ArrayList<Long> lGoalsIds = this.getAllLearningGoalsIds();
 			
-			for (int i = 0; i < numbOfLearningGoalsToAdd; i++) {
-				int lGoalInd = generator.nextInt(numbOfLearningGoals - 2) + 2;
-				long lGoalId = lGoalsIds.get(lGoalInd);
-				LearningGoal lGoal = null;
-				try {
-					lGoal = userManager.loadResource(LearningGoal.class, lGoalId);
-				} catch (ObjectNotFoundException ex) {
-					System.out.println("Learning Goal not found:" + lGoalId);
-				}
-				List<String> lGoalTags = new ArrayList<String>();
-				if (randchoice.toLowerCase().equals("y") && numberOfHashTags > 0) {
-					for (int h = 0; h < numberOfHashTags; h++) {
-						int tagInd = generator.nextInt(tags.size());
-						String tag = tags.get(tagInd);
-						System.out.print("..." + tag);
-						if (!lGoalTags.contains(tag)) {
-							lGoalTags.add(tag);
-						}
-						
-					}
-				} else {
-					System.out.println("Add hashtags as a comma separated list for learning goal:" + lGoal.getTitle());
-					String tagsList = br.readLine();
-					lGoalTags = AnnotationUtil.getTrimmedSplitStrings(tagsList);
-					for (String t : lGoalTags) {
-						System.out.println("added:" + t);
-					}
-				}
-				Set<Tag> hashTagList = tagManager.getOrCreateTags(lGoalTags);
-				lGoal.setHashtags(hashTagList);
-				tagManager.saveEntity(lGoal);
-				
-				// twitterStreamsManager.updateHashTagsForUserAndRestartStream(oldHashTags,
-				// topicPreference.getPreferredHashTags(), user.getId());
-
-			}
+//			for (int i = 0; i < numbOfLearningGoalsToAdd; i++) {
+//				int lGoalInd = generator.nextInt(numbOfLearningGoals - 2) + 2;
+//				long lGoalId = lGoalsIds.get(lGoalInd);
+//				LearningGoal lGoal = null;
+//				try {
+//					lGoal = userManager.loadResource(LearningGoal.class, lGoalId);
+//				} catch (ObjectNotFoundException ex) {
+//					System.out.println("Learning Goal not found:" + lGoalId);
+//				}
+//				List<String> lGoalTags = new ArrayList<String>();
+//				if (randchoice.toLowerCase().equals("y") && numberOfHashTags > 0) {
+//					for (int h = 0; h < numberOfHashTags; h++) {
+//						int tagInd = generator.nextInt(tags.size());
+//						String tag = tags.get(tagInd);
+//						System.out.print("..." + tag);
+//						if (!lGoalTags.contains(tag)) {
+//							lGoalTags.add(tag);
+//						}
+//						
+//					}
+//				} else {
+//					System.out.println("Add hashtags as a comma separated list for learning goal:" + lGoal.getTitle());
+//					String tagsList = br.readLine();
+//					lGoalTags = AnnotationUtil.getTrimmedSplitStrings(tagsList);
+//					for (String t : lGoalTags) {
+//						System.out.println("added:" + t);
+//					}
+//				}
+//				Set<Tag> hashTagList = tagManager.getOrCreateTags(lGoalTags);
+//				lGoal.setHashtags(hashTagList);
+//				tagManager.saveEntity(lGoal);
+//				
+//				// twitterStreamsManager.updateHashTagsForUserAndRestartStream(oldHashTags,
+//				// topicPreference.getPreferredHashTags(), user.getId());
+//
+//			}
 		} catch (NumberFormatException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (ResourceCouldNotBeLoadedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+//		} catch (ResourceCouldNotBeLoadedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
 		}
 
 	}

@@ -1,8 +1,8 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
 

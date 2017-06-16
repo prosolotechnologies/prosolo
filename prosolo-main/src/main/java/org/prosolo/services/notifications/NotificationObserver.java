@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
@@ -50,16 +50,6 @@ public class NotificationObserver extends EventObserver {
 	@Override
 	public EventType[] getSupportedEvents() {
 		return new EventType[] { 
-				EventType.JOIN_GOAL_REQUEST,
-				EventType.JOIN_GOAL_REQUEST_APPROVED,
-				EventType.JOIN_GOAL_REQUEST_DENIED,
-				EventType.JOIN_GOAL_INVITATION,
-				EventType.JOIN_GOAL_INVITATION_ACCEPTED,
-				//TODO is it safe do delete these? Now we use assessments
-				EventType.EVALUATION_REQUEST, 
-				EventType.EVALUATION_ACCEPTED,
-				EventType.EVALUATION_GIVEN, 
-//				EventType.EVALUATION_EDITED, 
 				EventType.Follow,
 				EventType.ACTIVITY_REPORT_AVAILABLE,
 				EventType.Comment,
@@ -89,7 +79,6 @@ public class NotificationObserver extends EventObserver {
 				List<Notification1> notifications = processor.getNotificationList();
 				// make sure all data is persisted to the database
 				session.flush();
-				
 				
 				/*
 				 * After all notifications have been generated, send them to their
@@ -127,8 +116,6 @@ public class NotificationObserver extends EventObserver {
 								NotificationData notificationData = notificationManager
 										.getNotificationData(notification.getId(), true, 
 												session, locale);
-								//session.update(notification.getActor());
-								//session.update(receiver);						 
 								String domain = CommonSettings.getInstance().config.appConfig.domain;
 								
 								if (domain.endsWith("/")) {
@@ -141,10 +128,11 @@ public class NotificationObserver extends EventObserver {
 									public void run() {
 										Session session = (Session) defaultManager.getPersistence().openSession();
 										try {
-											logger.info("Sending notification via email to " + notificationData.getReceiver().getEmail());
+											String email = CommonSettings.getInstance().config.appConfig.developmentMode ? CommonSettings.getInstance().config.appConfig.developerEmail : notificationData.getReceiver().getEmail();
+											logger.info("Sending notification via email to " + email);
 											
 											boolean sent = notificationManager.sendNotificationByEmail(
-													notificationData.getReceiver().getEmail(), 
+													email, 
 													notificationData.getReceiver().getFullName(), 
 													notificationData.getActor().getFullName(), 
 													notificationData.getPredicate(),
@@ -157,9 +145,9 @@ public class NotificationObserver extends EventObserver {
 													session);
 											
 											if (sent) {
-												logger.info("Email notification to " + notificationData.getReceiver().getEmail() + " is sent.");
+												logger.info("Email notification to " + email + " is sent." + (CommonSettings.getInstance().config.appConfig.developmentMode ? " Development mode is on" : ""));
 											} else {
-												logger.error("Error sending email notification to " + notificationData.getReceiver().getEmail());
+												logger.error("Error sending email notification to " + email);
 											}
 										} finally {
 											HibernateUtil.close(session);
@@ -171,7 +159,6 @@ public class NotificationObserver extends EventObserver {
 								e.printStackTrace();
 							}
 						}
-						
 					}
 				}
 			} else {

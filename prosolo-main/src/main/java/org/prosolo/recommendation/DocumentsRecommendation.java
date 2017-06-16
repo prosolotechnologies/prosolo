@@ -1,13 +1,13 @@
 package org.prosolo.recommendation;
 
-import java.util.List;
-
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.recommendation.impl.RecommendedDocument;
-
+/**
+ * @author Zoran Jeremic
+ * @version 0.5
+ * @deprecated since 0.7
+ */
+@Deprecated
 public interface DocumentsRecommendation {
 	
-	List<RecommendedDocument> recommendDocuments(long userId, TargetLearningGoal tGoal, int limit);
+//	List<RecommendedDocument> recommendDocuments(long userId, TargetLearningGoal tGoal, int limit);
 	
 }
