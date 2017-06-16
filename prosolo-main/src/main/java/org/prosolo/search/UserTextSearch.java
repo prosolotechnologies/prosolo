@@ -53,8 +53,6 @@ public interface UserTextSearch extends AbstractManager {
 	TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
 			long credId, long roleId, List<Long> excludedUserIds);
 	
-	List<Long> getInstructorCourseIds (long userId);
-	
 	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit);

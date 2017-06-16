@@ -7,27 +7,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -40,6 +34,7 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -56,7 +51,13 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -104,14 +105,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = false)
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
-			LearningContextData context) throws DbConnectionException,IllegalDataStateException {
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		Competence1 comp = null;
 		try {
 			/*
 			 * if competence has no activities, it can't be published
 			 */
 			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new CompetenceEmptyException();
+				throw new IllegalDataStateException("Can not publish competency without activities.");
 			}
 			
 			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
@@ -155,10 +156,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 //			}
 
 			return comp;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
 			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1540,70 +1541,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId)
-			throws DbConnectionException, CompetenceEmptyException {
-		try {
-			// get all draft competences
-			List<EventData> events = new ArrayList<>();
-			List<Competence1> comps = getDraftCompetencesFromList(compIds, creatorId);
-			// publish competences that this user can edit only
-			User user = new User();
-			user.setId(creatorId);
-
-			// store ids of competences that can be edited and that are
-			// published so list can be
-			// passed to publishActivities method
-			List<Long> publishedComps = new ArrayList<>();
-			for (Competence1 c : comps) {
-				/*
-				 * check if competence has at least one activity - if not, it
-				 * can't be published
-				 */
-				int numberOfActivities = c.getActivities().size();
-				if (numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
-				}
-
-				//check if user can edit this competence
-				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
-				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
-				if(access.isCanEdit()) {
-					c.setPublished(true);
-					EventData ev = new EventData();
-					ev.setActorId(creatorId);
-					ev.setEventType(EventType.STATUS_CHANGED);
-					ev.setObject(c);
-					events.add(ev);
-
-					publishedComps.add(c.getId());
-				}
-			}
-			
-//			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
-//					creatorId, publishedComps);
-//			persistence.currentManager().flush();
-//			for(long id : publishedComps) {
-//				Competence1 comp = (Competence1) persistence.currentManager()
-//						.load(Competence1.class, id);
-//				comp.setDuration(getRecalculatedDuration(id));
-//			}
-//			events.addAll(actEvents);
-
-			return events;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
-			// cee.printStackTrace();
-			throw cee;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing competences");
-		}
-	}
 
 	/**
 	 * Return all draft competences that satisfy condition: for user role if
@@ -2712,8 +2649,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * check if competence has at least one activity - if not, it can't be published
 				 */
 				int numberOfActivities = comp.getActivities().size();
-				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
+				if (numberOfActivities == 0) {
+					throw new IllegalDataStateException("Can not publish competency without activities.");
 				}
 			
 				comp.setPublished(true);
@@ -2727,11 +2664,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 			
 			return res;
-		} catch(CompetenceEmptyException cee) {
-			logger.error(cee);
-			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
-		} catch(Exception e) {
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+			throw e;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competency");
@@ -2804,6 +2740,108 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT tags " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN comp.tags tags  " +
+				"WHERE comp.id = :compId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("compId", competenceId)
+			.list();
+		
+		return res;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		try {
+			String query = 
+				"UPDATE TargetCompetence1 targetComptence1 " +
+				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetComptence1.id = :compId ";
+	
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress = 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
 		}
 	}
 

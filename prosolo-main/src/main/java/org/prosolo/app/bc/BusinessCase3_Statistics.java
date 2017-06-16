@@ -22,17 +22,14 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -45,9 +42,6 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -849,25 +843,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 //		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
 
  
-		try {
-			ServiceLocator
-					.getInstance()
-					.getService(PostManager.class)
-					.createNewPost(userNickPowell.getId(),
-							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-
-			ServiceLocator
-					.getInstance()
-					.getService(PostManager.class)
-					.createNewPost(
-							userNickPowell.getId(),
-							"Can anybody recommend me a good book for SPSS basics? Thanks!",
-							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-		} catch (EventException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
+//		try {
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(userNickPowell.getId(),
+//							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(
+//							userNickPowell.getId(),
+//							"Can anybody recommend me a good book for SPSS basics? Thanks!",
+//							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+//			logger.error(e);
+//		} catch (Exception ex) {
+//			logger.error(ex);
+//		}
  	}
 	
 	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {

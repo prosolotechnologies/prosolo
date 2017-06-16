@@ -1,13 +1,13 @@
 package org.prosolo.services.reporting;
 
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
-import static org.prosolo.common.domainmodel.activities.events.EventType.MENTIONED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+import static org.prosolo.common.domainmodel.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.events.EventType.Dislike;
+import static org.prosolo.common.domainmodel.events.EventType.Like;
+import static org.prosolo.common.domainmodel.events.EventType.MENTIONED;
+import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;

@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;

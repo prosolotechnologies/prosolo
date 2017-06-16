@@ -466,17 +466,19 @@ public interface CredentialManager extends AbstractManager {
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	
 	Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
-			LearningContextData context) throws DbConnectionException, CompetenceEmptyException, 
-			IllegalDataStateException, EventException;
+			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 	
 	Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
-			long actorId, LearningContextData context) throws DbConnectionException, CompetenceEmptyException,
-			IllegalDataStateException;
+			long actorId, LearningContextData context) throws DbConnectionException, IllegalDataStateException;
 	
 	List<Long> getIdsOfAllCredentialDeliveries(long credId, Session session) throws DbConnectionException;
 
 	void updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 
 	ResourceCreator getCredentialCreator(long credId) throws DbConnectionException;
+
+	List<Tag> getTagsForCredential(long credentialId) throws DbConnectionException;
+
+	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
 
 }

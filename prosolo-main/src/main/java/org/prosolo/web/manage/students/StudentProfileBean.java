@@ -14,9 +14,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
@@ -26,7 +24,6 @@ import org.prosolo.config.AnalyticalServerConfig;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.EvaluationManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.ActivityData;
@@ -37,9 +34,8 @@ import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
-import org.prosolo.web.manage.students.data.EvaluationSubmissionData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
-import org.prosolo.web.portfolio.data.SocialNetworksData;
+import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -69,9 +65,6 @@ public class StudentProfileBean implements Serializable {
 	private Competence1Manager compManager;
 	@Inject
 	private Activity1Manager activityManager;
-	@Inject
-	private EvaluationManager evalManager;
-
 
 	private String id;
 	private long decodedId;
@@ -212,21 +205,21 @@ public class StudentProfileBean implements Serializable {
 		}
 	}
 
-	public void loadSubmissions(CompetenceProgressData cd) {
-		try {
-			if (cd.getSubmissions() == null) {
-				cd.setSubmissions(new ArrayList<EvaluationSubmissionData>());
-				List<Evaluation> evals = evalManager.getEvaluationsForAResource(TargetCompetence.class, cd.getId());
-				for (Evaluation e : evals) {
-					cd.getSubmissions().add(new EvaluationSubmissionData(e));
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
+//	public void loadSubmissions(CompetenceProgressData cd) {
+//		try {
+//			if (cd.getSubmissions() == null) {
+//				cd.setSubmissions(new ArrayList<EvaluationSubmissionData>());
+//				List<Evaluation> evals = evalManager.getEvaluationsForAResource(TargetCompetence.class, cd.getId());
+//				for (Evaluation e : evals) {
+//					cd.getSubmissions().add(new EvaluationSubmissionData(e));
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			logger.error(e);
+//			PageUtil.fireErrorMessage(e.getMessage());
+//		}
+//	}
 
 	public void selectCompetence(CompetenceProgressData cd) {
 		try {

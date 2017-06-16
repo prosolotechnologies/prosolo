@@ -1,10 +1,6 @@
 package org.prosolo.common.domainmodel.feeds;
 
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.feeds.FeedsDigest;
 
 /**
  * @author Nikola Milikic

@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.ActivityCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
@@ -37,6 +38,7 @@ import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -1074,6 +1076,28 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving social actiity");
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Set<Long> getUsersInMyNetwork(long userId) {
+		Set<Long> myNetwork = new HashSet<Long>();
+
+		String query = 
+				"SELECT DISTINCT followedUser.id " +
+				"FROM FollowedUserEntity fUser " +
+				"LEFT JOIN fUser.followedUser followedUser " +
+				"WHERE fUser.user = :userId ";
+
+		@SuppressWarnings("unchecked")
+		List<Long> users = persistence.currentManager().createQuery(query)
+				.setLong("userId", userId)
+				.list();
+
+		if (users != null && !users.isEmpty()) {
+			myNetwork.addAll(users);
+		}
+		return myNetwork;
 	}
 	
 }

@@ -1,18 +1,18 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.dal.persistence.CompetenceDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.bigdata.es.impl.CompetenceIndexerImpl;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 
@@ -60,7 +60,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 	
 	@Override
 	public void publishCompetences(long credId, long userId) 
-			throws DbConnectionException, CompetenceEmptyException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			//get all draft competences
 			List<Competence1> comps = getDraftCompetencesForCredential(credId);
@@ -74,11 +74,11 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 				 */
 				int numberOfActivities = c.getActivities().size();
 				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
+					throw new IllegalDataStateException("Can not publish competency without activities.");
 				}
 				//check if user can edit this competence
 				UserGroupPrivilege priv = getUserPrivilegeForCompetence(credId, c.getId(), userId);
-				if(priv == UserGroupPrivilege.Edit) {
+				if (priv == UserGroupPrivilege.Edit) {
 					c.setPublished(true);
 					CompetenceIndexerImpl.getInstance().updateVisibility(c.getId(), true);
 					publishedComps.add(c.getId());
@@ -92,11 +92,11 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 						.load(Competence1.class, id);
 				comp.setDuration(getRecalculatedDuration(id));
 			}
-		} catch(CompetenceEmptyException cee) {
-			logger.error(cee);
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
 			//cee.printStackTrace();
-			throw cee;
-		} catch(Exception e) {
+			throw e;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competences");

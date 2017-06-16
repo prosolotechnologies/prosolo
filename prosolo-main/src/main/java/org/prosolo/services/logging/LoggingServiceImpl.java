@@ -1,21 +1,21 @@
 package org.prosolo.services.logging;
 
 import static java.lang.String.format;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment_Reply;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Dislike;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
-import static org.prosolo.common.domainmodel.activities.events.EventType.PostShare;
-import static org.prosolo.common.domainmodel.activities.events.EventType.RemoveLike;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+import static org.prosolo.common.domainmodel.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.events.EventType.Comment_Reply;
+import static org.prosolo.common.domainmodel.events.EventType.Dislike;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.events.EventType.Like;
+import static org.prosolo.common.domainmodel.events.EventType.PostShare;
+import static org.prosolo.common.domainmodel.events.EventType.RemoveLike;
+import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,18 +37,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
-import org.prosolo.common.domainmodel.activitywall.old.NodeSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.old.PostSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.old.UserSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.old.comments.NodeComment;
-import org.prosolo.common.domainmodel.activitywall.old.comments.SocialActivityComment;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.content.Post;
-import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -62,22 +54,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-/*import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
-
-*/
 /**
  * @author Zoran Jeremic 2013-10-07
  * 
@@ -322,11 +300,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		String targetType=   (String) logObject.get("targetType");
 		long targetId= (long) logObject.get("targetId");
 		Long targetUserId=(long)0;
-		if(objectType.equals(NodeRequest.class.getSimpleName())){
-			targetUserId=logsDataManager.getRequestMaker(actorId, objectId);
-		}else if(objectType.equals(EvaluationSubmission.class.getSimpleName())){
-			targetUserId=logsDataManager.getEvaluationSubmissionRequestMaker(actorId,objectId);
-		}else if(objectType.equals(Comment1.class.getSimpleName())){
+		if(objectType.equals(Comment1.class.getSimpleName())){
 			if(eventType.equals(EventType.Like) || eventType.equals(EventType.RemoveLike)){
 				targetUserId=logsDataManager.getCommentMaker(objectId);
 			}else if(eventType.equals(EventType.Comment)){
@@ -340,29 +314,30 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 				JSONObject parameters=(JSONObject) logObject.get("parameters");
 				System.out.println("SEND MESSAGE:"+logObject.toString()+" USER:"+parameters.get("user"));
 				targetUserId=  Long.valueOf(parameters.get("user").toString());
-			}else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
-				if(objectType.equals(PostSocialActivity.class.getSimpleName())||objectType.equals(SocialActivityComment.class.getSimpleName())||
-						objectType.equals(TwitterPostSocialActivity.class.getSimpleName())||objectType.equals(UserSocialActivity.class.getSimpleName())||
-						objectType.equals(UserSocialActivity.class.getSimpleName())||objectType.equals(NodeSocialActivity.class.getSimpleName())||
-						objectType.equals(NodeComment.class.getSimpleName())){
-					targetUserId=logsDataManager.getSocialActivityMaker(actorId,objectId);
-					System.out.println("GET FOR SOCIAL ACTIVITY:"+actorId+" targetUser:"+targetUserId+" objectId:"+objectId);
-				}else if(objectType.equals(TargetActivity.class.getSimpleName())){
-					targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,objectId);
-				}
-			}else if(eventType.equals(EventType.Comment)){
-				if(objectType.equals(SocialActivityComment.class.getSimpleName())){
-					targetUserId=logsDataManager.getSocialActivityMaker(actorId,targetId);
-				}else if(objectType.equals(NodeComment.class.getSimpleName())){
-						if(targetType.equals(TargetActivity.class.getSimpleName())){
-							targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,targetId);
-					}
-				}
-			}else if(eventType.equals(EventType.PostShare)){
-				if(objectType.equals(Post.class.getSimpleName())){
-					targetUserId=logsDataManager.getPostMaker(actorId,objectId);
-				}
 			}
+//			else if(eventType.equals(EventType.Like) || eventType.equals(EventType.Dislike)){
+//				if(objectType.equals(PostSocialActivity.class.getSimpleName())||objectType.equals(SocialActivityComment.class.getSimpleName())||
+//						objectType.equals(TwitterPostSocialActivity.class.getSimpleName())||objectType.equals(UserSocialActivity.class.getSimpleName())||
+//						objectType.equals(UserSocialActivity.class.getSimpleName())||objectType.equals(NodeSocialActivity.class.getSimpleName())||
+//						objectType.equals(NodeComment.class.getSimpleName())){
+//					targetUserId=logsDataManager.getSocialActivityMaker(actorId,objectId);
+//					System.out.println("GET FOR SOCIAL ACTIVITY:"+actorId+" targetUser:"+targetUserId+" objectId:"+objectId);
+//				}else if(objectType.equals(TargetActivity.class.getSimpleName())){
+//					targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,objectId);
+//				}
+//			}else if(eventType.equals(EventType.Comment)){
+//				if(objectType.equals(SocialActivityComment.class.getSimpleName())){
+//					targetUserId=logsDataManager.getSocialActivityMaker(actorId,targetId);
+//				}else if(objectType.equals(NodeComment.class.getSimpleName())){
+//						if(targetType.equals(TargetActivity.class.getSimpleName())){
+//							targetUserId=logsDataManager.getActivityMakerForTargetActivity(actorId,targetId);
+//					}
+//				}
+//			}else if(eventType.equals(EventType.PostShare)){
+//				if(objectType.equals(Post.class.getSimpleName())){
+//					targetUserId=logsDataManager.getPostMaker(actorId,objectId);
+//				}
+//			}
 		}
 		System.out.println("TARGET USER ID:"+targetUserId);
 		//TODO this method should be changed because domain model changed

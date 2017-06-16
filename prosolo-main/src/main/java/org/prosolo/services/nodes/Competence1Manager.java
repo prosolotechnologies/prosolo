@@ -3,7 +3,6 @@ package org.prosolo.services.nodes;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -23,7 +22,11 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -234,21 +237,6 @@ public interface Competence1Manager {
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 	
 	/**
-	 * this is the method that should be called when you want to publish competences
-	 * 
-	 * Returns List of data for events that should be generated after transaction commits.
-	 * 
-	 * @param credId
-	 * @param compIds
-	 * @param creatorId
-	 * @param role
-	 * @throws DbConnectionException
-	 * @throws CompetenceEmptyException
-	 */
-	List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId) 
-			throws DbConnectionException, CompetenceEmptyException;
-	
-	/**
 	 * Method for getting all completed competences (competences that has progress == 100)
 	 * and a hiddenFromProfile flag set to a certain value
 	 * @return 
@@ -396,8 +384,8 @@ public interface Competence1Manager {
 	List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
 			throws DbConnectionException;
 	
-	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
-			throws DbConnectionException, CompetenceEmptyException, IllegalDataStateException;
+	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId)
+			throws DbConnectionException, IllegalDataStateException;
 
 	ResourceCreator getCompetenceCreator(long compId) throws DbConnectionException;
 
@@ -414,5 +402,38 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 
 	void updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all completed competences (competences that has progress == 100)
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all unfinished competences (competences that has progress != 100)
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	
+	/**
+	 * Update whether a competence should be visible on the profile or not.
+	 * 
+	 * @param compId
+	 * @param hiddenFromProfile
+	 * @throws DbConnectionException
+	 */
+	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
 }

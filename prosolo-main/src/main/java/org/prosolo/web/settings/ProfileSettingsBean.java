@@ -5,13 +5,10 @@ package org.prosolo.web.settings;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
@@ -19,35 +16,23 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.web.activitywall.data.UserData;
-import org.prosolo.services.activityWall.impl.data.SocialActivityData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.activitywall.ActivityWallBean1;
-import org.prosolo.web.activitywall.data.ActivityWallData;
-import org.prosolo.web.activitywall.data.SocialActivityCommentData;
 import org.prosolo.web.datatopagemappers.AccountDataToPageMapper;
 import org.prosolo.web.datatopagemappers.SocialNetworksDataToPageMapper;
-import org.prosolo.web.goals.GoalWallBean;
-import org.prosolo.web.goals.LearnBean;
-import org.prosolo.web.goals.cache.CompetenceDataCache;
-import org.prosolo.web.goals.cache.GoalDataCache;
-import org.prosolo.web.notification.TopNotificationsBean;
-import org.prosolo.web.notification.data.NotificationData;
-import org.prosolo.web.portfolio.data.SocialNetworkAccountData;
-import org.prosolo.web.portfolio.data.SocialNetworksData;
+import org.prosolo.web.profile.data.SocialNetworkAccountData;
+import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.AvatarUtils;
 import org.prosolo.web.util.page.PageUtil;
@@ -77,8 +62,6 @@ public class ProfileSettingsBean implements Serializable {
 	private AvatarProcessor avatarProcessor;
 	@Inject
 	private EventFactory eventFactory;
-	@Inject
-	private ApplicationBean applicationBean;
 	@Inject
 	@Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -202,127 +185,6 @@ public class ProfileSettingsBean implements Serializable {
 		}
 	}
 
-	@Deprecated
-	private void asyncUpdateUserDataInSocialActivities(final AccountData accountData) {
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long userId = accountData.getId();
-
-				Map<Long, HttpSession> userSessions = applicationBean.getAllHttpSessions();
-
-				for (Entry<Long, HttpSession> userSessionMap : userSessions.entrySet()) {
-
-					if (userSessionMap != null) {
-						HttpSession userSession = userSessionMap.getValue();
-
-						// updating Status Wall data
-						ActivityWallBean1 activityWallBean = (ActivityWallBean1) userSession.getAttribute("activitywall");
-
-						if (activityWallBean != null) {
-							if (activityWallBean.getAllActivities() != null) {
-								updateSocialActivities(accountData, userId, activityWallBean.getAllActivities());
-							}
-						}
-
-						// updating Goal Wall data
-						GoalWallBean goalWallBean = (GoalWallBean) userSession.getAttribute("goalwall");
-
-						if (goalWallBean != null) {
-							if (goalWallBean.getAllActivities() != null) {
-								updateSocialActivities(accountData, userId, goalWallBean.getAllActivities());
-							}
-						}
-
-						// updating goal maker data
-						LearnBean learningGoalsBean = (LearnBean) userSession.getAttribute("learninggoals");
-
-						if (learningGoalsBean != null) {
-							for (GoalDataCache goalDataCache : learningGoalsBean.getGoals()) {
-								if (goalDataCache.getData().getCreator() != null
-										&& goalDataCache.getData().getCreator().getId() == userId) {
-									updateUserData(accountData, goalDataCache.getData().getCreator());
-
-									// updating comments on activities
-									if (goalDataCache.isCompetencesInitialized()) {
-										List<CompetenceDataCache> competences = goalDataCache.getCompetences();
-
-										for (CompetenceDataCache competenceDataCache : competences) {
-											List<ActivityWallData> activities = competenceDataCache.getActivities();
-
-											if (activities != null) {
-												for (ActivityWallData activityWallData : activities) {
-													if (activityWallData.getComments() != null) {
-														List<SocialActivityCommentData> comments = activityWallData
-																.getComments();
-
-														for (SocialActivityCommentData activityCommentData : comments) {
-															updateUserData(accountData, activityCommentData.getMaker());
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-
-						// updating notification data
-						TopNotificationsBean topNotification = (TopNotificationsBean) userSession
-								.getAttribute("topNotificationsBean");
-
-						if (topNotification != null) {
-							List<NotificationData> notifications = topNotification.getNotifications();
-
-							if (notifications != null) {
-								for (NotificationData notificationData : notifications) {
-									updateUserData(accountData, notificationData.getActor());
-								}
-							}
-						}
-
-//						MessagesBean messagesBean = (MessagesBean) userSession.getAttribute("messagesBean");
-//
-//						if (messagesBean != null) {
-//							List<MessagesThreadData> messages = messagesBean.getMessagesThreads();
-//
-//							if (messages != null) {
-//								for (MessagesThreadData messageData : messages) {
-//									updateUserData(accountData, messageData.getLatest().getActor());
-//								}
-//							}
-//						}
-					}
-				}
-			}
-
-		});
-	}
-
-	private void updateSocialActivities(final AccountData accountData, long userId,
-			List<SocialActivityData> activities) {
-
-		for (SocialActivityData socialActivityData : activities) {
-
-			updateUserData(accountData, socialActivityData.getActor());
-
-			if (socialActivityData.getComments() != null) {
-				for (SocialActivityCommentData commentData : socialActivityData.getComments()) {
-					updateUserData(accountData, commentData.getMaker());
-				}
-			}
-		}
-	}
-
-	private void updateUserData(AccountData accountData, UserData actor) {
-		if (actor != null && actor.getId() == accountData.getId()) {
-			actor.setName(accountData.getFirstName() + " " + accountData.getLastName());
-			actor.setAvatarUrl(accountData.getAvatarPath());
-			actor.setPosition(accountData.getPosition());
-		}
-	}
-
 	private String newAvatar;
 	private String cropCoordinates;
 
@@ -355,7 +217,6 @@ public class ProfileSettingsBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "Profile photo updated!");
 
 			init();
-			asyncUpdateUserDataInSocialActivities(accountData);
 		} catch (IOException | ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing profile photo.");

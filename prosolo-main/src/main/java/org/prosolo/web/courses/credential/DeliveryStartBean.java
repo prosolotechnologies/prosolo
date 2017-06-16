@@ -1,16 +1,6 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -21,6 +11,14 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
 
 @ManagedBean(name = "deliveryStartBean")
 @Component("deliveryStartBean")
@@ -60,9 +58,6 @@ public class DeliveryStartBean implements Serializable {
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
 			PageUtil.fireErrorMessage("Error while creating new credential delivery. Please try again.");
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
-			PageUtil.fireErrorMessage("At least one of the credential competencies is empty so it can not be published.");
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
