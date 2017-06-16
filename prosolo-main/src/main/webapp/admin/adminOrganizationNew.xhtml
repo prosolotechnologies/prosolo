@@ -56,13 +56,14 @@
                             <div class="formLine">
                                 <label>Admin(s)</label>
                                 <div class="formLineRight">
-                                    <div class="inputWrapper">
-                                        <h:panelGroup layuot="block" id="selectNewOwner">
+                                        <div class="inputWrapper">
 
 
                                             <h:inputText onkeyup="searchListener(execSearchUsers);"
                                                          value="#{organizationEditBean.searchTerm}" id="newName"
-                                                         placeholder="Type name..." name="newName" autocomplete="off" />
+                                                         placeholder="Type name..." name="newName" autocomplete="off"
+                                                        styleClass="adminSearchFieldSelector"
+                                                         process="@this"/>
 
                                             <p:remoteCommand name="execSearchUsers" process="newName"
                                                              action="#{organizationEditBean.resetAndSearch()}"
@@ -72,7 +73,7 @@
 
                                             <h:panelGroup id="usersListPanel">
                                                 <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.admins.size() > 0}">
-                                                    <ul id="usersList" class="dropdown-menu searchResultsDrop"
+                                                    <ul id="usersList" class="dropdown-menu searchResultsDrop panelAdminSearchResultsSelector"
                                                         style="display: block;">
                                                         <ui:repeat value="#{organizationEditBean.admins}" var="user"
                                                                    varStatus="iterator">
@@ -83,7 +84,7 @@
                                                                                process="@this"
                                                                                action="#{organizationEditBean.setAdministrator(user)}"
                                                                                update=":formMain:selectNewOwner"
-                                                                               rendered="#{not organizationEditBean.adminsChoosen.contains(user)}">
+                                                                               oncomplete="$('.adminSearchFieldSelector').val(''); $('.panelAdminSearchResultsSelector').first().stop(true, true).slideUp(10);">
                                                                     <utilcomp:userAvatar avatar="#{user.avatarUrl}"
                                                                                          fullName="#{user.fullName}" />
                                                                     <h3>#{user.fullName}</h3>
@@ -94,31 +95,34 @@
                                                     </ul>
                                                 </h:panelGroup>
                                             </h:panelGroup>
-
+                                        </div>
+                                        <h:panelGroup id="selectNewOwner">
                                             <ui:fragment rendered="#{not empty organizationEditBean.adminsChoosen}">
-                                                <ul class="list">
-                                                    <ui:repeat value="#{organizationEditBean.adminsChoosen}" var="admin">
-                                                        <ul class="list">
-                                                            <li>
-                                                                <div class="instructorInfo">
-                                                                    <utilcomp:userAvatar
-                                                                            avatar="#{admin.avatarUrl}"
-                                                                            fullName="#{admin.fullName}"
-                                                                            width="48"
-                                                                            height="48"/>
-                                                                    <div class="infoWrap">
-                                                                        <h3>#{admin.fullName}</h3>
-                                                                        <span>#{admin.position}</span>
-                                                                    </div>
-
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </ui:repeat>
-                                                </ul>
+                                            <ul class="list">
+                                                <ui:repeat value="#{organizationEditBean.adminsChoosen}" var="admin">
+                                                    <li>
+                                                        <div class="instructorInfo">
+                                                            <utilcomp:userAvatar
+                                                                    avatar="#{admin.avatarUrl}"
+                                                                    fullName="#{admin.fullName}"
+                                                                    width="48"
+                                                                    height="48"/>
+                                                            <div class="infoWrap">
+                                                                <h3>#{admin.fullName}</h3>
+                                                                <span>#{admin.position}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="assignOpt">
+                                                            <p:commandLink styleClass="removeX"
+                                                                           process="@this"
+                                                                           action="#{organizationEditBean.userReset(admin)}"
+                                                                           update="formMain:selectNewOwner ">Close</p:commandLink>
+                                                        </div>
+                                                    </li>
+                                                </ui:repeat>
+                                            </ul>
                                             </ui:fragment>
                                         </h:panelGroup>
-                                    </div>
                                 </div>
                             </div>
                             <div class="formLine">

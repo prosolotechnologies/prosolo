@@ -125,7 +125,7 @@ public interface UserTextSearch extends AbstractManager {
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 
 	TextSearchResponse1<UserData> searchNewOwner(String searchTerm, int limit,
-												 Long usersToExcludeFromSearch,List<UserData> adminsToExcludeFromSearch);
+												 Long usersToExcludeFromSearch,List<UserData> adminsToExcludeFromSearch,List<Role> adminRoles);
 
 
 }

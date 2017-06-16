@@ -1542,7 +1542,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public TextSearchResponse1<UserData> searchNewOwner(
-			String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch) {
+			String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch,List<Role> adminRoles) {
 		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
@@ -1567,6 +1567,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				for(UserData admin : adminsToExcludeFromSearch){
 					bQueryBuilder.mustNot(termQuery("id", admin.getId()));
 				}
+			}
+			if(adminRoles != null && !adminRoles.isEmpty()){
+				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
+				for(Role r : adminRoles){
+					bqb1.should(termQuery("roles.id", r.getId()));
+				}
+				bQueryBuilder.filter(bqb1);
 			}
 
 			try {
