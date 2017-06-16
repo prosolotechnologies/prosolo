@@ -9,9 +9,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.ContentType1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.ImageUtil;
@@ -30,36 +28,6 @@ import org.springframework.stereotype.Service;
 public class UploadManagerImpl implements UploadManager {
 	
 	@Autowired private AmazonS3UploadManager s3Manager;
-	
-	@Override
-	public AttachmentPreview uploadFile(UploadedFile uploadedFile, String fileName) throws IOException {
-		AttachmentPreview attachmentPreview = new AttachmentPreview();
-		attachmentPreview.setInitialized(true);
-		String fullPath = storeFile(uploadedFile, fileName);
-
-		// link
-		attachmentPreview.setLink(fullPath);
-		
-		// title
-		String title = fileName;
-		int lastDotIndex = title.lastIndexOf(".");
-		
-		if (lastDotIndex != -1) {
-			title = title.substring(0, lastDotIndex);
-		}
-		attachmentPreview.setUploadTitle(title);
-		
-		// description
-		//htmlPage.setDescription("Document description");
-		
-		if (ImageUtil.checkIfImage(fullPath)) {
-			attachmentPreview.setImage(fullPath);
-		}
-		
-		attachmentPreview.setContentType(ContentType.UPLOAD);
-		
-		return attachmentPreview;
-	}
 	
 	@Override
 	public AttachmentPreview1 uploadFile(String fileName, UploadedFile uploadedFile) 

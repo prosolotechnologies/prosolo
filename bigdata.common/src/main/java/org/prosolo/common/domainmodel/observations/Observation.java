@@ -28,7 +28,6 @@ public class Observation {
 	private User createdFor;
 	private Date creationDate;
 	private boolean edited;
-	//private TargetCredential1 targetCredential;
 	
 	@Id
 	@Column(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
@@ -114,14 +113,4 @@ public class Observation {
 		this.edited = edited;
 	}
 
-//	@ManyToOne(fetch = FetchType.LAZY)
-//	public TargetCredential1 getTargetCredential() {
-//		return targetCredential;
-//	}
-//
-//	public void setTargetCredential(TargetCredential1 targetCredential) {
-//		this.targetCredential = targetCredential;
-//	}
-	
-	
 }

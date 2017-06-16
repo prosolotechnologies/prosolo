@@ -3,6 +3,7 @@ package org.prosolo.services.activityWall;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -11,9 +12,9 @@ import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.interaction.data.CommentData;
 
 public interface SocialActivityManager {
@@ -50,5 +51,7 @@ public interface SocialActivityManager {
 	
 	SocialActivityData1 getSocialActivityById(long socialActivityId, long userId, Locale locale) 
 			throws DbConnectionException;
+	
+	Set<Long> getUsersInMyNetwork(long userId);
 
 }

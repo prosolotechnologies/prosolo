@@ -21,7 +21,6 @@ import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.LtiUserManager;
-import org.prosolo.services.nodes.CourseManager;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.lti.message.LTILaunchMessage;
@@ -49,8 +48,8 @@ public class LTIProviderLaunchBean implements Serializable {
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private AuthenticationService authenticationService;
-	@Inject
-	private CourseManager courseManager;
+//	@Inject
+//	private CourseManager courseManager;
 	@Inject
 	private LtiToolLaunchValidator toolLaunchValidator;
 	@Inject
@@ -91,7 +90,7 @@ public class LTIProviderLaunchBean implements Serializable {
 		
 		if(loggedIn) {
 			String page = FacesContext.getCurrentInstance().getViewRoot().getViewId();
-			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId(), page, "name:lti_launch|context:/name:lti_tool|id:" + msg.getId() + "/", null);
+//			courseManager.enrollUserIfNotEnrolled(user, tool.getLearningGoalId(), page, "name:lti_launch|context:/name:lti_tool|id:" + msg.getId() + "/", null);
 			String url = ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(tool.getToolType()).
 					getLaunchUrl(tool, user.getId());
 			logger.info("Redirecting to "+url);

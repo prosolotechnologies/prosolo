@@ -11,19 +11,26 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.interaction.PostManager;
-import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.DefaultManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityType;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -776,79 +783,53 @@ public class BusinessCase3_Statistics extends BusinessCase {
 							+ "to independenly evaluate the flood of numbers served up by advertisers, "
 							+ "politicians,  experts , and yes— by other scientists.",
 					userNickPowell,
-					"statistics, descriptive statistics");
-
-			Competence1 comp1cred11 = null;
-			try {
-				comp1cred11 = createCompetence(
-						userNickPowell,
-						"Descriptive Statistics",
-						"Descriptive statistics are used to describe the basic features of the data in a study. "
-								+ "They provide simple summaries about the sample and the measures. Together with simple graphics "
-								+ "analysis, they form the basis of virtually every quantitative analysis of data.",
-						cred11.getId(),
-						"descriptive statistics, statistics");
-
-				createActivity(
-						userNickPowell,
-						"Understanding Descriptive Statistics",
-						comp1cred11.getId(),
-						"http://www.nationalatlas.gov/articles/mapping/a_statistics.html");
-
-				createActivity(
-						userNickPowell,
-						"Teaching Prediction Intervals",
-						comp1cred11.getId(),
-						"http://www.amstat.org/publications/jse/secure/v8n3/preston.cfm");
-
-				publishCredential(cred11, cred11.getCreatedBy());
-			} catch (EventException e) {
-				logger.error(e);
-			} catch (Exception ex) {
-				logger.error(ex);
-			}
-
-
-			//		///////////////////////////////////////
-			//		// CREDENTIAL Understanding Descriptive Statistics
-			//		///////////////////////////////////////
-			//		Credential1 cred12 = createCredential(
-			//				"Learning Descriptive statistics",
-			//				"Descriptive statistics is the discipline of quantitatively describing the main features"
-			//						+ " of a collection of data.Descriptive statistics are distinguished from inferential "
-			//						+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
-			//						+ "a sample, rather than use the data to learn about the population that the sample of "
-			//						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
-			//						+ "inferential statistics, are not developed on the basis of probability theory.",
-			//				userNickPowell,
-			//				"statistics, descriptive statistics");
-			//
-			//		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
-
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(userNickPowell.getId(),
-								"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(
-								userNickPowell.getId(),
-								"Can anybody recommend me a good book for SPSS basics? Thanks!",
-								VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-			} catch (EventException | ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			} catch (Exception ex) {
-				logger.error(ex);
-			}
+					"Teaching Prediction Intervals");
+			
+			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
-			logger.info(e);
+			logger.error(e);
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
-	}
+			
+			
+//		///////////////////////////////////////
+//		// CREDENTIAL Understanding Descriptive Statistics
+//		///////////////////////////////////////
+//		Credential1 cred12 = createCredential(
+//				"Learning Descriptive statistics",
+//				"Descriptive statistics is the discipline of quantitatively describing the main features"
+//						+ " of a collection of data.Descriptive statistics are distinguished from inferential "
+//						+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
+//						+ "a sample, rather than use the data to learn about the population that the sample of "
+//						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
+//						+ "inferential statistics, are not developed on the basis of probability theory.",
+//				userNickPowell,
+//				"statistics, descriptive statistics");
+//
+//		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
+
+ 
+//		try {
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(userNickPowell.getId(),
+//							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//
+//			ServiceLocator
+//					.getInstance()
+//					.getService(PostManager.class)
+//					.createNewPost(
+//							userNickPowell.getId(),
+//							"Can anybody recommend me a good book for SPSS basics? Thanks!",
+//							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
+//		} catch (EventException | ResourceCouldNotBeLoadedException e) {
+//			logger.error(e);
+//		} catch (Exception ex) {
+//			logger.error(ex);
+//		}
+ 	}
 	
 	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {
 		//we no longer have published status for credential

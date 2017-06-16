@@ -18,7 +18,6 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.Config;
 import org.prosolo.services.logging.AccessResolver;
-import org.prosolo.web.home.ColleguesBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -94,19 +93,6 @@ public class ApplicationBean implements Serializable {
 		if(userSessions.containsKey(userId)){
 			return true;
 		}else return false;
-	}
-	
-	public List<HttpSession> getFollowersHttpSessions(long userId) {
-		List<HttpSession> followersSessions = new ArrayList<HttpSession>();
-		HttpSession userSession = getUserSession(userId);
-		
-		if (userSession != null) {
-			ColleguesBean colleguesBean = (ColleguesBean) userSession.getAttribute("colleguesBean");
-			List<UserData> followers = colleguesBean.getFollowers();
-			
-			followersSessions = getHttpSessionsOfUsersByUserData(followers);
-		}
-		return followersSessions;
 	}
 	
 	public List<HttpSession> getHttpSessionsOfUsers(List<User> users) {

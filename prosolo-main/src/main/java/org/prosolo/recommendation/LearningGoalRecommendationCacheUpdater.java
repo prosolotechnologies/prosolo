@@ -6,10 +6,11 @@ import org.hibernate.Session;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 
 /**
- * @author Nikola Milikic
+ * @author Zoran Jeremic
  * @version 0.5
- *			
+ * @deprecated since 0.7
  */
+@Deprecated
 public interface LearningGoalRecommendationCacheUpdater {
 	
 	/**

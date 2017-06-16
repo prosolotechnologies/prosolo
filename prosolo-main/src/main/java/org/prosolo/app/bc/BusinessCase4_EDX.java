@@ -3,16 +3,18 @@ package org.prosolo.app.bc;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
@@ -20,7 +22,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.MessagingManager;
-import org.prosolo.services.interaction.PostManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
@@ -637,110 +638,25 @@ public class BusinessCase4_EDX extends BusinessCase {
 						"Conduct prediction modeling effectively and appropriately",
 						cred5.getId(),
 						"academic performance, creative potential, social network analysis");
-
-				createActivity(
-						userNickPowell,
-						"Introduction in prediction modeling and regressors",
-						"Ryan Baker introduces prediction modeling and discusses regressors for week 5 of DALMOOC.",
-						"https://www.youtube.com/watch?v=1ZkUyFtCNIk",
-						ActivityType.VIDEO,
-						comp1cred5.getId(),
-						0,
-						37,
-						ActivityResultType.TEXT);
-
-				publishCredential(cred5, cred5.getCreatedBy());
-			} catch (EventException e1) {
-				logger.error(e1);
-			} catch (Exception ex) {
-				logger.error(ex);
-			}
-
-
-			try {
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(userNickPowell.getId(),
-								"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-
-				ServiceLocator
-						.getInstance()
-						.getService(PostManager.class)
-						.createNewPost(
-								userNickPowell.getId(),
-								"Can anybody recommend me a good book for SPSS basics? Thanks!",
-								VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-			} catch (EventException | ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
-			}
-
-			try {
-				/*
-				 * Enrolling students to credentials
-				 */
-				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userKevinHall.getId(), new LearningContextData());
-				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAnnaHallowell.getId(), new LearningContextData());
-				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userAkikoKido.getId(), new LearningContextData());
-				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userRichardAnderson.getId(), new LearningContextData());
-				ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredential(cred1.getId(), userIdaFritz.getId(), new LearningContextData());
-
-			} catch (EventException e) {
-				logger.error(e);
-			}
-			/*
-			 * Adding instructors
-			 */
-
-			try {
-				Map<String, String> params = new HashMap<>();
-				params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-
-				ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10, 0, null);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,
-						userNickPowell.getId(), userPhillAmstrong, cred1, null, null, null, params);
-
-				ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userKarenWhite.getId(), 0, 0, null);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,
-						userNickPowell.getId(), userKarenWhite, cred1, null, null, null, params);
-
-				ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userErikaAmes.getId(), 0, 0, null);
-				ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL,
-						userNickPowell.getId(), userErikaAmes, cred1, null, null, null, params);
-
-			} catch (EventException e) {
-				logger.error(e);
-			}
-
-			ServiceLocator.getInstance().getService(DefaultManager.class).flush();
-			/*
-			 * Assigning instructors to students
-			 */
-			//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userAnnaHallowell.getId(), userPhillAmstrong.getId(), cred1.getId());
-			//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userAkikoKido.getId(), userKarenWhite.getId(), cred1.getId());
-			//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userKevinHall.getId(), userKarenWhite.getId(), cred1.getId());
-			//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userRichardAnderson.getId(), userKarenWhite.getId(), cred1.getId());
-			//		ServiceLocator.getInstance().getService(CredentialInstructorManager.class).assignStudentToInstructor(userIdaFritz.getId(), userErikaAmes.getId(), cred1.getId());
-
-			/*
-			 * Kevin Hall learning cred1
-			 */
-
-			//		int activitiesToComplete = 3;
-			//		comLoop: for (CompetenceData1 compData : cred1DataKevinHall.getCompetences()) {
-			//			for (ActivityData actData : compData.getActivities()) {
-			//				ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivity(
-			//						actData.getTargetActivityId(),
-			//						compData.getCompetenceId(),
-			//						userKevinHall.getId(),
-			//						 new LearningContextData());
-			//
-			//				if (activitiesToComplete-- == 0) {
-			//					break comLoop;
-			//				}
-			//			}
-			//		}
-
+			
+			createActivity(
+					userNickPowell, 
+					"Introduction in prediction modeling and regressors",
+					"Ryan Baker introduces prediction modeling and discusses regressors for week 5 of DALMOOC.",
+					"https://www.youtube.com/watch?v=1ZkUyFtCNIk",
+					ActivityType.VIDEO,
+					comp1cred5.getId(),
+					0,
+					37,
+					ActivityResultType.TEXT);
+			
+			publishCredential(cred5, cred5.getCreatedBy());
+		} catch (EventException e1) {
+			logger.error(e1);
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+		
 			/*
 			 * Commenting on activities/ competences
 			 */

@@ -1,12 +1,20 @@
 package org.prosolo.services.nodes;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
+import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -14,11 +22,17 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
-
-import java.util.List;
 
 public interface Competence1Manager {
 
@@ -392,5 +406,38 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 
 	Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
+
+	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all completed competences (competences that has progress == 100)
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	
+	/**
+	 * Method for getting all unfinished competences (competences that has progress != 100)
+	 * and a hiddenFromProfile flag set to a certain value.
+	 * 
+	 * @param userId
+	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
+	
+	/**
+	 * Update whether a competence should be visible on the profile or not.
+	 * 
+	 * @param compId
+	 * @param hiddenFromProfile
+	 * @throws DbConnectionException
+	 */
+	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
 }

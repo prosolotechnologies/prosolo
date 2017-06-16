@@ -1,7 +1,19 @@
 package org.prosolo.services.nodes.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -10,9 +22,19 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
+import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -24,9 +46,25 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
+import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
+import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
@@ -35,10 +73,8 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
 public class Competence1ManagerImpl extends AbstractManagerImpl implements Competence1Manager {
@@ -2755,6 +2791,108 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT tags " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN comp.tags tags  " +
+				"WHERE comp.id = :compId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("compId", competenceId)
+			.list();
+		
+		return res;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		try {
+			String query = 
+				"UPDATE TargetCompetence1 targetComptence1 " +
+				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetComptence1.id = :compId ";
+	
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress = 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
 		}
 	}
 
