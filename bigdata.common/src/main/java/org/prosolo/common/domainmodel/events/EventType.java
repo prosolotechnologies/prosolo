@@ -140,7 +140,9 @@ public enum EventType {
 	PAGE_OPENED,
 	
 	ARCHIVE,
-	RESTORE;
+	RESTORE,
+
+	OWNER_CHANGE;
 	
 	private String customText;
 	

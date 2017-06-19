@@ -337,4 +337,19 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 
+	@Override
+	public void updateCompetenceOwner(long compId, long newOwnerId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("creatorId", newOwnerId);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
 }

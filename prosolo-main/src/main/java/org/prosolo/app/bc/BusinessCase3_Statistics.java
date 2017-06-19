@@ -791,44 +791,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
-			
-			
-//		///////////////////////////////////////
-//		// CREDENTIAL Understanding Descriptive Statistics
-//		///////////////////////////////////////
-//		Credential1 cred12 = createCredential(
-//				"Learning Descriptive statistics",
-//				"Descriptive statistics is the discipline of quantitatively describing the main features"
-//						+ " of a collection of data.Descriptive statistics are distinguished from inferential "
-//						+ "statistics (or inductive statistics), in that descriptive statistics aim to summarize "
-//						+ "a sample, rather than use the data to learn about the population that the sample of "
-//						+ "data is thought to represent. This generally means that descriptive statistics, unlike "
-//						+ "inferential statistics, are not developed on the basis of probability theory.",
-//				userNickPowell,
-//				"statistics, descriptive statistics");
-//
-//		addCompetenceToCredential(cred12, comp1cred11, userNickPowell);
-
- 
-//		try {
-//			ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createNewPost(userNickPowell.getId(),
-//							"Learning parametric data.", VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-//
-//			ServiceLocator
-//					.getInstance()
-//					.getService(PostManager.class)
-//					.createNewPost(
-//							userNickPowell.getId(),
-//							"Can anybody recommend me a good book for SPSS basics? Thanks!",
-//							VisibilityType.PUBLIC, null, null, true, null, null, null, null);
-//		} catch (EventException | ResourceCouldNotBeLoadedException e) {
-//			logger.error(e);
-//		} catch (Exception ex) {
-//			logger.error(ex);
-//		}
  	}
 	
 	private void publishCredential(Credential1 cred, User creator) throws DbConnectionException, StaleDataException {

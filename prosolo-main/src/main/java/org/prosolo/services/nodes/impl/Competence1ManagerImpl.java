@@ -2785,6 +2785,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				//add edit privilege to new owner
 				result.addEvents(userGroupManager.saveUserToDefaultCompetenceGroupAndGetEvents(
 						newCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+
+				//for all competencies change_owner event should be generated
+				Competence1 comp = new Competence1();
+				comp.setId(id);
+				Map<String, String> params = new HashMap<>();
+				params.put("oldOwnerId", oldCreatorId + "");
+				params.put("newOwnerId", newCreatorId + "");
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, 0, comp, null,
+						null, params));
 			}
 			return result;
 		} catch (Exception e) {

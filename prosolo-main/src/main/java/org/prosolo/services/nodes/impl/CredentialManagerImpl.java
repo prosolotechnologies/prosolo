@@ -3518,6 +3518,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					result.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
 							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, 0, null).getEvents());
 				}
+
+				//for all credentials and deliveries change_owner event should be generated
+				Credential1 cred = new Credential1();
+				cred.setId(cd.getId());
+				Map<String, String> params = new HashMap<>();
+				params.put("oldOwnerId", oldCreatorId + "");
+				params.put("newOwnerId", newCreatorId + "");
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, 0, cred, null,
+						null, params));
 			}
 			return result;
 		} catch (Exception e) {
