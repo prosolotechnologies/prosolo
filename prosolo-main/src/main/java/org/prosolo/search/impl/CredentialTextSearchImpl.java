@@ -239,8 +239,8 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 		BoolQueryBuilder bf = QueryBuilders.boolQuery();
 		bf.filter(QueryBuilders.termQuery("type", config.getType().toString().toLowerCase()));
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-		if(config.getType() == CredentialType.Delivery) {
-			if(config.shouldIncludeResourcesWithViewPrivilege()) {
+		if (config.getType() == CredentialType.Delivery) {
+			if (config.shouldIncludeResourcesWithViewPrivilege()) {
 				/*
 				 * users with learn privilege (or when credential is visible to all) can see credential delivery
 				 * if delivery is scheduled (delivery start is set) and not ended.
@@ -263,12 +263,12 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				boolFilter.should(publishedAndVisibleFilter);
 			}
 			
-			if(config.shouldIncludeEnrolledResources()) {
+			if (config.shouldIncludeEnrolledResources()) {
 				//user is enrolled in a credential (currently learning or completed competence)
 				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
 			}
 			
-			if(config.shouldIncludeResourcesWithInstructPrivilege()) {
+			if (config.shouldIncludeResourcesWithInstructPrivilege()) {
 				/*
 				 * we don't need to store users with instruct privilege separately because we already store 
 				 * collection of instructors for credential
@@ -277,18 +277,9 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			}
 		}
 		
-		if(config.shouldIncludeResourcesWithEditPrivilege()) {
-			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
-			//user is owner of a credential
-			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
+		if (config.shouldIncludeResourcesWithEditPrivilege()) {
 			//user has Edit privilege for credential
-			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
-			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
-			editorAndTypeFilter.filter(editorFilter);
-			
-			boolFilter.should(editorAndTypeFilter);
+			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
 		}
 		
 		bf.filter(boolFilter);

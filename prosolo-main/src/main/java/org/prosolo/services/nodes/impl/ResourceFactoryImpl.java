@@ -25,9 +25,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
@@ -198,95 +195,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			throw new DbConnectionException("Error while loading learning goals");
 		}
 	}
-    
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException {
-    	try {
-			 Credential1 cred = new Credential1();
-		     cred.setCreatedBy(loadResource(User.class, creatorId));
-		     cred.setType(CredentialType.Original);
-		     cred.setTitle(title);
-		     cred.setDescription(description);
-		     cred.setDateCreated(new Date());
-		     cred.setCompetenceOrderMandatory(compOrderMandatory);
-		     cred.setDuration(duration);
-		     cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-		     cred.setManuallyAssignStudents(manuallyAssign);
-		     
-		     saveEntity(cred);
-		     
-		     if(comps != null) {
-				for(CompetenceData1 cd : comps) {
-					CredentialCompetence1 cc = new CredentialCompetence1();
-					cc.setOrder(cd.getOrder());
-					cc.setCredential(cred);
-					Competence1 comp = (Competence1) persistence.currentManager().load(
-							Competence1.class, cd.getCompetenceId());
-					cc.setCompetence(comp);
-					saveEntity(cc);
-				}
-			 }
-		
-		     logger.info("New credential is created with id " + cred.getId());
-		     return cred;
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error while saving credential");
-    	}
-    }
-    
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
-			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId) {
-    	try {
-    		 Result<Competence1> result = new Result<>();
-			 Competence1 comp = new Competence1();
-			 comp.setTitle(title);
-			 comp.setDateCreated(new Date());
-			 comp.setDescription(description);
-		     comp.setCreatedBy(loadResource(User.class, creatorId));
-		     comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
-		     comp.setType(type);
-		     comp.setPublished(published);
-		     comp.setDuration(duration);
-		     comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-		     saveEntity(comp);
-		     
-		     if(activities != null) {
-				for(org.prosolo.services.nodes.data.ActivityData bad : activities) {
-					CompetenceActivity1 ca = new CompetenceActivity1();
-					ca.setOrder(bad.getOrder());
-					ca.setCompetence(comp);
-					Activity1 act = (Activity1) persistence.currentManager().load(
-							Activity1.class, bad.getActivityId());
-					ca.setActivity(act);
-					saveEntity(ca);
-				}
-			 }
-				
-		     if(credentialId > 0) {
-		    	 List<EventData> events = credentialManager.addCompetenceToCredential(credentialId, comp, 
-		    			 creatorId);
-		    	 result.addEvents(events);
-		     }
-		
-		     logger.info("New competence is created with id " + comp.getId());
-		     result.setResult(comp);
-		     return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while saving competency");
-        }
-    }
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)

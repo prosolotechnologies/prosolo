@@ -16,7 +16,6 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
@@ -43,26 +42,6 @@ public interface ResourceFactory extends AbstractManager {
     
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
-
-	/**
-	 * Returns Result with saved competence that can be accessed using {@link Result#getResult()} method
-	 * and events data that can be accessed using {@link Result#getEvents()}
-	 * @param title
-	 * @param description
-	 * @param tagsString
-	 * @param creatorId
-	 * @param studentAllowedToAddActivities
-	 * @param type
-	 * @param published
-	 * @param duration
-	 * @param activities
-	 * @param credentialId
-	 * @return
-	 */
-	Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
-			boolean studentAllowedToAddActivities, LearningResourceType type, boolean published, 
-			long duration, List<org.prosolo.services.nodes.data.ActivityData> activities, 
-			long credentialId);
 
 	Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException, IllegalDataStateException;
 
@@ -112,26 +91,5 @@ public interface ResourceFactory extends AbstractManager {
 	UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException;
 	
 	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
-	
-	/**
-	 * Saves new credential.
-	 * 
-	 * This method should be used for saving original credential only and not for delivery.
-	 * 
-	 * @param title
-	 * @param description
-	 * @param tagsString
-	 * @param hashtagsString
-	 * @param creatorId
-	 * @param compOrderMandatory
-	 * @param duration
-	 * @param manuallyAssign
-	 * @param comps
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	Credential1 createCredential(String title, String description, String tagsString, 
-    		String hashtagsString, long creatorId, boolean compOrderMandatory, long duration, 
-    		boolean manuallyAssign, List<CompetenceData1> comps) throws DbConnectionException;
 
 }

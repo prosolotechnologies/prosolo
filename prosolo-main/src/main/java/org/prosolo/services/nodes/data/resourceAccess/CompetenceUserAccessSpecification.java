@@ -1,10 +1,10 @@
 package org.prosolo.services.nodes.data.resourceAccess;
 
-import java.util.Collection;
-import java.util.Date;
-
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+
+import java.util.Collection;
+import java.util.Date;
 
 public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 
@@ -12,10 +12,10 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	private final Date datePublished;
 	private final LearningResourceType resourceType;
 	
-	private CompetenceUserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, boolean resourcePublished, Date datePublished, 
+	private CompetenceUserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll,
+											  boolean resourcePublished, Date datePublished,
 			LearningResourceType resourceType) {
-		super(privileges, resourceVisibleToAll, isUserResourceOwner);
+		super(privileges, resourceVisibleToAll);
 		this.resourcePublished = resourcePublished;
 		this.datePublished = datePublished;
 		this.resourceType = resourceType;
@@ -27,7 +27,6 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	 * 
 	 * @param privileges
 	 * @param resourceVisibleToAll
-	 * @param isUserResourceOwner
 	 * @param resourcePublished
 	 * @param datePublished
 	 * @param resourceType
@@ -36,13 +35,13 @@ public class CompetenceUserAccessSpecification extends UserAccessSpecification {
 	 * or when {@code resourceType} is null
 	 */
 	public static CompetenceUserAccessSpecification of(Collection<UserGroupPrivilege> privileges, 
-			boolean resourceVisibleToAll, boolean isUserResourceOwner, boolean resourcePublished, Date datePublished,
+			boolean resourceVisibleToAll, boolean resourcePublished, Date datePublished,
 			LearningResourceType resourceType) {
-		if(privileges == null || privileges.isEmpty() || resourceType == null) {
+		if (privileges == null || privileges.isEmpty() || resourceType == null) {
 			throw new IllegalArgumentException();
 		}
-		return new CompetenceUserAccessSpecification(privileges, resourceVisibleToAll, isUserResourceOwner, 
-				resourcePublished, datePublished, resourceType);
+		return new CompetenceUserAccessSpecification(
+				privileges, resourceVisibleToAll, resourcePublished, datePublished, resourceType);
 	}
 	
 	@Override
