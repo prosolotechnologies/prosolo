@@ -1,0 +1,64 @@
+function convertTime(millis, format, id) {
+    var formattedDate;
+    if (millis >= 0) {
+        formattedDate = convertTimeAndReturn(millis, format);
+    } else {
+        formattedDate = '-';
+    }
+    $(document.getElementById(id)).text(formattedDate);
+}
+
+function convertTimeAndReturn(millis, format) {
+	var f = format != null ? format : "DD MM YYYY, h:mm:ss a";
+	switch (f) {
+		case "rel":
+			return convertToRelativeTime(millis);
+        default:
+            return moment(millis).format(f);
+	}
+}
+
+function convertToRelativeTime(millis) {
+    var suffix = " ago";
+    var now = new Date();
+    var diff = now.getTime() - millis;
+
+    //future date
+    if (diff < 0) {
+        return moment(millis).format("h:mm a [on] MMM DD, YYYY");
+    }
+
+    // Calculate difference in days
+    var diffDays = Math.floor(diff / (24 * 60 * 60 * 1000));
+    if (diffDays > 0) {
+        return moment(millis).format("h:mm a [on] MMM DD, YYYY");
+    }
+
+    // Calculate difference in hours
+    var diffHours = Math.floor(diff / (60 * 60 * 1000));
+
+    if (diffHours > 0) {
+        if (diffHours == 1) {
+            return diffHours + " hr" + suffix;
+        }
+        return diffHours + " hrs" + suffix;
+    }
+
+    // Calculate difference in minutes
+    var diffMinutes = Math.floor(diff / (60 * 1000));
+
+    if (diffMinutes > 0) {
+        if (diffMinutes == 1) {
+            return diffMinutes + " min" + suffix;
+        }
+        return diffMinutes + " mins" + suffix;
+    }
+
+    // Calculate difference in seconds
+    var diffSeconds = Math.floor(diff / 1000);
+
+    if (diffSeconds >= 0) {
+        return diffSeconds + " sec" + suffix;
+    }
+    return "";
+}

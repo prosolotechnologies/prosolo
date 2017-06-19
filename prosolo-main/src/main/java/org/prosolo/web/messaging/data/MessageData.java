@@ -17,9 +17,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	private boolean readed;
 	private Date created;
 	private UserData actor;
-	private String date;
 	private String message;
-	private String createdTimeValue;
 
 	public MessageData(Message message, long userId) {
 		this.id = message.getId();
@@ -28,16 +26,6 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.message = message.getContent();
 		this.readed = checkIfRead(message, userId);
 		this.created = message.getCreatedTimestamp();
-		this.createdTimeValue = DateUtil.createUpdateTime(this.created);
-		
-		String timeCreated = null;
-		
-		if (DateUtil.daysBetween(message.getDateCreated(), new Date()) == 0) {
-			timeCreated = DateUtil.getTimeAgoFromNow(message.getDateCreated());
-		} else {
-			timeCreated = DateUtil.getPrettyDate(message.getDateCreated());
-		}
-		this.date = timeCreated;
 	}
 	
 	public MessageData(Message message, long userId, boolean read) {
@@ -47,16 +35,6 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.message = message.getContent();
 		this.readed = read;
 		this.created = message.getCreatedTimestamp();
-		this.createdTimeValue = DateUtil.createUpdateTime(this.created);
-		
-		String timeCreated = null;
-		
-		if (DateUtil.daysBetween(message.getDateCreated(), new Date()) == 0) {
-			timeCreated = DateUtil.getTimeAgoFromNow(message.getDateCreated());
-		} else {
-			timeCreated = DateUtil.getPrettyDate(message.getDateCreated());
-		}
-		this.date = timeCreated;
 	}
 	
 	private boolean checkIfRead(Message message, long userId) {
@@ -128,14 +106,6 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.actor = actor;
 	}
 	
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-	
 	public String getMessage() {
 		return message;
 	}
@@ -144,12 +114,8 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 		this.message = message;
 	}
 	
-	public String getCreatedTimeValue() {
-		return createdTimeValue;
-	}
-
-	public void setCreatedTimeValue(String createdTimeValue) {
-		this.createdTimeValue = createdTimeValue;
+	public long getCreatedTime() {
+		return created.getTime();
 	}
 
 	@Override

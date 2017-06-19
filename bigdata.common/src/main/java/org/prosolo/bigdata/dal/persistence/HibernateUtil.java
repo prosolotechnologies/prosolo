@@ -91,7 +91,7 @@ public class HibernateUtil {
 		String url="jdbc:mysql://"+ host + ":" + port + "/" + database;
 		
 		PoolProperties p = new PoolProperties();
-		p.setUrl(url+"?useUnicode=true&characterEncoding=UTF-8");
+		p.setUrl(url+"?useUnicode=true&characterEncoding=UTF-8&useTimezone=true&serverTimezone=UTC");
 		p.setDriverClassName(CommonSettings.getInstance().config.mysqlConfig.jdbcDriver);
 		p.setUsername(username);
 		p.setPassword(password);

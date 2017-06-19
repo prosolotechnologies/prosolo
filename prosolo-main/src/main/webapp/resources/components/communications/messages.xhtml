@@ -115,7 +115,12 @@
 			                                
 			                                <div class="media-body">
 			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
-			                                    <span>#{messageThreadData.updateTime}</span>
+			                                    <span>
+													<utilcomp:convertTime
+															millis="#{messageThreadData.lastUpdatedTime}"
+															format="rel"
+													/>
+												</span>
 			                                    <div class="clear"></div>
 			                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
 			                                </div>
@@ -235,7 +240,12 @@
 	                            		</h:panelGroup>
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.name}</h3>
-	                               			<span>#{message.createdTimeValue}</span>
+	                               			<span>
+												<utilcomp:convertTime
+														millis="#{message.createdTime}"
+														format="rel"
+												/>
+											</span>
 	                                		<div class="clear"></div>
 	                                		<p>#{message.content}</p>
 	                            		</div>
@@ -257,7 +267,12 @@
 	                            		</h:panelGroup>
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.name}</h3>
-	                               			<span>#{message.createdTimeValue}</span>
+	                               			<span>
+												<utilcomp:convertTime
+														millis="#{message.createdTime}"
+														format="rel"
+												/>
+											</span>
 	                                		<div class="clear"></div>
 	                                		<p>#{message.content}</p>
 	                            		</div>

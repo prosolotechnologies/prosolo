@@ -23,7 +23,12 @@
 					<div class="observationLine">
                     <div class="innerWrapper">
                         <div class="user32">
-                            On #{obs.formattedDate} by:&#160;&#160;&#160;
+                            On
+							<utilcomp:convertTime
+									millis="#{obs.time}"
+									format="MMMM DD, YYYY"
+							/>
+							by:&#160;&#160;&#160;
                             <a href="#">
                               	<utilcomp:userAvatar
 									avatar="#{obs.createdBy.avatar}"

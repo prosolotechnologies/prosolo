@@ -146,7 +146,12 @@
 	                        <h2>Last Observation</h2>
 	                        <div class="observationInfo">
 	                            <p>
-	                                On #{observationBean.lastObservation.formattedDate} by:
+	                                On
+									<utilcomp:convertTime
+											millis="#{observationBean.lastObservation.time}"
+											format="MMMM DD, YYYY"
+									/>
+									by:
 	                            </p>
 	                            <div class="user32">
 	                                <a href="#">

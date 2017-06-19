@@ -1,10 +1,9 @@
 package org.prosolo.web.manage.students.data;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+
+import java.util.Date;
 
 public class EvaluationSubmissionData {
 
@@ -28,12 +27,11 @@ public class EvaluationSubmissionData {
 			trophyWon = true;
 		}
 	}
-	
-	public String getFormattedDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-		return sdf.format(submissionDate);
+
+	public long getTime() {
+		return submissionDate.getTime();
 	}
-	
+
 	public EvaluatorData getEvaluator() {
 		return evaluator;
 	}

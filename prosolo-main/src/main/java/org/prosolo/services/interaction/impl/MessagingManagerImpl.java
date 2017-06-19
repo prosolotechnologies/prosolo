@@ -351,7 +351,6 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		try {
 			mThread = (MessageThread) session.merge(mThread);
 			mtData.setParticipantsList(createParticipantsList(mThread));
-			mtData.setUpdateTime(DateUtil.createUpdateTime(mThread.getLastUpdated()));
 			mtData.setLastUpdated(mThread.getLastUpdated());
 			boolean isReaded = mThread.getParticipant(userId).isRead();
 

@@ -44,9 +44,9 @@ public class SocialActivityData1 implements Serializable {
 	public SocialActivityData1() {
 		attachmentPreview = new AttachmentPreview1();
 	}
-	
-	public String getDatePretty() {
-		return DateUtil.getTimeAgoFromNow(dateCreated);
+
+	public long getPostDateTime() {
+		return dateCreated.getTime();
 	}
 	
 	public Date getDateCreated() {

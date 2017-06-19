@@ -1,21 +1,15 @@
 package org.prosolo.common.util.date;
 
+import org.apache.log4j.Logger;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-
-import org.apache.log4j.Logger;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
+import java.time.*;
+import java.util.*;
  
  
 
@@ -42,7 +36,8 @@ public class DateUtil {
 		symbols.setAmPmStrings(new String[] { "am", "pm" });
 		sdfHourDateEn.setDateFormatSymbols(symbols);
 	}
-	
+
+
 	public static long daysBetween(Date d1, Date d2) {
 		return ((d2.getTime() - d1.getTime() + ONE_HOUR) / (ONE_HOUR * 24));
 	}
@@ -453,5 +448,17 @@ public class DateUtil {
 		System.out.println("Is monday " + isDayOfWeek(ldt, DayOfWeek.MONDAY));
 		System.out.println("Is friday " + isDayOfWeek(ldt, DayOfWeek.FRIDAY));
 		System.out.println("6 days ago " + getNDaysAgoDayStartDateTime(ldt, 6));
+
+
+		OffsetDateTime odt = LocalDateTime.now().atOffset(ZoneOffset.ofTotalSeconds(-120 * 60));
+
+
+		System.out.println("DATE WITH OFFSET: " + odt);
+		System.out.println("DATE WITH OFFSET TO INSTANT: " + odt.toInstant());
+		System.out.println("Offset date time converted to java.util.Date: " + Date.from(odt.toInstant()));
+
+		System.out.println("INSTANT NOW: " + Instant.now());
+
+		System.out.println("NOW AT ZONE: " + LocalDateTime.now().atZone(TimeZone.getTimeZone("UTC").toZoneId()));
 	}
 }

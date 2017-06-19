@@ -161,7 +161,11 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		data.setText(original.getText());
 		data.setCreatorFullName(original.getCreatedBy().getFullName());
 		data.setCreatorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(original.getCreatedBy(), ImageFormat.size120x120));
-		data.setFormattedCreationDate(DateUtil.getPrettyDateEn(original.getDateCreated()));
+		long creationTime = -1;
+		if (original.getDateCreated() != null) {
+			creationTime = original.getDateCreated().getTime();
+		}
+		data.setCreationTime(creationTime);
 		data.setEncodedId(idEncoder.encodeId(original.getId()));
 		return data;
 	}

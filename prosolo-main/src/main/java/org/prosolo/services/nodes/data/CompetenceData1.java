@@ -87,10 +87,9 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		}
 		return changed;
 	}
-	
-	public String getFormattedDatePublished() {
-		String date = DateUtil.formatDate(datePublished, "MMM dd, yyyy");
-		return date != null ? date : "-";
+
+	public long getPublishedTime() {
+		return datePublished != null ? datePublished.getTime() : -1;
 	}
 	
 	public boolean isScheduledPublish() {

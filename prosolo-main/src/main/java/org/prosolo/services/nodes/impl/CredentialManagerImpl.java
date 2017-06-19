@@ -3305,7 +3305,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional (readOnly = false, rollbackFor = Exception.class)
 	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
 			long actorId, LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {

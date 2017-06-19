@@ -111,6 +111,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		} catch (NoNodeAvailableException e) {
 			logger.error(e);
 		}catch (Exception ex){
+			ex.printStackTrace();
 			logger.error(ex);
 		}
 	}

@@ -145,7 +145,13 @@
 			                            </h2>
 			                            <div class="competenceInfo">
 			                                <div class="status">
-			                                    Published#{comp.scheduledPublish ? ' Scheduled for' : ''}: <span>#{comp.formattedDatePublished}</span>
+			                                    Published#{comp.scheduledPublish ? ' Scheduled for' : ''}:
+												<span>
+													<utilcomp:convertTime
+															millis="#{comp.publishedTime}"
+															format="MMM DD, YYYY"
+													/>
+												</span>
 			                                </div>
 			                                <div class="studentsNum">
 			                                    Students: 

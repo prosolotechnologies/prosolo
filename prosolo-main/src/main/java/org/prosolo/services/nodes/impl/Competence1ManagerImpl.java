@@ -24,6 +24,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
@@ -415,10 +416,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 			Map<String, String> params = new HashMap<>();
-			String dateEnrolledString = null;
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			dateEnrolledString = df.format(now);
-			params.put("dateEnrolled", dateEnrolledString);
+			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
 			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, params);
 			
 			return targetComp;
@@ -2585,14 +2583,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
 //				lcPage, lcContext, lcService, params);
-		if(finalCompProgress == 100) {
+		if (finalCompProgress == 100) {
 			Map<String, String> params = new HashMap<>();
-			String dateCompletedStr = null;
-			if(now != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateCompletedStr = df.format(now);
-			}
-			params.put("dateCompleted", dateCompletedStr);
+			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
 			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null, 
 					contextData, params));
 //			eventFactory.generateEvent(EventType.Completion, userId, tComp, null,

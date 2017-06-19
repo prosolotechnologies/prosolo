@@ -35,6 +35,7 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.MessagingManager;
@@ -716,7 +717,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		
 		try {
 			Map<String, String> params = new HashMap<>();
-			params.put("dateAssigned", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+			params.put("dateAssigned", ElasticsearchUtil.getDateStringRepresentation(new Date()));
 	
 			ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredential(cred1.getId(), userPhillAmstrong.getId(), 10, 0, null);
 			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL, 

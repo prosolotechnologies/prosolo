@@ -36,9 +36,13 @@
 	                </h3>
 	            </div>
 	            <div class="wallPostHeadRight">
-	                <a href="wall-post-view.html" class="timestamp">      	
-	                		#{cc.attrs.socialActivity.datePretty}
-	                </a>
+					<h:link outcome="wall-post-view" styleClass="timestamp">
+						<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>
+						<utilcomp:convertTime
+								millis="#{cc.attrs.socialActivity.postDateTime}"
+								format="rel"
+						/>
+					</h:link>
 	            </div>
 	        </div>
 	        <div class="wallPostBody">
