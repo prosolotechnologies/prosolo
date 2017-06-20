@@ -11,7 +11,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -46,7 +45,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	private String credId;
 	private long credentialId;
-	private ResourceCreator creator;
+	private long creatorId;
 	private String credentialTitle;
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
@@ -92,7 +91,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 							/*
 							we only need credential owner info in case we administer Edit privileges for a credential
 							*/
-							this.creator = credManager.getCredentialCreator(credentialId);
+							this.creatorId = credManager.getCredentialCreator(credentialId).getId();
 							resVisibilityUtil.initializeValuesForEditPrivilege();
 						} else {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
@@ -230,8 +229,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		return resVisibilityUtil.getGroupsToExclude();
 	}
 	
-	public ResourceCreator getCreator() {
-		return creator;
+	public long getCreatorId() {
+		return creatorId;
 	}
 	
 	public void setVisibleToEveryone(boolean val) {

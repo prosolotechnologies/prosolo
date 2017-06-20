@@ -255,6 +255,9 @@ public class CredentialEditBean implements Serializable {
 			logger.error(e);
 			PageUtil.fireErrorMessage(e.getMessage());
 			return false;
+		} catch (EventException e) {
+			logger.error(e);
+			return false;
 		}
 	}
 	

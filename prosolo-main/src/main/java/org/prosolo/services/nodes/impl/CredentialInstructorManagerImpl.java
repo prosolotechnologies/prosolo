@@ -477,9 +477,8 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 				res.addEvents(updateStudentsAssigned(null, null, targetCreds, actorId, context)
 						.getEvents());
 			}
-			res.addEvents(userGroupManager.removeUserFromCredentialDefaultGroupAndGetEvents(
-					credId, instructor.getUser().getId(), UserGroupPrivilege.Instruct, actorId, context)
-						.getEvents());
+			res.addEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
+					instructor.getUser().getId(), credId, UserGroupPrivilege.Instruct, actorId, context).getEvents());
 			
 			persistence.currentManager().delete(instructor);
 			

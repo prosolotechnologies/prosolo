@@ -25,9 +25,6 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
@@ -287,6 +284,25 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             throw new DbConnectionException("Error while saving competency");
         }
     }
+	@Transactional (readOnly = true)
+	public String getLinkForObjectType(String simpleClassName, long id, String linkField) 
+			throws DbConnectionException {
+		try{
+			String query = String.format(
+				"SELECT obj.%1$s " +
+				"FROM %2$s obj " +
+				"WHERE obj.id = :id",
+				linkField, simpleClassName);
+			
+			String link = (String) persistence.currentManager().createQuery(query)
+				.setLong("id", id)
+				.uniqueResult();
+			
+			return link;
+		}catch(Exception e){
+			throw new DbConnectionException("Error while loading learning goals");
+		}
+	}
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)

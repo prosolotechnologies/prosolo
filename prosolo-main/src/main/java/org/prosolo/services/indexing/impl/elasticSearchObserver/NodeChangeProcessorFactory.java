@@ -137,6 +137,15 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Restore, session);
 				}
 				break;
+			case OWNER_CHANGE:
+				if (node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService,
+							NodeOperation.Update, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService,
+							NodeOperation.Update, session);
+				}
+				break;
 			default:
 				return null;
 		}

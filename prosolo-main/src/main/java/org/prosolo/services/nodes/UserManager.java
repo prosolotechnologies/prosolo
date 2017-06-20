@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
@@ -58,7 +59,9 @@ public interface UserManager extends AbstractManager {
 	
 	String getUserEmail(long id) throws DbConnectionException;
 	
-	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException;
+	void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException, EventException;
+
+	Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException;
 
 	void setUserOrganization(long userId,long organizationId);
 }
