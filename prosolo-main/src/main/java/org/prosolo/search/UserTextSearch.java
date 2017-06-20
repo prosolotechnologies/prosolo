@@ -52,7 +52,7 @@ public interface UserTextSearch extends AbstractManager {
 	
 	PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
                                                              long credId, long roleId, List<Long> excludedUserIds);
-	
+
 	List<Long> getInstructorCourseIds (long userId);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(

@@ -99,10 +99,6 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 			}
 		    observation.setSuggestions(suggestions);
 		    
-//		    TargetCredential1 targetCred = new TargetCredential1();
-//		    targetCred.setId(targetCredentialId);
-//		    observation.setTargetCredential(targetCred);
-		    
 			observation =  saveEntity(observation);
 			persistence.currentManager().evict(observation);
 			

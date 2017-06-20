@@ -18,7 +18,7 @@ import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.spring.security.exceptions.SessionInitializationException;
-import org.prosolo.services.activityWall.ActivityWallManager;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.filters.AllFilter;
 import org.prosolo.services.activityWall.filters.AllProsoloFilter;
 import org.prosolo.services.activityWall.filters.Filter;
@@ -49,7 +49,7 @@ public class UserSessionDataLoader implements Serializable{
 	@Inject
 	private SessionCountBean sessionCounter;
 	@Inject
-	private ActivityWallManager activityWallManager;
+	private SocialActivityManager socialActivityManager;
 	@Inject
 	private TagManager tagManager;
 	@Inject
@@ -72,7 +72,7 @@ public class UserSessionDataLoader implements Serializable{
 			UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
 	
 			FilterType chosenFilterType = userSettings.getActivityWallSettings().getChosenFilter();
-	
+			
 			Filter selectedFilter = loadStatusWallFilter(user.getId(), chosenFilterType, userSettings.getActivityWallSettings().getCourseId());
 	
 			String ipAddress = accessResolver.findRemoteIPAddress(request);
@@ -114,7 +114,7 @@ public class UserSessionDataLoader implements Serializable{
 		Filter selectedStatusWallFilter = null;
 		if (chosenFilterType.equals(FilterType.MY_NETWORK)) {
 			selectedStatusWallFilter = new MyNetworkFilter();
-			Set<Long> myNetworkUsers = activityWallManager.getUsersInMyNetwork(userId);
+			Set<Long> myNetworkUsers = socialActivityManager.getUsersInMyNetwork(userId);
 			((MyNetworkFilter) selectedStatusWallFilter).setUserIds(myNetworkUsers);
 		} else if (chosenFilterType.equals(FilterType.MY_ACTIVITIES)) {
 			selectedStatusWallFilter = new MyActivitiesFilter();
@@ -127,47 +127,7 @@ public class UserSessionDataLoader implements Serializable{
 		} else if (chosenFilterType.equals(FilterType.ALL_PROSOLO)) {
 			selectedStatusWallFilter = new AllProsoloFilter();
 		} 
-//		else if (chosenFilterType.equals(FilterType.COURSE)) {
-//			CourseFilter courseFilter = new CourseFilter();
-//			try {
-//				Course course = userManager.loadResource(Course.class, courseId);
-//				courseFilter.setCourseId(courseId);
-//				Map<String, Set<Long>> goalTargetGoals = courseManager.getTargetLearningGoalIdsForCourse(course);
-//				// Long
-//				// targetLearningGoalId=courseManager.getTargetLearningGoalIdForCourse(user,
-//				// course);
-//				courseFilter.setTargetLearningGoals(goalTargetGoals.get("targetGoals"));
-//				// Long
-//				// goalId=learningGoalManager.getGoalIdForTargetGoal(targetLearningGoalId);
-//				courseFilter.setLearningGoals(goalTargetGoals.get("goals"));
-//				Set<Long> tComps = courseManager.getTargetCompetencesForCourse(course);
-//				courseFilter.setTargetCompetences(tComps);
-//				Set<Long> tActivities = courseManager.getTargetActivitiesForCourse(course);
-//				courseFilter.setTargetActivities(tActivities);
-//				/*
-//				 * Set<Long>
-//				 * tComps=competenceManager.getTargetCompetencesIds(user.getId()
-//				 * , goalId); courseFilter.setTargetCompetences(tComps);
-//				 * Set<Long> targetActivities=new TreeSet<Long>(); for(Long
-//				 * tc:tComps){ Set<Long>
-//				 * ta=competenceManager.getTargetActivities(tc);
-//				 * targetActivities.addAll(ta); }
-//				 * courseFilter.setTargetActivities(targetActivities);
-//				 */
-//
-//				Set<Tag> hashtags = course.getHashtags();
-//				for (Tag tag : hashtags) {
-//					courseFilter.addHashtag(tag.getTitle());
-//				}
-//				// courseFilter.setHashtags(course.getHashtags());
-//			} catch (Exception e) {
-//				logger.error(e);
-//				e.printStackTrace();
-//			}
-//			selectedStatusWallFilter = courseFilter;
-//		}
 		
 		return selectedStatusWallFilter;
 	}
-
 }

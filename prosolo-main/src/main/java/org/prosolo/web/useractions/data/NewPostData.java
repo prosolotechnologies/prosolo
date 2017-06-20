@@ -3,7 +3,6 @@ package org.prosolo.web.useractions.data;
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 
 public class NewPostData implements Serializable {
 	
@@ -17,10 +16,7 @@ public class NewPostData implements Serializable {
 	private boolean connectWithStatus;
 	private String mentionedUsers;
 	
-	private AttachmentPreview attachmentPreview;
-	
 	public NewPostData() {
-		this.attachmentPreview = new AttachmentPreview();
 		this.visibility = VisibilityType.PUBLIC;
 	}
 	
@@ -56,14 +52,6 @@ public class NewPostData implements Serializable {
 		this.visibility = visibility;
 	}
 
-	public AttachmentPreview getAttachmentPreview() {
-		return attachmentPreview;
-	}
-
-	public void setAttachmentPreview(AttachmentPreview attachmentPreview) {
-		this.attachmentPreview = attachmentPreview;
-	}
-	
 	public boolean isConnectWithStatus() {
 		return connectWithStatus;
 	}

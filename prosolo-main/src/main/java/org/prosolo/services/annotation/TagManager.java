@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.twitter.impl.StreamListData;
@@ -26,10 +25,6 @@ public interface TagManager extends AbstractManager {
 	
 	Map<User, Set<Tag>> getUsersFollowingHashtags(Collection<String> hashtags, Session session);
 
-	Set<Tag> getTagsForResource(BaseEntity resource);
-
-	Set<Tag> getHashtagsForResource(BaseEntity resource);
-	
 	List<Tag> getSubscribedHashtags(long userId);
 
 	Map<String, StreamListData> readAllHashtagsAndLearningGoalsIds();

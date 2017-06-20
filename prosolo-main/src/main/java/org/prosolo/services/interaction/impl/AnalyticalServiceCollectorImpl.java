@@ -1,35 +1,30 @@
 package org.prosolo.services.interaction.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.messaging.data.AnalyticalServiceMessage;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interaction.AnalyticalServiceDataFactory;
 import org.prosolo.services.messaging.AnalyticalServiceMessageDistributer;
-import org.prosolo.services.nodes.ActivityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 /**
-@author Zoran Jeremic Apr 12, 2015
- *
+ * @author Zoran Jeremic
+ * @deprecated since 0.7
  */
+@Deprecated
 @Service("org.prosolo.services.interaction.AnalyticalServiceCollector")
 public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollector{
 	
 	@Autowired AnalyticalServiceDataFactory factory;
 	@Autowired AnalyticalServiceMessageDistributer messageDistributer;
-	@Autowired ActivityManager activityManager;
 
 	@Override
 	public void increaseUserActivityLog(long userid, long daysSinceEpoch) {
@@ -59,24 +54,6 @@ public class AnalyticalServiceCollectorImpl implements AnalyticalServiceCollecto
 		messageDistributer.distributeMessage(message);		
 	}
 	
-	@Override
-	public void createTargetCompetenceActivitiesData(long competenceId, long targetCompetenceId, List<TargetActivity> tActivities) {
-		JsonObject data=new JsonObject();
-		List<Long> ids=new ArrayList<Long>();
-		data.add("competenceid", new JsonPrimitive(competenceId));
-		data.add("targetcompetenceid", new JsonPrimitive(targetCompetenceId));
-		JsonArray actArray=new JsonArray();
-		for(TargetActivity tAct:tActivities){
-			if(!ids.contains(tAct.getActivity().getId())){
-				actArray.add(new JsonPrimitive(tAct.getActivity().getId()));
-				ids.add(tAct.getActivity().getId());
-			}
-			
-		}
-		data.add("activities",actArray );
-		AnalyticalServiceMessage message=factory.createAnalyticalServiceMessage(DataName.TARGETCOMPETENCEACTIVITIES, DataType.RECORD,data);
-		messageDistributer.distributeMessage(message);		
-	}
 	@Override
 	public void sendUpdateHashtagsMessage(Map<String,String> parameters, long goalId, long userId){
 		JsonObject data=new JsonObject();

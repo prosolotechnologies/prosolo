@@ -1,28 +1,13 @@
 package org.prosolo.services.logging;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.activities.Activity;
-import org.prosolo.common.domainmodel.activities.ExternalToolActivity;
-import org.prosolo.common.domainmodel.activities.ResourceActivity;
-import org.prosolo.common.domainmodel.activities.TargetActivity;
-import org.prosolo.common.domainmodel.activities.UploadAssignmentActivity;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.activities.requests.NodeRequest;
-import org.prosolo.common.domainmodel.competences.Competence;
-import org.prosolo.common.domainmodel.competences.TargetCompetence;
-import org.prosolo.common.domainmodel.content.GoalNote;
-import org.prosolo.common.domainmodel.content.Post;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.general.Node;
-import org.prosolo.common.domainmodel.user.LearningGoal;
-import org.prosolo.common.domainmodel.user.TargetLearningGoal;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -35,9 +20,10 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * @author Zoran Jeremic, Aug 20, 2014
- *
+ * @author Zoran Jeremic
+ * @deprecated
  */
+@Deprecated
 @Service("org.prosolo.services.logging.UserActivityObserver")
 public class UserActivityObserver extends EventObserver {
 	
@@ -80,19 +66,8 @@ public class UserActivityObserver extends EventObserver {
 	@Override
 	public Class<? extends BaseEntity>[] getResourceClasses() {
 		Class<? extends BaseEntity>[] resources=new Class[] { 
-				Course.class,
 				Credential1.class, 
-				TargetLearningGoal.class, 
-				TargetCompetence.class, 
-				Activity.class,
-				Post.class,
-				GoalNote.class,
 				User.class,
-				NodeRequest.class,
-				ExternalToolActivity.class,
-				ResourceActivity.class,
-				UploadAssignmentActivity.class,
-				Node.class
 			};
 		return resources;
 	}
@@ -100,11 +75,6 @@ public class UserActivityObserver extends EventObserver {
 	@Override
 	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
-//		System.out.println("UserActivityObserver handling event");
-//		logger.info("comming in event with action: " + event.getAction());
-//		logger.info("comming in event with actor: " + event.getActor());
-//		logger.info("comming in event with object: " + event.getObject());
-//		logger.info("comming in event with target: " + event.getTarget());
 		
  		try {
 			if (event.getActorId() > 0) {

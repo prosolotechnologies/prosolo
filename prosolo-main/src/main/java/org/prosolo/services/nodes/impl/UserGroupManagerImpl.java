@@ -5,11 +5,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -752,9 +752,118 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throw new DbConnectionException("Error while adding privilege to a user for credential");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Result<Void> removeUserFromDefaultCredentialGroupAndGetEvents(long userId, long credId,
+																	 UserGroupPrivilege privilege, long actorId,
+																	 LearningContextData context) throws DbConnectionException {
+		try {
+			Result<Void> result = new Result<>();
+
+			UserGroupUser ugu = getUserFromDefaultCredentialUserGroup(userId, credId, privilege);
+			if (ugu != null) {
+				result.addEvents(removeUserFromGroupAndGetEvents(ugu, actorId, context).getEvents());
+			}
+			return result;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing privilege for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Result<Void> saveUserToDefaultCompetenceGroupAndGetEvents(long userId, long compId,
+																	 UserGroupPrivilege privilege, long actorId,
+																	 LearningContextData context) throws DbConnectionException {
+		try {
+			Result<CompetenceUserGroup> compGroup = getOrCreateDefaultCompetenceUserGroup(compId, privilege, actorId,
+					context);
+			saveNewUserToCompetenceGroup(userId, compGroup.getResult());
+			Result<Void> res = new Result<>();
+			res.addEvents(compGroup.getEvents());
+			boolean groupJustCreated = res.getEvents().stream()
+					.anyMatch(ev -> ev.getEventType() == EventType.USER_GROUP_ADDED_TO_RESOURCE);
+			//if user group is not just created, generate add user to group event
+			if (!groupJustCreated) {
+				User object = new User();
+				object.setId(userId);
+				UserGroup target = new UserGroup();
+				target.setId(compGroup.getResult().getUserGroup().getId());
+				res.addEvent(eventFactory.generateEventData(EventType.ADD_USER_TO_GROUP, actorId, object, target,
+						context, null));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while adding privilege to a user for credential");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Result<Void> removeUserFromDefaultCompetenceGroupAndGetEvents(long userId, long compId,
+																		 UserGroupPrivilege privilege, long actorId,
+																		 LearningContextData context) throws DbConnectionException {
+		try {
+			Result<Void> result = new Result<>();
+
+			UserGroupUser ugu = getUserFromDefaultCompetenceUserGroup(userId, compId, privilege);
+			if (ugu != null) {
+				result.addEvents(removeUserFromGroupAndGetEvents(ugu, actorId, context).getEvents());
+			}
+
+			return result;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while removing privilege for credential");
+		}
+	}
+
+	private UserGroupUser getUserFromDefaultCompetenceUserGroup(long userId, long compId, UserGroupPrivilege priv) {
+		String query = "SELECT ugu FROM CompetenceUserGroup cug " +
+				"INNER JOIN cug.userGroup ug " +
+				"WITH ug.defaultGroup = :boolTrue " +
+				"INNER JOIN ug.users ugu " +
+				"WITH ugu.user.id = :userId " +
+				"WHERE cug.competence.id = :compId " +
+				"AND cug.privilege = :priv " +
+				"AND cug.inherited = :boolFalse";
+
+		return (UserGroupUser) persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("boolTrue", true)
+				.setLong("userId", userId)
+				.setString("priv", priv.name())
+				.setBoolean("boolFalse", false)
+				.uniqueResult();
+	}
+
+	private UserGroupUser getUserFromDefaultCredentialUserGroup(long userId, long credId, UserGroupPrivilege priv) {
+		String query = "SELECT ugu FROM CredentialUserGroup cug " +
+				"INNER JOIN cug.userGroup ug " +
+					"WITH ug.defaultGroup = :boolTrue " +
+				"INNER JOIN ug.users ugu " +
+					"WITH ugu.user.id = :userId " +
+				"WHERE cug.credential.id = :credId " +
+				"AND cug.privilege = :priv";
+
+		return (UserGroupUser) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credId)
+				.setBoolean("boolTrue", true)
+				.setLong("userId", userId)
+				.setString("priv", priv.name())
+				.uniqueResult();
+	}
 	
 	private void saveNewUserToCredentialGroup(long userId, CredentialUserGroup credGroup) {
-		if(credGroup == null) {
+		if (credGroup == null) {
 			throw new NullPointerException();
 		}
 		saveNewUserToUserGroup(userId, credGroup.getUserGroup(), persistence.currentManager());
@@ -765,7 +874,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	private void saveNewUserToCompetenceGroup(long userId, CompetenceUserGroup compGroup, Session session) {
-		if(compGroup == null) {
+		if (compGroup == null) {
 			throw new NullPointerException();
 		}
 		saveNewUserToUserGroup(userId, compGroup.getUserGroup(), session);
@@ -782,34 +891,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (ConstraintViolationException e) {
 			//it means that user is already added to that group and that is ok, it should not be considered as en error
 			logger.info("User with id: " + userId + " not added to group because he is already part of the group");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = false)
-	public Result<Void> removeUserFromCredentialDefaultGroupAndGetEvents(long credId, long userId, 
-			UserGroupPrivilege privilege, long actorId, LearningContextData context) throws DbConnectionException {
-		try {
-			String query = "SELECT ugu FROM CredentialUserGroup cug " +
-					       "INNER JOIN cug.userGroup ug " +
-					       "INNER JOIN ug.users ugu " +
-					       		"WITH ugu.user.id = :userId " +
-					       "WHERE cug.credential.id = :credId " +
-					       "AND cug.privilege = :priv " +
-					       "AND ug.defaultGroup = :isDefault";
-			UserGroupUser ugu = (UserGroupUser) persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("credId", credId)
-					.setString("priv", privilege.name())
-					.setBoolean("isDefault", true)
-					.uniqueResult();
-			
-			return removeUserFromGroupAndGetEvents(ugu, actorId, context);
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while removing user privilege from credential");
 		}
 	}
 	
@@ -935,7 +1016,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			long userId, LearningContextData lcd) {
 		Optional<CredentialUserGroup> credGroupOptional = getCredentialDefaultGroup(credId, priv);
 		Result<CredentialUserGroup> res = new Result<>();
-		if(credGroupOptional.isPresent()) {
+		if (credGroupOptional.isPresent()) {
 			res.setResult(credGroupOptional.get());
 		} else {
 			res = createNewCredentialUserGroup(0, true, credId, priv, userId, lcd);
@@ -957,7 +1038,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	private Result<CredentialUserGroup> createNewCredentialUserGroup(long userGroupId, boolean isDefault, long credId, 
 			UserGroupPrivilege priv, long userId, LearningContextData lcd) {
 		UserGroup userGroup = null;
-		if(userGroupId > 0) {
+		if (userGroupId > 0) {
 			userGroup = (UserGroup) persistence.currentManager().load(UserGroup.class, userGroupId);
 		} else {
 			userGroup = new UserGroup();
@@ -1328,7 +1409,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 																	 UserGroupPrivilege priv, long userId,
 																	 LearningContextData lcd, Session session) {
 		UserGroup userGroup = null;
-		if(userGroupId > 0) {
+		if (userGroupId > 0) {
 			userGroup = (UserGroup) session.load(UserGroup.class, userGroupId);
 		} else {
 			userGroup = new UserGroup();
@@ -1750,6 +1831,40 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while creating user privileges");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> createCredentialUserGroupAndSaveNewUser(long userId, long credId, UserGroupPrivilege privilege,
+														boolean isDefault, long actorId, LearningContextData context)
+			throws DbConnectionException {
+		try {
+			Result<CredentialUserGroup> res = createNewCredentialUserGroup(
+					0, isDefault, credId, privilege, actorId, context);
+			saveNewUserToCredentialGroup(userId, res.getResult());
+			return Result.of(res.getEvents());
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving user privilege");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> createCompetenceUserGroupAndSaveNewUser(long userId, long compId, UserGroupPrivilege privilege,
+																boolean isDefault, long actorId, LearningContextData context)
+			throws DbConnectionException {
+		try {
+			Result<CompetenceUserGroup> res = createNewCompetenceUserGroup(
+					0, isDefault, compId, privilege, actorId, context);
+			saveNewUserToCompetenceGroup(userId, res.getResult());
+			return Result.of(res.getEvents());
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving user privilege");
 		}
 	}
 
