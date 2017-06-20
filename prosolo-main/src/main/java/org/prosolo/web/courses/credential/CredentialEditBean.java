@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CompetenceTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
@@ -376,7 +376,7 @@ public class CredentialEditBean implements Serializable {
 			for(int i = 0; i < size; i++) {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
-			TextSearchResponse1<CompetenceData1> searchResponse = compTextSearch.searchCompetencesForAddingToCredential(
+			PaginatedResult<CompetenceData1> searchResponse = compTextSearch.searchCompetencesForAddingToCredential(
 					loggedUser.getUserId(), compSearchTerm, 0, 1000, false, toExclude, SortingOption.ASC);
 					
 			List<CompetenceData1> comps = searchResponse.getFoundNodes();

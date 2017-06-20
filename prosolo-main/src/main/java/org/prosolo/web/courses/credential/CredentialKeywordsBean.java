@@ -17,7 +17,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
@@ -308,7 +308,7 @@ public class CredentialKeywordsBean {
 					peersToExcludeFromSearch.add(loggedUser.getUserId());
 				}
 
-				TextSearchResponse1<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
 						peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {

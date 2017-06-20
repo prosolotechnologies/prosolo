@@ -16,7 +16,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -132,7 +132,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	public void searchUnassignedInstructors() {
 		try {
 			unassignedInstructors = new ArrayList<>();
-			TextSearchResponse1<UserData> result = userTextSearch
+			PaginatedResult<UserData> result = userTextSearch
 					.searchUsersWithInstructorRole(instructorSearchTerm, decodedId, instructorRoleId,
 							excludedInstructorIds);
 			unassignedInstructors = result.getFoundNodes();
@@ -187,7 +187,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialInstructors() {
-		TextSearchResponse1<InstructorData> searchResponse = userTextSearch.searchInstructors(
+		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
 				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null); 
 	
 		paginationData.update((int) searchResponse.getHitsNumber());

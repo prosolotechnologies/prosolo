@@ -16,6 +16,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -142,7 +143,23 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			
 			return roles;
 	}
-	
+
+	@Override
+	public List<RoleData> getUserRolesCSV(String email) {
+		String query =
+				"SELECT role " +
+						"FROM User user " +
+						"LEFT JOIN user.roles role "+
+						"WHERE user.email = :email " ;
+
+		@SuppressWarnings("unchecked")
+		List<RoleData> roles = persistence.currentManager().createQuery(query)
+				.setParameter("email", email)
+				.list();
+
+		return roles;
+	}
+
 	@Override
 	@Transactional (readOnly = true)
 	public Role getRoleByName(String roleName) {

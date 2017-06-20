@@ -1,16 +1,24 @@
 package org.prosolo.services.nodes.factory;
 
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by stefanvuckovic on 5/12/17.
  */
 @Component
 public class UserDataFactory {
+
+    List<RoleData> roles = new ArrayList<>();
 
     public ResourceCreator getResourceCreator(User user) {
         return new ResourceCreator(user.getId(),
@@ -22,4 +30,16 @@ public class UserDataFactory {
     private String getFullName(String name, String lastName) {
         return name + (lastName != null ? " " + lastName : "");
     }
+
+    public UserData getUserDataWithRoles(User user, List<Role> roles){
+        UserData result = new UserData();
+        if(roles != null) {
+            for(Role role : roles) {
+                this.roles.add(new RoleData(role));
+            }
+        }
+        result.setRoles(this.roles);
+        return result;
+    }
+
 }

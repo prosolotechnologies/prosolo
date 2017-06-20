@@ -47,7 +47,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		email = email.toLowerCase();
 		
 		// first invalidate all other user's request key
-		invalidateUserRequestKeys(user);
+		invalidateUserRequestKeys(user,null);
 		
 		ResetKey key = new ResetKey();
 		key.setUser(user);
@@ -75,7 +75,40 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		}
 		return false;
 	}
-	
+
+	@Override
+	public boolean initiatePasswordReset(User user, String email, String serverAddress, Session session) {
+		email = email.toLowerCase();
+
+		// first invalidate all other user's request key
+		invalidateUserRequestKeys(user,session);
+
+		ResetKey key = new ResetKey();
+		key.setUser(user);
+		key.setDateCreated(new Date());
+		key.setUid(UUID.randomUUID().toString().replace("-", ""));
+
+
+		try {
+			String resetAddress = serverAddress + "/" + key.getUid();
+			PasswordResetEmailContentGenerator contentGenerator = new PasswordResetEmailContentGenerator(user.getName(), resetAddress);
+			emailSender.sendEmail(contentGenerator,  email);
+			return true;
+		} catch (AddressException e) {
+			logger.error(e);
+		} catch (MessagingException e) {
+			logger.error(e);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+		} catch (FileNotFoundException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		saveEntity(key,session);
+		return false;
+	}
+
 	@Override
 	public boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
 		ResetKey result = getResetKey(resetKey);
@@ -118,8 +151,11 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		return result;
 	}
 	
-	public void invalidateUserRequestKeys(User user) {
-		Session session = persistence.currentManager();
+	public void invalidateUserRequestKeys(User user,Session session) {
+		if(session == null) {
+			session = persistence.currentManager();
+		}
+		//Session session = persistence.currentManager();
 		
 		String query = 
 			"SELECT resetKey " +

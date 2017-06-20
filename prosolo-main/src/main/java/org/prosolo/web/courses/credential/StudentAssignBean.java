@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.services.event.EventException;
@@ -125,7 +125,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public void searchStudents() {
-		TextSearchResponse1<StudentData> result = userTextSearch
+		PaginatedResult<StudentData> result = userTextSearch
 				.searchUnassignedAndStudentsAssignedToInstructor(studentSearchTerm, credId, 
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
 						paginationData.getPage() - 1, paginationData.getLimit());

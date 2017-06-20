@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
@@ -384,7 +384,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId());
+				PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId());
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

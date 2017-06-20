@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.search.util.credential.LearningStatusFilter;
@@ -148,7 +148,7 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialMembers() {
-		TextSearchResponse1<StudentData> searchResponse = userTextSearch
+		PaginatedResult<StudentData> searchResponse = userTextSearch
 				.searchCredentialMembersWithLearningStatusFilter(
 						searchTerm, 
 						learningStatusFilter.getStatus(), 

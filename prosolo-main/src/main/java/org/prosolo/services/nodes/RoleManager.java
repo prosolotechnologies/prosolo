@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.web.administration.data.RoleData;
 
 public interface RoleManager extends AbstractManager {
 	
@@ -46,6 +47,8 @@ public interface RoleManager extends AbstractManager {
 	boolean isRoleUsed(long roleId);
 
 	List<Role> getUserRoles(String email);
+
+	List<RoleData> getUserRolesCSV(String email);
 	
 	public Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
 	

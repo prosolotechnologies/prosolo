@@ -12,7 +12,7 @@ import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserSelectionData;
@@ -100,7 +100,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void loadUsers() {
 		try {
-			TextSearchResponse1<UserSelectionData> res = userTextSearch.searchUsersInGroups(searchTerm, 
+			PaginatedResult<UserSelectionData> res = userTextSearch.searchUsersInGroups(searchTerm,
 					paginationData.getPage() - 1, paginationData.getLimit(), groupId, false);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();

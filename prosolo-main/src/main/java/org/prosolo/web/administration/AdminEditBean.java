@@ -1,6 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +9,18 @@ import java.util.stream.Collectors;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.RoleManager;
@@ -74,12 +74,13 @@ public class AdminEditBean implements Serializable {
 	private long decodedId;
 	private AccountData accountData;
 	private UserData userToDelete;
-
 	private UserData admin;
 	private UserData newOwner = new UserData();
 	private List<RoleCheckboxData> allRoles;
 	private List<UserData> admins;
 	private String searchTerm;
+	private List<Role> adminRoles;
+	String[] rolesArray;
 
 	public void initPassword() {
 		logger.debug("initializing");
@@ -119,6 +120,8 @@ public class AdminEditBean implements Serializable {
 			else {
 				admin = new UserData();
 			}
+			rolesArray = new String[]{"Admin","Super Admin"};
+			adminRoles = roleManager.getRolesByNames(rolesArray);
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
@@ -128,16 +131,10 @@ public class AdminEditBean implements Serializable {
 
 	private void prepareRoles() {
 		try {
-			String[] rolesArray = new String[]{"Admin","Super Admin"};
-			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 			allRoles = new ArrayList<>();
 			if (adminRoles != null) {
-				//allRoles = new SelectItem[adminRoles.size()];
-
 				for (int i = 0; i < adminRoles.size(); i++) {
 					Role r = adminRoles.get(i);
-					/*SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-					allRoles[i] = selectItem;*/
 					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(),this.admin.hasRoleId(r.getId()),r.getId());
 					allRoles.add(roleCheckboxData);
 				}
@@ -220,11 +217,11 @@ public class AdminEditBean implements Serializable {
 		newOwner.setUserSet(false);
 	}
 
-	public UserData getUser() {
+	public UserData getAdmin() {
 		return admin;
 	}
 
-	public void setUser(UserData user) {
+	public void setAdmin(UserData user) {
 		this.admin = user;
 	}
 
@@ -280,27 +277,35 @@ public class AdminEditBean implements Serializable {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
 		newOwner.setFullName(userData.getFullName());
-		newOwner.setPosition(userManager.getUserPosition(userData.getId()));
+		newOwner.setPosition(userData.getPosition());
 	}
 
-	public void sendNewPassword() {
+	private void sendNewPassword() {
 
-		User user = userManager.getUser(admin.getEmail());
+		final User user = userManager.getUser(admin.getEmail());
+
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				if (user != null) {
-					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-							CommonSettings.getInstance().config.appConfig.domain + "recovery");
-
-					if (resetLinkSent) {
-						PageUtil.fireSuccessfulInfoMessage("resetMessage",
-								"Password instructions have been sent to given email ");
+				Session session = (Session) userManager.getPersistence().openSession();
+				try {
+					if (user != null) {
+						boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+								CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+						session.flush();
+						if (resetLinkSent) {
+							PageUtil.fireSuccessfulInfoMessage("resetMessage",
+									"Password instructions have been sent to given email ");
+						} else {
+							PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+						}
 					} else {
-						PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
+						PageUtil.fireErrorMessage("resetMessage", "User already registrated");
 					}
-				} else {
-					PageUtil.fireErrorMessage("resetMessage", "User already registrated");
+				}catch (Exception e){
+					logger.error("Exception in handling mail sending", e);
+				}finally {
+					HibernateUtil.close(session);
 				}
 			}
 		});
@@ -310,11 +315,10 @@ public class AdminEditBean implements Serializable {
 		if (userToDelete != null) {
 			try {
 				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
-				admins.remove(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
 				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				extContext.redirect("/admin");
+				extContext.redirect("/admin/admins");
 			} catch (Exception ex) {
 				logger.error(ex);
 				PageUtil.fireErrorMessage("Error while trying to delete user");
@@ -322,13 +326,13 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
-	public void loadAdmins() {
+	public void loadAdminsForNewOwnerSearch() {
 		this.admins = null;
 		if (searchTerm == null || searchTerm.isEmpty()) {
 			admins = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = textSearch.searchNewOwner(searchTerm, 3, admin.getId());
+				PaginatedResult<UserData> result = textSearch.searchNewOwner(searchTerm, 3, admin.getId());
 				admins = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -337,7 +341,7 @@ public class AdminEditBean implements Serializable {
 	}
 
 	public void resetAndSearch() {
-		loadAdmins();
+		loadAdminsForNewOwnerSearch();
 	}
 
 	public void savePassChangeForAnotherAdmin() {

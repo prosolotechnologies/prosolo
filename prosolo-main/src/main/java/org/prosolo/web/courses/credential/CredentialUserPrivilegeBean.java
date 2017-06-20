@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
@@ -136,7 +136,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		if(searchTerm == null) {
 			searchTerm = "";
 		}
-		TextSearchResponse1<ResourceVisibilityMember> res = null;
+		PaginatedResult<ResourceVisibilityMember> res = null;
 
 		res = userGroupTextSearch.searchUsersAndGroups(searchTerm, getLimit(),
 				getUsersToExclude(), getGroupsToExclude(), roleId);

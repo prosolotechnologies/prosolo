@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
@@ -46,21 +46,21 @@ public interface UserTextSearch extends AbstractManager {
 			String searchTerm, CredentialMembersSearchFilterValue filter, int page, int limit, long credId, 
 			long instructorId, CredentialMembersSortOption sortOption);
 	
-	TextSearchResponse1<InstructorData> searchInstructors (
+	PaginatedResult<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
 			InstructorSortOption sortOption, List<Long> excludedIds);
 	
-	TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
-			long credId, long roleId, List<Long> excludedUserIds);
+	PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
+                                                             long credId, long roleId, List<Long> excludedUserIds);
 	
 	List<Long> getInstructorCourseIds (long userId);
 	
-	TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
+	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit);
 	
 	/**
-	 * Call {@link TextSearchResponse1#getAdditionalInfo()} to get search filters: 
+	 * Call {@link PaginatedResult#getAdditionalInfo()} to get search filters:
 	 * under key 'filters' all filters can be retrieved with type {@code List<RoleFilter>},
 	 * under key 'selectedFilter' applied filter can be retrieved with type {@code RoleFilter}.
 	 * @param term
@@ -72,14 +72,14 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param excludeIds usersToExclude
 	 * @return
 	 */
-	TextSearchResponse1<UserData> getUsersWithRoles(
+	PaginatedResult<UserData> getUsersWithRoles(
 			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds);
 	
-	TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
 			long userId, CredentialMembersSortOption sortOption);
 	
-	TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
+	PaginatedResult<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId);
 
 	/**
@@ -91,10 +91,10 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param userId
 	 * @return
 	 */
-	TextSearchResponse1<UserData> searchPeopleUserFollows(String searchTerm,
-			int page, int limit, long userId);
+	PaginatedResult<UserData> searchPeopleUserFollows(String searchTerm,
+                                                      int page, int limit, long userId);
 	
-	TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+	PaginatedResult<UserSelectionData> searchUsersInGroups(
 			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
 
 	/**
@@ -106,7 +106,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param peersToExcludeFromSearch user ids to exclude from search
 	 * @return response containing initialized UserData that matches the search.
 	 */
-	TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+	PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 	
 	/**
@@ -124,6 +124,6 @@ public interface UserTextSearch extends AbstractManager {
 			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 
-	TextSearchResponse1<UserData> searchNewOwner(String searchTerm, int limit,
-												 Long usersToExcludeFromSearch);
+	PaginatedResult<UserData> searchNewOwner(String searchTerm, int limit,
+                                             Long usersToExcludeFromSearch);
 }

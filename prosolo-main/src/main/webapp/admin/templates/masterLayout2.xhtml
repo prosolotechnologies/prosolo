@@ -111,7 +111,8 @@
 							</li>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'adminAdmins'  ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}">
+								#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}
+								#{util:getPagePath(view.viewId)  == 'adminEditAdminPassword'  ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
 										value="Admins" outcome="/admin/adminAdmins" />
 							</li>

@@ -1,26 +1,25 @@
 package org.prosolo.services.nodes.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.google.api.client.util.Lists;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.organization.Role;
+
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
@@ -32,7 +31,9 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.web.administration.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
+	@Autowired private UserDataFactory userDataFactory;
 	 
 	@Override
 	@Transactional (readOnly = true)
@@ -156,27 +158,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			
 			//user.addPreference(npPreference);
 			saveEntity(user);
-		}
-	}
-
-	@Override
-	@Transactional (readOnly = true)
-	public String getUserPosition(long id) throws DbConnectionException {
-		try {
-			String query =
-					"SELECT user.position " +
-					"FROM User user " +
-					"WHERE user.id = :id ";
-
-			String position = (String) persistence.currentManager().createQuery(query).
-					setLong("id", id).
-					uniqueResult();
-
-			return position;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user email");
 		}
 	}
 
@@ -301,8 +282,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		
 		query.append(	
 			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.deleted = :deleted "
+			" FROM User user " +
+			" WHERE user.deleted = :deleted "
 		);
 		
 		if (toExclude != null && toExclude.length > 0) {
@@ -399,14 +380,126 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			try {
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
-				saveEntity(user);
+				delete(user);
 				assignNewOwner(newCreatorId, oldCreatorId);
 				userEntityESService.deleteNodeFromES(user);
 			} catch (ResourceCouldNotBeLoadedException e) {
 				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
-	
+
+	@Override
+	public PaginatedResult<UserData> getAdminsAndSuperAdmins(int page, int limit, long roleId, List<Role> roles) {
+
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+
+		String query =
+				"SELECT DISTINCT user " +
+				"FROM User user " +
+				"LEFT JOIN user.roles role ";
+				if(roleId > 0) {
+					query+="WHERE role.id =: roleId ";
+				}else{
+					query+="WHERE role IN (:roles) ";
+				}
+				query+="ORDER BY user.name,user.lastname ASC ";
+
+		Query result = persistence.currentManager().createQuery(query);
+
+		if(roleId > 0){
+			result.setLong("roleId",roleId);
+		}else {
+			result.setParameterList("roles",roles);
+		}
+		List<User> users = result
+				.setFirstResult(page*limit)
+				.setMaxResults(limit)
+				.list();
+
+		for(User u : users) {
+			if(result != null) {
+				List<Role> adminRoles = u.getRoles().stream().filter(role -> roles
+						.stream()
+						.map(r -> r.getId())
+						.collect(Collectors.toList())
+						.contains(role.getId())).collect(Collectors.toList());
+
+				UserData userData = new UserData(u,adminRoles);
+				response.addFoundNode(userData);
+			}
+		}
+
+		setFilter(roles,roleId,response);
+		setUsersCountForFiltering(roles,roleId,response);
+
+		return response;
+	}
+
+	private void setUsersCountForFiltering(List<Role> roles,long roleId,PaginatedResult<UserData> response){
+		String countQuery =
+				"SELECT COUNT (DISTINCT user) " +
+						"FROM User user " +
+						"LEFT JOIN user.roles role ";
+		if(roleId > 0) {
+			countQuery += "WHERE role.id =: roleId ";
+		}else{
+			countQuery += "WHERE role IN (:roles) ";
+		}
+
+
+		Query result1 = persistence.currentManager().createQuery(countQuery);
+		if(roleId > 0){
+			result1.setLong("roleId",roleId);
+		}else{
+			result1.setParameterList("roles",roles);
+		}
+		response.setHitsNumber((Long) result1.uniqueResult());
+	}
+
+	private void setFilter(List<Role> roles,long roleId,PaginatedResult<UserData> response){
+		String countQuery =
+				"SELECT COUNT (DISTINCT user) " +
+						"FROM User user " +
+						"LEFT JOIN user.roles role " +
+						"WHERE role IN (:roles) ";
+
+		long count = (long) persistence.currentManager().createQuery(countQuery)
+				.setParameterList("roles",roles)
+				.uniqueResult();
+
+		List<RoleFilter> roleFilters = new ArrayList<>();
+		RoleFilter defaultFilter = new RoleFilter(0, "All",count);
+		roleFilters.add(defaultFilter);
+		RoleFilter selectedFilter = defaultFilter;
+
+		String query =
+				"SELECT role, COUNT (DISTINCT user) "+
+						"FROM User user "+
+						"INNER JOIN user.roles role "+
+						"WITH role in (:roles) "+
+						"GROUP BY role";
+
+		List<Object[]> result = persistence.currentManager().createQuery(query)
+				.setParameterList("roles",roles)
+				.list();
+
+		for(Object[] objects : result){
+			Role r = (Role) objects[0];
+			long c = (long) objects[1];
+			RoleFilter rf = new RoleFilter(r.getId(), r.getTitle(), c);
+			roleFilters.add(rf);
+			if(r.getId() == roleId) {
+				selectedFilter = rf;
+			}
+		}
+
+		Map<String, Object> additionalInfo = new HashMap<>();
+		additionalInfo.put("filters", roleFilters);
+		additionalInfo.put("selectedFilter", selectedFilter);
+
+		response.setAdditionalInfo(additionalInfo);
+	}
+
 	private void assignNewOwner(long newCreatorId, long oldCreatorId){
 		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
 		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);

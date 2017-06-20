@@ -14,11 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -53,12 +54,15 @@ public class AdminsBean implements Serializable,Paginable{
 	private LoggedUserBean loggedUserBean;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private UserManager userManager;
 	
 	private String roleId;
-	
+	private List<String> adminRolesCSV;
 	private List<UserData> admins;
 	private UserData userToDelete;
-	
+	String[] rolesArray;
+	List<Role> adminRoles;
 	private String searchTerm = "";
 	
 	private RoleFilter filter;
@@ -76,19 +80,22 @@ public class AdminsBean implements Serializable,Paginable{
 		if(decodedRoleId > 0){
 			filterId = decodedRoleId;
 		}
+		this.admins = new ArrayList<>();
+		rolesArray = new String[]{"Admin","Super Admin"};
+		adminRoles = roleManager.getRolesByNames(rolesArray);
 		filter = new RoleFilter(filterId,"All", 0);
 		loadAdmins();
 	}
 	
 	public void resetAndSearch(){
 		this.paginationData.setPage(1);
-		loadAdmins();
+		loadAdminsForSearch();
 	}
 	
 	public void applySearchFilter(RoleFilter filter){
 		this.filter = filter;
 		paginationData.setPage(1);
-		loadAdmins();
+		loadAdminsForSearch();
 	}
 	
 	public void prepareLoginAsAdmin(UserData user) {
@@ -112,7 +119,7 @@ public class AdminsBean implements Serializable,Paginable{
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page){
 			this.paginationData.setPage(page);
-			loadAdmins();
+			loadAdminsForSearch();
 		}
 	}
 
@@ -122,23 +129,34 @@ public class AdminsBean implements Serializable,Paginable{
 	}
 
 	@SuppressWarnings("unchecked")
-	private void loadAdmins(){
-		this.admins = new ArrayList<UserData>();
+	private void loadAdminsForSearch(){
 		try{
-			String[] rolesArray = new String[]{"Admin","Super Admin"};
-			List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
-			TextSearchResponse1<UserData> res = textSearch.getUsersWithRoles(
+			PaginatedResult<UserData> res = textSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), adminRoles, true, null);
 			admins = res.getFoundNodes();
-			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
-			filters = roleFilters != null ? roleFilters : new ArrayList<>();
-			RoleFilter roleFilter = (RoleFilter)  res.getAdditionalInfo().get("selectedFilter");
-			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
-			this.paginationData.update((int) res.getHitsNumber());
+			setFilters(res);
 		}catch (Exception e) {
 			logger.error(e);
 		}
+	}
+
+	private void loadAdmins(){
+		try{
+			PaginatedResult<UserData> res = userManager.getAdminsAndSuperAdmins(paginationData.getPage() - 1,
+					paginationData.getLimit(),filter.getId(), adminRoles);
+			admins = res.getFoundNodes();
+			setFilters(res);
+		}catch (Exception e){
+			logger.error(e);
+		}
+	}
+
+	private void setFilters(PaginatedResult<UserData> res){
+		List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
+		filters = roleFilters != null ? roleFilters : new ArrayList<>();
+		RoleFilter roleFilter = (RoleFilter)  res.getAdditionalInfo().get("selectedFilter");
+		filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
+		this.paginationData.update((int) res.getHitsNumber());
 	}
 	
 	/*

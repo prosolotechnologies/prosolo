@@ -2,7 +2,7 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
@@ -112,7 +112,7 @@ public class UsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
 		try {
-			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
+			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
 					true, null);
 			users = res.getFoundNodes();

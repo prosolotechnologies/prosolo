@@ -22,11 +22,15 @@
 		</f:metadata>
 	</ui:define>
 
-	<ui:define name="resourceTitle" rendered="#{not empty adminEditBean.id}">
+	<ui:define name="resourceTitle" >
 		<h1>
-			<h:outputText value="#{adminEditBean.user.name} #{adminEditBean.user.lastName}" />
+			<h:outputText rendered="#{not empty adminEditBean.id}" value="#{adminEditBean.admin.name} #{adminEditBean.admin.lastName}" />
+		</h1>
+		<h1>
+			<h:outputText rendered="#{ empty adminEditBean.id}" value="New Admin" />
 		</h1>
 	</ui:define>
+
 
 	<ui:define name="navLinks">
 		<ui:fragment rendered="#{not empty adminEditBean.id}">
@@ -51,9 +55,6 @@
 			<div class="row">
 				<div class="col-md-12">
 					<div class="whiteBox">
-						<ui:fragment rendered="#{empty adminEditBean.id}">
-							<h2>New Admin</h2>
-						</ui:fragment>
 						<h:form id="formMain">
 							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 							<div class="formWrapper">
@@ -62,7 +63,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminName" required="true"
 													 requiredMessage="First name is required"
-													 value="#{adminEditBean.user.name}">
+													 value="#{adminEditBean.admin.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminName')}"
@@ -76,7 +77,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminLastname" required="true"
 													 requiredMessage="Last name is required"
-													 value="#{adminEditBean.user.lastName}">
+													 value="#{adminEditBean.admin.lastName}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminLastname')}"
@@ -91,7 +92,7 @@
 										<h:inputText id="inputTextAdminEmail"
 													 name="emailAddress"
 													 validator="emailValidator"
-													 value="#{adminEditBean.user.email}"></h:inputText>
+													 value="#{adminEditBean.admin.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminEmail')}"
@@ -103,7 +104,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{adminEditBean.user.position}"></h:inputText>
+										<h:inputText value="#{adminEditBean.admin.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -118,7 +119,7 @@
 												<h:outputLabel value="#{role.label}" for="selectRoles"></h:outputLabel>
 											</div>
 										</ui:repeat>
-										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="#{adminEditBean.user.position}">
+										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="0">
 										</h:inputHidden>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
@@ -170,8 +171,8 @@
 							<h2 class="modal-title">Delete admin?</h2>
 						</div>
 						<div class="modal-body alignLeft">
-							<p>Are you sure you want to delete #{adminEditBean.user.name}
-								#{adminEditBean.user.lastName}?</p>
+							<p>Are you sure you want to delete #{adminEditBean.admin.name}
+								#{adminEditBean.admin.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
 								<h:panelGroup layuot="block" id="selectNewOwner">

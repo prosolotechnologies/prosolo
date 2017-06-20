@@ -164,11 +164,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	@Transactional
-	public TextSearchResponse1<UserData> getUsersWithRoles(
+	public PaginatedResult<UserData> getUsersWithRoles(
 			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds) {
 
-		TextSearchResponse1<UserData> response =
-				new TextSearchResponse1<>();
+		PaginatedResult<UserData> response =
+				new PaginatedResult<>();
 
 		try {
 			int start = 0;
@@ -234,7 +234,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<org.prosolo.common.domainmodel.organization.Role> roles;
+				List<Role> roles;
 
 				if (adminRoles == null || adminRoles.isEmpty()){
 					roles = roleManager.getAllRoles();
@@ -253,10 +253,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
-					List<org.prosolo.common.domainmodel.organization.Role> userRoles = new ArrayList<>();
+					List<Role> userRoles = new ArrayList<>();
 					if(rolesList != null) {
 						for(Map<String, Object> map : rolesList) {
-							org.prosolo.common.domainmodel.organization.Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
+							Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
 							if(r != null) {
 								userRoles.add(r);
 							}
@@ -276,7 +276,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(org.prosolo.common.domainmodel.organization.Role role : roles) {
+				for(Role role : roles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {
@@ -313,10 +313,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
-	private org.prosolo.common.domainmodel.organization.Role getRoleDataForId(List<org.prosolo.common.domainmodel.organization.Role> roles, 
+	private Role getRoleDataForId(List<Role> roles,
 			long roleId) {
 		if(roles != null) {
-			for(org.prosolo.common.domainmodel.organization.Role r : roles) {
+			for(Role r : roles) {
 				if(roleId == r.getId()) {
 					return r;
 				}
@@ -544,10 +544,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	 * -1 should be passed as a page parameter 
 	 */
 	@Override
-	public TextSearchResponse1<InstructorData> searchInstructors (
+	public PaginatedResult<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
 			InstructorSortOption sortOption, List<Long> excludedIds) {
-		TextSearchResponse1<InstructorData> response = new TextSearchResponse1<>();
+		PaginatedResult<InstructorData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -629,9 +629,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
-			long credId, long roleId, List<Long> excludedUserIds) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+	public PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
+																	long credId, long roleId, List<Long> excludedUserIds) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -748,10 +748,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
+	public PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -922,10 +922,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+	public PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
 			long userId, CredentialMembersSortOption sortOption) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1079,9 +1079,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
+	public PaginatedResult<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1163,9 +1163,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchPeopleUserFollows(
+	public PaginatedResult<UserData> searchPeopleUserFollows(
 			String term, int page, int limit, long userId) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int size = limit;
@@ -1220,9 +1220,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+	public PaginatedResult<UserSelectionData> searchUsersInGroups(
 			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
-		TextSearchResponse1<UserSelectionData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserSelectionData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1290,9 +1290,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+	public PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -1540,9 +1540,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	@Override
-	public TextSearchResponse1<UserData> searchNewOwner(
+	public PaginatedResult<UserData> searchNewOwner(
 			String searchTerm, int limit, Long excludedId) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -1563,7 +1563,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			bqb.mustNot(termQuery("id", excludedId));
 
 			try {
-				String[] includes = {"id", "name", "lastname", "avatar"};
+				String[] includes = {"id", "name", "lastname", "avatar","position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
