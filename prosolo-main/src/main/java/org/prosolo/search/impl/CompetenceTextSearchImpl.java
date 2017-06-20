@@ -73,7 +73,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			limit = setLimit(limit, loadOneMore);
 			
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -109,7 +109,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
 			
@@ -168,7 +168,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -231,7 +231,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -297,7 +297,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -336,7 +336,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
