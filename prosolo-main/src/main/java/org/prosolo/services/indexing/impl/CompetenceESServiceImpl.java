@@ -172,7 +172,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("user", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -188,7 +188,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("visibleToAll", value);
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -226,7 +226,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -240,7 +240,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -270,7 +270,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("bookmark", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -301,7 +301,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("student", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -316,7 +316,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", true)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -330,7 +330,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", false)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -345,7 +345,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("creatorId", newOwnerId);
 			builder.endObject();
 
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

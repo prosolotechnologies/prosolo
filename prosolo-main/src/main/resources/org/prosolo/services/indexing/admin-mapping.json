@@ -1,0 +1,38 @@
+{
+	"user": {
+		"properties": {
+			"id": {
+				"store": false,
+				"type": "long"
+			},
+			"name": {
+				"store": false,
+				"type": "string"
+			},
+			"lastname": {
+				"store": false,
+				"type": "string"
+			},
+			"avatar": {
+				"store": false,
+				"type": "string"
+			},
+			"position": {
+				"store": false,
+				"type": "string"
+			},
+			"assigned": {
+				"store": false,
+				"type": "boolean"
+			},
+			"roles": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			}
+		}
+	}
+}

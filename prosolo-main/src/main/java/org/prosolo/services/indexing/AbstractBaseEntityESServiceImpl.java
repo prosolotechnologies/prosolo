@@ -80,7 +80,7 @@ public abstract class AbstractBaseEntityESServiceImpl implements AbstractBaseEnt
 		} else if (node instanceof Credential1) {
 			indexType = ESIndexTypes.CREDENTIAL;
 		} else if (node instanceof Competence1) {
-			indexType = ESIndexTypes.COMPETENCE1;
+			indexType = ESIndexTypes.COMPETENCE;
 		} else if (node instanceof UserGroup) {
 			indexType = ESIndexTypes.USER_GROUP;
 		}
