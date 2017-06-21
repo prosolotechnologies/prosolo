@@ -119,7 +119,7 @@ public class AdminsBean implements Serializable,Paginable{
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page){
 			this.paginationData.setPage(page);
-			searchAdmins();
+			loadAdmins();
 		}
 	}
 
