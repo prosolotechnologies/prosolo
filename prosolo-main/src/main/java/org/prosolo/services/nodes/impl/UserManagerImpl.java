@@ -399,7 +399,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			try {
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
-				delete(user);
+				saveEntity(user);
 				assignNewOwner(newCreatorId, oldCreatorId);
 				saveEntity(user);
 				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
@@ -420,9 +420,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"FROM User user " +
 				"LEFT JOIN user.roles role ";
 				if(roleId > 0) {
-					query+="WHERE role.id =: roleId ";
+					query+="WHERE role.id =: roleId AND user.deleted IS false ";
 				}else{
-					query+="WHERE role IN (:roles) ";
+					query+="WHERE role IN (:roles) AND user.deleted IS false ";
 				}
 				query+="ORDER BY user.name,user.lastname ASC ";
 
@@ -463,9 +463,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 						"FROM User user " +
 						"LEFT JOIN user.roles role ";
 		if(roleId > 0) {
-			countQuery += "WHERE role.id =: roleId ";
+			countQuery += "WHERE role.id =: roleId AND user.deleted IS false ";
 		}else{
-			countQuery += "WHERE role IN (:roles) ";
+			countQuery += "WHERE role IN (:roles) AND user.deleted IS false ";
 		}
 
 
@@ -483,7 +483,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"SELECT COUNT (DISTINCT user) " +
 						"FROM User user " +
 						"LEFT JOIN user.roles role " +
-						"WHERE role IN (:roles) ";
+						"WHERE role IN (:roles) AND user.deleted IS false ";
 
 		long count = (long) persistence.currentManager().createQuery(countQuery)
 				.setParameterList("roles",roles)
@@ -495,10 +495,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		RoleFilter selectedFilter = defaultFilter;
 
 		String query =
-				"SELECT role, COUNT (DISTINCT user) "+
+				"SELECT role, COUNT (DISTINCT user) " +
 						"FROM User user "+
-						"INNER JOIN user.roles role "+
-						"WITH role in (:roles) "+
+						"INNER JOIN user.roles role " +
+						"WITH role in (:roles) " +
 						"GROUP BY role";
 
 		List<Object[]> result = persistence.currentManager().createQuery(query)
