@@ -433,6 +433,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}else {
 			result.setParameterList("roles",roles);
 		}
+
 		List<User> users = result
 				.setFirstResult(page*limit)
 				.setMaxResults(limit)
@@ -463,9 +464,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 						"FROM User user " +
 						"LEFT JOIN user.roles role ";
 		if(roleId > 0) {
-			countQuery += "WHERE role.id =: roleId";
+			countQuery += "WHERE role.id =: roleId AND user.deleted IS false";
 		}else{
-			countQuery += "WHERE role IN (:roles)";
+			countQuery += "WHERE role IN (:roles) AND user.deleted IS false";
 		}
 
 

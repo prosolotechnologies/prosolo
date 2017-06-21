@@ -173,8 +173,7 @@ public class AdminEditBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Admin user successfully saved");
 
 			sendNewPassword();
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			extContext.redirect("/admin/admins");
+			PageUtil.redirect("/admin/admins");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -317,8 +316,7 @@ public class AdminEditBean implements Serializable {
 				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				extContext.redirect("/admin/admins");
+				PageUtil.redirect("/admin/admins");
 			} catch (Exception ex) {
 				logger.error(ex);
 				PageUtil.fireErrorMessage("Error while trying to delete user");

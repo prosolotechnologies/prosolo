@@ -58,9 +58,7 @@ public class AdminsBean implements Serializable,Paginable{
 	private UserManager userManager;
 	
 	private String roleId;
-	private List<String> adminRolesCSV;
 	private List<UserData> admins;
-	private UserData userToDelete;
 	String[] rolesArray;
 	List<Role> adminRoles;
 	private String searchTerm = "";
