@@ -89,13 +89,13 @@ public class AdminsBean implements Serializable,Paginable{
 	
 	public void resetAndSearch(){
 		this.paginationData.setPage(1);
-		loadAdminsForSearch();
+		searchAdmins();
 	}
 	
 	public void applySearchFilter(RoleFilter filter){
 		this.filter = filter;
 		paginationData.setPage(1);
-		loadAdminsForSearch();
+		searchAdmins();
 	}
 	
 	public void prepareLoginAsAdmin(UserData user) {
@@ -119,7 +119,7 @@ public class AdminsBean implements Serializable,Paginable{
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page){
 			this.paginationData.setPage(page);
-			loadAdminsForSearch();
+			searchAdmins();
 		}
 	}
 
@@ -129,7 +129,7 @@ public class AdminsBean implements Serializable,Paginable{
 	}
 
 	@SuppressWarnings("unchecked")
-	private void loadAdminsForSearch(){
+	private void searchAdmins(){
 		try{
 			PaginatedResult<UserData> res = textSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), adminRoles, true, null);
