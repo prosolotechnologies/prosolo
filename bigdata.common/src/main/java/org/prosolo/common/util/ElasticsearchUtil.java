@@ -24,4 +24,9 @@ public class ElasticsearchUtil {
         }
         return Streams.copyToString(new InputStreamReader(is, Charsets.UTF_8));
     }
+
+    public static String getOrganizationIndexSuffix(long organizationId) {
+        return "_" + organizationId;
+    }
+
 }

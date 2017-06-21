@@ -2,6 +2,7 @@ package org.prosolo.common;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -38,6 +39,10 @@ public class ESIndexNames {
 			}
 		}
 		return indexes;
+	}
+
+	public static List<String> getOrganizationIndexes() {
+		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP);
 	}
 	
 	private static boolean isRightName(String name) {
