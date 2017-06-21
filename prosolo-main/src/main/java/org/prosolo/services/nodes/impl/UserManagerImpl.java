@@ -463,9 +463,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 						"FROM User user " +
 						"LEFT JOIN user.roles role ";
 		if(roleId > 0) {
-			countQuery += "WHERE role.id =: roleId AND user.deleted IS false ";
+			countQuery += "WHERE role.id =: roleId";
 		}else{
-			countQuery += "WHERE role IN (:roles) AND user.deleted IS false ";
+			countQuery += "WHERE role IN (:roles)";
 		}
 
 
@@ -498,7 +498,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"SELECT role, COUNT (DISTINCT user) " +
 						"FROM User user "+
 						"INNER JOIN user.roles role " +
-						"WITH role in (:roles) " +
+						"WITH role in (:roles) AND user.deleted IS false " +
 						"GROUP BY role";
 
 		List<Object[]> result = persistence.currentManager().createQuery(query)
