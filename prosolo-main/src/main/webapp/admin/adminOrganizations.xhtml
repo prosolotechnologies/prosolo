@@ -13,6 +13,7 @@
 
     <ui:define name="metadata">
         <f:metadata>
+            <f:viewParam name="p" value="#{adminOrganizations.paginationData.pageString}" default="1" />
             <f:viewAction action="#{adminOrganizations.init()}" />
         </f:metadata>
     </ui:define>
@@ -35,14 +36,25 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <h:panelGroup layout="block" id="panelOrganizations" styleClass="col-md-12">
                     <ul class="whiteBox adminOrganizationsList">
+                        <ui:repeat value="#{adminOrganizations.organizations}" var="organization">
                         <li>
                             <div class="adminOrganizationsListLeft">
-                                <h2><a href="admin-organizations-edit.html">Aliquam vestibulum nulla</a></h2>
+                                <h2>
+                                    <h:link >
+                                        #{organization.title}
+                                        <f:param name="id" value="#{util:encodeId(organization.id)}"></f:param>
+                                    </h:link>
+                                </h2>
                                 <div class="competenceInfo">
                                     <div class="admins">
-                                        Admin(s): <span>Gustavo Fring, Walter White</span>
+                                        Admin(s):
+                                        <span>
+                                            <ui:repeat value="#{adminOrganizations.choosenAdmins(organization.id)}" var="a">
+                                                #{a.fullName}
+                                            </ui:repeat>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -56,28 +68,15 @@
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <div class="adminOrganizationsListLeft">
-                                <h2><a href="admin-organizations-edit.html">Pharetra Purus</a></h2>
-                                <div class="competenceInfo">
-                                    <div class="admins">
-                                        Admin(s): <span>Gustavo Fring</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="adminOrganizationsListRight">
-                                <a href="admin-organizations-edit.html" class="btn btn-sm btn-green-stroke">Edit</a>
-                                <div class="dropdown optMoreMenu">
-                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
-                                    <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                        <li><a href="#" data-toggle="modal" data-target="#deleteOrg">Delete</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
+                        </ui:repeat>
                     </ul>
+                </h:panelGroup>
                 </div>
-            </div>
+            <utilcomp:pagination
+                    id="pagination"
+                    bean="#{adminOrganizations}"
+                    updateUrl="true"
+                    toUpdate=":panelOrganizations" />
         </div>
 
         <div class="modal fade" id="deleteOrg" tabindex="-1" role="dialog" aria-labelledby="deleteOrganization">

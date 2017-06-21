@@ -3,19 +3,21 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import twitter4j.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -93,5 +95,51 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         return organization;
     }
 
+    @Override
+    public TextSearchResponse1<OrganizationData> getAllOrganizations(int page, int limit) {
+        TextSearchResponse1<OrganizationData> response = new TextSearchResponse1<>();
+
+        String query =
+                "SELECT DISTINCT organization " +
+                "FROM Organization organization ";
+
+        List<Organization> organizations = persistence.currentManager().createQuery(query)
+                .setFirstResult(page*limit)
+                .setMaxResults(limit)
+                .list();
+
+        for(Organization o : organizations){
+            List<UserData> choosenAdmins = getOrganizationAdmins(o.getId());
+            OrganizationData od = new OrganizationData(o,choosenAdmins);
+            response.addFoundNode(od);
+        }
+
+        return response;
+    }
+
+    @Override
+    public List<UserData> getOrganizationAdmins(long organizationId) {
+
+        List<UserData> result = new ArrayList<>();
+        Organization org = getOrganizationById(organizationId);
+
+        for(User u : org.getUsers()){
+            UserData ud = new UserData(u);
+            result.add(ud);
+        }
+        return result;
+    }
+
+    @Override
+    public List<UserData> getChoosenAdminsForOrganization(long organizationId) {
+        List<UserData> result = new ArrayList<>();
+
+        Organization organization = getOrganizationById(organizationId);
+        for(User u : organization.getUsers()){
+            UserData ud = new UserData(u);
+            result.add(ud);
+        }
+        return result;
+    }
 
 }

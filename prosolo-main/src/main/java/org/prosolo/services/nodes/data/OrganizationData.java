@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.organization.Organization;
+import twitter4j.User;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,12 @@ public class OrganizationData implements Serializable {
 
     public OrganizationData(){}
 
+    public OrganizationData(Organization organization, List<UserData> choosenAdmins){
+        this();
+        this.id = organization.getId();
+        this.title = organization.getTitle();
+        this.admins = choosenAdmins;
+    }
 
     public long getId() {
         return id;
