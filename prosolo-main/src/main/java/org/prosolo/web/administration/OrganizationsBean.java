@@ -37,7 +37,6 @@ public class OrganizationsBean implements Serializable,Paginable {
     private PaginationData paginationData = new PaginationData();
     private Organization organizationToDelete;
 
-
     public void init(){
         logger.debug("Hello from adminOrganizations bean logger");
         System.out.println("Hello from adminOrganizations bean");
@@ -77,7 +76,6 @@ public class OrganizationsBean implements Serializable,Paginable {
         if(organizationToDelete != null){
             try {
                 organizationManager.deleteOrganization(this.organizationToDelete.getId());
-
                 PageUtil.fireSuccessfulInfoMessage("Organization " + organizationToDelete.getTitle() + " is deleted.");
                 organizationToDelete = null;
                 ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();

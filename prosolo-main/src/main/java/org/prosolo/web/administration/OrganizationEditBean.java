@@ -65,7 +65,6 @@ public class OrganizationEditBean implements Serializable {
         logger.debug("initializing");
         try {
             decodedId = idEncoder.decodeId(id);
-            // here check id for edit organization
             if (decodedId > 0) {
                 User admin = userManager.getUserWithRoles(decodedId);
                 if (admin != null) {

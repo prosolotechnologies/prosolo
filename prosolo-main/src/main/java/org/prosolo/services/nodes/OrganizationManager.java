@@ -21,6 +21,7 @@ public interface OrganizationManager extends AbstractManager {
 
     void setUserOrganization(List<UserData>adminsChosen,Long organizationId);
 
+
     Organization getOrganizationByName(String title) throws DbConnectionException;
 
     Organization getOrganizationById(long id);

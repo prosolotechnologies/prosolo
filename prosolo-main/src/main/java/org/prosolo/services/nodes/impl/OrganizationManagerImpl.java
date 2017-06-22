@@ -29,7 +29,7 @@ import java.util.List;
 @Service("org.prosolo.services.nodes.OrganizationManager")
 public class OrganizationManagerImpl extends AbstractManagerImpl implements OrganizationManager {
 
-    private static Logger logger = Logger.getLogger(OrganizationManager.class);
+    private static Logger logger = Logger.getLogger(OrganizationManager.class)
 
     @Autowired
     private EventFactory eventFactory;
@@ -124,7 +124,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 "SELECT COUNT (DISTINCT organization) " +
                         "FROM Organization organization " +
                         "WHERE organization.deleted IS FALSE ";
-
 
         Query result = persistence.currentManager().createQuery(countQuery);
         response.setHitsNumber((Long) result.uniqueResult());
