@@ -1,11 +1,20 @@
-function convertTime(millis, format, id) {
+function convertTime(millis, format, selector) {
+    convertTime(millis, format, selector, '-');
+}
+
+function convertTime(millis, format, selector, empty) {
     var formattedDate;
     if (millis >= 0) {
         formattedDate = convertTimeAndReturn(millis, format);
     } else {
-        formattedDate = '-';
+        formattedDate = empty;
     }
-    $(document.getElementById(id)).text(formattedDate);
+    var el =  $(escapeColons(selector));
+    if (el.is("input")) {
+        el.val(formattedDate);
+    } else {
+        el.text(formattedDate);
+    }
 }
 
 function convertTimeAndReturn(millis, format) {
@@ -61,4 +70,13 @@ function convertToRelativeTime(millis) {
         return diffSeconds + " sec" + suffix;
     }
     return "";
+}
+
+function populateTimestamp(timeEl, timestampSelector, format) {
+    var timeString = $(timeEl).val();
+    if (timeString) {
+        $(timestampSelector).val(moment(timeString, format).valueOf());
+    } else {
+        $(timestampSelector).val(-1);
+    }
 }

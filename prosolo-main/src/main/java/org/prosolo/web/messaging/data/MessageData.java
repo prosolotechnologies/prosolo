@@ -115,7 +115,7 @@ public class MessageData implements Serializable, Comparable<MessageData> {
 	}
 	
 	public long getCreatedTime() {
-		return created.getTime();
+		return DateUtil.getMillisFromDate(created);
 	}
 
 	@Override

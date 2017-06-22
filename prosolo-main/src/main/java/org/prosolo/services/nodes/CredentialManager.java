@@ -465,7 +465,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	
-	Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId, 
+	Credential1 createCredentialDelivery(long credentialId, long start, long end, long actorId,
 			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 	
 	Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 

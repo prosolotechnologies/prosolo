@@ -38,7 +38,7 @@
 	            <div class="wallPostHeadRight">
 					<h:link outcome="wall-post-view" styleClass="timestamp">
 						<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>
-						<utilcomp:convertTime
+						<utilcomp:convertTimeOutput
 								millis="#{cc.attrs.socialActivity.postDateTime}"
 								format="rel"
 						/>

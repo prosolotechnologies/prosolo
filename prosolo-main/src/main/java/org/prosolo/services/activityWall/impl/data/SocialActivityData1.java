@@ -46,7 +46,7 @@ public class SocialActivityData1 implements Serializable {
 	}
 
 	public long getPostDateTime() {
-		return dateCreated.getTime();
+		return DateUtil.getMillisFromDate(dateCreated);
 	}
 	
 	public Date getDateCreated() {

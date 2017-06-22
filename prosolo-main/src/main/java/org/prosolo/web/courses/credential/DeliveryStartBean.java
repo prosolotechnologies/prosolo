@@ -32,9 +32,9 @@ public class DeliveryStartBean implements Serializable {
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
-	
-	private Date start;
-	private Date end;
+
+	private long startTime = -1;
+	private long endTime = -1;
 	
 	/*
 	 * ACTIONS
@@ -43,7 +43,7 @@ public class DeliveryStartBean implements Serializable {
 	public void createDelivery(long credId) {
 		LearningContextData context = PageUtil.extractLearningContextData();
 		try {
-			long deliveryId = credentialManager.createCredentialDelivery(credId, start, end, 
+			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserId(), context).getId();
 
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
@@ -68,23 +68,20 @@ public class DeliveryStartBean implements Serializable {
 	/*
 	 * GETTERS/SETTERS
 	 */
-	
-	public Date getStart() {
-		return start;
+
+	public long getStartTime() {
+		return startTime;
 	}
 
-
-	public void setStart(Date start) {
-		this.start = start;
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
 	}
 
-
-	public Date getEnd() {
-		return end;
+	public long getEndTime() {
+		return endTime;
 	}
 
-
-	public void setEnd(Date end) {
-		this.end = end;
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
 	}
 }

@@ -421,6 +421,30 @@ public class DateUtil {
 		}
 		return ldt.getDayOfWeek() == day;
 	}
+
+	/**
+	 * This method returns Date object from passed milliseconds since epoch.
+	 * It is assumed that all dates are past 1.1.1970 00:00:00 UTC so if
+	 * negative value is passed, null will be returned
+	 *
+	 * @param millis
+	 * @return
+	 */
+	public static Date getDateFromMillis(long millis) {
+		return millis >= 0 ? new Date(millis) : null;
+	}
+
+	/**
+	 * This method returns number of milliseconds passed since epoch.
+	 * It is assumed that all dates are past 1.1.1970 00:00:00 UTC so if
+	 * null is passed, -1 will be returned which should be interpreted as empty date (not set)
+	 *
+	 * @param date
+	 * @return
+	 */
+	public static long getMillisFromDate(Date date) {
+		return date != null ? date.getTime() : -1;
+	}
 	
 	public static void main(String[] args) {
 		Calendar cal = new GregorianCalendar();

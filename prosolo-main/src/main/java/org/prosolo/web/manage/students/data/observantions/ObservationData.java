@@ -3,6 +3,7 @@ package org.prosolo.web.manage.students.data.observantions;
 import org.prosolo.common.domainmodel.observations.Observation;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.common.util.date.DateUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,7 +61,7 @@ public class ObservationData {
 	}
 
 	public long getTime() {
-		return dateCreated == null ? -1 : dateCreated.getTime();
+		return DateUtil.getMillisFromDate(dateCreated);
 	}
 
 	public long getId() {

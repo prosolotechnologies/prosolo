@@ -2,6 +2,7 @@ package org.prosolo.web.manage.students.data;
 
 import org.prosolo.common.domainmodel.evaluation.Evaluation;
 import org.prosolo.common.domainmodel.evaluation.EvaluationSubmission;
+import org.prosolo.common.util.date.DateUtil;
 
 import java.util.Date;
 
@@ -29,7 +30,7 @@ public class EvaluationSubmissionData {
 	}
 
 	public long getTime() {
-		return submissionDate.getTime();
+		return DateUtil.getMillisFromDate(submissionDate);
 	}
 
 	public EvaluatorData getEvaluator() {

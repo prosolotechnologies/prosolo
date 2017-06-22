@@ -89,7 +89,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	}
 
 	public long getPublishedTime() {
-		return datePublished != null ? datePublished.getTime() : -1;
+		return DateUtil.getMillisFromDate(datePublished);
 	}
 	
 	public boolean isScheduledPublish() {

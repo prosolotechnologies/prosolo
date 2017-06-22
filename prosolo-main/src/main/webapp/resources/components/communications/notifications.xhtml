@@ -43,7 +43,7 @@
 			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3> 
 			                                </div>
 			                                <span class="timestamp">
-												<utilcomp:convertTime
+												<utilcomp:convertTimeOutput
 														millis="#{notification.notificationTime}"
 														format="rel"
 												/>

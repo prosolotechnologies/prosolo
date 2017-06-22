@@ -116,7 +116,7 @@
 			                                <div class="media-body">
 			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
 			                                    <span>
-													<utilcomp:convertTime
+													<utilcomp:convertTimeOutput
 															millis="#{messageThreadData.lastUpdatedTime}"
 															format="rel"
 													/>
@@ -241,7 +241,7 @@
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.name}</h3>
 	                               			<span>
-												<utilcomp:convertTime
+												<utilcomp:convertTimeOutput
 														millis="#{message.createdTime}"
 														format="rel"
 												/>
@@ -268,7 +268,7 @@
 	                            		<div class="media-body">
 	                                		<h3 class="media-heading">#{message.actor.name}</h3>
 	                               			<span>
-												<utilcomp:convertTime
+												<utilcomp:convertTimeOutput
 														millis="#{message.createdTime}"
 														format="rel"
 												/>

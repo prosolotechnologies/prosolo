@@ -32,7 +32,7 @@ public class NotificationData implements Serializable {
 	public NotificationData() { }
 
 	public long getNotificationTime() {
-		return date.getTime();
+		return DateUtil.getMillisFromDate(date);
 	}
 
 	public long getId() {

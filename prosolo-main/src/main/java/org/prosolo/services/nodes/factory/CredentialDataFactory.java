@@ -1,20 +1,20 @@
 package org.prosolo.services.nodes.factory;
 
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.Set;
 
 @Component
 public class CredentialDataFactory {
@@ -56,10 +56,10 @@ public class CredentialDataFactory {
 
 		if (credential.getType() == CredentialType.Delivery) {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
-			cred.setDeliveryStart(credential.getDeliveryStart());
-			cred.setDeliveryEnd(credential.getDeliveryEnd());
+			cred.setDeliveryStartTime(DateUtil.getMillisFromDate(credential.getDeliveryStart()));
+			cred.setDeliveryEndTime(DateUtil.getMillisFromDate(credential.getDeliveryEnd()));
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
-					cred.getDeliveryStart(), cred.getDeliveryEnd()));
+					credential.getDeliveryStart(), credential.getDeliveryEnd()));
 		}
 		
 		if (shouldTrackChanges) {

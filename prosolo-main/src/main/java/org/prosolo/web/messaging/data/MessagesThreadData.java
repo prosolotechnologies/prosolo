@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.UserDataFactory;
 
@@ -81,7 +82,7 @@ public class MessagesThreadData implements Serializable {
 	}
 
 	public long getLastUpdatedTime() {
-		return lastUpdated.getTime();
+		return DateUtil.getMillisFromDate(lastUpdated);
 	}
 	
 	public MessageData getLatest() {

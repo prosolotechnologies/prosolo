@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
 
 public class CommentData {
@@ -35,7 +36,7 @@ public class CommentData {
 	}
 
 	public long getPostDateTime() {
-		return dateCreated.getTime();
+		return DateUtil.getMillisFromDate(dateCreated);
 	}
 	
 	public long getCommentId() {
