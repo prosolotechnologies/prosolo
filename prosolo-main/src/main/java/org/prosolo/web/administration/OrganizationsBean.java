@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.OrganizationData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -35,9 +34,7 @@ public class OrganizationsBean implements Serializable,Paginable {
     private OrganizationManager organizationManager;
 
     private List<OrganizationData> organizations;
-    //private OrganizationData organizationToDelete;
     private PaginationData paginationData = new PaginationData();
-    private List<UserData> organizationAdmins;
     private Organization organizationToDelete;
 
 
@@ -70,12 +67,6 @@ public class OrganizationsBean implements Serializable,Paginable {
     @Override
     public PaginationData getPaginationData() {
         return this.paginationData;
-    }
-
-    public List<UserData> choosenAdmins(long organizationId){
-        List<UserData> choosenAdmins = new ArrayList<>();
-        choosenAdmins = organizationManager.getChoosenAdminsForOrganization(organizationId);
-        return choosenAdmins;
     }
 
     public void setOrganizationToDelete(long organizationId){

@@ -40,7 +40,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,List<UserData> adminsChoosen) {
+    public Organization createNewOrganization(String title,List<UserData> adminsChosen) {
         try{
             Organization organization = new Organization();
             organization.setTitle(title);
@@ -54,13 +54,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
-        for (UserData user : adminsChoosen){
+    public void setUserOrganization(List<UserData>adminsChosen,Long organizationId) {
+        for (UserData user : adminsChosen){
             userManager.setUserOrganization(user.getId(),organizationId);
         }
     }
-
-
 
     @Override
     @Transactional (readOnly = true)
@@ -112,8 +110,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .list();
 
         for(Organization o : organizations){
-            List<UserData> choosenAdmins = getOrganizationAdmins(o.getId());
-            OrganizationData od = new OrganizationData(o,choosenAdmins);
+            List<UserData> chosenAdmins = getOrganizationAdmins(o.getId());
+            OrganizationData od = new OrganizationData(o,chosenAdmins);
             response.addFoundNode(od);
         }
         setOrganizationsCount(response);
@@ -129,7 +127,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
 
         Query result = persistence.currentManager().createQuery(countQuery);
-        //result.setParameter("organizationId",organizationId);
         response.setHitsNumber((Long) result.uniqueResult());
     }
 
@@ -147,18 +144,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public List<UserData> getChoosenAdminsForOrganization(long organizationId) {
-        List<UserData> result = new ArrayList<>();
-
-        Organization organization = getOrganizationById(organizationId);
-        for(User u : organization.getUsers()){
-            UserData ud = new UserData(u);
-            result.add(ud);
-        }
-        return result;
-    }
-
-    @Override
     public void deleteOrganization(long organizationId) throws DbConnectionException, EventException {
         Organization organization = getOrganizationById(organizationId);
         organization.setDeleted(true);
@@ -167,6 +152,5 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
         saveEntity(organization);
     }
-
 
 }
