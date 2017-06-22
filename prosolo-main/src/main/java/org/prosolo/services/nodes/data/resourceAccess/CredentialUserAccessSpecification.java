@@ -1,10 +1,10 @@
 package org.prosolo.services.nodes.data.resourceAccess;
 
-import java.util.Collection;
-import java.util.Date;
-
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+
+import java.util.Collection;
+import java.util.Date;
 
 public class CredentialUserAccessSpecification extends UserAccessSpecification {
 
@@ -12,9 +12,9 @@ public class CredentialUserAccessSpecification extends UserAccessSpecification {
 	private final Date deliveryStart;
 	private final Date deliveryEnd;
 	
-	private CredentialUserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner, CredentialType type, Date deliveryStart, Date deliveryEnd) {
-		super(privileges, resourceVisibleToAll, isUserResourceOwner);
+	private CredentialUserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll,
+											  CredentialType type, Date deliveryStart, Date deliveryEnd) {
+		super(privileges, resourceVisibleToAll);
 		this.type = type;
 		this.deliveryStart = deliveryStart;
 		this.deliveryEnd = deliveryEnd;
@@ -25,7 +25,6 @@ public class CredentialUserAccessSpecification extends UserAccessSpecification {
 	 * 
 	 * @param privileges
 	 * @param resourceVisibleToAll
-	 * @param isUserResourceOwner
 	 * @param type
 	 * @param deliveryStart
 	 * @param deliveryEnd
@@ -34,13 +33,13 @@ public class CredentialUserAccessSpecification extends UserAccessSpecification {
 	 * or when {@code type} is null
 	 */
 	public static CredentialUserAccessSpecification of(Collection<UserGroupPrivilege> privileges, 
-			boolean resourceVisibleToAll, boolean isUserResourceOwner, CredentialType type, Date deliveryStart, 
+			boolean resourceVisibleToAll, CredentialType type, Date deliveryStart,
 			Date deliveryEnd) {
-		if(privileges == null || privileges.isEmpty() || type == null) {
+		if (privileges == null || privileges.isEmpty() || type == null) {
 			throw new IllegalArgumentException();
 		}
-		return new CredentialUserAccessSpecification(privileges, resourceVisibleToAll, isUserResourceOwner, 
-				type, deliveryStart, deliveryEnd);
+		return new CredentialUserAccessSpecification(
+				privileges, resourceVisibleToAll, type, deliveryStart, deliveryEnd);
 	}
 	
 	@Override

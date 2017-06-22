@@ -72,7 +72,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			limit = setLimit(limit, loadOneMore);
 			
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -108,7 +108,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
 			
@@ -167,7 +167,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -230,7 +230,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -296,7 +296,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -335,7 +335,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -392,7 +392,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	private QueryBuilder configureAndGetSearchFilter(CompetenceSearchConfig config, long userId) {
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		
-		if(config.shouldIncludeResourcesWithViewPrivilege()) {
+		if (config.shouldIncludeResourcesWithViewPrivilege()) {
 			//competence is published and: visible to all users or user has View privilege
 			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
 			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
@@ -404,21 +404,16 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			boolFilter.should(publishedAndVisibleFilter);
 		}
 		
-		if(config.shouldIncludeEnrolledResources()) {
+		if (config.shouldIncludeEnrolledResources()) {
 			//user is enrolled in a competence (currently learning or completed competence)
 			boolFilter.should(QueryBuilders.termQuery("students.id", userId));
 		}
 		
-		if(config.shouldIncludeResourcesWithEditPrivilege()) {
-			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
-			//user is owner of a competence
-			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
-			//user has Edit privilege for competence
-			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
+		if (config.shouldIncludeResourcesWithEditPrivilege()) {
 			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
-			editorAndTypeFilter.filter(editorFilter);
+			//user has Edit privilege for competence
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+
 			/*
 			 * for edit privilege resource type should be included in condition
 			 * for example: if competence is user created and user has edit privilege for that competence

@@ -406,4 +406,19 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void updateCredentialOwner(long credId, long newOwnerId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("creatorId", newOwnerId);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
 }

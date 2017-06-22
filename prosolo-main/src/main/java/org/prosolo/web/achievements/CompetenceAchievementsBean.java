@@ -8,7 +8,7 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.services.nodes.CompetenceManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.achievements.data.CompetenceAchievementsData;
@@ -34,7 +34,7 @@ public class CompetenceAchievementsBean implements Serializable {
 	protected static Logger logger = Logger.getLogger(CompetenceAchievementsBean.class);
 
 	@Autowired
-	private CompetenceManager competenceManager;
+	private Competence1Manager competenceManager;
 	@Autowired
 	private LoggedUserBean loggedUser;
 	@Autowired
@@ -68,31 +68,14 @@ public class CompetenceAchievementsBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while hidding competence from profile!");
 			logger.error("Error while hidding competence from profile!\n" + e);
 		}
-
-	}
-
-	public CompetenceManager getCompetenceManager() {
-		return competenceManager;
-	}
-
-	public void setCompetenceManager(CompetenceManager competenceManager) {
-		this.competenceManager = competenceManager;
 	}
 
 	public UrlIdEncoder getIdEncoder() {
 		return idEncoder;
 	}
 
-	public void setIdEncoder(UrlIdEncoder idEncoder) {
-		this.idEncoder = idEncoder;
-	}
-
 	public CompetenceAchievementsData getCompetenceAchievementsData() {
 		return competenceAchievementsData;
-	}
-
-	public void setCompetenceAchievementsData(CompetenceAchievementsData competenceAchievementsData) {
-		this.competenceAchievementsData = competenceAchievementsData;
 	}
 
 }
