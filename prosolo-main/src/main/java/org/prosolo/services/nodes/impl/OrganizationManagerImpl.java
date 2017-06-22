@@ -40,7 +40,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,List<UserData> adminsChoosen) {
+    public Organization createNewOrganization(String title,List<UserData> adminschosen) {
         try{
             Organization organization = new Organization();
             organization.setTitle(title);
@@ -54,8 +54,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
-        for (UserData user : adminsChoosen){
+    public void setUserOrganization(List<UserData>adminschosen,Long organizationId) {
+        for (UserData user : adminschosen){
             userManager.setUserOrganization(user.getId(),organizationId);
         }
     }
@@ -112,8 +112,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .list();
 
         for(Organization o : organizations){
-            List<UserData> choosenAdmins = getOrganizationAdmins(o.getId());
-            OrganizationData od = new OrganizationData(o,choosenAdmins);
+            List<UserData> chosenAdmins = getOrganizationAdmins(o.getId());
+            OrganizationData od = new OrganizationData(o,chosenAdmins);
             response.addFoundNode(od);
         }
         setOrganizationsCount(response);
@@ -127,9 +127,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                         "FROM Organization organization " +
                         "WHERE organization.deleted IS FALSE ";
 
-
         Query result = persistence.currentManager().createQuery(countQuery);
-        //result.setParameter("organizationId",organizationId);
         response.setHitsNumber((Long) result.uniqueResult());
     }
 
@@ -140,18 +138,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         Organization org = getOrganizationById(organizationId);
 
         for(User u : org.getUsers()){
-            UserData ud = new UserData(u);
-            result.add(ud);
-        }
-        return result;
-    }
-
-    @Override
-    public List<UserData> getChoosenAdminsForOrganization(long organizationId) {
-        List<UserData> result = new ArrayList<>();
-
-        Organization organization = getOrganizationById(organizationId);
-        for(User u : organization.getUsers()){
             UserData ud = new UserData(u);
             result.add(ud);
         }

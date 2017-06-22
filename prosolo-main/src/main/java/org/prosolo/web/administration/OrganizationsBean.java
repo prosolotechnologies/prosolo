@@ -35,11 +35,8 @@ public class OrganizationsBean implements Serializable,Paginable {
     private OrganizationManager organizationManager;
 
     private List<OrganizationData> organizations;
-    //private OrganizationData organizationToDelete;
     private PaginationData paginationData = new PaginationData();
-    private List<UserData> organizationAdmins;
     private Organization organizationToDelete;
-
 
     public void init(){
         logger.debug("Hello from adminOrganizations bean logger");
@@ -72,12 +69,6 @@ public class OrganizationsBean implements Serializable,Paginable {
         return this.paginationData;
     }
 
-    public List<UserData> choosenAdmins(long organizationId){
-        List<UserData> choosenAdmins = new ArrayList<>();
-        choosenAdmins = organizationManager.getChoosenAdminsForOrganization(organizationId);
-        return choosenAdmins;
-    }
-
     public void setOrganizationToDelete(long organizationId){
         this.organizationToDelete = organizationManager.getOrganizationById(organizationId);
     }
@@ -86,7 +77,6 @@ public class OrganizationsBean implements Serializable,Paginable {
         if(organizationToDelete != null){
             try {
                 organizationManager.deleteOrganization(this.organizationToDelete.getId());
-
                 PageUtil.fireSuccessfulInfoMessage("Organization " + organizationToDelete.getTitle() + " is deleted.");
                 organizationToDelete = null;
                 ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();

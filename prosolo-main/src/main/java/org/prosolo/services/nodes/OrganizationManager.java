@@ -17,9 +17,9 @@ import java.util.List;
  */
 public interface OrganizationManager extends AbstractManager {
 
-    Organization createNewOrganization(String title,List<UserData> adminsChoosen);
+    Organization createNewOrganization(String title,List<UserData> adminschosen);
 
-    void setUserOrganization(List<UserData>adminsChoosen,Long organizationId);
+    void setUserOrganization(List<UserData>adminschosen,Long organizationId);
 
     Organization getOrganizationByName(String title) throws DbConnectionException;
 
@@ -28,8 +28,6 @@ public interface OrganizationManager extends AbstractManager {
     TextSearchResponse1<OrganizationData> getAllOrganizations(int page,int limit);
 
     List<UserData> getOrganizationAdmins(long organizationId);
-
-    List<UserData> getChoosenAdminsForOrganization(long organizationId);
 
     void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
 

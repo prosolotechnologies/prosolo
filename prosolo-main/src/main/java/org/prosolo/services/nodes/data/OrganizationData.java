@@ -17,11 +17,11 @@ public class OrganizationData implements Serializable {
 
     public OrganizationData(){}
 
-    public OrganizationData(Organization organization, List<UserData> choosenAdmins){
+    public OrganizationData(Organization organization, List<UserData> chosenAdmins){
         this();
         this.id = organization.getId();
         this.title = organization.getTitle();
-        this.admins = choosenAdmins;
+        this.admins = chosenAdmins;
     }
 
     public String getAdminsString() {
