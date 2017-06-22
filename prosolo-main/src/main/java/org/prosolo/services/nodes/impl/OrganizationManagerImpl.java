@@ -29,7 +29,7 @@ import java.util.List;
 @Service("org.prosolo.services.nodes.OrganizationManager")
 public class OrganizationManagerImpl extends AbstractManagerImpl implements OrganizationManager {
 
-    private static Logger logger = Logger.getLogger(OrganizationManager.class)
+    private static Logger logger = Logger.getLogger(OrganizationManager.class);
 
     @Autowired
     private EventFactory eventFactory;
