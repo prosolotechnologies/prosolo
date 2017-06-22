@@ -51,19 +51,23 @@
                                     <div class="admins">
                                         Admin(s):
                                         <span>
-                                            <ui:repeat value="#{adminOrganizations.choosenAdmins(organization.id)}" var="a">
-                                                #{a.fullName}
-                                            </ui:repeat>
+                                            #{organization.adminsString}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="adminOrganizationsListRight">
-                                <a href="admin-organizations-edit.html" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <a href="#" class="btn btn-sm btn-green-stroke">Edit</a>
                                 <div class="dropdown optMoreMenu">
                                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                     <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                        <li><a href="#" data-toggle="modal" data-target="#deleteOrg">Delete</a></li>
+                                        <li>
+                                            <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+                                                           action="#{adminOrganizations.setOrganizationToDelete(organization.id)}"
+                                                           oncomplete="$('#deleteOrg').modal('show');">
+                                                Delete
+                                            </p:commandLink>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -91,7 +95,12 @@
                             <small>Note: Action can NOT be un-done!</small></p>
                     </div>
                     <div class="modal-footer">
-                        <a href="#" class="btn btn-red">Delete</a>
+                        <p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
+                                       action="#{adminOrganizations.delete()}"
+                                       update=":panelOrganizations"
+                                       oncomplete="$('#deleteOrg').modal('hide');">
+                            Delete
+                        </p:commandLink>
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                     </div>
                 </div>

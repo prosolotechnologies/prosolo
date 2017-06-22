@@ -2,9 +2,11 @@ package org.prosolo.services.nodes.impl;
 
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -101,7 +103,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
         String query =
                 "SELECT DISTINCT organization " +
-                "FROM Organization organization ";
+                "FROM Organization organization " +
+                "WHERE organization.deleted IS FALSE ";
 
         List<Organization> organizations = persistence.currentManager().createQuery(query)
                 .setFirstResult(page*limit)
@@ -113,8 +116,21 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             OrganizationData od = new OrganizationData(o,choosenAdmins);
             response.addFoundNode(od);
         }
-
+        setOrganizationsCount(response);
         return response;
+    }
+
+
+    private void setOrganizationsCount(TextSearchResponse1<OrganizationData> response){
+        String countQuery =
+                "SELECT COUNT (DISTINCT organization) " +
+                        "FROM Organization organization " +
+                        "WHERE organization.deleted IS FALSE ";
+
+
+        Query result = persistence.currentManager().createQuery(countQuery);
+        //result.setParameter("organizationId",organizationId);
+        response.setHitsNumber((Long) result.uniqueResult());
     }
 
     @Override
@@ -141,5 +157,16 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
         return result;
     }
+
+    @Override
+    public void deleteOrganization(long organizationId) throws DbConnectionException, EventException {
+        Organization organization = getOrganizationById(organizationId);
+        organization.setDeleted(true);
+        for(User u : organization.getUsers()){
+            userManager.setUserOrganization(u.getId(),organizationId);
+        }
+        saveEntity(organization);
+    }
+
 
 }

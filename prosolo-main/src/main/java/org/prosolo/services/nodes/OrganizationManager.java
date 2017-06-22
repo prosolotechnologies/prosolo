@@ -3,6 +3,8 @@ package org.prosolo.services.nodes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
@@ -28,5 +30,8 @@ public interface OrganizationManager extends AbstractManager {
     List<UserData> getOrganizationAdmins(long organizationId);
 
     List<UserData> getChoosenAdminsForOrganization(long organizationId);
+
+    void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
+
 }
 

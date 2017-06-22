@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -142,6 +144,8 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
+                ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+                extContext.redirect("/admin/organizations");
             }else{
                 PageUtil.fireErrorMessage("At least one admin should be selected");
             }

@@ -220,62 +220,6 @@ public class AdminEditBean implements Serializable {
 		newOwner.setUserSet(false);
 	}
 
-	public UserData getUser() {
-		return admin;
-	}
-
-	public void setUser(UserData user) {
-		this.admin = user;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public List<RoleCheckboxData> getAllRoles() {
-		return allRoles;
-	}
-
-	public void setAllRoles(List<RoleCheckboxData> allRoles) {
-		this.allRoles = allRoles;
-	}
-
-	public AccountData getAccountData() {
-		return accountData;
-	}
-
-	public List<UserData> getAdmins() {
-		return admins;
-	}
-
-	public void setAdmins(List<UserData> admins) {
-		this.admins = admins;
-	}
-
-	public UserTextSearch getTextSearch() {
-		return textSearch;
-	}
-
-	public void setTextSearch(UserTextSearch textSearch) {
-		this.textSearch = textSearch;
-	}
-
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	public UserData getNewOwner() {
-		return newOwner;
-	}
-
 	public void setNewOwner(UserData userData) {
 		newOwner.setId(userData.getId());
 		newOwner.setAvatarUrl(userData.getAvatarUrl());
@@ -353,6 +297,63 @@ public class AdminEditBean implements Serializable {
 			PageUtil.fireErrorMessage("Error updating the password");
 		}
 	}
+
+	public UserData getUser() {
+		return admin;
+	}
+
+	public void setUser(UserData user) {
+		this.admin = user;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public List<RoleCheckboxData> getAllRoles() {
+		return allRoles;
+	}
+
+	public void setAllRoles(List<RoleCheckboxData> allRoles) {
+		this.allRoles = allRoles;
+	}
+
+	public AccountData getAccountData() {
+		return accountData;
+	}
+
+	public List<UserData> getAdmins() {
+		return admins;
+	}
+
+	public void setAdmins(List<UserData> admins) {
+		this.admins = admins;
+	}
+
+	public UserTextSearch getTextSearch() {
+		return textSearch;
+	}
+
+	public void setTextSearch(UserTextSearch textSearch) {
+		this.textSearch = textSearch;
+	}
+
+	public String getSearchTerm() {
+		return searchTerm;
+	}
+
+	public void setSearchTerm(String searchTerm) {
+		this.searchTerm = searchTerm;
+	}
+
+	public UserData getNewOwner() {
+		return newOwner;
+	}
+
 
 	public class RoleCheckboxData{
 

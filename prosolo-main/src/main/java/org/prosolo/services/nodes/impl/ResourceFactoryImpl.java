@@ -19,15 +19,7 @@ import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.ResourceLink;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.UrlActivity1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
@@ -196,7 +188,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         }
     }
 
-    @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Credential1 createCredential(String title, String description, String tagsString,
                                         String hashtagsString, long creatorId, boolean compOrderMandatory, long duration,
@@ -237,7 +228,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         }
     }
 
-    @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
                                                 boolean studentAllowedToAddActivities, LearningResourceType type, boolean published,
@@ -284,25 +274,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             throw new DbConnectionException("Error while saving competency");
         }
     }
-	@Transactional (readOnly = true)
-	public String getLinkForObjectType(String simpleClassName, long id, String linkField) 
-			throws DbConnectionException {
-		try{
-			String query = String.format(
-				"SELECT obj.%1$s " +
-				"FROM %2$s obj " +
-				"WHERE obj.id = :id",
-				linkField, simpleClassName);
-			
-			String link = (String) persistence.currentManager().createQuery(query)
-				.setLong("id", id)
-				.uniqueResult();
-			
-			return link;
-		}catch(Exception e){
-			throw new DbConnectionException("Error while loading learning goals");
-		}
-	}
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)

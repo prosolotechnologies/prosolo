@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -424,9 +425,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	public void setUserOrganization(long userId,long organizationId) {
 		User user;
+		Organization organization;
 		try {
 			user = loadResource(User.class,userId);
-			user.setOrganization(organizationManager.getOrganizationById(organizationId));
+			organization = organizationManager.getOrganizationById(organizationId);
+			if(!organization.isDeleted()) {
+				user.setOrganization(organization);
+			}else{
+				user.setOrganization(null);
+			}
 			user = merge(user);
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
@@ -434,10 +441,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	private void assignNewOwner(long newCreatorId, long oldCreatorId){
-		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
-		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);
-	
 	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {
 		Result<Void> result = new Result<>();
 		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId).getEvents());
