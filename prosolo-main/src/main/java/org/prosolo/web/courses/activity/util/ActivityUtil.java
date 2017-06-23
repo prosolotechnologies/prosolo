@@ -30,9 +30,9 @@ public class ActivityUtil {
 				String url = c.getUrl().substring(0, ind) + "/" + java.net.URLEncoder.encode(c.getFetchedTitle(),"UTF-8");
 				FileUtils.copyInputStreamToFile(
 						new URL(url).openStream(), tempFile);
-				
+
 				String link = tempFile
-						.getAbsolutePath()
+						.toURI().getRawPath()
 						.replaceFirst(
 								Settings.getInstance().config.fileManagement.uploadPath,
 								"");
