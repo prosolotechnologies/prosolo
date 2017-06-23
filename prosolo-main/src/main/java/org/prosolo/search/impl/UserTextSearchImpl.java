@@ -165,7 +165,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	@Transactional
 	public PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds) {
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles, boolean includeSystemUsers, List<Long> excludeIds) {
 
 		PaginatedResult<UserData> response =
 				new PaginatedResult<>();
@@ -215,9 +215,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							.field("id"))
 					.setFetchSource(includes, null);
 
-			if(adminRoles != null && !adminRoles.isEmpty()){
+			if(roles != null && !roles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : adminRoles){
+				for(Role r : roles){
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				bQueryBuilder.filter(bqb1);
@@ -234,12 +234,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<Role> roles;
+				List<Role> listRoles;
 
-				if (adminRoles == null || adminRoles.isEmpty()){
-					roles = roleManager.getAllRoles();
+				if (roles == null || roles.isEmpty()){
+					listRoles = roleManager.getAllRoles();
 				} else {
-					roles = adminRoles;
+					listRoles = roles;
 				}
 
 				for(SearchHit sh : sResponse.getHits()) {
@@ -256,7 +256,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					List<Role> userRoles = new ArrayList<>();
 					if(rolesList != null) {
 						for(Map<String, Object> map : rolesList) {
-							Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
+							Role r = getRoleDataForId(listRoles, Long.parseLong(map.get("id") + ""));
 							if(r != null) {
 								userRoles.add(r);
 							}
@@ -276,7 +276,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(Role role : roles) {
+				for(Role role : listRoles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {

@@ -179,7 +179,8 @@ public class UserEditBean implements Serializable {
 			
 			User userNewPass = userManager.getUser(user.getEmail());
 			if (userNewPass != null) {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
+						CommonSettings.getInstance().config.appConfig.domain + "recovery");
 				
 				if (resetLinkSent) {
 					PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");

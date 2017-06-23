@@ -44,19 +44,15 @@ public interface RoleManager extends AbstractManager {
 
 	void deleteRole(long id) throws ResourceCouldNotBeLoadedException;
 
-	boolean isRoleUsed(long roleId);
-
 	List<Role> getUserRoles(String email);
 
-	List<RoleData> getUserRolesCSV(String email);
+	Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
 	
-	public Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
+	List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException;
 	
-	public List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException;
+	Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException;
 	
-	public Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException;
-	
-	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
+	List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
 	
 	boolean hasAnyRole(long userId, List<String> roleNames) throws DbConnectionException;
 	

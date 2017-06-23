@@ -66,8 +66,6 @@ public class AdminsBean implements Serializable,Paginable{
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 	
-	private UserData loginAsAdmin;
-	
 	private PaginationData paginationData = new PaginationData();
 	
 	
@@ -95,23 +93,7 @@ public class AdminsBean implements Serializable,Paginable{
 		paginationData.setPage(1);
 		searchAdmins();
 	}
-	
-	public void prepareLoginAsAdmin(UserData user) {
-		this.loginAsAdmin = user;
-	}
-	
-	public void loginAs(){
-		try{
-			loggedUserBean.forceUserLogout();
-			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			authService.login((HttpServletRequest)context.getRequest(),
-					(HttpServletResponse)context.getResponse(),loginAsAdmin.getEmail());
-			FacesContext.getCurrentInstance().responseComplete();
-		}catch (AuthenticationException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsAdmin.getFullName());
-		}
-	}
+
 	
 	@Override
 	public void changePage(int page) {
@@ -140,7 +122,7 @@ public class AdminsBean implements Serializable,Paginable{
 
 	private void loadAdmins(){
 		try{
-			PaginatedResult<UserData> res = userManager.getAdminsAndSuperAdmins(paginationData.getPage() - 1,
+			PaginatedResult<UserData> res = userManager.getUsersWithRoles(paginationData.getPage() - 1,
 					paginationData.getLimit(),filter.getId(), adminRoles);
 			admins = res.getFoundNodes();
 			setFilters(res);
@@ -197,7 +179,4 @@ public class AdminsBean implements Serializable,Paginable{
 		this.filters = filters;
 	}
 
-	public UserData getLoginAsAdmin() {
-		return loginAsAdmin;
-	}
 }

@@ -18,8 +18,6 @@ import java.util.List;
 @Component
 public class UserDataFactory {
 
-    List<RoleData> roles = new ArrayList<>();
-
     public ResourceCreator getResourceCreator(User user) {
         return new ResourceCreator(user.getId(),
                 getFullName(user.getName(), user.getLastname()),
@@ -29,17 +27,6 @@ public class UserDataFactory {
 
     private String getFullName(String name, String lastName) {
         return name + (lastName != null ? " " + lastName : "");
-    }
-
-    public UserData getUserDataWithRoles(User user, List<Role> roles){
-        UserData result = new UserData();
-        if(roles != null) {
-            for(Role role : roles) {
-                this.roles.add(new RoleData(role));
-            }
-        }
-        result.setRoles(this.roles);
-        return result;
     }
 
 }

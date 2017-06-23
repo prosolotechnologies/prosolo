@@ -28,6 +28,7 @@ import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author "Nikola Milikic"
@@ -43,37 +44,9 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	@Autowired private EmailSender emailSender;
 
 	@Override
+	@Transactional(readOnly = false)
 	public boolean initiatePasswordReset(User user, String email, String serverAddress) {
-		email = email.toLowerCase();
-		
-		// first invalidate all other user's request key
-		invalidateUserRequestKeys(user,null);
-		
-		ResetKey key = new ResetKey();
-		key.setUser(user);
-		key.setDateCreated(new Date());
-		key.setUid(UUID.randomUUID().toString().replace("-", ""));
-		saveEntity(key);
-		
-		try {
-			String resetAddress = serverAddress + "/" + key.getUid();
-			
-			PasswordResetEmailContentGenerator contentGenerator = new PasswordResetEmailContentGenerator(user.getName(), resetAddress);
-			
-			emailSender.sendEmail(contentGenerator,  email);
-			return true;
-		} catch (AddressException e) {
-			logger.error(e);
-		} catch (MessagingException e) {
-			logger.error(e);
-		} catch (UnsupportedEncodingException e) {
-			logger.error(e);
-		} catch (FileNotFoundException e) {
-			logger.error(e);
-		} catch (IOException e) {
-			logger.error(e);
-		}
-		return false;
+		return initiatePasswordReset(user,email,serverAddress,persistence.currentManager());
 	}
 
 	@Override
@@ -87,7 +60,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		key.setUser(user);
 		key.setDateCreated(new Date());
 		key.setUid(UUID.randomUUID().toString().replace("-", ""));
-
+		saveEntity(key,session);
 
 		try {
 			String resetAddress = serverAddress + "/" + key.getUid();
@@ -105,7 +78,6 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		} catch (IOException e) {
 			logger.error(e);
 		}
-		saveEntity(key,session);
 		return false;
 	}
 
@@ -152,16 +124,12 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	}
 	
 	public void invalidateUserRequestKeys(User user,Session session) {
-		if(session == null) {
-			session = persistence.currentManager();
-		}
-		//Session session = persistence.currentManager();
-		
+
 		String query = 
 			"SELECT resetKey " +
 			"FROM ResetKey resetKey " +
 			"WHERE resetKey.user = :user " +
-				"AND resetKey.invalid = :invalid";
+			"AND resetKey.invalid = :invalid";
 		
 		@SuppressWarnings("unchecked")
 		List<ResetKey> keys = session.createQuery(query)

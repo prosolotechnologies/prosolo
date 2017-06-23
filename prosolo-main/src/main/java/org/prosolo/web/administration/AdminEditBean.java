@@ -292,12 +292,12 @@ public class AdminEditBean implements Serializable {
 						boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
 								CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
 						session.flush();
-						if (resetLinkSent) {
+						/*if (resetLinkSent) {
 							PageUtil.fireSuccessfulInfoMessage("resetMessage",
 									"Password instructions have been sent to given email ");
 						} else {
 							PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-						}
+						}*/
 					} else {
 						PageUtil.fireErrorMessage("resetMessage", "User already registrated");
 					}

@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -44,7 +45,7 @@ public class UserData implements Serializable {
 		this.password = user.getPassword();
 	}
 
-	public UserData(User user, List<Role> roles) {
+	public UserData(User user, Collection<Role> roles) {
 		this(user);
 
 		if(roles != null) {

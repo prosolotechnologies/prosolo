@@ -411,16 +411,16 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public PaginatedResult<UserData> getAdminsAndSuperAdmins(int page, int limit, long roleId, List<Role> roles) {
+	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles) {
 
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 
 		String query =
 				"SELECT DISTINCT user " +
 				"FROM User user " +
-				"LEFT JOIN user.roles role ";
-				if(roleId > 0) {
-					query+="WHERE role.id =: roleId AND user.deleted IS false ";
+				"LEFT JOIN FETCH user.roles role ";
+				if(filterByRoleId > 0) {
+					query+="WHERE role.id =: filterByRoleId AND user.deleted IS false ";
 				}else{
 					query+="WHERE role IN (:roles) AND user.deleted IS false ";
 				}
@@ -428,8 +428,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		Query result = persistence.currentManager().createQuery(query);
 
-		if(roleId > 0){
-			result.setLong("roleId",roleId);
+		if(filterByRoleId > 0){
+			result.setLong("roleId",filterByRoleId);
 		}else {
 			result.setParameterList("roles",roles);
 		}
@@ -440,46 +440,43 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				.list();
 
 		for(User u : users) {
-			if(result != null) {
-				List<Role> adminRoles = u.getRoles().stream().filter(role -> roles
-						.stream()
-						.map(r -> r.getId())
-						.collect(Collectors.toList())
-						.contains(role.getId())).collect(Collectors.toList());
+			if(roles != null) {
+				List<Role> adminRoles = new LinkedList<>(u.getRoles());
 
 				UserData userData = new UserData(u,adminRoles);
 				response.addFoundNode(userData);
 			}
 		}
 
-		setFilter(roles,roleId,response);
-		setUsersCountForFiltering(roles,roleId,response);
+		response.setAdditionalInfo(setFilter(roles,filterByRoleId));
+		response.setHitsNumber(setUsersCountForFiltering(roles,filterByRoleId));
 
 		return response;
 	}
 
-	private void setUsersCountForFiltering(List<Role> roles,long roleId,PaginatedResult<UserData> response){
+	private Long setUsersCountForFiltering(List<Role> roles,long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 						"FROM User user " +
 						"LEFT JOIN user.roles role ";
-		if(roleId > 0) {
-			countQuery += "WHERE role.id =: roleId AND user.deleted IS false";
+		if(filterByRoleId > 0) {
+			countQuery += "WHERE role.id =: filterByRoleId AND user.deleted IS false";
 		}else{
 			countQuery += "WHERE role IN (:roles) AND user.deleted IS false";
 		}
 
 
 		Query result1 = persistence.currentManager().createQuery(countQuery);
-		if(roleId > 0){
-			result1.setLong("roleId",roleId);
+		if(filterByRoleId > 0){
+			result1.setLong("roleId",filterByRoleId);
 		}else{
 			result1.setParameterList("roles",roles);
 		}
-		response.setHitsNumber((Long) result1.uniqueResult());
+
+		return (Long)result1.uniqueResult();
 	}
 
-	private void setFilter(List<Role> roles,long roleId,PaginatedResult<UserData> response){
+	private Map<String,Object> setFilter(List<Role> roles,long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 						"FROM User user " +
@@ -511,7 +508,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			long c = (long) objects[1];
 			RoleFilter rf = new RoleFilter(r.getId(), r.getTitle(), c);
 			roleFilters.add(rf);
-			if(r.getId() == roleId) {
+			if(r.getId() == filterByRoleId) {
 				selectedFilter = rf;
 			}
 		}
@@ -520,7 +517,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		additionalInfo.put("filters", roleFilters);
 		additionalInfo.put("selectedFilter", selectedFilter);
 
-		response.setAdditionalInfo(additionalInfo);
+		return additionalInfo;
 	}
 
 	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {

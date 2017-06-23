@@ -62,6 +62,6 @@ public interface UserManager extends AbstractManager {
 
 	Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException;
 
-	PaginatedResult<UserData> getAdminsAndSuperAdmins(int page, int limit, long roleId, List<Role> roles);
+	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles);
 
 }

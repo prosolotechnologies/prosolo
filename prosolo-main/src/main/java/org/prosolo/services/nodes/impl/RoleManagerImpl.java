@@ -145,22 +145,6 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
-	public List<RoleData> getUserRolesCSV(String email) {
-		String query =
-				"SELECT role " +
-						"FROM User user " +
-						"LEFT JOIN user.roles role "+
-						"WHERE user.email = :email " ;
-
-		@SuppressWarnings("unchecked")
-		List<RoleData> roles = persistence.currentManager().createQuery(query)
-				.setParameter("email", email)
-				.list();
-
-		return roles;
-	}
-
-	@Override
 	@Transactional (readOnly = true)
 	public Role getRoleByName(String roleName) {
 		String query = 
@@ -269,22 +253,6 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			cap.getRoles().remove(role);
 		}
 		delete(role);
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public boolean isRoleUsed(long roleId) {
-		String query = 
-			"SELECT COUNT(user) " +
-			"FROM User user " +
-			"LEFT JOIN user.roles role " +
-			"WHERE role.id = :roleId";
-		
-		Long result = (Long) persistence.currentManager().createQuery(query)
-			.setLong("roleId", roleId)
-			.uniqueResult();
-		
-		return result > 0;
 	}
 	
 	@Override
