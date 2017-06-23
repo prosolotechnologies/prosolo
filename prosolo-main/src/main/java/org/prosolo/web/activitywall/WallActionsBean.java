@@ -5,13 +5,13 @@ import javax.faces.bean.ManagedBean;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivityConfig;
+import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.event.EventException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -71,36 +71,6 @@ public class WallActionsBean {
 		if (activityWallBean != null) {
 			activityWallBean.removeSocialActivityIfExists(socialActivity);
 		}
-		
-		//TODO see if it is needed to update user currently open walls.
-		// if it is PostSocialActivity and it was a reshare, then we need to decrement the share count in the cache of the logged user
-//		try {
-//			long socialActivityId = wallActivityData.getSocialActivity().getId();
-//			SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, socialActivityId);
-//		
-//			if (socialActivity instanceof PostSocialActivity) {
-//				Post post = ((PostSocialActivity) socialActivity).getPostObject();
-//				
-//				Post originalPost = post.getReshareOf();
-//				
-//				if (originalPost != null) {
-//					socialActivityOfOriginalPost = activityWallManager.getSocialActivityOfPost(originalPost);
-//					
-//					if (socialActivityOfOriginalPost != null) {
-//						socialActivityOfOriginalPost.setShareCount(socialActivityOfOriginalPost.getShareCount() + 1);
-//						
-//						HttpSession userSession = applicationBean.getUserSession(loggedUser.getUser().getId());
-//						
-//						socialActivityHandler.updateSocialActivity(
-//								socialActivity, 
-//								userSession, 
-//								(Session) defaultManager.getPersistence().currentManager());
-//					}
-//				}
-//			}
-//		} catch (ResourceCouldNotBeLoadedException e1) {
-//			logger.error(e1);
-//		}
 		
 		PageUtil.fireSuccessfulInfoMessage("Activity is deleted!");
 		
@@ -181,59 +151,5 @@ public class WallActionsBean {
 			}
 		});
 	}
-	
-//	public void unfollowUser(final SocialActivityData wallActivityData, final String context){
-		//TODO implement
-//		try {
-//			SocialActivity socialActivity = defaultManager.loadResource(SocialActivity.class, wallActivityData.getSocialActivity().getId());
-//			final User activityActor = socialActivity.getMaker();
-//			
-//			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage(
-//					"growl.user.unfollow", loggedUser.getLocale()));
-//		
-//			//taskExecutor.execute(new Runnable() {
-//			//	@Override
-//			//	public void run() {
-//					peopleActionBean.unfollowCollegue(activityActor, context);
-//			//	}
-//		//	});
-//		} catch (ResourceCouldNotBeLoadedException e) {
-//			logger.error(e);
-//		} catch (KeyNotFoundInBundleException e) {
-//			logger.error(e);
-//		}
-//	}
-	
-//	public void unfollowHashtags(final SocialActivityData wallActivityData, final String context){
-		//TODO implement
-//		List<String> hashtags = wallActivityData.getHashtags();
-//		
-//		final Collection<Tag> removedHashtags = twitterBean.unfollowHashtags(hashtags);
-//		
-////		if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.STATUS_WALL)) {
-////			twitterStreamsManager.unfollowHashTagsForResource(hashtags, 0, loggedUser.getUser().getId());
-////		} else if (wallActivityData.getSubViewType().equals(SocialStreamSubViewType.GOAL_WALL)) {
-////			twitterStreamsManager.unfollowHashTagsForResource(hashtags, wallActivityData.getObject().getId(), 0);
-////		}
-//		
-//		activityWallBean.getActivityWallDisplayer().markSocialActivityWallDataAsUnfollowed(hashtags);
-//		
-//		try {
-//			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage(
-//					"growl.hashtags.unfollow", loggedUser.getLocale()));
-//		} catch (KeyNotFoundInBundleException e) {
-//			logger.error(e);
-//		}
-//		
-//		taskExecutor.execute(new Runnable() {
-//			@Override
-//			public void run() {
-//				Map<String, String> parameters = new HashMap<String, String>();
-//				parameters.put("context", context);
-//				parameters.put("hashtags", NodeUtil.getCSVStringOfIds(removedHashtags));
-//				actionLogger.logEvent(EventType.UNFOLLOW_HASHTAGS, parameters);
-//			}
-//		});
-//	}
 	
 }

@@ -10,18 +10,20 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.PasswordEncrypter;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
@@ -55,6 +57,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
+	@Inject private UserManager self;
 	 
 	@Override
 	@Transactional (readOnly = true)
@@ -372,22 +375,36 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException {
+	//nt
+	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException, EventException {
+		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId);
+		for (EventData ev : result.getEvents()) {
+			eventFactory.generateEvent(ev);
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException {
 			User user;
+			Result<Void> result = new Result<>();
 			try {
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
 				saveEntity(user);
-				assignNewOwner(newCreatorId, oldCreatorId);
+				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
 				userEntityESService.deleteNodeFromES(user);
+				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
 				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
 	
-	private void assignNewOwner(long newCreatorId, long oldCreatorId){
-		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
-		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);
+	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {
+		Result<Void> result = new Result<>();
+		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId).getEvents());
+		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId).getEvents());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
+		return result;
 	}
 }

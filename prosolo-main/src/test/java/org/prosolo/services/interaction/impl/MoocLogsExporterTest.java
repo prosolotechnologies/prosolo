@@ -2,17 +2,17 @@ package org.prosolo.services.interaction.impl;/**
  * Created by zoran on 29/12/15.
  */
 
-import static org.prosolo.common.domainmodel.activities.events.EventType.Comment;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_GIVEN;
-import static org.prosolo.common.domainmodel.activities.events.EventType.EVALUATION_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.JOIN_GOAL_REQUEST_DENIED;
-import static org.prosolo.common.domainmodel.activities.events.EventType.Like;
-import static org.prosolo.common.domainmodel.activities.events.EventType.SEND_MESSAGE;
+import static org.prosolo.common.domainmodel.events.EventType.Comment;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_GIVEN;
+import static org.prosolo.common.domainmodel.events.EventType.EVALUATION_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_INVITATION_ACCEPTED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_APPROVED;
+import static org.prosolo.common.domainmodel.events.EventType.JOIN_GOAL_REQUEST_DENIED;
+import static org.prosolo.common.domainmodel.events.EventType.Like;
+import static org.prosolo.common.domainmodel.events.EventType.SEND_MESSAGE;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,18 +22,15 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 //import com.mongodb.*;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableProducerImpl;
 import org.prosolo.core.spring.SpringConfig;
-import org.prosolo.services.nodes.CourseManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -49,8 +46,8 @@ public class MoocLogsExporterTest {
     static final String USER = "root";
     static final String PASS = "root";
     static Connection conn = null;
-    @Inject
-    private CourseManager courseManager;
+//    @Inject
+//    private CourseManager courseManager;
     private EventType[] interactions=new EventType[]{
             Comment, EVALUATION_REQUEST,EVALUATION_ACCEPTED, EVALUATION_GIVEN,
             JOIN_GOAL_INVITATION, JOIN_GOAL_INVITATION_ACCEPTED,JOIN_GOAL_REQUEST,
@@ -160,13 +157,13 @@ public class MoocLogsExporterTest {
         Map<String, Long> types=new HashMap<String, Long>();
         types.put(objectType, objectId);
         types.put(targetType, targetId);
-        if(types.containsKey("TargetLearningGoal")){
-            return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
-        }else if(types.containsKey("TargetCompetence")){
-            return courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
-        }else if(types.containsKey("TargetActivity")){
-            return courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
-        }
+//        if(types.containsKey("TargetLearningGoal")){
+//            return courseManager.findCourseIdForTargetLearningGoal(types.get("TargetLearningGoal"));
+//        }else if(types.containsKey("TargetCompetence")){
+//            return courseManager.findCourseIdForTargetCompetence(types.get("TargetCompetence"));
+//        }else if(types.containsKey("TargetActivity")){
+//            return courseManager.findCourseIdForTargetActivity(types.get("TargetActivity"));
+//        }
         /*else  if(types.containsKey("NodeRequest")){
 
         }else  if(types.containsKey("PostSocialActivity")){

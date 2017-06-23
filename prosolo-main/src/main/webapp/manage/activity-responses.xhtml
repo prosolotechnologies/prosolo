@@ -302,7 +302,7 @@
 											strip-br="true" contenteditable="true"
 											onkeyup="displaySubmitButton(this);"></div>
 			
-										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+										<p:commandButton styleClass="btn btn-sm btn-green hidden submitBtn"
 											value="Submit"
 											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
 											update="panelModalAssessmentComments :growlMain">
@@ -377,7 +377,7 @@
 											strip-br="true" contenteditable="true"
 											onkeyup="displaySubmitButton(this);"></div>
 			
-										<p:commandButton styleClass="btn btn-sm btn-green hidden"
+										<p:commandButton styleClass="btn btn-sm btn-green hidden submitBtn"
 											value="Submit"
 											action="#{commentBean.saveTopLevelComment(activityResultsBeanManager.currentResult.resultComments)}"
 											update="panelModalAssessmentComments :growlMain">

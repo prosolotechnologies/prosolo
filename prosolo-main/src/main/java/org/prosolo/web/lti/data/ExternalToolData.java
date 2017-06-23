@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.ResourceType;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.NodeData;
 
 /**
  * @author Nikola Milikic
@@ -18,15 +17,15 @@ public class ExternalToolData implements Serializable {
 	private long id;
 	private String title;
 	private boolean enabled;
-	private NodeData resource;
+//	private NodeData resource;
 	private ResourceType resType;
 	
-	public ExternalToolData(long id, String title, boolean enabled, NodeData resource) {
-		this.id = id;
-		this.title = title;
-	    this.enabled = enabled;
-		this.resource = resource;
-	}
+//	public ExternalToolData(long id, String title, boolean enabled, NodeData resource) {
+//		this.id = id;
+//		this.title = title;
+//	    this.enabled = enabled;
+//		this.resource = resource;
+//	}
 	
 	public ExternalToolData(LtiTool tool){
 		id = tool.getId();
@@ -60,13 +59,13 @@ public class ExternalToolData implements Serializable {
 		this.enabled = enabled;
 	}
 
-	public NodeData getResource() {
-		return resource;
-	}
-
-	public void setResource(NodeData resource) {
-		this.resource = resource;
-	}
+//	public NodeData getResource() {
+//		return resource;
+//	}
+//
+//	public void setResource(NodeData resource) {
+//		this.resource = resource;
+//	}
 
 	public ResourceType getResType() {
 		return resType;

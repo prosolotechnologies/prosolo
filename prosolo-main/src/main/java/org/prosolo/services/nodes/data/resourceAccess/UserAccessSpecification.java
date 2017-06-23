@@ -11,13 +11,10 @@ public abstract class UserAccessSpecification {
 
 	private final Set<UserGroupPrivilege> privileges = new HashSet<>();
 	private final boolean resourceVisibleToAll;
-	private final boolean isUserResourceOwner;
 	
-	protected UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll, 
-			boolean isUserResourceOwner) {
+	protected UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll) {
 		this.privileges.addAll(privileges);
 		this.resourceVisibleToAll = resourceVisibleToAll;
-		this.isUserResourceOwner = isUserResourceOwner;
 	}
 	
 	/**
@@ -67,8 +64,4 @@ public abstract class UserAccessSpecification {
 		return resourceVisibleToAll;
 	}
 
-	public boolean isUserResourceOwner() {
-		return isUserResourceOwner;
-	}
-	
 }

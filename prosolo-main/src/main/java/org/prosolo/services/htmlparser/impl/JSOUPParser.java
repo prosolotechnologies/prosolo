@@ -20,13 +20,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.prosolo.common.domainmodel.content.ContentType;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.Image;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Service;
@@ -54,17 +52,6 @@ public class JSOUPParser implements HTMLParser {
 		} catch (IOException e) {
 		   return false;
 		}
-	}
-	
-	@Override
-	public AttachmentPreview extractAttachmentPreview(String url) {
-		boolean withImages = true;
-		
-		if (url.contains("www.slideshare.net/")) {
-			withImages = false;
-		}
-		
-		return extractAttachmentPreview(url, withImages);
 	}
 	
 	@Override
@@ -121,35 +108,6 @@ public class JSOUPParser implements HTMLParser {
 		return htmlPage;
 	}
 
-	public AttachmentPreview extractAttachmentPreview(String url, boolean withImages) {
-		Document document = parseUrl(url);
-		
-		if (document == null) {
-			return null;
-		}
-		
-		AttachmentPreview htmlPage = new AttachmentPreview();
-		htmlPage.setInitialized(true);
-		
-		// link
-		htmlPage.setLink(url.toString());
-		
-		// title
-		htmlPage.setTitle(getHeadTag(document, "title"));
-		
-		// description
-		htmlPage.setDescription(getMetaTag(document, "description"));
-		
-		// images
-		if (withImages) {
-			htmlPage.setImages(getImages(document));
-		}
-		
-		htmlPage.setContentType(ContentType.LINK);
-		
-		return htmlPage;
-	}
-	
 	@Override
 	public String getPageTitle(String url) {
 		Document document = parseUrl(url);

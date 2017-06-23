@@ -14,8 +14,8 @@ import org.hibernate.Query;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.course.Course;
+import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.TimeFrame;
@@ -36,7 +36,6 @@ import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.digest.DigestBean;
 import org.prosolo.web.settings.data.FeedSourceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -240,78 +239,79 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<FeedEntry> getFeedEntriesForCourseParticipants(Course course, Date date) {
-		course = merge(course);
-		String query = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedEntry entry " +
-			"WHERE entry.maker IN ( " +
-									"SELECT DISTINCT enrollment.user " +
-									"FROM CourseEnrollment enrollment " +
-									"LEFT JOIN enrollment.course course " +
-									"WHERE course = :course) " +
-				"AND entry.feedSource NOT IN ( " +
-									"SELECT excluded " +
-									"FROM Course course1 " +
-									"LEFT JOIN course1.excludedFeedSources excluded " +
-									"WHERE course1 = :course " +
-										"AND excluded IS NOT NULL)";
-		
-		if (date != null) {
-			query += "AND entry.dateCreated BETWEEN :dateFrom AND :dateTo ";
-		}
-		
-		query += "ORDER BY entry.dateCreated DESC";
-		
-		Query q = persistence.currentManager().createQuery(query)
-				.setEntity("course", course);
-		
-		if (date != null) {
-			Date dateFrom = DateUtil.getDayBeginningDateTime(date);
-			Date dateTo = DateUtil.getNextDay(date);
-			
-			q.setDate("dateFrom", dateFrom);
-			q.setDate("dateTo", dateTo);
-		}
-		
-		@SuppressWarnings("unchecked")
-		List<FeedEntry> feedMessages = q.list();
-		
-		String query1 = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedEntry entry " +
-			"WHERE entry.maker IN ( " +
-									"SELECT DISTINCT enrollment.user " +
-									"FROM CourseEnrollment enrollment " +
-									"LEFT JOIN enrollment.course course " +
-									"WHERE course = :course) " +
-			"AND entry.dateCreated BETWEEN :dateFrom AND :dateTo " +
-			"ORDER BY entry.dateCreated DESC";
-		
-		Date dateFrom = DateUtil.getDayBeginningDateTime(date);
-		Date dateTo = DateUtil.getNextDay(date);
-		
-		@SuppressWarnings({ "unchecked", "unused" })
-		List<FeedEntry> feedMessages1 = persistence.currentManager().createQuery(query1)
-				.setEntity("course", course)
-				.setDate("dateFrom", dateFrom)
-				.setDate("dateTo", dateTo)
-				.list();
-		
-		
-		String query2 = 
-			"SELECT excluded " +
-			"FROM Course course1 " +
-			"LEFT JOIN course1.excludedFeedSources excluded " +
-			"WHERE course1 = :course " +
-				"AND excluded IS NOT NULL";
-		
-		@SuppressWarnings({ "unchecked", "unused" })
-		List<FeedSource> feedSources = persistence.currentManager().createQuery(query2)
-				.setEntity("course", course)
-				.list();
-		
-		return feedMessages;
+	public List<FeedEntry> getFeedEntriesForCredentialStudents(Credential1 credential, Date date) {
+//		credential = merge(credential);
+//		String query = 
+//			"SELECT DISTINCT entry " + 
+//			"FROM FeedEntry entry " +
+//			"WHERE entry.maker IN ( " +
+//									"SELECT DISTINCT enrollment.user " +
+//									"FROM CourseEnrollment enrollment " +
+//									"LEFT JOIN enrollment.course course " +
+//									"WHERE course = :course) " +
+//				"AND entry.feedSource NOT IN ( " +
+//									"SELECT excluded " +
+//									"FROM Course course1 " +
+//									"LEFT JOIN course1.excludedFeedSources excluded " +
+//									"WHERE course1 = :course " +
+//										"AND excluded IS NOT NULL)";
+//		
+//		if (date != null) {
+//			query += "AND entry.dateCreated BETWEEN :dateFrom AND :dateTo ";
+//		}
+//		
+//		query += "ORDER BY entry.dateCreated DESC";
+//		
+//		Query q = persistence.currentManager().createQuery(query)
+//				.setEntity("course", credential);
+//		
+//		if (date != null) {
+//			Date dateFrom = DateUtil.getDayBeginningDateTime(date);
+//			Date dateTo = DateUtil.getNextDay(date);
+//			
+//			q.setDate("dateFrom", dateFrom);
+//			q.setDate("dateTo", dateTo);
+//		}
+//		
+//		@SuppressWarnings("unchecked")
+//		List<FeedEntry> feedMessages = q.list();
+//		
+//		String query1 = 
+//			"SELECT DISTINCT entry " + 
+//			"FROM FeedEntry entry " +
+//			"WHERE entry.maker IN ( " +
+//									"SELECT DISTINCT enrollment.user " +
+//									"FROM CourseEnrollment enrollment " +
+//									"LEFT JOIN enrollment.course course " +
+//									"WHERE course = :course) " +
+//			"AND entry.dateCreated BETWEEN :dateFrom AND :dateTo " +
+//			"ORDER BY entry.dateCreated DESC";
+//		
+//		Date dateFrom = DateUtil.getDayBeginningDateTime(date);
+//		Date dateTo = DateUtil.getNextDay(date);
+//		
+//		@SuppressWarnings({ "unchecked", "unused" })
+//		List<FeedEntry> feedMessages1 = persistence.currentManager().createQuery(query1)
+//				.setEntity("course", credential)
+//				.setDate("dateFrom", dateFrom)
+//				.setDate("dateTo", dateTo)
+//				.list();
+//		
+//		
+//		String query2 = 
+//			"SELECT excluded " +
+//			"FROM Course course1 " +
+//			"LEFT JOIN course1.excludedFeedSources excluded " +
+//			"WHERE course1 = :course " +
+//				"AND excluded IS NOT NULL";
+//		
+//		@SuppressWarnings({ "unchecked", "unused" })
+//		List<FeedSource> feedSources = persistence.currentManager().createQuery(query2)
+//				.setEntity("course", credential)
+//				.list();
+//		
+//		return feedMessages;
+		return null;
 	}
 	
 //	@Override
@@ -431,7 +431,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional
-	public List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+	public List<TwitterPostSocialActivity1> getMyTweetsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
 		logger.info("Loading my tweets for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
@@ -448,7 +448,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			"ORDER BY entry.dateCreated DESC";
 		
 		@SuppressWarnings("unchecked")
-		List<TwitterPostSocialActivity> feedEntries = persistence.currentManager().createQuery(query)
+		List<TwitterPostSocialActivity1> feedEntries = persistence.currentManager().createQuery(query)
 			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.mytweets))
 //			.setString("timeFrame", timeFrame.name())
 			.setDate("dateFrom", dateFrom)
@@ -495,7 +495,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 
 	@Override
 	@Transactional
-	public List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
+	public List<TwitterPostSocialActivity1> getCourseTweetsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
 		logger.info("Loading course tweets for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
 		
 		String query = 
@@ -511,7 +511,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 			"ORDER BY entry.dateCreated DESC";
 		
 		@SuppressWarnings("unchecked")
-		List<TwitterPostSocialActivity> feedEntries = persistence.currentManager().createQuery(query)
+		List<TwitterPostSocialActivity1> feedEntries = persistence.currentManager().createQuery(query)
 			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.coursetweets))
 //			.setString("timeFrame", timeFrame.name())
 			.setDate("dateFrom", dateFrom)
@@ -601,27 +601,27 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 						case myfeeds:
 							List<FeedEntry> entries = getMyFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries, limit);
+//							DigestBean.addFeedEntries(feedsDigestData, entries, limit);
 							break;
 						case friendsfeeds:
 							List<FeedEntry> entries1 = getMyFriendsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries1, limit);
+//							DigestBean.addFeedEntries(feedsDigestData, entries1, limit);
 							break;
 						case mytweets:
-							List<TwitterPostSocialActivity> entries2 = getMyTweetsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<TwitterPostSocialActivity1> entries2 = getMyTweetsFeedsDigest(userId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addTweetEntries(feedsDigestData, entries2, limit);
+//							DigestBean.addTweetEntries(feedsDigestData, entries2, limit);
 							break;
 						case coursefeeds:
 							List<FeedEntry> entries3 = getCourseFeedsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addFeedEntries(feedsDigestData, entries3, limit);
+//							DigestBean.addFeedEntries(feedsDigestData, entries3, limit);
 							break;
 						case coursetweets:
-							List<TwitterPostSocialActivity> entries4 = getCourseTweetsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
+							List<TwitterPostSocialActivity1> entries4 = getCourseTweetsDigest(courseId, dateFrom, dateTo, interval, limit, feedsDigestData.getPage());
 							
-							DigestBean.addTweetEntries(feedsDigestData, entries4, limit);
+//							DigestBean.addTweetEntries(feedsDigestData, entries4, limit);
 							break;
 					}
 					
@@ -649,8 +649,8 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 	
 	@Override
 	@Transactional (readOnly = true)
-	public List<UserFeedSourceAggregate> getFeedSourcesForCourse(long courseId) {
-		logger.debug("Loading feed sources for the course: " + courseId);
+	public List<UserFeedSourceAggregate> getFeedSourcesForCredential(long credId) {
+		logger.debug("Loading feed sources for the course: " + credId);
 		
 		String query = 
 			"SELECT user, personalBlog " + 
@@ -666,14 +666,14 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		
 		@SuppressWarnings("unchecked")
 		List<Object[]> result = persistence.currentManager().createQuery(query)
-			.setLong("courseId", courseId)
+			.setLong("credId", credId)
 			.list();
 		
 		if (result != null && !result.isEmpty()) {
 			List<UserFeedSourceAggregate> userFeedSources = new ArrayList<UserFeedSourceAggregate>();
 			
 			try {
-				Course course = loadResource(Course.class, courseId);
+				Credential1 course = loadResource(Credential1.class, credId);
 			
 				for (Object[] res : result) {
 					User user = (User) res[0];

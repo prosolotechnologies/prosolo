@@ -3,8 +3,8 @@ package org.prosolo.services.nodes.observers.credential;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;

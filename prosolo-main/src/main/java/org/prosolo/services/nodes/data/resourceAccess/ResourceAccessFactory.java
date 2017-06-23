@@ -1,7 +1,5 @@
 package org.prosolo.services.nodes.data.resourceAccess;
 
-import java.util.List;
-
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -9,6 +7,8 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.nodes.data.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.factory.CredentialDeliveryStatusFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ResourceAccessFactory {
@@ -66,15 +66,6 @@ public class ResourceAccessFactory {
 			if(userAccess.isResourceVisibleToAll() && visitor.allowedToLearn) {
 				canLearn = true;
 				if(privileges.contains(UserGroupPrivilege.Learn)) {
-					canAccess = true;
-				}
-			}
-		}
-		
-		if(!canEdit || !canAccess) {
-			if(userAccess.isUserResourceOwner() && visitor.allowedToEdit) {
-				canEdit = true;
-				if(privileges.contains(UserGroupPrivilege.Edit)) {
 					canAccess = true;
 				}
 			}

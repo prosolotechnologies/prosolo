@@ -55,4 +55,6 @@ public interface CompetenceESService  extends AbstractBaseEntityESService {
 	
 	void restoreCompetence(long compId);
 
+	void updateCompetenceOwner(long compId, long newOwnerId);
+
 }

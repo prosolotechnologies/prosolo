@@ -1,16 +1,15 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import java.util.Map;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.Map;
 
 public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 
@@ -33,16 +32,18 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 		Competence1 comp = (Competence1) event.getObject();
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
-			if(event.getAction() == EventType.STATUS_CHANGED) {
+			if (event.getAction() == EventType.STATUS_CHANGED) {
 				competenceESService.updateStatus(comp.getId(), comp.isPublished(), comp.getDatePublished());
+			} else if (event.getAction() == EventType.OWNER_CHANGE) {
+				competenceESService.updateCompetenceOwner(comp.getId(), Long.parseLong(params.get("newOwnerId")));
 			} else if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
 				competenceESService.updateCompetenceUsersWithPrivileges(comp.getId(), session);
-			} else if(event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
+			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				competenceESService.updateVisibleToAll(comp.getId(), comp.isVisibleToAll());
 			} else {
-				if(params != null) {
+				if (params != null) {
 					String jsonChangeTracker = params.get("changes");
-					if(params != null) {
+					if (params != null) {
 						Gson gson = new GsonBuilder().create();
 						CompetenceChangeTracker changeTracker = gson.fromJson(jsonChangeTracker, 
 								 CompetenceChangeTracker.class);
@@ -51,13 +52,13 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 					}
 				}
 			}
-		} else if(operation == NodeOperation.Save) {
+		} else if (operation == NodeOperation.Save) {
 			competenceESService.saveCompetenceNode(comp, session);
-		} else if(operation == NodeOperation.Delete) {
+		} else if (operation == NodeOperation.Delete) {
 			competenceESService.deleteNodeFromES(comp);
-		} else if(operation == NodeOperation.Archive) {
+		} else if (operation == NodeOperation.Archive) {
 			competenceESService.archiveCompetence(comp.getId());
-		} else if(operation == NodeOperation.Restore) {
+		} else if (operation == NodeOperation.Restore) {
 			competenceESService.restoreCompetence(comp.getId());
 		}
 	}

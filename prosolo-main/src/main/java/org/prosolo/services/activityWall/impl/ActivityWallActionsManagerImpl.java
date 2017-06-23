@@ -9,16 +9,16 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivityConfig;
+import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,16 +41,12 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 	@Transactional (readOnly = false)
 	public SocialActivityConfig hideNotification(long socialActivityId, long userId, 
 			LearningContextData context, Session session) throws ResourceCouldNotBeLoadedException, EventException {
-//		if (configId > 0) {
-//			config = loadResource(SocialActivityConfig.class, configId, session);
-//		} else {
 		User user = (User) session.load(User.class, userId);
 		SocialActivityConfig config = new SocialActivityConfig();
 		
 		SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
 		config.setSocialActivity(socialActivity);
 		config.setUser(user);
-//		}
 		
 		config.setHidden(true);
 		config = saveEntity(config, session);
@@ -89,15 +85,6 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 			
 			sa.setDeleted(true);
 			
-//			if(socialActivity.getType() == SocialActivityType.Post_Reshare) {
-//				long originalPostSocialActivityId = socialActivity.getObject().getId();
-//				if(originalPostSocialActivityId > 0) {
-//					PostSocialActivity1 originalPost = loadResource(PostSocialActivity1.class, 
-//							originalPostSocialActivityId, session);
-//					originalPost.setShareCount(originalPost.getShareCount() - 1);
-//				}
-//			}
-			
 			User user = new User();
 			user.setId(userId);
 			String page = context != null ? context.getPage() : null;
@@ -118,7 +105,6 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 			Session session) throws DbConnectionException {
 		try {
 			SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
-	//		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
 			socialActivity.setCommentsDisabled(false);
 			
 			User user = new User();
@@ -141,7 +127,6 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 			Session session) throws DbConnectionException {
 		try {
 			SocialActivity1 socialActivity = loadResource(SocialActivity1.class, socialActivityId, session);
-	//		socialActivity = HibernateUtil.initializeAndUnproxy(socialActivity);
 			socialActivity.setCommentsDisabled(true);
 			
 			User user = new User();
@@ -158,20 +143,4 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		}
 	}
 	
-//	@Override
-//	@Transactional
-//	public SocialActivity1 decrementNumberOfReshares(long socialActivityId, Session session) 
-//			throws ResourceCouldNotBeLoadedException {
-//		PostSocialActivity1 socialActivity = loadResource(PostSocialActivity1.class, socialActivityId, 
-//				session);
-//		
-//		if (socialActivity != null) {
-//			socialActivity.setShareCount(socialActivity.getShareCount() - 1);
-//			session.save(socialActivity);
-//			
-//			return socialActivity;
-//		}
-//		return null;
-//	}
-
 }

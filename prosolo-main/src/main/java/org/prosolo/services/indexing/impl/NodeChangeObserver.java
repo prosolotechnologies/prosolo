@@ -4,13 +4,12 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
-import org.prosolo.common.domainmodel.course.CourseEnrollment;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialBookmark;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
@@ -66,7 +65,8 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.STATUS_CHANGED,
 			EventType.ARCHIVE,
 			EventType.RESTORE,
-			EventType.USER_GROUP_CHANGE
+			EventType.USER_GROUP_CHANGE,
+			EventType.OWNER_CHANGE
 		};
 	}
 
@@ -75,7 +75,6 @@ public class NodeChangeObserver extends EventObserver {
 	public Class<? extends BaseEntity>[] getResourceClasses() {
 		return new Class[] { 
 			User.class,
-			CourseEnrollment.class,
 			Credential1.class,
 			Competence1.class, 
 			CredentialBookmark.class,

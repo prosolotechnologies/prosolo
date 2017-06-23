@@ -684,54 +684,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 		
 	@Override
-	public List<Long> getInstructorCourseIds (long userId) {
-		try {
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
-			
-			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-	
-			
-//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
-//			        "courses", termQuery("courses.id", 1)).innerHit(new QueryInnerHitBuilder().setFetchSource(new String[] {"id"}, null));
-//			bQueryBuilder.must(nestedQB);
-			
-			bQueryBuilder.must(termQuery("id", userId));
-
-			
-			String[] includes = {"coursesWithInstructorRole.id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null)
-					.setFrom(0).setSize(1000);
-			
-			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
-			if(sResponse != null) {
-				SearchHits searchHits = sResponse.getHits();
-				long numberOfResults = searchHits.getTotalHits();
-				
-				if(searchHits != null && numberOfResults == 1) {
-					List<Long> ids = new ArrayList<>();
-					SearchHit hit = searchHits.getAt(0);
-					Map<String, Object> source = hit.getSource();
-					@SuppressWarnings("unchecked")
-					List<Map<String, Object>> courses =  (List<Map<String, Object>>) source.get("coursesWithInstructorRole");	
-					for(Map<String, Object> courseMap : courses) {
-						ids.add(Long.parseLong(courseMap.get("id") + ""));
-					}
-					return ids;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		}
-		return null;
-	}
-	
-	@Override
 	public TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit) {

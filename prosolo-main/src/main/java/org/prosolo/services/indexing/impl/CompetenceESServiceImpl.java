@@ -1,15 +1,5 @@
 package org.prosolo.services.indexing.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -32,6 +22,15 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.indexing.CompetenceESService")
 public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl implements CompetenceESService {
@@ -173,7 +172,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("user", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -189,7 +188,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("visibleToAll", value);
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -227,7 +226,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			builder.endObject();
 			
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", builder);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -244,7 +243,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(datePublished));
 			}
 			doc.endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -274,7 +273,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("bookmark", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -305,7 +304,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			param.put("id", userId);
 			params.put("student", param);
 			
-			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, 
+			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE,
 					compId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
@@ -320,7 +319,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", true)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -334,7 +333,22 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", false)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1, compId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void updateCompetenceOwner(long compId, long newOwnerId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("creatorId", newOwnerId);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
