@@ -65,4 +65,6 @@ public interface UserManager extends AbstractManager {
 	void setUserOrganization(long userId,long organizationId);
 	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles);
 
+	String getUserPosition(long id);
+
 }

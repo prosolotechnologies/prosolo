@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -164,7 +164,7 @@ public class OrganizationEditBean implements Serializable {
                 String[] rolesArray = new String[]{"Admin","Super Admin"};
                 List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
-                TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,adminRoles );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);
@@ -204,14 +204,6 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdmins(List<UserData> admins) {
         this.admins = admins;
-    }
-
-    public SelectItem[] getAllRoles() {
-        return allRoles;
-    }
-
-    public void setAllRoles(SelectItem[] allRoles) {
-        this.allRoles = allRoles;
     }
 
     public List<UserData> getAdminsChoosen() {
