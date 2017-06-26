@@ -1,16 +1,18 @@
 package org.prosolo.services.nodes.impl;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.google.api.client.util.Lists;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.organization.Role;
+
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -21,6 +23,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -30,7 +34,9 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
-import org.prosolo.web.administration.data.UserData;
+import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +56,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private CredentialManager credentialManager;
 	@Inject
 	private OrganizationManager organizationManager;
+	@Inject
+	private UserManager self;
 
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
 
-	@Inject private UserManager self;
+	@Autowired private UserDataFactory userDataFactory;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -303,8 +311,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		query.append(
 			"SELECT user " +
-			"FROM User user " +
-			"WHERE user.deleted = :deleted "
+			" FROM User user " +
+			" WHERE user.deleted = :deleted "
 		);
 
 		if (toExclude != null && toExclude.length > 0) {
@@ -413,6 +421,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
 				saveEntity(user);
+				assignNewOwner(newCreatorId, oldCreatorId);
+				saveEntity(user);
 				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
 				userEntityESService.deleteNodeFromES(user);
 				return result;
@@ -434,10 +444,115 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	private void assignNewOwner(long newCreatorId, long oldCreatorId){
-		credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId);
-		competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId);
-	
+	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles) {
+
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+
+		String query =
+				"SELECT DISTINCT user " +
+				"FROM User user " +
+				"LEFT JOIN FETCH user.roles role ";
+				if(filterByRoleId > 0) {
+					query+="WHERE role.id =: filterByRoleId AND user.deleted IS false ";
+				}else{
+					query+="WHERE role IN (:roles) AND user.deleted IS false ";
+				}
+				query+="ORDER BY user.name,user.lastname ASC ";
+
+		Query result = persistence.currentManager().createQuery(query);
+
+		if(filterByRoleId > 0){
+			result.setLong("roleId",filterByRoleId);
+		}else {
+			result.setParameterList("roles",roles);
+		}
+
+		List<User> users = result
+				.setFirstResult(page*limit)
+				.setMaxResults(limit)
+				.list();
+
+		for(User u : users) {
+			if(roles != null) {
+				List<Role> adminRoles = new LinkedList<>(u.getRoles());
+
+				UserData userData = new UserData(u,adminRoles);
+				response.addFoundNode(userData);
+			}
+		}
+
+		response.setAdditionalInfo(setFilter(roles,filterByRoleId));
+		response.setHitsNumber(setUsersCountForFiltering(roles,filterByRoleId));
+
+		return response;
+	}
+
+	private Long setUsersCountForFiltering(List<Role> roles,long filterByRoleId){
+		String countQuery =
+				"SELECT COUNT (DISTINCT user) " +
+						"FROM User user " +
+						"LEFT JOIN user.roles role ";
+		if(filterByRoleId > 0) {
+			countQuery += "WHERE role.id =: filterByRoleId AND user.deleted IS false";
+		}else{
+			countQuery += "WHERE role IN (:roles) AND user.deleted IS false";
+		}
+
+
+		Query result1 = persistence.currentManager().createQuery(countQuery);
+		if(filterByRoleId > 0){
+			result1.setLong("roleId",filterByRoleId);
+		}else{
+			result1.setParameterList("roles",roles);
+		}
+
+		return (Long)result1.uniqueResult();
+	}
+
+	private Map<String,Object> setFilter(List<Role> roles,long filterByRoleId){
+		String countQuery =
+				"SELECT COUNT (DISTINCT user) " +
+						"FROM User user " +
+						"LEFT JOIN user.roles role " +
+						"WHERE role IN (:roles) AND user.deleted IS false ";
+
+		long count = (long) persistence.currentManager().createQuery(countQuery)
+				.setParameterList("roles",roles)
+				.uniqueResult();
+
+		List<RoleFilter> roleFilters = new ArrayList<>();
+		RoleFilter defaultFilter = new RoleFilter(0, "All",count);
+		roleFilters.add(defaultFilter);
+		RoleFilter selectedFilter = defaultFilter;
+
+		String query =
+				"SELECT role, COUNT (DISTINCT user) " +
+						"FROM User user "+
+						"INNER JOIN user.roles role " +
+						"WITH role in (:roles) AND user.deleted IS false " +
+						"GROUP BY role";
+
+		List<Object[]> result = persistence.currentManager().createQuery(query)
+				.setParameterList("roles",roles)
+				.list();
+
+		for(Object[] objects : result){
+			Role r = (Role) objects[0];
+			long c = (long) objects[1];
+			RoleFilter rf = new RoleFilter(r.getId(), r.getTitle(), c);
+			roleFilters.add(rf);
+			if(r.getId() == filterByRoleId) {
+				selectedFilter = rf;
+			}
+		}
+
+		Map<String, Object> additionalInfo = new HashMap<>();
+		additionalInfo.put("filters", roleFilters);
+		additionalInfo.put("selectedFilter", selectedFilter);
+
+		return additionalInfo;
+	}
+
 	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {
 		Result<Void> result = new Result<>();
 		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId).getEvents());

@@ -31,6 +31,10 @@ public class NotificationData implements Serializable {
 
 	public NotificationData() { }
 
+	public long getNotificationTime() {
+		return DateUtil.getMillisFromDate(date);
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -53,10 +57,6 @@ public class NotificationData implements Serializable {
 
 	public void setDate(Date date) {
 		this.date = date;
-	}
-	
-	public String getDatePretty() {
-		return DateUtil.getTimeAgoFromNow(date);
 	}
 
 	public NotificationType getNotificationType() {

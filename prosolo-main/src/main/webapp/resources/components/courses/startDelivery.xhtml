@@ -45,19 +45,21 @@
 	                            <div class="col-md-6 startDate">
 	                                <label>Start:</label>
 	                                <div class="datePickerRow">
-	                                	<h:inputText id="datetimepicker1" placeholder="Date and Time" styleClass="datePickerSelector deliveryStartSelector"
-		                                   	value="#{deliveryStartBean.start}">
-		                                   	<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
-			                            </h:inputText>
+										<utilcomp:convertTimeInput
+												millis="#{deliveryStartBean.startTime}"
+												format="MM/DD/YYYY hh:mm a"
+												timeInputClass="datePickerSelector deliveryStartSelector"
+										/>
 	                                </div>
 	                            </div>
 	                            <div class="col-md-6 endDate">
 	                                <label>End:</label>
 	                                <div class="datePickerRow">
-	                                	<h:inputText id="datetimepicker2" placeholder="Date and Time" styleClass="datePickerSelector deliveryEndSelector"
-	                                		value="#{deliveryStartBean.end}">
-	                                		<f:convertDateTime pattern="MM/dd/yyyy hh:mm a" />
-		                        		</h:inputText>
+										<utilcomp:convertTimeInput
+												millis="#{deliveryStartBean.endTime}"
+												format="MM/DD/YYYY hh:mm a"
+												timeInputClass="datePickerSelector deliveryEndSelector"
+										/>
 	                                </div>
 	                                <small>If not set, delivery is unlimited.</small>
 	                            </div>

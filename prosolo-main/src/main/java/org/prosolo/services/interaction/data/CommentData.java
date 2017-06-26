@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.nodes.data.UserData;
 
 public class CommentData {
@@ -20,7 +21,6 @@ public class CommentData {
 	private boolean likedByCurrentUser;
 	private List<CommentData> childComments;
 	private Date dateCreated;
-	private String formattedDate;
 	//text of a comment that represents reply to this comment
 	private String replyToComment;
 	private int numberOfReplies;
@@ -33,6 +33,10 @@ public class CommentData {
 	
 	public void incrementNumberOfReplies() {
 		numberOfReplies ++;
+	}
+
+	public long getPostDateTime() {
+		return DateUtil.getMillisFromDate(dateCreated);
 	}
 	
 	public long getCommentId() {
@@ -111,14 +115,6 @@ public class CommentData {
 
 	public void setDateCreated(Date dateCreated) {
 		this.dateCreated = dateCreated;
-	}
-
-	public String getFormattedDate() {
-		return formattedDate;
-	}
-
-	public void setFormattedDate(String formattedDate) {
-		this.formattedDate = formattedDate;
 	}
 
 	public String getReplyToComment() {
