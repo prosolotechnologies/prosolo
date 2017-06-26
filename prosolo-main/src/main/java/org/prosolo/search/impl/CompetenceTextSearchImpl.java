@@ -61,11 +61,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	@Transactional
-	public TextSearchResponse1<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, SortingOption sortTitleAsc) {
+	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
+                                                                                   String searchString, int page, int limit, boolean loadOneMore,
+                                                                                   long[] toExclude, SortingOption sortTitleAsc) {
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
@@ -157,11 +157,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	}
 	
 	@Override
-	public TextSearchResponse1<CompetenceData1> searchCompetences(
+	public PaginatedResult<CompetenceData1> searchCompetences(
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			CompetenceSearchConfig config) {
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -287,10 +287,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	}
 	
 	@Override
-	public TextSearchResponse1<CompetenceData1> searchCompetencesForManager(
+	public PaginatedResult<CompetenceData1> searchCompetencesForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CompetenceSearchFilter filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);

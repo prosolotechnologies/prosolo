@@ -63,10 +63,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	}
 	
 	@Override
-	public TextSearchResponse1<CredentialData> searchCredentialsForUser(
+	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
+		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -153,10 +153,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	}
 	
 	@Override
-	public TextSearchResponse1<CredentialData> searchCredentialsForManager(
+	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
+		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);

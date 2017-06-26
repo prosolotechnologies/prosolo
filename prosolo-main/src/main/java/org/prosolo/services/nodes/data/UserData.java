@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -13,7 +14,7 @@ import org.prosolo.web.util.AvatarUtils;
 public class UserData implements Serializable {
 
 	private static final long serialVersionUID = 8668238017709751223L;
-	
+
 	private long id;
 	private String fullName;
 	private String name;
@@ -27,11 +28,11 @@ public class UserData implements Serializable {
 	private UserType type = UserType.REGULAR_USER;
 	private List<RoleData> roles = new ArrayList<>();
 	private List<Long> roleIds = new ArrayList<>();
-	
+
 	public UserData() {
 		this.roles = new LinkedList<RoleData>();
 	}
-	
+
 	public UserData(User user) {
 		this();
 		this.id = user.getId();
@@ -41,26 +42,26 @@ public class UserData implements Serializable {
 		this.email = user.getEmail();
 		setName(user.getName());
 		setLastName(user.getLastname());
-		this.password = user.getPassword();		
+		this.password = user.getPassword();
 	}
-	
-	public UserData(User user, List<Role> roles) {
+
+	public UserData(User user, Collection<Role> roles) {
 		this(user);
-		
+
 		if(roles != null) {
 			for(Role role : roles) {
 				this.roles.add(new RoleData(role));
 			}
 		}
 	}
-	
+
 	public UserData(long id, String firstName, String lastName, String avatar, String position,
-			String email, boolean isAvatarReady) {
+					String email, boolean isAvatarReady) {
 		this(id, getFullName(firstName, lastName) , avatar, position, email, isAvatarReady);
 	}
-	
+
 	public UserData(long id, String fullName, String avatar, String position,
-			String email, boolean isAvatarReady) {
+					String email, boolean isAvatarReady) {
 		this.id = id;
 		this.fullName = fullName;
 		String readyAvatar = avatar;
@@ -71,15 +72,19 @@ public class UserData implements Serializable {
 		this.position = position;
 		this.email = email;
 	}
-	
+
 	public void addRoleId(long id) {
 		this.roleIds.add(id);
 	}
-	
+
+	public boolean hasRoleId(long roleId){
+		return roleIds.contains(roleId);
+	}
+
 	public void setFullName(String name, String lastName) {
 		this.fullName = getFullName(name, lastName);
 	}
-	
+
 	private static String getFullName(String name, String lastName) {
 		String fName = name != null ? name : "";
 		String lName = lastName != null ? lastName + " " : "";
@@ -174,7 +179,7 @@ public class UserData implements Serializable {
 	public void setRoles(List<RoleData> roles) {
 		this.roles = roles;
 	}
-	
+
 	public boolean isUserSet() {
 		return userSet;
 	}
@@ -203,5 +208,5 @@ public class UserData implements Serializable {
 		}
 		return rolesString;
 	}
-	
+
 }

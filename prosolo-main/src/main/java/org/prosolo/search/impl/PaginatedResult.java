@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TextSearchResponse1<T> implements Serializable {
+public class PaginatedResult<T> implements Serializable {
 
 	private static final long serialVersionUID = -3012674403522535706L;
 	
@@ -13,16 +13,16 @@ public class TextSearchResponse1<T> implements Serializable {
 	private List<T> foundNodes = new ArrayList<T>();
 	private Map<String, Object> additionalInfo;
 
-	public TextSearchResponse1(List<T> foundUsers, long hits) {
+	public PaginatedResult(List<T> foundUsers, long hits) {
 		foundNodes = foundUsers;
 		hitsNumber = hits;
 	}
 
-	public TextSearchResponse1(List<T> nodes) {
+	public PaginatedResult(List<T> nodes) {
 		foundNodes = nodes;
 	}
 
-	public TextSearchResponse1() { }
+	public PaginatedResult() { }
 
 	public long getHitsNumber() {
 		return hitsNumber;

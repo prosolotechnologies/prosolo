@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -81,8 +81,8 @@ public class ManageUsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
 		try {
-			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), 
+			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
 					false, null);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();

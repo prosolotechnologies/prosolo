@@ -1,6 +1,6 @@
 package org.prosolo.search;
 
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.search.util.credential.LearningResourceSearchFilter;
@@ -27,15 +27,15 @@ public interface CompetenceTextSearch extends AbstractManager {
 	 * @param sortTitleAsc
 	 * @return
 	 */
-	TextSearchResponse1<CompetenceData1> searchCompetencesForAddingToCredential(long userId, String searchString, int page, int limit, 
-			boolean loadOneMore, long[] toExclude, SortingOption sortTitleAsc);
+	PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long userId, String searchString, int page, int limit,
+                                                                            boolean loadOneMore, long[] toExclude, SortingOption sortTitleAsc);
 	
-	TextSearchResponse1<CompetenceData1> searchCompetences(
+	PaginatedResult<CompetenceData1> searchCompetences(
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			CompetenceSearchConfig config);
 	
-	TextSearchResponse1<CompetenceData1> searchCompetencesForManager(
+	PaginatedResult<CompetenceData1> searchCompetencesForManager(
 			String searchTerm, int page, int limit, long userId, CompetenceSearchFilter filter, 
 			LearningResourceSortOption sortOption);
 

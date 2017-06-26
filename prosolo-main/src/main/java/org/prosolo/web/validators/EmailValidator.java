@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("request")
+@FacesValidator("emailValidator")
 public class EmailValidator implements Validator {
 	
 	@Autowired
@@ -45,14 +47,6 @@ public class EmailValidator implements Validator {
 			FacesMessage msg = new FacesMessage("Invalid email format.");
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);
-		} else {
-			boolean isEmailExists = registrationManager.isEmailAlreadyExists(value.toString());
-			
-			if (isEmailExists) {
-				FacesMessage msg = new FacesMessage("Email is already used.");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				throw new ValidatorException(msg);
-			}
 		}
 	}
 }

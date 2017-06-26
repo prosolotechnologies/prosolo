@@ -17,7 +17,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CredentialTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
@@ -98,7 +98,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
+		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
 				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 				loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
