@@ -135,7 +135,7 @@ public class OrganizationEditBean implements Serializable {
                 this.organization.setId(organization.getId());
 
                 logger.debug("New Organization (" + organization.getTitle() + ")");
-                
+
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
                 PageUtil.redirect("/admin/organizations");
             }else{
