@@ -16,6 +16,7 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
@@ -253,7 +254,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				BoolQueryBuilder endDateFilter = QueryBuilders.boolQuery();
 				endDateFilter.should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery("deliveryEnd")));
 				endDateFilter.should(QueryBuilders.rangeQuery("deliveryEnd")
-						.gt(org.prosolo.services.indexing.utils.ElasticsearchUtil.getDateStringRepresentation(now)));
+						.gt(ElasticsearchUtil.getDateStringRepresentation(now)));
 				publishedAndVisibleFilter.filter(endDateFilter);
 				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
 				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));

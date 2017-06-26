@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.user.User;
 public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void saveUserNode(User user, Session session);
+
+	void saveUserNode(User user, long organizationId, Session session);
 	
 	void addCredentialToUserIndex(long credId, long userId, long instructorId, int progress, String dateEnrolled);
 	

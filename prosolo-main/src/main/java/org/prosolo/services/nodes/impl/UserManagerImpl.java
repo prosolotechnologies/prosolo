@@ -1,24 +1,12 @@
 package org.prosolo.services.nodes.impl;
 
-import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import com.google.api.client.util.Lists;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.organization.Role;
-
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -36,10 +24,13 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.UserDataFactory;
-import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.io.InputStream;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.UserManager")
 public class UserManagerImpl extends AbstractManagerImpl implements UserManager {
@@ -559,5 +550,32 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId).getEvents());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
 		return result;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT user FROM User user " +
+					 	   "WHERE user.organization.id = :orgId ";
+
+			if (!returnDeleted) {
+				query += "AND user.deleted = :boolFalse";
+			}
+
+			Query q = session
+					.createQuery(query)
+					.setLong("orgId", organizationId);
+
+			if (!returnDeleted) {
+				q.setBoolean("boolFalse", false);
+			}
+
+			return q.list();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving users");
+		}
 	}
 }

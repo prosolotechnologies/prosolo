@@ -133,7 +133,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		String query = 
 				"SELECT role " +
 				"FROM User user " +
-				"LEFT JOIN user.roles role "+
+				"INNER JOIN user.roles role "+
 				"WHERE user.email = :email " ;
 							
 			@SuppressWarnings("unchecked")
