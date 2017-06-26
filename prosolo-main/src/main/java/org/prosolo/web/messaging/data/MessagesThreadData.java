@@ -1,11 +1,5 @@
 package org.prosolo.web.messaging.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
@@ -13,6 +7,12 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.services.activityWall.UserDataFactory;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /*
  * @author Zoran Jeremic 2013-05-19
@@ -24,7 +24,6 @@ public class MessagesThreadData implements Serializable {
 	private String subject;
 	private long id;
 	private Date lastUpdated;
-	private String updateTime;
 	private List<MessageData> messages;
 	private List<UserData> participants;
 	private List<UserData> participantsWithoutLoggedUser;
@@ -45,8 +44,7 @@ public class MessagesThreadData implements Serializable {
 		this.id = thread.getId();
 		this.subject = thread.getSubject();
 		this.lastUpdated = thread.getLastUpdated();
-		this.updateTime = DateUtil.createUpdateTime(lastUpdated);
-		
+
 		for (ThreadParticipant participant : thread.getParticipants()) {
 			User user = participant.getUser();
 			UserData userData = UserDataFactory.createUserData(user);
@@ -82,6 +80,10 @@ public class MessagesThreadData implements Serializable {
 		}
 		this.messages = messagesData;
 	}
+
+	public long getLastUpdatedTime() {
+		return DateUtil.getMillisFromDate(lastUpdated);
+	}
 	
 	public MessageData getLatest() {
 		if (!messages.isEmpty()) {
@@ -96,14 +98,6 @@ public class MessagesThreadData implements Serializable {
 
 	public void setParticipantsList(String participantsList) {
 		this.participantsList = participantsList;
-	}
-
-	public String getUpdateTime() {
-		return updateTime;
-	}
-	
-	public void setUpdateTime(String updateTime) {
-		this.updateTime = updateTime;
 	}
 
 	public String getSubject() {

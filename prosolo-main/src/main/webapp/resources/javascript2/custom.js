@@ -201,3 +201,7 @@ function hideModal(dialogId) {
 	$("div.modal-backdrop.fade.in").remove();
 }
 
+function getSelectorFromClassesString(classes) {
+	return '.' + classes.split(/\s+/).join('.')
+}
+

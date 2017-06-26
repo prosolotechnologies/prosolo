@@ -1,0 +1,37 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+	<composite:interface>
+		<composite:attribute name="millis" required="true"/>
+	    <composite:attribute name="format" default="null"/>
+		<composite:attribute name="disabled" type="java.lang.Boolean" default="false"/>
+		<composite:attribute name="timeInputClass" required="true"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:inputText id="convertTime#{cc.clientId}" placeholder="Date and Time" disabled="#{cc.attrs.disabled}"
+					 styleClass="#{cc.attrs.timeInputClass}">
+		</h:inputText>
+		<script>
+			#{cc.attrs.format eq 'null'}
+				? convertTime(#{cc.attrs.millis}, null, getSelectorFromClassesString('#{cc.attrs.timeInputClass}'), '')
+				: convertTime(#{cc.attrs.millis}, '#{cc.attrs.format}', getSelectorFromClassesString('#{cc.attrs.timeInputClass}'), '');
+		</script>
+		<h:inputHidden pt:data-id="dateInputHidden#{cc.clientId}" id="hiddenTimestamp#{cc.clientId}"
+			   value="#{cc.attrs.millis}">
+		</h:inputHidden>
+
+		<script>
+			$(function() {
+                var timeEl = $(getSelectorFromClassesString('#{cc.attrs.timeInputClass}'));
+                timeEl.on('dp.change', function (e) {
+                    var el = e.target || e.srcElement;
+                    populateTimestamp(el, '[data-id=\x27dateInputHidden#{cc.clientId}\x27]', '#{cc.attrs.format}');
+                });
+			})
+		</script>
+	</composite:implementation>
+</ui:component>

@@ -92,34 +92,34 @@ public class CredentialEditBean implements Serializable {
 	}
 
 	public boolean hasDeliveryStarted() {
-		return credentialData.getDeliveryStart() != null && 
+		return credentialData.getDeliveryStartTime() >= 0 &&
 				getNumberOfMillisecondsBetweenNowAndDeliveryStart() <= 0;
 	}
 	
 	public boolean hasDeliveryEnded() {
-		return credentialData.getDeliveryEnd() != null &&
+		return credentialData.getDeliveryEndTime() >= 0 &&
 				getNumberOfMillisecondsBetweenNowAndDeliveryEnd() <= 0;
 	}
 	
 	public long getNumberOfMillisecondsBetweenNowAndDeliveryStart() {
-		return credentialData.getDeliveryStart() != null
-				? getDateDiffInMilliseconds(credentialData.getDeliveryStart(), new Date())
+		return credentialData.getDeliveryStartTime() >= 0
+				? getDateDiffInMilliseconds(credentialData.getDeliveryStartTime(), new Date().getTime())
 				: 0;
 	}
 	
 	public long getNumberOfMillisecondsBetweenNowAndDeliveryEnd() {
-		return credentialData.getDeliveryEnd() != null
-				? getDateDiffInMilliseconds(credentialData.getDeliveryEnd(), new Date())
+		return credentialData.getDeliveryEndTime() >= 0
+				? getDateDiffInMilliseconds(credentialData.getDeliveryEndTime(), new Date().getTime())
 				: 0;
 	}
 	
-	private long getDateDiffInMilliseconds(Date d1, Date d2) {
+	private long getDateDiffInMilliseconds(long millis1, long millis2) {
 		/*
 		 * if difference is bigger than one day return one day in millis to avoid bigger number than
 		 * js timeout allows
 		 */
 		long oneDayMillis = 24 * 60 * 60 * 1000;
-		long diff = d1.getTime() - d2.getTime();
+		long diff = millis1 - millis2;
 		return diff < oneDayMillis ? diff : oneDayMillis;
 	}
 	

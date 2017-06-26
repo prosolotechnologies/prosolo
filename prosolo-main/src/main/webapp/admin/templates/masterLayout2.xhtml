@@ -44,7 +44,9 @@
 	<script
 			src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
 	<script
-			src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 </h:head>
 
 <h:body id="admin">
@@ -190,7 +192,12 @@
 										<h3>#{notificationData.actor.fullName}</h3>
 										#{notificationData.predicate}
 										<h3>#{notificationData.objectTitle}</h3>
-										<span class="timestamp">#{notificationData.datePretty}</span>
+										<span class="timestamp">
+											<utilcomp:convertTimeOutput
+													millis="#{notificationData.notificationTime}"
+													format="rel"
+											/>
+										</span>
 									</h:outputLink>
 								</li>
 							</ui:repeat>

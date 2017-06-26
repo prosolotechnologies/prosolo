@@ -6,11 +6,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.app.RegistrationKey;
 import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
@@ -36,7 +32,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Zoran Jeremic Oct 11, 2014
