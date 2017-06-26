@@ -173,7 +173,7 @@ public class AdminEditBean implements Serializable {
 
 			sendNewPassword();
 
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("New admin is created");
 			PageUtil.redirect("/admin/admins");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
@@ -289,18 +289,13 @@ public class AdminEditBean implements Serializable {
 			public void run() {
 				Session session = (Session) userManager.getPersistence().openSession();
 				try {
-					if (user != null) {
-						boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-								CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
-						session.flush();
-						if (resetLinkSent) {
-							PageUtil.fireSuccessfulInfoMessage("resetMessage",
-									"Password instructions have been sent to given email ");
-						} else {
-							PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-						}
+					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+					CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+					session.flush();
+					if (resetLinkSent) {
+						logger.info("Password instructions have been sent");
 					} else {
-						PageUtil.fireErrorMessage("resetMessage", "User already registrated");
+						logger.error("Error sending password instruction");
 					}
 				}catch (Exception e){
 					logger.error("Exception in handling mail sending", e);
