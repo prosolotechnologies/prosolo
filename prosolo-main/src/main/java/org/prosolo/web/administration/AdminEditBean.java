@@ -1,5 +1,6 @@
 package org.prosolo.web.administration;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,12 +168,12 @@ public class AdminEditBean implements Serializable {
 
 			this.admin.setId(adminUser.getId());
 
-			logger.debug("New Admin user (" + adminUser.getName() + " " + adminUser.getLastname() + ") for the user "
+			logger.debug("New user (" + adminUser.getName() + " " + adminUser.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("Admin user successfully saved");
-
 			sendNewPassword();
+
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
 			PageUtil.redirect("/admin/admins");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
@@ -292,12 +293,12 @@ public class AdminEditBean implements Serializable {
 						boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
 								CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
 						session.flush();
-						/*if (resetLinkSent) {
+						if (resetLinkSent) {
 							PageUtil.fireSuccessfulInfoMessage("resetMessage",
 									"Password instructions have been sent to given email ");
 						} else {
 							PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-						}*/
+						}
 					} else {
 						PageUtil.fireErrorMessage("resetMessage", "User already registrated");
 					}

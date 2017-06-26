@@ -154,15 +154,10 @@ public class UserEditBean implements Serializable {
 			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
-
 			sendNewPasswordViaEmail();
-			
-//			if (this.user.isSendEmail()) {
-//			emailSenderManager.sendEmailAboutNewAccount(user,
-//					this.user.getEmail());
-//			}
 
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
+			PageUtil.redirect("/admin");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
