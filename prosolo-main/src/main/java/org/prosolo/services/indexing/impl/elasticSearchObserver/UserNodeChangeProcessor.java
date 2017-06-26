@@ -92,27 +92,27 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	BaseEntity object = cpe.getObject();
-	    	if(object instanceof TargetCredential1) {
+	    	if (object instanceof TargetCredential1) {
 		    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
 		    	Credential1 cr = tc.getCredential();
 		    	
 				if (cr != null) {
 			    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
 		    	}
-	    	} else if(object instanceof TargetCompetence1) {
+	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
 		    	Competence1 c = tc.getCompetence();
 		    	
 				if (c != null) {
 					String dateCompleted = null;
-					if(params != null) {
+					if (params != null) {
 						dateCompleted = params.get("dateCompleted");
 					}
 			    	userEntityESService.updateCompetenceProgress(cpe.getActorId(), c.getId(), cpe.getNewProgressValue(),
 			    			dateCompleted);
 		    	}
 	    	}
-	    } else if(eventType == EventType.Edit_Profile) {
+	    } else if (eventType == EventType.Edit_Profile) {
 	    	BaseEntity obj = event.getObject();
 	    	long userId = 0;
 	    	/*

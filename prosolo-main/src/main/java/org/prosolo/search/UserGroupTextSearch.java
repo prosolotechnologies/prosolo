@@ -2,7 +2,7 @@ package org.prosolo.search;
 
 import java.util.List;
 
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
@@ -14,10 +14,10 @@ import org.prosolo.services.nodes.data.UserGroupData;
  */
 public interface UserGroupTextSearch extends AbstractManager {
 
-	TextSearchResponse1<UserGroupData> searchUserGroups (
+	PaginatedResult<UserGroupData> searchUserGroups (
 			String searchString, int page, int limit);
 	
-	TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+	PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit);
 	
 	/**
@@ -29,10 +29,10 @@ public interface UserGroupTextSearch extends AbstractManager {
 	 * @param roleId - role that users should have in order to be returned
 	 * @return
 	 */
-	TextSearchResponse1<ResourceVisibilityMember> searchUsersAndGroups(
+	PaginatedResult<ResourceVisibilityMember> searchUsersAndGroups(
 			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId);
 	
-	TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
-			int limit, List<Long> usersToExclude);
+	PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
+                                                                    int limit, List<Long> usersToExclude);
 
 }

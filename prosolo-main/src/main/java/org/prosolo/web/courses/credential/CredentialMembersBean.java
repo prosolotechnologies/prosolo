@@ -15,8 +15,8 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
-import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
@@ -191,7 +191,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 	
 	public void loadCredentialInstructors() {
-		TextSearchResponse1<InstructorData> searchResponse = userTextSearch.searchInstructors(
+		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
 				instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
 		
 		if (searchResponse != null) {

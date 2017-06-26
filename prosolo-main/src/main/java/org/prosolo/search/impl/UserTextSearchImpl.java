@@ -1,19 +1,5 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -21,13 +7,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.NestedQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -46,32 +26,31 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
-import org.prosolo.search.util.credential.CredentialMembersSortOption;
-import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.search.util.credential.LearningStatus;
-import org.prosolo.search.util.credential.LearningStatusFilter;
+import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -164,11 +143,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	@Transactional
-	public TextSearchResponse1<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds) {
+	public PaginatedResult<UserData> getUsersWithRoles(
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles, boolean includeSystemUsers, List<Long> excludeIds) {
 
-		TextSearchResponse1<UserData> response =
-				new TextSearchResponse1<>();
+		PaginatedResult<UserData> response =
+				new PaginatedResult<>();
 
 		try {
 			int start = 0;
@@ -216,9 +195,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							.field("id"))
 					.setFetchSource(includes, null);
 
-			if(adminRoles != null && !adminRoles.isEmpty()){
+			if(roles != null && !roles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : adminRoles){
+				for(Role r : roles){
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				bQueryBuilder.filter(bqb1);
@@ -235,12 +214,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<org.prosolo.common.domainmodel.organization.Role> roles;
+				List<Role> listRoles;
 
-				if (adminRoles == null || adminRoles.isEmpty()){
-					roles = roleManager.getAllRoles();
+				if (roles == null || roles.isEmpty()){
+					listRoles = roleManager.getAllRoles();
 				} else {
-					roles = adminRoles;
+					listRoles = roles;
 				}
 
 				for(SearchHit sh : sResponse.getHits()) {
@@ -254,10 +233,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
-					List<org.prosolo.common.domainmodel.organization.Role> userRoles = new ArrayList<>();
+					List<Role> userRoles = new ArrayList<>();
 					if(rolesList != null) {
 						for(Map<String, Object> map : rolesList) {
-							org.prosolo.common.domainmodel.organization.Role r = getRoleDataForId(roles, Long.parseLong(map.get("id") + ""));
+							Role r = getRoleDataForId(listRoles, Long.parseLong(map.get("id") + ""));
 							if(r != null) {
 								userRoles.add(r);
 							}
@@ -277,7 +256,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(org.prosolo.common.domainmodel.organization.Role role : roles) {
+				for(Role role : listRoles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {
@@ -314,10 +293,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
-	private org.prosolo.common.domainmodel.organization.Role getRoleDataForId(List<org.prosolo.common.domainmodel.organization.Role> roles, 
+	private Role getRoleDataForId(List<Role> roles,
 			long roleId) {
 		if(roles != null) {
-			for(org.prosolo.common.domainmodel.organization.Role r : roles) {
+			for(Role r : roles) {
 				if(roleId == r.getId()) {
 					return r;
 				}
@@ -545,10 +524,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	 * -1 should be passed as a page parameter 
 	 */
 	@Override
-	public TextSearchResponse1<InstructorData> searchInstructors (
+	public PaginatedResult<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
 			InstructorSortOption sortOption, List<Long> excludedIds) {
-		TextSearchResponse1<InstructorData> response = new TextSearchResponse1<>();
+		PaginatedResult<InstructorData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -630,9 +609,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchUsersWithInstructorRole (String searchTerm, 
-			long credId, long roleId, List<Long> excludedUserIds) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+	public PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
+																	long credId, long roleId, List<Long> excludedUserIds) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -701,10 +680,58 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 		
 	@Override
-	public TextSearchResponse1<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
+	public List<Long> getInstructorCourseIds (long userId) {
+		try {
+			Client client = ElasticSearchFactory.getClient();
+			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+	
+			
+//			QueryBuilder nestedQB = QueryBuilders.nestedQuery(
+//			        "courses", termQuery("courses.id", 1)).innerHit(new QueryInnerHitBuilder().setFetchSource(new String[] {"id"}, null));
+//			bQueryBuilder.must(nestedQB);
+			
+			bQueryBuilder.must(termQuery("id", userId));
+
+			
+			String[] includes = {"coursesWithInstructorRole.id"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
+					.setTypes(ESIndexTypes.USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null)
+					.setFrom(0).setSize(1000);
+			
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+			if(sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				long numberOfResults = searchHits.getTotalHits();
+				
+				if(searchHits != null && numberOfResults == 1) {
+					List<Long> ids = new ArrayList<>();
+					SearchHit hit = searchHits.getAt(0);
+					Map<String, Object> source = hit.getSource();
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> courses =  (List<Map<String, Object>>) source.get("coursesWithInstructorRole");	
+					for(Map<String, Object> courseMap : courses) {
+						ids.add(Long.parseLong(courseMap.get("id") + ""));
+					}
+					return ids;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+		}
+		return null;
+	}
+	
+	@Override
+	public PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			String searchTerm, long credId, long instructorId, CredentialMembersSearchFilterValue filter,
 			int page, int limit) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -875,10 +902,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchCredentialMembersWithLearningStatusFilter (
+	public PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 
 			long userId, CredentialMembersSortOption sortOption) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1032,9 +1059,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<StudentData> searchUnenrolledUsersWithUserRole (
+	public PaginatedResult<StudentData> searchUnenrolledUsersWithUserRole (
 			String searchTerm, int page, int limit, long credId, long userRoleId) {
-		TextSearchResponse1<StudentData> response = new TextSearchResponse1<>();
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1116,9 +1143,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchPeopleUserFollows(
+	public PaginatedResult<UserData> searchPeopleUserFollows(
 			String term, int page, int limit, long userId) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int size = limit;
@@ -1173,9 +1200,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserSelectionData> searchUsersInGroups(
+	public PaginatedResult<UserSelectionData> searchUsersInGroups(
 			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
-		TextSearchResponse1<UserSelectionData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserSelectionData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -1243,9 +1270,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public TextSearchResponse1<UserData> searchPeersWithoutAssessmentRequest(
+	public PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
 			String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -1444,21 +1471,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											competence.get("progress").toString()));
 									String dateEnrolledString = (String) competence.get("dateEnrolled");
-									DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 									if(dateEnrolledString != null && !dateEnrolledString.isEmpty()) {
-										try {
-											student.setDateEnrolled(df.parse(dateEnrolledString));
-										} catch(Exception e) {
-											logger.error(e);
-										}
+										student.setDateEnrolled(ElasticsearchUtil.parseDate(dateEnrolledString));
 									}
 									String dateCompletedString = (String) competence.get("dateCompleted");
 									if(dateCompletedString != null && !dateCompletedString.isEmpty()) {
-										try {
-											student.setDateCompleted(df.parse(dateCompletedString));
-										} catch(Exception e) {
-											logger.error(e);
-										}
+										student.setDateCompleted(ElasticsearchUtil.parseDate(dateCompletedString));
 									}
 									response.addFoundNode(student);
 								}
@@ -1493,9 +1511,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	@Override
-	public TextSearchResponse1<UserData> searchNewOwner(
-			String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch,List<Role> adminRoles) {
-		TextSearchResponse1<UserData> response = new TextSearchResponse1<>();
+	public PaginatedResult<UserData> searchNewOwner(
+				String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch,List<Role> adminRoles) {
+
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
 			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
@@ -1529,7 +1548,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 
 			try {
-				String[] includes = {"id", "name", "lastname", "avatar"};
+				String[] includes = {"id", "name", "lastname", "avatar","position"};
 				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
 						.setTypes(ESIndexTypes.USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)

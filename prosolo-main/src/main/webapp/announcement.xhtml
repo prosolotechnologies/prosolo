@@ -76,7 +76,13 @@
 	            </div>
 	            <div class="col-md-4">
 							<div class="sidebarBlock">
-								<h2>Posted on #{announcementStudentBean.announcementData.formattedCreationDate}, by</h2>
+								<h2>Posted on
+									<utilcomp:convertTimeOutput
+											millis="#{announcementStudentBean.announcementData.creationTime}"
+											format="MMM DD, YYYY"
+									/>
+									, by
+								</h2>
 								<div class="user32">
 									<a href="#">
 										<utilcomp:userAvatar

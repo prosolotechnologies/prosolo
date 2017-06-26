@@ -1,19 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -23,21 +11,12 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
@@ -46,25 +25,9 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceCreator;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
@@ -73,8 +36,8 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
 public class Competence1ManagerImpl extends AbstractManagerImpl implements Competence1Manager {
@@ -478,10 +441,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 			Map<String, String> params = new HashMap<>();
-			String dateEnrolledString = null;
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			dateEnrolledString = df.format(now);
-			params.put("dateEnrolled", dateEnrolledString);
+			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
 			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, params);
 			
 			return targetComp;
@@ -2646,14 +2606,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
 //				lcPage, lcContext, lcService, params);
-		if(finalCompProgress == 100) {
+		if (finalCompProgress == 100) {
 			Map<String, String> params = new HashMap<>();
-			String dateCompletedStr = null;
-			if(now != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateCompletedStr = df.format(now);
-			}
-			params.put("dateCompleted", dateCompletedStr);
+			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
 			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null, 
 					contextData, params));
 //			eventFactory.generateEvent(EventType.Completion, userId, tComp, null,

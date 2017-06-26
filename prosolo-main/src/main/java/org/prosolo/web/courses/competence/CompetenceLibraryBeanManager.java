@@ -18,7 +18,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CompetenceTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.event.EventException;
@@ -102,7 +102,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	}
 
 	public void getCompetenceSearchResults() {
-		TextSearchResponse1<CompetenceData1> response = textSearch.searchCompetencesForManager(
+		PaginatedResult<CompetenceData1> response = textSearch.searchCompetencesForManager(
 				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
 				searchFilter, sortOption);
 	

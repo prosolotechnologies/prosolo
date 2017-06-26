@@ -5,7 +5,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -129,7 +129,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		if(searchTerm == null) {
 			searchTerm = "";
 		}
-		TextSearchResponse1<ResourceVisibilityMember> res = null;
+		PaginatedResult<ResourceVisibilityMember> res = null;
 		//for now we do not consider editing privileges for competence from user section
 //		if(manageSection) {
 //			res = userGroupTextSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(),

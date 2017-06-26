@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
@@ -153,15 +153,10 @@ public class UserEditBean implements Serializable {
 			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
-
 			sendNewPasswordViaEmail();
-			
-//			if (this.user.isSendEmail()) {
-//			emailSenderManager.sendEmailAboutNewAccount(user,
-//					this.user.getEmail());
-//			}
 
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
+			PageUtil.redirect("/admin");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -178,7 +173,8 @@ public class UserEditBean implements Serializable {
 			
 			User userNewPass = userManager.getUser(user.getEmail());
 			if (userNewPass != null) {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
+						CommonSettings.getInstance().config.appConfig.domain + "recovery");
 				
 				if (resetLinkSent) {
 					PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
@@ -383,7 +379,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId(),null,null);
+				PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId(),null,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

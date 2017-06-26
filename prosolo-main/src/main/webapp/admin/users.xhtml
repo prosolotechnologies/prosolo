@@ -125,7 +125,7 @@
 	                                <p:commandLink 
 	                                	styleClass="btn btn-green-stroke" 
 	                                	pt:data-toggle="modal" 
-	                                	action="#{adminUsers.prepareLoginAsUser(user)}"
+	                                	action="#{loggeduser.prepareLoginAsUser(user)}"
 	                                	update=":formLoginAs:panelLoginAs"
 	                                	oncomplete="$('#loginAs').modal('show');">
 	                                	Login as...
@@ -155,14 +155,14 @@
                      </div>
                      <div class="modal-body">
                          <p>
-                             By proceeding your current session will end and you will be logged in as a student [#{adminUsers.loginAsUser.fullName}]. All actions performed during this session will be contributed to this student.
+                             By proceeding your current session will end and you will be logged in as a student [#{loggeduser.loginAsUser.fullName}]. All actions performed during this session will be contributed to this student.
                          </p>
                      </div>
                      <div class="modal-footer">
                          <p:commandLink
                          	styleClass="btn btn-green"
                          	process="@this"
-                         	action="#{adminUsers.loginAs()}"
+                         	action="#{loggeduser.loginAs()}"
                          	update=":growlMain"
                          	oncomplete="$('#loginAs').modal('hide');">
                          	Proceed

@@ -12,10 +12,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
+import javax.servlet.http.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -33,12 +30,14 @@ import org.prosolo.core.spring.security.HomePageResolver;
 import org.prosolo.core.spring.security.UserSessionDataLoader;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.sessiondata.SessionData;
 import org.prosolo.web.util.AvatarUtils;
@@ -88,6 +87,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	private SessionData sessionData;
 	
 	private LearningContext learningContext;
+
+	private UserData loginAsUser;
 	
 	public LoggedUserBean(){
 		System.out.println("SESSION BEAN INITIALIZED");
@@ -376,6 +377,24 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
+	public void prepareLoginAsUser(UserData user) {
+		loginAsUser = user;
+	}
+
+	public void loginAs() {
+		try {
+			forceUserLogout();
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			authenticationService.login((HttpServletRequest)context.getRequest(),
+					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
+			//to avoid IllegalStateException: Commited or content written
+			FacesContext.getCurrentInstance().responseComplete();
+		} catch(AuthenticationException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());
+		}
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -512,5 +531,8 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 	public String getFullName() {
 		return getSessionData() == null ? null : getSessionData().getFullName();
 	}
-	
+
+	public UserData getLoginAsUser() {
+		return loginAsUser;
+	}
 }

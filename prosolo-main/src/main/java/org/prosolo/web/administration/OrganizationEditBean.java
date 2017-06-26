@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -60,6 +60,8 @@ public class OrganizationEditBean implements Serializable {
     private String searchTerm;
     private UserData admin;
     private SelectItem[] allRoles;
+    private String[] rolesArray;
+    private List<Role> adminRoles;
 
     public void init() {
         logger.debug("initializing");
@@ -85,7 +87,8 @@ public class OrganizationEditBean implements Serializable {
                 admins = new ArrayList<UserData>();
                 adminsChosen = new ArrayList<UserData>();
             }
-
+            rolesArray = new String[]{"Admin","Super Admin"};
+            adminRoles = roleManager.getRolesByNames(rolesArray);
 
             prepareRoles();
         } catch (Exception e) {
@@ -97,8 +100,6 @@ public class OrganizationEditBean implements Serializable {
 
     private void prepareRoles() {
         try {
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
             if (adminRoles != null) {
                 allRoles = new SelectItem[adminRoles.size()];
 
@@ -128,6 +129,7 @@ public class OrganizationEditBean implements Serializable {
         userData.setOrganization(org);
         String position = userManager.getUserPosition(userData.getId());
         userData.setPosition(position);
+        adminsChoosen.add(userData);
     }
 
     public void createNewOrganization(){
@@ -165,7 +167,7 @@ public class OrganizationEditBean implements Serializable {
                 String[] rolesArray = new String[]{"Admin","Super Admin"};
                 List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
-                TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChosen,adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,this.adminRoles );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);

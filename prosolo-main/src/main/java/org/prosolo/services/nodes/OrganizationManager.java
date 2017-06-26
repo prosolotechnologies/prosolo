@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchResponse1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -21,12 +22,11 @@ public interface OrganizationManager extends AbstractManager {
 
     void setUserOrganization(List<UserData>adminsChosen,Long organizationId);
 
-
     Organization getOrganizationByName(String title) throws DbConnectionException;
 
     Organization getOrganizationById(long id);
 
-    TextSearchResponse1<OrganizationData> getAllOrganizations(int page,int limit);
+    PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit);
 
     List<UserData> getOrganizationAdmins(long organizationId);
 

@@ -5,14 +5,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +41,14 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional(readOnly = false)
     public Organization createNewOrganization(String title,List<UserData> adminsChosen) {
+        Organization organization = new Organization();
         try{
-            Organization organization = new Organization();
             organization.setTitle(title);
+            saveEntity(organization);
+            organization.setId(organization.getId());
+            userManager.setUserOrganization(adminsChosen,organization.getId());
+            return organization;
 
-            return saveEntity(organization);
         }catch (Exception e){
             logger.error(e);
             e.printStackTrace();
@@ -85,8 +88,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     public Organization getOrganizationById(long id) {
         String query =
                 "SELECT organization " +
-                "FROM Organization organization " +
-                "WHERE organization.id = :id";
+                        "FROM Organization organization " +
+                        "WHERE organization.id = :id";
 
         Organization organization = (Organization) persistence.currentManager().createQuery(query)
                 .setLong("id", id)
@@ -96,8 +99,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public TextSearchResponse1<OrganizationData> getAllOrganizations(int page, int limit) {
-        TextSearchResponse1<OrganizationData> response = new TextSearchResponse1<>();
+    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit) {
+        PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
         String query =
                 "SELECT DISTINCT organization " +
@@ -119,7 +122,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
 
-    private void setOrganizationsCount(TextSearchResponse1<OrganizationData> response){
+    private void setOrganizationsCount(PaginatedResult<OrganizationData> response){
         String countQuery =
                 "SELECT COUNT (DISTINCT organization) " +
                         "FROM Organization organization " +
