@@ -16,6 +16,16 @@ public class OrganizationData implements Serializable {
 
     public OrganizationData(){}
 
+    public OrganizationData(Organization organization,List<UserData> users){
+        this();
+        this.id = organization.getId();
+        this.title = organization.getTitle();
+        if(users != null){
+            for(UserData u : users){
+                this.admins.add(u);
+            }
+        }
+    }
 
     public long getId() {
         return id;

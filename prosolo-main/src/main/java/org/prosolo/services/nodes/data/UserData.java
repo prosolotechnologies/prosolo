@@ -25,7 +25,6 @@ public class UserData implements Serializable {
 	private String avatarUrl;
 	private String position;
 	private String email;
-	private Organization organization;
 	private boolean followedByCurrentUser;
 	private boolean userSet;
 	private UserType type = UserType.REGULAR_USER;
@@ -210,14 +209,6 @@ public class UserData implements Serializable {
 			}
 		}
 		return rolesString;
-	}
-
-	public Organization getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
 	}
 
 }

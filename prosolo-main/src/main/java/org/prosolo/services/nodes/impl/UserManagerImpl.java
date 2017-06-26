@@ -161,27 +161,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = true)
-	public String getUserPosition(long id) throws DbConnectionException {
-		try {
-			String query =
-					"SELECT user.position " +
-							" FROM User user " +
-							" WHERE user.id = :id ";
-
-			String position = (String) persistence.currentManager().createQuery(query).
-					setLong("id", id).
-					uniqueResult();
-
-			return position;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user position");
-		}
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public  UserPreference getUserPreferences(User user, Class<? extends UserPreference> preferenceClass) {
@@ -476,6 +455,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		response.setHitsNumber(setUsersCountForFiltering(roles,filterByRoleId));
 
 		return response;
+	}
+
+	@Override
+	public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
+		for (UserData user : adminsChoosen){
+			setUserOrganization(user.getId(),organizationId);
+		}
 	}
 
 	private Long setUsersCountForFiltering(List<Role> roles,long filterByRoleId){

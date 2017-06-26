@@ -4,16 +4,19 @@ package org.prosolo.services.nodes.impl;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,12 +37,15 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,List<UserData> adminsChoosen) {
+    public Organization createNewOrganization(String title,long organizationId,List<UserData> adminsChoosen) {
+        Organization organization = new Organization();
         try{
-            Organization organization = new Organization();
             organization.setTitle(title);
+            saveEntity(organization);
+            organization.setId(organization.getId());
+            userManager.setUserOrganization(adminsChoosen,organization.getId());
+            return organization;
 
-            return saveEntity(organization);
         }catch (Exception e){
             logger.error(e);
             e.printStackTrace();
@@ -48,41 +54,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
-        for (UserData user : adminsChoosen){
-            userManager.setUserOrganization(user.getId(),organizationId);
-        }
-    }
-
-
-
-    @Override
-    @Transactional (readOnly = true)
-    public Organization getOrganizationByName(String title) throws DbConnectionException {
-        try {
-            String query =
-                    "SELECT organization " +
-                    "FROM Organization organization " +
-                    "WHERE organization.title = :title";
-
-            Organization organization = (Organization) persistence.currentManager().createQuery(query)
-                    .setString("title", title)
-                    .uniqueResult();
-
-            return organization;
-        }catch (Exception e){
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while retrieving organization");
-        }
-    }
-
-    @Override
     public Organization getOrganizationById(long id) {
         String query =
                 "SELECT organization " +
-                "FROM Organization organization " +
-                "WHERE organization.id = :id";
+                        "FROM Organization organization " +
+                        "WHERE organization.id = :id";
 
         Organization organization = (Organization) persistence.currentManager().createQuery(query)
                 .setLong("id", id)

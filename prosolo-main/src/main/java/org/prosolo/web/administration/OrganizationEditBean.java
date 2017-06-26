@@ -60,6 +60,8 @@ public class OrganizationEditBean implements Serializable {
     private String searchTerm;
     private UserData admin;
     private SelectItem[] allRoles;
+    private String[] rolesArray;
+    private List<Role> adminRoles;
 
     public void init() {
         logger.debug("initializing");
@@ -86,7 +88,8 @@ public class OrganizationEditBean implements Serializable {
                 admins = new ArrayList<UserData>();
                 adminsChoosen = new ArrayList<UserData>();
             }
-
+            rolesArray = new String[]{"Admin","Super Admin"};
+            adminRoles = roleManager.getRolesByNames(rolesArray);
 
             prepareRoles();
         } catch (Exception e) {
@@ -98,8 +101,6 @@ public class OrganizationEditBean implements Serializable {
 
     private void prepareRoles() {
         try {
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
             if (adminRoles != null) {
                 allRoles = new SelectItem[adminRoles.size()];
 
@@ -125,17 +126,13 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdministrator(UserData userData) {
         adminsChoosen.add(userData);
-        Organization org = organizationManager.getOrganizationByName(this.organization.getTitle());
-        userData.setOrganization(org);
-        String position = userManager.getUserPosition(userData.getId());
-        userData.setPosition(position);
     }
 
     public void createNewOrganization(){
         try {
             if(adminsChoosen != null && !adminsChoosen.isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(), adminsChoosen);
-                organizationManager.setUserOrganization(adminsChoosen, organization.getId());
+                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),
+                        this.organization.getId(), adminsChoosen);
 
                 this.organization.setId(organization.getId());
 
@@ -161,10 +158,7 @@ public class OrganizationEditBean implements Serializable {
             admins = null;
         } else {
             try {
-                String[] rolesArray = new String[]{"Admin","Super Admin"};
-                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
-                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,this.adminRoles );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);
