@@ -15,39 +15,39 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 
 	private static final long serialVersionUID = -8919953696206394473L;
 	//private static Logger logger = Logger.getLogger(TextSearchImpl.class);
-	
+
 	//@Autowired private DefaultManager defaultManager;
 	//@Autowired private ESIndexer esIndexer;
-	
+
 //	@Override
 //	@Transactional
 //	public TextSearchResponse searchActivities(
 //			String searchString, int page, int limit, boolean loadOneMore,
 //			long[] activitiesToExclude) {
-//		
+//
 //		TextSearchResponse response = new TextSearchResponse();
-//		
+//
 //		try {
 //			int start = setStart(page, limit);
 //			limit = setLimit(limit, loadOneMore);
-//			
+//
 //			Client client = ElasticSearchFactory.getClient();
 //			esIndexer.addMapping(client,ESIndexNames.INDEX_NODES, ESIndexTypes.ACTIVITY);
-//			
+//
 //			QueryBuilder qb = QueryBuilders
 //					.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 //					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 //					.field("title");
-//			
+//
 //			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 //			bQueryBuilder.should(qb);
-//			
+//
 //			if (activitiesToExclude != null) {
 //				for (long activityId : activitiesToExclude) {
 //					bQueryBuilder.mustNot(termQuery("id", activityId));
 //				}
 //			}
-//			
+//
 //			SearchResponse sResponse = client
 //					.prepareSearch(ESIndexNames.INDEX_NODES)
 //					.setTypes(ESIndexTypes.ACTIVITY)
@@ -55,10 +55,10 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //					.setQuery(bQueryBuilder).setFrom(start).setSize(limit)
 //					.addSort("title", SortOrder.ASC)
 //					.setExplain(true).execute().actionGet();
-//			
+//
 //			if (sResponse != null) {
 //				response.setHitsNumber(sResponse.getHits().getTotalHits());
-//				
+//
 //				for (SearchHit hit : sResponse.getHits()) {
 //					Long id = ((Integer) hit.getSource().get("id")).longValue();
 //					try {
@@ -86,23 +86,23 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //	@Override
 //	public TextSearchResponse searchTags(String searchQuery, int page, int limit,
 //			boolean loadOneMore, Collection<Tag> tagsToExclude) {
-//		
+//
 //		TextSearchResponse response = new TextSearchResponse();
-//		
+//
 //		try {
 //			int start = setStart(page, limit);
 //			limit = setLimit(limit, loadOneMore);
 //			Client client = ElasticSearchFactory.getClient();
 //			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.TAGS);
-//			
+//
 //			QueryBuilder qb = QueryBuilders
 //					.queryStringQuery(searchQuery.toLowerCase() + "*").useDisMax(true)
 //					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 //					.field("title");
-//			
+//
 //			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 //			bQueryBuilder.should(qb);
-//			
+//
 //			if (tagsToExclude != null) {
 //				for (Tag tag :tagsToExclude) {
 //					if (tag != null) {
@@ -110,7 +110,7 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //					}
 //				}
 //			}
-//			
+//
 //			SearchResponse sResponse = client
 //					.prepareSearch(ESIndexNames.INDEX_NODES)
 //					.setTypes(ESIndexTypes.TAGS)
@@ -118,16 +118,16 @@ public class TextSearchImpl extends AbstractManagerImpl implements TextSearch {
 //					.setQuery(bQueryBuilder).setFrom(start).setSize(limit)
 //					.addSort("title", SortOrder.ASC)
 //					.setExplain(true).execute().actionGet();
-//			
-//			
+//
+//
 //			if (sResponse != null) {
 //				response.setHitsNumber(sResponse.getHits().getTotalHits());
-//				
+//
 //				for (SearchHit hit : sResponse.getHits()) {
 //					Long id = ((Integer) hit.getSource().get("id")).longValue();
 //					try {
 //						Tag annotation = defaultManager.loadResource(Tag.class, id);
-//						
+//
 //						if (annotation != null) {
 //							response.addFoundNode(annotation);
 //						}

@@ -46,6 +46,8 @@
 		
 	<script src="https://www.youtube.com/iframe_api"/>
 	<script	src="#{request.contextPath}/resources/javascript/youtubevideo.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
 	
 </h:head>
 
@@ -179,7 +181,12 @@
 										<h3>#{notificationData.objectTitle}</h3>
 										#{notificationData.relationToTarget}
 										<h3>#{notificationData.targetTitle}</h3>
-										<span class="timestamp">#{notificationData.datePretty}</span>
+										<span class="timestamp">
+											<utilcomp:convertTimeOutput
+													millis="#{notificationData.notificationTime}"
+													format="rel"
+											/>
+										</span>
 									</h:outputLink>
 								</li>
 							</ui:repeat>

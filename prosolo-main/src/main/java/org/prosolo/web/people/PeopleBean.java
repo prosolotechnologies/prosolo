@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
@@ -122,7 +122,7 @@ public class PeopleBean implements Paginable, Serializable {
 	}
 	
 	public void fetchFollowingUsers() {
-		TextSearchResponse1<UserData> searchResponse = userTextSearch.searchPeopleUserFollows(
+		PaginatedResult<UserData> searchResponse = userTextSearch.searchPeopleUserFollows(
 				searchTerm, 
 				paginationData.getPage() - 1, paginationData.getLimit(), 
 				loggedUser.getUserId());

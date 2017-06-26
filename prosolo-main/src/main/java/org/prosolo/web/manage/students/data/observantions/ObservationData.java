@@ -1,14 +1,14 @@
 package org.prosolo.web.manage.students.data.observantions;
 
-import java.text.SimpleDateFormat;
+import org.prosolo.common.domainmodel.observations.Observation;
+import org.prosolo.common.domainmodel.observations.Suggestion;
+import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.common.util.date.DateUtil;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import org.prosolo.common.domainmodel.observations.Observation;
-import org.prosolo.common.domainmodel.observations.Suggestion;
-import org.prosolo.common.domainmodel.observations.Symptom;
 
 public class ObservationData {
 
@@ -59,13 +59,9 @@ public class ObservationData {
 		this.suggestions.clear();
 		this.suggestions.addAll(suggestions);
 	}
-	
-	public String getFormattedDate(){
-		if(dateCreated == null) {
-			return null;
-		}
-		SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy");
-		return sdf.format(dateCreated);
+
+	public long getTime() {
+		return DateUtil.getMillisFromDate(dateCreated);
 	}
 
 	public long getId() {

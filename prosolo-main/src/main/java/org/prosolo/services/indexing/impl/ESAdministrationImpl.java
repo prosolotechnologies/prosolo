@@ -1,15 +1,5 @@
 package org.prosolo.services.indexing.impl;
 
-import static org.elasticsearch.client.Requests.clusterHealthRequest;
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
-import static org.elasticsearch.client.Requests.putMappingRequest;
-//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
-import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
@@ -20,9 +10,18 @@ import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.config.ElasticSearchConfig;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.elasticsearch.client.Requests.*;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
+
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 
 /**
  * @author Zoran Jeremic 2013-06-28
@@ -46,42 +45,52 @@ public class ESAdministrationImpl implements ESAdministration {
 	
 	@Override
 	public void createIndex(String indexName) throws IndexingServiceNotAvailable {
+		createIndex(indexName, null, false);
+	}
+
+	//temporary solution until we completely move to organization indexes
+	private void createIndex(String indexName, String suffix, boolean isOrganizationIndex) throws IndexingServiceNotAvailable {
 		Client client = ElasticSearchFactory.getClient();
-	
-		boolean exists = client.admin().indices().prepareExists(indexName)
+
+		String fullIndexName = indexName + (suffix != null ? suffix : "");
+
+		boolean exists = client.admin().indices().prepareExists(fullIndexName)
 				.execute().actionGet().isExists();
-		
+
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
-	                  .put("http.enabled", "false")
-	                  .put("cluster.name", elasticSearchConfig.clusterName)
-	                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
-	                  .put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+					.put("http.enabled", "false")
+					.put("cluster.name", elasticSearchConfig.clusterName)
+					.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
+					.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
 			client.admin()
 					.indices()
-					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
+					.create(createIndexRequest(fullIndexName).settings(elasticsearchSettings)
 							//)
-							).actionGet();
+					).actionGet();
 			logger.debug("Running Cluster Health");
 			ClusterHealthResponse clusterHealth = client.admin().cluster()
 					.health(clusterHealthRequest().waitForGreenStatus())
 					.actionGet();
-			
-			logger.debug("Done Cluster Health, status "	+ clusterHealth.getStatus());
 
-		} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
-			this.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
-			this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
-		} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-			this.addMapping(client,  indexName, ESIndexTypes.USER);
-		} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
-			this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
+			logger.debug("Done Cluster Health, status " + clusterHealth.getStatus());
+
+			if (indexName.equals(ESIndexNames.INDEX_NODES)) {
+				this.addMapping(client, fullIndexName, ESIndexTypes.CREDENTIAL, isOrganizationIndex);
+				this.addMapping(client, fullIndexName, ESIndexTypes.COMPETENCE, isOrganizationIndex);
+			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+				this.addMapping(client, fullIndexName, ESIndexTypes.USER, isOrganizationIndex);
+			} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
+				this.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP, isOrganizationIndex);
+			}
 		}
 	}
 	
-	private void addMapping(Client client, String indexName, String indexType) {
-		String mappingPath = "/org/prosolo/services/indexing/" + indexType + "-mapping.json";
+	private void addMapping(Client client, String indexName, String indexType, boolean isOrganizationIndex) {
+		//temporary solution until we completely move to organization indexes
+		String mappingPath = "/org/prosolo/services/indexing/" + indexType + "-mapping" +
+				(isOrganizationIndex ? "1" : "") + ".json";
 		String mapping = null;
 		
 		try {
@@ -119,6 +128,26 @@ public class ESAdministrationImpl implements ESAdministration {
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+	}
+
+	@Override
+	public boolean createOrganizationIndexes(long organizationId) throws IndexingServiceNotAvailable {
+		List<String> indexes = ESIndexNames.getOrganizationIndexes();
+
+		for (String index : indexes) {
+			createIndex(index, ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), true);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean deleteOrganizationIndexes(long organizationId) throws IndexingServiceNotAvailable {
+		List<String> indexes = ESIndexNames.getOrganizationIndexes();
+
+		for (String index : indexes) {
+			deleteIndex(index + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId));
+		}
+		return true;
 	}
 	
 	/**

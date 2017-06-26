@@ -13,9 +13,9 @@ import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -24,8 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,14 +53,12 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("title", comp.getTitle());
 			builder.field("description", comp.getDescription());
 			Date date = comp.getDateCreated();
-			if(date != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				builder.field("dateCreated", df.format(date));
+			if (date != null) {
+				builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
 			Date datePublished = comp.getDatePublished();
-			if(datePublished != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				builder.field("datePublished", df.format(datePublished));
+			if (datePublished != null) {
+				builder.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(datePublished));
 			}
 			builder.startArray("tags");
 			List<Tag> tags = compManager.getCompetenceTags(comp.getId(), session);

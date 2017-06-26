@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CredentialTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterUser;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
@@ -95,7 +95,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	}
 
 	public void getCredentialSearchResults() {
-		TextSearchResponse1<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
+		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
 				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
 				searchFilter, sortOption);
 				

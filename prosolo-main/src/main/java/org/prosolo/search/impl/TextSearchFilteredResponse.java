@@ -15,7 +15,7 @@ import java.util.Map;
  * @param <T>
  * @param <S>
  */
-public class TextSearchFilteredResponse<T, S extends Enum<S>> extends TextSearchResponse1<T> implements Serializable {
+public class TextSearchFilteredResponse<T, S extends Enum<S>> extends PaginatedResult<T> implements Serializable {
 
 	private static final long serialVersionUID = -1816643120995180978L;
 	

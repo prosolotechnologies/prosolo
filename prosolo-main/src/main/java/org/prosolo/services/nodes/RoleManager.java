@@ -9,11 +9,12 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.web.administration.data.RoleData;
 
 public interface RoleManager extends AbstractManager {
 	
 	List<Role> getAllRoles();
-
+	
 	List<Role> getRolesByNames(String[] names);
 
 	List<Long> getRoleIdsForName(String name);
@@ -43,17 +44,15 @@ public interface RoleManager extends AbstractManager {
 
 	void deleteRole(long id) throws ResourceCouldNotBeLoadedException;
 
-	boolean isRoleUsed(long roleId);
-
 	List<Role> getUserRoles(String email);
+
+	Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
 	
-	public Role saveRole(String name, String description, boolean systemDefined) throws DbConnectionException;
+	List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException;
 	
-	public List<Capability> getRoleCapabilities(long roleId) throws DbConnectionException;
+	Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException;
 	
-	public Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException;
-	
-	public List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
+	List<String> getNamesOfRoleCapabilities(long roleId) throws DbConnectionException;
 	
 	boolean hasAnyRole(long userId, List<String> roleNames) throws DbConnectionException;
 	

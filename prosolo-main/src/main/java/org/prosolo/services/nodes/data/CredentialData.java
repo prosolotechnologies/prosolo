@@ -1,16 +1,15 @@
 package org.prosolo.services.nodes.data;
 
+import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.services.common.observable.StandardObservable;
+import org.prosolo.services.nodes.util.TimeUtil;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.common.observable.StandardObservable;
-import org.prosolo.services.nodes.util.TimeUtil;
 
 /** For all fields that can be updated changes can be tracked */
 public class CredentialData extends StandardObservable implements Serializable {
@@ -56,8 +55,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	//for delivery
 	private long deliveryOfId;
-	private Date deliveryStart;
-	private Date deliveryEnd;
+	private long deliveryStartTime;
+	private long deliveryEndTime;
 	private CredentialType type;
 	//is delivery active
 	private CredentialDeliveryStatus deliveryStatus;
@@ -88,19 +87,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 			}
 		}
 		return changed;
-	}
-	
-	public String getDeliveryStartString() {
-		return getDateString(deliveryStart);
-	}
-	
-	public String getDeliveryEndString() {
-		return getDateString(deliveryEnd);
-	}
-	
-	public String getDateString(Date date) {
-		String str = DateUtil.parseDateWithShortMonthName(date);
-		return str != null ? str : "-";
 	}
 	
 	public boolean hasMoreCompetences(int index) {
@@ -350,24 +336,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.deliveryOfId = deliveryOfId;
 	}
 
-	public Date getDeliveryStart() {
-		return deliveryStart;
-	}
-
-	public void setDeliveryStart(Date deliveryStart) {
-		observeAttributeChange("deliveryStart", this.deliveryStart, deliveryStart);
-		this.deliveryStart = deliveryStart;
-	}
-
-	public Date getDeliveryEnd() {
-		return deliveryEnd;
-	}
-
-	public void setDeliveryEnd(Date deliveryEnd) {
-		observeAttributeChange("deliveryEnd", this.deliveryEnd, deliveryEnd);
-		this.deliveryEnd = deliveryEnd;
-	}
-
 	public CredentialType getType() {
 		return type;
 	}
@@ -413,11 +381,11 @@ public class CredentialData extends StandardObservable implements Serializable {
 	}
 	
 	public boolean isDeliveryStartChanged() {
-		return changedAttributes.containsKey("deliveryStart");
+		return changedAttributes.containsKey("deliveryStartTime");
 	}
 	
 	public boolean isDeliveryEndChanged() {
-		return changedAttributes.containsKey("deliveryEnd");
+		return changedAttributes.containsKey("deliveryEndTime");
 	}
 
 	public List<CredentialData> getDeliveries() {
@@ -452,4 +420,21 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.numberOfInstructors = numberOfInstructors;
 	}
 
+	public long getDeliveryStartTime() {
+		return deliveryStartTime;
+	}
+
+	public void setDeliveryStartTime(long deliveryStartTime) {
+		observeAttributeChange("deliveryStartTime", this.deliveryStartTime, deliveryStartTime);
+		this.deliveryStartTime = deliveryStartTime;
+	}
+
+	public long getDeliveryEndTime() {
+		return deliveryEndTime;
+	}
+
+	public void setDeliveryEndTime(long deliveryEndTime) {
+		observeAttributeChange("deliveryEndTime", this.deliveryEndTime, deliveryEndTime);
+		this.deliveryEndTime = deliveryEndTime;
+	}
 }
