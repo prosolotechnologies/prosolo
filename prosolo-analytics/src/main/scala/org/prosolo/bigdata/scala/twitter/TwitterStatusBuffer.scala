@@ -1,22 +1,22 @@
 package org.prosolo.bigdata.scala.twitter
 
-import java.util.{TimerTask, Timer}
+import java.util.{Timer, TimerTask}
+
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.bigdata.scala.messaging.BroadcastDistributer
 import org.prosolo.common.messaging.data.{ServiceType => MServiceType}
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType
-import org.prosolo.common.domainmodel.user.{User, AnonUser, UserType}
-import org.prosolo.common.domainmodel.organization.VisibilityType
+import org.prosolo.common.domainmodel.user.{AnonUser, User, UserType}
 import twitter4j.Status
-import org.prosolo.common.domainmodel.content.TwitterPost
 import org.prosolo.bigdata.dal.persistence.impl.TwitterStreamingDAOImpl
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO
 import org.prosolo.bigdata.dal.persistence.HibernateUtil
 import org.hibernate.Session
+
 import scala.collection.JavaConversions._
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl
-import org.prosolo.bigdata.utils.DateUtil
+import org.prosolo.common.util.date.DateUtil
 
 /**
   * @author zoran Jul 28, 2015

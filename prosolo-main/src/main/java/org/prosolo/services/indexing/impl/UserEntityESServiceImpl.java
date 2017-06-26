@@ -9,9 +9,9 @@ import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -50,13 +50,18 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	@Transactional
 	public void saveUserNode(User user, Session session) {
+		saveUserNode(user, 0, session);
+	}
+
+	@Override
+	public void saveUserNode(User user, long organizationId, Session session) {
 		if (user != null) {
-	 		try {
+			try {
 				XContentBuilder builder = getBasicUserDataSet(user);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
-				
+
 				for (CredentialData cd : creds) {
 					builder.startObject();
 					long credId = cd.getId();
@@ -64,23 +69,22 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					int credProgress = cd.getProgress();
 					builder.field("progress", credProgress);
 					//change when user profile types are implemented
-	//				builder.startObject("profile");
-	//				builder.field("profileType", "A");
-	//				builder.field("profileTitle", "PROFILE 1");
-	//				builder.endObject();
+					//				builder.startObject("profile");
+					//				builder.field("profileType", "A");
+					//				builder.field("profileTitle", "PROFILE 1");
+					//				builder.endObject();
 					long instructorId = cd.getInstructorId();
 					builder.field("instructorId", instructorId);
-					
+
 					Date date = cd.getDate();
 					if (date != null) {
 						builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 					}
 
-					
 					builder.endObject();
 				}
 				builder.endArray();
-				
+
 				List<CredentialData> instructorCreds = credInstructorManager
 						.getCredentialIdsAndAssignDateForInstructor(user.getId());
 				builder.startArray("credentialsWithInstructorRole");
@@ -95,25 +99,25 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.endObject();
 				}
 				builder.endArray();
-				
+
 				builder.startArray("followers");
 				List<User> folowees = followResourceManager.getFollowers(user.getId());
-				
+
 				for (User foloweee : folowees) {
 					builder.startObject();
 					builder.field("id", foloweee.getId());
 					builder.endObject();
 				}
 				builder.endArray();
-				
+
 				List<TargetCompetence1> comps = compManager.getTargetCompetencesForUser(user.getId(), session);
 				builder.startArray("competences");
-				
+
 				for (TargetCompetence1 tc : comps) {
 					builder.startObject();
 					builder.field("id", tc.getCompetence().getId());
 					builder.field("progress", tc.getProgress());
-					
+
 					Date dateEnrolled = tc.getDateCreated();
 					if (dateEnrolled != null) {
 						builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(dateEnrolled));
@@ -125,11 +129,13 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.endObject();
 				}
 				builder.endArray();
-				
+
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
 				String indexType = getIndexTypeForNode(user);
-				indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+				String fullIndexName = ESIndexNames.INDEX_USERS +
+						(organizationId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(organizationId) : "");
+				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
 			} catch (IOException e) {
 				logger.error(e);
 			}
