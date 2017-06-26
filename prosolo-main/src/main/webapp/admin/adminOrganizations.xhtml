@@ -64,7 +64,7 @@
                                         <li>
                                             <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
                                                            action="#{adminOrganizations.setOrganizationToDelete(organization.id)}"
-                                                           oncomplete="$('#deleteOrg').modal('show');">
+                                                           oncomplete="$('#deleteModal').modal('show');">
                                                 Delete
                                             </p:commandLink>
                                         </li>
@@ -83,29 +83,12 @@
                     toUpdate=":panelOrganizations" />
         </div>
 
-        <div class="modal fade" id="deleteOrg" tabindex="-1" role="dialog" aria-labelledby="deleteOrganization">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title" id="deleteOrganization">Delete Organization?</h2>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete organization?<br></br>
-                            <small>Note: Action can NOT be un-done!</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
-                                       action="#{adminOrganizations.delete()}"
-                                       update=":panelOrganizations"
-                                       oncomplete="$('#deleteOrg').modal('hide');">
-                            Delete
-                        </p:commandLink>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <courses:deleteModalDialog
+                deleteActionMethodName="delete"
+                deleteAction="#{adminOrganizations.delete()}"
+                toUpdate=":panelOrganizations"
+                modalDeleteTitle="Organization"
+                modalDeleteText="organization"/>
     </ui:define>
 
 </ui:composition>

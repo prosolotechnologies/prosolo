@@ -2,12 +2,12 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
-import org.prosolo.web.util.pagination.PaginationData;
+
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 /**
@@ -38,15 +39,13 @@ public class OrganizationsBean implements Serializable,Paginable {
     private Organization organizationToDelete;
 
     public void init(){
-        logger.debug("Hello from adminOrganizations bean logger");
-        System.out.println("Hello from adminOrganizations bean");
         loadOrganizations();
     }
 
     private void loadOrganizations(){
         this.organizations = new ArrayList<>();
         try{
-            TextSearchResponse1<OrganizationData> res = organizationManager.getAllOrganizations(paginationData.getPage() - 1,
+            PaginatedResult<OrganizationData> res = organizationManager.getAllOrganizations(paginationData.getPage() - 1,
                     paginationData.getLimit());
             organizations = res.getFoundNodes();
             this.paginationData.update((int) res.getHitsNumber());
@@ -76,10 +75,9 @@ public class OrganizationsBean implements Serializable,Paginable {
         if(organizationToDelete != null){
             try {
                 organizationManager.deleteOrganization(this.organizationToDelete.getId());
-                PageUtil.fireSuccessfulInfoMessage("Organization " + organizationToDelete.getTitle() + " is deleted.");
-                organizationToDelete = null;
-                ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-                extContext.redirect("/admin/organizations");
+
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization " + organizationToDelete.getTitle() + " is deleted.");
+                PageUtil.redirect("/admin/organizations");
             } catch (Exception ex) {
                 logger.error(ex);
                 PageUtil.fireErrorMessage("Error while trying to delete user");

@@ -135,10 +135,9 @@ public class OrganizationEditBean implements Serializable {
                 this.organization.setId(organization.getId());
 
                 logger.debug("New Organization (" + organization.getTitle() + ")");
-
-                PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
-                ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-                extContext.redirect("/admin/organizations");
+                
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
+                PageUtil.redirect("/admin/organizations");
             }else{
                 PageUtil.fireErrorMessage("At least one admin should be selected");
             }

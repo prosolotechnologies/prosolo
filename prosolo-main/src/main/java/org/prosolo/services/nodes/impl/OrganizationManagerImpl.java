@@ -2,9 +2,12 @@ package org.prosolo.services.nodes.impl;
 
 
 import org.apache.log4j.Logger;
+import org.aspectj.weaver.ast.Or;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.domainmodel.user.User;
@@ -75,7 +78,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
         String query =
-                "SELECT DISTINCT organization " +
+                "SELECT organization " +
                 "FROM Organization organization " +
                 "WHERE organization.deleted IS FALSE ";
 
@@ -85,32 +88,37 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .list();
 
         for(Organization o : organizations){
-            List<UserData> chosenAdmins = getOrganizationAdmins(o.getId());
+            List<UserData> chosenAdmins = getOrganizationUsers(o.getId());
             OrganizationData od = new OrganizationData(o,chosenAdmins);
             response.addFoundNode(od);
         }
-        setOrganizationsCount(response);
+        response.setHitsNumber(getOrganizationsCount());
         return response;
     }
 
-
-    private void setOrganizationsCount(PaginatedResult<OrganizationData> response){
+    private Long getOrganizationsCount(){
         String countQuery =
-                "SELECT COUNT (DISTINCT organization) " +
+                "SELECT COUNT (organization) " +
                         "FROM Organization organization " +
                         "WHERE organization.deleted IS FALSE ";
 
         Query result = persistence.currentManager().createQuery(countQuery);
-        response.setHitsNumber((Long) result.uniqueResult());
+
+        return (Long)result.uniqueResult();
     }
 
     @Override
-    public List<UserData> getOrganizationAdmins(long organizationId) {
+    public List<UserData> getOrganizationUsers(long organizationId) {
 
         List<UserData> result = new ArrayList<>();
-        Organization org = getOrganizationById(organizationId);
+        Organization organization = null;
+        try {
+            organization = loadResource(Organization.class, organizationId);
+        } catch (ResourceCouldNotBeLoadedException e) {
+            e.printStackTrace();
+        }
 
-        for(User u : org.getUsers()){
+        for(User u : organization.getUsers()){
             UserData ud = new UserData(u);
             result.add(ud);
         }
@@ -119,11 +127,13 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     public void deleteOrganization(long organizationId) throws DbConnectionException, EventException {
-        Organization organization = getOrganizationById(organizationId);
-        organization.setDeleted(true);
-        for(User u : organization.getUsers()){
-            userManager.setUserOrganization(u.getId(),organizationId);
+        Organization organization = null;
+        try {
+            organization = loadResource(Organization.class, organizationId);
+        } catch (ResourceCouldNotBeLoadedException e) {
+            e.printStackTrace();
         }
+        organization.setDeleted(true);
         saveEntity(organization);
     }
 
