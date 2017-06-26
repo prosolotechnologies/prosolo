@@ -4,6 +4,7 @@ package org.prosolo.bigdata.dal.persistence;
  * @author zoran Jul 7, 2015
  */
 
+import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -38,20 +39,7 @@ public class HibernateUtil {
             // loads configuration and mappings
             Configuration configuration = new Configuration().configure();
             configuration.setNamingStrategy(ImprovedNamingStrategy.INSTANCE);
-            configuration.setProperty("hibernate.dialect",config.hibernateConfig.dialect);
-            configuration.setProperty("hibernate.show_sql", config.hibernateConfig.showSql);
-            configuration.setProperty("hibernate.max_fetch_depth", config.hibernateConfig.maxFetchDepth);
-            configuration.setProperty("hibernate.hbm2ddl.auto", config.hibernateConfig.hbm2ddlAuto);
-            configuration.setProperty("hibernate.jdbc.batch_size",config.hibernateConfig.jdbcBatchSize);
-            configuration.setProperty("hibernate.connection.pool_size", config.hibernateConfig.connection.poolSize);
-            configuration.setProperty("hibernate.connection.charSet", config.hibernateConfig.connection.charSet);
-            configuration.setProperty("hibernate.connection.characterEncoding",config.hibernateConfig.connection.characterEncoding);
-            configuration.setProperty("hibernate.connection.useUnicode", config.hibernateConfig.connection.useUnicode);
-            configuration.setProperty("hibernate.connection.autocommit", config.hibernateConfig.hbm2ddlAuto);
-            configuration.setProperty("hibernate.cache.use_second_level_cache", config.hibernateConfig.cache.useSecondLevelCache);
-            configuration.setProperty("hibernate.cache.use_query_cache", config.hibernateConfig.cache.useQueryCache);
-            configuration.setProperty("hibernate.cache.use_structured_entries", config.hibernateConfig.cache.useStructuredEntries);
-            configuration.setProperty("hibernate.cache.region.factory_class",config.hibernateConfig.cache.regionFactoryClass);
+			configuration.setProperties(createHibernateProperties(false));
             configuration.setProperty("hibernate.current_session_context_class","thread" );
             configuration.setProperty("hibernate.connection.driver_class", config.mysqlConfig.jdbcDriver);
             configuration.setProperty("hibernate.connection.url", "jdbc:mysql://"
@@ -80,6 +68,26 @@ public class HibernateUtil {
          
         return sessionFactory;
     }
+
+	public static Properties createHibernateProperties(boolean formatDB) {
+		Properties properties = new Properties();
+		properties.setProperty("hibernate.dialect", CommonSettings.getInstance().config.hibernateConfig.dialect);
+		properties.setProperty("hibernate.show_sql", CommonSettings.getInstance().config.hibernateConfig.showSql);
+		properties.setProperty("hibernate.max_fetch_depth", CommonSettings.getInstance().config.hibernateConfig.maxFetchDepth);
+		properties.setProperty("hibernate.hbm2ddl.auto", formatDB ? "update" : CommonSettings.getInstance().config.hibernateConfig.hbm2ddlAuto);
+		properties.setProperty("hibernate.jdbc.batch_size", CommonSettings.getInstance().config.hibernateConfig.jdbcBatchSize);
+		properties.setProperty("hibernate.connection.pool_size", CommonSettings.getInstance().config.hibernateConfig.connection.poolSize);
+		properties.setProperty("hibernate.connection.charSet", CommonSettings.getInstance().config.hibernateConfig.connection.charSet);
+		properties.setProperty("hibernate.connection.characterEncoding", CommonSettings.getInstance().config.hibernateConfig.connection.characterEncoding);
+		properties.setProperty("hibernate.connection.useUnicode", CommonSettings.getInstance().config.hibernateConfig.connection.useUnicode);
+		properties.setProperty("hibernate.connection.autocommit", CommonSettings.getInstance().config.hibernateConfig.connection.autocommit);
+		properties.setProperty("hibernate.cache.use_second_level_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useSecondLevelCache);
+		properties.setProperty("hibernate.cache.use_query_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useQueryCache);
+		properties.setProperty("hibernate.cache.use_structured_entries", CommonSettings.getInstance().config.hibernateConfig.cache.useStructuredEntries);
+		properties.setProperty("hibernate.cache.region.factory_class", CommonSettings.getInstance().config.hibernateConfig.cache.regionFactoryClass);
+		return properties;
+	}
+
     public static DataSource dataSource() {
     	Config config = CommonSettings.getInstance().config;
 		MySQLConfig mySQLConfig=config.mysqlConfig;
