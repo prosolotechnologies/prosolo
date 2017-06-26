@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
@@ -830,13 +831,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		if (credToUpdate.getVersion() != data.getVersion()) {
 			throw new StaleDataException("Credential edited in the meantime");
 		}
+
+		//create delivery start and end dates from timestamps
+		Date deliveryStart = DateUtil.getDateFromMillis(data.getDeliveryStartTime());
+		Date deliveryEnd = DateUtil.getDateFromMillis(data.getDeliveryEndTime());
 		
 		/*
 		 * if it is a delivery and end date is before start throw exception
 		 */
 		if (data.getType() == CredentialType.Delivery
-				&& data.getDeliveryStart() != null && data.getDeliveryEnd() != null 
-				&& data.getDeliveryStart().after(data.getDeliveryEnd())) {
+				&& deliveryStart != null && deliveryEnd != null
+				&& deliveryStart.after(deliveryEnd)) {
 			throw new IllegalDataStateException("Delivery cannot be ended before it starts");
 		}
 
@@ -925,7 +930,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    		 * if delivery start is not set or is in future, changes are allowed
 	    		 */
 	    		if (credToUpdate.getDeliveryStart() == null || credToUpdate.getDeliveryStart().after(now)) {
-	    			credToUpdate.setDeliveryStart(data.getDeliveryStart());
+	    			credToUpdate.setDeliveryStart(deliveryStart);
 	    		} else {
 	    			throw new IllegalDataStateException("Update failed. Delivery start time cannot be changed because "
 	    					+ "delivery has already started.");
@@ -937,7 +942,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    		 * if delivery end is not set or is in future, changes are allowed
 	    		 */
 	    		if (credToUpdate.getDeliveryEnd() == null || credToUpdate.getDeliveryEnd().after(now)) {
-	    			credToUpdate.setDeliveryEnd(data.getDeliveryEnd());
+	    			credToUpdate.setDeliveryEnd(deliveryEnd);
 	    		} else {
 	    			throw new IllegalDataStateException("Update failed. Delivery end time cannot be changed because "
 	    					+ "delivery has already ended.");
@@ -3365,10 +3370,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	//not transactional
 	@Override
-	public Credential1 createCredentialDelivery(long credentialId, Date start, Date end, long actorId,
+	public Credential1 createCredentialDelivery(long credentialId, long start, long end, long actorId,
 			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException {
 		Result<Credential1> res = self.createCredentialDeliveryAndGetEvents(
-				credentialId, start, end, actorId, context);
+				credentialId, DateUtil.getDateFromMillis(start), DateUtil.getDateFromMillis(end), actorId, context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -3377,7 +3382,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 	
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional (readOnly = false, rollbackFor = Exception.class)
 	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
 			long actorId, LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {

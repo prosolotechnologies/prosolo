@@ -1,26 +1,17 @@
 package org.prosolo.services.indexing.impl;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
+import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
-import org.prosolo.common.ESIndexNames;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -29,6 +20,13 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zoran Jeremic 2013-06-29
@@ -74,12 +72,10 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.field("instructorId", instructorId);
 					
 					Date date = cd.getDate();
-					String dateString = null;
-					if(date != null) {
-						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-						dateString = df.format(date);
+					if (date != null) {
+						builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 					}
-					builder.field("dateEnrolled", dateString);
+
 					
 					builder.endObject();
 				}
@@ -92,12 +88,10 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.startObject();
 					builder.field("id", cd.getId());
 					Date date = cd.getDate();
-					String dateString = null;
 					if (date != null) {
-						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-						dateString = df.format(date);
+						builder.field("dateAssigned", ElasticsearchUtil.getDateStringRepresentation(date));
 					}
-					builder.field("dateAssigned", dateString);
+
 					builder.endObject();
 				}
 				builder.endArray();
@@ -121,14 +115,13 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					builder.field("progress", tc.getProgress());
 					
 					Date dateEnrolled = tc.getDateCreated();
-					String dateEnrolledString = null;
-					if(dateEnrolled != null) {
-						DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-						dateEnrolledString = df.format(dateEnrolled);
+					if (dateEnrolled != null) {
+						builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(dateEnrolled));
 					}
-					builder.field("dateEnrolled", dateEnrolledString);
-					Date dateCompleted = null;
-					builder.field("dateCompleted", dateCompleted);
+					if (tc.getDateCompleted() != null) {
+						builder.field("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(
+								tc.getDateCompleted()));
+					}
 					builder.endObject();
 				}
 				builder.endArray();

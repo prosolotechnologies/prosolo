@@ -1,15 +1,5 @@
 package org.prosolo.services.indexing.impl;
 
-import static org.elasticsearch.client.Requests.clusterHealthRequest;
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
-import static org.elasticsearch.client.Requests.putMappingRequest;
-//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
-import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
@@ -23,6 +13,14 @@ import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.elasticsearch.client.Requests.*;
+import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspath;
+
+//import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 
 /**
  * @author Zoran Jeremic 2013-06-28
@@ -54,29 +52,30 @@ public class ESAdministrationImpl implements ESAdministration {
 		if (!exists) {
 			ElasticSearchConfig elasticSearchConfig = CommonSettings.getInstance().config.elasticSearch;
 			Settings.Builder elasticsearchSettings = Settings.settingsBuilder()
-	                  .put("http.enabled", "false")
-	                  .put("cluster.name", elasticSearchConfig.clusterName)
-	                  .put("index.number_of_replicas", elasticSearchConfig.replicasNumber) 
-	                  .put("index.number_of_shards", elasticSearchConfig.shardsNumber);
+					.put("http.enabled", "false")
+					.put("cluster.name", elasticSearchConfig.clusterName)
+					.put("index.number_of_replicas", elasticSearchConfig.replicasNumber)
+					.put("index.number_of_shards", elasticSearchConfig.shardsNumber);
 			client.admin()
 					.indices()
 					.create(createIndexRequest(indexName).settings(elasticsearchSettings)
 							//)
-							).actionGet();
+					).actionGet();
 			logger.debug("Running Cluster Health");
 			ClusterHealthResponse clusterHealth = client.admin().cluster()
 					.health(clusterHealthRequest().waitForGreenStatus())
 					.actionGet();
-			
-			logger.debug("Done Cluster Health, status "	+ clusterHealth.getStatus());
 
-		} else if (indexName.equals(ESIndexNames.INDEX_NODES)) {
-			this.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
-			this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
-		} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-			this.addMapping(client,  indexName, ESIndexTypes.USER);
-		} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
-			this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
+			logger.debug("Done Cluster Health, status " + clusterHealth.getStatus());
+
+			if (indexName.equals(ESIndexNames.INDEX_NODES)) {
+				this.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
+				this.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
+			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
+				this.addMapping(client, indexName, ESIndexTypes.USER);
+			} else if (ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
+				this.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
+			}
 		}
 	}
 	

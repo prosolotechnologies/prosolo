@@ -1,19 +1,11 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.Date;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -35,6 +27,14 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.Date;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -121,7 +121,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {

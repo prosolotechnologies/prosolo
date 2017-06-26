@@ -1,19 +1,5 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -21,13 +7,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.NestedQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.support.QueryInnerHitBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -48,29 +28,28 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
-import org.prosolo.search.util.credential.CredentialMembersSearchFilterValue;
-import org.prosolo.search.util.credential.CredentialMembersSortOption;
-import org.prosolo.search.util.credential.InstructorSortOption;
-import org.prosolo.search.util.credential.LearningStatus;
-import org.prosolo.search.util.credential.LearningStatusFilter;
+import org.prosolo.search.util.credential.*;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.indexing.utils.ElasticsearchUtil;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.AssessmentManager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -1427,21 +1406,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											competence.get("progress").toString()));
 									String dateEnrolledString = (String) competence.get("dateEnrolled");
-									DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 									if(dateEnrolledString != null && !dateEnrolledString.isEmpty()) {
-										try {
-											student.setDateEnrolled(df.parse(dateEnrolledString));
-										} catch(Exception e) {
-											logger.error(e);
-										}
+										student.setDateEnrolled(ElasticsearchUtil.parseDate(dateEnrolledString));
 									}
 									String dateCompletedString = (String) competence.get("dateCompleted");
 									if(dateCompletedString != null && !dateCompletedString.isEmpty()) {
-										try {
-											student.setDateCompleted(df.parse(dateCompletedString));
-										} catch(Exception e) {
-											logger.error(e);
-										}
+										student.setDateCompleted(ElasticsearchUtil.parseDate(dateCompletedString));
 									}
 									response.addFoundNode(student);
 								}

@@ -3,12 +3,12 @@ package org.prosolo.services.nodes.data;
 public class AnnouncementData {
 
 	private String creatorFullName;
-	private String formattedCreationDate;
 	private String text;
 	private String title;
 	private String creatorAvatarUrl;
 	private String encodedId;
 	private long id;
+	private long creationTime;
 
 	public String getCreatorFullName() {
 		return creatorFullName;
@@ -16,14 +16,6 @@ public class AnnouncementData {
 
 	public void setCreatorFullName(String creatorFullName) {
 		this.creatorFullName = creatorFullName;
-	}
-
-	public String getFormattedCreationDate() {
-		return formattedCreationDate;
-	}
-
-	public void setFormattedCreationDate(String formattedCreationDate) {
-		this.formattedCreationDate = formattedCreationDate;
 	}
 
 	public String getText() {
@@ -66,4 +58,11 @@ public class AnnouncementData {
 		this.id = id;
 	}
 
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(long creationTime) {
+		this.creationTime = creationTime;
+	}
 }
