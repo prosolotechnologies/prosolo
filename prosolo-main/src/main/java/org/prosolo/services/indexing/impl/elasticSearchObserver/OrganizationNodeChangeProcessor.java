@@ -2,6 +2,7 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.ESAdministration;
@@ -37,18 +38,20 @@ public class OrganizationNodeChangeProcessor implements NodeChangeProcessor {
 	
 	@Override
 	public void process() {
-		try {
-			long orgId = event.getObject().getId();
-			//create indexes for organization
-			esAdministration.createOrganizationIndexes(orgId);
-			//index organization users - those users will be only admins added when organization is created
-			List<User> orgUsers = userManager.getOrganizationUsers(orgId, false, session);
-			for (User user : orgUsers) {
-				userEntityESService.saveUserNode(user, orgId, session);
+		if (event.getAction() == EventType.Create) {
+			try {
+				long orgId = event.getObject().getId();
+				//create indexes for organization
+				esAdministration.createOrganizationIndexes(orgId);
+				//index organization users - those users will be only admins added when organization is created
+				List<User> orgUsers = userManager.getOrganizationUsers(orgId, false, session);
+				for (User user : orgUsers) {
+					userEntityESService.saveUserNode(user, orgId, session);
+				}
+			} catch (Exception e) {
+				//TODO handle es exceptions somehow
+				logger.error("Error", e);
 			}
-		} catch (Exception e) {
-			//TODO handle es exceptions somehow
-			logger.error("Error", e);
 		}
 	}
 
