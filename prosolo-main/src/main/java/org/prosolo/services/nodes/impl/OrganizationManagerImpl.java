@@ -57,34 +57,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public void setUserOrganization(List<UserData>adminsChosen,Long organizationId) {
-        for (UserData user : adminsChosen){
-            userManager.setUserOrganization(user.getId(),organizationId);
-        }
-    }
-
-    @Override
-    @Transactional (readOnly = true)
-    public Organization getOrganizationByName(String title) throws DbConnectionException {
-        try {
-            String query =
-                    "SELECT organization " +
-                    "FROM Organization organization " +
-                    "WHERE organization.title = :title";
-
-            Organization organization = (Organization) persistence.currentManager().createQuery(query)
-                    .setString("title", title)
-                    .uniqueResult();
-
-            return organization;
-        }catch (Exception e){
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while retrieving organization");
-        }
-    }
-
-    @Override
     public Organization getOrganizationById(long id) {
         String query =
                 "SELECT organization " +

@@ -125,18 +125,12 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdministrator(UserData userData) {
         adminsChosen.add(userData);
-        Organization org = organizationManager.getOrganizationByName(this.organization.getTitle());
-        userData.setOrganization(org);
-        String position = userManager.getUserPosition(userData.getId());
-        userData.setPosition(position);
-        adminsChoosen.add(userData);
     }
 
     public void createNewOrganization(){
         try {
             if(adminsChosen != null && !adminsChosen.isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(), adminsChosen);
-                organizationManager.setUserOrganization(adminsChosen, organization.getId());
+                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),adminsChosen);
 
                 this.organization.setId(organization.getId());
 
@@ -167,7 +161,7 @@ public class OrganizationEditBean implements Serializable {
                 String[] rolesArray = new String[]{"Admin","Super Admin"};
                 List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
 
-                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,this.adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChosen,this.adminRoles );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);

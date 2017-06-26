@@ -20,10 +20,6 @@ public interface OrganizationManager extends AbstractManager {
 
     Organization createNewOrganization(String title,List<UserData> adminsChosen);
 
-    void setUserOrganization(List<UserData>adminsChosen,Long organizationId);
-
-    Organization getOrganizationByName(String title) throws DbConnectionException;
-
     Organization getOrganizationById(long id);
 
     PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit);
