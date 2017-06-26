@@ -37,7 +37,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,long organizationId,List<UserData> adminsChoosen) {
+    public Organization createNewOrganization(String title,List<UserData> adminsChoosen) {
         Organization organization = new Organization();
         try{
             organization.setTitle(title);

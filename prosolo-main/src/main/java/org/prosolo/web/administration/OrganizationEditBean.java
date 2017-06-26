@@ -131,8 +131,7 @@ public class OrganizationEditBean implements Serializable {
     public void createNewOrganization(){
         try {
             if(adminsChoosen != null && !adminsChoosen.isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),
-                        this.organization.getId(), adminsChoosen);
+                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),adminsChoosen);
 
                 this.organization.setId(organization.getId());
 

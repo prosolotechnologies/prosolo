@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface OrganizationManager extends AbstractManager {
 
-    Organization createNewOrganization(String title,long organizationId,List<UserData> adminsChoosen);
+    Organization createNewOrganization(String title,List<UserData> adminsChoosen);
 
     Organization getOrganizationById(long id);
 }
