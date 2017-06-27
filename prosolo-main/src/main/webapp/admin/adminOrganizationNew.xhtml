@@ -14,9 +14,6 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewAction action="#{organizationEditBean.init()}" />
-            <f:viewAction action="#{userEditBean.init()}" />
-            <f:viewAction action="#{adminUsers.init()}" />
-            <f:viewAction action="#{adminEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -97,7 +94,7 @@
                                             </h:panelGroup>
                                         </div>
                                         <h:panelGroup id="selectNewOwner">
-                                            <ui:fragment rendered="#{not empty organizationEditBean.adminsChoosen}">
+                                            <h:panelGroup rendered="#{not empty organizationEditBean.adminsChoosen}" id="selectedOwner">
                                             <ul class="list">
                                                 <ui:repeat value="#{organizationEditBean.adminsChoosen}" var="admin">
                                                     <li>
@@ -121,7 +118,14 @@
                                                     </li>
                                                 </ui:repeat>
                                             </ul>
-                                            </ui:fragment>
+                                            </h:panelGroup>
+                                            <h:inputHidden validator="selectUserForOrganizationValidator" value="0"
+                                                           id="hiddenInput"></h:inputHidden>
+                                            <h:panelGroup layout="block"
+                                                          rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
+                                                          styleClass="alert alert-danger" pt:role="alert">
+                                                <h:message for="hiddenInput"></h:message>
+                                            </h:panelGroup>
                                         </h:panelGroup>
                                 </div>
                             </div>

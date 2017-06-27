@@ -70,6 +70,6 @@ public interface UserManager extends AbstractManager {
 
 	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles);
 
-	void setUserOrganization(List<UserData>adminsChoosen,Long organizationId);
+	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
 }

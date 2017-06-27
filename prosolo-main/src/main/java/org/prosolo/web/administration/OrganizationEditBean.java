@@ -62,6 +62,7 @@ public class OrganizationEditBean implements Serializable {
     private SelectItem[] allRoles;
     private String[] rolesArray;
     private List<Role> adminRoles;
+    private List<Long> adminRolesIds = new ArrayList<>();
 
     public void init() {
         logger.debug("initializing");
@@ -90,30 +91,13 @@ public class OrganizationEditBean implements Serializable {
             }
             rolesArray = new String[]{"Admin","Super Admin"};
             adminRoles = roleManager.getRolesByNames(rolesArray);
-
-            prepareRoles();
+            for(Role r : adminRoles){
+                adminRolesIds.add(r.getId());
+            }
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");
         }
-    }
-
-
-    private void prepareRoles() {
-        try {
-            if (adminRoles != null) {
-                allRoles = new SelectItem[adminRoles.size()];
-
-                for (int i = 0; i < adminRoles.size(); i++) {
-                    Role r = adminRoles.get(i);
-                    SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-                    allRoles[i] = selectItem;
-                }
-            }
-        } catch (DbConnectionException e) {
-            logger.error(e);
-        }
-
     }
 
     public void saveOrganization(){
@@ -138,8 +122,6 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
-            }else{
-                PageUtil.fireErrorMessage("At least one admin should be selected");
             }
         }catch (Exception e){
             logger.error(e);
@@ -157,7 +139,7 @@ public class OrganizationEditBean implements Serializable {
             admins = null;
         } else {
             try {
-                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChoosen,this.adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3,adminsChoosen,this.adminRolesIds );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);

@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -67,6 +68,7 @@ public class UserEditBean implements Serializable {
 	private List<UserData> users;
 	private String searchTerm;
 	private RoleFilter filter;
+	private List<UserData> usersToExclude = new ArrayList<>();
 
 	public void initPassword() {
 		logger.debug("initializing");
@@ -75,6 +77,7 @@ public class UserEditBean implements Serializable {
 			user = new UserData();
 			user.setId(decodedId);
 			accountData = new AccountData();
+			usersToExclude.add(user);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
@@ -106,6 +109,7 @@ public class UserEditBean implements Serializable {
 			else {
 				user = new UserData();
 			}
+			usersToExclude.add(user);
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
@@ -379,7 +383,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId(),null,null);
+				PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

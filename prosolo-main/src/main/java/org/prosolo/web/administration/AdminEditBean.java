@@ -81,6 +81,7 @@ public class AdminEditBean implements Serializable {
 	private List<UserData> admins;
 	private String searchTerm;
 	private List<Role> adminRoles;
+	private List<UserData> adminsToExclude = new ArrayList<>();
 	String[] rolesArray;
 
 	public void initPassword() {
@@ -90,6 +91,7 @@ public class AdminEditBean implements Serializable {
 			admin = new UserData();
 			admin.setId(decodedId);
 			accountData = new AccountData();
+			adminsToExclude.add(admin);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
@@ -123,6 +125,7 @@ public class AdminEditBean implements Serializable {
 			}
 			rolesArray = new String[]{"Admin","Super Admin"};
 			adminRoles = roleManager.getRolesByNames(rolesArray);
+			adminsToExclude.add(admin);
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
@@ -326,7 +329,7 @@ public class AdminEditBean implements Serializable {
 			admins = null;
 		} else {
 			try {
-				PaginatedResult<UserData> result = textSearch.searchNewOwner(searchTerm, 3, admin.getId(),null,null);
+				PaginatedResult<UserData> result = textSearch.searchUsers(searchTerm, 3, this.adminsToExclude,null);
 				admins = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

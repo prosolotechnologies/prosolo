@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.prosolo.web.courses.validator;
 
 import javax.faces.application.FacesMessage;

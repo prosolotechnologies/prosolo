@@ -42,8 +42,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         try{
             organization.setTitle(title);
             saveEntity(organization);
-            organization.setId(organization.getId());
-            userManager.setUserOrganization(adminsChoosen,organization.getId());
+            userManager.setOrganizationForUsers(adminsChoosen,organization.getId());
             return organization;
 
         }catch (Exception e){

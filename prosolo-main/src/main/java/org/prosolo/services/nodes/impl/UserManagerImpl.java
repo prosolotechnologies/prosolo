@@ -402,6 +402,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
+	@Transactional
 	public void setUserOrganization(long userId,long organizationId) {
 		User user;
 		try {
@@ -458,8 +459,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
-		for (UserData user : adminsChoosen){
+	@Transactional
+	public void setOrganizationForUsers(List<UserData> users,Long organizationId) {
+		for (UserData user : users){
 			setUserOrganization(user.getId(),organizationId);
 		}
 	}
