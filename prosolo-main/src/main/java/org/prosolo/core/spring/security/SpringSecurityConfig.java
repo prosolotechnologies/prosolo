@@ -276,7 +276,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/admin/organizations/new").hasAuthority("ADMINS.VIEW")
            .antMatchers("/admin/admins/*/edit").hasAuthority("ADMINS.VIEW")
            .antMatchers("/admin/admins/*/edit/password").hasAuthority("ADMINS.VIEW")
-		   .antMatchers("/admin/admins/new").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations").hasAuthority("ADMINS.VIEW")
 		  
 		   .antMatchers("/manage/**").denyAll()
