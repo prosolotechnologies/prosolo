@@ -210,7 +210,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(rollbackFor = Exception.class)
 	public Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException,
 			DataIntegrityViolationException, StaleDataException {
 		try {

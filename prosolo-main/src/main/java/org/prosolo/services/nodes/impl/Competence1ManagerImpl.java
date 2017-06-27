@@ -87,7 +87,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
 			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
@@ -2582,7 +2582,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 	
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(rollbackFor = Exception.class)
 	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
 			throws DbConnectionException, IllegalDataStateException {
 		try {
