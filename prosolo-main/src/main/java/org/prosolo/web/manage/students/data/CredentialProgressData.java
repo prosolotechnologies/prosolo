@@ -23,7 +23,7 @@ public class CredentialProgressData implements Serializable {
 	public CredentialProgressData(TargetCredential1 credential){
 		this.id = credential.getId();
 		this.credentialId=credential.getCredential().getId();
-		this.name = credential.getTitle();
+		this.name = credential.getCredential().getTitle();
 		this.progress = credential.getProgress();
 	}
 

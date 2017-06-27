@@ -10,6 +10,7 @@ public class CompetenceProgressData implements Serializable{
 	private static final long serialVersionUID = -2605340288766333695L;
 
 	private long id;
+	private long competenceId;
 	private String name;
 	private int progress;
 	private List<ActivityProgressData> activities;
@@ -32,6 +33,7 @@ public class CompetenceProgressData implements Serializable{
 	
 	public CompetenceProgressData(CompetenceData1 compData){
 		this.id = compData.getTargetCompId();
+		this.competenceId = compData.getCompetenceId();
 		this.name = compData.getTitle();
 		this.progress = compData.getProgress();
 	}
@@ -81,6 +83,10 @@ public class CompetenceProgressData implements Serializable{
 
 	public void setRejectedSubmissionNumber(long rejectedSubmissionNumber) {
 		this.rejectedSubmissionNumber = rejectedSubmissionNumber;
+	}
+
+	public long getCompetenceId() {
+		return competenceId;
 	}
 
 }

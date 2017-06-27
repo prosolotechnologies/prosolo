@@ -78,7 +78,7 @@ public class SendMessageBean implements Serializable {
 		            }
 				});
 				this.message = "";
-				PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Message sent");
+				PageUtil.fireSuccessfulInfoMessage("Message sent");
 			} catch (Exception e) {
 				logger.error(e);
 			}

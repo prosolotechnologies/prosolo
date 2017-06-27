@@ -244,56 +244,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		return res;
 	}
 
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags)
-			throws DbConnectionException {
-		List<CompetenceData1> result = new ArrayList<>();
-		try {
-			//TODO cred-redesign-07
-//			//TODO add activity loading, maybe boolean flags loadCreator, loadActivities
-//			TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager().load(
-//					TargetCredential1.class, targetCredentialId);
-//			StringBuilder builder = new StringBuilder();
-//			builder.append("SELECT targetComp " +
-//				       	   "FROM TargetCompetence1 targetComp " + 
-//				       	   "INNER JOIN fetch targetComp.createdBy user ");
-//			if(loadTags) {
-//				builder.append("LEFT JOIN fetch targetComp.tags tags ");
-//			}
-//			builder.append("WHERE targetComp.targetCredential = :targetCred " +
-//				       	   "ORDER BY targetComp.order");
-////			String query = "SELECT targetComp " +
-////					       "FROM TargetCompetence1 targetComp " + 
-////					       "INNER JOIN fetch targetComp.createdBy user " +
-////					       "LEFT JOIN fetch comp.tags tags " +
-////					       "WHERE targetComp.targetCredential = :targetCred " +
-////					       "ORDER BY targetComp.order";
-//
-//			@SuppressWarnings("unchecked")
-//			List<TargetCompetence1> res = persistence.currentManager()
-//				.createQuery(builder.toString())
-//				.setEntity("targetCred", targetCred)
-//				.list();
-//
-//			if (res != null) {
-//				for (TargetCompetence1 targetComp : res) {
-//					Set<Tag> tags = loadTags ? targetComp.getTags() : null;
-//					CompetenceData1 compData = competenceFactory.getCompetenceData(
-//							targetComp.getCreatedBy(), targetComp, tags, null, true);
-//					result.add(compData);
-//				}
-//			}
-//			return result;
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator,
@@ -1431,7 +1381,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+	public RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId,
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		CompetenceData1 compData = null;
 		try {
