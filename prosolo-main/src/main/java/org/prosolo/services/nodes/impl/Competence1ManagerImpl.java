@@ -2563,21 +2563,23 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		Competence1 competence = new Competence1();
 		competence.setId(compId);
 		tComp.setCompetence(competence);
-		
+
+		Map<String, String> params = new HashMap<>();
+
+		if (finalCompProgress == 100) {
+			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
+
+			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null,
+					contextData, params));
+		}
+
 		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress, userId, tComp, null, 
-				contextData, null);
+				contextData, params);
 		ev.setProgress(finalCompProgress);
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
 //				lcPage, lcContext, lcService, params);
-		if (finalCompProgress == 100) {
-			Map<String, String> params = new HashMap<>();
-			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
-			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null, 
-					contextData, params));
-//			eventFactory.generateEvent(EventType.Completion, userId, tComp, null,
-//					lcPage, lcContext, lcService, null);
-		}
+
 		return events;
 	}
 	
