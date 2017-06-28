@@ -5,6 +5,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -110,12 +111,16 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdministrator(UserData userData) {
         adminsChoosen.add(userData);
+        searchTerm = "";
     }
 
     public void createNewOrganization(){
         try {
+            LearningContextData lcd = PageUtil.extractLearningContextData();
+
             if(adminsChoosen != null && !adminsChoosen.isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),adminsChoosen);
+                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),
+                        adminsChoosen,loggedUser.getUserId(),lcd);
 
                 this.organization.setId(organization.getId());
 

@@ -28,25 +28,14 @@ public class SelectUserForOrganizationValidator implements Validator {
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
         final Boolean[] rendered = {new Boolean(false)};
 
-        context.getViewRoot().findComponent("formMain:selectedOwner").visitTree(VisitContext.createVisitContext(context), new VisitCallback() {
-            @Override
-            public VisitResult visit(VisitContext visitContext, UIComponent uiComponent) {
-                if(uiComponent instanceof HtmlPanelGroup){
-                    rendered[0] = ((HtmlPanelGroup)uiComponent).isRendered();
-                    return VisitResult.REJECT;
-                }else {
-                    return VisitResult.ACCEPT;
-                }
-            }
-        });
-        for(Boolean b : rendered){
-            if(b){
-                return;
-            }
+        if (context.getViewRoot().findComponent("formMain:selectedOwner").isRendered()) {
+            return;
         }
+
         FacesMessage msg = new FacesMessage("At least one user should be selected");
         msg.setSeverity(FacesMessage.SEVERITY_ERROR);
         context.addMessage("formMain:selectNewOwner:hiddenInput", msg);
         throw new ValidatorException(msg);
+
     }
 }

@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -407,11 +408,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		User user;
 		try {
 			user = loadResource(User.class,userId);
-			user.setOrganization(organizationManager.getOrganizationById(organizationId));
-			user = merge(user);
+			user.setOrganization(loadResource(Organization.class,organizationId));
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
+			throw new DbConnectionException("Error while setting organization for user");
 		}
 	}
 

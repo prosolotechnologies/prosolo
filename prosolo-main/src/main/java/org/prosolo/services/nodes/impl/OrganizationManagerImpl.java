@@ -3,8 +3,13 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,37 +40,41 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private ResourceFactory resourceFactory;
     @Autowired
     private UserManager userManager;
+    @Inject
+    private OrganizationManager self;
 
     @Override
-    @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,List<UserData> adminsChoosen) {
-        Organization organization = new Organization();
-        try{
+    public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
+            throws DbConnectionException,EventException {
+
+        Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+        return res.getResult();
+    }
+
+    @Override
+    @Transactional
+    public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
+                                                                  LearningContextData contextData) throws DbConnectionException {
+        try {
+            Organization organization = new Organization();
             organization.setTitle(title);
             saveEntity(organization);
-            userManager.setOrganizationForUsers(adminsChoosen,organization.getId());
-            return organization;
+            userManager.setOrganizationForUsers(adminsChosen, organization.getId());
 
-        }catch (Exception e){
-            logger.error(e);
-            e.printStackTrace();
-            throw  new DbConnectionException("Error while saving organization");
+            Result<Organization> res = new Result<>();
+
+            res.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, organization, null, contextData, null));
+
+            res.setResult(organization);
+
+            return res;
+        } catch (Exception e) {
+                logger.error(e);
+                e.printStackTrace();
+                throw new DbConnectionException("Error while saving organization");
+            }
         }
-    }
-
-    @Override
-    public Organization getOrganizationById(long id) {
-        String query =
-                "SELECT organization " +
-                        "FROM Organization organization " +
-                        "WHERE organization.id = :id";
-
-        Organization organization = (Organization) persistence.currentManager().createQuery(query)
-                .setLong("id", id)
-                .uniqueResult();
-
-        return organization;
-    }
-
-
 }
