@@ -94,7 +94,7 @@
                                             </h:panelGroup>
                                         </div>
                                         <h:panelGroup id="selectNewOwner">
-                                            <ui:fragment rendered="#{not empty organizationEditBean.adminsChosen}">
+                                            <h:panelGroup rendered="#{not empty organizationEditBean.adminsChosen}" id="selectedOwner">
                                             <ul class="list">
                                                 <ui:repeat value="#{organizationEditBean.adminsChosen}" var="admin">
                                                     <li>
