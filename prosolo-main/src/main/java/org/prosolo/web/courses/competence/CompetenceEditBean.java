@@ -227,19 +227,23 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		boolean saved = saveCompetenceData(!addToCredential);
-		if(saved && addToCredential) {
+		boolean isCreateUseCase = competenceData.getCompetenceId() == 0;
+		boolean saved = saveCompetenceData(!isCreateUseCase);
+		if (saved && isCreateUseCase) {
+			PageUtil.keepFiredMessagesAcrossPages();
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
+			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?tab=competences");
-			} catch (IOException e) {
-				logger.error(e);
+				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+						"/credentials/" + credId + "/edit?tab=competences");
+			} else {
+				//when competence is saved for the first time redirect to edit page
+				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+						"/competences/" + id + "/edit");
 			}
 		}
 	}
@@ -250,11 +254,11 @@ public class CompetenceEditBean implements Serializable {
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			String learningContext = context;
-			if(lContext != null && !lContext.isEmpty()) {
+			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			if(competenceData.getCompetenceId() > 0) {
+			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if(competenceData.hasObjectChanged()) {
 					compManager.updateCompetence(competenceData, 
@@ -262,8 +266,7 @@ public class CompetenceEditBean implements Serializable {
 				}
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				//competenceData.setDuration(4);
-				Competence1 comp = compManager.saveNewCompetence(competenceData, 
+				Competence1 comp = compManager.saveNewCompetence(competenceData,
 						loggedUser.getUserId(), credentialId, lcd);
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
@@ -272,20 +275,20 @@ public class CompetenceEditBean implements Serializable {
 				competenceData.startObservingChanges();
 				setContext();
 			}
-			if(reloadData && competenceData.hasObjectChanged()) {
+			if (reloadData && competenceData.hasObjectChanged()) {
 				initializeValues();
 				loadCompetenceData(decodedCredId, decodedId);
 				initializeStatuses();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			return true;
-		} catch(StaleDataException sde) {
+		} catch (StaleDataException sde) {
 			logger.error(sde);
 			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
 			//reload data
 			reloadCompetence();
 			return false;
-		} catch(IllegalDataStateException idse) {
+		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
 			if (competenceData.getCompetenceId() > 0) {
@@ -293,7 +296,7 @@ public class CompetenceEditBean implements Serializable {
 		        reloadCompetence();
 			}
 			return false;
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
