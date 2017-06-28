@@ -545,30 +545,4 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		return result;
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session)
-			throws DbConnectionException {
-		try {
-			String query = "SELECT user FROM User user " +
-					 	   "WHERE user.organization.id = :orgId ";
-
-			if (!returnDeleted) {
-				query += "AND user.deleted = :boolFalse";
-			}
-
-			Query q = session
-					.createQuery(query)
-					.setLong("orgId", organizationId);
-
-			if (!returnDeleted) {
-				q.setBoolean("boolFalse", false);
-			}
-
-			return q.list();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving users");
-		}
-	}
 }

@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.UserEntityESService;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserManager;
 
 import java.util.List;
@@ -22,16 +23,16 @@ public class OrganizationNodeChangeProcessor implements NodeChangeProcessor {
 
 	private ESAdministration esAdministration;
 	private UserEntityESService userEntityESService;
-	private UserManager userManager;
+	private OrganizationManager organizationManager;
 	private Event event;
 	private Session session;
 
 	public OrganizationNodeChangeProcessor(ESAdministration esAdministration,
 										   UserEntityESService userEntityESService,
-										   UserManager userManager, Event event, Session session) {
+										   OrganizationManager organizationManager, Event event, Session session) {
 		this.esAdministration = esAdministration;
 		this.userEntityESService = userEntityESService;
-		this.userManager = userManager;
+		this.organizationManager = organizationManager;
 		this.event = event;
 		this.session = session;
 	}
@@ -44,7 +45,7 @@ public class OrganizationNodeChangeProcessor implements NodeChangeProcessor {
 				//create indexes for organization
 				esAdministration.createOrganizationIndexes(orgId);
 				//index organization users - those users will be only admins added when organization is created
-				List<User> orgUsers = userManager.getOrganizationUsers(orgId, false, session);
+				List<User> orgUsers = organizationManager.getOrganizationUsers(orgId, false, session, null);
 				for (User user : orgUsers) {
 					userEntityESService.saveUserNode(user, orgId, session);
 				}

@@ -63,7 +63,7 @@
                                     <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
                                         <li>
                                             <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-                                                           action="#{adminOrganizations.setOrganizationToDelete(organization.id)}"
+                                                           action="#{adminOrganizations.setOrganizationToDelete(organization)}"
                                                            oncomplete="$('#deleteModal').modal('show');">
                                                 Delete
                                             </p:commandLink>
@@ -86,7 +86,7 @@
         <courses:deleteModalDialog
                 deleteActionMethodName="delete"
                 deleteAction="#{adminOrganizations.delete()}"
-                toUpdate=":panelOrganizations"
+                toUpdate=""
                 modalDeleteTitle="Organization"
                 modalDeleteText="organization"/>
     </ui:define>

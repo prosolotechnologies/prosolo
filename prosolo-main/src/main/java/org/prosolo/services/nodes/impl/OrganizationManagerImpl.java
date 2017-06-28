@@ -5,8 +5,10 @@ import org.apache.log4j.Logger;
 import org.aspectj.weaver.ast.Or;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -15,6 +17,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
@@ -40,6 +43,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private ResourceFactory resourceFactory;
     @Autowired
     private UserManager userManager;
+    @Autowired
+    private RoleManager roleManager;
 
     @Override
     @Transactional(readOnly = false)
@@ -88,8 +93,15 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .list();
 
         for(Organization o : organizations){
-            List<UserData> chosenAdmins = getOrganizationUsers(o.getId());
-            OrganizationData od = new OrganizationData(o,chosenAdmins);
+            String[] rolesArray = new String[]{"Admin","Super Admin"};
+            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+            List<User> chosenAdmins = getOrganizationUsers(o.getId(),false,persistence.currentManager(),adminRoles);
+            List<UserData> listToPass = new ArrayList<>();
+            for(User u : chosenAdmins){
+                listToPass.add(new UserData(u));
+            }
+            OrganizationData od = new OrganizationData(o,listToPass);
             response.addFoundNode(od);
         }
         response.setHitsNumber(getOrganizationsCount());
@@ -108,33 +120,48 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public List<UserData> getOrganizationUsers(long organizationId) {
-
-        List<UserData> result = new ArrayList<>();
+    public void deleteOrganization(long organizationId) throws DbConnectionException {
         Organization organization = null;
         try {
             organization = loadResource(Organization.class, organizationId);
+            organization.setDeleted(true);
+            saveEntity(organization);
         } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
+            throw new DbConnectionException("Error while deleting organization");
         }
-
-        for(User u : organization.getUsers()){
-            UserData ud = new UserData(u);
-            result.add(ud);
-        }
-        return result;
     }
 
     @Override
-    public void deleteOrganization(long organizationId) throws DbConnectionException, EventException {
-        Organization organization = null;
+    @Transactional(readOnly = true)
+    public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
+            throws DbConnectionException {
         try {
-            organization = loadResource(Organization.class, organizationId);
-        } catch (ResourceCouldNotBeLoadedException e) {
-            e.printStackTrace();
+            String query = "SELECT user FROM User user " +
+                    "LEFT JOIN user.roles role " +
+                    "WHERE user.organization.id = :orgId  ";
+
+            if(roles != null){
+                query += "AND role IN (:roles) ";
+            }
+
+            if (!returnDeleted) {
+                query += "AND user.deleted = :boolFalse";
+            }
+
+            Query q = session
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setParameterList("roles",roles);
+
+            if (!returnDeleted) {
+                q.setBoolean("boolFalse", false);
+            }
+
+            return q.list();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving users");
         }
-        organization.setDeleted(true);
-        saveEntity(organization);
     }
 
 }

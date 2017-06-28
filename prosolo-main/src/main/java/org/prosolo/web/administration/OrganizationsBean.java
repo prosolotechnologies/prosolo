@@ -36,7 +36,7 @@ public class OrganizationsBean implements Serializable,Paginable {
 
     private List<OrganizationData> organizations;
     private PaginationData paginationData = new PaginationData();
-    private Organization organizationToDelete;
+    private OrganizationData organizationToDelete;
 
     public void init(){
         loadOrganizations();
@@ -67,8 +67,8 @@ public class OrganizationsBean implements Serializable,Paginable {
         return this.paginationData;
     }
 
-    public void setOrganizationToDelete(long organizationId){
-        this.organizationToDelete = organizationManager.getOrganizationById(organizationId);
+    public void setOrganizationToDelete(OrganizationData organization){
+        this.organizationToDelete = organization;
     }
 
     public void delete(){
@@ -93,4 +93,7 @@ public class OrganizationsBean implements Serializable,Paginable {
         this.organizations = organizations;
     }
 
+    public OrganizationData getOrganizationToDelete() {
+        return organizationToDelete;
+    }
 }
