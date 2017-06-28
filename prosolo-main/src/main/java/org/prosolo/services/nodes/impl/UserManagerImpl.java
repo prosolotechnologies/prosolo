@@ -2,7 +2,6 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -398,26 +397,21 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userEntityESService.deleteNodeFromES(user);
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error("Error", e);
 				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
 
 	@Override
+	@Transactional
 	public void setUserOrganization(long userId,long organizationId) {
-		User user;
-		Organization organization;
 		try {
-			user = loadResource(User.class,userId);
-			organization = organizationManager.getOrganizationById(organizationId);
-			if(!organization.isDeleted()) {
-				user.setOrganization(organization);
-			}else{
-				user.setOrganization(null);
-			}
-			user = merge(user);
+			User user = loadResource(User.class,userId);
+			user.setOrganization(loadResource(Organization.class,organizationId));
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
-			e.printStackTrace();
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while setting organization for user");
 		}
 	}
 
@@ -465,8 +459,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	public void setUserOrganization(List<UserData>adminsChoosen,Long organizationId) {
-		for (UserData user : adminsChoosen){
+	@Transactional
+	public void setOrganizationForUsers(List<UserData> users,Long organizationId) {
+		for (UserData user : users){
 			setUserOrganization(user.getId(),organizationId);
 		}
 	}

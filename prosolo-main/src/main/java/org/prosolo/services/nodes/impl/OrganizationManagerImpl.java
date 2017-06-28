@@ -7,12 +7,17 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -25,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,36 +52,41 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Autowired
     private RoleManager roleManager;
 
-    @Override
-    @Transactional(readOnly = false)
-    public Organization createNewOrganization(String title,List<UserData> adminsChosen) {
-        Organization organization = new Organization();
-        try{
-            organization.setTitle(title);
-            saveEntity(organization);
-            organization.setId(organization.getId());
-            userManager.setUserOrganization(adminsChosen,organization.getId());
-            return organization;
+    @Inject
+    private OrganizationManager self;
 
-        }catch (Exception e){
-            logger.error(e);
-            e.printStackTrace();
-            throw  new DbConnectionException("Error while saving organization");
+    @Override
+    public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
+            throws DbConnectionException,EventException {
+
+        Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
         }
+        return res.getResult();
     }
 
     @Override
-    public Organization getOrganizationById(long id) {
-        String query =
-                "SELECT organization " +
-                        "FROM Organization organization " +
-                        "WHERE organization.id = :id";
+    @Transactional
+    public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
+                                                                  LearningContextData contextData) throws DbConnectionException {
+        try {
+            Organization organization = new Organization();
+            organization.setTitle(title);
+            saveEntity(organization);
+            userManager.setOrganizationForUsers(adminsChosen, organization.getId());
 
-        Organization organization = (Organization) persistence.currentManager().createQuery(query)
-                .setLong("id", id)
-                .uniqueResult();
+            Result<Organization> res = new Result<>();
 
-        return organization;
+            res.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, organization, null, contextData, null));
+
+            res.setResult(organization);
+            return res;
+        } catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while saving organization");
+        }
     }
 
     @Override
@@ -169,5 +180,4 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             throw new DbConnectionException("Error while retrieving users");
         }
     }
-
 }

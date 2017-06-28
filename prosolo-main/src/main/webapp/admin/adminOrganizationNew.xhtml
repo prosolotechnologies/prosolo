@@ -14,9 +14,6 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewAction action="#{organizationEditBean.init()}" />
-            <f:viewAction action="#{userEditBean.init()}" />
-            <f:viewAction action="#{adminUsers.init()}" />
-            <f:viewAction action="#{adminEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -121,15 +118,24 @@
                                                     </li>
                                                 </ui:repeat>
                                             </ul>
-                                            </ui:fragment>
+                                            </h:panelGroup>
+                                            <h:inputHidden validator="selectUserForOrganizationValidator" value="0"
+                                                           id="hiddenInput"></h:inputHidden>
+                                            <h:panelGroup layout="block"
+                                                          rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
+                                                          styleClass="alert alert-danger" pt:role="alert">
+                                                <h:message for="hiddenInput"></h:message>
+                                            </h:panelGroup>
                                         </h:panelGroup>
                                 </div>
                             </div>
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink styleClass="btn btn-green" value="Create"
-                                                   action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                    <p:commandLink  styleClass="btn btn-green" value="Create"
+                                                    action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                    <f:param name="learningContext" value="name:new_organization" />
                                     </p:commandLink>
                                 </div>
                             </div>

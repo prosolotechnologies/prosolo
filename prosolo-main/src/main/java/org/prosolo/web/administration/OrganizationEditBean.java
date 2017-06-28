@@ -5,6 +5,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -62,6 +63,7 @@ public class OrganizationEditBean implements Serializable {
     private SelectItem[] allRoles;
     private String[] rolesArray;
     private List<Role> adminRoles;
+    private List<Long> adminRolesIds = new ArrayList<>();
 
     public void init() {
         logger.debug("initializing");
@@ -89,30 +91,13 @@ public class OrganizationEditBean implements Serializable {
             }
             rolesArray = new String[]{"Admin","Super Admin"};
             adminRoles = roleManager.getRolesByNames(rolesArray);
-
-            prepareRoles();
+            for(Role r : adminRoles){
+                adminRolesIds.add(r.getId());
+            }
         } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");
         }
-    }
-
-
-    private void prepareRoles() {
-        try {
-            if (adminRoles != null) {
-                allRoles = new SelectItem[adminRoles.size()];
-
-                for (int i = 0; i < adminRoles.size(); i++) {
-                    Role r = adminRoles.get(i);
-                    SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-                    allRoles[i] = selectItem;
-                }
-            }
-        } catch (DbConnectionException e) {
-            logger.error(e);
-        }
-
     }
 
     public void saveOrganization(){
@@ -125,12 +110,16 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdministrator(UserData userData) {
         adminsChosen.add(userData);
+        searchTerm = "";
     }
 
     public void createNewOrganization(){
         try {
+            LearningContextData lcd = PageUtil.extractLearningContextData();
+
             if(adminsChosen != null && !adminsChosen.isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),adminsChosen);
+                Organization organization = organizationManager.createNewOrganization(this.organization.getTitle(),
+                        adminsChosen,loggedUser.getUserId(),lcd);
 
                 this.organization.setId(organization.getId());
 
@@ -139,7 +128,7 @@ public class OrganizationEditBean implements Serializable {
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
                 PageUtil.redirect("/admin/organizations");
             }else{
-                PageUtil.fireErrorMessage("At least one admin should be selected");
+                PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
             }
         }catch (Exception e){
             logger.error(e);
@@ -157,10 +146,7 @@ public class OrganizationEditBean implements Serializable {
             admins = null;
         } else {
             try {
-                String[] rolesArray = new String[]{"Admin","Super Admin"};
-                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
-                PaginatedResult<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3,null, adminsChosen,this.adminRoles );
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3,adminsChosen,this.adminRolesIds );
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);

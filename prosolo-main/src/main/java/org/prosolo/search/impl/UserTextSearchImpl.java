@@ -1511,8 +1511,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	@Override
-	public PaginatedResult<UserData> searchNewOwner(
-				String searchTerm, int limit, Long excludedId,List<UserData> adminsToExcludeFromSearch,List<Role> adminRoles) {
+	public PaginatedResult<UserData> searchUsers(
+				String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles) {
 
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
@@ -1532,17 +1532,16 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
 					.must(bQueryBuilder);
 
-			if(adminsToExcludeFromSearch == null) {
-				bqb.mustNot(termQuery("id", excludedId));
-			}else{
-				for(UserData admin : adminsToExcludeFromSearch){
+			if(usersToExcludeFromSearch != null){
+				for(UserData admin : usersToExcludeFromSearch){
 					bQueryBuilder.mustNot(termQuery("id", admin.getId()));
 				}
 			}
-			if(adminRoles != null && !adminRoles.isEmpty()){
+
+			if(userRoles != null && !userRoles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : adminRoles){
-					bqb1.should(termQuery("roles.id", r.getId()));
+				for(Long roleId : userRoles){
+					bqb1.should(termQuery("roles.id", roleId));
 				}
 				bQueryBuilder.filter(bqb1);
 			}
