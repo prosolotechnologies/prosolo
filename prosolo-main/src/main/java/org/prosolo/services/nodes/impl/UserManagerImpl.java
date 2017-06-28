@@ -398,6 +398,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userEntityESService.deleteNodeFromES(user);
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error("Error", e);
 				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
@@ -411,6 +412,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			user.setOrganization(loadResource(Organization.class,organizationId));
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while setting organization for user");
 		}
 	}

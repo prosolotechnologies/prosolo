@@ -132,8 +132,10 @@
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink styleClass="btn btn-green" value="Create"
-                                                   action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                    <p:commandLink  styleClass="btn btn-green" value="Create"
+                                                    action="#{organizationEditBean.saveOrganization()}" update="formMain">
+                                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                    <f:param name="learningContext" value="name:new_organization" />
                                     </p:commandLink>
                                 </div>
                             </div>

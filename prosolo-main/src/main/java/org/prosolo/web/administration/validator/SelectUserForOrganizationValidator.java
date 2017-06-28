@@ -19,6 +19,7 @@ import javax.faces.validator.ValidatorException;
  * @date 2017-06-27
  * @since 0.7
  */
+
 @Component
 @Scope("request")
 @FacesValidator("selectUserForOrganizationValidator")
@@ -26,7 +27,6 @@ public class SelectUserForOrganizationValidator implements Validator {
 
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
-        final Boolean[] rendered = {new Boolean(false)};
 
         if (context.getViewRoot().findComponent("formMain:selectedOwner").isRendered()) {
             return;
@@ -36,6 +36,5 @@ public class SelectUserForOrganizationValidator implements Validator {
         msg.setSeverity(FacesMessage.SEVERITY_ERROR);
         context.addMessage("formMain:selectNewOwner:hiddenInput", msg);
         throw new ValidatorException(msg);
-
     }
 }
