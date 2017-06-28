@@ -136,22 +136,28 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException {
         try {
-            String query = "SELECT user FROM User user " +
-                    "LEFT JOIN user.roles role " +
-                    "WHERE user.organization.id = :orgId  ";
+            boolean filterRoles = roles != null && !roles.isEmpty();
 
-            if(roles != null){
-                query += "AND role IN (:roles) ";
+            StringBuilder sb = new StringBuilder("SELECT user FROM User user ");
+
+            if (filterRoles) {
+                sb.append("INNER JOIN user.roles role " +
+                        "WITH role IN (:roles) ");
             }
 
+            sb.append("WHERE user.organization.id = :orgId ");
+
             if (!returnDeleted) {
-                query += "AND user.deleted = :boolFalse";
+                sb.append("AND user.deleted = :boolFalse");
             }
 
             Query q = session
-                    .createQuery(query)
-                    .setLong("orgId", organizationId)
-                    .setParameterList("roles",roles);
+                    .createQuery(sb.toString())
+                    .setLong("orgId", organizationId);
+
+            if (filterRoles) {
+                q.setParameterList("roles", roles);
+            }
 
             if (!returnDeleted) {
                 q.setBoolean("boolFalse", false);
