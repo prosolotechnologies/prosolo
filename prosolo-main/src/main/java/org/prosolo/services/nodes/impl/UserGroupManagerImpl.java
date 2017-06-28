@@ -98,7 +98,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			List<UserGroup> result = persistence.currentManager()
 					.createQuery(query)
 					.setString("term", "%" + term)
-					.setFirstResult(page)
+					.setFirstResult(page * limit)
 					.setMaxResults(limit)
 					.list();
 			
