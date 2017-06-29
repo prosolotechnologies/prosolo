@@ -2,7 +2,10 @@ package org.prosolo.services.nodes;
 
 import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.*;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -19,7 +22,6 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
-import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -43,16 +45,6 @@ public interface CredentialManager extends AbstractManager {
 
 	Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, long creatorId, LearningContextData context)
 			throws DbConnectionException;
-	
-	/**
-	 * Deletes credential by setting deleted flag to true
-	 * 
-	 * @param credId
-	 * @param userId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	Credential1 deleteCredential(long credId, long userId) throws DbConnectionException;
 	
 	void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
 			DataIntegrityViolationException, EventException;
@@ -173,18 +165,6 @@ public interface CredentialManager extends AbstractManager {
 	List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
 	
-	/**
-	 * returns only published credentials
-	 * @param compId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
-			throws DbConnectionException;
-
-	void updateTargetCredentialsWithChangedData(long credentialId, CredentialChangeTracker changeTracker) 
-			throws DbConnectionException;
-	
 	List<Tag> getCredentialTags(long credentialId) 
 			throws DbConnectionException;
 	
@@ -224,26 +204,13 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException;
-	
-	/**
-	 * Target credential duration is updated by setting new duration value specified by
-	 * {@code duration}
-	 * @param id
-	 * @param duration
-	 * @throws DbConnectionException
-	 */
-	void updateTargetCredentialDuration(long id, long duration) throws DbConnectionException;
 
-	void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException;
-	
-	List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData) 
+	List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData)
 			throws DbConnectionException;
 	
 	String getCredentialTitle(long id) throws DbConnectionException;
 	
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
-	
-	String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException;
 	
 	/**
 	 * Returns draft version of credential if exists, otherwise original version is returned.
@@ -318,8 +285,6 @@ public interface CredentialManager extends AbstractManager {
 //	CredentialData getCredentialForManager(long credentialId, boolean loadCreator,
 //			boolean loadCompetences, Mode mode) throws DbConnectionException;
 	
-	boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException;
-
 	List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) throws DbConnectionException;
 	
 	long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException;
@@ -370,17 +335,6 @@ public interface CredentialManager extends AbstractManager {
     		LearningContextData lcd) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
-	
-	/**
-	 * Checks if user is owner of credential and if it is returns edit privilege. Otherwise
-	 * if user has any privilege for credential, it is returned and if he does not, None privilege is returned
-	 * @param credId
-	 * @param userId
-	 * @return {@link UserGroupPrivilege}
-	 * @throws DbConnectionException
-	 */
-	UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
-			throws DbConnectionException;
 
 	UserData chooseRandomPeer(long credId, long userId);
 	
@@ -434,9 +388,6 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<Long> getUnassignedCredentialMembersIds(long credId, List<Long> usersToExclude) 
 			throws DbConnectionException;
-	
-	ResourceAccessData getCredentialAccessRights(long credId, long userId, 
-			UserGroupPrivilege neededPrivilege) throws DbConnectionException;
 
 	int getNumberOfTags(long credentialId) throws DbConnectionException;
 

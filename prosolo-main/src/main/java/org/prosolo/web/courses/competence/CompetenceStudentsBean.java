@@ -81,7 +81,6 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
 				if (title != null) {
-					//TODO cred-redesign-07 check if this is ok
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 					access = compManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(), req);

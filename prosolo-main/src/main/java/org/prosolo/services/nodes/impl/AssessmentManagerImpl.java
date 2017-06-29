@@ -766,45 +766,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
-			throws DbConnectionException {
-		return getDefaultCompetenceAssessment(credId, compId, userId, persistence.currentManager());
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
-			throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-//			String query = "SELECT ca FROM CompetenceAssessment ca " +
-//						   "INNER JOIN ca.targetCompetence tc " +
-//						   "INNER JOIN tc.targetCredential tCred " +	
-//						   "WHERE ca.defaultAssessment = :boolTrue " +
-//						   "AND tc.competence = :compId " +
-//						   "AND tCred.credential = :credId " +
-//						   "AND tCred.user = :userId";
-//			
-//			CompetenceAssessment res = (CompetenceAssessment) session
-//					.createQuery(query)
-//					.setLong("credId", credId)
-//					.setLong("compId", compId)
-//					.setLong("userId", userId)
-//					.setBoolean("boolTrue", true)
-//					.uniqueResult();
-//			
-//			return res;
-			return null;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException {
 		try {
 			String query = "SELECT credA.assessor.id FROM CompetenceAssessment ca " +

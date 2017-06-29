@@ -80,12 +80,6 @@ public interface AssessmentManager {
 	Long getAssessorIdForActivityDiscussion(long activityDiscussionId) 
 			throws DbConnectionException;
 	
-	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
-			throws DbConnectionException;
-	
-	CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
-			throws DbConnectionException;
-	
 	long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException;
 	
 	void updateDefaultAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;

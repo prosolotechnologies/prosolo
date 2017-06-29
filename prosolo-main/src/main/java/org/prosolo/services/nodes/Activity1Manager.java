@@ -1,19 +1,11 @@
 package org.prosolo.services.nodes;
 
-import java.util.Date;
-import java.util.List;
-
-import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.media.util.MediaDataException;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultData;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -21,7 +13,9 @@ import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.assessments.StudentAssessedFilter;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.observers.learningResources.ActivityChangeTracker;
+
+import java.util.Date;
+import java.util.List;
 
 public interface Activity1Manager extends AbstractManager {
 	
@@ -136,9 +130,6 @@ public interface Activity1Manager extends AbstractManager {
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
-			throws DbConnectionException;
-	
-	void updateTargetActivitiesWithChangedData(long actId, ActivityChangeTracker changeTracker) 
 			throws DbConnectionException;
 	
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
