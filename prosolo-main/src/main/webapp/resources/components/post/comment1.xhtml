@@ -33,7 +33,12 @@
 			
 			<div class="media-body">
 				<h:panelGroup layout="block" id="panelMainContent" styleClass="commentMain commentMainRegion_#{comment.commentId}">
-					<span class="commentTime">#{comment.formattedDate}</span>
+					<span class="commentTime">
+						<utilcomp:convertTimeOutput
+								millis="#{comment.postDateTime}"
+								format="rel"
+						/>
+					</span>
                  	
 					<h3 class="media-heading">#{comment.creator.fullName}
 						<ui:fragment rendered="#{comment.instructor}"><span>INSTRUCTOR</span></ui:fragment>
@@ -51,7 +56,7 @@
 							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
 						
 						<p:commandButton
-							styleClass="btn btn-sm btn-green"
+							styleClass="btn btn-sm btn-green submitBtn"
 							value="Submit"
 							action="#{commentBean.editComment(comment, cc.attrs.comments)}"
 							update="@(.commentMainRegion_#{comment.commentId})">
@@ -107,7 +112,7 @@
 								onkeyup="displaySubmitButton(this);"></div>
 								
 							<p:commandButton 
-								styleClass="btn btn-sm btn-green hidden"
+								styleClass="btn btn-sm btn-green hidden submitBtn"
 								value="Submit"
 								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
 								update="@(.topLevelCommentChildren_#{topLevelCommentId}) panelReply #{cc.attrs.toUpdate}"

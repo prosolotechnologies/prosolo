@@ -49,12 +49,6 @@
 	</function>
 	
 	<function>
-		<function-name>toIdArray</function-name>
-		<function-class>org.prosolo.web.util.ResourceUtilBean</function-class>
-		<function-signature>java.lang.String convertToIdArrayString(java.util.Collection)</function-signature>
-	</function>
-		
-	<function>
 		<function-name>getPagePath</function-name>
 		<function-class>org.prosolo.web.util.URLUtil</function-class>
 		<function-signature>java.lang.String getPagePath(java.lang.String)</function-signature>

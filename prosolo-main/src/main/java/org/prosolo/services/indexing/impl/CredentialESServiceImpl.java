@@ -1,16 +1,5 @@
 package org.prosolo.services.indexing.impl;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -24,6 +13,7 @@ import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.nodes.CredentialInstructorManager;
@@ -31,6 +21,14 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.indexing.CredentialESService")
 public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl implements CredentialESService {
@@ -48,7 +46,6 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Transactional
 	public void saveCredentialNode(Credential1 cred, Session session) {
 	 	try {
-	 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", cred.getId());
 			builder.field("archived", cred.isArchived());
@@ -56,13 +53,15 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("description", cred.getDescription());
 			Date date = cred.getDateCreated();
 			if (date != null) {
-				builder.field("dateCreated", df.format(date));
+				builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
 			if (cred.getDeliveryStart() != null) {
-				builder.field("deliveryStart", df.format(cred.getDeliveryStart()));
+				builder.field("deliveryStart", ElasticsearchUtil.getDateStringRepresentation(
+						cred.getDeliveryStart()));
 			}
 			if (cred.getDeliveryEnd() != null) {
-				builder.field("deliveryEnd", df.format(cred.getDeliveryEnd()));
+				builder.field("deliveryEnd", ElasticsearchUtil.getDateStringRepresentation(
+						cred.getDeliveryEnd()));
 			}
 			
 			builder.startArray("tags");
@@ -402,6 +401,21 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		        .field("archived", false)
 		        .endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", doc);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void updateCredentialOwner(long credId, long newOwnerId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("creatorId", newOwnerId);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

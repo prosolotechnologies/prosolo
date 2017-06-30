@@ -62,10 +62,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 	@Transactional
 	@Override
-	public TextSearchResponse1<UserGroupData> searchUserGroups (
+	public PaginatedResult<UserGroupData> searchUserGroups (
 			String searchString, int page, int limit) {
 		
-		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserGroupData> response = new PaginatedResult<>();
 		
 		try {
 			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
@@ -91,10 +91,10 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 	@Override
 	@Transactional
-	public TextSearchResponse1<UserGroupData> searchUserGroupsForUser (
+	public PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit) {
 		
-		TextSearchResponse1<UserGroupData> response = new TextSearchResponse1<>();
+		PaginatedResult<UserGroupData> response = new PaginatedResult<>();
 		
 		try {
 			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
@@ -148,9 +148,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	@Override
-	public TextSearchResponse1<ResourceVisibilityMember> searchUsersAndGroups(
+	public PaginatedResult<ResourceVisibilityMember> searchUsersAndGroups(
 			String searchTerm, int limit, List<Long> usersToExclude, List<Long> groupsToExclude, long roleId) {
-		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+		PaginatedResult<ResourceVisibilityMember> response = new PaginatedResult<>();
 		try {
 			SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, roleId);
 			SearchHit[] groupHits = getUserGroups(searchTerm, limit, groupsToExclude);
@@ -317,9 +317,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	@Override
-	public TextSearchResponse1<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm, 
-			int limit, List<Long> usersToExclude) {
-		TextSearchResponse1<ResourceVisibilityMember> response = new TextSearchResponse1<>();
+	public PaginatedResult<ResourceVisibilityMember> searchVisibilityUsers(String searchTerm,
+                                                                           int limit, List<Long> usersToExclude) {
+		PaginatedResult<ResourceVisibilityMember> response = new PaginatedResult<>();
 		SearchHit[] userHits = getResourceVisibilityUsers(searchTerm, limit, usersToExclude, 0);
 			
 		for(SearchHit h : userHits) {

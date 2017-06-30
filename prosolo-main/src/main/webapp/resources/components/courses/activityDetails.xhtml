@@ -44,12 +44,6 @@
             <ui:fragment rendered="#{cc.attrs.role eq 'MANAGER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents}">
             	<ui:fragment rendered="#{cc.attrs.activity.activityType == 'VIDEO'}">
 					<div class="activityMain">
-						<ui:remove><socialWall:youtubevideopreview
-							embedId="#{cc.attrs.activity.embedId}"
-							width="731"
-							height="413"
-							context="#{cc.attrs.learningContext}"/></ui:remove>
-						
 						<video width="731" height="413" id="player1">
 		    				<source type="video/youtube" src="#{cc.attrs.activity.videoLink}" />
 		   					<ui:repeat var="subtitle" value="#{cc.attrs.activity.captions}">

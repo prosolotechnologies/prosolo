@@ -15,6 +15,10 @@
         {
             "name": "Admin",
             "description": "Admin"
+        },
+        {
+            "name": "Super Admin",
+            "description": "Super Admin"
         }
     ],
     "capabilities": [
@@ -25,7 +29,8 @@
                 "User",
                 "Instructor",
                 "Manager",
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {
@@ -46,7 +51,8 @@
             "name": "basic.admin.access",
             "description": "Basic admin access",
             "roles": [
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {
@@ -68,28 +74,32 @@
             "name": "users.view",
             "description": "Access the page for managing users",
             "roles": [
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {
             "name": "admins.view",
             "description": "Access the page for managing admins",
             "roles": [
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {
             "name": "roles.view",
             "description": "Access the page for managing roles/capabilities",
             "roles": [
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {
             "name": "adminDashboard.view",
             "description": "Access the admin dashboard panel",
             "roles": [
-                "Admin"
+                "Admin",
+                "Super Admin"
             ]
         },
         {

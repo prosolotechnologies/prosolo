@@ -28,6 +28,7 @@ import org.prosolo.services.email.EmailSender;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author "Nikola Milikic"
@@ -43,23 +44,27 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	@Autowired private EmailSender emailSender;
 
 	@Override
+	@Transactional(readOnly = false)
 	public boolean initiatePasswordReset(User user, String email, String serverAddress) {
+		return initiatePasswordReset(user,email,serverAddress,persistence.currentManager());
+	}
+
+	@Override
+	public boolean initiatePasswordReset(User user, String email, String serverAddress, Session session) {
 		email = email.toLowerCase();
-		
+
 		// first invalidate all other user's request key
-		invalidateUserRequestKeys(user);
-		
+		invalidateUserRequestKeys(user,session);
+
 		ResetKey key = new ResetKey();
 		key.setUser(user);
 		key.setDateCreated(new Date());
 		key.setUid(UUID.randomUUID().toString().replace("-", ""));
-		saveEntity(key);
-		
+		saveEntity(key,session);
+
 		try {
 			String resetAddress = serverAddress + "/" + key.getUid();
-			
 			PasswordResetEmailContentGenerator contentGenerator = new PasswordResetEmailContentGenerator(user.getName(), resetAddress);
-			
 			emailSender.sendEmail(contentGenerator,  email);
 			return true;
 		} catch (AddressException e) {
@@ -75,7 +80,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
 		ResetKey result = getResetKey(resetKey);
@@ -118,14 +123,13 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		return result;
 	}
 	
-	public void invalidateUserRequestKeys(User user) {
-		Session session = persistence.currentManager();
-		
+	public void invalidateUserRequestKeys(User user,Session session) {
+
 		String query = 
 			"SELECT resetKey " +
 			"FROM ResetKey resetKey " +
 			"WHERE resetKey.user = :user " +
-				"AND resetKey.invalid = :invalid";
+			"AND resetKey.invalid = :invalid";
 		
 		@SuppressWarnings("unchecked")
 		List<ResetKey> keys = session.createQuery(query)

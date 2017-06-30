@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.annotation.Annotation1;
 import org.prosolo.common.domainmodel.annotation.AnnotationType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.annotation.Annotation1Manager;
-import org.prosolo.services.annotation.AnnotationManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,7 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 	
 	private static final long serialVersionUID = -3320496304223917775L;
 	
-	private static Logger logger = Logger.getLogger(AnnotationManager.class);
+	private static Logger logger = Logger.getLogger(Annotation1Manager.class);
 	
 	@Override
 	@Transactional(readOnly = true)

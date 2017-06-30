@@ -3,18 +3,16 @@ package org.prosolo.services.indexing.impl.elasticSearchObserver;
 import javax.inject.Inject;
 
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
-import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.services.indexing.NodeEntityESService;
-import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.indexing.UserGroupESService;
+import org.prosolo.services.indexing.*;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +31,10 @@ public class NodeChangeProcessorFactory {
 	private UserGroupESService userGroupESService;
 	@Inject
 	private UserGroupManager userGroupManager;
+	@Inject
+	private ESAdministration esAdministration;
+	@Inject
+	private OrganizationManager organizationManager;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -81,8 +83,11 @@ public class NodeChangeProcessorFactory {
 					}
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
-					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
+					return new UserGroupNodeChangeProcessor(event, userGroupESService,
 							credentialESService, userGroupManager, competenceESService, session);
+				} else if (node instanceof Organization) {
+					return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
+							organizationManager, event, session);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}
@@ -135,6 +140,15 @@ public class NodeChangeProcessorFactory {
 				} else if (node instanceof Credential1) {
 					return new CredentialNodeChangeProcessor(event, credentialESService, 
 							NodeOperation.Restore, session);
+				}
+				break;
+			case OWNER_CHANGE:
+				if (node instanceof Competence1) {
+					return new CompetenceNodeChangeProcessor(event, competenceESService,
+							NodeOperation.Update, session);
+				} else if (node instanceof Credential1) {
+					return new CredentialNodeChangeProcessor(event, credentialESService,
+							NodeOperation.Update, session);
 				}
 				break;
 			default:

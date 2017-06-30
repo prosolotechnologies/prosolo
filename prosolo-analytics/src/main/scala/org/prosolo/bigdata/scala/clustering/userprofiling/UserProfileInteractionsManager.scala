@@ -1,17 +1,10 @@
 package org.prosolo.bigdata.scala.clustering.userprofiling
 
-import com.datastax.driver.core.Row
-import org.apache.spark.rdd.RDD
+
 import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.dal.cassandra.impl.{SocialInteractionStatisticsDBManagerImpl, SocialInteractionsStatements, TablesNames}
-import SocialInteractionsStatements._
 import org.prosolo.bigdata.dal.persistence.impl.ClusteringDAOImpl
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
 import org.prosolo.common.config.CommonSettings
-
-import scala.collection.JavaConverters._
-import play.api.libs.json.Json
-import com.datastax.spark.connector._
 import org.prosolo.bigdata.spark.scala.clustering.UserProfileInteractionsSparkJob
 
 /**

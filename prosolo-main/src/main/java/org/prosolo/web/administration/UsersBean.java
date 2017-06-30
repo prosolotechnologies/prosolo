@@ -2,25 +2,19 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +45,6 @@ public class UsersBean implements Serializable, Paginable {
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 	
-	private UserData loginAsUser;
-	
 	private PaginationData paginationData = new PaginationData();
 
 	public void init() {
@@ -76,24 +68,6 @@ public class UsersBean implements Serializable, Paginable {
 		paginationData.setPage(1);
 		loadUsers();
 	}
-	
-	public void prepareLoginAsUser(UserData user) {
-		loginAsUser = user;
-	}
-	
-	public void loginAs() {
-		try {
-			loggedUserBean.forceUserLogout();
-			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-			authService.login((HttpServletRequest)context.getRequest(), 
-					(HttpServletResponse) context.getResponse(), loginAsUser.getEmail());
-			//to avoid IllegalStateException: Commited or content written
-			FacesContext.getCurrentInstance().responseComplete();
-		} catch(AuthenticationException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to login as " + loginAsUser.getFullName());
-		}
-	}
 
 	@Override
 	public void changePage(int page) {
@@ -112,8 +86,8 @@ public class UsersBean implements Serializable, Paginable {
 	public void loadUsers() {
 		this.users = new ArrayList<UserData>();
 		try {
-			TextSearchResponse1<UserData> res = userTextSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), 
+			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
 					true, null);
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
@@ -174,7 +148,4 @@ public class UsersBean implements Serializable, Paginable {
 		this.filters = filters;
 	}
 
-	public UserData getLoginAsUser() {
-		return loginAsUser;
-	}
 }

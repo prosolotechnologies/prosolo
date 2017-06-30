@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.web.LoggedUserBean;
@@ -70,8 +70,8 @@ public class UserSearchBean implements Serializable {
 	}
  
 	public void fetchUsers(String query, List<Long> excludeUsers) {
-		TextSearchResponse1<UserData> usersResponse = userTextSearch.getUsersWithRoles(
-				query, 0, 0, false, 0, false, excludeUsers);
+		PaginatedResult<UserData> usersResponse = userTextSearch.getUsersWithRoles(
+				query, 0, 0, false, 0, null, false, excludeUsers);
 		
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();

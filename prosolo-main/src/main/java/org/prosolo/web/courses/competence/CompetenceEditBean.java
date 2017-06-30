@@ -1,19 +1,5 @@
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -25,11 +11,7 @@ import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.PublishedStatus;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -39,6 +21,14 @@ import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 @ManagedBean(name = "competenceEditBean")
 @Component("competenceEditBean")
@@ -250,7 +240,7 @@ public class CompetenceEditBean implements Serializable {
 				 * may not be what we really want.
 				 */
 				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?compAdded=true&tab=competences");
+						"/credentials/" + credId +"/edit?tab=competences");
 			} catch (IOException e) {
 				logger.error(e);
 			}
@@ -333,6 +323,9 @@ public class CompetenceEditBean implements Serializable {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());
+			return false;
+		} catch (EventException e) {
+			logger.error(e);
 			return false;
 		}
 	}

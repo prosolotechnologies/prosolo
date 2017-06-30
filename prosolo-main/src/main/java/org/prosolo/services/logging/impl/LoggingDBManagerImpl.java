@@ -25,12 +25,13 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;*/
 import org.prosolo.services.logging.AbstractDB;
 import org.prosolo.services.logging.LoggingDBManager;
+import org.springframework.stereotype.Service;
 
 /**
 @author Zoran Jeremic Jan 28, 2014
  */
 @Deprecated
-//@Service("org.prosolo.services.logging.LoggingDBManager")
+@Service("org.prosolo.services.logging.LoggingDBManager")
 public class LoggingDBManagerImpl extends AbstractDB implements LoggingDBManager {
 	
 	//@Autowired

@@ -1,22 +1,12 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -28,6 +18,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
@@ -42,6 +33,14 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.web.search.data.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.Date;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -62,18 +61,18 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	@Transactional
-	public TextSearchResponse1<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
-			String searchString, int page, int limit, boolean loadOneMore,
-			long[] toExclude, SortingOption sortTitleAsc) {
+	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
+                                                                                   String searchString, int page, int limit, boolean loadOneMore,
+                                                                                   long[] toExclude, SortingOption sortTitleAsc) {
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
 			
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -109,7 +108,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
 			
@@ -158,17 +157,17 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	}
 	
 	@Override
-	public TextSearchResponse1<CompetenceData1> searchCompetences(
+	public PaginatedResult<CompetenceData1> searchCompetences(
 			String searchTerm, int page, int limit, long userId, 
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			CompetenceSearchConfig config) {
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -231,7 +230,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -288,16 +287,16 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	}
 	
 	@Override
-	public TextSearchResponse1<CompetenceData1> searchCompetencesForManager(
+	public PaginatedResult<CompetenceData1> searchCompetencesForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CompetenceSearchFilter filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CompetenceData1> response = new TextSearchResponse1<>();
+		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE1);
+			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -336,7 +335,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
-					.setTypes(ESIndexTypes.COMPETENCE1)
+					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -367,9 +366,8 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						boolean archived = Boolean.parseBoolean(hit.getSource().get("archived").toString());
 						String datePublishedString = (String) hit.getSource().get("datePublished");
 						Date datePublished = null;
-						if(datePublishedString != null && !datePublishedString.isEmpty()) {
-							DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-							datePublished = df.parse(datePublishedString);
+						if (datePublishedString != null && !datePublishedString.isEmpty()) {
+							datePublished = ElasticsearchUtil.parseDate(datePublishedString);
 						}
 						Competence1 comp = new Competence1();
 						comp.setId(id);
@@ -394,7 +392,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	private QueryBuilder configureAndGetSearchFilter(CompetenceSearchConfig config, long userId) {
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		
-		if(config.shouldIncludeResourcesWithViewPrivilege()) {
+		if (config.shouldIncludeResourcesWithViewPrivilege()) {
 			//competence is published and: visible to all users or user has View privilege
 			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
 			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
@@ -406,21 +404,16 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			boolFilter.should(publishedAndVisibleFilter);
 		}
 		
-		if(config.shouldIncludeEnrolledResources()) {
+		if (config.shouldIncludeEnrolledResources()) {
 			//user is enrolled in a competence (currently learning or completed competence)
 			boolFilter.should(QueryBuilders.termQuery("students.id", userId));
 		}
 		
-		if(config.shouldIncludeResourcesWithEditPrivilege()) {
-			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
-			//user is owner of a competence
-			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
-			//user has Edit privilege for competence
-			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
+		if (config.shouldIncludeResourcesWithEditPrivilege()) {
 			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
-			editorAndTypeFilter.filter(editorFilter);
+			//user has Edit privilege for competence
+			editorAndTypeFilter.filter(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
+
 			/*
 			 * for edit privilege resource type should be included in condition
 			 * for example: if competence is user created and user has edit privilege for that competence

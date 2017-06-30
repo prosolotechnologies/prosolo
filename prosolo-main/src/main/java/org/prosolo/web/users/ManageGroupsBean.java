@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.web.LoggedUserBean;
@@ -144,7 +144,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	public void loadGroups() {
 		this.groups = new ArrayList<UserGroupData>();
 		try {
-			TextSearchResponse1<UserGroupData> res = userGroupTextSearch.searchUserGroups(searchTerm, 
+			PaginatedResult<UserGroupData> res = userGroupTextSearch.searchUserGroups(searchTerm,
 					paginationData.getPage() - 1, paginationData.getLimit());
 			this.paginationData.update((int) res.getHitsNumber());
 			groups = res.getFoundNodes();

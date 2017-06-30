@@ -21,7 +21,6 @@ import org.prosolo.common.config.SMTPConfig;
 import org.prosolo.common.email.generators.EmailContentGenerator;
 import org.prosolo.common.email.generators.EmailVerificationEmailContentGenerator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.SmartTransactionObject;
 
 @Service("org.prosolo.services.email.EmailSender")
 public class EmailSender {

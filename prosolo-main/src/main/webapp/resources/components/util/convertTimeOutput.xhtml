@@ -1,0 +1,18 @@
+<ui:component
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="millis" required="true"/>
+	    <composite:attribute name="format" default="null"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<span id="convertTime#{cc.clientId}"></span>
+		<script>
+			#{cc.attrs.format eq 'null'}
+				? convertTime(#{cc.attrs.millis}, null, '#convertTime#{cc.clientId}')
+				: convertTime(#{cc.attrs.millis}, '#{cc.attrs.format}', '#convertTime#{cc.clientId}');
+		</script>
+	</composite:implementation>
+</ui:component>

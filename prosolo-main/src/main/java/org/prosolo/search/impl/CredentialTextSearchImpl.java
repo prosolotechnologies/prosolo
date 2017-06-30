@@ -1,19 +1,11 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.Date;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -24,6 +16,7 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.CredentialType;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialSearchConfig;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
@@ -35,6 +28,14 @@ import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.Date;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -62,10 +63,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	}
 	
 	@Override
-	public TextSearchResponse1<CredentialData> searchCredentialsForUser(
+	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
+		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -121,7 +122,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 				if(searchHits != null) {
@@ -152,10 +153,10 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	}
 	
 	@Override
-	public TextSearchResponse1<CredentialData> searchCredentialsForManager(
+	public PaginatedResult<CredentialData> searchCredentialsForManager(
 			String searchTerm, int page, int limit, long userId, 
 			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
-		TextSearchResponse1<CredentialData> response = new TextSearchResponse1<>();
+		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
@@ -239,8 +240,8 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 		BoolQueryBuilder bf = QueryBuilders.boolQuery();
 		bf.filter(QueryBuilders.termQuery("type", config.getType().toString().toLowerCase()));
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
-		if(config.getType() == CredentialType.Delivery) {
-			if(config.shouldIncludeResourcesWithViewPrivilege()) {
+		if (config.getType() == CredentialType.Delivery) {
+			if (config.shouldIncludeResourcesWithViewPrivilege()) {
 				/*
 				 * users with learn privilege (or when credential is visible to all) can see credential delivery
 				 * if delivery is scheduled (delivery start is set) and not ended.
@@ -253,7 +254,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				BoolQueryBuilder endDateFilter = QueryBuilders.boolQuery();
 				endDateFilter.should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery("deliveryEnd")));
 				endDateFilter.should(QueryBuilders.rangeQuery("deliveryEnd")
-						.gt(org.prosolo.services.indexing.utils.ElasticsearchUtil.getDateStringRepresentation(now)));
+						.gt(ElasticsearchUtil.getDateStringRepresentation(now)));
 				publishedAndVisibleFilter.filter(endDateFilter);
 				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
 				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
@@ -263,12 +264,12 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 				boolFilter.should(publishedAndVisibleFilter);
 			}
 			
-			if(config.shouldIncludeEnrolledResources()) {
+			if (config.shouldIncludeEnrolledResources()) {
 				//user is enrolled in a credential (currently learning or completed competence)
 				boolFilter.should(QueryBuilders.termQuery("students.id", userId));
 			}
 			
-			if(config.shouldIncludeResourcesWithInstructPrivilege()) {
+			if (config.shouldIncludeResourcesWithInstructPrivilege()) {
 				/*
 				 * we don't need to store users with instruct privilege separately because we already store 
 				 * collection of instructors for credential
@@ -277,18 +278,9 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			}
 		}
 		
-		if(config.shouldIncludeResourcesWithEditPrivilege()) {
-			BoolQueryBuilder editorFilter = QueryBuilders.boolQuery();
-			//user is owner of a credential
-			editorFilter.should(QueryBuilders.termQuery("creatorId", userId));
-			
+		if (config.shouldIncludeResourcesWithEditPrivilege()) {
 			//user has Edit privilege for credential
-			editorFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
-			
-			BoolQueryBuilder editorAndTypeFilter = QueryBuilders.boolQuery();
-			editorAndTypeFilter.filter(editorFilter);
-			
-			boolFilter.should(editorAndTypeFilter);
+			boolFilter.should(QueryBuilders.termQuery("usersWithEditPrivilege.id", userId));
 		}
 		
 		bf.filter(boolFilter);

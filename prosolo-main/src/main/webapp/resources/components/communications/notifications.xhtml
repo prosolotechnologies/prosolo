@@ -42,7 +42,12 @@
 			                                <div class="notContent">
 			                                    <h3>#{notification.actor.fullName}</h3> #{notification.predicate} <h3>#{notification.objectTitle}</h3> #{notification.relationToTarget} <h3>#{notification.targetTitle}</h3> 
 			                                </div>
-			                                <span class="timestamp">#{notification.datePretty}</span>
+			                                <span class="timestamp">
+												<utilcomp:convertTimeOutput
+														millis="#{notification.notificationTime}"
+														format="rel"
+												/>
+											</span>
 			                            </h:outputLink>
 			                        </li>
 		                    	</ui:repeat>
@@ -60,15 +65,6 @@
 		                <div class="whiteBox">
 		                    <h2>Show</h2>
 		                    <h:panelGroup id="panelFilters">
-			                    <ui:remove><ui:repeat var="filter" value="#{notificationBean.filters}">
-			                    	<div class="checkbox checkLine">
-				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">
-											<p:ajax event="click" process="@this"
-												listener="#{notificationBean.filterChanged(filter)}" update=":#{cc.clientId}:formMain:panelNotifications :#{cc.clientId}:formMain:pagination" />
-										</h:selectBooleanCheckbox>
-										<label for="checkboxFilter#{filter.filter}">#{filter.filter.label}</label>
-									</div>
-			                    </ui:repeat></ui:remove>
 			                    <c:forEach items="#{notificationBean.filters}" var="filter" varStatus="status">
 			                    	<div class="checkbox checkLine">
 				                    	<h:selectBooleanCheckbox id="checkboxFilter#{filter.filter}" value="#{filter.applied}">

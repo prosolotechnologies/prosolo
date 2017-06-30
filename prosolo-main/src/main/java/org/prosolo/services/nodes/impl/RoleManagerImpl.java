@@ -16,6 +16,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,25 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 		return new ArrayList<Long>();
 	}
-	
+
+	@Override
+	public List<Role> getRolesByNames(String[] names) {
+		 String query =
+				 "SELECT role " +
+				 "FROM Role role " +
+				 "WHERE role.title IN :names";
+
+		@SuppressWarnings("unchecked")
+		List<Role> result = persistence.currentManager().createQuery(query)
+				 .setParameterList("names", names)
+				 .list();
+		 
+		 if(result != null && !result.isEmpty()){
+			 return result;
+		 }
+		 return new ArrayList<Role>();
+	}
+
 	@Override
 	public List<Role> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
@@ -58,7 +77,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 		return new ArrayList<Role>();
 	}
-
+	
 	@Override
 	public Role createNewRole(String name, String description, boolean systemDefined) {
 		return resourceFactory.createNewRole(
@@ -114,7 +133,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		String query = 
 				"SELECT role " +
 				"FROM User user " +
-				"LEFT JOIN user.roles role "+
+				"INNER JOIN user.roles role "+
 				"WHERE user.email = :email " ;
 							
 			@SuppressWarnings("unchecked")
@@ -124,7 +143,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			
 			return roles;
 	}
-	
+
 	@Override
 	@Transactional (readOnly = true)
 	public Role getRoleByName(String roleName) {
@@ -234,22 +253,6 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			cap.getRoles().remove(role);
 		}
 		delete(role);
-	}
-	
-	@Override
-	@Transactional (readOnly = true)
-	public boolean isRoleUsed(long roleId) {
-		String query = 
-			"SELECT COUNT(user) " +
-			"FROM User user " +
-			"LEFT JOIN user.roles role " +
-			"WHERE role.id = :roleId";
-		
-		Long result = (Long) persistence.currentManager().createQuery(query)
-			.setLong("roleId", roleId)
-			.uniqueResult();
-		
-		return result > 0;
 	}
 	
 	@Override
@@ -374,5 +377,5 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			throw new DbConnectionException("Error while checking user roles");
 		}
 	}
-	
+
 }

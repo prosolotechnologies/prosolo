@@ -4,11 +4,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.ChangeProgressEvent;
@@ -92,27 +92,27 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	BaseEntity object = cpe.getObject();
-	    	if(object instanceof TargetCredential1) {
+	    	if (object instanceof TargetCredential1) {
 		    	TargetCredential1 tc = (TargetCredential1) cpe.getObject();
 		    	Credential1 cr = tc.getCredential();
 		    	
 				if (cr != null) {
 			    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
 		    	}
-	    	} else if(object instanceof TargetCompetence1) {
+	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
 		    	Competence1 c = tc.getCompetence();
 		    	
 				if (c != null) {
 					String dateCompleted = null;
-					if(params != null) {
+					if (params != null) {
 						dateCompleted = params.get("dateCompleted");
 					}
 			    	userEntityESService.updateCompetenceProgress(cpe.getActorId(), c.getId(), cpe.getNewProgressValue(),
 			    			dateCompleted);
 		    	}
 	    	}
-	    } else if(eventType == EventType.Edit_Profile) {
+	    } else if (eventType == EventType.Edit_Profile) {
 	    	BaseEntity obj = event.getObject();
 	    	long userId = 0;
 	    	/*

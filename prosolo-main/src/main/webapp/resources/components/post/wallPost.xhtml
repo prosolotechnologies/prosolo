@@ -7,8 +7,7 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -88,9 +87,13 @@
                </div>
                <div class="wallPostHeadRight">
                    <h:link outcome="wall-post-view" styleClass="timestamp">
-                   		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>      	
-                   		#{cc.attrs.socialActivity.datePretty}
+                   		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.id)}"></f:param>
+						<utilcomp:convertTimeOutput
+								millis="#{cc.attrs.socialActivity.postDateTime}"
+					   			format="rel"
+						/>
                    </h:link>
+
                    <h:panelGroup id="panelSocialActivityOptions" styleClass="dropdown optDrop">
                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                            <span class="arrowDown">arrowDown</span>

@@ -38,7 +38,6 @@ public class CommentDataFactory {
 		cd.setLikedByCurrentUser(likedByCurrentUser);
 		cd.setCommentedResourceId(comment.getCommentedResourceId());
 		cd.setDateCreated(comment.getPostDate());
-		cd.setFormattedDate(DateUtil.getTimeAgoFromNow(cd.getDateCreated()));
 		cd.setNumberOfReplies(numberOfReplies);
 		return cd;
 	}
@@ -58,7 +57,6 @@ public class CommentDataFactory {
 		cd.setLikedByCurrentUser(likedByCurrentUser);
 		cd.setCommentedResourceId(commentedResourceId);
 		cd.setDateCreated(dateCreated);
-		cd.setFormattedDate(DateUtil.getTimeAgoFromNow(dateCreated));
 		cd.setNumberOfReplies(numberOfReplies);
 		return cd;
 	}

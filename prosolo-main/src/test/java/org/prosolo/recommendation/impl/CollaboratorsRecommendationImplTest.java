@@ -21,10 +21,10 @@ public class CollaboratorsRecommendationImplTest extends TestContext {
 	@Autowired private CollaboratorsRecommendation collaboratorsRecommendation;
 	@Autowired private LoggingService loggingService;
 	
-	@Test
-	public void testGetMostActiveRecommendedUsers() {
-		collaboratorsRecommendation.getMostActiveRecommendedUsers(1, 10);
-	}
+//	@Test
+//	public void testGetMostActiveRecommendedUsers() {
+//		collaboratorsRecommendation.getMostActiveRecommendedUsers(1, 10);
+//	}
 	 @Ignore
 	@Test
 	public void generateRandomLogs(){

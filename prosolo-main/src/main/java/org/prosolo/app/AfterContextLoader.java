@@ -8,13 +8,12 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.prosolo.app.bc.BusinessCase;
 import org.prosolo.app.bc.BusinessCase0_Blank;
-import org.prosolo.app.bc.BusinessCase1_DL;
 import org.prosolo.app.bc.BusinessCase2_AU;
 import org.prosolo.app.bc.BusinessCase3_Statistics;
 import org.prosolo.app.bc.BusinessCase4_EDX;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -212,13 +211,6 @@ public class AfterContextLoader implements ServletContextListener {
 			}
 			break;
 
-		case BusinessCase.DL_TEST:
-			try {
-				ServiceLocator.getInstance().getService(BusinessCase1_DL.class).initRepository();
-			} catch (Exception e) {
-				logger.error("Could not initialise Repository for BC DL_TEST:", e);
-			}
-			break;
 		case BusinessCase.AU_TEST:
 			try {
 				BusinessCase2_AU.initRepository();

@@ -14,7 +14,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -30,7 +29,6 @@ public class User extends BaseEntity {
 	private String name;
 	private String lastname;
 	private String avatarUrl;
-	private Set<TargetLearningGoal> learningGoals;
 	private Set<Role> roles;
 	private Organization organization;
 	
@@ -52,9 +50,7 @@ public class User extends BaseEntity {
 	private boolean verified;
 	private String verificationKey;
 	
-	
 	public User() {
-		learningGoals = new HashSet<TargetLearningGoal>();
 		roles = new HashSet<Role>();
 	}
 	
@@ -113,29 +109,9 @@ public class User extends BaseEntity {
 		this.passwordLength = passwordLength;
 	}
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@Cascade(org.hibernate.annotations.CascadeType.MERGE)
-	@JoinTable(name = "user_learning_goals")
-	public Set<TargetLearningGoal> getLearningGoals() {
-		return learningGoals;
-	}
-
-	public void setLearningGoals(Set<TargetLearningGoal> learningGoals) {
-		this.learningGoals = learningGoals;
-	}
-
-	public void addLearningGoal(TargetLearningGoal learningGoal) {
-		if (null != learningGoal) {
-			if (!getLearningGoals().contains(learningGoal)) {
-				getLearningGoals().add(learningGoal);
-			}
-		}
-	}
-
 	 //@Override
 	public int compareTo(User o) {
 		return getEmail().toString().compareTo(( (User) o).getEmail().toString());
-
 	}
 
 	@Type(type="true_false")

@@ -10,9 +10,9 @@ function initializeDatePickers() {
 	end.datetimepicker({
     	useCurrent: false
     });
-	setEndMinDateIfNeeded();
+	setEndMinDate();
 	start.on('dp.change', function (e) {
-		setEndMinDateIfNeeded();
+		setEndMinDate();
 	});
 	end.on('dp.change', function (e) {
 		setStartMaxDateIfNeeded();
@@ -31,18 +31,17 @@ function setStartMaxDateIfNeeded() {
 	}
 }
 	
-function setEndMinDateIfNeeded() {
+function setEndMinDate() {
 	var end = $('.datePickerSelector.deliveryEndSelector');
 	if (end.length) {
 		var minDateStr = $('.deliveryStartSelector').val();
-		var now = new Date();
+        var nowMoment = moment(new Date());
 		if (minDateStr) {
-			var nowMoment = moment(now);
 			var minDateMoment = moment(minDateStr, 'MM/DD/YYYY hh:mm a');
 			var minDate = minDateMoment.toDate() > nowMoment.toDate() ? minDateMoment : nowMoment;
 			end.data("DateTimePicker").minDate(minDate);
 		} else {
-			end.data("DateTimePicker").minDate(false);
+			end.data("DateTimePicker").minDate(nowMoment);
 		}
 	}
 }

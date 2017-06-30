@@ -46,4 +46,6 @@ public interface CredentialESService  extends AbstractBaseEntityESService {
 	
 	void restoreCredential(long credId);
 
+	void updateCredentialOwner(long credId, long newOwnerId);
+
 }

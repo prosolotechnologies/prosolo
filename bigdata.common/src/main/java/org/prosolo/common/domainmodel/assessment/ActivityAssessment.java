@@ -3,18 +3,13 @@ package org.prosolo.common.domainmodel.assessment;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
-@Entity 
+@Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"competence_assessment", "target_activity"})})
 public class ActivityAssessment extends BaseEntity {
 
 	private static final long serialVersionUID = -2026612306127154692L;

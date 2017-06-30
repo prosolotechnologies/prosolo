@@ -1,48 +1,22 @@
 package org.prosolo.services.nodes.impl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.persistence.criteria.Root;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
-import org.prosolo.bigdata.common.exceptions.CompetenceEmptyException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceActivity1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.CredentialType;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetActivity1;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.annotation.TagManager;
@@ -51,19 +25,9 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.CompetenceUserAccessSpecification;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessFactory;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
+import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
@@ -72,8 +36,8 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
 public class Competence1ManagerImpl extends AbstractManagerImpl implements Competence1Manager {
@@ -102,63 +66,90 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Inject private Competence1Manager self;
 
 	@Override
-	@Transactional(readOnly = false)
+	//nt
 	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
+										 LearningContextData context) throws DbConnectionException,
+			IllegalDataStateException, EventException {
+		//self-invocation
+		Result<Competence1> res = self.saveNewCompetenceAndGetEvents(data, creatorId, credentialId, context);
+		for (EventData ev : res.getEvents()) {
+			//todo observer refactor - generate attach event always when sequential event execution is supported
+			if (credentialId == 0 || ev.getEventType() != EventType.Attach) {
+				if (context != null) {
+					ev.setPage(context.getPage());
+					ev.setContext(context.getLearningContext());
+					ev.setService(context.getService());
+				}
+				eventFactory.generateEvent(ev);
+			}
+		}
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
 			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
-		Competence1 comp = null;
 		try {
 			/*
 			 * if competence has no activities, it can't be published
 			 */
 			if (data.isPublished() && (data.getActivities() == null || data.getActivities().isEmpty())) {
-				throw new CompetenceEmptyException();
+				throw new IllegalDataStateException("Can not publish competency without activities.");
 			}
-			
-			Result<Competence1> res = resourceFactory.createCompetence(data.getTitle(), 
-					data.getDescription(), data.getTagsString(), creatorId, 
-					data.isStudentAllowedToAddActivities(), data.getType(), data.isPublished(), 
-					data.getDuration(), data.getActivities(), credentialId);
 
-			comp = res.getResult();
+			Result<Competence1> result = new Result<>();
+			Competence1 comp = new Competence1();
+			comp.setTitle(data.getTitle());
+			comp.setDateCreated(new Date());
+			comp.setDescription(data.getDescription());
+			comp.setCreatedBy(loadResource(User.class, creatorId));
+			comp.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
+			comp.setType(data.getType());
+			comp.setPublished(data.isPublished());
+			comp.setDuration(data.getDuration());
+			comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+			saveEntity(comp);
 
-			/*
-			 * generate events for event data returned
-			 */
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
-			for(EventData ev : res.getEvents()) {
-				//todo observer refactor - generate attach event always when sequential event execution is supported
-				if (credentialId == 0 || ev.getEventType() != EventType.Attach) {
-					ev.setPage(page);
-					ev.setContext(lContext);
-					ev.setService(service);
-					eventFactory.generateEvent(ev);
+			if (data.getActivities() != null) {
+				for (ActivityData bad : data.getActivities()) {
+					CompetenceActivity1 ca = new CompetenceActivity1();
+					ca.setOrder(bad.getOrder());
+					ca.setCompetence(comp);
+					Activity1 act = (Activity1) persistence.currentManager().load(
+							Activity1.class, bad.getActivityId());
+					ca.setActivity(act);
+					saveEntity(ca);
 				}
 			}
 
-			//todo observer refactor - we do not need credential id as a parameter when attach event
-			//is generated
+			if (credentialId > 0) {
+				result.addEvents(credentialManager.addCompetenceToCredential(credentialId, comp,
+						creatorId));
+			}
+
+			/*
+				todo observer refactor - we do not need credential id as a parameter when attach event is generated
+			*/
 			Map<String, String> params = null;
 			if (credentialId > 0) {
 				params = new HashMap<>();
 				params.put("credentialId", credentialId + "");
 			}
-			eventFactory.generateEvent(EventType.Create, creatorId, comp, null, page, lContext,
-					service, params);
-			
-//			if((data.getStatus() == PublishedStatus.SCHEDULED_PUBLISH 
-//					|| data.getStatus() == PublishedStatus.SCHEDULED_UNPUBLISH) 
-//					&& data.getScheduledPublicDate() != null) {
-//				eventFactory.generateEvent(EventType.SCHEDULED_VISIBILITY_UPDATE, creatorId, comp, null, page, lContext, 
-//						service, null);
-//			}
+			result.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, comp, null, context,
+					params));
 
-			return comp;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
+			//add Edit privilege to the competence creator
+			result.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(creatorId, comp.getId(),
+					UserGroupPrivilege.Edit,true, creatorId, context).getEvents());
+
+			logger.info("New competence is created with id " + comp.getId());
+			result.setResult(comp);
+			return result;
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
 			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -450,10 +441,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
 			Map<String, String> params = new HashMap<>();
-			String dateEnrolledString = null;
-			DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			dateEnrolledString = df.format(now);
-			params.put("dateEnrolled", dateEnrolledString);
+			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
 			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, params);
 			
 			return targetComp;
@@ -1540,70 +1528,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw new DbConnectionException("Error while loading competence data");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public List<EventData> publishCompetences(long credId, List<Long> compIds, long creatorId)
-			throws DbConnectionException, CompetenceEmptyException {
-		try {
-			// get all draft competences
-			List<EventData> events = new ArrayList<>();
-			List<Competence1> comps = getDraftCompetencesFromList(compIds, creatorId);
-			// publish competences that this user can edit only
-			User user = new User();
-			user.setId(creatorId);
-
-			// store ids of competences that can be edited and that are
-			// published so list can be
-			// passed to publishActivities method
-			List<Long> publishedComps = new ArrayList<>();
-			for (Competence1 c : comps) {
-				/*
-				 * check if competence has at least one activity - if not, it
-				 * can't be published
-				 */
-				int numberOfActivities = c.getActivities().size();
-				if (numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
-				}
-
-				//check if user can edit this competence
-				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.NONE);
-				ResourceAccessData access = getResourceAccessData(c.getId(), creatorId, req);
-				if(access.isCanEdit()) {
-					c.setPublished(true);
-					EventData ev = new EventData();
-					ev.setActorId(creatorId);
-					ev.setEventType(EventType.STATUS_CHANGED);
-					ev.setObject(c);
-					events.add(ev);
-
-					publishedComps.add(c.getId());
-				}
-			}
-			
-//			List<EventData> actEvents = activityManager.publishActivitiesFromCompetences(credId,
-//					creatorId, publishedComps);
-//			persistence.currentManager().flush();
-//			for(long id : publishedComps) {
-//				Competence1 comp = (Competence1) persistence.currentManager()
-//						.load(Competence1.class, id);
-//				comp.setDuration(getRecalculatedDuration(id));
-//			}
-//			events.addAll(actEvents);
-
-			return events;
-		} catch (CompetenceEmptyException cee) {
-			logger.error(cee);
-			// cee.printStackTrace();
-			throw cee;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while publishing competences");
-		}
-	}
 
 	/**
 	 * Return all draft competences that satisfy condition: for user role if
@@ -1846,7 +1770,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public UserAccessSpecification getUserPrivilegesForCompetence(long compId, long userId) 
 			throws DbConnectionException {
 		try {
-			String query = "SELECT DISTINCT compUserGroup.privilege, comp.createdBy.id, comp.visibleToAll, comp.type, comp.published, comp.datePublished " +
+			String query = "SELECT DISTINCT compUserGroup.privilege, comp.visibleToAll, comp.type, comp.published, comp.datePublished " +
 					"FROM CompetenceUserGroup compUserGroup " +
 					"INNER JOIN compUserGroup.userGroup userGroup " +
 					"RIGHT JOIN compUserGroup.competence comp " +
@@ -1861,32 +1785,30 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setLong("compId", compId)
 					.list();
 			
-			long owner = 0;
 			boolean visibleToAll = false;
 			LearningResourceType type = null;
 			boolean published = false;
 			Date datePublished = null;
 			boolean first = true;
 			Set<UserGroupPrivilege> privs = new HashSet<>();
-			for(Object[] row : res) {
-				if(row != null) {
+			for (Object[] row : res) {
+				if (row != null) {
 					UserGroupPrivilege priv = (UserGroupPrivilege) row[0];
-					if(priv == null) {
+					if (priv == null) {
 						priv = UserGroupPrivilege.None;
 					}
 					privs.add(priv);
-					if(first) {
-						owner = (long) row[1];
-						visibleToAll = (boolean) row[2];
-						type = (LearningResourceType) row[3];
-						published = (boolean) row[4];
-						datePublished = (Date) row[5];
+					if (first) {
+						visibleToAll = (boolean) row[1];
+						type = (LearningResourceType) row[2];
+						published = (boolean) row[3];
+						datePublished = (Date) row[4];
 						first = false;
 					}
 				}
 			}
-			return CompetenceUserAccessSpecification.of(privs, visibleToAll, owner == userId, published, 
-					datePublished, type);
+			return CompetenceUserAccessSpecification.of(
+					privs, visibleToAll, published, datePublished, type);
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -2684,14 +2606,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
 //				lcPage, lcContext, lcService, params);
-		if(finalCompProgress == 100) {
+		if (finalCompProgress == 100) {
 			Map<String, String> params = new HashMap<>();
-			String dateCompletedStr = null;
-			if(now != null) {
-				DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				dateCompletedStr = df.format(now);
-			}
-			params.put("dateCompleted", dateCompletedStr);
+			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
 			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null, 
 					contextData, params));
 //			eventFactory.generateEvent(EventType.Completion, userId, tComp, null,
@@ -2712,8 +2629,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				 * check if competence has at least one activity - if not, it can't be published
 				 */
 				int numberOfActivities = comp.getActivities().size();
-				if(numberOfActivities == 0) {
-					throw new CompetenceEmptyException();
+				if (numberOfActivities == 0) {
+					throw new IllegalDataStateException("Can not publish competency without activities.");
 				}
 			
 				comp.setPublished(true);
@@ -2727,11 +2644,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 			
 			return res;
-		} catch(CompetenceEmptyException cee) {
-			logger.error(cee);
-			//cee.printStackTrace();
-			throw new IllegalDataStateException("Can not publish competency without activities.");
-		} catch(Exception e) {
+		} catch (IllegalDataStateException e) {
+			logger.error(e);
+			throw e;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while publishing competency");
@@ -2788,22 +2704,159 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	public void updateCompetenceCreator(long newCreatorId, long oldCreatorId)
+	private List<Long> getCompetenceIdsForOwner(long ownerId) {
+		String query = "SELECT comp.id " +
+				"FROM Competence1 comp " +
+				"WHERE comp.createdBy.id = :ownerId";
+
+		return persistence.currentManager()
+				.createQuery(query)
+				.setLong("ownerId", ownerId)
+				.list();
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId)
 			throws DbConnectionException {
 		try {
-				String query = "UPDATE Competence1 comp SET " +
-						"comp.createdBy = :newCreatorId " +
-						"WHERE comp.createdBy = :oldCreatorId";
-	
-				persistence.currentManager()
-					.createQuery(query)
-					.setLong("newCreatorId", newCreatorId)
-					.setLong("oldCreatorId", oldCreatorId)
-					.executeUpdate();
-		} catch (Exception e){
+			Result<Void> result = new Result<>();
+			List<Long> competencesWithOldOwner = getCompetenceIdsForOwner(oldCreatorId);
+
+			String query = "UPDATE Competence1 comp SET " +
+					"comp.createdBy = :newCreatorId " +
+					"WHERE comp.createdBy = :oldCreatorId";
+
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("newCreatorId", newCreatorId)
+				.setLong("oldCreatorId", oldCreatorId)
+				.executeUpdate();
+
+			for (long id : competencesWithOldOwner) {
+				//remove Edit privilege from old owner
+				result.addEvents(userGroupManager.removeUserFromDefaultCompetenceGroupAndGetEvents(
+						oldCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+				//add edit privilege to new owner
+				result.addEvents(userGroupManager.saveUserToDefaultCompetenceGroupAndGetEvents(
+						newCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+
+				//for all competencies change_owner event should be generated
+				Competence1 comp = new Competence1();
+				comp.setId(id);
+				Map<String, String> params = new HashMap<>();
+				params.put("oldOwnerId", oldCreatorId + "");
+				params.put("newOwnerId", newCreatorId + "");
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, 0, comp, null,
+						null, params));
+			}
+			return result;
+		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while updating creator of competences");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException {
+		
+		StringBuilder queryBuilder = new StringBuilder(
+				"SELECT tags " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN comp.tags tags  " +
+				"WHERE comp.id = :compId ");
+		
+		@SuppressWarnings("unchecked")
+		List<Tag> res = persistence.currentManager()
+			.createQuery(queryBuilder.toString())
+			.setLong("compId", competenceId)
+			.list();
+		
+		return res;
+	}
+	
+	@Override
+	@Transactional (readOnly = false)
+	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
+			throws DbConnectionException {
+		try {
+			String query = 
+				"UPDATE TargetCompetence1 targetComptence1 " +
+				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
+				"WHERE targetComptence1.id = :compId ";
+	
+			persistence.currentManager()
+				.createQuery(query)
+				.setLong("compId", compId)
+				.setBoolean("hiddenFromProfile", hiddenFromProfile)
+				.executeUpdate();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress = 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	@Transactional (readOnly = true)
+	public List<TargetCompetence1> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
+		try {
+			String query =
+				"SELECT targetComptence1 " +
+				"FROM TargetCompetence1 targetComptence1 " +
+				"WHERE targetComptence1.targetCredential.id IN (" +
+					"SELECT targetCredential1.id " +
+					"FROM TargetCredential1 targetCredential1 " + 
+					"WHERE targetCredential1.user.id = :userId " +
+				") " + 
+			    "AND targetComptence1.progress < 100 ";
+			
+			if (onlyPubliclyVisible) {
+				query += " AND targetComptence1.hiddenFromProfile = false ";
+			}
+			
+			query += "ORDER BY targetComptence1.title";
+			
+			return persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			e.printStackTrace();
+			throw new DbConnectionException();
 		}
 	}
 

@@ -7,15 +7,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.prosolo.common.domainmodel.activities.events.EventType;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.activityWall.SocialActivityFiltering;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
@@ -31,8 +30,6 @@ public class SocialStreamObserver extends EventObserver {
 	@Autowired private SocialActivityFactory socialActivityFactory;
 	@Autowired private DefaultManager defaultManager;
 	
-	@Autowired private SocialActivityFiltering socialActivityFiltering;
-	
 	private List<ExcludedEventResource> excluded;
 	
 	public SocialStreamObserver() {
@@ -43,21 +40,9 @@ public class SocialStreamObserver extends EventObserver {
 
 	public EventType[] getSupportedEvents() {
 		return new EventType[] { 
-//			EventType.Create, 
-//			EventType.Delete, 
 			EventType.Comment,
-//			EventType.Edit,
-//			EventType.Edit_Profile,
-//			EventType.Like, 
 			EventType.Post, 
-//			EventType.TwitterPost,  
-//			EventType.AddNote,
-//			EventType.Registered,
 			EventType.Completion, 
-//			EventType.JOIN_GOAL_INVITATION_ACCEPTED,
-//			EventType.JOIN_GOAL_REQUEST_APPROVED,
-//			EventType.JoinedGoal,
-			EventType.ENROLL_COURSE
 		};
 	}
 
@@ -109,11 +94,6 @@ public class SocialStreamObserver extends EventObserver {
 				e.printStackTrace();
 				transaction.rollback();
 			}
-		 	if (socialActivity != null) {
-		 		//socialActivityHandler.updateUserSocialActivityInboxes(socialActivity, true, session);
-				//session.flush();
-		 	 	socialActivityFiltering.checkSocialActivity(socialActivity, session);
-		 	}
 		} catch (Exception e) {
 			
 			logger.error("Exception in handling message", e);

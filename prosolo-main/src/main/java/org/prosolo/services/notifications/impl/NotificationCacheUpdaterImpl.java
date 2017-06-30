@@ -31,30 +31,6 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 	@Inject
 	private NotificationManager notificationManager;
 
-//	@Override
-//	public void updateNotificationData(long notificationId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
-//		if (userSession != null) {
-//			TopNotificationsBean topNotificationsBean = (TopNotificationsBean) userSession.getAttribute("topNotificationsBean");
-//			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
-//
-//			if (topNotificationsBean != null) {
-//				try {
-//					Notification notification = (Notification) defaultManager.loadResource(Notification.class, notificationId, true);
-//					
-//					NotificationData notificationData = NotificationDataConverter.convertNotification(
-//							loggedUserBean.getUser(), 
-//							notification, 
-//							session, 
-//							loggedUserBean.getLocale());
-//					
-//					topNotificationsBean.addNotification(notificationData, session);
-//				} catch (NotificationNotSupported e) {
-//					logger.error(e);
-//				}
-//			}
-//		}
-//	}
-	
 	@Override
 	public void updateNotificationData(long notificationId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
 		if (userSession != null) {

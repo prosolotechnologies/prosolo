@@ -25,8 +25,18 @@
 	                    <h3><span>Delivery title:</span> #{delivery.title}</h3>
 	                    <div class="deliveryMeta">
 	                        <div class="deliveryTime">
-	                            <div class="start"><span>Start:</span> #{delivery.deliveryStartString}</div>
-	                            <div class="end"><span>End:</span> #{delivery.deliveryEndString}</div>
+	                            <div class="start"><span>Start:</span>
+									<utilcomp:convertTimeOutput
+											millis="#{delivery.deliveryStartTime}"
+											format="MMM DD, YYYY [at] hh:mm a"
+									/>
+								</div>
+	                            <div class="end"><span>End:</span>
+									<utilcomp:convertTimeOutput
+											millis="#{delivery.deliveryEndTime}"
+											format="MMM DD, YYYY [at] hh:mm a"
+									/>
+								</div>
 	                        </div>
 	                        <c:if test="#{cc.attrs.showNumberOfStudentsAndInstructors}">
 		                        <div class="deliveryPeople">

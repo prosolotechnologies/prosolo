@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse1;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +52,6 @@ public class UserEditBean implements Serializable {
 	private RoleManager roleManager;
 	@Inject
 	private PasswordResetManager passwordResetManager;
-
 	@Inject
 	private UserTextSearch userTextSearch;
 
@@ -68,6 +68,7 @@ public class UserEditBean implements Serializable {
 	private List<UserData> users;
 	private String searchTerm;
 	private RoleFilter filter;
+	private List<UserData> usersToExclude = new ArrayList<>();
 
 	public void initPassword() {
 		logger.debug("initializing");
@@ -76,6 +77,7 @@ public class UserEditBean implements Serializable {
 			user = new UserData();
 			user.setId(decodedId);
 			accountData = new AccountData();
+			usersToExclude.add(user);
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
@@ -107,6 +109,7 @@ public class UserEditBean implements Serializable {
 			else {
 				user = new UserData();
 			}
+			usersToExclude.add(user);
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
@@ -154,15 +157,10 @@ public class UserEditBean implements Serializable {
 			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
 
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
-
 			sendNewPasswordViaEmail();
-			
-//			if (this.user.isSendEmail()) {
-//			emailSenderManager.sendEmailAboutNewAccount(user,
-//					this.user.getEmail());
-//			}
 
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
+			PageUtil.redirect("/admin");
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -179,7 +177,8 @@ public class UserEditBean implements Serializable {
 			
 			User userNewPass = userManager.getUser(user.getEmail());
 			if (userNewPass != null) {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(), CommonSettings.getInstance().config.appConfig.domain + "recovery");
+				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
+						CommonSettings.getInstance().config.appConfig.domain + "recovery");
 				
 				if (resetLinkSent) {
 					PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
@@ -191,7 +190,7 @@ public class UserEditBean implements Serializable {
 			}
 		}
 	
-	private void updateUser() {
+	private void  updateUser() {
 		try {
 			boolean shouldChangePassword = this.user.getPassword() != null 
 					&& !this.user.getPassword().isEmpty();
@@ -384,7 +383,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				TextSearchResponse1<UserData> result = userTextSearch.searchNewOwner(searchTerm, 3, user.getId());
+				PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -395,5 +394,6 @@ public class UserEditBean implements Serializable {
 	public void resetAndSearch() {
 		loadUsers();
 	}
-
 }
+
+

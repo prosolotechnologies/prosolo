@@ -18,39 +18,17 @@ var custom = {
 //comment form hide/show
 function displaySubmitButton(inputElem) {
     if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
-    		($(inputElem).is('div') && $(inputElem).html().length == 0)) {
-        $(inputElem).next('button.btn-green').addClass('hidden');
-    } else {
-        $(inputElem).next('button.btn-green').removeClass('hidden');
-    }
+     		($(inputElem).is('div') && $(inputElem).html().length == 0)) {
+        $(inputElem).parent().find('.submitBtn').addClass('hidden');
+     } else {
+    	$(inputElem).parent().find('.submitBtn').removeClass('hidden');
+     }
 }
 
 function toggleReplyInput(replyBtn) {
 	$(replyBtn).parent().parent().next('.replyInput').toggleClass('hidden');
 	$(replyBtn).parent().parent().next('.replyInput').get(0).focus();
     return false;
-}
-
-function showEditResponse(editBtn, responseContainer) {
-    $(editBtn).parent().prev().find('.editComment').toggleClass('hidden');
-    $(editBtn).parent().prev().find('.commentText').toggleClass('hidden');
-    $(responseContainer).hide();
-    $(editBtn).addClass('hidden');
-    return false;
-}
-
-function hideEditResponse(cancelBtn) {
-    var editCommentContainer = $(cancelBtn).parent().parent();
-    var commentContainer = editCommentContainer.prev('.commentText');
-
-    editCommentContainer.addClass('hidden');
-    commentContainer.removeClass('hidden');
-
-    var editableDiv = editCommentContainer.find('.contentEditableComment').first();
-	editableDiv.html(commentContainer.text());
-
-    editCommentContainer.parent().next('.activityResultFooter').find('a.edit').removeClass('hidden');
-    return false;
 }
 
 function showEditComment(editBtn) {
@@ -221,5 +199,9 @@ function hideModal(dialogId) {
 	$('#'+dialogId).modal('hide');
 	$("body").removeAttr("class").removeAttr("style");
 	$("div.modal-backdrop.fade.in").remove();
+}
+
+function getSelectorFromClassesString(classes) {
+	return '.' + classes.split(/\s+/).join('.')
 }
 
