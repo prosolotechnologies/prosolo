@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -93,10 +94,13 @@ public class CompetenceEditBean implements Serializable {
 					credTitle = res.get().getTitle();
 				} else {
 					credTitle = credManager.getCredentialTitle(decodedCredId);
-					CredentialData cd = new CredentialData(false);
-					cd.setId(decodedCredId);
-					cd.setTitle(credTitle);
-					competenceData.getCredentialsWithIncludedCompetence().add(cd);
+					//we add passed credential to parent credentials only if new competency is being created
+					if (id == null) {
+						CredentialData cd = new CredentialData(false);
+						cd.setId(decodedCredId);
+						cd.setTitle(credTitle);
+						competenceData.getCredentialsWithIncludedCompetence().add(cd);
+					}
 				}
 			}
 			initializeStatuses();
@@ -151,7 +155,7 @@ public class CompetenceEditBean implements Serializable {
 				PageUtil.accessDenied();
 			} else {
 				List<CredentialData> credentialsWithCompetence = credManager
-						.getCredentialsWithIncludedCompetenceBasicData(id);
+						.getCredentialsWithIncludedCompetenceBasicData(id, CredentialType.Original);
 				competenceData.getCredentialsWithIncludedCompetence().addAll(credentialsWithCompetence);
 				List<ActivityData> activities = competenceData.getActivities();
 				for (ActivityData bad : activities) {

@@ -1250,24 +1250,34 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //	    
 //		return draftCred;
 //	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
+	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId,
+																			  CredentialType type)
 			throws DbConnectionException {
 		try {
 			String query = "SELECT cred.id, cred.title " +
 				       "FROM CredentialCompetence1 credComp " +
 				       "INNER JOIN credComp.credential cred " +
 				       "WHERE credComp.competence.id = :compId " +
-				       "AND cred.deleted = :boolFalse";
-			@SuppressWarnings("unchecked")
-			List<Object[]> res = persistence.currentManager()
+				       "AND cred.deleted = :boolFalse ";
+
+			if (type != null) {
+				query += "AND cred.type = :type";
+			}
+
+			Query q = persistence.currentManager()
 					.createQuery(query)
 					.setLong("compId", compId)
-					.setBoolean("boolFalse", false)
-					.list();
+					.setBoolean("boolFalse", false);
+
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
 
 			if(res == null) {
 				return new ArrayList<>();
