@@ -407,7 +407,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void setUserOrganization(long userId,long organizationId) {
 		try {
 			User user = loadResource(User.class,userId);
-			user.setOrganization(loadResource(Organization.class,organizationId));
+			if(organizationId != 0) {
+				user.setOrganization(loadResource(Organization.class, organizationId));
+			}else{
+				user.setOrganization(null);
+			}
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error", e);
@@ -461,8 +465,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional
 	public void setOrganizationForUsers(List<UserData> users,Long organizationId) {
-		for (UserData user : users){
-			setUserOrganization(user.getId(),organizationId);
+		for (UserData user : users) {
+			setUserOrganization(user.getId(), organizationId);
 		}
 	}
 

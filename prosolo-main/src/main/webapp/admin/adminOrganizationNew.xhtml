@@ -9,16 +9,36 @@
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
-    <ui:define name="windowTitle">New Organization</ui:define>
+    <ui:define name="windowTitle" >
+        <ui:fragment rendered="#{empty organizationEditBean.id}">New Organization</ui:fragment>
+        <ui:fragment rendered="#{not empty organizationEditBean.id}">Edit Organization</ui:fragment>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <ui:fragment  rendered="#{not empty organizationEditBean.id}">
+        <ul class="nav nav-tabs headerSubmenu">
+            <li role="presentation" class="active"><h:link
+                    outcome="/admin/adminOrganizationNew">
+                <f:param name="id" value="#{organizationEditBean.id}" />Organization Details</h:link></li>
+            <li role="presentation"><a href="#">Units</a></li>
+            <li role="presentation"><a href="#">People</a></li>
+            <li role="presentation"><a href="#">Groups</a></li>
+        </ul>
+        </ui:fragment>
+    </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
+            <f:viewParam name="id" value="#{organizationEditBean.id}" />
             <f:viewAction action="#{organizationEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>New Organization</h1>
+        <h1>
+            <h:outputText rendered="#{ empty organizationEditBean.id}" value="New Organization" />
+            <h:outputText rendered="#{not empty organizationEditBean.id}" value="#{organizationEditBean.organization.title}" />
+        </h1>
     </ui:define>
 
     <ui:define name="content">
@@ -33,6 +53,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="whiteBox">
+                        <ui:fragment rendered="#{not empty organizationEditBean.id}">
+                            <h2>Organization Details</h2>
+                        </ui:fragment>
                         <h:form id="formMain">
                         <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
                         <div class="formWrapper editOrgForm">
@@ -97,6 +120,7 @@
                                             <h:panelGroup rendered="#{not empty organizationEditBean.adminsChosen}" id="selectedOwner">
                                             <ul class="list">
                                                 <ui:repeat value="#{organizationEditBean.adminsChosen}" var="admin">
+                                                    <ui:fragment rendered="#{admin.objectStatus ne 'REMOVED'}">
                                                     <li>
                                                         <div class="instructorInfo">
                                                             <utilcomp:userAvatar
@@ -116,6 +140,7 @@
                                                                            update="formMain:selectNewOwner ">Close</p:commandLink>
                                                         </div>
                                                     </li>
+                                                    </ui:fragment>
                                                 </ui:repeat>
                                             </ul>
                                             </h:panelGroup>
@@ -132,7 +157,7 @@
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink  styleClass="btn btn-green" value="Create"
+                                    <p:commandLink  styleClass="btn btn-green" value="#{empty organizationEditBean.id ? 'Create' : 'Save Changes'}"
                                                     action="#{organizationEditBean.saveOrganization()}" update="formMain">
                                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                                     <f:param name="learningContext" value="name:new_organization" />

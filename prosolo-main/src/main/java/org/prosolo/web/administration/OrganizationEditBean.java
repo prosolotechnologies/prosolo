@@ -8,11 +8,15 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -27,7 +31,9 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Bojan on 6/6/2017.
@@ -52,6 +58,8 @@ public class OrganizationEditBean implements Serializable {
     private UserTextSearch userTextSearch;
     @Inject
     private RoleManager roleManager;
+    @Inject
+    private OrganizationDataFactory organizationDataFactory;
 
     private OrganizationData organization;
     private List<UserData> admins;
@@ -67,27 +75,23 @@ public class OrganizationEditBean implements Serializable {
 
     public void init() {
         logger.debug("initializing");
+        admins = new ArrayList<UserData>();
+        adminsChosen = new ArrayList<UserData>();
         try {
             decodedId = idEncoder.decodeId(id);
             if (decodedId > 0) {
-                User admin = userManager.getUserWithRoles(decodedId);
-                if (admin != null) {
-                    this.admin = new UserData(admin);
-                    Set<Role> roles = admin.getRoles();
-                    if (roles != null) {
-                        for (Role r : roles) {
-                            this.admin.addRoleId(r.getId());
-                        }
-                    }
+                Organization organization = organizationManager.getOrganizationById(decodedId);
+
+                if (organization != null) {
+                    this.organization = organizationDataFactory.getOrganizationData(organization,organization.getUsers());
+                    adminsChosen = this.organization.getAdmins();
                 } else {
-                    this.admin = new UserData();
+                    this.organization = new OrganizationData();
                     PageUtil.fireErrorMessage("Admin cannot be found");
                 }
             }else{
                 admin = new UserData();
                 organization = new OrganizationData();
-                admins = new ArrayList<UserData>();
-                adminsChosen = new ArrayList<UserData>();
             }
             rolesArray = new String[]{"Admin","Super Admin"};
             adminRoles = roleManager.getRolesByNames(rolesArray);
@@ -109,6 +113,14 @@ public class OrganizationEditBean implements Serializable {
     }
 
     public void setAdministrator(UserData userData) {
+
+        Optional<UserData> removedUserOpt = getUserIfPreviouslyRemoved(userData.getId());
+
+        if(removedUserOpt.isPresent()){
+            removedUserOpt.get().setObjectStatus(ObjectStatus.UP_TO_DATE);
+        }else{
+            userData.setObjectStatus(ObjectStatus.CREATED);
+        }
         adminsChosen.add(userData);
         searchTerm = "";
     }
@@ -137,7 +149,22 @@ public class OrganizationEditBean implements Serializable {
     }
 
     public void updateOrganization(){
+        try {
 
+            LearningContextData lcd = PageUtil.extractLearningContextData();
+            Organization updatedOrganization = organizationManager.updateOrganization(this.organization.getId(), this.organization.getTitle(),
+                    this.organization.getAdmins(), loggedUser.getUserId(),lcd);
+
+            logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
+
+            PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization updated");
+            PageUtil.redirect("/admin/organizations");
+        } catch (DbConnectionException e) {
+            logger.error(e);
+            PageUtil.fireErrorMessage("Error while trying to update organization data");
+        } catch (EventException e) {
+            logger.error(e);
+        }
     }
 
     public void loadUsers() {
@@ -146,7 +173,12 @@ public class OrganizationEditBean implements Serializable {
             admins = null;
         } else {
             try {
-                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3,adminsChosen,this.adminRolesIds );
+                List<UserData> usersToExclude = adminsChosen.stream()
+                        .filter(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED)
+                        .collect(Collectors.toList());
+
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, usersToExclude, this.adminRolesIds);
+
                 admins = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);
@@ -156,9 +188,21 @@ public class OrganizationEditBean implements Serializable {
 
     public void userReset(UserData admin) {
         searchTerm = "";
-        adminsChosen.remove(admin);
+        removeUser(admin);
     }
 
+    public Optional<UserData> getUserIfPreviouslyRemoved(long userId) {
+        return adminsChosen.stream()
+                .filter(user -> user.getObjectStatus() == ObjectStatus.REMOVED && user.getId() == userId)
+                .findFirst();
+    }
+
+    public void removeUser(UserData userData) {
+        userData.setObjectStatus(ObjectStatusTransitions.removeTransition(userData.getObjectStatus()));
+        if (userData.getObjectStatus() != ObjectStatus.REMOVED) {
+            adminsChosen.remove(userData);
+        }
+    }
 
     public void resetAndSearch() {
         loadUsers();
@@ -194,5 +238,13 @@ public class OrganizationEditBean implements Serializable {
 
     public void setAdminsChosen(List<UserData> adminsChosen) {
         this.adminsChosen = adminsChosen;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
