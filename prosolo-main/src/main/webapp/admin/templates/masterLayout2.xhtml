@@ -70,9 +70,9 @@
 									<span></span>Student
 								</h:link></li>
 								<li><h:link
-										rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+										rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
 										onclick="sendLogPageNavigation( '/manage', 'mainmenu');"
-										outcome="/manage/credentialLibrary">
+										outcome="/manage/library">
 									<span></span>Manage
 								</h:link></li>
 								<li class="selected"><h:link
