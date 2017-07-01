@@ -484,4 +484,7 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
 
+	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
+			throws DbConnectionException;
+
 }

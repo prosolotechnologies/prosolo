@@ -3564,4 +3564,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential creator");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
+			throws DbConnectionException {
+		try {
+			/*
+			deliveries with instruct privilege are retrieved by using instructors added to credential
+			because of the better performance than the approach with checking for Instruct privilege.
+			That does not change end result because only users that are added to delivery as instructors
+			have Instruct privilege for that delivery. If that assumption changes in the future, this
+			method would not return correct results.
+			 */
+			String query=
+					"SELECT del " +
+					"FROM Credential1 del " +
+					"INNER JOIN del.credInstructors instructor " +
+							"WITH instructor.user.id = :userId " +
+					"WHERE del.type = :type";
+
+			@SuppressWarnings("unchecked")
+			List<Credential1> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+
+			List<CredentialData> deliveries = new ArrayList<>();
+			for (Credential1 d : result) {
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, false));
+			}
+
+			return deliveries;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential deliveries");
+		}
+	}
+
 }
