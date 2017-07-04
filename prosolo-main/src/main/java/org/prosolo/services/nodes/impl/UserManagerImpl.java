@@ -2,10 +2,10 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -21,8 +21,8 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,13 +45,17 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private Activity1Manager activity1Manager;
 	@Inject
 	private CredentialManager credentialManager;
+	@Inject
+	private OrganizationManager organizationManager;
+	@Inject
+	private UserManager self;
 
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
+
 	@Autowired private UserDataFactory userDataFactory;
-	@Inject private UserManager self;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -393,11 +397,24 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userEntityESService.deleteNodeFromES(user);
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
+				logger.error("Error", e);
 				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
 
 	@Override
+	@Transactional
+	public void setUserOrganization(long userId,long organizationId) {
+		try {
+			User user = loadResource(User.class,userId);
+			user.setOrganization(loadResource(Organization.class,organizationId));
+			saveEntity(user);
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while setting organization for user");
+		}
+	}
+
 	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles) {
 
 		PaginatedResult<UserData> response = new PaginatedResult<>();
@@ -439,6 +456,14 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		response.setHitsNumber(setUsersCountForFiltering(roles,filterByRoleId));
 
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public void setOrganizationForUsers(List<UserData> users,Long organizationId) {
+		for (UserData user : users){
+			setUserOrganization(user.getId(),organizationId);
+		}
 	}
 
 	private Long setUsersCountForFiltering(List<Role> roles,long filterByRoleId){
@@ -515,30 +540,4 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		return result;
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session)
-			throws DbConnectionException {
-		try {
-			String query = "SELECT user FROM User user " +
-					 	   "WHERE user.organization.id = :orgId ";
-
-			if (!returnDeleted) {
-				query += "AND user.deleted = :boolFalse";
-			}
-
-			Query q = session
-					.createQuery(query)
-					.setLong("orgId", organizationId);
-
-			if (!returnDeleted) {
-				q.setBoolean("boolFalse", false);
-			}
-
-			return q.list();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving users");
-		}
-	}
 }

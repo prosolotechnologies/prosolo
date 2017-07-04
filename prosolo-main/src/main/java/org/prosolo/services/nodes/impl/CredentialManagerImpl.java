@@ -930,6 +930,53 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId,
+																			  CredentialType type)
+			throws DbConnectionException {
+		try {
+			String query = "SELECT cred.id, cred.title " +
+				       "FROM CredentialCompetence1 credComp " +
+				       "INNER JOIN credComp.credential cred " +
+				       "WHERE credComp.competence.id = :compId " +
+				       "AND cred.deleted = :boolFalse ";
+
+			if (type != null) {
+				query += "AND cred.type = :type";
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId)
+					.setBoolean("boolFalse", false);
+
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
+			if(res == null) {
+				return new ArrayList<>();
+			}
+			
+			List<CredentialData> resultList = new ArrayList<>();
+			for(Object[] row : res) {
+				CredentialData cd = new CredentialData(false);
+				cd.setId((long) row[0]);
+				cd.setTitle((String) row[1]);
+				resultList.add(cd);
+			}
+			return resultList;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while loading credential data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId) 
 			throws DbConnectionException {	
 		return getCredentialTags(credentialId, persistence.currentManager());

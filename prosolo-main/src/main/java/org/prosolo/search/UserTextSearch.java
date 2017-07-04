@@ -124,6 +124,5 @@ public interface UserTextSearch extends AbstractManager {
 			String searchTerm, long compId, CompetenceStudentsSearchFilterValue filter, 
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 
-	PaginatedResult<UserData> searchNewOwner(String searchTerm, int limit,
-                                             Long usersToExcludeFromSearch);
+	PaginatedResult<UserData> searchUsers(String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles);
 }

@@ -166,6 +166,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.field("name").field("lastname");
 
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			bQueryBuilder.should(qb);
 			bQueryBuilder.filter(qb);
 
 			if (!includeSystemUsers) {
@@ -1510,8 +1511,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 
 	@Override
-	public PaginatedResult<UserData> searchNewOwner(
-			String searchTerm, int limit, Long excludedId) {
+	public PaginatedResult<UserData> searchUsers(
+				String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles) {
+
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			Client client = ElasticSearchFactory.getClient();
@@ -1530,7 +1532,19 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			BoolQueryBuilder bqb = QueryBuilders.boolQuery()
 					.must(bQueryBuilder);
 
-			bqb.mustNot(termQuery("id", excludedId));
+			if(usersToExcludeFromSearch != null){
+				for(UserData admin : usersToExcludeFromSearch){
+					bQueryBuilder.mustNot(termQuery("id", admin.getId()));
+				}
+			}
+
+			if(userRoles != null && !userRoles.isEmpty()){
+				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
+				for(Long roleId : userRoles){
+					bqb1.should(termQuery("roles.id", roleId));
+				}
+				bQueryBuilder.filter(bqb1);
+			}
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar","position"};
@@ -1575,4 +1589,5 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		}
 		return null;
 	}
+
 }

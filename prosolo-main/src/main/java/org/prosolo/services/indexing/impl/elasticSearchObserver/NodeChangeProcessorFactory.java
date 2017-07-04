@@ -12,8 +12,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.UserManager;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +34,7 @@ public class NodeChangeProcessorFactory {
 	@Inject
 	private ESAdministration esAdministration;
 	@Inject
-	private UserManager userManager;
+	private OrganizationManager organizationManager;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -87,7 +87,7 @@ public class NodeChangeProcessorFactory {
 							credentialESService, userGroupManager, competenceESService, session);
 				} else if (node instanceof Organization) {
 					return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
-							userManager, event, session);
+							organizationManager, event, session);
 				} else {
 					return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Save);
 				}

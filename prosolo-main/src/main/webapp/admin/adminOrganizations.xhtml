@@ -13,6 +13,7 @@
 
     <ui:define name="metadata">
         <f:metadata>
+            <f:viewParam name="p" value="#{adminOrganizations.paginationData.pageString}" default="1" />
             <f:viewAction action="#{adminOrganizations.init()}" />
         </f:metadata>
     </ui:define>
@@ -27,7 +28,7 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <a href="#" class="btn btn-green btn-sm item">New Organization</a>
+                        <h:link outcome="/admin/adminOrganizationNew" styleClass="btn btn-green btn-sm item">New Organization</h:link>
                     </div>
                 </div>
             </div>
@@ -35,69 +36,59 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <h:panelGroup layout="block" id="panelOrganizations" styleClass="col-md-12">
                     <ul class="whiteBox adminOrganizationsList">
+                        <ui:repeat value="#{adminOrganizations.organizations}" var="organization">
                         <li>
                             <div class="adminOrganizationsListLeft">
-                                <h2><a href="admin-organizations-edit.html">Aliquam vestibulum nulla</a></h2>
+                                <h2>
+                                    <h:link >
+                                        #{organization.title}
+                                        <f:param name="id" value="#{util:encodeId(organization.id)}"></f:param>
+                                    </h:link>
+                                </h2>
                                 <div class="competenceInfo">
                                     <div class="admins">
-                                        Admin(s): <span>Gustavo Fring, Walter White</span>
+                                        Admin(s):
+                                        <span>
+                                            #{organization.adminsString}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="adminOrganizationsListRight">
-                                <a href="admin-organizations-edit.html" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <a href="#" class="btn btn-sm btn-green-stroke">Edit</a>
                                 <div class="dropdown optMoreMenu">
                                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                     <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                        <li><a href="#" data-toggle="modal" data-target="#deleteOrg">Delete</a></li>
+                                        <li>
+                                            <p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+                                                           action="#{adminOrganizations.setOrganizationToDelete(organization)}"
+                                                           oncomplete="$('#deleteModal').modal('show');">
+                                                Delete
+                                            </p:commandLink>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <div class="adminOrganizationsListLeft">
-                                <h2><a href="admin-organizations-edit.html">Pharetra Purus</a></h2>
-                                <div class="competenceInfo">
-                                    <div class="admins">
-                                        Admin(s): <span>Gustavo Fring</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="adminOrganizationsListRight">
-                                <a href="admin-organizations-edit.html" class="btn btn-sm btn-green-stroke">Edit</a>
-                                <div class="dropdown optMoreMenu">
-                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
-                                    <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                        <li><a href="#" data-toggle="modal" data-target="#deleteOrg">Delete</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
+                        </ui:repeat>
                     </ul>
+                </h:panelGroup>
                 </div>
-            </div>
+            <utilcomp:pagination
+                    id="pagination"
+                    bean="#{adminOrganizations}"
+                    updateUrl="true"
+                    toUpdate=":panelOrganizations" />
         </div>
 
-        <div class="modal fade" id="deleteOrg" tabindex="-1" role="dialog" aria-labelledby="deleteOrganization">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title" id="deleteOrganization">Delete Organization?</h2>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete organization?<br></br>
-                            <small>Note: Action can NOT be un-done!</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="#" class="btn btn-red">Delete</a>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <courses:deleteModalDialog
+                deleteActionMethodName="delete"
+                deleteAction="#{adminOrganizations.delete()}"
+                toUpdate=""
+                modalDeleteTitle="Organization"
+                modalDeleteText="organization"/>
     </ui:define>
 
 </ui:composition>

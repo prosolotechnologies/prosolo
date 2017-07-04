@@ -51,7 +51,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 	@Override
 	public List<Role> getRolesByNames(String[] names) {
-		 String query = 
+		 String query =
 				 "SELECT role " +
 				 "FROM Role role " +
 				 "WHERE role.title IN :names";
@@ -377,5 +377,5 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			throw new DbConnectionException("Error while checking user roles");
 		}
 	}
-	
+
 }

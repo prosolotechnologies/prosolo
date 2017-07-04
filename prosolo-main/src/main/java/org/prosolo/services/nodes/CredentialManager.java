@@ -164,7 +164,17 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
 			throws DbConnectionException;
-	
+
+	/**
+	 * returns only published credentials
+	 * @param compId
+	 * @param type - if null credentials and deliveries both will be returned
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
+			throws DbConnectionException;
+
 	List<Tag> getCredentialTags(long credentialId) 
 			throws DbConnectionException;
 	

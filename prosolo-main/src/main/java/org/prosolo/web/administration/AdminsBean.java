@@ -41,8 +41,10 @@ import org.springframework.stereotype.Component;
 public class AdminsBean implements Serializable,Paginable{
 
 	private static final long serialVersionUID = -941411747259924715L;
-	
+
 	protected static Logger logger = Logger.getLogger(AdminsBean.class);
+
+
 	
 	@Inject
 	private UserTextSearch textSearch;
@@ -68,7 +70,7 @@ public class AdminsBean implements Serializable,Paginable{
 	
 	private PaginationData paginationData = new PaginationData();
 	
-	
+
 	public void init(){
 		logger.debug("initializing");
 		long filterId = 0;
@@ -94,7 +96,7 @@ public class AdminsBean implements Serializable,Paginable{
 		searchAdmins();
 	}
 
-	
+
 	@Override
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page){
@@ -107,6 +109,7 @@ public class AdminsBean implements Serializable,Paginable{
 	public PaginationData getPaginationData() {
 		return this.paginationData;
 	}
+
 
 	@SuppressWarnings("unchecked")
 	private void searchAdmins(){

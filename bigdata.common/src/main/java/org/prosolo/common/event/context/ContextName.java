@@ -72,7 +72,8 @@ public enum ContextName {
 	ARCHIVE_DIALOG(""),
 	DUPLICATE_DIALOG(""),
 	RESTORE_DIALOG(""),
-	START_DELIVERY("");
+	START_DELIVERY(""),
+	NEW_ORGANIZATION("");
 	
     private String objectType; 
     
