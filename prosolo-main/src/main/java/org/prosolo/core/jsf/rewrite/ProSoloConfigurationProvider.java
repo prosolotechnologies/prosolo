@@ -82,11 +82,11 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/library/credentials").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/competencies").to("/competenceLibrary.xhtml"))
 				.addRule(Join.path("/notifications").to("/notifications.xhtml"))
+				.addRule(Join.path("/achievements").to("/achievements/credentials.xhtml"))
 				.addRule(Join.path("/achievements/credentials").to("/achievements/credentials.xhtml"))
 				.addRule(Join.path("/achievements/competences").to("/achievements/competences.xhtml"))
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
-				.addRule(Join.path("/achievements").to("/achievements/credentials"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
