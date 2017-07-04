@@ -176,10 +176,11 @@ public interface CredentialManager extends AbstractManager {
 	/**
 	 * returns only published credentials
 	 * @param compId
+	 * @param type - if null credentials and deliveries both will be returned
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
+	List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId, CredentialType type)
 			throws DbConnectionException;
 
 	void updateTargetCredentialsWithChangedData(long credentialId, CredentialChangeTracker changeTracker) 

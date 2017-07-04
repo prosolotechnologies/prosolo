@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
@@ -75,7 +76,7 @@ public class CompetenceEditBean implements Serializable {
 			manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 			initializeValues();
 			decodedCredId = idEncoder.decodeId(credId);
-			if(id == null) {
+			if (id == null) {
 				competenceData = new CompetenceData1(false);
 				if(decodedCredId > 0) {
 					addToCredential = true;
@@ -86,17 +87,20 @@ public class CompetenceEditBean implements Serializable {
 				loadCompetenceData(decodedCredId, decodedId);
 			}
 			setContext();
-			if(decodedCredId > 0) {
+			if (decodedCredId > 0) {
 				Optional<CredentialData> res = competenceData.getCredentialsWithIncludedCompetence()
 						.stream().filter(cd -> cd.getId() == decodedCredId).findFirst();
-				if(res.isPresent()) {
+				if (res.isPresent()) {
 					credTitle = res.get().getTitle();
 				} else {
 					credTitle = credManager.getCredentialTitle(decodedCredId);
-					CredentialData cd = new CredentialData(false);
-					cd.setId(decodedCredId);
-					cd.setTitle(credTitle);
-					competenceData.getCredentialsWithIncludedCompetence().add(cd);
+					//we add passed credential to parent credentials only if new competency is being created
+					if (id == null) {
+						CredentialData cd = new CredentialData(false);
+						cd.setId(decodedCredId);
+						cd.setTitle(credTitle);
+						competenceData.getCredentialsWithIncludedCompetence().add(cd);
+					}
 				}
 			}
 			initializeStatuses();
@@ -147,11 +151,14 @@ public class CompetenceEditBean implements Serializable {
 			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(credId, id, 
 					loggedUser.getUserId(), mode);
 			unpackResult(res);
-			if(!access.isCanAccess()) {
+			if (!access.isCanAccess()) {
 				PageUtil.accessDenied();
 			} else {
+				List<CredentialData> credentialsWithCompetence = credManager
+						.getCredentialsWithIncludedCompetenceBasicData(id, CredentialType.Original);
+				competenceData.getCredentialsWithIncludedCompetence().addAll(credentialsWithCompetence);
 				List<ActivityData> activities = competenceData.getActivities();
-				for(ActivityData bad : activities) {
+				for (ActivityData bad : activities) {
 					activitiesToExcludeFromSearch.add(bad.getActivityId());
 				}
 				currentNumberOfActivities = activities.size();
@@ -203,8 +210,8 @@ public class CompetenceEditBean implements Serializable {
 		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
 		// we will manually set field 'published 'to false
 		competenceData.setPublished(false);
-		boolean saved = saveCompetenceData(false);
-		if(saved) {
+		boolean saved = saveCompetenceData(false, false);
+		if (saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
 				StringBuilder builder = new StringBuilder();
@@ -227,7 +234,7 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		boolean saved = saveCompetenceData(!addToCredential);
+		boolean saved = saveCompetenceData(!addToCredential, !addToCredential);
 		if(saved && addToCredential) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -244,53 +251,76 @@ public class CompetenceEditBean implements Serializable {
 		}
 	}
 	
-	public boolean saveCompetenceData(boolean reloadData) {
+	public boolean saveCompetenceData(boolean reloadData, boolean canRedirect) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
 			String service = PageUtil.getPostParameter("service");
 			String learningContext = context;
-			if(lContext != null && !lContext.isEmpty()) {
+			if (lContext != null && !lContext.isEmpty()) {
 				learningContext = contextParser.addSubContext(context, lContext);
 			}
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			if(competenceData.getCompetenceId() > 0) {
+			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
-				if(competenceData.hasObjectChanged()) {
+				if (competenceData.hasObjectChanged()) {
 					compManager.updateCompetence(competenceData, 
 							loggedUser.getUserId(), lcd);
+
+					if (reloadData) {
+						initializeValues();
+						loadCompetenceData(decodedCredId, decodedId);
+						initializeStatuses();
+					}
 				}
+
+				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				//competenceData.setDuration(4);
-				Competence1 comp = compManager.saveNewCompetence(competenceData, 
+				Competence1 comp = compManager.saveNewCompetence(competenceData,
 						loggedUser.getUserId(), credentialId, lcd);
-				competenceData.setCompetenceId(comp.getId());
-				decodedId = competenceData.getCompetenceId();
-				id = idEncoder.encodeId(decodedId);
-				competenceData.setVersion(comp.getVersion());
-				competenceData.startObservingChanges();
-				setContext();
+
+				//if competence is saved for the first time and redirect is true, redirect to competence edit page
+				if (canRedirect) {
+					PageUtil.fireSuccessfulInfoMessageAcrossPages("Changes are saved");
+
+					ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+					StringBuilder builder = new StringBuilder();
+					/*
+					 * this will not work if there are multiple levels of directories in current view path
+					 * example: /credentials/create-credential will return /credentials as a section but this
+					 * may not be what we really want.
+					 */
+					builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix()
+							+ "/competences/" + idEncoder.encodeId(comp.getId()) + "/edit");
+
+					if (credId != null && !credId.isEmpty()) {
+						builder.append("?credId=" + credId);
+					}
+					PageUtil.redirect(builder.toString());
+				} else {
+					decodedId = comp.getId();
+					id = idEncoder.encodeId(decodedId);
+				}
 			}
-			if(reloadData && competenceData.hasObjectChanged()) {
-				initializeValues();
-				loadCompetenceData(decodedCredId, decodedId);
-				initializeStatuses();
-			}
-			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
+
 			return true;
-		} catch(StaleDataException sde) {
+		} catch (StaleDataException sde) {
 			logger.error(sde);
 			PageUtil.fireErrorMessage("Update failed because competency is edited in the meantime. Please review changed competency and try again.");
 			//reload data
-			reloadCompetence();
+			initializeValues();
+			loadCompetenceData(decodedCredId, decodedId);
+			initializeStatuses();
 			return false;
-		} catch(IllegalDataStateException idse) {
+		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
 			if (competenceData.getCompetenceId() > 0) {
 		        //reload data
-		        reloadCompetence();
+				initializeValues();
+				loadCompetenceData(decodedCredId, decodedId);
+				initializeStatuses();
 			}
 			return false;
 		} catch(DbConnectionException e) {
@@ -365,17 +395,6 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.fireErrorMessage("Error while trying to duplicate competence");
 		} catch(EventException ee) {
 			logger.error(ee);
-		}
-	}
-	
-	private void reloadCompetence() {
-		try {
-			AccessMode mode = manageSection ? AccessMode.MANAGER : AccessMode.USER;
-			RestrictedAccessResult<CompetenceData1> res = compManager.getCompetenceForEdit(decodedCredId, decodedId, 
-					loggedUser.getUserId(), mode);
-			unpackResult(res);
-		} catch(DbConnectionException e) {
-			logger.error(e);
 		}
 	}
 	
@@ -546,4 +565,7 @@ public class CompetenceEditBean implements Serializable {
 		this.credTitle = credTitle;
 	}
 
+	public long getDecodedCredId() {
+		return decodedCredId;
+	}
 }

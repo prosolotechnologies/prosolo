@@ -1250,34 +1250,35 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //	    
 //		return draftCred;
 //	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
+	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId,
+																			  CredentialType type)
 			throws DbConnectionException {
 		try {
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-//			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
-//					       "FROM CredentialCompetence1 credComp " +
-//					       "INNER JOIN credComp.credential cred " +
-//					       "LEFT JOIN cred.originalVersion originalCred " +
-//					       "WHERE credComp.competence = :comp " +
-//					       "AND cred.hasDraft = :boolFalse " +
-//					       "AND cred.deleted = :boolFalse";
 			String query = "SELECT cred.id, cred.title " +
 				       "FROM CredentialCompetence1 credComp " +
 				       "INNER JOIN credComp.credential cred " +
-				       		"WITH cred.published = :boolTrue " +
-				       "WHERE credComp.competence = :comp " +
-				       "AND cred.deleted = :boolFalse";
-			@SuppressWarnings("unchecked")
-			List<Object[]> res = persistence.currentManager()
+				       "WHERE credComp.competence.id = :compId " +
+				       "AND cred.deleted = :boolFalse ";
+
+			if (type != null) {
+				query += "AND cred.type = :type";
+			}
+
+			Query q = persistence.currentManager()
 					.createQuery(query)
-					.setEntity("comp", comp)
-					.setBoolean("boolTrue", true)
-					.setBoolean("boolFalse", false)
-					.list();
+					.setLong("compId", compId)
+					.setBoolean("boolFalse", false);
+
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
 			if(res == null) {
 				return new ArrayList<>();
 			}
