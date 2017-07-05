@@ -2210,7 +2210,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<ActivityData> data = new ArrayList<>();
 			for (CompetenceActivity1 cAct : activities) {
-				data.add(activityDataFactory.getActivityData(cAct, null, null, false));
+				data.add(activityDataFactory.getActivityData(cAct, null, null, null, false));
 			}
 			return data;
 		} catch (Exception e) {
