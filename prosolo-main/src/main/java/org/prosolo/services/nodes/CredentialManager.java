@@ -369,13 +369,14 @@ public interface CredentialManager extends AbstractManager {
 	List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
 
 	/**
-	 * Returns titles of a tag and number of tag occurrences for given credential
+	 * Returns tag titles for tags added to competences and activities that are part of the credential
+	 * specified by {@code credentialId} id
 	 * 
 	 * @param credentialId
-	 * @return array of two elements where first element is tag title and the second element is competence title.
+
 	 * @throws DbConnectionException
 	 */
-	List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException;
+	List<String> getTagsFromCredentialCompetencesAndActivities(long credentialId) throws DbConnectionException;
 
 	/**
 	 * Returns list of ActivityData for given credentials.

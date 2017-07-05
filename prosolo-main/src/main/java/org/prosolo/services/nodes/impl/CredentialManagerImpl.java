@@ -2127,37 +2127,68 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<TagCountData> getTagsForCredentialCompetences(long credentialId) throws DbConnectionException {
+	public List<String> getTagsFromCredentialCompetencesAndActivities(long credentialId) throws DbConnectionException {
+		List<Tag> tags = getTagsFromCredentialCompetences(credentialId);
+		//we neeed unique tags, so we pass competence tags to be excluded from result
+		tags.addAll(getTagsFromCredentialActivities(credentialId, tags));
+		List<String> tagNames = new ArrayList<>();
+		for (Tag tag : tags) {
+			tagNames.add(tag.getTitle());
+		}
+		
+		return tagNames;
+	}
 
-		StringBuilder queryBuilder = new StringBuilder(
-				"SELECT DISTINCT tag, COUNT(tag) " +
+	private List<Tag> getTagsFromCredentialCompetences(long credentialId) {
+		String query = "SELECT DISTINCT tag " +
 				"FROM CredentialCompetence1 cc " +
 				"INNER JOIN cc.competence c " +
 				"INNER JOIN c.tags tag " +
-				"WHERE cc.credential.id = :credId "+
-				"GROUP BY tag");
-		
+				"WHERE cc.credential.id = :credId";
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> res = (List<Object[]>) persistence.currentManager()
-				.createQuery(queryBuilder.toString())
+		List<Tag> res = (List<Tag>) persistence.currentManager()
+				.createQuery(query)
 				.setLong("credId", credentialId)
 				.list();
-		List<TagCountData> tags = new LinkedList<>();
-		for (Object[] objects : res) {
-			Tag tag = (Tag) objects[0];
-			long count = (long) objects[1];
-			TagCountData tagCountData = new TagCountData(tag.getTitle(), count);
-			tags.add(tagCountData);
+		return res;
+	}
+
+	private List<Tag> getTagsFromCredentialActivities(long credentialId, List<Tag> tagsToExclude) throws DbConnectionException {
+
+		String query = "SELECT DISTINCT tag " +
+				"FROM CompetenceActivity1 ca " +
+				"INNER JOIN ca.activity a " +
+				"INNER JOIN a.tags tag ";
+
+		if (tagsToExclude != null && !tagsToExclude.isEmpty()) {
+			query += "WITH tag NOT IN (:tags) ";
 		}
-		
-		return tags;
+
+        query += "INNER JOIN ca.competence comp " +
+				"INNER JOIN comp.credentialCompetences cc " +
+				"WITH cc.credential.id = :credId";
+
+		Query q = persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credentialId);
+
+		if (tagsToExclude != null && !tagsToExclude.isEmpty()) {
+			q.setParameterList("tags", tagsToExclude);
+		}
+
+		@SuppressWarnings("unchecked")
+		List<Tag> res = q.list();
+
+		return res;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public int getNumberOfTags(long credentialId) throws DbConnectionException {
-
-		return getTagsForCredentialCompetences(credentialId).size();
+		List<Tag> tags = getTagsFromCredentialCompetences(credentialId);
+		tags.addAll(getTagsFromCredentialActivities(credentialId, tags));
+		return tags.size();
 	}
 
 	@Override
@@ -2167,7 +2198,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				"FROM Competence1 comp " +
 				"LEFT JOIN FETCH comp.tags tag " +
 				"INNER JOIN comp.credentialCompetences cComp " +
-				"WHERE cComp.credential.id = :credId " +
+					"WITH cComp.credential.id = :credId " +
 				"ORDER BY comp.title";
 
 		@SuppressWarnings("unchecked")
@@ -2195,12 +2226,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			String query =
 					"SELECT DISTINCT cAct " +
-							"FROM Activity1 act " +
-							"INNER JOIN act.competenceActivities cAct " +
-							"INNER JOIN cAct.competence comp " +
-							"INNER JOIN comp.credentialCompetences cComp " +
-							"WITH cComp.credential.id = :credId " +
-							"ORDER BY act.title";
+					"FROM CompetenceActivity1 cAct " +
+					"INNER JOIN fetch cAct.activity act " +
+					"LEFT JOIN FETCH act.tags tag " +
+					"INNER JOIN cAct.competence comp " +
+					"INNER JOIN comp.credentialCompetences cComp " +
+					"WITH cComp.credential.id = :credId " +
+					"ORDER BY act.title";
 
 			@SuppressWarnings("unchecked")
 			List<CompetenceActivity1> activities = (List<CompetenceActivity1>) persistence.currentManager()
@@ -2210,7 +2242,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			List<ActivityData> data = new ArrayList<>();
 			for (CompetenceActivity1 cAct : activities) {
-				data.add(activityDataFactory.getActivityData(cAct, null, null, null, false));
+				data.add(activityDataFactory.getActivityData(cAct, null, null, cAct.getActivity().getTags(), false));
 			}
 			return data;
 		} catch (Exception e) {
