@@ -59,7 +59,6 @@ public class CredentialKeywordsBean {
 	private Set<String> selectedKeywords;
 	private List<CompetenceData1> competences;
 	private List<ActivityData> activities;
-	private String chosenKeywordsString;
 	private List<CompetenceData1> filteredCompetences;
 	private List<ActivityData> filteredActivities;
 	private CredentialData credentialData;
@@ -103,10 +102,6 @@ public class CredentialKeywordsBean {
 
 	public String getChosenKeywordsString() {
 		return AnnotationUtil.getAnnotationsAsSortedCSVForTagTitles(selectedKeywords);
-	}
-
-	public void setChosenKeywordsString(String chosenKeywordsString) {
-		this.chosenKeywordsString = chosenKeywordsString;
 	}
 
 	public List<CompetenceData1> getCompetences() {
@@ -236,14 +231,14 @@ public class CredentialKeywordsBean {
 	}
 
 	private void filterCompetences() {
-		if (!selectedKeywords.isEmpty() || !getChosenKeywordsString().equals("")) {
+		if (!selectedKeywords.isEmpty()) {
 			filteredCompetences.clear();
 			for (CompetenceData1 comp : getCompetences()) {
-				for (String tag : selectedKeywords) {
-					if (comp.getTagsString().contains(tag)) {
-						filteredCompetences.add(comp);
-						break;
-					}
+				if (selectedKeywords.stream()
+						.anyMatch(tag -> comp.getTags()
+										 .stream()
+										 .anyMatch(t -> t.getTitle().equals(tag)))) {
+					filteredCompetences.add(comp);
 				}
 			}
 		} else {
@@ -252,14 +247,14 @@ public class CredentialKeywordsBean {
 	}
 
 	private void filterActivities() {
-		if (!selectedKeywords.isEmpty() || !getChosenKeywordsString().equals("")) {
+		if (!selectedKeywords.isEmpty()) {
 			filteredActivities.clear();
 			for (ActivityData act : activities) {
-				for (String tag : selectedKeywords) {
-					if (act.getTagsString().contains(tag)) {
-						filteredActivities.add(act);
-						break;
-					}
+				if (selectedKeywords.stream()
+						.anyMatch(tag -> act.getTags()
+								         .stream()
+								         .anyMatch(t -> t.getTitle().equals(tag)))) {
+					filteredActivities.add(act);
 				}
 			}
 		} else {

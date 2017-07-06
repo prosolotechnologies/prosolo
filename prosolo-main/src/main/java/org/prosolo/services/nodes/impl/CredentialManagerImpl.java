@@ -2209,13 +2209,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		List<CompetenceData1> data = new ArrayList<>();
 		for (Competence1 competence : competences) {
-			CompetenceData1 cd = new CompetenceData1(false);
-			cd.setTitle(competence.getTitle());
-			cd.setDuration(competence.getDuration());
-			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
-			cd.setCredentialId(credentialId);
-			cd.setCompetenceId(competence.getId());
-			data.add(cd);
+			data.add(competenceFactory.getCompetenceData(null, competence,
+					competence.getTags(), false));
 		}
 		return data;
 	}
