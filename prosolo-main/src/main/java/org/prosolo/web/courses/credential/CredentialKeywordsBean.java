@@ -104,6 +104,12 @@ public class CredentialKeywordsBean {
 		return AnnotationUtil.getAnnotationsAsSortedCSVForTagTitles(selectedKeywords);
 	}
 
+	public String getUnselectedTagsCSV() {
+		Set<String> unselectedTags = new HashSet<>(tags);
+		unselectedTags.removeAll(selectedKeywords);
+		return AnnotationUtil.getAnnotationsAsSortedCSVForTagTitles(unselectedTags);
+	}
+
 	public List<CompetenceData1> getCompetences() {
 		return competences;
 	}
@@ -265,6 +271,12 @@ public class CredentialKeywordsBean {
 	public void removeTag() {
 		String tagToRemove = PageUtil.getGetParameter("tag");
 		selectedKeywords.remove(tagToRemove);
+		filterResults();
+	}
+
+	public void addTag() {
+		String tagToAdd = PageUtil.getGetParameter("tag");
+		selectedKeywords.add(tagToAdd);
 		filterResults();
 	}
 
