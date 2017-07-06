@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -47,8 +48,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Autowired
     private EventFactory eventFactory;
     @Autowired
-    private ResourceFactory resourceFactory;
-    @Autowired
     private UserManager userManager;
     @Autowired
     private RoleManager roleManager;
@@ -73,17 +72,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                                                                   LearningContextData contextData) throws DbConnectionException,IllegalDataStateException {
         try {
             Organization organization = new Organization();
-            List<User> chosenUsers = new ArrayList<>();
             organization.setTitle(title);
-            for(UserData ud : adminsChosen){
-                User u = new User();
-                u.setId(ud.getId());
-                u.setName(ud.getName());
-                u.setLastname(ud.getLastName());
-                u.setPosition(ud.getPosition());
-                chosenUsers.add(u);
-            }
-            organization.setUsers(chosenUsers);
+
             saveEntity(organization);
             userManager.setOrganizationForUsers(adminsChosen, organization.getId());
 
@@ -104,12 +94,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public Organization getOrganizationById(long organizationId) throws DbConnectionException {
+    public OrganizationData getOrganizationDataById(long organizationId) throws DbConnectionException {
 
         try{
             String query = "SELECT organization " +
                 "FROM Organization organization " +
-                "LEFT JOIN FETCH organization.users " +
                 "WHERE organization.id = :organizationId";
 
             Organization organization = (Organization)persistence.currentManager()
@@ -117,7 +106,17 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
 
-            return organization;
+            String[] rolesArray = new String[]{"Admin","Super Admin"};
+            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),adminRoles);
+            List<UserData> listToPass = new ArrayList<>();
+            for(User u : chosenAdmins){
+                listToPass.add(new UserData(u));
+            }
+
+            OrganizationData od = new OrganizationData(organization,listToPass);
+            return od;
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
@@ -138,9 +137,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional
     public Result<Organization> updateOrganizationAndGetEvents(long organizationId, String title, List<UserData> chosenUsers,
-                                                       long creatorId,LearningContextData contextData) throws DbConnectionException, EventException {
+                                                       long creatorId,LearningContextData contextData) throws DbConnectionException {
         try{
-            List<User> chosenUsersToPass = new ArrayList<>();
             Result<Organization> res = new Result<>();
 
             Organization organization = loadResource(Organization.class,organizationId);
@@ -162,15 +160,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                     default:
                         break;
                 }
-                user.setName(ud.getName());
-                user.setLastname(ud.getLastName());
-                user.setPosition(ud.getPosition());
-                user.setAvatarUrl(ud.getAvatarUrl());
-                user.setEmail(ud.getEmail());
-                chosenUsersToPass.add(user);
             }
-
-            organization.setUsers(chosenUsersToPass);
 
             saveEntity(organization);
             return res;

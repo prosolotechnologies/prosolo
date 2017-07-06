@@ -17,15 +17,21 @@ import java.util.List;
 @Component
 public class OrganizationDataFactory {
 
-    public OrganizationData getOrganizationData(Organization organization,List<User> users){
+    public OrganizationData getOrganizationData(Organization organization,List<User> users) throws NullPointerException{
 
         List<UserData> userDataList = new ArrayList<>();
-        for(User u : users){
-            UserData ud = new UserData(u);
-            userDataList.add(ud);
+        try {
+            if (users == null) {
+                throw new NullPointerException("Users cannot be null");
+            }
+            for (User u : users) {
+                UserData ud = new UserData(u);
+                userDataList.add(ud);
+            }
+            OrganizationData organizationData = new OrganizationData(organization, userDataList);
+            return organizationData;
+        }catch (NullPointerException npe){
+            throw npe;
         }
-        OrganizationData organizationData = new OrganizationData(organization,userDataList);
-
-        return organizationData;
     }
 }
