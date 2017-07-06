@@ -80,14 +80,13 @@ public class OrganizationEditBean implements Serializable {
         try {
             decodedId = idEncoder.decodeId(id);
             if (decodedId > 0) {
-                Organization organization = organizationManager.getOrganizationById(decodedId);
+                this.organization = organizationManager.getOrganizationDataById(decodedId);
 
                 if (organization != null) {
-                    this.organization = organizationDataFactory.getOrganizationData(organization,organization.getUsers());
                     adminsChosen = this.organization.getAdmins();
                 } else {
                     this.organization = new OrganizationData();
-                    PageUtil.fireErrorMessage("Admin cannot be found");
+                    PageUtil.fireErrorMessage("Organization cannot be found");
                 }
             }else{
                 admin = new UserData();
@@ -120,8 +119,8 @@ public class OrganizationEditBean implements Serializable {
             removedUserOpt.get().setObjectStatus(ObjectStatus.UP_TO_DATE);
         }else{
             userData.setObjectStatus(ObjectStatus.CREATED);
+            adminsChosen.add(userData);
         }
-        adminsChosen.add(userData);
         searchTerm = "";
     }
 
@@ -138,7 +137,7 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
-                PageUtil.redirect("/admin/organizations");
+                PageUtil.redirect("/admin/organizations/new");
             }else{
                 PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
             }
@@ -158,7 +157,6 @@ public class OrganizationEditBean implements Serializable {
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
             PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization updated");
-            PageUtil.redirect("/admin/organizations");
         } catch (DbConnectionException e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to update organization data");
@@ -184,6 +182,10 @@ public class OrganizationEditBean implements Serializable {
                 logger.error(e);
             }
         }
+    }
+
+    public boolean isAdminChosenListEmpty(){
+        return adminsChosen.stream().anyMatch(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED);
     }
 
     public void userReset(UserData admin) {
@@ -242,6 +244,14 @@ public class OrganizationEditBean implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public long getDecodedId() {
+        return decodedId;
+    }
+
+    public void setDecodedId(long decodedId) {
+        this.decodedId = decodedId;
     }
 
     public void setId(String id) {

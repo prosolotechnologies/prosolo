@@ -10,12 +10,12 @@
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
     <ui:define name="windowTitle" >
-        <ui:fragment rendered="#{empty organizationEditBean.id}">New Organization</ui:fragment>
-        <ui:fragment rendered="#{not empty organizationEditBean.id}">Edit Organization</ui:fragment>
+        <ui:fragment rendered="#{organizationEditBean.decodedId == 0}">New Organization</ui:fragment>
+        <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">Edit Organization</ui:fragment>
     </ui:define>
 
     <ui:define name="navLinks">
-        <ui:fragment  rendered="#{not empty organizationEditBean.id}">
+        <ui:fragment  rendered="#{organizationEditBean.decodedId gt 0}">
         <ul class="nav nav-tabs headerSubmenu">
             <li role="presentation" class="active"><h:link
                     outcome="/admin/adminOrganizationNew">
@@ -36,8 +36,8 @@
 
     <ui:define name="resourceTitle">
         <h1>
-            <h:outputText rendered="#{ empty organizationEditBean.id}" value="New Organization" />
-            <h:outputText rendered="#{not empty organizationEditBean.id}" value="#{organizationEditBean.organization.title}" />
+            <h:outputText rendered="#{organizationEditBean.decodedId == 0}" value="New Organization" />
+            <h:outputText rendered="#{organizationEditBean.decodedId gt 0}" value="#{organizationEditBean.organization.title}" />
         </h1>
     </ui:define>
 
@@ -53,7 +53,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="whiteBox">
-                        <ui:fragment rendered="#{not empty organizationEditBean.id}">
+                        <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
                             <h2>Organization Details</h2>
                         </ui:fragment>
                         <h:form id="formMain">
@@ -117,7 +117,7 @@
                                             </h:panelGroup>
                                         </div>
                                         <h:panelGroup id="selectNewOwner">
-                                            <h:panelGroup rendered="#{not empty organizationEditBean.adminsChosen}" id="selectedOwner">
+                                            <h:panelGroup rendered="#{organizationEditBean.isAdminChosenListEmpty()}" id="selectedOwner">
                                             <ul class="list">
                                                 <ui:repeat value="#{organizationEditBean.adminsChosen}" var="admin">
                                                     <ui:fragment rendered="#{admin.objectStatus ne 'REMOVED'}">
@@ -157,10 +157,10 @@
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink  styleClass="btn btn-green" value="#{empty organizationEditBean.id ? 'Create' : 'Save Changes'}"
+                                    <p:commandLink  styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
                                                     action="#{organizationEditBean.saveOrganization()}" update="formMain">
                                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                                    <f:param name="learningContext" value="name:new_organization" />
+                                                    <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
                                     </p:commandLink>
                                 </div>
                             </div>
