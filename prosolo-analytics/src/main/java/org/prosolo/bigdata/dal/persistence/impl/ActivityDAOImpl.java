@@ -69,7 +69,8 @@ public class ActivityDAOImpl extends GenericDAOImpl implements ActivityDAO {
 			throw new Exception("Error while updating time spent on activity");
 		}
 	}
-	
+
+	//TODO cred-redesign-07
 	@Override
 	public List<TargetActivity1> getTargetActivities(long targetCompId, boolean loadActivity) 
 			throws Exception {

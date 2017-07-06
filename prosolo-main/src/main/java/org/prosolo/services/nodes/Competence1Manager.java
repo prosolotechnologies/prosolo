@@ -1,20 +1,12 @@
 package org.prosolo.services.nodes;
 
-import java.util.List;
-
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialCompetence1;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -22,17 +14,10 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.Operation;
-import org.prosolo.services.nodes.data.ResourceCreator;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
-import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.nodes.data.resourceAccess.UserAccessSpecification;
-import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.resourceAccess.*;
+
+import java.util.List;
 
 public interface Competence1Manager {
 
@@ -54,15 +39,6 @@ public interface Competence1Manager {
 	Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
 													  LearningContextData context) throws DbConnectionException,
 			IllegalDataStateException;
-	
-	/**
-	 * @param data
-	 * @param userId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	Competence1 deleteCompetence(CompetenceData1 data, long userId) 
-			throws DbConnectionException;
 	
 	/**
 	 * Updates competence.
@@ -97,14 +73,8 @@ public interface Competence1Manager {
 	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
 	
-	List<CompetenceData1> getTargetCompetencesData(long targetCredentialId, boolean loadTags) 
-			throws DbConnectionException;
-	
 	List<CompetenceData1> getUserCompetencesForCredential(long credId, long userId, boolean loadCreator, boolean loadTags,
 		  boolean loadActivities) throws DbConnectionException;
-
-	List<TargetCompetence1> createTargetCompetences(long credId, TargetCredential1 targetCred) 
-			throws DbConnectionException;
 	
 	
 	/**
@@ -169,9 +139,6 @@ public interface Competence1Manager {
 //	CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
 //			boolean loadCredentialTitle) throws DbConnectionException;
 	
-	void updateTargetCompetencesWithChangedData(long compId, CompetenceChangeTracker changeTracker) 
-			throws DbConnectionException;
-	
 	List<Tag> getCompetenceTags(long compId) 
 			throws DbConnectionException;
 	
@@ -215,18 +182,7 @@ public interface Competence1Manager {
 	 */
 	void updateDurationForCompetenceWithActivity(long actId, long duration, Operation op) throws DbConnectionException;
 	
-	/**
-	 * New duration for target competence is set. Duration of target credential is not updated.
-	 * @param id
-	 * @param duration
-	 * @throws DbConnectionException
-	 */
-	void updateTargetCompetenceDuration(long id, long duration) throws DbConnectionException;
-	
 	String getCompetenceTitle(long id) throws DbConnectionException;
-	
-	void updateProgressForTargetCompetenceWithActivity(long targetActId) 
-			throws DbConnectionException;
 	
 	/**
 	 * Returns full target competence data if user is enrolled, otherwise it returns
@@ -237,24 +193,8 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId, 
+	RestrictedAccessResult<CompetenceData1> getFullTargetCompetenceOrCompetenceData(long credId, long compId,
 			long userId) throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
-	
-	/**
-	 * Method for getting all completed competences (competences that has progress == 100)
-	 * and a hiddenFromProfile flag set to a certain value
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetence1> getAllCompletedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all unfinished competences (competences that has progress != 100)
-	 * and a hiddenFromProfile flag set to a certain value
-	 * @return 
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetence1> getAllUnfinishedCompetences(Long userId, boolean hiddenFromProfile) throws DbConnectionException;
 	
 	List<Competence1> getAllCompetences(Session session) 
 			throws DbConnectionException;

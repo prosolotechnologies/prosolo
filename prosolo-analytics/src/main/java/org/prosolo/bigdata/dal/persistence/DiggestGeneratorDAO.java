@@ -1,24 +1,22 @@
 package org.prosolo.bigdata.dal.persistence;
 
- 
-import java.time.LocalDateTime;
-//import java.util.Collection;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.course.Course;
-//import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+
+//import java.util.Collection;
+//import org.prosolo.common.domainmodel.course.Course;
 
 public interface DiggestGeneratorDAO extends GenericDAO{
 
@@ -37,14 +35,7 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 
 	//Collection<Course> getAllActiveCourses();
 
-	List<Long> getAllActiveCoursesIds();
-
-	List<FeedEntry> getFeedEntriesForCourseParticipants(Course course, Date date);
-
 	List<Tag> getSubscribedHashtags(User user);
-
-	List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags,
-			Date date);
 
 	UserSettings getUserSettings(long userId);
 
@@ -54,14 +45,8 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 	List<FeedEntry> getCourseFeedsDigest(long courseId, Date dateFrom,
 			Date dateTo, TimeFrame timeFrame, int limit, int page);
 
-	List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId,
-			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
-
 	List<FeedEntry> getMyFriendsFeedsDigest(long userId, Date dateFrom,
 			Date dateTo, TimeFrame timeFrame, int limit, int page);
-
-	List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId,
-			Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page);
 	
 	List<TwitterPostSocialActivity1> getTwitterPostSocialActivitiesContainingHashtags(
 			List<String> hashtags, LocalDateTime from, LocalDateTime to, int limit, int page,
@@ -74,7 +59,5 @@ public interface DiggestGeneratorDAO extends GenericDAO{
 			List<Long> credIds, LocalDateTime from, LocalDateTime to, Session session);
 
 	//FeedsPreferences getFeedsPreferences(long userId, Session session);
-
- 
 
 }

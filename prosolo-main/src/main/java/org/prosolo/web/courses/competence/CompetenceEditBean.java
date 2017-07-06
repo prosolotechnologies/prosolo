@@ -210,7 +210,7 @@ public class CompetenceEditBean implements Serializable {
 		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
 		// we will manually set field 'published 'to false
 		competenceData.setPublished(false);
-		boolean saved = saveCompetenceData(false, false);
+		boolean saved = saveCompetenceData(false);
 		if (saved) {
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			try {
@@ -234,24 +234,28 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void save() {
-		boolean saved = saveCompetenceData(!addToCredential, !addToCredential);
-		if(saved && addToCredential) {
+		boolean isCreateUseCase = competenceData.getCompetenceId() == 0;
+		boolean saved = saveCompetenceData(!isCreateUseCase);
+		if (saved && isCreateUseCase) {
+			PageUtil.keepFiredMessagesAcrossPages();
 			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
+			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				extContext.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId +"/edit?tab=competences");
-			} catch (IOException e) {
-				logger.error(e);
+				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+						"/credentials/" + credId + "/edit?tab=competences");
+			} else {
+				//when competence is saved for the first time redirect to edit page
+				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+						"/competences/" + id + "/edit");
 			}
 		}
 	}
 	
-	public boolean saveCompetenceData(boolean reloadData, boolean canRedirect) {
+	public boolean saveCompetenceData(boolean reloadData) {
 		try {
 			String page = PageUtil.getPostParameter("page");
 			String lContext = PageUtil.getPostParameter("learningContext");
@@ -279,29 +283,17 @@ public class CompetenceEditBean implements Serializable {
 				long credentialId = addToCredential ? decodedCredId : 0;
 				Competence1 comp = compManager.saveNewCompetence(competenceData,
 						loggedUser.getUserId(), credentialId, lcd);
-
-				//if competence is saved for the first time and redirect is true, redirect to competence edit page
-				if (canRedirect) {
-					PageUtil.fireSuccessfulInfoMessageAcrossPages("Changes are saved");
-
-					ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-					StringBuilder builder = new StringBuilder();
-					/*
-					 * this will not work if there are multiple levels of directories in current view path
-					 * example: /credentials/create-credential will return /credentials as a section but this
-					 * may not be what we really want.
-					 */
-					builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix()
-							+ "/competences/" + idEncoder.encodeId(comp.getId()) + "/edit");
-
-					if (credId != null && !credId.isEmpty()) {
-						builder.append("?credId=" + credId);
-					}
-					PageUtil.redirect(builder.toString());
-				} else {
-					decodedId = comp.getId();
-					id = idEncoder.encodeId(decodedId);
-				}
+				competenceData.setCompetenceId(comp.getId());
+				decodedId = competenceData.getCompetenceId();
+				id = idEncoder.encodeId(decodedId);
+				competenceData.setVersion(comp.getVersion());
+				competenceData.startObservingChanges();
+				setContext();
+			}
+			if (reloadData && competenceData.hasObjectChanged()) {
+				initializeValues();
+				loadCompetenceData(decodedCredId, decodedId);
+				initializeStatuses();
 			}
 
 			return true;
@@ -323,7 +315,7 @@ public class CompetenceEditBean implements Serializable {
 				initializeStatuses();
 			}
 			return false;
-		} catch(DbConnectionException e) {
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			//e.printStackTrace();
 			PageUtil.fireErrorMessage(e.getMessage());

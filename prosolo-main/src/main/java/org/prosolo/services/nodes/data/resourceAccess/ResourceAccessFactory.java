@@ -24,7 +24,7 @@ public class ResourceAccessFactory {
 				canEdit = false, canLearn = false, canInstruct = false;
 		
 		/*
-		 * instantiate visitor and pass it to accept method of UserAccessSpecification object in order get needed
+		 * instantiate visitor and pass it to accept method of UserAccessSpecification object in order to get needed
 		 * data in a visitor.
 		 */
 		UserAccessSpecificationVisitorImpl visitor = new UserAccessSpecificationVisitorImpl(req.getAccessMode());

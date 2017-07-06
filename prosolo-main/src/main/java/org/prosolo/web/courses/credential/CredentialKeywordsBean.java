@@ -1,15 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -22,11 +12,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -37,6 +23,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialKeywordBean")
 @Component("credentialKeywordBean")
@@ -62,7 +55,6 @@ public class CredentialKeywordsBean {
 	private EventFactory eventFactory;
 
 	private String id;
-	private String mode;
 	private List<TagCountData> tags;
 	private List<TagCountData> selectedKeywords;
 	private TagCountData lastSelected;
@@ -84,24 +76,19 @@ public class CredentialKeywordsBean {
 
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
-		setDecodedId(idEncoder.decodeId(id));
 		credentialData = credentialManager.getTargetCredentialData(decodedId,
 				loggedUser.getSessionData().getUserId(), false);
 		if (credentialData != null) {
 			selectedKeywords = new ArrayList<>();
 			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsForCredentialCompetences(credentialData.getTargetCredId());
-			competences = credentialManager.getTargetCompetencesForKeywordSearch(credentialData.getTargetCredId());
-			activities = credentialManager.getTargetActivityForKeywordSearch(credentialData.getTargetCredId());
+			tags = credentialManager.getTagsForCredentialCompetences(decodedId);
+			competences = credentialManager.getCompetencesForKeywordSearch(credentialData.getTargetCredId());
+			activities = credentialManager.getActivitiesForKeywordSearch(credentialData.getTargetCredId());
 			filterCompetences();
-			logger.info("init");
+
+			logger.info("init credential keywords");
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 
 	}
@@ -347,9 +334,7 @@ public class CredentialKeywordsBean {
 
 		noRandomAssessor = false;
 	}
-	public boolean isPreview() {
-		return "preview".equals(mode);
-	}
+
 	public void submitAssessment() {
 		try {
 			// at this point, assessor should be set either from credential data or

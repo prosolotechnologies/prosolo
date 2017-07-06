@@ -230,12 +230,15 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	}
 	
 	@Override
-	public void updateStatus(long compId, boolean published) {
+	public void updateStatus(long compId, boolean published, Date datePublished) {
 		try {
 			XContentBuilder doc = XContentFactory.jsonBuilder()
-			    .startObject()
-		        .field("published", published)
-		        .endObject();
+			    .startObject();
+			doc.field("published", published);
+			if (published && datePublished != null) {
+				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(datePublished));
+			}
+			doc.endObject();
 			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);

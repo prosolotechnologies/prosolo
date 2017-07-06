@@ -27,8 +27,6 @@ public interface FeedsAgregator {
 
 	void generateDailyCourseRSSFeedsDigest(Long courseid, Date date);
 
-	void generateDailySubscribedTwitterHashtagsDigestForUser(Long userid, Date dateFrom);
-
 	void aggregatePersonalBlogOfUser(Long userid);
 
 	void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date);

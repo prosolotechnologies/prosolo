@@ -156,9 +156,8 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	public void loadGroupsFromDB() {
 		try {
 			this.paginationData.update((int) userGroupManager.countGroups(searchTerm));
-			int numberOfPages = (int) Math.ceil((double) this.paginationData.getNumberOfResults() / paginationData.getLimit());
-			if(paginationData.getPage() > numberOfPages) {
-				paginationData.setPage(numberOfPages);
+			if(paginationData.getPage() > paginationData.getNumberOfPages()) {
+				paginationData.setPage(paginationData.getNumberOfPages());
 			}
 			groups = userGroupManager.searchGroups(searchTerm, paginationData.getLimit(), paginationData.getPage() - 1);
 		} catch(DbConnectionException e) {

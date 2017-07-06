@@ -1,16 +1,5 @@
 package org.prosolo.web.manage.students;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -21,11 +10,7 @@ import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.AnalyticalServerConfig;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.SocialNetworksManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -39,6 +24,14 @@ import org.prosolo.web.profile.data.SocialNetworksData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "studentProfileBean")
 @Component
@@ -102,11 +95,7 @@ public class StudentProfileBean implements Serializable {
 
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error(e);
-				try {
-					FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
+				PageUtil.notFound();
 			} catch (DbConnectionException dbce) {
 				logger.error(dbce);
 				PageUtil.fireErrorMessage(dbce.getMessage());
@@ -114,11 +103,7 @@ public class StudentProfileBean implements Serializable {
 				logger.error(ex);
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
+			PageUtil.notFound();
 		}
 
 	}
@@ -173,7 +158,14 @@ public class StudentProfileBean implements Serializable {
 			}
 			selectedCredential = credProgressData;
 
-			List<CompetenceData1> competences = compManager.getTargetCompetencesData(credProgressData.getId(), false);
+			List<CompetenceData1> competences = compManager
+					.getUserCompetencesForCredential(
+							credProgressData.getCredentialId(),
+							decodedId,
+							false,
+							false,
+							false);
+
 			boolean first = true;
 			
 			List<CompetenceProgressData> competenecesProgress = new ArrayList<>();
@@ -228,7 +220,13 @@ public class StudentProfileBean implements Serializable {
 			}
 
 			selectedCredential.setSelectedCompetence(cd);
-			List<ActivityData> activities = activityManager.getTargetActivitiesData(cd.getId());
+
+			List<ActivityData> activities = null;
+			if (cd.getId() > 0) {
+				activities = activityManager.getTargetActivitiesData(cd.getId());
+			} else {
+				activities = activityManager.getCompetenceActivitiesData(cd.getCompetenceId());
+			}
 			
 			List<ActivityProgressData> activitiesProgressData = new ArrayList<>();
 			

@@ -1,20 +1,12 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.DiggestGeneratorDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.course.Course;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
@@ -22,16 +14,19 @@ import org.prosolo.common.domainmodel.user.TimeFrame;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.FeedsPreferences;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.common.web.digest.FilterOption;
 import org.prosolo.common.web.digest.FeedsUtil;
+import org.prosolo.common.web.digest.FilterOption;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
  
 
 
 public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 	DiggestGeneratorDAO{
-	
-	
 	
 	private static Logger logger = Logger
 			.getLogger(DiggestGeneratorDAO.class);
@@ -150,59 +145,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		List<FeedEntry> feedMessages = q.list();
 		return feedMessages;
 	}
-	@Override
-	public List<Long> getAllActiveCoursesIds() {
-		String query = 
-			"SELECT DISTINCT course.id " +
-			"FROM Course course " +
-			"WHERE course.published = :published ";
-		
-		@SuppressWarnings("unchecked")
-		List<Long> result = session.createQuery(query).
-				setBoolean("published", true).
-				list();
-		
-		return result;
-	}
-	@Override
-	public List<FeedEntry> getFeedEntriesForCourseParticipants(Course course, Date date) {
-		//course = merge(course);
-		String query = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedEntry entry " +
-			"WHERE entry.maker IN ( " +
-									"SELECT DISTINCT enrollment.user " +
-									"FROM CourseEnrollment enrollment " +
-									"LEFT JOIN enrollment.course course " +
-									"WHERE course = :course) " +
-				"AND entry.feedSource NOT IN ( " +
-									"SELECT excluded " +
-									"FROM Course course1 " +
-									"LEFT JOIN course1.excludedFeedSources excluded " +
-									"WHERE course1 = :course " +
-										"AND excluded IS NOT NULL)";
-		
-		if (date != null) {
-			query += "AND entry.dateCreated BETWEEN :dateFrom AND :dateTo ";
-		}
-		
-		query += "ORDER BY entry.dateCreated DESC";
-		
-		Query q = session.createQuery(query)
-				.setEntity("course", course);
-		
-		if (date != null) {
-			Date dateFrom = DateUtil.getDayBeginningDateTime(date);
-			Date dateTo = DateUtil.getNextDay(date);
-			
-			q.setDate("dateFrom", dateFrom);
-			q.setDate("dateTo", dateTo);
-		}
-		
-		@SuppressWarnings("unchecked")
-		List<FeedEntry> feedMessages = q.list();
-		return feedMessages;
-	}
+
 	@Override
 	public List<Tag> getSubscribedHashtags(User user) {
 		String query = 
@@ -231,27 +174,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 			return new ArrayList<Tag>();
 		}
 	}
-	@Override
-	public List<TwitterPostSocialActivity> getTwitterPosts(Collection<Tag> hashtags, Date date) {
-		if (hashtags == null || hashtags.isEmpty()) {
-			return new ArrayList<TwitterPostSocialActivity>();
-		}
-		
-		String query = 
-			"SELECT DISTINCT post " +
-			"FROM TwitterPostSocialActivity post " +
-			"LEFT JOIN post.hashtags hashtag " + 
-			"WHERE hashtag IN (:hashtags) " +
-				 "AND year(post.dateCreated) = year(:date) " + 
-				 "AND month(post.dateCreated) = month(:date) " + 
-			"ORDER BY post.dateCreated DESC ";
-		@SuppressWarnings("unchecked")
-		List<TwitterPostSocialActivity> result = session.createQuery(query)
-				.setParameterList("hashtags", hashtags)
-				 .setDate("date", date)
-				.list();
-		return result;
-	}
+
 	@Override
 	public UserSettings getUserSettings(long userId) {
 		String query = 
@@ -320,33 +243,7 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 				.list();
 			return feedEntries;
 	}
-	@Override
-	public List<TwitterPostSocialActivity> getMyTweetsFeedsDigest(long userId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.debug("Loading my tweets for user: " + userId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
-		
-		String query = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedsDigest feedsDigest " +
-			"LEFT JOIN feedsDigest.tweets entry " +
-			"WHERE " +
-				"feedsDigest.class = :digestClassName " +
-				"AND feedsDigest.dateCreated > :dateFrom " + 
-				"AND feedsDigest.dateCreated < :dateTo " + 
-				"AND feedsDigest.feedsSubscriber = :userId " +
-				"AND entry IS NOT NULL " +
-			"ORDER BY entry.dateCreated DESC";
-		
-		@SuppressWarnings("unchecked")
-		List<TwitterPostSocialActivity> feedEntries = session.createQuery(query)
-			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.mytweets))
-			.setDate("dateFrom", dateFrom)
-			.setDate("dateTo", dateTo)
-			.setLong("userId", userId)
-			.setMaxResults(limit + 1)
-			.setFirstResult((page - 1) * limit)
-			.list();
-		return feedEntries;
-	}
+
 	@Override
 	public List<FeedEntry> getCourseFeedsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
 		logger.debug("Loading course feeds for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
@@ -366,34 +263,6 @@ public class DiggestGeneratorDAOImpl extends GenericDAOImpl implements
 		@SuppressWarnings("unchecked")
 		List<FeedEntry> feedEntries = session.createQuery(query)
 			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.coursefeeds))
-			.setDate("dateFrom", dateFrom)
-			.setDate("dateTo", dateTo)
-			.setLong("courseId", courseId)
-			.setMaxResults(limit + 1)
-			.setFirstResult((page - 1) * limit)
-			.list();
-		return feedEntries;
-	}
-	@Override
-	public List<TwitterPostSocialActivity> getCourseTweetsDigest(long courseId, Date dateFrom, Date dateTo, TimeFrame timeFrame, int limit, int page) {
-		logger.debug("Loading course tweets for course: " + courseId + ", from date: " + dateFrom  + ", to date: " + dateTo  + ", for timeFrame: " + timeFrame);
-		
-		String query = 
-			"SELECT DISTINCT entry " + 
-			"FROM FeedsDigest feedsDigest " +
-			"LEFT JOIN feedsDigest.tweets entry " +
-			"WHERE " +
-				"feedsDigest.class = :digestClassName " +
-				"AND feedsDigest.dateCreated BETWEEN :dateFrom AND :dateTo " + 
-//				"AND feedsDigest.timeFrame = :timeFrame " +
-				"AND feedsDigest.course.id = :courseId " +
-				"AND entry IS NOT NULL " +
-			"ORDER BY entry.dateCreated DESC";
-		
-		@SuppressWarnings("unchecked")
-		List<TwitterPostSocialActivity> feedEntries = session.createQuery(query)
-			.setString("digestClassName", FeedsUtil.convertToDigestClassName(FilterOption.coursetweets))
-//			.setString("timeFrame", timeFrame.name())
 			.setDate("dateFrom", dateFrom)
 			.setDate("dateTo", dateTo)
 			.setLong("courseId", courseId)

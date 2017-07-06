@@ -47,6 +47,10 @@ public class PageUtil {
 	
 	public static void fireSuccessfulInfoMessageAcrossPages(String description) {
 		fireSuccessfulInfoMessage(null, description);
+		keepFiredMessagesAcrossPages();
+	}
+
+	public static void keepFiredMessagesAcrossPages() {
 		ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 		Flash flash = extContext.getFlash();
 		flash.setKeepMessages(true);

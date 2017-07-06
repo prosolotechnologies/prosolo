@@ -1,29 +1,14 @@
 package org.prosolo.services.nodes.impl;
 
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
+import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
-import org.prosolo.common.domainmodel.assessment.ActivityDiscussionParticipant;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
@@ -36,6 +21,7 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.ResourceFactory;
@@ -52,7 +38,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
+import javax.inject.Inject;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service("org.prosolo.services.nodes.AssessmentManager")
 public class AssessmentManagerImpl extends AbstractManagerImpl implements AssessmentManager {
@@ -68,6 +58,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private EventFactory eventFactory;
 	@Inject private Competence1Manager compManager;
 	@Inject private AssessmentManager self;
+	@Inject private Activity1Manager activityManager;
 	
 	private static final String PENDING_ASSESSMENTS_QUERY = 
 			"FROM CredentialAssessment AS credentialAssessment " + 
@@ -775,45 +766,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId) 
-			throws DbConnectionException {
-		return getDefaultCompetenceAssessment(credId, compId, userId, persistence.currentManager());
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public CompetenceAssessment getDefaultCompetenceAssessment(long credId, long compId, long userId, Session session) 
-			throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-//			String query = "SELECT ca FROM CompetenceAssessment ca " +
-//						   "INNER JOIN ca.targetCompetence tc " +
-//						   "INNER JOIN tc.targetCredential tCred " +	
-//						   "WHERE ca.defaultAssessment = :boolTrue " +
-//						   "AND tc.competence = :compId " +
-//						   "AND tCred.credential = :credId " +
-//						   "AND tCred.user = :userId";
-//			
-//			CompetenceAssessment res = (CompetenceAssessment) session
-//					.createQuery(query)
-//					.setLong("credId", credId)
-//					.setLong("compId", compId)
-//					.setLong("userId", userId)
-//					.setBoolean("boolTrue", true)
-//					.uniqueResult();
-//			
-//			return res;
-			return null;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment");
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public long getAssessorIdForCompAssessment(long compAssessmentId) throws DbConnectionException {
 		try {
 			String query = "SELECT credA.assessor.id FROM CompetenceAssessment ca " +
@@ -1268,26 +1220,42 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	
 	@Override
 	@Transactional (readOnly = true)
-	public boolean isUserAssessorOfTargetActivity(long userId, long targetActivityId) {
+	public boolean isUserAssessorOfUserActivity(long userId, long assessedUserId, long activityId,
+												boolean countDefaultAssessment)
+			throws DbConnectionException {
 		try {
-			//TODO cred-redesign-07
-//			String query = 
-//					"SELECT COUNT(credAssessment.assessor) " +
-//					"FROM CredentialAssessment credAssessment " +
-//					"INNER JOIN credAssessment.targetCredential targetCred " +
-//					"INNER JOIN targetCred.targetCompetences targetCompetence " +
-//					"INNER JOIN targetCompetence.targetActivities targetActivity " +
-//					"WHERE targetActivity.id = :targetActivityId " +
-//						"AND credAssessment.assessor.id = :userId ";
-//			
-//			Long count = (Long) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("targetActivityId", targetActivityId)
-//					.setLong("userId", userId)
-//					.uniqueResult();
-//			
-//			return count > 0;
-			return false;
+			List<Long> credentials = activityManager.getIdsOfCredentialsWithActivity(activityId,
+					CredentialType.Delivery);
+			//if activity is not a part of at least one credential, there can't be an assessment for this activity
+			if (credentials.isEmpty()) {
+				return false;
+			}
+
+			String query =
+					"SELECT COUNT(credAssessment.assessor.id) " +
+					"FROM CredentialAssessment credAssessment " +
+					"INNER JOIN credAssessment.targetCredential targetCred " +
+					"WHERE targetCred.credential.id IN (:credIds) " +
+					"AND targetCred.user.id = :userLearningId " +
+					"AND credAssessment.assessor.id = :userId ";
+
+			if (!countDefaultAssessment) {
+				query += "AND credAssessment.defaultAssessment = :boolFalse";
+			}
+
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setParameterList("credIds", credentials)
+					.setLong("userId", userId)
+					.setLong("userLearningId", assessedUserId);
+
+			if (!countDefaultAssessment) {
+				q.setBoolean("boolFalse", false);
+			}
+
+			Long count = (Long) q.uniqueResult();
+
+			return count > 0;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
