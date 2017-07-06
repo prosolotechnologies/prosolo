@@ -93,8 +93,8 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
 				
-				.addRule(Join.path("/manage").to("/manage/credentialLibrary.xhtml"))
-				.addRule(Join.path("/manage/").to("/manage/credentialLibrary.xhtml"))
+				.addRule(Join.path("/manage").to("/manage/library.xhtml"))
+				.addRule(Join.path("/manage/").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/notifications").to("/manage/notifications.xhtml"))
 				.addRule(Join.path("/manage/messages/{id}").to("/manage/messages.xhtml"))
 				.addRule(Join.path("/manage/messages").to("/manage/messages.xhtml"))
@@ -155,9 +155,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/competences/{compId}/{actId}/responses/{targetActId}").to("/manage/activity-response.xhtml"))
 				
 				//manage library
-				.addRule(Join.path("/manage/library").to("/manage/credentialLibrary.xhtml"))
+				.addRule(Join.path("/manage/library").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
+				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
 				.addRule(Join.path("/manage/groups").to("/manage/students-groups.xhtml"))
 				.addRule(Join.path("/manage/students").to("/manage/students-students.xhtml"))
 				
