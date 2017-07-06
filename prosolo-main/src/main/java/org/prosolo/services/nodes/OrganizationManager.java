@@ -2,6 +2,7 @@ package org.prosolo.services.nodes;
 
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.impl.PaginatedResult;
@@ -28,10 +29,10 @@ public interface OrganizationManager extends AbstractManager {
             throws DbConnectionException;
 
     Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
-            throws DbConnectionException, EventException;
+            throws DbConnectionException, EventException,IllegalDataStateException;
 
     Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                           LearningContextData contextData) throws DbConnectionException;
+                                                           LearningContextData contextData) throws DbConnectionException,IllegalDataStateException;
 
     Organization getOrganizationById(long organizationId) throws DbConnectionException;
 

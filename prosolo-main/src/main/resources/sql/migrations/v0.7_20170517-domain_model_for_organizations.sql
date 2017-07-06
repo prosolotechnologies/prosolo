@@ -23,7 +23,7 @@ CREATE TABLE `unit` (
     `created` datetime DEFAULT NULL,
     `deleted` char(1) DEFAULT 'F',
     `description` longtext,
-    `title` varchar(1000) DEFAULT NULL,
+    `title` varchar(1000) NOT NULL,
     `organization` bigint(20) NOT NULL,
     `parent_unit` bigint(20) DEFAULT NULL
 );

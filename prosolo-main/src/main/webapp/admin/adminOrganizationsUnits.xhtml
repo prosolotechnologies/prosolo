@@ -1,3 +1,4 @@
+
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
@@ -7,6 +8,7 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+                xmlns:admin="http://java.sun.com/jsf/composite/"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
     <ui:define name="windowTitle" >Units</ui:define>
@@ -31,6 +33,7 @@
             <f:viewParam name="id" value="#{organizationEditBean.id}" />
             <f:viewAction action="#{organizationEditBean.init()}" />
             <f:viewAction action="#{unitOrganizationsBean.init()}" />
+            <f:viewAction action="#{unitOrganizationEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -41,12 +44,17 @@
     </ui:define>
 
     <ui:define name="content">
-
+        <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
         <div class="whiteBar">
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <a href="#" class="btn btn-green btn-sm item" data-toggle="modal" data-target="#newUnitModal">New Unit</a>
+
+                        <p:commandLink styleClass="btn btn-green btn-sm item" pt:data-toggle="modal"
+                                       action="#{unitOrganizationEditBean.setUnitOrganization(organizationEditBean.organization.id)}"
+                                       oncomplete="$('#newUnitModal').modal('show');">
+                            New Unit
+                        </p:commandLink>
                     </div>
                 </div>
             </div>
@@ -164,23 +172,10 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade newFeedModal" id="newUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header alignLeft">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title">Add New Unit</h2>
-                    </div>
-                    <div class="modal-body alignLeft">
-                        <input type="text" placeholder="Unit Name"/>
-                    </div>
-                    <div class="modal-footer alignLeft">
-                        <a href="#" class="btn btn-green">Add</a>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+        <courses:newOrganizationUnitModal
+                id="newUnitModal">
+        </courses:newOrganizationUnitModal>
 
         <div class="modal fade newFeedModal" id="newSubUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
             <div class="modal-dialog">

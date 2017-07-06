@@ -4,7 +4,10 @@ package org.prosolo.services.nodes.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -21,11 +24,10 @@ import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +58,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
-            throws DbConnectionException,EventException {
+            throws DbConnectionException,EventException,IllegalDataStateException {
 
         Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
         for (EventData ev : res.getEvents()) {
@@ -68,7 +70,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional
     public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                                  LearningContextData contextData) throws DbConnectionException {
+                                                                  LearningContextData contextData) throws DbConnectionException,IllegalDataStateException {
         try {
             Organization organization = new Organization();
             List<User> chosenUsers = new ArrayList<>();
@@ -91,7 +93,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             res.setResult(organization);
             return res;
-        } catch (Exception e) {
+        }catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            throw new IllegalDataException("Organization already created");
+        }catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while saving organization");

@@ -1,6 +1,7 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -23,6 +24,7 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -142,7 +144,12 @@ public class OrganizationEditBean implements Serializable {
             }else{
                 PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
             }
-        }catch (Exception e){
+        }catch (IllegalDataException e){
+            logger.error(e);
+            e.printStackTrace();
+            FacesContext.getCurrentInstance().validationFailed();
+            PageUtil.fireErrorMessage(e.getMessage());
+        } catch (Exception e){
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save organization data");
         }

@@ -357,6 +357,10 @@ h3{
 	display: none;
 }
 
+.redText{
+	color: $red;
+}
+
 .clear,
 .clear1px{
 	clear: both;
@@ -1320,6 +1324,13 @@ input{
 		p{
 			margin-bottom: 20px;
 		}
+	}
+}
+
+#archiveComp{
+	textarea{
+		width: 100%;
+		margin-bottom: 30px;
 	}
 }
 
@@ -3198,15 +3209,20 @@ header{
 	}
 	.estimatedTime,
 	.difficultyLevel{
+		padding-bottom: 30px;
 		> p{
 			margin-bottom: 10px;
 		}
 		.selectRow{
 			display: flex;
 			align-items: center;
+			p{
+				margin-bottom: 0;
+			}
 			.bootstrap-select{
 				width: 70px !important;
 				margin-right: 10px;
+				margin-bottom: 0;
 			}
 			.pickMinutes{
 				margin-left: 10px;
@@ -3847,6 +3863,14 @@ header{
 				}
 				.dropdown-menu{
 					margin: -10px 0 0;
+				}
+				.makeOwner{
+					display: none;
+				}
+			}
+			&:hover{
+				.makeOwner{
+					display: inline;
 				}
 			}
 		}
