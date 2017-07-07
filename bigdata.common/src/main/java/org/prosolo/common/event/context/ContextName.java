@@ -73,7 +73,7 @@ public enum ContextName {
 	DUPLICATE_DIALOG(""),
 	RESTORE_DIALOG(""),
 	START_DELIVERY(""),
-	NEW_ORGANIZATION("");
+	ORGANIZATION("Organization");
 	
     private String objectType; 
     

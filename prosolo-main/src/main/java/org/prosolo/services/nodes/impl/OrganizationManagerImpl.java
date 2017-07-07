@@ -2,8 +2,6 @@ package org.prosolo.services.nodes.impl;
 
 
 import org.apache.log4j.Logger;
-import org.aspectj.weaver.ast.Or;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -17,15 +15,14 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +43,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Autowired
     private EventFactory eventFactory;
     @Autowired
-    private ResourceFactory resourceFactory;
-    @Autowired
     private UserManager userManager;
     @Autowired
     private RoleManager roleManager;
+    @Inject
+    private OrganizationDataFactory organizationDataFactory;
 
     @Inject
     private OrganizationManager self;
@@ -73,6 +70,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         try {
             Organization organization = new Organization();
             organization.setTitle(title);
+
             saveEntity(organization);
             userManager.setOrganizationForUsers(adminsChosen, organization.getId());
 
@@ -86,6 +84,79 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while saving organization");
+        }
+    }
+
+    @Override
+    @Transactional (readOnly = true)
+    public OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException {
+
+        try{
+            String query = "SELECT organization " +
+                "FROM Organization organization " +
+                "WHERE organization.id = :organizationId";
+
+            Organization organization = (Organization)persistence.currentManager()
+                .createQuery(query)
+                .setLong("organizationId",organizationId)
+                .uniqueResult();
+
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
+
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins);
+
+            return od;
+        } catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while retriving organization");
+        }
+    }
+
+    @Override
+    public Organization updateOrganization(long organizationId, String title, List<UserData> chosenUsers, long creatorId,
+            LearningContextData contextData) throws DbConnectionException, EventException {
+        Result<Organization> res = self.updateOrganizationAndGetEvents(organizationId,title,chosenUsers,creatorId,contextData);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+        return res.getResult();
+    }
+
+    @Override
+    @Transactional
+    public Result<Organization> updateOrganizationAndGetEvents(long organizationId, String title, List<UserData> chosenUsers,
+                                                       long creatorId,LearningContextData contextData) throws DbConnectionException {
+        try{
+            Result<Organization> res = new Result<>();
+
+            Organization organization = loadResource(Organization.class,organizationId);
+            organization.setTitle(title);
+
+            for(UserData ud : chosenUsers){
+                User user = new User(ud.getId());
+                switch (ud.getObjectStatus()){
+                    case REMOVED:
+                        userManager.setUserOrganization(ud.getId(),0);
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_REMOVED_FROM_ORGANIZATION, creatorId,
+                                user, organization, contextData, null));
+                        break;
+                    case CREATED:
+                        userManager.setUserOrganization(ud.getId(),organizationId);
+                        res.addEvent(eventFactory.generateEventData(EventType.USER_ASSIGNED_TO_ORGANIZATION, creatorId,
+                                user, organization, contextData, null));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            saveEntity(organization);
+            return res;
+        }catch (Exception e){
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while loading organization");
         }
     }
 
@@ -149,7 +220,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         try {
             boolean filterRoles = roles != null && !roles.isEmpty();
 
-            StringBuilder sb = new StringBuilder("SELECT user FROM User user ");
+            StringBuilder sb = new StringBuilder("SELECT DISTINCT user FROM User user ");
 
             if (filterRoles) {
                 sb.append("INNER JOIN user.roles role " +

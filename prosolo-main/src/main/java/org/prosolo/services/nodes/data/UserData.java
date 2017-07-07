@@ -28,6 +28,7 @@ public class UserData implements Serializable {
 	private UserType type = UserType.REGULAR_USER;
 	private List<RoleData> roles = new ArrayList<>();
 	private List<Long> roleIds = new ArrayList<>();
+	private ObjectStatus objectStatus;
 
 	public UserData() {
 		this.roles = new LinkedList<RoleData>();
@@ -43,6 +44,7 @@ public class UserData implements Serializable {
 		setName(user.getName());
 		setLastName(user.getLastname());
 		this.password = user.getPassword();
+		this.objectStatus = ObjectStatus.UP_TO_DATE;
 	}
 
 	public UserData(User user, Collection<Role> roles) {
@@ -194,6 +196,14 @@ public class UserData implements Serializable {
 
 	public void setRoleIds(List<Long> roleIds) {
 		this.roleIds = roleIds;
+	}
+
+	public ObjectStatus getObjectStatus() {
+		return objectStatus;
+	}
+
+	public void setObjectStatus(ObjectStatus objectStatus) {
+		this.objectStatus = objectStatus;
 	}
 
 	public String getRolesCSV() {

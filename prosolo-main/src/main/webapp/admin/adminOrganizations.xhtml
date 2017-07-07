@@ -42,7 +42,7 @@
                         <li>
                             <div class="adminOrganizationsListLeft">
                                 <h2>
-                                    <h:link >
+                                    <h:link outcome="/admin/adminOrganizationNew">
                                         #{organization.title}
                                         <f:param name="id" value="#{util:encodeId(organization.id)}"></f:param>
                                     </h:link>
@@ -57,7 +57,10 @@
                                 </div>
                             </div>
                             <div class="adminOrganizationsListRight">
-                                <a href="#" class="btn btn-sm btn-green-stroke">Edit</a>
+                                <h:link outcome="/admin/adminOrganizationNew" styleClass="btn btn-green-stroke">
+                                    <f:param name="id" value="#{util:encodeId(organization.id)}"/>
+                                    Edit
+                                </h:link>
                                 <div class="dropdown optMoreMenu">
                                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                     <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
