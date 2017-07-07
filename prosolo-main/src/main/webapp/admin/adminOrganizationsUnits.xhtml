@@ -52,7 +52,8 @@
 
                         <p:commandLink styleClass="btn btn-green btn-sm item" pt:data-toggle="modal"
                                        action="#{unitOrganizationEditBean.setUnitOrganization(organizationEditBean.organization.id)}"
-                                       oncomplete="$('#newUnitModal').modal('show');">
+                                       oncomplete="$('#newUnitModal').modal('show');"
+                                       update="newUnitModal">
                             New Unit
                         </p:commandLink>
                     </div>

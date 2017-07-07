@@ -7,7 +7,6 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -57,7 +56,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
-            throws DbConnectionException,EventException,IllegalDataStateException {
+            throws DbConnectionException,EventException,IllegalDataException {
 
         Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
         for (EventData ev : res.getEvents()) {
@@ -69,7 +68,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional
     public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                                  LearningContextData contextData) throws DbConnectionException,IllegalDataStateException {
+                                                                  LearningContextData contextData) throws DbConnectionException,IllegalDataException {
         try {
             Organization organization = new Organization();
             organization.setTitle(title);

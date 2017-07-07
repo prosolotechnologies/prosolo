@@ -2,46 +2,50 @@
               xmlns:f="http://java.sun.com/jsf/core"
               xmlns:ui="http://java.sun.com/jsf/facelets"
               xmlns:composite="http://java.sun.com/jsf/composite"
-              xmlns:p="http://primefaces.org/ui"
-              xmlns:comp="http://java.sun.com/jsf/composite/components"
-              xmlns:c="http://java.sun.com/jsp/jstl/core"
-              xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-              xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-              xmlns:util="http://www.prosolo.com/util"
-              xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+              xmlns:p="http://primefaces.org/ui">
 
     <composite:implementation>
         <div class="modal fade newFeedModal" id="newUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header alignLeft">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title">Add New Unit</h2>
-                    </div>
-                    <h:form id="formMain">
+            <h:form id="formNewUnitModal">
+                <p:growl id="growlUnitModal" showDetail="true" globalOnly="true"></p:growl>
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header alignLeft">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                <h2 class="modal-title">Add New Unit</h2>
+                            </div>
                         <div class="modal-body alignLeft">
                             <h:inputText id="inputTextOrganizationUnitName"
+                                         value="#{unitOrganizationEditBean.unit.title}"
                                          required="true"
                                          requiredMessage="Unit name is required"
-                                         value="#{unitOrganizationEditBean.unit.title}"/>
-                            <h:panelGroup  layout="block"
-                                           rendered="#{not empty facesContext.getMessageList('formMain:inputTextOrganizationUnitName')}"
-                                           styleClass="alert alert-danger" pt:role="alert">
-                                <h:message for="inputTextOrganizationUnitName"></h:message>
+                                         placeholder="Unit Name"/>
+
+                            <h:panelGroup
+                                    rendered="#{not empty facesContext.getMessageList('newUnitModal:formNewUnitModal:inputTextOrganizationUnitName')}">
+                                <small class="redText"><h:message for="inputTextOrganizationUnitName"></h:message></small>
                             </h:panelGroup>
                         </div>
-
-                    <div class="modal-footer alignLeft">
-                        <p:commandLink  styleClass="btn btn-green" value="Add"
-                                        action="#{unitOrganizationEditBean.saveUnit()}" update="formMain">
-                            <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                            <f:param name="learningContext" value="name:new_unit" />
-                        </p:commandLink>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <div class="modal-footer alignLeft">
+                            <p:commandLink  styleClass="btn btn-green" value="Add"
+                                            action="#{unitOrganizationEditBean.saveUnit()}"
+                                            update="@form"
+                                            oncomplete="
+                                            if (args &amp;&amp; !args.validationFailed)
+                                                $('#newUnitModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="name:new_unit" />
+                            </p:commandLink>
+                            <p:commandLink
+                                    styleClass="btn btn-green"
+                                    value="Cancel"
+                                    action="#{unitOrganizationEditBean.cancel}"
+                                    oncomplete="$('#newUnitModal').modal('hide');">
+                            </p:commandLink>
+                        </div>
                     </div>
-                    </h:form>
                 </div>
-            </div>
+            </h:form>
         </div>
     </composite:implementation>
 
