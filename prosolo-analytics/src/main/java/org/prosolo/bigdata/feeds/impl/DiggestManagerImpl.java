@@ -1,20 +1,16 @@
 package org.prosolo.bigdata.feeds.impl;
 
 
- 
-import java.util.Calendar;
+import org.apache.log4j.Logger;
+import org.prosolo.bigdata.feeds.DiggestManager;
+import org.prosolo.common.domainmodel.user.User;
+
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-import org.prosolo.bigdata.feeds.DiggestManager;
-import org.prosolo.common.domainmodel.course.Course;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.bigdata.feeds.FeedsAgregator;
 //import org.prosolo.services.feeds.FeedsManager;
 //import org.prosolo.services.nodes.CourseManager;
 //import org.prosolo.services.nodes.UserManager;
-import org.prosolo.common.util.date.DateUtil;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Service;
 

@@ -377,7 +377,6 @@ public class ActivityDataFactory {
 		
 		//or add targetCompetenceId to activitydata
 		data.setCompetenceId(targetActivity.getTargetCompetence().getId());
-		//TODO cred-redesign-07 - do we need next line - it issues additional db queries
 		data.setCompetenceName(targetActivity.getTargetCompetence().getCompetence().getTitle());
 		populateTypeSpecificData(data, targetActivity.getActivity());
 

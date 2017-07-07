@@ -38,11 +38,9 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.nodes.factory.CompetenceDataFactory;
-import org.prosolo.services.nodes.factory.CredentialDataFactory;
-import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
-import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
+import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -85,7 +83,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//self inject for better control of transaction bondaries
 	@Inject private CredentialManager self;
 	@Inject private UserDataFactory userDataFactory;
-
+	@Inject private ActivityDataFactory activityDataFactory;
 
 	@Override
 	//nt
@@ -150,55 +148,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while saving credential");
 		} 
 	}
-
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public Credential1 deleteCredential(long credId, long userId) throws DbConnectionException {
-		try {
-			if(credId > 0) {
-				Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, credId);
-				cred.setDeleted(true);
-				
-//				if(data.isDraft()) {
-//					Credential1 draftVersion = (Credential1) persistence.currentManager()
-//							.load(Credential1.class, data.getId());
-//					cred.setDraftVersion(null);
-//					delete(draftVersion);
-//					//eventFactory.generateEvent(EventType.Delete_Draft, user, draftVersion);
-//				}
-				
-				deleteCredentialCompetences(credId);
-	
-//				/*
-//				 * if credential was once published delete event is generated
-//				 */
-//				if(data.isPublished() || data.isDraft()) {
-//					Map<String, String> params = null;
-//					if(data.isDraft()) {
-//						params = new HashMap<>();
-//						params.put("draftVersionId", data.getId() + "");
-//					}
-//					eventFactory.generateEvent(EventType.Delete, userId, cred, null, params);
-//				}
-				eventFactory.generateEvent(EventType.Delete, userId, cred, null);
-//				/*
-//				 * if credential is draft and it was never published delete_draft event
-//				 * is generated
-//				 */
-//				else {
-//					eventFactory.generateEvent(EventType.Delete_Draft, userId, cred);
-//				}
-				
-				return cred;
-			}
-			return null;
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential");
-		}
-	}
 	
 	//non transactional
 	@Override
@@ -212,7 +161,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional(rollbackFor = Exception.class)
 	public Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException,
 			DataIntegrityViolationException, StaleDataException {
 		try {
@@ -294,62 +243,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getDraftVersionCredentialDataWithProgressIfExists(long originalVersionId, 
-//			long userId) throws DbConnectionException {
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT draftCred, targetCred.progress, bookmark.id, targetCred.nextCompetenceToLearnId, targetCred.nextActivityToLearnId " +
-//						   "FROM Credential1 cred " + 
-//						   "LEFT JOIN cred.draftVersion draftCred " +
-//						   "LEFT JOIN cred.targetCredentials targetCred " + 
-//						   "WITH targetCred.user.id = :user " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", originalVersionId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				Integer paramProgress = (Integer) res[1];
-//				Long paramBookmarkId = (Long) res[2];
-//				Long nextCompId = (Long) res[3];
-//				Long nextActId = (Long) res[4];
-//				
-//				if(paramProgress != null) {
-//					credData = credentialFactory.getCredentialDataWithProgress(null, cred, 
-//							null, null, false, paramProgress.intValue(), nextCompId.longValue(),
-//							nextActId.longValue());
-//				} else {
-//					credData = credentialFactory.getCredentialData(null, cred, 
-//							null, null, false);
-//				}
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				
-//				/*
-//				 * id of original credential version is set
-//				 */
-//				credData.setId(originalVersionId);
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
-	
 	@Override
 	@Transactional(readOnly = true)
 	public CredentialData getBasicCredentialData(long credentialId, long userId) 
@@ -407,51 +300,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
-	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getDraftVersionBasicCredentialData(long originalVersionId, 
-//			long userId) throws DbConnectionException {
-//		CredentialData credData = null;
-//		try {
-//			User user = (User) persistence.currentManager().load(User.class, userId);
-//			String query = "SELECT draftCred, bookmark.id " +
-//						   "FROM Credential1 cred " + 
-//						   "LEFT JOIN cred.draftVersion draftCred " +
-//						   "LEFT JOIN cred.bookmarks bookmark " +
-//						   "WITH bookmark.user.id = :user " +
-//						   "WHERE cred.id = :credId";
-//
-//			Object[] res = (Object[]) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("user", user.getId())
-//					.setLong("credId", originalVersionId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = (Credential1) res[0];
-//				Long paramBookmarkId = (Long) res[1];
-//		
-//				credData = credentialFactory.getCredentialData(null, cred, 
-//						null, null, false);
-//
-//				if(paramBookmarkId != null) {
-//					credData.setBookmarkedByCurrentUser(true);
-//				}
-//				
-//				/*
-//				 * id of original credential version is set
-//				 */
-//				credData.setId(originalVersionId);
-//				return credData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -658,90 +506,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential data");
 		}
 	}
-
-	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CredentialData getCredentialDataForEdit(long credentialId, long creatorId, 
-//			boolean loadCompetences) throws DbConnectionException {
-//		return getCurrentVersionOfCredentialBasedOnRole(credentialId, creatorId, false, 
-//				loadCompetences, Role.User);
-//	}
-//	
-//	@Transactional(readOnly = true)
-//	private CredentialData getCurrentVersionOfCredentialBasedOnRole(long credentialId, long creatorId, 
-//			boolean loadCreator, boolean loadCompetences, Role role) throws DbConnectionException {
-//		try {	
-//			StringBuilder commonQueryBuilder = new StringBuilder("SELECT cred " +
-//					   "FROM Credential1 cred " + 
-//					   "LEFT JOIN fetch cred.tags tags " +
-//					   "LEFT JOIN fetch cred.hashtags hashtags ");
-//			
-//			if(loadCreator) {
-//				commonQueryBuilder.append("INNER JOIN fetch cred.createdBy ");
-//			}
-//			
-//			StringBuilder queryBuilder = new StringBuilder(commonQueryBuilder.toString() + 
-//					"WHERE cred.id = :credentialId " +
-//					"AND cred.deleted = :deleted " +
-//					"AND cred.draft = :draft ");
-//			
-//			if(role == Role.User) {
-//				queryBuilder.append("AND cred.type = :type " +
-//									"AND cred.createdBy.id = :user");
-//			} else {
-//				queryBuilder.append("AND cred.type = :type");
-//			}
-//						   
-//			Query q = persistence.currentManager()
-//					.createQuery(queryBuilder.toString())
-//					.setLong("credentialId", credentialId)
-//					.setBoolean("deleted", false)
-//					.setBoolean("draft", false);
-//			
-//			if(role == Role.User) {
-//				q.setParameter("type", LearningResourceType.USER_CREATED);
-//				q.setLong("user", creatorId);
-//			} else {
-//				q.setParameter("type", LearningResourceType.UNIVERSITY_CREATED);
-//			}
-//					
-//			Credential1 res = (Credential1) q.uniqueResult();
-//			
-//			if(res != null) {
-//				CredentialData credData = null;
-//				if(res.isHasDraft()) {
-//					String query2 = commonQueryBuilder.toString() + 
-//							" WHERE cred = :draftVersion";
-//					Credential1 draftCred = (Credential1) persistence.currentManager()
-//							.createQuery(query2)
-//							.setEntity("draftVersion", res.getDraftVersion())
-//							.uniqueResult();
-//					if(draftCred != null) {
-//						User creator = loadCreator ? draftCred.getCreatedBy() : null;
-//						credData = credentialFactory.getCredentialData(creator, draftCred, 
-//								draftCred.getTags(), draftCred.getHashtags(), true);
-//					}	
-//				} else {
-//					User creator = loadCreator ? res.getCreatedBy() : null;
-//					credData = credentialFactory.getCredentialData(creator, res, res.getTags(),
-//							res.getHashtags(), true);
-//				}
-//				if(credData != null && loadCompetences) {
-//					List<CompetenceData1> compsData = compManager.getCredentialCompetencesData(
-//							credData.getId(), true, false, false, true);
-//					credData.setCompetences(compsData);
-//				}
-//				return credData;
-//			}
-//			
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading credential data");
-//		}
-//	}
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
@@ -956,46 +720,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    res.setResult(credToUpdate);
 	    return res;
 	}
-	
-	@Deprecated
-	@Transactional(readOnly = true)
-	public long getCredentialDuration(long credId) throws DbConnectionException {  
-		try {
-			String query = "SELECT cred.duration " +
-					   "FROM Credential1 cred " + 
-					   "WHERE cred.id = :credId";
-			
-			Long duration = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("credId", credId)
-					.uniqueResult();
-			
-			return duration;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential duration");
-		}
-	}
-
-	@Deprecated
-	@Transactional(readOnly = false)
-	private void deleteCredentialCompetences(long credId) {
-		try {
-			String query = "DELETE CredentialCompetence1 comp " +
-						   "WHERE comp.credential.id = :credId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("credId", credId)
-				.executeUpdate();
-			
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential competences");
-		}
-	}
 
 	//not transactional
 	@Override
@@ -1203,81 +927,35 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 		
 	}
-	
-	//TODO check if this method can be used for change propagation to target credential
-//	private Credential1 createDraftVersionOfCredential(long originalCredentialId) {
-//		Credential1 originalCred = getCredential(originalCredentialId, false, 0, 
-//				LearningResourceReturnResultType.PUBLISHED_VERSION);
-//		
-//		Credential1 draftCred = new Credential1();
-//		draftCred.setDraft(true);
-//		draftCred.setPublished(false);
-//		draftCred.setCreatedBy(originalCred.getCreatedBy());
-//		draftCred.setTitle(originalCred.getTitle());
-//		draftCred.setType(originalCred.getType());
-//		draftCred.setDescription(originalCred.getDescription());
-//		draftCred.setCompetenceOrderMandatory(originalCred.isCompetenceOrderMandatory());
-//		draftCred.setStudentsCanAddCompetences(originalCred.isStudentsCanAddCompetences());
-//		draftCred.setManuallyAssignStudents(originalCred.isManuallyAssignStudents());
-//		draftCred.setDefaultNumberOfStudentsPerInstructor(originalCred.getDefaultNumberOfStudentsPerInstructor());
-//		draftCred.setDuration(originalCred.getDuration());
-//	    
-//		if(originalCred.getTags() != null) {
-//			for(Tag tag : originalCred.getTags()) {
-//				draftCred.getTags().add(tag);
-//			}
-//		}
-//		if(originalCred.getHashtags() != null) {
-//			for(Tag hashtag : originalCred.getHashtags()) {
-//				draftCred.getHashtags().add(hashtag);
-//			}
-//		}
-//	    
-//		saveEntity(draftCred);	
-//
-//		List<CredentialCompetence1> comps = compManager.getCredentialCompetences(originalCredentialId, 
-//				false, false, true);
-//	    if(comps != null) {
-//    		for(CredentialCompetence1 cc : comps) {
-//    			CredentialCompetence1 cc1 = new CredentialCompetence1();
-//				cc1.setOrder(cc.getOrder());
-//				cc1.setCredential(draftCred);
-//				cc1.setCompetence(cc.getCompetence());
-//				saveEntity(cc1);
-//				draftCred.getCompetences().add(cc1);
-//    		}	
-//	    }
-//	    
-//		return draftCred;
-//	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId) 
+	public List<CredentialData> getCredentialsWithIncludedCompetenceBasicData(long compId,
+																			  CredentialType type)
 			throws DbConnectionException {
 		try {
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-//			String query = "SELECT coalesce(originalCred.id, cred.id), coalesce(originalCred.title, cred.title) " +
-//					       "FROM CredentialCompetence1 credComp " +
-//					       "INNER JOIN credComp.credential cred " +
-//					       "LEFT JOIN cred.originalVersion originalCred " +
-//					       "WHERE credComp.competence = :comp " +
-//					       "AND cred.hasDraft = :boolFalse " +
-//					       "AND cred.deleted = :boolFalse";
 			String query = "SELECT cred.id, cred.title " +
 				       "FROM CredentialCompetence1 credComp " +
 				       "INNER JOIN credComp.credential cred " +
-				       		"WITH cred.published = :boolTrue " +
-				       "WHERE credComp.competence = :comp " +
-				       "AND cred.deleted = :boolFalse";
-			@SuppressWarnings("unchecked")
-			List<Object[]> res = persistence.currentManager()
+				       "WHERE credComp.competence.id = :compId " +
+				       "AND cred.deleted = :boolFalse ";
+
+			if (type != null) {
+				query += "AND cred.type = :type";
+			}
+
+			Query q = persistence.currentManager()
 					.createQuery(query)
-					.setEntity("comp", comp)
-					.setBoolean("boolTrue", true)
-					.setBoolean("boolFalse", false)
-					.list();
+					.setLong("compId", compId)
+					.setBoolean("boolFalse", false);
+
+			if (type != null) {
+				q.setString("type", type.name());
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Object[]> res = q.list();
+
 			if(res == null) {
 				return new ArrayList<>();
 			}
@@ -1297,7 +975,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId) 
@@ -1305,14 +982,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getCredentialTags(credentialId, persistence.currentManager());
 
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialTags(long credentialId, Session session) 
 			throws DbConnectionException {
 		try {	
-			//if left join is used list with null element would be returned.
 			String query = "SELECT tag " +
 					       "FROM Credential1 cred " +
 					       "INNER JOIN cred.tags tag " +
@@ -1333,22 +1008,19 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential tags");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId) 
 			throws DbConnectionException {
 		return getCredentialHashtags(credentialId, persistence.currentManager());
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCredentialHashtags(long credentialId, Session session) 
 			throws DbConnectionException {
 		try {	
-			//if left join is used list with null element would be returned.
 			String query = "SELECT hashtag " +
 					       "FROM Credential1 cred " +
 					       "INNER JOIN cred.hashtags hashtag " +
@@ -1369,38 +1041,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential hashtags");
 		}
 	}
-		
-	@Deprecated
-	//TODO this method should be removed because all changes will be propagated
-	@Transactional(readOnly = false)
-	private void updateBasicDataForNotCompletedTargetCredentials(long credentialId) 
-			throws DbConnectionException {
-		try {	
-			Credential1 cred = (Credential1) persistence.currentManager().load(Credential1.class, 
-					credentialId);
-			String query = "UPDATE TargetCredential1 targetCred " +
-					       "SET targetCred.title = :title, " +
-					       "targetCred.description = :description, " +
-					       "targetCred.competenceOrderMandatory = :mandatory " +
-					       "WHERE targetCred.credential = :cred " +
-					       "AND targetCred.progress != :progress";					    
 
-			persistence.currentManager()
-				.createQuery(query)
-				.setString("title", cred.getTitle())
-				.setString("description", cred.getDescription())
-				.setEntity("cred", cred)
-				.setBoolean("mandatory", cred.isCompetenceOrderMandatory())
-				.setInteger("progress", 100)
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating user credentials");
-		}
-	}
-	
-	@Deprecated
 	@Transactional(readOnly = true)
 	@Override
 	public List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
@@ -1412,7 +1053,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			builder.append("SELECT cred " +
 				       	   "FROM TargetCredential1 cred " +
 				       	   "WHERE cred.credential = :cred ");
-			if(justUncompleted) {
+			if (justUncompleted) {
 				builder.append("AND cred.progress != :progress");
 			}
 //			String query = "SELECT cred " +
@@ -1422,12 +1063,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Query q = persistence.currentManager()
 				.createQuery(builder.toString())
 				.setEntity("cred", cred);
-			if(justUncompleted) {
+			if (justUncompleted) {
 				q.setInteger("progress", 100);
 			}
 			@SuppressWarnings("unchecked")
 			List<TargetCredential1> res = q.list();
-			if(res == null) {
+			if (res == null) {
 				return new ArrayList<>();
 			}
 			return res;
@@ -1437,80 +1078,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading user credentials");
 		}
 	}
-	
-	@Deprecated
-	@Transactional(readOnly = false)
-	private void updateTargetCredentialTagsForUncompletedCredentials(long credentialId) 
-			throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-//			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
-//					credentialId, true);
-//			List<Tag> tags = getCredentialTags(credentialId);
-//			for(TargetCredential1 tc : targetCredentials) {
-//				tc.getTags().clear();
-//				for(Tag tag : tags) {
-//					tc.getTags().add(tag);
-//				}
-//			}
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating user credentials");
-		}
-	}
-	
-	@Deprecated
-	@Transactional(readOnly = false)
-	private void updateTargetCredentialHashtagsForUncompletedCredentials(long credentialId) 
-			throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-//			List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(
-//					credentialId, true);
-//			List<Tag> hashtags = getCredentialHashtags(credentialId);
-//			for(TargetCredential1 tc : targetCredentials) {
-//				tc.getHashtags().clear();
-//				for(Tag hashtag : hashtags) {
-//					tc.getHashtags().add(hashtag);
-//				}
-//			}
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating user credentials");
-		}
-	}
-	
-	
-	@Deprecated
-	//TODO this method should be removed/changed because all changes will be propagated
-	@Override
-	@Transactional(readOnly = false)
-	public void updateTargetCredentialsWithChangedData(long credentialId, CredentialChangeTracker changeTracker) 
-			throws DbConnectionException {
-		if(changeTracker.isPublished()) {
-			if(changeTracker.isTagsChanged()) {
-				updateTargetCredentialTagsForUncompletedCredentials(credentialId);
-			}
-			if(changeTracker.isHashtagsChanged()) {
-				updateTargetCredentialHashtagsForUncompletedCredentials(credentialId);
-			}
-			if(changeTracker.isTitleChanged() || changeTracker.isDescriptionChanged()
-					|| changeTracker.isMandatoryFlowChanged()) {
-				updateBasicDataForNotCompletedTargetCredentials(credentialId);
-			}
-		}
-	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId) throws DbConnectionException {
 		return getBookmarkedByIds(credId, persistence.currentManager());
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialBookmark> getBookmarkedByIds(long credId, Session session) 
@@ -1537,8 +1111,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading credential bookmarks");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = false)
 	public void bookmarkCredential(long credId, long userId, LearningContextData context) 
@@ -1565,10 +1138,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while bookmarking credential");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public CredentialBookmark bookmarkCredential(long credId, long userId) 
 			throws DbConnectionException {
 		try {
@@ -1584,8 +1156,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while bookmarking credential");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = false)
 	public void deleteCredentialBookmark(long credId, long userId, LearningContextData context) 
@@ -1612,8 +1183,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while deleting credential bookmark");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = false)
 	public long deleteCredentialBookmark(long credId, long userId) 
@@ -1643,15 +1213,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while deleting credential bookmark");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = false)
 	public void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException {
 		try {
 			List<Long> credIds = getIdsOfCredentialsWithCompetence(compId);
-			if(!credIds.isEmpty()) {
+			if (!credIds.isEmpty()) {
 				String opString = op == Operation.Add ? "+" : "-";
 				String query = "UPDATE Credential1 cred SET " +
 						   	   "cred.duration = cred.duration " + opString + " :duration " +
@@ -1669,29 +1238,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while updating credential duration");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = false)
-	public void updateTargetCredentialDuration(long id, long duration) throws DbConnectionException {
-		try {
-			String query = "UPDATE TargetCredential1 cred SET " +
-						   "cred.duration = :duration " +
-						   "WHERE cred.id = :credId";
-			
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("duration", duration)
-				.setLong("credId", id)
-				.executeUpdate();
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential duration");
-		}
-	}
 
-	@Deprecated
 	private List<Long> getIdsOfCredentialsWithCompetence(long compId) {
 		try {
 			String query = "SELECT cred.id " +
@@ -1714,47 +1261,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential ids");
-		}
-	}
-	
-	@Deprecated
-	public void updateProgressForTargetCredentialWithCompetence(long targetCompId) throws DbConnectionException {
-		try {	
-			String query1 = "SELECT cred.id " +
-					"FROM TargetCompetence1 comp " +
-					"INNER JOIN comp.targetCredential cred " +
-					"WHERE comp.id = :compId";
-	
-			Long targetCredId =  (Long) persistence.currentManager()
-					.createQuery(query1)
-					.setLong("compId", targetCompId)
-					.uniqueResult();
-			
-			TargetCredential1 targetCred = (TargetCredential1) persistence.currentManager()
-					.load(TargetCredential1.class, targetCredId);
-			
-			String query = "SELECT comp.progress " +
-						   "FROM TargetCompetence1 comp " +
-						   "WHERE comp.targetCredential = :cred";
-			
-			@SuppressWarnings("unchecked")
-			List<Integer> res =  persistence.currentManager()
-				.createQuery(query)
-				.setEntity("cred", targetCred)
-				.list();
-			
-			if(res != null) {
-				int cumulativeProgress = 0;
-				for(Integer p : res) {
-					cumulativeProgress += p.intValue();
-				}
-				int newProgress = cumulativeProgress / res.size();
-				targetCred.setProgress(newProgress); 
-			}
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential progress");
 		}
 	}
 	
@@ -1913,30 +1419,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 	}
 	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public String getTargetCredentialTitle(long credId, long userId) throws DbConnectionException {
-		try {
-			String query = "SELECT cred.title " +
-						   "FROM TargetCredential1 cred " +
-						   "WHERE cred.user.id = :userId " +
-						   "AND cred.credential.id = :credId";
-			
-			String title = (String) persistence.currentManager()
-				.createQuery(query)
-				.setLong("userId", userId)
-				.setLong("credId", credId)
-				.uniqueResult();
-			
-			return title;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential title");
-		}
-	}
-	
 //	@Override
 //	@Transactional(readOnly = true)
 //	public CredentialData getCurrentVersionOfCredentialForManager(long credentialId,
@@ -1945,27 +1427,46 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 //					loadCompetences, Role.Manager);
 //	}
 
-	@Deprecated
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	@Transactional (readOnly = true)
 	public List<TargetCredential1> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
+		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.ANY);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional (readOnly = true)
+	private List<TargetCredential1> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
+													     UserLearningProgress progress)
+			throws DbConnectionException {
 		List<TargetCredential1> result = new ArrayList<>();
 		try {
-			String query=
-				"SELECT targetCredential1 " +
-				"FROM TargetCredential1 targetCredential1 " +
-				"WHERE targetCredential1.user.id = :userid ";
-			
-			if (onlyPubliclyVisible) {
-				query += "AND targetCredential1.hiddenFromProfile = false ";
+			String query =
+					"SELECT targetCredential1 " +
+							"FROM TargetCredential1 targetCredential1 " +
+							"INNER JOIN targetCredential1.credential cred " +
+							"WHERE targetCredential1.user.id = :userid ";
+
+			switch (progress) {
+				case COMPLETED:
+					query += "AND targetCredential1.progress = 100 ";
+					break;
+				case IN_PROGRESS:
+					query += "AND targetCredential1.progress < 100 ";
+					break;
+				default:
+					break;
 			}
-			
-			query += "ORDER BY targetCredential1.title";
-			
+
+			if (onlyPubliclyVisible) {
+				query += " AND targetCredential1.hiddenFromProfile = false ";
+			}
+
+			query += "ORDER BY cred.title";
+
 			result = persistence.currentManager()
 					.createQuery(query)
-					.setLong("userid", userid)
+					.setLong("userid", userId)
 					.list();
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -1973,68 +1474,21 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 		return result;
 	}
-	
-	@Deprecated
+
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional (readOnly = true)
 	public List<TargetCredential1> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList<>();
-		try {
-			String query =
-					"SELECT targetCredential1 " +
-					"FROM TargetCredential1 targetCredential1 " +
-					"WHERE targetCredential1.user.id = :userid " +
-						"AND targetCredential1.progress = 100 ";
-			
-			if (onlyPubliclyVisible) {
-				query += " AND targetCredential1.hiddenFromProfile = false ";
-			}
-			
-			query += "ORDER BY targetCredential1.title";
-			  	
-			result = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userid", userId)
-				  	.list();
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			throw new DbConnectionException();
-		}
-		return result;
+		return getTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
 	}
 
-	@Deprecated
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	@Transactional (readOnly = true)
 	public List<TargetCredential1> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		List<TargetCredential1> result = new ArrayList<>();
-		try {
-			String query =
-				"SELECT targetCredential1 " +
-				"FROM TargetCredential1 targetCredential1 " +
-				"WHERE targetCredential1.user.id = :userid " +
-					"AND targetCredential1.progress < 100 ";
-			
-			if (onlyPubliclyVisible) {
-				query += " AND targetCredential1.hiddenFromProfile = false ";
-			}
-			
-			query += "ORDER BY targetCredential1.title";
-			
-			result = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userid", userid)
-				  	.list();
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			throw new DbConnectionException();
-		}
-		return result;
+		return getTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
 	}
 
-	@Deprecated
 	@Override
 	@Transactional (readOnly = false)
 	public void updateHiddenTargetCredentialFromProfile(long credId, boolean hiddenFromProfile)
@@ -2055,16 +1509,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) 
 			throws DbConnectionException {  
 		return getTargetCredentialsProgressAndInstructorInfoForUser(userId, persistence.currentManager());
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId, Session session) 
@@ -2103,33 +1555,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving user credentials");
 		}
 	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public boolean areStudentsManuallyAssignedToInstructor(long credId) throws DbConnectionException {
-		try {
-			String query = 
-					"SELECT cred.manuallyAssignStudents " +
-					"FROM Credential1 cred " +
-					"WHERE cred.id = :credId";
-			
-				Boolean res = (Boolean) persistence.currentManager().createQuery(query).
-						setLong("credId", credId).
-						uniqueResult();
-				if(res == null) {
-					throw new Exception();
-				} 
-				return res;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
-		}
 
-	}
-	
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetCredential1> getTargetCredentialsForInstructor(long instructorId) 
@@ -2154,8 +1580,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading target credentials");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public long getUserIdForTargetCredential(long targetCredId) throws DbConnectionException {
@@ -2178,8 +1603,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading user id");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForCredential(long credId) throws DbConnectionException {
@@ -2203,9 +1627,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading user id");
 		}
 	}
-	
-	@Deprecated
-	//TODO check with Nikola why 30 is hardcoded
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getActiveUserIdsForCredential(long credId) throws DbConnectionException {
@@ -2214,7 +1636,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"SELECT targetCredential.user.id " +
 					"FROM TargetCredential1 targetCredential " +
 					"WHERE targetCredential.credential.id = :credentialId "+ 
-					"AND targetCredential.progress > 30";
+					"AND targetCredential.progress < 100";
 			
 			@SuppressWarnings("unchecked")
 			List<Long> res = persistence.currentManager().createQuery(query)
@@ -2230,8 +1652,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading user id");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> getUserIdsForTargetCredentials(List<Long> targetCredIds) 
@@ -2287,10 +1708,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while loading user credentials");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public void removeFeed(long credId, long feedSourceId) throws DbConnectionException {
 		try {
 			Credential1 cred = getCredentialWithBlogs(credId);
@@ -2302,8 +1722,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while removing blog from the credential");
 		}
 	}
-	
-	@Deprecated
+
 	//returns true if new blog is added to the course, false if it already exists
 	@Override
 	@Transactional(readOnly = false)
@@ -2332,8 +1751,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while adding new credential feed source");
 		}
 	}
-	
-	@Deprecated
+
 	private Credential1 getCredentialWithBlogs(long credId) {
 		String query = "SELECT cred " +
 				   "FROM Credential1 cred " +
@@ -2385,8 +1803,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving learning info");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional
 	public List<CredentialData> getNRecentlyLearnedInProgressCredentials(Long userid, int limit, boolean loadOneMore) 
@@ -2438,8 +1855,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential data");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = false)
 	public void updateTargetCredentialLastAction(long userId, long credentialId) 
@@ -2464,8 +1880,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while updating last action for user credential");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public long getTargetCredentialNextCompToLearn(long credId, long userId) 
@@ -2597,8 +2012,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving filters");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional (readOnly = true)
 	public UserData chooseRandomPeer(long credId, long userId) {
@@ -2640,8 +2054,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving random peer");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional (readOnly = true)
 	public List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId) {
@@ -2747,115 +2160,66 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getTagsForCredentialCompetences(credentialId).size();
 	}
 
-	@Deprecated
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceData1> getTargetCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
-		//TODO cred-redesign-07
-//		StringBuilder queryBuilder = new StringBuilder(
-//				"SELECT DISTINCT targetComp " +
-//				"FROM TargetCompetence1 targetComp " + 
-//				"LEFT JOIN FETCH targetComp.tags tag "+
-//				"WHERE targetComp.targetCredential.id = :credId " +
-//				"ORDER BY targetComp.title");
-//		
-//		@SuppressWarnings("unchecked")
-//		List<TargetCompetence1> competences= (List<TargetCompetence1>) persistence.currentManager()
-//				.createQuery(queryBuilder.toString())
-//				.setLong("credId", credentialId)
-//				.list();
-//		List<CompetenceData1> data = new ArrayList<>();
-//		for(TargetCompetence1 competence : competences){
-//			CompetenceData1 cd = new CompetenceData1(false);
-//			cd.setTitle(competence.getTitle());
-//			cd.setDuration(competence.getDuration());
-//			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
-//			cd.setCredentialId(competence.getTargetCredential().getId());
-//			cd.setCompetenceId(competence.getCompetence().getId());
-//			cd.setTargetCompId(competence.getId());
-//			cd.setActivities(getTargetActivityForKeywordSearch(credentialId));
-//			data.add(cd);
-//		}
-//		return data;
-		return null;
+	public List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException {
+		String query = "SELECT DISTINCT comp " +
+				"FROM Competence1 comp " +
+				"LEFT JOIN FETCH comp.tags tag " +
+				"INNER JOIN comp.credentialCompetences cComp " +
+				"WHERE cComp.credential.id = :credId " +
+				"ORDER BY comp.title";
+
+		@SuppressWarnings("unchecked")
+		List<Competence1> competences= (List<Competence1>) persistence.currentManager()
+				.createQuery(query)
+				.setLong("credId", credentialId)
+				.list();
+
+		List<CompetenceData1> data = new ArrayList<>();
+		for (Competence1 competence : competences) {
+			CompetenceData1 cd = new CompetenceData1(false);
+			cd.setTitle(competence.getTitle());
+			cd.setDuration(competence.getDuration());
+			cd.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(competence.getTags()));
+			cd.setCredentialId(credentialId);
+			cd.setCompetenceId(competence.getId());
+			data.add(cd);
+		}
+		return data;
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
-	public List<ActivityData> getTargetActivityForKeywordSearch(long credentialId) throws DbConnectionException {
-		//TODO cred-redesign-07
-//		StringBuilder queryBuilder = new StringBuilder(
-//				"SELECT DISTINCT targetAct " +
-//				"FROM TargetCompetence1 targetComp " + 
-//				"JOIN targetComp.targetActivities targetAct "+
-//				"WHERE targetComp.targetCredential.id = :credId " +
-//				"ORDER BY targetAct.title");
-//		
-//		@SuppressWarnings("unchecked")
-//		List<TargetActivity1> activities= (List<TargetActivity1>) persistence.currentManager()
-//				.createQuery(queryBuilder.toString())
-//				.setLong("credId", credentialId)
-//				.list();
-//		List<ActivityData> data = new ArrayList<>();
-//		for(TargetActivity1 tActivity : activities){
-//			ActivityData ad = new ActivityData(false);
-//			ad.setTitle(tActivity.getTitle());
-//			ad.setTargetActivityId(tActivity.getId());
-//			ad.setDurationHours((int) (tActivity.getDuration() / 60));
-//			ad.setDurationMinutes((int) (tActivity.getDuration() % 60));
-//			ad.calculateDurationString();
-//			ad.setCompetenceId(tActivity.getTargetCompetence().getCompetence().getId());
-//			ad.setActivityId(tActivity.getActivity().getId());
-//			data.add(ad);
-//		}
-//		return data;
-		return null;
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public UserGroupPrivilege getUserPrivilegeForCredential(long credId, long userId) 
-			throws DbConnectionException {
+	public List<ActivityData> getActivitiesForKeywordSearch(long credentialId) throws DbConnectionException {
 		try {
-			String query = "SELECT credUserGroup.privilege, cred.createdBy.id, cred.visibleToAll " +
-					"FROM CredentialUserGroup credUserGroup " +
-					"INNER JOIN credUserGroup.userGroup userGroup " +
-					"RIGHT JOIN credUserGroup.credential cred " +
-					"INNER JOIN userGroup.users user " +
-						"WITH user.user.id = :userId " +
-					"WHERE cred.id = :credId " +
-					"ORDER BY CASE WHEN credUserGroup.privilege = :editPriv THEN 1 WHEN credUserGroup.privilege = :viewPriv THEN 2 ELSE 3 END";
-			
-			Object[] res = (Object[]) persistence.currentManager()
+			String query =
+					"SELECT DISTINCT cAct " +
+							"FROM Activity1 act " +
+							"INNER JOIN act.competenceActivities cAct " +
+							"INNER JOIN cAct.competence comp " +
+							"INNER JOIN comp.credentialCompetences cComp " +
+							"WITH cComp.credential.id = :credId " +
+							"ORDER BY act.title";
+
+			@SuppressWarnings("unchecked")
+			List<CompetenceActivity1> activities = (List<CompetenceActivity1>) persistence.currentManager()
 					.createQuery(query)
-					.setLong("userId", userId)
-					.setLong("credId", credId)
-					.setParameter("editPriv", UserGroupPrivilege.Edit)
-					.setParameter("viewPriv", UserGroupPrivilege.Learn)
-					.setMaxResults(1)
-					.uniqueResult();
-			
-			if(res == null) {
-				return UserGroupPrivilege.None;
+					.setLong("credId", credentialId)
+					.list();
+
+			List<ActivityData> data = new ArrayList<>();
+			for (CompetenceActivity1 cAct : activities) {
+				data.add(activityDataFactory.getActivityData(cAct, null, null, false));
 			}
-			UserGroupPrivilege priv = (UserGroupPrivilege) res[0];
-			if(priv == null) {
-				priv = UserGroupPrivilege.None;
-			}
-			long owner = (long) res[1];
-			boolean visibleToAll = (boolean) res[2];
-			return owner == userId 
-				? UserGroupPrivilege.Edit
-				: priv == UserGroupPrivilege.None && visibleToAll ? UserGroupPrivilege.Learn : priv;
-		} catch(Exception e) {
-			e.printStackTrace();
+			return data;
+		} catch (Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privilege for credential");
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving activities");
 		}
 	}
-	
+
 	@Transactional(readOnly = true)
 	@Override
 	public UserAccessSpecification getUserPrivilegesForCredential(long credId, long userId) 
@@ -2922,8 +2286,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while trying to retrieve user privileges for credential");
 		}
 	}
-	
-	@Deprecated
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Credential1> getAllCredentials(Session session) throws DbConnectionException {
@@ -3051,26 +2414,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential unassigned member ids");
-		}
-	}
-	
-	@Deprecated
-	@Override
-	@Transactional(readOnly = true)
-	public ResourceAccessData getCredentialAccessRights(long credId, long userId, 
-			UserGroupPrivilege neededPrivilege) throws DbConnectionException {
-		try {
-			//TODO cred-redesign-07
-//			UserGroupPrivilege priv = getUserPrivilegeForCredential(credId, userId);
-//			return new ResourceAccessData(
-//					neededPrivilege.isPrivilegeIncluded(priv), 
-//					priv == UserGroupPrivilege.Edit
-//			);
-			return new ResourceAccessData(true, true, true, true, true);
-		} catch (DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential access rights for user: " + userId);
 		}
 	}
 	
@@ -3564,4 +2907,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while retrieving credential creator");
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
+			throws DbConnectionException {
+		try {
+			/*
+			deliveries with instruct privilege are retrieved by using instructors added to credential
+			because of the better performance than the approach with checking for Instruct privilege.
+			That does not change end result because only users that are added to delivery as instructors
+			have Instruct privilege for that delivery. If that assumption changes in the future, this
+			method would not return correct results.
+			 */
+			String query=
+					"SELECT del " +
+					"FROM Credential1 del " +
+					"INNER JOIN del.credInstructors instructor " +
+							"WITH instructor.user.id = :userId " +
+					"WHERE del.type = :type";
+
+			@SuppressWarnings("unchecked")
+			List<Credential1> result = persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", userId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+
+			List<CredentialData> deliveries = new ArrayList<>();
+			for (Credential1 d : result) {
+				deliveries.add(credentialFactory.getCredentialData(null, d, null, null, false));
+			}
+
+			return deliveries;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential deliveries");
+		}
+	}
+
 }

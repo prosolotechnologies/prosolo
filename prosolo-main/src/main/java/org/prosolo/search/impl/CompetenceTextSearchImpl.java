@@ -319,6 +319,12 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					break;
 				case DRAFT:
 					bQueryBuilder.filter(termQuery("published", false));
+					bQueryBuilder.mustNot(QueryBuilders.existsQuery("datePublished"));
+					bQueryBuilder.filter(termQuery("archived", false));
+					break;
+				case UNPUBLISHED:
+					bQueryBuilder.filter(termQuery("published", false));
+					bQueryBuilder.filter(QueryBuilders.existsQuery("datePublished"));
 					bQueryBuilder.filter(termQuery("archived", false));
 					break;
 				case ARCHIVED:

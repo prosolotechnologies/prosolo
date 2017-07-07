@@ -165,7 +165,6 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 
 	public void loadCompetenceActivitiesIfNotLoaded(CompetenceData1 cd) {
-		//TODO this must be implemented in a different way because if user is enrolled in a credential, it doesn't mean he is enrolled in competence
 		if (!cd.isActivitiesInitialized()) {
 			List<ActivityData> activities = new ArrayList<>();
 			if (cd.isEnrolled()) {

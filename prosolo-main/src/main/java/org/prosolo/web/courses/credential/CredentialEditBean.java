@@ -214,14 +214,24 @@ public class CredentialEditBean implements Serializable {
 	}
 
 	public void save() {
-		saveCredentialData(true);
+		boolean isCreateUseCase = credentialData.getId() == 0;
+		boolean saved = saveCredentialData(!isCreateUseCase);
+
+		//redirect to credential edit page if credential is saved for the first time
+		if (saved && isCreateUseCase) {
+			PageUtil.keepFiredMessagesAcrossPages();
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			//when competence is saved for the first time redirect to edit page
+			PageUtil.redirect(extContext.getRequestContextPath() +
+					"/manage/credentials/" + id + "/edit");
+		}
 	}
 	
 	public boolean saveCredentialData(boolean reloadData) {
 		try {
 			LearningContextData lcd = PageUtil.extractLearningContextData();
 			
-			if(credentialData.getId() > 0) {
+			if (credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
 					credentialManager.updateCredential(credentialData, loggedUser.getUserId(), lcd);
@@ -235,7 +245,7 @@ public class CredentialEditBean implements Serializable {
 				credentialData.startObservingChanges();
 				setContext();
 			}
-			if(reloadData && credentialData.hasObjectChanged()) {
+			if (reloadData && credentialData.hasObjectChanged()) {
 				reloadCredential();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
@@ -249,7 +259,9 @@ public class CredentialEditBean implements Serializable {
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());
-			reloadCredential();
+			if (credentialData.getId() > 0) {
+				reloadCredential();
+			}
 			return false;
 		} catch (DbConnectionException e) {
 			logger.error(e);

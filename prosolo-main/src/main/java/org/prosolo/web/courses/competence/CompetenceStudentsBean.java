@@ -80,39 +80,24 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 			try {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
-				if(title != null) {
-					//TODO cred-redesign-07 check if this is ok
+				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
-						.addPrivilege(UserGroupPrivilege.Edit)
-						.addPrivilege(UserGroupPrivilege.Instruct);
+						.addPrivilege(UserGroupPrivilege.Edit);
 					access = compManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(), req);
-					if(!access.isCanAccess()) {
-						try {
-							FacesContext.getCurrentInstance().getExternalContext().dispatch(
-									"/accessDenied.xhtml");
-						} catch (IOException e) {
-							logger.error(e);
-						}
+					if (!access.isCanAccess()) {
+						PageUtil.accessDenied();
 					} else {
 						competenceTitle = title;
 						searchCompetenceStudents();
 					}
 				} else {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+					PageUtil.notFound();
 				}	
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 

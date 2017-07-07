@@ -1,15 +1,9 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -18,11 +12,7 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.LearningInfo;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -31,6 +21,10 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
 
 @ManagedBean(name = "activityResultsBeanUser")
 @Component("activityResultsBeanUser")
@@ -104,20 +98,15 @@ public class ActivityResultsBeanUser implements Serializable {
 							ResourceAccessRequirements.of(AccessMode.USER));
 				}
 			} catch (AccessDeniedException ade) {
-				PageUtil.forward("/accessDenied.xhtml");
+				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {
-				PageUtil.forward("/notfound.xhtml");
+				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity results");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	
@@ -128,34 +117,39 @@ public class ActivityResultsBeanUser implements Serializable {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
-		
-		if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
-			ActivityData activityWithDetails = activityManager.getActivityDataForUserToView(
-					decodedTargetActId, loggedUser.getUserId(), false);
 
-			if (activityWithDetails == null) {
-				PageUtil.forward("/notfound.xhtml");
-			} else {
-				competenceData = new CompetenceData1(false);
-				competenceData.setActivityToShowWithDetails(activityWithDetails);
-				resultOwnerIsLookingThisPage = competenceData.getActivityToShowWithDetails().getResultData()
-						.getUser().getId() == loggedUser.getUserId();
-				
-				if (resultOwnerIsLookingThisPage) {
-					loadNextToLearnInfo();
-				} 
-				loadCompetenceAndCredentialTitle();
-				if(commentId != null) {
-					competenceData.getActivityToShowWithDetails().getResultData()
-						.getResultComments().setCommentId(idEncoder.decodeId(commentId));
-					initializeResultCommentsIfNotInitialized(
-							competenceData.getActivityToShowWithDetails().getResultData());
+		try {
+			if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
+				ActivityData activityWithDetails = activityManager.getActivityResponseForUserToView(
+						decodedTargetActId, loggedUser.getUserId());
+
+				if (activityWithDetails == null) {
+					PageUtil.notFound();
+				} else {
+					competenceData = new CompetenceData1(false);
+					competenceData.setActivityToShowWithDetails(activityWithDetails);
+					resultOwnerIsLookingThisPage = competenceData.getActivityToShowWithDetails().getResultData()
+							.getUser().getId() == loggedUser.getUserId();
+
+					if (resultOwnerIsLookingThisPage) {
+						loadNextToLearnInfo();
+					}
+					loadCompetenceAndCredentialTitle();
+					if (commentId != null) {
+						competenceData.getActivityToShowWithDetails().getResultData()
+								.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+						initializeResultCommentsIfNotInitialized(
+								competenceData.getActivityToShowWithDetails().getResultData());
+					}
+					access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(),
+							ResourceAccessRequirements.of(AccessMode.USER));
 				}
-				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), 
-						ResourceAccessRequirements.of(AccessMode.USER));
+			} else {
+				PageUtil.notFound();
 			}
-		} else {
-			PageUtil.forward("/notfound.xhtml");
+		} catch (DbConnectionException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error while loading activity response");
 		}
 	}
 	
@@ -207,7 +201,9 @@ public class ActivityResultsBeanUser implements Serializable {
 	}
 	
 	public String getResultOwnerFullName() {
-		return competenceData.getActivityToShowWithDetails().getResultData().getUser().getFullName();
+		return competenceData != null
+				? competenceData.getActivityToShowWithDetails().getResultData().getUser().getFullName()
+				: null;
 	}
 	
 	public long getTargetActivityId() {
