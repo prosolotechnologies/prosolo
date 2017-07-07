@@ -26,6 +26,7 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +91,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationDataById(long organizationId) throws DbConnectionException {
+    public OrganizationData getOrganizationDataById(long organizationId,List<Role> adminRoles) throws DbConnectionException {
 
         try{
             String query = "SELECT organization " +
@@ -102,16 +103,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
 
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
             List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),adminRoles);
-            List<UserData> listToPass = new ArrayList<>();
-            for(User u : chosenAdmins){
-                listToPass.add(new UserData(u));
-            }
 
-            OrganizationData od = new OrganizationData(organization,listToPass);
+            OrganizationDataFactory odf = new OrganizationDataFactory();
+            OrganizationData od = odf.getOrganizationData(organization,chosenAdmins);
+
             return od;
         } catch (Exception e) {
             logger.error(e);

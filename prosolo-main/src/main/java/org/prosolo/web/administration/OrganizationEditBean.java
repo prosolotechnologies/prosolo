@@ -78,9 +78,14 @@ public class OrganizationEditBean implements Serializable {
         admins = new ArrayList<UserData>();
         adminsChosen = new ArrayList<UserData>();
         try {
+            rolesArray = new String[]{"Admin","Super Admin"};
+            adminRoles = roleManager.getRolesByNames(rolesArray);
+            for(Role r : adminRoles){
+                adminRolesIds.add(r.getId());
+            }
             decodedId = idEncoder.decodeId(id);
             if (decodedId > 0) {
-                this.organization = organizationManager.getOrganizationDataById(decodedId);
+                this.organization = organizationManager.getOrganizationDataById(decodedId,adminRoles);
 
                 if (organization != null) {
                     adminsChosen = this.organization.getAdmins();
@@ -91,11 +96,6 @@ public class OrganizationEditBean implements Serializable {
             }else{
                 admin = new UserData();
                 organization = new OrganizationData();
-            }
-            rolesArray = new String[]{"Admin","Super Admin"};
-            adminRoles = roleManager.getRolesByNames(rolesArray);
-            for(Role r : adminRoles){
-                adminRolesIds.add(r.getId());
             }
         } catch (Exception e) {
             logger.error(e);
@@ -137,9 +137,9 @@ public class OrganizationEditBean implements Serializable {
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization successfully saved");
-                PageUtil.redirect("/admin/organizations/new");
+                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/edit");
             }else{
-                PageUtil.fireSuccessfulInfoMessage("Organization successfully saved");
+                PageUtil.fireErrorMessage("Error while trying to save organization data");
             }
         }catch (Exception e){
             logger.error(e);
@@ -149,14 +149,13 @@ public class OrganizationEditBean implements Serializable {
 
     public void updateOrganization(){
         try {
-
             LearningContextData lcd = PageUtil.extractLearningContextData();
-            Organization updatedOrganization = organizationManager.updateOrganization(this.organization.getId(), this.organization.getTitle(),
+            organizationManager.updateOrganization(this.organization.getId(), this.organization.getTitle(),
                     this.organization.getAdmins(), loggedUser.getUserId(),lcd);
 
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
-            PageUtil.fireSuccessfulInfoMessageAcrossPages("Organization updated");
+            PageUtil.fireSuccessfulInfoMessage("Organization updated");
         } catch (DbConnectionException e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to update organization data");
