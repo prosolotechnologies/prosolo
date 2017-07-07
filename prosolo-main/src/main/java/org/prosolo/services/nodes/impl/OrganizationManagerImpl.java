@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -19,11 +18,8 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
@@ -50,6 +46,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private UserManager userManager;
     @Autowired
     private RoleManager roleManager;
+    @Inject
+    private OrganizationDataFactory organizationDataFactory;
 
     @Inject
     private OrganizationManager self;
@@ -91,7 +89,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationDataById(long organizationId,List<Role> adminRoles) throws DbConnectionException {
+    public OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException {
 
         try{
             String query = "SELECT organization " +
@@ -103,10 +101,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
 
-            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),adminRoles);
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
 
-            OrganizationDataFactory odf = new OrganizationDataFactory();
-            OrganizationData od = odf.getOrganizationData(organization,chosenAdmins);
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins);
 
             return od;
         } catch (Exception e) {

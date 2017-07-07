@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -24,8 +23,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -62,12 +59,10 @@ public class OrganizationEditBean implements Serializable {
     private OrganizationDataFactory organizationDataFactory;
 
     private OrganizationData organization;
-    private List<UserData> admins;
     private List<UserData> adminsChosen;
     private String id;
     private long decodedId;
     private String searchTerm;
-    private UserData admin;
     private SelectItem[] allRoles;
     private String[] rolesArray;
     private List<Role> adminRoles;
@@ -75,7 +70,6 @@ public class OrganizationEditBean implements Serializable {
 
     public void init() {
         logger.debug("initializing");
-        admins = new ArrayList<UserData>();
         adminsChosen = new ArrayList<UserData>();
         try {
             rolesArray = new String[]{"Admin","Super Admin"};
@@ -94,7 +88,6 @@ public class OrganizationEditBean implements Serializable {
                     PageUtil.fireErrorMessage("Organization cannot be found");
                 }
             }else{
-                admin = new UserData();
                 organization = new OrganizationData();
             }
         } catch (Exception e) {
@@ -165,9 +158,9 @@ public class OrganizationEditBean implements Serializable {
     }
 
     public void loadUsers() {
-        this.admins = null;
+        this.organization.setAdmins(null);
         if (searchTerm == null || searchTerm.isEmpty()) {
-            admins = null;
+            this.organization.setAdmins(null);
         } else {
             try {
                 List<UserData> usersToExclude = adminsChosen.stream()
@@ -176,7 +169,7 @@ public class OrganizationEditBean implements Serializable {
 
                 PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, usersToExclude, this.adminRolesIds);
 
-                admins = result.getFoundNodes();
+                this.organization.setAdmins(result.getFoundNodes());
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -223,14 +216,6 @@ public class OrganizationEditBean implements Serializable {
 
     public void setOrganization(OrganizationData organization) {
         this.organization = organization;
-    }
-
-    public List<UserData> getAdmins() {
-        return admins;
-    }
-
-    public void setAdmins(List<UserData> admins) {
-        this.admins = admins;
     }
 
     public List<UserData> getAdminsChosen() {
