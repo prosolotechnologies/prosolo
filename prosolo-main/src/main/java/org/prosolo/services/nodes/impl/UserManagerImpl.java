@@ -21,8 +21,8 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -415,47 +415,60 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles) {
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles,
+													   long organizationId) throws  DbConnectionException {
+		try {
+			PaginatedResult<UserData> response = new PaginatedResult<>();
 
-		PaginatedResult<UserData> response = new PaginatedResult<>();
+			String query =
+					"SELECT DISTINCT user " +
+					"FROM User user " +
+					"LEFT JOIN FETCH user.roles role " +
+					"WHERE user.deleted IS false ";
 
-		String query =
-				"SELECT DISTINCT user " +
-				"FROM User user " +
-				"LEFT JOIN FETCH user.roles role ";
-				if(filterByRoleId > 0) {
-					query+="WHERE role.id =: filterByRoleId AND user.deleted IS false ";
-				}else{
-					query+="WHERE role IN (:roles) AND user.deleted IS false ";
-				}
-				query+="ORDER BY user.name,user.lastname ASC ";
+			if (organizationId > 0) {
+				query += "AND user.organization.id = :orgId ";
+			}
+			if (filterByRoleId > 0) {
+				query += "AND role.id =: filterByRoleId ";
+			} else if (roles != null && !roles.isEmpty()) {
+				query += "AND role IN (:roles) ";
+			}
+			query += "ORDER BY user.name,user.lastname ASC ";
 
-		Query result = persistence.currentManager().createQuery(query);
+			Query q = persistence.currentManager().createQuery(query);
 
-		if(filterByRoleId > 0){
-			result.setLong("roleId",filterByRoleId);
-		}else {
-			result.setParameterList("roles",roles);
-		}
+			if (organizationId > 0) {
+				q.setLong("orgId", organizationId);
+			}
 
-		List<User> users = result
-				.setFirstResult(page*limit)
-				.setMaxResults(limit)
-				.list();
+			if (filterByRoleId > 0) {
+				q.setLong("roleId", filterByRoleId);
+			} else if (roles != null && !roles.isEmpty()) {
+				q.setParameterList("roles", roles);
+			}
 
-		for(User u : users) {
-			if(roles != null) {
-				List<Role> adminRoles = new LinkedList<>(u.getRoles());
+			List<User> users = q
+					.setFirstResult(page * limit)
+					.setMaxResults(limit)
+					.list();
 
-				UserData userData = new UserData(u,adminRoles);
+			for (User u : users) {
+				List<Role> userRoles = new LinkedList<>(u.getRoles());
+				UserData userData = new UserData(u, userRoles);
 				response.addFoundNode(userData);
 			}
+
+			response.setAdditionalInfo(setFilter(organizationId, roles, filterByRoleId));
+			response.setHitsNumber(setUsersCountForFiltering(organizationId, roles, filterByRoleId));
+
+			return response;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while loading users");
 		}
-
-		response.setAdditionalInfo(setFilter(roles,filterByRoleId));
-		response.setHitsNumber(setUsersCountForFiltering(roles,filterByRoleId));
-
-		return response;
 	}
 
 	@Override
@@ -466,54 +479,97 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	private Long setUsersCountForFiltering(List<Role> roles,long filterByRoleId){
+	private Long setUsersCountForFiltering(long organizationId, List<Role> roles, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
-						"FROM User user " +
-						"LEFT JOIN user.roles role ";
-		if(filterByRoleId > 0) {
-			countQuery += "WHERE role.id =: filterByRoleId AND user.deleted IS false";
-		}else{
-			countQuery += "WHERE role IN (:roles) AND user.deleted IS false";
+				"FROM User user " +
+				"LEFT JOIN user.roles role " +
+				"WHERE user.deleted IS false ";
+
+		if (organizationId > 0) {
+			countQuery += "AND user.organization.id = :orgId ";
 		}
 
+		if (filterByRoleId > 0) {
+			countQuery += "AND role.id =: filterByRoleId";
+		} else if (roles != null && !roles.isEmpty()) {
+			countQuery += "AND role IN (:roles)";
+		}
 
 		Query result1 = persistence.currentManager().createQuery(countQuery);
-		if(filterByRoleId > 0){
-			result1.setLong("roleId",filterByRoleId);
-		}else{
-			result1.setParameterList("roles",roles);
+
+		if (organizationId > 0) {
+			result1.setLong("orgId", organizationId);
 		}
 
-		return (Long)result1.uniqueResult();
+		if (filterByRoleId > 0){
+			result1.setLong("roleId", filterByRoleId);
+		} else if (roles != null && !roles.isEmpty()) {
+			result1.setParameterList("roles", roles);
+		}
+
+		return (Long) result1.uniqueResult();
 	}
 
-	private Map<String,Object> setFilter(List<Role> roles,long filterByRoleId){
+	private Map<String,Object> setFilter(long organizationId, List<Role> roles, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
-						"FROM User user " +
-						"LEFT JOIN user.roles role " +
-						"WHERE role IN (:roles) AND user.deleted IS false ";
+				"FROM User user " +
+				"LEFT JOIN user.roles role " +
+				"WHERE user.deleted IS false ";
 
-		long count = (long) persistence.currentManager().createQuery(countQuery)
-				.setParameterList("roles",roles)
-				.uniqueResult();
+		if (organizationId > 0) {
+			countQuery += "AND user.organization.id = :orgId ";
+		}
+
+		if (roles != null && !roles.isEmpty()) {
+			countQuery += "AND role IN (:roles) ";
+		}
+
+		Query q = persistence.currentManager().createQuery(countQuery);
+
+		if (organizationId > 0) {
+			q.setLong("orgId", organizationId);
+		}
+
+		if (roles != null && !roles.isEmpty()) {
+			q.setParameterList("roles", roles);
+		}
+
+		long count = (long) q.uniqueResult();
 
 		List<RoleFilter> roleFilters = new ArrayList<>();
-		RoleFilter defaultFilter = new RoleFilter(0, "All",count);
+		RoleFilter defaultFilter = new RoleFilter(0, "All", count);
 		roleFilters.add(defaultFilter);
 		RoleFilter selectedFilter = defaultFilter;
 
 		String query =
 				"SELECT role, COUNT (DISTINCT user) " +
-						"FROM User user "+
-						"INNER JOIN user.roles role " +
-						"WITH role in (:roles) AND user.deleted IS false " +
-						"GROUP BY role";
+				"FROM User user "+
+				"INNER JOIN user.roles role ";
 
-		List<Object[]> result = persistence.currentManager().createQuery(query)
-				.setParameterList("roles",roles)
-				.list();
+		if (roles != null && !roles.isEmpty()) {
+			query += "WITH role in (:roles) ";
+		}
+
+		query += "WHERE user.deleted IS false ";
+
+		if (organizationId > 0) {
+			query += "AND user.organization.id = :orgId ";
+		}
+		query += "GROUP BY role";
+
+		Query q1 = persistence.currentManager().createQuery(query);
+
+		if (organizationId > 0) {
+			q1.setLong("orgId", organizationId);
+		}
+
+		if (roles != null && !roles.isEmpty()) {
+			q1.setParameterList("roles", roles);
+		}
+
+		List<Object[]> result = q1.list();
 
 		for(Object[] objects : result){
 			Role r = (Role) objects[0];

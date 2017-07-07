@@ -195,7 +195,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 							.field("id"))
 					.setFetchSource(includes, null);
 
-			if(roles != null && !roles.isEmpty()){
+			if (roles != null && !roles.isEmpty()){
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
 				for(Role r : roles){
 					bqb1.should(termQuery("roles.id", r.getId()));

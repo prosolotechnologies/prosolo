@@ -1,33 +1,26 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Bojan
@@ -44,8 +37,6 @@ public class AdminsBean implements Serializable,Paginable{
 
 	protected static Logger logger = Logger.getLogger(AdminsBean.class);
 
-
-	
 	@Inject
 	private UserTextSearch textSearch;
 	@Inject
@@ -58,7 +49,11 @@ public class AdminsBean implements Serializable,Paginable{
 	private RoleManager roleManager;
 	@Inject
 	private UserManager userManager;
-	
+
+	private String orgId;
+	private long decodedOrgId;
+	private String orgTitle;
+
 	private String roleId;
 	private List<UserData> admins;
 	String[] rolesArray;
@@ -71,18 +66,30 @@ public class AdminsBean implements Serializable,Paginable{
 	private PaginationData paginationData = new PaginationData();
 	
 
-	public void init(){
-		logger.debug("initializing");
+	public void initAdmins(){
+		logger.info("initializing admins");
+		long filterId = getFilterId();
+		rolesArray = new String[]{"Admin","Super Admin"};
+		adminRoles = roleManager.getRolesByNames(rolesArray);
+		filter = new RoleFilter(filterId,"All", 0);
+		loadUsers();
+	}
+
+	public void initOrgUsers() {
+		logger.info("initializing organization users");
+		decodedOrgId = idEncoder.decodeId(orgId);
+		long filterId = getFilterId();
+		filter = new RoleFilter(filterId, "All", 0);
+		loadUsers();
+	}
+
+	private long getFilterId() {
 		long filterId = 0;
 		long decodedRoleId = idEncoder.decodeId(roleId);
 		if(decodedRoleId > 0){
 			filterId = decodedRoleId;
 		}
-		this.admins = new ArrayList<>();
-		rolesArray = new String[]{"Admin","Super Admin"};
-		adminRoles = roleManager.getRolesByNames(rolesArray);
-		filter = new RoleFilter(filterId,"All", 0);
-		loadAdmins();
+		return filterId;
 	}
 	
 	public void resetAndSearch(){
@@ -99,9 +106,9 @@ public class AdminsBean implements Serializable,Paginable{
 
 	@Override
 	public void changePage(int page) {
-		if(this.paginationData.getPage() != page){
+		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			loadAdmins();
+			loadUsers();
 		}
 	}
 
@@ -123,14 +130,14 @@ public class AdminsBean implements Serializable,Paginable{
 		}
 	}
 
-	private void loadAdmins(){
+	private void loadUsers() {
 		try{
 			PaginatedResult<UserData> res = userManager.getUsersWithRoles(paginationData.getPage() - 1,
-					paginationData.getLimit(),filter.getId(), adminRoles);
+					paginationData.getLimit(), filter.getId(), adminRoles, decodedOrgId);
 			admins = res.getFoundNodes();
 			setFilters(res);
-		}catch (Exception e){
-			logger.error(e);
+		} catch (Exception e){
+			logger.error("Error", e);
 		}
 	}
 
@@ -182,4 +189,27 @@ public class AdminsBean implements Serializable,Paginable{
 		this.filters = filters;
 	}
 
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
+	public void setDecodedOrgId(long decodedOrgId) {
+		this.decodedOrgId = decodedOrgId;
+	}
+
+	public String getOrgTitle() {
+		return orgTitle;
+	}
+
+	public void setOrgTitle(String orgTitle) {
+		this.orgTitle = orgTitle;
+	}
 }

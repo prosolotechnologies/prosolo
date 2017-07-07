@@ -65,7 +65,18 @@ public interface UserManager extends AbstractManager {
 
 	void setUserOrganization(long userId,long organizationId);
 
-	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles);
+	/**
+	 *
+	 * @param page
+	 * @param limit
+	 * @param roleId
+	 * @param roles
+	 * @param organizationId - if less than or equals 0 users from all organizations will be returned
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles, long organizationId)
+			throws DbConnectionException;
 
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
