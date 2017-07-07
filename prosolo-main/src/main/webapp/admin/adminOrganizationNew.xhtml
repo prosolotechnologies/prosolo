@@ -92,10 +92,10 @@
 
 
                                             <h:panelGroup id="usersListPanel">
-                                                <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.organization.admins.size() > 0}">
+                                                <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.admins.size() > 0}">
                                                     <ul id="usersList" class="dropdown-menu searchResultsDrop panelAdminSearchResultsSelector"
                                                         style="display: block;">
-                                                        <ui:repeat value="#{organizationEditBean.organization.admins}" var="user"
+                                                        <ui:repeat value="#{organizationEditBean.admins}" var="user"
                                                                    varStatus="iterator">
 
                                                             <li>
@@ -119,7 +119,7 @@
                                         <h:panelGroup id="selectNewOwner">
                                             <h:panelGroup rendered="#{organizationEditBean.isAdminChosenListEmpty()}" id="selectedOwner">
                                             <ul class="list">
-                                                <ui:repeat value="#{organizationEditBean.adminsChosen}" var="admin">
+                                                <ui:repeat value="#{organizationEditBean.organization.admins}" var="admin">
                                                     <ui:fragment rendered="#{admin.objectStatus ne 'REMOVED'}">
                                                     <li>
                                                         <div class="instructorInfo">
