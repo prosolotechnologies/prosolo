@@ -74,9 +74,9 @@
 									</h:link>
 								</li>
 								<li class="selected">
-									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access')}"
+									<h:link rendered="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.instructor.access')}"
 										onclick="sendLogPageNavigation( '/manage', 'mainmenu');" 
-										outcome="/manage/credentialLibrary">
+										outcome="/manage/library">
 										<span></span>Manage
 									</h:link>
 								</li>
@@ -104,9 +104,9 @@
 							</li>
 							</ui:remove>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'  or util:getPagePath(view.viewId)  == 'competenceLibrary' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'  or util:getPagePath(view.viewId)  == 'competenceLibrary' or util:getPagePath(view.viewId)  == 'credential-library-instructor' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
-									outcome="/manage/credentialLibrary"
+									outcome="/manage/library"
 									value="Library" />
 							</li>
 							<li role="presentation"

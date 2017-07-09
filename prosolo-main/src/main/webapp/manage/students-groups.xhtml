@@ -41,6 +41,7 @@
 					<div class="whiteBarLeft">
 						<p:commandLink styleClass="btn btn-green btn-sm item"
 							pt:data-toggle="modal"
+						    process="@this"
 							action="#{manageGroupsBean.prepareGroupForAdding()}"
 							update=":newGroupForm:panelNewGroup"
 							oncomplete="$('#newGroupModal').modal('show');">
@@ -274,6 +275,7 @@
 							<div class="modal-footer alignLeft">
 								<p:commandLink id="create"
 									styleClass="btn btn-green"
+								    process="@form"
 									action="#{manageGroupsBean.saveGroup()}"
 									update=":panelGroups :growlMain :pagination"
 									oncomplete="$('#newGroupModal').modal('hide');">

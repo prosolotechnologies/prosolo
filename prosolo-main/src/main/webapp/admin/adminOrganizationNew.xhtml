@@ -121,7 +121,7 @@
                                         <h:panelGroup id="selectNewOwner">
                                             <h:panelGroup rendered="#{organizationEditBean.isAdminChosenListEmpty()}" id="selectedOwner">
                                             <ul class="list">
-                                                <ui:repeat value="#{organizationEditBean.adminsChosen}" var="admin">
+                                                <ui:repeat value="#{organizationEditBean.organization.admins}" var="admin">
                                                     <ui:fragment rendered="#{admin.objectStatus ne 'REMOVED'}">
                                                     <li>
                                                         <div class="instructorInfo">

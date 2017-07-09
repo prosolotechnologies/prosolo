@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.services.activityWall.UserDataFactory;
 import org.prosolo.services.event.EventException;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -21,11 +20,11 @@ import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -50,6 +49,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private UserManager userManager;
     @Autowired
     private RoleManager roleManager;
+    @Inject
+    private OrganizationDataFactory organizationDataFactory;
 
     @Inject
     private OrganizationManager self;
@@ -93,7 +94,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationDataById(long organizationId) throws DbConnectionException {
+    public OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException {
 
         try{
             String query = "SELECT organization " +
@@ -105,16 +106,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
 
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
 
-            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),adminRoles);
-            List<UserData> listToPass = new ArrayList<>();
-            for(User u : chosenAdmins){
-                listToPass.add(new UserData(u));
-            }
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization,chosenAdmins);
 
-            OrganizationData od = new OrganizationData(organization,listToPass);
             return od;
         } catch (Exception e) {
             logger.error(e);

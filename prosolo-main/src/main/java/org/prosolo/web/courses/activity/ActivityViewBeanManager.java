@@ -1,12 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -28,6 +21,12 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
 
 @ManagedBean(name = "activityViewBeanManager")
 @Component("activityViewBeanManager")
@@ -136,19 +135,6 @@ public class ActivityViewBeanManager implements Serializable {
 	public boolean isCurrentUserCreator() {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
-	
-	public String getLabelForActivity() {
-		//TODO cred-redesign-07
-// 		if(!competenceData.getActivityToShowWithDetails().isPublished() && 
-// 				competenceData.getActivityToShowWithDetails().getType() 
-// 					== LearningResourceType.UNIVERSITY_CREATED) {
-// 			return "(Unpublished)";
-// 		} else {
-// 			return "";
-// 		}
- 		return "";
- 	}
-	
 	
 	/*
 	 * GETTERS / SETTERS

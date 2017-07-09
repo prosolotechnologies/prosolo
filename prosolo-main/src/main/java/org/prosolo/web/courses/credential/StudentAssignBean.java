@@ -203,10 +203,10 @@ public class StudentAssignBean implements Serializable, Paginable {
 			}
 		}
 	}
-	
+
 	public void assignStudents() {
 		try {
-			if(isLimitExceeded()) {
+			if (isLimitExceeded()) {
 				FacesContext context = FacesContext.getCurrentInstance();
 				UIInput input = (UIInput) context.getViewRoot().findComponent(
 						"formAssignStudents:inputTextMaxNumberOfStudents");

@@ -78,20 +78,9 @@ public class CredentialDeliveriesBean implements Serializable {
 	private void unpackResult(RestrictedAccessResult<List<CredentialData>> res) {
 		access = res.getAccess();
 		List<CredentialData> deliveries = res.getResource();
-		//put each delivery in right collection
-		for (CredentialData d : deliveries) {
-			switch (d.getDeliveryStatus()) {
-				case ACTIVE:
-					activeDeliveries.add(d);
-					break;
-				case PENDING:
-					pendingDeliveries.add(d);
-					break;
-				case ENDED:
-					completedDeliveries.add(d);
-					break;
-			}
-		}
+		CredentialDeliveryUtil.populateCollectionsBasedOnDeliveryStartAndEnd(
+				deliveries, activeDeliveries, pendingDeliveries, completedDeliveries
+		);
 	}
 	
 	/*

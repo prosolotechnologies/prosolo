@@ -98,7 +98,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			List<UserGroup> result = persistence.currentManager()
 					.createQuery(query)
 					.setString("term", "%" + term)
-					.setFirstResult(page)
+					.setFirstResult(page * limit)
 					.setMaxResults(limit)
 					.list();
 			
@@ -893,7 +893,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.info("User with id: " + userId + " not added to group because he is already part of the group");
 		}
 	}
-	
+
 	@Transactional(readOnly = false)
 	private Result<Void> removeUserFromGroupAndGetEvents(UserGroupUser userGroupUser, long actorId, 
 			LearningContextData context) {

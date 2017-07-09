@@ -1,17 +1,5 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.NoResultException;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.dal.persistence.TwitterStreamingDAO;
@@ -21,6 +9,9 @@ import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
+
+import javax.persistence.NoResultException;
+import java.util.*;
 
 /**
  * @author Zoran Jeremic Jun 21, 2015

@@ -1,17 +1,14 @@
 package org.prosolo.bigdata.dal.persistence;
 
+import org.hibernate.Session;
+import org.prosolo.bigdata.twitter.StreamListData;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
+import org.prosolo.common.domainmodel.user.User;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.hibernate.Session;
-import org.prosolo.bigdata.twitter.StreamListData;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.old.SocialActivity;
-import org.prosolo.common.domainmodel.content.TwitterPost;
-import org.prosolo.common.domainmodel.organization.VisibilityType;
-import org.prosolo.common.domainmodel.user.User;
 
 /**
  * @author Zoran Jeremic Jun 21, 2015

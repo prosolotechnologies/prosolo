@@ -3,21 +3,16 @@
  */
 package org.prosolo.web.courses;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
+import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.feeds.FeedsManager;
 import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -25,7 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsException;
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author "Nikola Milikic"
@@ -63,15 +61,11 @@ public class CredentialFeedsBean implements Serializable {
 		
 		if (decodedId > 0) {
 			try {
-				access = credentialManager.getCredentialAccessRights(decodedId, 
-						loggedUserBean.getUserId(), UserGroupPrivilege.Learn);
-				if(!access.isCanAccess()) {
-					try {
-						FacesContext.getCurrentInstance().getExternalContext().dispatch(
-								"/accessDenied.xhtml");
-					} catch (IOException e) {
-						logger.error(e);
-					}
+				access = credentialManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+							.addPrivilege(UserGroupPrivilege.Edit));
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
 				} else {
 					if(credentialTitle == null) {
 						credentialTitle = credentialManager.getCredentialTitle(decodedId);
@@ -84,11 +78,7 @@ public class CredentialFeedsBean implements Serializable {
 				PageUtil.fireErrorMessage(e.getMessage());
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.notFound();
 		}
 	}
 	

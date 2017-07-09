@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.event.EventException;
@@ -34,7 +35,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -84,44 +84,51 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
 		if (decodedActId > 0 && decodedCompId > 0) {
-			/*
-			 * check if user has instructor privilege for this resource and if has, we should mark his comments as
-			 * instructor comments
-			 */
-			access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), 
-					ResourceAccessRequirements.of(AccessMode.MANAGER));
 			try {
-				for (StudentAssessedFilter filterEnum : StudentAssessedFilter.values()) {
-					StudentAssessedFilterState f = new StudentAssessedFilterState(filterEnum, true);
-					filters.add(f);
-					appliedFilters.add(filterEnum);
-				}
-				activity = activityManager
-						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, 0, access.isCanInstruct(),
-								true, paginate, paginationData.getPage() - 1, paginationData.getLimit(), 
-								null);
-//				for(ActivityResultData ard : activity.getStudentResults()) {
-//					loadAdditionalData(ard);
-//				}
-				
-				if (paginate) {
-					updatePaginationData(countStudentResults(null));
-				}
-				if(activity == null) {
-					PageUtil.forward("/notfound.xhtml");
+				/*
+				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit)
+								.addPrivilege(UserGroupPrivilege.Instruct));
+
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
 				} else {
-					loadCompetenceAndCredentialTitle();
+					for (StudentAssessedFilter filterEnum : StudentAssessedFilter.values()) {
+						StudentAssessedFilterState f = new StudentAssessedFilterState(filterEnum, true);
+						filters.add(f);
+						appliedFilters.add(filterEnum);
+					}
+					activity = activityManager
+							.getActivityDataWithStudentResultsForManager(
+									decodedCredId, decodedCompId, decodedActId, 0, access.isCanInstruct(),
+									true, paginate, paginationData.getPage() - 1, paginationData.getLimit(),
+									null);
+					//				for(ActivityResultData ard : activity.getStudentResults()) {
+					//					loadAdditionalData(ard);
+					//				}
+
+					if (paginate) {
+						updatePaginationData(countStudentResults(null));
+					}
+					if (activity == null) {
+						PageUtil.notFound();
+					} else {
+						loadCompetenceAndCredentialTitle();
+					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				logger.error(rnfe);
-				PageUtil.forward("/notfound.xhtml");
+				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity results");
 			}
 		} else {
-			PageUtil.forward("/notfound.xhtml");
+			PageUtil.notFound();
 		}
 	}
 	
@@ -131,48 +138,50 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 		decodedCredId = idEncoder.decodeId(credId);
 		decodedTargetActId = idEncoder.decodeId(targetActId);
 		if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
-			/*
-			 * check if user has instructor privilege for this resource and if has, we should mark his comments as
-			 * instructor comments
-			 */
-			access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), 
-					ResourceAccessRequirements.of(AccessMode.MANAGER));
 			try {
-				activity = activityManager
-						.getActivityDataWithStudentResultsForManager(
-								decodedCredId, decodedCompId, decodedActId, decodedTargetActId, 
-								access.isCanInstruct(), true, false, 0, 
-								0, null);
-				if (activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
-					currentResult = activity.getStudentResults().get(0);
-					//loadAdditionalData(currentResult);
-					if (commentId != null) {
-						currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
-						initializeResultCommentsIfNotInitialized(currentResult);
-					}
-					
-					if(activity == null || currentResult == null) {
-						PageUtil.forward("/notfound.xhtml");
-					} else {
-						loadCompetenceAndCredentialTitle();
-					}
+				/*
+				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
+				 * instructor comments
+				 */
+				access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(),
+						ResourceAccessRequirements.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit)
+								.addPrivilege(UserGroupPrivilege.Instruct));
+
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
 				} else {
-					PageUtil.forward("/notfound.xhtml");
+					activity = activityManager
+							.getActivityDataWithStudentResultsForManager(
+									decodedCredId, decodedCompId, decodedActId, decodedTargetActId,
+									access.isCanInstruct(), true, false, 0,
+									0, null);
+					if (activity.getStudentResults() != null && !activity.getStudentResults().isEmpty()) {
+						currentResult = activity.getStudentResults().get(0);
+						//loadAdditionalData(currentResult);
+						if (commentId != null) {
+							currentResult.getResultComments().setCommentId(idEncoder.decodeId(commentId));
+							initializeResultCommentsIfNotInitialized(currentResult);
+						}
+
+						if (activity == null || currentResult == null) {
+							PageUtil.notFound();
+						} else {
+							loadCompetenceAndCredentialTitle();
+						}
+					} else {
+						PageUtil.notFound();
+					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
 				logger.error(rnfe);
-				PageUtil.forward("/notfound.xhtml");
+				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while loading activity results");
 			}
 		} else {
-			try {
-				FacesContext.getCurrentInstance().getExternalContext().dispatch("/notfound.xhtml");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				logger.error(ioe);
-			}
+			PageUtil.notFound();
 		}
 	}
 	
