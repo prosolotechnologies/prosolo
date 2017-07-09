@@ -65,7 +65,7 @@
                         <p:commandLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId, cc.attrs.receiverFullName)}" 
                       			styleClass="btn btn-green"
                       			process="messageContentTextarea"
-                      			update="#{cc.attrs.toUpdate}"
+                      			update="#{cc.attrs.toUpdate} messageContentTextarea"
                       			oncomplete="hideMessageDialog('message')">
                       			<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>	
                       			<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>	

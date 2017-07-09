@@ -114,9 +114,11 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 	}
 
 	public void initAssessment() {
+		decodedId = idEncoder.decodeId(id);
+
 		decodedAssessmentId = idEncoder.decodeId(assessmentId);
 		
-		if (decodedAssessmentId > 0) {
+		if (decodedId > 0 && decodedAssessmentId > 0) {
 			try {
 				fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId, idEncoder,
 						loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"));

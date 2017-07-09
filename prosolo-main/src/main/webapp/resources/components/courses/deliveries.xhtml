@@ -1,0 +1,75 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+
+	<composite:interface>
+		<composite:attribute name="activeDeliveries" required="true" />
+		<composite:attribute name="pendingDeliveries" required="true" />
+		<composite:attribute name="finishedDeliveries" required="true" />
+		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
+		<composite:attribute name="canEdit" default="false" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="col-md-12">
+			<h2>Active Deliveries</h2>
+			<div class="whiteBox deliveriesList">
+				<ui:fragment rendered="#{empty cc.attrs.activeDeliveries}">
+					<div class="noContentMessage">
+						<p>
+							<br></br>
+							There are no active deliveries yet.
+							<br></br><br></br>
+						</p>
+					</div>
+				</ui:fragment>
+				<ui:fragment rendered="#{not empty cc.attrs.activeDeliveries}">
+					<courses:deliveryItems
+							deliveries="#{cc.attrs.activeDeliveries}"
+							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
+							canEdit="#{cc.attrs.canEdit}"
+					/>
+				</ui:fragment>
+			</div>
+			<h2>Pending Deliveries</h2>
+			<div class="whiteBox deliveriesList">
+				<ui:fragment rendered="#{empty cc.attrs.pendingDeliveries}">
+					<div class="noContentMessage">
+						<p>
+							<br></br>
+							There are no pending deliveries yet.
+							<br></br><br></br>
+						</p>
+					</div>
+				</ui:fragment>
+				<ui:fragment rendered="#{not empty cc.attrs.pendingDeliveries}">
+					<courses:deliveryItems
+							deliveries="#{cc.attrs.pendingDeliveries}"
+							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
+							canEdit="#{cc.attrs.canEdit}"
+					/>
+				</ui:fragment>
+			</div>
+			<h2>Finished Deliveries</h2>
+			<div class="whiteBox deliveriesList">
+				<ui:fragment rendered="#{empty cc.attrs.finishedDeliveries}">
+					<div class="noContentMessage">
+						<p>
+							<br></br>
+							There are no finished deliveries yet.
+							<br></br><br></br>
+						</p>
+					</div>
+				</ui:fragment>
+				<ui:fragment rendered="#{not empty cc.attrs.finishedDeliveries}">
+					<courses:deliveryItems
+							deliveries="#{cc.attrs.finishedDeliveries}"
+							showNumberOfStudentsAndInstructors="#{cc.attrs.showNumberOfStudentsAndInstructors}"
+							canEdit="#{cc.attrs.canEdit}"
+					/>
+				</ui:fragment>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

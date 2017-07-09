@@ -184,7 +184,13 @@
             "name": "manage.library.view",
             "description": "View credential/competence library in manage section",
             "roles": [
-                "Manager",
+                "Manager"
+            ]
+        },
+        {
+            "name": "instructor.library.view",
+            "description": "View credential delivery library in manage section",
+            "roles": [
                 "Instructor"
             ]
         },

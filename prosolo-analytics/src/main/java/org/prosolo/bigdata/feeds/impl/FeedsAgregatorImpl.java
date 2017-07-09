@@ -1,15 +1,6 @@
 package org.prosolo.bigdata.feeds.impl;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-
-import javax.mail.MessagingException;
-
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -20,7 +11,6 @@ import org.prosolo.bigdata.dal.persistence.impl.CourseDAOImpl;
 import org.prosolo.bigdata.dal.persistence.impl.DiggestGeneratorDAOImpl;
 import org.prosolo.bigdata.dal.persistence.impl.FeedsDigestDAOImpl;
 import org.prosolo.bigdata.email.EmailSender;
-//import org.prosolo.services.annotation.TagManager;
 import org.prosolo.bigdata.feeds.FeedParser;
 import org.prosolo.bigdata.feeds.FeedsAgregator;
 import org.prosolo.bigdata.feeds.ResourceTokenizer;
@@ -32,15 +22,8 @@ import org.prosolo.bigdata.similarity.impl.WebPageRelevanceImpl;
 import org.prosolo.bigdata.utils.ResourceBundleUtil;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.old.TwitterPostSocialActivity;
-import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.feeds.CredentialTwitterHashtagsFeedsDigest;
-import org.prosolo.common.domainmodel.feeds.FeedEntry;
-import org.prosolo.common.domainmodel.feeds.FeedSource;
-import org.prosolo.common.domainmodel.feeds.FriendsRSSFeedsDigest;
-import org.prosolo.common.domainmodel.feeds.SubscribedRSSFeedsDigest;
-import org.prosolo.common.domainmodel.feeds.SubscribedTwitterHashtagsFeedsDigest;
+import org.prosolo.common.domainmodel.feeds.*;
 import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.TimeFrame;
@@ -56,7 +39,12 @@ import org.prosolo.common.web.digest.FilterOption;
 import org.prosolo.common.web.digest.data.FeedEntryData;
 import org.prosolo.common.web.digest.data.FeedsDigestData;
 
-import com.google.gson.Gson;
+import javax.mail.MessagingException;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
+
+//import org.prosolo.services.annotation.TagManager;
  
  
 
@@ -265,31 +253,6 @@ public class FeedsAgregatorImpl implements FeedsAgregator {
 //		}
 	}
 
-	@Override
-	public void generateDailySubscribedTwitterHashtagsDigestForUser(Long userid, Date dateFrom) {
-			logger.debug("Aggregating subsscribed hashtags tweets for user " + userid);
-			System.out.println("************************GENERATE TWITTER HASHTAGS FOR USER:"+userid);
-			User user=null;
-			try{
-				user=(User) diggestGeneratorDAO.load(User.class, userid);
-			}catch(ResourceCouldNotBeLoadedException ex){
-				ex.printStackTrace();
-				return;
-			}
-			List<Tag> personalHashtags = diggestGeneratorDAO.getSubscribedHashtags(user);
- 			if (personalHashtags != null && !personalHashtags.isEmpty()) {
-				List<TwitterPostSocialActivity> tweetsWithHashtags = diggestGeneratorDAO.getTwitterPosts(personalHashtags, dateFrom);
-				if (tweetsWithHashtags != null && !tweetsWithHashtags.isEmpty()) {
-					SubscribedTwitterHashtagsFeedsDigest courseRSSFeedDigest = new SubscribedTwitterHashtagsFeedsDigest();
-					//courseRSSFeedDigest.setTweets(tweetsWithHashtags);
-					courseRSSFeedDigest.setDateCreated(new Date());
-					courseRSSFeedDigest.setTimeFrame(TimeFrame.DAILY);
-					courseRSSFeedDigest.setFeedsSubscriber(user);
-					diggestGeneratorDAO.save(courseRSSFeedDigest);
-					logger.info("Created subscribed Twitter hashtag digest for user "  + user + "; total entries :" + tweetsWithHashtags.size());
-				}
-			}
-		 }
 	@Override
 	public void generateDailyCourseTwitterHashtagsDigest(Long courseid, Date date) {
 //		Course course=null;

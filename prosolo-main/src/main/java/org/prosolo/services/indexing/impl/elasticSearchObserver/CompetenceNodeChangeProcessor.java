@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import java.util.Map;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -9,8 +9,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.Map;
 
 public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 
@@ -33,11 +32,11 @@ public class CompetenceNodeChangeProcessor implements NodeChangeProcessor {
 		Competence1 comp = (Competence1) event.getObject();
 		Map<String, String> params = event.getParameters();
 		if(operation == NodeOperation.Update) {
-			if (event.getAction() == EventType.OWNER_CHANGE) {
+			if (event.getAction() == EventType.STATUS_CHANGED) {
+				competenceESService.updateStatus(comp.getId(), comp.isPublished(), comp.getDatePublished());
+			} else if (event.getAction() == EventType.OWNER_CHANGE) {
 				competenceESService.updateCompetenceOwner(comp.getId(), Long.parseLong(params.get("newOwnerId")));
-			} else if (event.getAction() == EventType.STATUS_CHANGED) {
-				competenceESService.updateStatus(comp.getId(), comp.isPublished());
-			} else if (event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
+			} else if(event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
 				competenceESService.updateCompetenceUsersWithPrivileges(comp.getId(), session);
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				competenceESService.updateVisibleToAll(comp.getId(), comp.isVisibleToAll());

@@ -1,16 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -23,11 +12,7 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityResultData;
-import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -38,6 +23,16 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @ManagedBean(name = "activityViewBean")
 @Component("activityViewBean")
@@ -277,18 +272,6 @@ public class ActivityViewBeanUser implements Serializable {
 	public boolean isCurrentUserCreator() {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
-	
-	public String getLabelForActivity() {
-// 		if(isPreview()) {
-// 			return "(Preview)";
-// 		} else if(isCurrentUserCreator() && !competenceData.getActivityToShowWithDetails().isEnrolled() 
-// 				&& !competenceData.getActivityToShowWithDetails().isPublished()) {
-// 			return "(Unpublished)";
-// 		} else {
-// 			return "";
-// 		}
-		return null;
- 	}
 
 	/*
 	 * ACTIONS
