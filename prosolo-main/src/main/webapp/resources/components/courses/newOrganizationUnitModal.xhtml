@@ -34,7 +34,7 @@
                         <div class="modal-footer alignLeft">
                             <p:commandLink  styleClass="btn btn-green" value="Add"
                                             action="#{unitEditBean.saveUnit()}"
-                                            update="@form newUnitModal:formNewUnitModal:inputTextOrganizationUnitName"
+                                            update="@form"
                                             oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
                                                 $('#newUnitModal').modal('hide');">
