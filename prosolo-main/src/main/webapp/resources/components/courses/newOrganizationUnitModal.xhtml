@@ -5,6 +5,11 @@
               xmlns:p="http://primefaces.org/ui">
 
     <composite:implementation>
+        <script>
+            function resetForm() {
+                $('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val("");
+            }
+        </script>
         <div class="modal fade newFeedModal" id="newUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
             <h:form id="formNewUnitModal">
                 <p:growl id="growlUnitModal" showDetail="true" globalOnly="true"></p:growl>
@@ -29,18 +34,17 @@
                         <div class="modal-footer alignLeft">
                             <p:commandLink  styleClass="btn btn-green" value="Add"
                                             action="#{unitEditBean.saveUnit()}"
-                                            update="@form"
+                                            update="@form newUnitModal:formNewUnitModal:inputTextOrganizationUnitName"
                                             oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
                                                 $('#newUnitModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                 <f:param name="learningContext" value="name:new_unit" />
                             </p:commandLink>
-                            <a  href="#"
-                                class="btn btn-default"
-                                data-dismiss="modal"
-                                onclick="$('#newUnitModal\\:formNewUnitModal')[0].reset();">
-                                Cancel</a>
+                            <p:commandLink  styleClass="btn btn-default" value="Cancel"
+                                onclick="resetForm(); $('#newUnitModal').modal('hide');"
+                            >
+                            </p:commandLink>
                         </div>
                     </div>
                 </div>
