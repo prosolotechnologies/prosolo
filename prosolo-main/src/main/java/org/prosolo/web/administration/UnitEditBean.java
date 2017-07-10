@@ -2,11 +2,11 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.jdom.IllegalDataException;
-import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UnitData;
@@ -20,17 +20,11 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.component.html.HtmlInputText;
-import javax.faces.component.html.HtmlSelectBooleanCheckbox;
-import javax.faces.component.visit.VisitCallback;
-import javax.faces.component.visit.VisitContext;
-import javax.faces.component.visit.VisitResult;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Bojan
@@ -38,12 +32,12 @@ import java.io.Serializable;
  * @since 0.7
  */
 
-@ManagedBean(name = "unitOrganizationEditBean")
-@Component("unitOrganizationEditBean")
+@ManagedBean(name = "unitEditBean")
+@Component("unitEditBean")
 @Scope("view")
-public class UnitOrganizationEditBean implements Serializable {
+public class UnitEditBean implements Serializable {
 
-    protected static Logger logger = Logger.getLogger(UnitOrganizationEditBean.class);
+    protected static Logger logger = Logger.getLogger(UnitEditBean.class);
 
     @Inject
     private LoggedUserBean loggedUser;
@@ -55,18 +49,23 @@ public class UnitOrganizationEditBean implements Serializable {
     private OrganizationManager organizationManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
+    @Inject
+    private RoleManager roleManager;
 
     private UnitData unit;
     private OrganizationData organization;
     private String id;
-    private long decodedId;
+    private long decodedId;private String[] rolesArray;
+    private List<Role> adminRoles;
+
 
     public void init(){
         logger.debug("initializing");
         try{
+            rolesArray = new String[]{"Admin","Super Admin"};
+            adminRoles = roleManager.getRolesByNames(rolesArray);
             decodedId = idEncoder.decodeId(id);
             unit = new UnitData();
-
 
         }catch (Exception e){
             logger.error(e);
@@ -109,15 +108,8 @@ public class UnitOrganizationEditBean implements Serializable {
         }
     }
 
-    public void cancel(){
-        FacesContext context = FacesContext.getCurrentInstance();
-        UIInput input = (UIInput) context.getViewRoot().findComponent(
-                "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
-        input.setValue("");
-    }
-
     public void setUnitOrganization(long organizationId){
-        this.unit.setOrganization(organizationManager.getOrganizationDataById(organizationId));
+        this.unit.setOrganization(organizationManager.getOrganizationDataById(organizationId,adminRoles));
     }
 
     private void updateUnit(){

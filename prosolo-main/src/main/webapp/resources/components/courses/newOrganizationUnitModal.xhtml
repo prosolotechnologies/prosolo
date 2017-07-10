@@ -16,7 +16,7 @@
                             </div>
                         <div class="modal-body alignLeft">
                             <h:inputText id="inputTextOrganizationUnitName"
-                                         value="#{unitOrganizationEditBean.unit.title}"
+                                         value="#{unitEditBean.unit.title}"
                                          required="true"
                                          requiredMessage="Unit name is required"
                                          placeholder="Unit Name"/>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="modal-footer alignLeft">
                             <p:commandLink  styleClass="btn btn-green" value="Add"
-                                            action="#{unitOrganizationEditBean.saveUnit()}"
+                                            action="#{unitEditBean.saveUnit()}"
                                             update="@form"
                                             oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
@@ -36,12 +36,11 @@
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                 <f:param name="learningContext" value="name:new_unit" />
                             </p:commandLink>
-                            <p:commandLink
-                                    styleClass="btn btn-green"
-                                    value="Cancel"
-                                    action="#{unitOrganizationEditBean.cancel}"
-                                    oncomplete="$('#newUnitModal').modal('hide');">
-                            </p:commandLink>
+                            <a  href="#"
+                                class="btn btn-default"
+                                data-dismiss="modal"
+                                onclick="$('#newUnitModal\\:formNewUnitModal')[0].reset();">
+                                Cancel</a>
                         </div>
                     </div>
                 </div>

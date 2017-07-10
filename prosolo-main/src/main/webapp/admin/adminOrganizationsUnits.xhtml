@@ -33,7 +33,7 @@
             <f:viewParam name="id" value="#{organizationEditBean.id}" />
             <f:viewAction action="#{organizationEditBean.init()}" />
             <f:viewAction action="#{unitOrganizationsBean.init()}" />
-            <f:viewAction action="#{unitOrganizationEditBean.init()}" />
+            <f:viewAction action="#{unitEditBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -51,7 +51,7 @@
                     <div class="whiteBarLeft">
 
                         <p:commandLink styleClass="btn btn-green btn-sm item" pt:data-toggle="modal"
-                                       action="#{unitOrganizationEditBean.setUnitOrganization(organizationEditBean.organization.id)}"
+                                       action="#{unitEditBean.setUnitOrganization(organizationEditBean.organization.id)}"
                                        oncomplete="$('#newUnitModal').modal('show');"
                                        update="newUnitModal">
                             New Unit

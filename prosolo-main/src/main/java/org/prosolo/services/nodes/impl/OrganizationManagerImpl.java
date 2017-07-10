@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -57,7 +56,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     public Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
-            throws DbConnectionException,EventException,IllegalDataException {
+            throws DbConnectionException,EventException {
 
         Result<Organization> res = self.createNewOrganizationAndGetEvents(title,adminsChosen, creatorId, contextData);
         for (EventData ev : res.getEvents()) {
@@ -69,7 +68,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     @Transactional
     public Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                                  LearningContextData contextData) throws DbConnectionException,IllegalDataException {
+                                                                  LearningContextData contextData) throws DbConnectionException {
         try {
             Organization organization = new Organization();
             organization.setTitle(title);
@@ -84,7 +83,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             res.setResult(organization);
             return res;
         }catch (ConstraintViolationException | DataIntegrityViolationException e) {
-            throw new IllegalDataException("Organization already created");
+            logger.error(e);
+            throw e;
         }catch (Exception e) {
             logger.error(e);
             e.printStackTrace();

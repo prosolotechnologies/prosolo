@@ -1,7 +1,7 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
-import org.jdom.IllegalDataException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -21,10 +21,10 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -132,11 +132,11 @@ public class OrganizationEditBean implements Serializable {
             }else{
                 PageUtil.fireErrorMessage("Error while trying to save organization data");
             }
-        }catch (IllegalDataException e){
+        }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
             FacesContext.getCurrentInstance().validationFailed();
-            PageUtil.fireErrorMessage(e.getMessage());
+            PageUtil.fireErrorMessage("Organization with this name already exists");
         } catch (Exception e){
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save organization data");
