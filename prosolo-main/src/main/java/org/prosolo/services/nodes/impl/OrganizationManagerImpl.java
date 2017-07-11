@@ -166,6 +166,23 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public OrganizationData getOrganizationDataWithoutAdmins(long organizationId) {
+        String query =
+                "SELECT organization " +
+                "FROM Organization organization " +
+                "WHERE organization.id = :organizationId ";
+
+        Organization organization = (Organization) persistence.currentManager().createQuery(query)
+                .setParameter("organizationId",organizationId)
+                .uniqueResult();
+
+        OrganizationData res = new OrganizationData(organization.getId(),organization.getTitle());
+
+        return res;
+    }
+
+    @Override
     public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit) {
         PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 

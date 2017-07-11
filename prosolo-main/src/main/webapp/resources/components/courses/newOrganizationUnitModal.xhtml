@@ -4,6 +4,10 @@
               xmlns:composite="http://java.sun.com/jsf/composite"
               xmlns:p="http://primefaces.org/ui">
 
+    <composite:interface>
+        <composite:attribute name="toUpdate" default=""/>
+    </composite:interface>
+
     <composite:implementation>
         <div class="modal fade newFeedModal" id="newUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
             <h:form id="formNewUnitModal">
@@ -28,18 +32,18 @@
                         </div>
                         <div class="modal-footer alignLeft">
                             <p:commandLink  styleClass="btn btn-green" value="Add"
-                                            action="#{unitEditBean.saveUnit()}"
-                                            update="@form"
+                                            action="#{unitEditBean.createNewUnit()}"
+                                            update="@form #{cc.attrs.toUpdate}"
                                             oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
                                                 $('#newUnitModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                 <f:param name="learningContext" value="name:new_unit" />
                             </p:commandLink>
-                            <p:commandLink  styleClass="btn btn-default" value="Cancel"
-                                onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
-                                $('#newUnitModal').modal('hide');">
-                            </p:commandLink>
+                            <a  class="btn btn-default"
+                                onclick="$('#newUnitModal').modal('hide');">
+                                Cancel
+                            </a>
                         </div>
                     </div>
                 </div>

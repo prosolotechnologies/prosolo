@@ -33,13 +33,15 @@ public interface OrganizationManager extends AbstractManager {
     Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
                                                            LearningContextData contextData) throws DbConnectionException;
 
-    OrganizationData getOrganizationDataById(long organizationId,List<Role> adminRoles) throws DbConnectionException;
+    OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException;
 
     Organization updateOrganization(long organizationId,String title,List<UserData> chosenUsers,long creatorId,
                                     LearningContextData lcd) throws DbConnectionException,EventException;
 
     Result<Organization> updateOrganizationAndGetEvents(long organizationId,String title,List<UserData> chosenUsers,long creatorId,
                                                         LearningContextData lcd) throws DbConnectionException,EventException;
+
+    OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 
 
 

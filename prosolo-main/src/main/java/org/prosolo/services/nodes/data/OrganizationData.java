@@ -24,6 +24,12 @@ public class OrganizationData implements Serializable {
         this.admins = chosenAdmins;
     }
 
+    public OrganizationData(long id, String title){
+        this();
+        this.id = id;
+        this.title = title;
+    }
+
     public String getAdminsString() {
         String adminsString = "";
         if(admins != null) {

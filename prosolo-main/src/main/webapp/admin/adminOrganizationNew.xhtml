@@ -5,8 +5,6 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-                xmlns:util="http://www.prosolo.com/util"
-                xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
     <ui:define name="windowTitle" >
@@ -20,7 +18,7 @@
             <li role="presentation" class="active"><h:link outcome="/admin/adminOrganizationNew">
                 <f:param name="id" value="#{organizationEditBean.id}" />Organization Details
             </h:link></li>
-            <li role="presentation"><h:link outcome="/admin/adminOrganizationsUnits">
+            <li role="presentation"><h:link outcome="/admin/adminUnits">
                 <f:param name="id" value="#{organizationEditBean.id}" />Units
             </h:link></li>
             <li role="presentation"><a href="#">People</a></li>

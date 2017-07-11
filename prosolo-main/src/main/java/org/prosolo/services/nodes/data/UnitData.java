@@ -1,26 +1,52 @@
 package org.prosolo.services.nodes.data;
 
+import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.user.User;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Bojan
  * @date 2017-07-04
  * @since 0.7
  */
-public class UnitData implements Serializable {
+public class UnitData implements Serializable,Comparable<UnitData> {
 
     private long id;
     private String title;
-    private OrganizationData organization;
     private UnitData parentUnit;
+    private List<UnitData> childrenUnits;
 
-    public UnitData(){}
+    public UnitData(){
+        childrenUnits = new ArrayList<>();
+    }
 
-    public UnitData(long id,String title, OrganizationData organization, UnitData parentUnit) {
+    public UnitData(long id,String title, UnitData parentUnit) {
+        this();
         this.id = id;
         this.title = title;
-        this.organization = organization;
         this.parentUnit = parentUnit;
+    }
+
+    public UnitData(Unit unit){
+        this();
+        this.id = unit.getId();
+        this.title = unit.getTitle();
+        this.parentUnit = null;
+    }
+
+    public void addChildren(List<UnitData> children){
+        childrenUnits.addAll(children);
+    }
+
+    public List<UnitData> getChildrenUnits() {
+        return childrenUnits;
+    }
+
+    public void setChildrenUnits(List<UnitData> childrenUnits) {
+        this.childrenUnits = childrenUnits;
     }
 
     public long getId() {
@@ -29,14 +55,6 @@ public class UnitData implements Serializable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public OrganizationData getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(OrganizationData organization) {
-        this.organization = organization;
     }
 
     public UnitData getParentUnit() {
@@ -53,5 +71,10 @@ public class UnitData implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public int compareTo(UnitData o) {
+        return this.getTitle().compareTo(o.getTitle());
     }
 }

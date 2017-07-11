@@ -2,11 +2,8 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UnitData;
@@ -24,6 +21,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,102 +47,82 @@ public class UnitEditBean implements Serializable {
     private OrganizationManager organizationManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
-    @Inject
-    private RoleManager roleManager;
 
     private UnitData unit;
-    private OrganizationData organization;
-    private String id;
-    private long decodedId;private String[] rolesArray;
-    private List<Role> adminRoles;
-
+    private String organizationId;
+    private OrganizationData organizationData;
+    private List<UnitData> units;
 
     public void init(){
-        logger.debug("initializing");
         try{
-            rolesArray = new String[]{"Admin","Super Admin"};
-            adminRoles = roleManager.getRolesByNames(rolesArray);
-            decodedId = idEncoder.decodeId(id);
-            unit = new UnitData();
-
+            this.unit = new UnitData();
+            this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
+            loadUnits();
         }catch (Exception e){
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");
         }
     }
 
-    public void saveUnit(){
-        if(this.unit.getId() == 0){
-            createNewUnit();
-        }else{
-            updateUnit();
+    private void loadUnits(){
+        try{
+            this.units = unitManager.getUnitsWithSubUnits(this.organizationData.getId());
+        }catch (Exception e){
+            logger.error(e);
         }
     }
 
-    private void createNewUnit(){
-        FacesContext context = FacesContext.getCurrentInstance();
-        UIInput input = (UIInput) context.getViewRoot().findComponent(
-                "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
+    public void createNewUnit(){
         try{
             LearningContextData lcd = PageUtil.extractLearningContextData();
 
-            Unit unit = unitManager.createNewUnit(this.unit.getTitle(),this.unit.getOrganization().getId(),
+            UnitData unit = unitManager.createNewUnit(this.unit.getTitle(),this.organizationData.getId(),
                     loggedUser.getUserId(),lcd);
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
 
             PageUtil.fireSuccessfulInfoMessage("New unit is created");
-            input.setValue("");
+            this.units.add(unit);
+            Collections.sort(this.units);
         } catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
+
+            FacesContext context = FacesContext.getCurrentInstance();
+            UIInput input = (UIInput) context.getViewRoot().findComponent(
+                    "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
             input.setValid(false);
             context.addMessage("newUnitModal:formNewUnitModal:inputTextOrganizationUnitName",
                     new FacesMessage("Unit with this name already exists") );
-            FacesContext.getCurrentInstance().validationFailed();
+            context.validationFailed();
         } catch (Exception e){
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save unit data");
         }
     }
 
-    public void setUnitOrganization(long organizationId){
-        this.unit.setOrganization(organizationManager.getOrganizationDataById(organizationId,adminRoles));
-    }
 
     private void updateUnit(){
 
-    }
-
-    public UrlIdEncoder getIdEncoder() {
-        return idEncoder;
-    }
-
-    public void setIdEncoder(UrlIdEncoder idEncoder) {
-        this.idEncoder = idEncoder;
     }
 
     public UnitData getUnit() {
         return unit;
     }
 
-    public void setUnit(UnitData unit) {
-        this.unit = unit;
+    public String getOrganizationId() {
+        return organizationId;
     }
 
-    public String getId() {
-        return id;
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public List<UnitData> getUnits() {
+        return units;
     }
 
-    public long getDecodedId() {
-        return decodedId;
-    }
-
-    public void setDecodedId(long decodedId) {
-        this.decodedId = decodedId;
+    public OrganizationData getOrganizationData() {
+        return organizationData;
     }
 }

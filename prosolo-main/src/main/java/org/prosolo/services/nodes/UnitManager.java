@@ -8,7 +8,10 @@ import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.UnitData;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.List;
 
 /**
  * @author Bojan
@@ -17,10 +20,13 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 public interface UnitManager extends AbstractManager{
 
-    Unit createNewUnit(String title,long organizationId,long creatorId, LearningContextData contextData)
+    UnitData createNewUnit(String title,long organizationId,long creatorId, LearningContextData contextData)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
     Result<Unit> createNewUnitAndGetEvents(String title,long organizationId,long creatorId,
                                            LearningContextData contextData) throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
 
+    List<Unit> getOrganizationUnits(long organizationId);
+
+    List<UnitData> getUnitsWithSubUnits(long organizationId);
 }
