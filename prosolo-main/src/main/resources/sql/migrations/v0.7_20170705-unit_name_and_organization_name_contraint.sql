@@ -1,5 +1,5 @@
 ALTER TABLE `unit`
-  ADD CONSTRAINT UNIQUE (`title`,`organization`);
+  ADD UNIQUE KEY `UK_unit_title_organization` (title(100),organization);
 
 ALTER TABLE `organization`
-  ADD CONSTRAINT UNIQUE (`title`);
+  ADD UNIQUE KEY `UK_organization_title` (title(100));
