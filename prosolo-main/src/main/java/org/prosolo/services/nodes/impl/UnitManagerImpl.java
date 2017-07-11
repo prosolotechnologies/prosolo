@@ -90,8 +90,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
-    @Override
-    public List<Unit> getOrganizationUnits(long organizationId) {
+    private List<Unit> getOrganizationUnits(long organizationId) {
 
         String query =
                 "SELECT unit " +

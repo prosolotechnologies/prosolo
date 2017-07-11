@@ -10,6 +10,13 @@
 
     <ui:define name="windowTitle" >Units</ui:define>
 
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{unitEditBean.organizationId}" />
+            <f:viewAction action="#{unitEditBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
     <ui:define name="navLinks">
         <ui:fragment  rendered="#{not empty unitEditBean.organizationId}">
             <ul class="nav nav-tabs headerSubmenu">
@@ -23,13 +30,6 @@
                 <li role="presentation"><a href="#">Groups</a></li>
             </ul>
         </ui:fragment>
-    </ui:define>
-
-    <ui:define name="metadata">
-        <f:metadata>
-            <f:viewParam name="id" value="#{unitEditBean.organizationId}" />
-            <f:viewAction action="#{unitEditBean.init()}" />
-        </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
