@@ -5,11 +5,6 @@
               xmlns:p="http://primefaces.org/ui">
 
     <composite:implementation>
-        <script>
-            function resetForm() {
-                $('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val("");
-            }
-        </script>
         <div class="modal fade newFeedModal" id="newUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
             <h:form id="formNewUnitModal">
                 <p:growl id="growlUnitModal" showDetail="true" globalOnly="true"></p:growl>
@@ -42,8 +37,8 @@
                                 <f:param name="learningContext" value="name:new_unit" />
                             </p:commandLink>
                             <p:commandLink  styleClass="btn btn-default" value="Cancel"
-                                onclick="resetForm(); $('#newUnitModal').modal('hide');"
-                            >
+                                onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
+                                $('#newUnitModal').modal('hide');">
                             </p:commandLink>
                         </div>
                     </div>
