@@ -2,7 +2,8 @@
 				xmlns:f="http://java.sun.com/jsf/core"
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				template="templates/masterLayout2.xhtml"
-				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
+				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 
 <ui:define name="windowTitle">Admins</ui:define>
@@ -22,6 +23,9 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<org:userList mode="ORGANIZATION" />
+		<user:userList
+			mode="ORGANIZATION"
+			orgId="#{adminAdmins.decodedOrgId}"
+		/>
 	</ui:define>
 </ui:composition>

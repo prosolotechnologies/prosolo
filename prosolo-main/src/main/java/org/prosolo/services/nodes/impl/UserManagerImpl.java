@@ -120,23 +120,34 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = false)
-	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified,
+	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
 			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException {
-		return createNewUser(name, lastname, emailAddress, emailVerified, password, position,
+		return createNewUser(organizationId, name, lastname, emailAddress, emailVerified, password, position,
 				avatarStream, avatarFilename, roles, false);
 	}
 
 	@Override
 	@Transactional (readOnly = false)
-	public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified,
+	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
 			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException {
 		if (checkIfUserExists(emailAddress)) {
 			throw new UserAlreadyRegisteredException("User with email address "+emailAddress+" is already registered.");
 		}
 		// it is called in a new transaction
-		User newUser = resourceFactory.createNewUser(name, lastname, emailAddress, emailVerified, password, position, isSystem, avatarStream, avatarFilename, roles);
+		User newUser = resourceFactory.createNewUser(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				isSystem,
+				avatarStream,
+				avatarFilename,
+				roles);
 
 		eventFactory.generateEvent(EventType.Registered, newUser.getId());
 
@@ -267,9 +278,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password,
-			String position, List<Long> roles, long creatorId) throws DbConnectionException, EventException {
+			String position, List<Long> roles, List<Long> rolesToUpdate, long creatorId) throws DbConnectionException, EventException {
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, roles);
+				changePassword, password, position, roles, rolesToUpdate);
 		eventFactory.generateEvent(EventType.Edit_Profile, creatorId, user);
 		return user;
 	}
@@ -312,7 +323,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
-	public User getUserWithRoles(long id) throws DbConnectionException {
+	public UserData getUserWithRoles(long id, long organizationId) throws DbConnectionException {
 		try {
 			String query =
 				"SELECT user " +
@@ -320,11 +331,20 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"LEFT JOIN fetch user.roles " +
 				"WHERE user.id = :id ";
 
-			User user = (User) persistence.currentManager().createQuery(query).
-					setLong("id", id).
-					uniqueResult();
+			if (organizationId > 0) {
+				query += "AND user.organization.id = :orgId";
+			}
 
-			return user;
+			Query q = persistence.currentManager().createQuery(query)
+					.setLong("id", id);
+
+			if (organizationId > 0) {
+				q.setLong("orgId", organizationId);
+			}
+
+			User user = (User) q.uniqueResult();
+
+			return new UserData(user, user.getRoles());
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -436,7 +456,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				query += "AND user.organization.id = :orgId ";
 			}
 			if (filterByRoleId > 0) {
-				query += "AND role.id =: filterByRoleId ";
+				query += "AND role.id = :filterByRoleId ";
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
@@ -449,7 +469,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			}
 
 			if (filterByRoleId > 0) {
-				q.setLong("roleId", filterByRoleId);
+				q.setLong("filterByRoleId", filterByRoleId);
 			} else if (roles != null && !roles.isEmpty()) {
 				q.setParameterList("roles", roles);
 			}
@@ -495,7 +515,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 
 		if (filterByRoleId > 0) {
-			countQuery += "AND role.id =: filterByRoleId";
+			countQuery += "AND role.id = :filterByRoleId";
 		} else if (roles != null && !roles.isEmpty()) {
 			countQuery += "AND role IN (:roles)";
 		}
@@ -507,7 +527,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 
 		if (filterByRoleId > 0){
-			result1.setLong("roleId", filterByRoleId);
+			result1.setLong("filterByRoleId", filterByRoleId);
 		} else if (roles != null && !roles.isEmpty()) {
 			result1.setParameterList("roles", roles);
 		}
@@ -598,6 +618,20 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId).getEvents());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
 		return result;
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public UserData getUserData(long id) throws DbConnectionException {
+		try {
+			User user = (User) persistence.currentManager()
+					.get(User.class, id);
+			return new UserData(user);
+		} catch(Exception e) {
+			logger.error("Error", e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving user data");
+		}
 	}
 
 }

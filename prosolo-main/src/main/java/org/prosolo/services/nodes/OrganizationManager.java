@@ -42,6 +42,6 @@ public interface OrganizationManager extends AbstractManager {
                                                         LearningContextData lcd) throws DbConnectionException,EventException;
 
 
-
+    String getOrganizationTitle(long organizationId) throws DbConnectionException;
 }
 

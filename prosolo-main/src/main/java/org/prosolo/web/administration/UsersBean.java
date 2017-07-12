@@ -84,20 +84,20 @@ public class UsersBean implements Serializable, Paginable {
 
 	@SuppressWarnings("unchecked")
 	public void loadUsers() {
-		this.users = new ArrayList<UserData>();
-		try {
-			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
-					true, null);
-			users = res.getFoundNodes();
-			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
-			filters = roleFilters != null ? roleFilters : new ArrayList<>();
-			RoleFilter roleFilter = (RoleFilter) res.getAdditionalInfo().get("selectedFilter");
-			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
-			this.paginationData.update((int) res.getHitsNumber());
-		} catch(Exception e) {
-			logger.error(e);
-		}
+//		this.users = new ArrayList<UserData>();
+//		try {
+//			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
+//					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
+//					true, null);
+//			users = res.getFoundNodes();
+//			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
+//			filters = roleFilters != null ? roleFilters : new ArrayList<>();
+//			RoleFilter roleFilter = (RoleFilter) res.getAdditionalInfo().get("selectedFilter");
+//			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
+//			this.paginationData.update((int) res.getHitsNumber());
+//		} catch(Exception e) {
+//			logger.error(e);
+//		}
 	}
 
 	/*

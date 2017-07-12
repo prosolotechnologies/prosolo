@@ -85,36 +85,36 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void init() {
-		logger.debug("initializing");
-		try {
-			decodedId = idEncoder.decodeId(id);
-			// edit user
-			if (decodedId > 0) {
-				User user = userManager.getUserWithRoles(decodedId);
-				if (user != null) {
-					this.user = new UserData(user);
-					Set<Role> roles = user.getRoles();
-					if (roles != null) {
-						for (Role r : roles) {
-							this.user.addRoleId(r.getId());
-						}
-					}
-					accountData = new AccountData();
-				} else {
-					this.user = new UserData();
-					PageUtil.fireErrorMessage("User cannot be found");
-				}
-			}
-			// new user
-			else {
-				user = new UserData();
-			}
-			usersToExclude.add(user);
-			prepareRoles();
-		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading page");
-		}
+//		logger.debug("initializing");
+//		try {
+//			decodedId = idEncoder.decodeId(id);
+//			// edit user
+//			if (decodedId > 0) {
+//				User user = userManager.getUserWithRoles(decodedId);
+//				if (user != null) {
+//					this.user = new UserData(user);
+//					Set<Role> roles = user.getRoles();
+//					if (roles != null) {
+//						for (Role r : roles) {
+//							this.user.addRoleId(r.getId());
+//						}
+//					}
+//					accountData = new AccountData();
+//				} else {
+//					this.user = new UserData();
+//					PageUtil.fireErrorMessage("User cannot be found");
+//				}
+//			}
+//			// new user
+//			else {
+//				user = new UserData();
+//			}
+//			usersToExclude.add(user);
+//			prepareRoles();
+//		} catch (Exception e) {
+//			logger.error(e);
+//			PageUtil.fireErrorMessage("Error while loading page");
+//		}
 	}
 
 	private void prepareRoles() {
@@ -148,28 +148,28 @@ public class UserEditBean implements Serializable {
 	}
 
 	private void createNewUser() {
-		try {
-			User user = userManager.createNewUser(this.user.getName(), this.user.getLastName(), this.user.getEmail(),
-					true, this.user.getPassword(), this.user.getPosition(), null, null, this.user.getRoleIds());
-
-			this.user.setId(user.getId());
-
-			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
-					+ loggedUser.getUserId());
-
-			sendNewPasswordViaEmail();
-
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
-			PageUtil.redirect("/admin");
-		} catch (UserAlreadyRegisteredException e) {
-			logger.debug(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		} catch (EventException e) {
-			logger.debug(e);
-		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to save user data");
-		}
+//		try {
+//			User user = userManager.createNewUser(this.user.getName(), this.user.getLastName(), this.user.getEmail(),
+//					true, this.user.getPassword(), this.user.getPosition(), null, null, this.user.getRoleIds());
+//
+//			this.user.setId(user.getId());
+//
+//			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
+//					+ loggedUser.getUserId());
+//
+//			sendNewPasswordViaEmail();
+//
+//			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
+//			PageUtil.redirect("/admin");
+//		} catch (UserAlreadyRegisteredException e) {
+//			logger.debug(e);
+//			PageUtil.fireErrorMessage(e.getMessage());
+//		} catch (EventException e) {
+//			logger.debug(e);
+//		} catch (Exception e) {
+//			logger.error(e);
+//			PageUtil.fireErrorMessage("Error while trying to save user data");
+//		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -191,31 +191,31 @@ public class UserEditBean implements Serializable {
 		}
 	
 	private void  updateUser() {
-		try {
-			boolean shouldChangePassword = this.user.getPassword() != null 
-					&& !this.user.getPassword().isEmpty();
-			User user = userManager.updateUser(
-					this.user.getId(),
-					this.user.getName(),
-					this.user.getLastName(),
-					this.user.getEmail(),
-					true,
-					false,
-					this.user.getPassword(),
-					this.user.getPosition(),
-					this.user.getRoleIds(),
-					loggedUser.getUserId());
-
-			logger.debug("User (" + user.getId() + ") updated by the user "
-				+ loggedUser.getUserId());
-			
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
-		} catch(DbConnectionException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while trying to update user data");
-		} catch (EventException e) {
-			logger.error(e);
-		}
+//		try {
+//			boolean shouldChangePassword = this.user.getPassword() != null
+//					&& !this.user.getPassword().isEmpty();
+//			User user = userManager.updateUser(
+//					this.user.getId(),
+//					this.user.getName(),
+//					this.user.getLastName(),
+//					this.user.getEmail(),
+//					true,
+//					false,
+//					this.user.getPassword(),
+//					this.user.getPosition(),
+//					this.user.getRoleIds(),
+//					loggedUser.getUserId());
+//
+//			logger.debug("User (" + user.getId() + ") updated by the user "
+//				+ loggedUser.getUserId());
+//
+//			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
+//		} catch(DbConnectionException e) {
+//			logger.error(e);
+//			PageUtil.fireErrorMessage("Error while trying to update user data");
+//		} catch (EventException e) {
+//			logger.error(e);
+//		}
 	}
 	
 	public void updatePassword() {

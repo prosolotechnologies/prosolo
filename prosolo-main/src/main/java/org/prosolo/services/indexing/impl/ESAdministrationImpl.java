@@ -35,7 +35,7 @@ public class ESAdministrationImpl implements ESAdministration {
 	
 	@Override
 	public boolean createIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes = ESIndexNames.getSystemIndexes();
 		
 		for (String index : indexes) {
 			createIndex(index);
@@ -80,7 +80,11 @@ public class ESAdministrationImpl implements ESAdministration {
 				this.addMapping(client, fullIndexName, ESIndexTypes.CREDENTIAL, isOrganizationIndex);
 				this.addMapping(client, fullIndexName, ESIndexTypes.COMPETENCE, isOrganizationIndex);
 			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-				this.addMapping(client, fullIndexName, ESIndexTypes.USER, isOrganizationIndex);
+				if (isOrganizationIndex) {
+					this.addMapping(client, fullIndexName, ESIndexTypes.ORGANIZATION_USER, false);
+				} else {
+					this.addMapping(client, fullIndexName, ESIndexTypes.USER, false);
+				}
 			} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
 				this.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP, isOrganizationIndex);
 			}
@@ -104,7 +108,7 @@ public class ESAdministrationImpl implements ESAdministration {
 
 	@Override
 	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes = ESIndexNames.getSystemIndexes();
 		
 		for (String index : indexes) {
 			deleteIndex(index);

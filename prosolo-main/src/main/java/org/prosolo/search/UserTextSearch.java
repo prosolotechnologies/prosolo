@@ -60,6 +60,9 @@ public interface UserTextSearch extends AbstractManager {
 			int page, int limit);
 	
 	/**
+	 * Returns users defined on a system level if {@code organizationId} is greater than 0 and users
+	 * from organization with {@code organizationId} otherwise
+	 *
 	 * Call {@link PaginatedResult#getAdditionalInfo()} to get search filters:
 	 * under key 'filters' all filters can be retrieved with type {@code List<RoleFilter>},
 	 * under key 'selectedFilter' applied filter can be retrieved with type {@code RoleFilter}.
@@ -70,10 +73,13 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param roleId pass 0 if All filter and role id otherwise
 	 * @param includeSystemUsers whether to include system users
 	 * @param excludeIds usersToExclude
+     * @param adminRoles
+	 * @param organizationId
 	 * @return
 	 */
 	PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles, boolean includeSystemUsers, List<Long> excludeIds);
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles,
+			boolean includeSystemUsers, List<Long> excludeIds, long organizationId);
 	
 	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
 			String searchTerm, LearningStatus filter, int page, int limit, long credId, 

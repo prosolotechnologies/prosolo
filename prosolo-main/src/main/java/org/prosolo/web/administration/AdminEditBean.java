@@ -1,17 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -24,6 +12,7 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -37,6 +26,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Bojan
@@ -70,7 +66,10 @@ public class AdminEditBean implements Serializable {
 
 	@Autowired
 	private UserTextSearch textSearch;
+	@Inject private OrganizationManager organizationManager;
 
+	private String orgId;
+	private long decodedOrgId;
 	private String id;
 	private long decodedId;
 	private AccountData accountData;
@@ -82,14 +81,14 @@ public class AdminEditBean implements Serializable {
 	private String searchTerm;
 	private List<Role> adminRoles;
 	private List<UserData> adminsToExclude = new ArrayList<>();
-	String[] rolesArray;
+
+	private String organizationTitle;
 
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
 			decodedId = idEncoder.decodeId(id);
-			admin = new UserData();
-			admin.setId(decodedId);
+			admin = userManager.getUserData(decodedId);
 			accountData = new AccountData();
 			adminsToExclude.add(admin);
 		} catch (Exception e) {
@@ -98,24 +97,36 @@ public class AdminEditBean implements Serializable {
 		}
 	}
 
-	public void init() {
-		logger.debug("initializing");
+	public void initAdmin() {
+		init(new String[] {"Admin", "Super Admin"});
+	}
+
+	public void initOrgUser() {
+		decodedOrgId = idEncoder.decodeId(orgId);
+		init(new String[] {"User", "Instructor", "Manager"});
+		//load organization title if 'create' use case
+		if (admin.getId() <= 0) {
+			if (decodedOrgId > 0) {
+				organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
+				if (organizationTitle == null) {
+					PageUtil.notFound();
+				}
+			} else {
+				PageUtil.notFound();
+			}
+		}
+	}
+
+	public void init(String [] rolesArray) {
 		try {
 			decodedId = idEncoder.decodeId(id);
 			// edit user
 			if (decodedId > 0) {
-				User admin = userManager.getUserWithRoles(decodedId);
+				admin = userManager.getUserWithRoles(decodedId, decodedOrgId);
 				if (admin != null) {
-					this.admin = new UserData(admin);
-					Set<Role> roles = admin.getRoles();
-					if (roles != null) {
-						for (Role r : roles) {
-							this.admin.addRoleId(r.getId());
-						}
-					}
 					accountData = new AccountData();
 				} else {
-					this.admin = new UserData();
+					admin = new UserData();
 					PageUtil.fireErrorMessage("Admin cannot be found");
 				}
 			}
@@ -123,7 +134,6 @@ public class AdminEditBean implements Serializable {
 			else {
 				admin = new UserData();
 			}
-			rolesArray = new String[]{"Admin","Super Admin"};
 			adminRoles = roleManager.getRolesByNames(rolesArray);
 			adminsToExclude.add(admin);
 			prepareRoles();
@@ -139,7 +149,7 @@ public class AdminEditBean implements Serializable {
 			if (adminRoles != null) {
 				for (int i = 0; i < adminRoles.size(); i++) {
 					Role r = adminRoles.get(i);
-					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(),this.admin.hasRoleId(r.getId()),r.getId());
+					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(), this.admin.hasRole(r.getId()), r.getId());
 					allRoles.add(roleCheckboxData);
 				}
 			}
@@ -166,8 +176,9 @@ public class AdminEditBean implements Serializable {
 
 	private void createNewAdminUser() {
 		try {
-			User adminUser = userManager.createNewUser(this.admin.getName(), this.admin.getLastName(), this.admin.getEmail(),
-					true, this.admin.getPassword(), this.admin.getPosition(), null, null,getSelectedRoles());
+			User adminUser = userManager.createNewUser(decodedOrgId, this.admin.getName(), this.admin.getLastName(),
+					this.admin.getEmail(),true, this.admin.getPassword(), this.admin.getPosition(),
+					null, null, getSelectedRoles());
 
 			this.admin.setId(adminUser.getId());
 
@@ -176,8 +187,12 @@ public class AdminEditBean implements Serializable {
 
 			sendNewPassword();
 
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("New admin is created");
-			PageUtil.redirect("/admin/admins");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("New user is created");
+			if (decodedOrgId > 0) {
+				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
+			} else {
+				PageUtil.redirect("/admin/admins");
+			}
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -191,10 +206,18 @@ public class AdminEditBean implements Serializable {
 
 	private void updateAdminUser() {
 		try {
-			boolean shouldChangePassword = this.admin.getPassword() != null && !this.admin.getPassword().isEmpty();
-			User updatedUser = userManager.updateUser(this.admin.getId(), this.admin.getName(), this.admin.getLastName(),
-					this.admin.getEmail(), true, false, this.admin.getPassword(), this.admin.getPosition(),
-					getSelectedRoles(), loggedUser.getUserId());
+			User updatedUser = userManager.updateUser(
+					this.admin.getId(),
+					this.admin.getName(),
+					this.admin.getLastName(),
+					this.admin.getEmail(),
+					true,
+					false,
+					this.admin.getPassword(),
+					this.admin.getPosition(),
+					getSelectedRoles(),
+					adminRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
+					loggedUser.getUserId());
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
@@ -363,6 +386,22 @@ public class AdminEditBean implements Serializable {
 		this.admin = user;
 	}
 
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
 	public class RoleCheckboxData{
 
 		private String label;
@@ -398,6 +437,7 @@ public class AdminEditBean implements Serializable {
 		public void setId(long id) {
 			this.id = id;
 		}
+
 	}
 }
 

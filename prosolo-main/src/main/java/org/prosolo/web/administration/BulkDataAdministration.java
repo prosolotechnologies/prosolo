@@ -1,12 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.AfterContextLoader;
@@ -17,19 +10,17 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.indexing.UserGroupESService;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.indexing.*;
+import org.prosolo.services.nodes.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Zoran Jeremic Feb 12, 2014

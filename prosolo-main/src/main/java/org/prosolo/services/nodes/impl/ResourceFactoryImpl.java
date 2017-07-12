@@ -1,5 +1,6 @@
 package org.prosolo.services.nodes.impl;
 
+import com.google.common.collect.Sets;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -11,6 +12,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
@@ -101,7 +103,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified,
+    public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
                               String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
 
         emailAddress = emailAddress.toLowerCase();
@@ -113,6 +115,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.setEmail(emailAddress);
         user.setVerified(emailVerified);
         user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+        if (organizationId > 0) {
+            user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+        }
 
         if (password != null) {
             user.setPassword(passwordEncrypter.encodePassword(password));
@@ -490,7 +496,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User updateUser(long userId, String name, String lastName, String email,
                            boolean emailVerified, boolean changePassword, String password,
-                           String position, List<Long> roles) throws DbConnectionException {
+                           String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException {
         try {
             User user = loadResource(User.class, userId);
             user.setName(name);
@@ -505,9 +511,28 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             }
 
             if(roles != null) {
-                user.getRoles().clear();
-                for(Long id : roles) {
-                    Role role = (Role) persistence.currentManager().load(Role.class, id);
+                Set<Long> rolesToAdd = new HashSet<>(roles);
+                /*
+                roles that should be deleted (if user had them) are all roles that should be updated
+                except for roles that should be added
+                 */
+                Set<Long> rolesToDelete = new HashSet<>(rolesToUpdate);
+                rolesToDelete.removeAll(rolesToAdd);
+
+                //update only roles that should be updated based on a rolesToUpdate argument
+                Iterator<Role> roleIterator = user.getRoles().iterator();
+                while (roleIterator.hasNext()) {
+                    Role r = roleIterator.next();
+                    boolean keepRole = rolesToAdd.remove(r.getId());
+                    if (!keepRole) {
+                        if (rolesToDelete.contains(r.getId())) {
+                            roleIterator.remove();
+                        }
+                    }
+                }
+                //assign new roles to user
+                for (Long roleId : rolesToAdd) {
+                    Role role = (Role) persistence.currentManager().load(Role.class, roleId);
                     user.addRole(role);
                 }
             }

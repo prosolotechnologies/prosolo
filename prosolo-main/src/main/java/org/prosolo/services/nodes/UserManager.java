@@ -26,11 +26,11 @@ public interface UserManager extends AbstractManager {
 
 	Collection<User> getAllUsers();
 	
-	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
+	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
 			String avatarFilename, List<Long> roles) throws UserAlreadyRegisteredException, EventException;
 	
-	User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, 
+	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
 			String avatarFilename, List<Long> roles, boolean isSystem) throws UserAlreadyRegisteredException, EventException;
 
@@ -51,11 +51,19 @@ public interface UserManager extends AbstractManager {
 
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, long creatorId) throws DbConnectionException, EventException;
+			String position, List<Long> roles, List<Long> rolesToUpdate, long creatorId) throws DbConnectionException, EventException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
-	
-	User getUserWithRoles(long id) throws DbConnectionException;
+
+	/**
+	 *
+	 * @param id
+	 * @param organizationid if greater than 0, user will be returned only if it is assigned to organization specified by id,
+	 *                       otherwise user will be returned no matter which organization he belongs to
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	UserData getUserWithRoles(long id, long organizationid) throws DbConnectionException;
 	
 	String getUserEmail(long id) throws DbConnectionException;
 	
@@ -80,4 +88,5 @@ public interface UserManager extends AbstractManager {
 
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
+	UserData getUserData(long id) throws DbConnectionException;
 }

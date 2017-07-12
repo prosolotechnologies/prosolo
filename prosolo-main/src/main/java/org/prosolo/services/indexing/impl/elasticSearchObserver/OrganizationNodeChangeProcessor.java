@@ -8,7 +8,6 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.UserManager;
 
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class OrganizationNodeChangeProcessor implements NodeChangeProcessor {
 				//index organization users - those users will be only admins added when organization is created
 				List<User> orgUsers = organizationManager.getOrganizationUsers(orgId, false, session, null);
 				for (User user : orgUsers) {
-					userEntityESService.saveUserNode(user, orgId, session);
+					userEntityESService.addUserToOrganization(user, orgId, session);
 				}
 			} catch (Exception e) {
 				//TODO handle es exceptions somehow

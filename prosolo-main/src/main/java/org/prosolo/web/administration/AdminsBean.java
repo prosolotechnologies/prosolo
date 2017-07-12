@@ -6,11 +6,13 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
@@ -49,6 +51,8 @@ public class AdminsBean implements Serializable,Paginable{
 	private RoleManager roleManager;
 	@Inject
 	private UserManager userManager;
+	@Inject
+	private OrganizationManager orgManager;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -78,9 +82,18 @@ public class AdminsBean implements Serializable,Paginable{
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
-		long filterId = getFilterId();
-		filter = new RoleFilter(filterId, "All", 0);
-		loadUsers();
+		if (decodedOrgId > 0) {
+			orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
+			if (orgTitle == null) {
+				PageUtil.notFound();
+			} else {
+				long filterId = getFilterId();
+				filter = new RoleFilter(filterId, "All", 0);
+				loadUsers();
+			}
+		} else {
+			PageUtil.notFound();
+		}
 	}
 
 	private long getFilterId() {
@@ -120,12 +133,13 @@ public class AdminsBean implements Serializable,Paginable{
 
 	@SuppressWarnings("unchecked")
 	private void searchAdmins(){
-		try{
+		try {
 			PaginatedResult<UserData> res = textSearch.getUsersWithRoles(
-					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), adminRoles, true, null);
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true,
+					filter.getId(), adminRoles, true, null, decodedOrgId);
 			admins = res.getFoundNodes();
 			setFilters(res);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}
 	}

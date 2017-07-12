@@ -3,6 +3,7 @@
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
@@ -18,7 +19,7 @@
 				 <li role="presentation" class="#{page eq 'adminOrganizationNew' ? 'active' : ''}">
 					 <h:link rendered="#{page ne 'adminOrganizationNew'}"
 						 outcome="/admin/adminOrganizationNew">
-					 	 <f:param name="id" value="#{cc.attrs.orgId}" />
+					 	 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 						 Organization Details
 					 </h:link>
 					 <ui:fragment rendered="#{page eq 'adminOrganizationNew'}">
@@ -26,13 +27,13 @@
 					 </ui:fragment>
 				 </li>
 				 <li role="presentation"><a href="#">Units</a></li>
-				 <li role="presentation" class="#{page eq 'users' or page eq 'adminUserNew' or page eq 'adminUserEdit' ? 'active' : ''}">
-					 <h:link rendered="#{not (page eq 'users' or page eq 'adminUserNew' or page eq 'adminUserEdit')}"
-						 outcome="/admin/users">
-						 <f:param name="id" value="#{cc.attrs.orgId}" />
+				 <li role="presentation" class="#{page eq 'organizationUsers' or page eq 'orgUserEdit' ? 'active' : ''}">
+					 <h:link rendered="#{not (page eq 'organizationUsers' or page eq 'orgUserEdit')}"
+						 outcome="/admin/organizationUsers">
+						 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 						 People
 					 </h:link>
-					 <ui:fragment rendered="#{page eq 'users' or page eq 'adminUserNew' or page eq 'adminUserEdit'}">
+					 <ui:fragment rendered="#{page eq 'organizationUsers' or page eq 'orgUserEdit'}">
 						 <a href="javascript:void(0);">People</a>
 					 </ui:fragment>
 				 </li>

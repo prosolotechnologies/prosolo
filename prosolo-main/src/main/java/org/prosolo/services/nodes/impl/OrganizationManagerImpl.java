@@ -251,4 +251,22 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             throw new DbConnectionException("Error while retrieving users");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getOrganizationTitle(long organizationId) throws DbConnectionException {
+        try {
+            String query = "SELECT org.title FROM Organization org " +
+                           "WHERE org.id = :orgId " +
+                           "AND org.deleted IS false";
+
+            return (String) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving organization title");
+        }
+    }
 }

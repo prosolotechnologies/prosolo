@@ -41,6 +41,10 @@ public class ESIndexNames {
 		return indexes;
 	}
 
+	public static List<String> getSystemIndexes() {
+		return Arrays.asList(INDEX_USERS);
+	}
+
 	public static List<String> getOrganizationIndexes() {
 		return Arrays.asList(INDEX_NODES, INDEX_USERS, INDEX_USER_GROUP);
 	}

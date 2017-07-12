@@ -18,6 +18,7 @@ import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.util.RoleUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,18 +47,78 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Inject
 	private RoleManager roleManager;
 	@Inject private Competence1Manager compManager;
-	
+
 	@Override
-	@Transactional
 	public void saveUserNode(User user, Session session) {
-		saveUserNode(user, 0, session);
+		//if user has admin role, add it to system user index
+		if (RoleUtil.hasAdminRole(user)) {
+			saveSystemUser(user, session);
+		}
+		//if user has organization set, add it to organization user index
+		if (user.getOrganization() != null) {
+			saveOrganizationUser(user, user.getOrganization().getId(), session);
+		}
 	}
 
 	@Override
-	public void saveUserNode(User user, long organizationId, Session session) {
+	public void addUserToOrganization(User user, long organizationId, Session session) {
+		saveOrganizationUser(user, organizationId, session);
+	}
+
+	private void saveSystemUser(User user, Session session) {
 		if (user != null) {
 			try {
-				XContentBuilder builder = getBasicUserDataSet(user);
+				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+
+				builder.field("id", user.getId());
+				//	builder.field("url", user.getUri());
+				builder.field("name", user.getName());
+				builder.field("lastname", user.getLastname());
+
+				builder.field("avatar", user.getAvatarUrl());
+				builder.field("position", user.getPosition());
+
+				builder.field("assigned", user.getOrganization() != null);
+
+				builder.startArray("roles");
+				user.getRoles().stream().filter(role -> RoleUtil.isAdminRole(role)).forEach( role -> {
+					try {
+						builder.startObject();
+						builder.field("id", role.getId());
+						builder.endObject();
+					} catch (IOException e) {
+						logger.error("error", e);
+					}
+				});
+
+				builder.endArray();
+
+				builder.endObject();
+				logger.info("JSON: " + builder.prettyPrint().string());
+				String indexType = ESIndexTypes.USER;
+				indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+	}
+
+	@Override
+	public void updateBasicUserData(User user, Session session) {
+		//if user has admin role, add it to system user index
+		if (RoleUtil.hasAdminRole(user)) {
+			saveSystemUser(user, session);
+		}
+		//if user has organization set, add it to organization user index
+		if (user.getOrganization() != null) {
+			updateBasicOrgUserData(user, user.getOrganization().getId(), session);
+		}
+	}
+
+	private void saveOrganizationUser(User user, long organizationId, Session session) {
+		if (user != null) {
+			try {
+				XContentBuilder builder = getBasicOrgUserDataSet(user);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
@@ -132,9 +193,9 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
-				String indexType = getIndexTypeForNode(user);
+				String indexType = ESIndexTypes.ORGANIZATION_USER;
 				String fullIndexName = ESIndexNames.INDEX_USERS +
-						(organizationId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(organizationId) : "");
+						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
 				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
 			} catch (IOException e) {
 				logger.error(e);
@@ -142,21 +203,21 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 	
-	@Override
-	@Transactional
-	public void updateBasicUserData(User user, Session session) {
+	private void updateBasicOrgUserData(User user, long organizationId, Session session) {
 		if(user!=null) {
 	 		try {
-				XContentBuilder builder = getBasicUserDataSet(user);
+				XContentBuilder builder = getBasicOrgUserDataSet(user);
 				builder.endObject();
-				partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, user.getId() + "", builder);
+				partialUpdate(ESIndexNames.INDEX_USERS +
+						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER,
+						user.getId() + "", builder);
 			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
 	}
 	
-	private XContentBuilder getBasicUserDataSet(User user) throws IOException {
+	private XContentBuilder getBasicOrgUserDataSet(User user) throws IOException {
 		XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 		builder.field("id", user.getId());
 	//	builder.field("url", user.getUri());
@@ -174,8 +235,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.field("position", user.getPosition());
 		
 		builder.startArray("roles");
-		List<Role> roles = roleManager.getUserRoles(user.getEmail());
-		for(Role role : roles) {
+		for(Role role : user.getRoles()) {
 			builder.startObject();
 			builder.field("id", role.getId());
 			builder.endObject();

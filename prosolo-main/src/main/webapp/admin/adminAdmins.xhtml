@@ -1,14 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="templates/masterLayout2.xhtml"
+				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 
 <ui:define name="windowTitle">Admins</ui:define>
@@ -26,8 +20,6 @@
 </ui:define>
 
 <ui:define name="content">
-	<org:userList
-		mode="ADMIN"
-	/>
+	<user:userList mode="ADMIN" />
 </ui:define>
 </ui:composition>

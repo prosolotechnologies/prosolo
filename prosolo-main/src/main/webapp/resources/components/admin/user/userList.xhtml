@@ -11,6 +11,7 @@
 
 	<composite:interface>
 		<composite:attribute name="mode" default="ADMIN" />
+		<composite:attribute name="orgId" default="0" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -24,7 +25,10 @@
 							<h:link outcome="/admin/adminNew" styleClass="btn btn-green btn-sm item">New Admin</h:link>
 						</c:if>
 						<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-							<h:link outcome="/admin/orgUserNew" styleClass="btn btn-green btn-sm item">New User</h:link>
+							<h:link outcome="/admin/orgUserEdit" styleClass="btn btn-green btn-sm item">
+								New User
+								<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
+							</h:link>
 						</c:if>
 						<div class="searchBox">
 							<h:form>
@@ -79,7 +83,7 @@
 						<ui:repeat var="admin" value="#{adminAdmins.admins}">
 							<li>
 								<div class="peopleListLeft">
-									<h:link outcome="">
+									<h:link outcome="/admin/adminNew">
 										<utilcomp:userAvatar
 												avatar="#{admin.avatarUrl}"
 												fullName="#{admin.fullName}"
@@ -98,8 +102,9 @@
 												</h:link>
 											</c:if>
 											<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-												<h:link outcome="/admin/orgUserNew">
+												<h:link outcome="/admin/orgUserEdit">
 													#{admin.fullName}
+													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
 												</h:link>
 											</c:if>
@@ -119,7 +124,8 @@
 											</h:link>
 										</c:if>
 										<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-											<h:link outcome="/admin/orgUserNew">
+											<h:link outcome="/admin/orgUserEdit">
+												<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}"/>
 												<f:param name="id" value="#{util:encodeId(admin.id)}"/>
 												Edit
 											</h:link>

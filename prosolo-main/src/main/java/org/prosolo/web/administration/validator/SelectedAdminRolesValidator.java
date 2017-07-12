@@ -28,7 +28,7 @@ public class SelectedAdminRolesValidator implements Validator {
     public void validate(FacesContext facesContext, UIComponent uiComponent, Object o) throws ValidatorException {
         List<Boolean> checkBoxComponentValues = new ArrayList<>();
 
-        facesContext.getViewRoot().findComponent("formMain").visitTree(VisitContext.createVisitContext(facesContext), new VisitCallback() {
+        facesContext.getViewRoot().findComponent("userEdit:formMain").visitTree(VisitContext.createVisitContext(facesContext), new VisitCallback() {
             @Override
             public VisitResult visit(VisitContext visitContext, UIComponent uiComponent) {
                 if(uiComponent instanceof HtmlSelectBooleanCheckbox){

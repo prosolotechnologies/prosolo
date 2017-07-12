@@ -144,7 +144,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	@Transactional
 	public PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles, boolean includeSystemUsers, List<Long> excludeIds) {
+			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles,
+			boolean includeSystemUsers, List<Long> excludeIds, long organizationId) {
 
 		PaginatedResult<UserData> response =
 				new PaginatedResult<>();
@@ -158,7 +159,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			}
 
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client,ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			//if organization id is greater than 0, organization user index should be queried, otherwise
+			//system user index should be queried
+			String indexName = ESIndexNames.INDEX_USERS
+					+ (organizationId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(organizationId) : "");
+			String indexType = organizationId > 0 ? ESIndexTypes.ORGANIZATION_USER : ESIndexTypes.USER;
+			esIndexer.addMapping(client, indexName, indexType);
 
 			QueryBuilder qb = QueryBuilders
 					.queryStringQuery(term.toLowerCase() + "*").useDisMax(true)
@@ -169,7 +175,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			bQueryBuilder.should(qb);
 			bQueryBuilder.filter(qb);
 
-			if (!includeSystemUsers) {
+			if (organizationId > 0 && !includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
 
@@ -182,31 +188,51 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			SearchResponse sResponse = null;
 
 			String[] includes = {"id", "name", "lastname", "avatar", "roles", "position"};
-			SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
+			SearchRequestBuilder srb = client.prepareSearch(indexName)
+					.setTypes(indexType)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFrom(start).setSize(size)
 					.addSort("lastname", SortOrder.ASC)
 					.addSort("name", SortOrder.ASC)
-					.addAggregation(AggregationBuilders.terms("roles")
-							.field("roles.id"))
-					.addAggregation(AggregationBuilders.count("docCount")
-							.field("id"))
+					.addAggregation(AggregationBuilders.count("docCount").field("id"))
 					.setFetchSource(includes, null);
 
-			if (roles != null && !roles.isEmpty()){
+			if (organizationId > 0) {
+				srb.addAggregation(AggregationBuilders.nested("nestedAgg").path("roles")
+						.subAggregation(
+								AggregationBuilders.terms("roles")
+										.field("roles.id")));
+			} else {
+				srb.addAggregation(AggregationBuilders.terms("roles")
+						.field("roles.id"));
+			}
+
+			if (roles != null && !roles.isEmpty()) {
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : roles){
+				for(Role r : roles) {
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
-				bQueryBuilder.filter(bqb1);
+				if (organizationId > 0) {
+					NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles",
+							bqb1);
+					bQueryBuilder.filter(nestedFilter);
+				} else {
+					bQueryBuilder.filter(bqb1);
+				}
 			}
 
 			//set as a post filter so it does not influence aggregation results
-			if(roleId > 0) {
+			if (roleId > 0) {
 				BoolQueryBuilder bqb = QueryBuilders.boolQuery().filter(termQuery("roles.id", roleId));
-				srb.setPostFilter(bqb);
+				if (organizationId > 0) {
+					NestedQueryBuilder nestedPostFilter = QueryBuilders.nestedQuery("roles",
+							bqb);
+					srb.setPostFilter(nestedPostFilter);
+				} else {
+					srb.setPostFilter(bqb);
+				}
+
 			}
 
 			//System.out.println(srb.toString());
@@ -249,7 +275,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 				//get facets
 				ValueCount docCount = sResponse.getAggregations().get("docCount");
-				Terms terms = sResponse.getAggregations().get("roles");
+				Terms terms;
+				if (organizationId > 0) {
+					Nested nestedAgg = sResponse.getAggregations().get("nestedAgg");
+					terms = nestedAgg.getAggregations().get("roles");
+				} else {
+					terms = sResponse.getAggregations().get("roles");
+				}
 				List<Terms.Bucket> buckets = terms.getBuckets();
 
 				List<RoleFilter> roleFilters = new ArrayList<>();
