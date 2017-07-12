@@ -63,6 +63,20 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	public void addUserToOrganization(User user, long organizationId, Session session) {
 		saveOrganizationUser(user, organizationId, session);
+		//if user is also a system user (admin) update assigned flag to true
+		if (RoleUtil.hasAdminRole(user)) {
+			updateUserAssignedFlag(user.getId(), true);
+		}
+	}
+
+	@Override
+	public void removeUserFromOrganization(User user, long organizationId) {
+		delete(user.getId() + "", ESIndexNames.INDEX_USERS +
+				ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER);
+		//if user is also a system user (admin) update assigned flag to false
+		if (RoleUtil.hasAdminRole(user)) {
+			updateUserAssignedFlag(user.getId(), false);
+		}
 	}
 
 	private void saveSystemUser(User user, Session session) {
@@ -425,6 +439,20 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			params.put("date", completionDate);
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	private void updateUserAssignedFlag(long userId, boolean assigned) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("assigned", assigned);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, userId + "", builder);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

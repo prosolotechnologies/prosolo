@@ -44,8 +44,14 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		User user = null;
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
-		
-		if (eventType == EventType.ENROLL_COURSE) {
+
+		if (eventType == EventType.USER_ASSIGNED_TO_ORGANIZATION) {
+			userEntityESService.addUserToOrganization(
+					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId(), session);
+		} else if (eventType == EventType.USER_REMOVED_FROM_ORGANIZATION) {
+			userEntityESService.removeUserFromOrganization(
+					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId());
+		} else if (eventType == EventType.ENROLL_COURSE) {
 			Credential1 cred = (Credential1) event.getObject();
 			long instructorId = Long.parseLong(params.get("instructorId"));
 			String dateEnrolledString = params.get("dateEnrolled");
