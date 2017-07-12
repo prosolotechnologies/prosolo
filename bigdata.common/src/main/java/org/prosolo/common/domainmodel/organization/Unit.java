@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
  */
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","organization"})})
 public class Unit extends BaseEntity {
 
 	private static final long serialVersionUID = 6378214271994742348L;

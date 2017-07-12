@@ -4,6 +4,7 @@ package org.prosolo.services.nodes.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -24,6 +25,7 @@ import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +82,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             res.setResult(organization);
             return res;
-        } catch (Exception e) {
+        }catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error(e);
+            throw e;
+        }catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while saving organization");
@@ -158,6 +163,21 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             e.printStackTrace();
             throw new DbConnectionException("Error while loading organization");
         }
+    }
+
+    public OrganizationData getOrganizationDataWithoutAdmins(long organizationId) {
+        String query =
+                "SELECT organization " +
+                "FROM Organization organization " +
+                "WHERE organization.id = :organizationId ";
+
+        Organization organization = (Organization) persistence.currentManager().createQuery(query)
+                .setParameter("organizationId",organizationId)
+                .uniqueResult();
+
+        OrganizationData res = new OrganizationData(organization.getId(),organization.getTitle());
+
+        return res;
     }
 
     @Override

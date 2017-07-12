@@ -31,7 +31,8 @@
                     	pt:data-toggle="modal" 
                     	action="#{roles.prepareAddRole()}"
                     	update=":formEditRole:panelNewRoleContent"
-                    	oncomplete="$('#newRoleModal').modal('show');">New Role
+                    	oncomplete="$('#formEditRole\\:inputRoleName').val('');
+                    	$('#newRoleModal').modal('show');">New Role
                     </p:commandLink>
                 </div>
             </div>
