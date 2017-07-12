@@ -6,7 +6,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
                 xmlns:util="http://www.prosolo.com/util"
-                xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+                xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
 
     <ui:define name="windowTitle" >Units</ui:define>
 
@@ -18,18 +19,7 @@
     </ui:define>
 
     <ui:define name="navLinks">
-        <ui:fragment  rendered="#{not empty unitEditBean.organizationId}">
-            <ul class="nav nav-tabs headerSubmenu">
-                <li role="presentation"><h:link outcome="/admin/adminOrganizationNew">
-                    <f:param name="id" value="#{unitEditBean.organizationId}" />Organization Details
-                </h:link></li>
-                <li role="presentation" class="active"><h:link outcome="/admin/adminUnits">
-                    <f:param name="id" value="#{unitEditBean.organizationId}" />Units
-                </h:link></li>
-                <li role="presentation"><a href="#">People</a></li>
-                <li role="presentation"><a href="#">Groups</a></li>
-            </ul>
-        </ui:fragment>
+        <org:organizationHeaderLinks orgId="#{unitEditBean.organizationData.id}" />
     </ui:define>
 
     <ui:define name="resourceTitle">

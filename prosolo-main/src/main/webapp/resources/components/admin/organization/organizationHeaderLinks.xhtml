@@ -1,0 +1,52 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="orgId" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+
+	 <div id="#{cc.clientId}">
+		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+		 <ui:fragment rendered="#{cc.attrs.orgId gt 0}">
+			 <ul class="nav nav-tabs headerSubmenu">
+				 <li role="presentation" class="#{page eq 'adminOrganizationNew' ? 'active' : ''}">
+					 <h:link rendered="#{page ne 'adminOrganizationNew'}"
+						 outcome="/admin/adminOrganizationNew">
+					 	 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+						 Organization Details
+					 </h:link>
+					 <ui:fragment rendered="#{page eq 'adminOrganizationNew'}">
+						 <a href="javascript:void(0);">Organization Details</a>
+					 </ui:fragment>
+				 </li>
+				 <li role="presentation" class="#{page eq 'adminUnits' ? 'active' : ''}">
+					 <h:link rendered="#{page ne 'adminUnits'}" outcome="/admin/adminUnits">
+						 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+						 Units
+					 </h:link>
+					 <ui:fragment rendered="#{page eq 'adminUnits'}">
+						 <a href="javascript:void(0);">Units</a>
+					 </ui:fragment>
+				 </li>
+				 <li role="presentation" class="#{page eq 'organizationUsers' or page eq 'orgUserEdit' ? 'active' : ''}">
+					 <h:link rendered="#{not (page eq 'organizationUsers' or page eq 'orgUserEdit')}"
+						 outcome="/admin/organizationUsers">
+						 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+						 People
+					 </h:link>
+					 <ui:fragment rendered="#{page eq 'organizationUsers' or page eq 'orgUserEdit'}">
+						 <a href="javascript:void(0);">People</a>
+					 </ui:fragment>
+				 </li>
+			 </ul>
+		 </ui:fragment>
+     </div>
+	</composite:implementation>
+</ui:component>

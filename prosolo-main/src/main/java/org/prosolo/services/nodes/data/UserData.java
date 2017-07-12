@@ -83,6 +83,10 @@ public class UserData implements Serializable {
 		return roleIds.contains(roleId);
 	}
 
+	public boolean hasRole(long roleId) {
+		return roles.stream().anyMatch(r -> r.getId() == roleId);
+	}
+
 	public void setFullName(String name, String lastName) {
 		this.fullName = getFullName(name, lastName);
 	}

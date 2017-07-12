@@ -17,10 +17,14 @@ public class OrganizationData implements Serializable {
 
     public OrganizationData(){}
 
-    public OrganizationData(Organization organization, List<UserData> chosenAdmins){
+    public OrganizationData(Organization organization){
         this();
         this.id = organization.getId();
         this.title = organization.getTitle();
+    }
+
+    public OrganizationData(Organization organization, List<UserData> chosenAdmins){
+        this(organization);
         this.admins = chosenAdmins;
     }
 

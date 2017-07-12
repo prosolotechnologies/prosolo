@@ -11,7 +11,9 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void saveUserNode(User user, Session session);
 
-	void saveUserNode(User user, long organizationId, Session session);
+	void addUserToOrganization(User user, long organizationId, Session session);
+
+	void removeUserFromOrganization(User user, long organizationId);
 	
 	void addCredentialToUserIndex(long credId, long userId, long instructorId, int progress, String dateEnrolled);
 	
@@ -40,7 +42,6 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	 * @param followerId
 	 */
 	void removeFollowerIndex(long followedUserId, long followerId);
-	
 	
 	void addCompetenceToUserIndex(long compId, long userId, String dateEnrolled);
 	

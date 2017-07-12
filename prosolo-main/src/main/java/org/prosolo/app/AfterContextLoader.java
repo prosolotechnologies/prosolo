@@ -153,6 +153,7 @@ public class AfterContextLoader implements ServletContextListener {
 		try {
 			User adminUser = ServiceLocator.getInstance().getService(UserManager.class)
 					.createNewUser(
+							0,
 							Settings.getInstance().config.init.defaultUser.name,
 							Settings.getInstance().config.init.defaultUser.lastname,
 							Settings.getInstance().config.init.defaultUser.email,

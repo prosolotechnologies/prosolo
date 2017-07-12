@@ -1,12 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.app.AfterContextLoader;
@@ -16,20 +9,20 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
-import org.prosolo.services.indexing.CompetenceESService;
-import org.prosolo.services.indexing.CredentialESService;
-import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.UserEntityESService;
-import org.prosolo.services.indexing.UserGroupESService;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.indexing.*;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.OrganizationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Zoran Jeremic Feb 12, 2014
@@ -51,6 +44,7 @@ public class BulkDataAdministration implements Serializable {
 	@Inject private CompetenceESService compESService;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private UserGroupESService userGroupESService;
+	@Inject private OrganizationManager orgManager;
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
 
@@ -78,6 +72,13 @@ public class BulkDataAdministration implements Serializable {
 				try {
 					logger.info("Delete and reindex users started");
 					deleteAndInitIndex(ESIndexNames.INDEX_USERS);
+
+					List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+							.getFoundNodes();
+					for (OrganizationData o : organizations) {
+						deleteAndInitIndex(ESIndexNames.INDEX_USERS
+								+ ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+					}
 					indexUsers();
 					logger.info("Delete and reindex users finished");
 				} catch (IndexingServiceNotAvailable e) {
