@@ -19,7 +19,7 @@
 
 	<ui:define name="resourceTitle" >
 		<h1>
-			<h:outputText rendered="#{not empty adminEditBean.id}" value="#{adminEditBean.admin.name} #{adminEditBean.admin.lastName}" />
+			<h:outputText rendered="#{not empty adminEditBean.id}" value="#{adminEditBean.admin.fullName}" />
 		</h1>
 		<h1>
 			<h:outputText rendered="#{ empty adminEditBean.id}" value="New Admin" />

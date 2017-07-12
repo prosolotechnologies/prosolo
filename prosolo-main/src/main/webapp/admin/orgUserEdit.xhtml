@@ -20,7 +20,7 @@
 
 	<ui:define name="resourceTitle" >
 		<h1>
-			#{adminEditBean.admin.id gt 0 ? adminEditBean.admin.name.concat(' ').concat(adminEditBean.admin.lastName) : adminEditBean.organizationTitle}
+			#{adminEditBean.admin.id gt 0 ? adminEditBean.admin.fullName : adminEditBean.organizationTitle}
 		</h1>
 	</ui:define>
 
