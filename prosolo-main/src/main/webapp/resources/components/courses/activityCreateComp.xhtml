@@ -265,6 +265,19 @@
 					</div>
 				</div>
 
+				 <div class="formLine">
+					 <label>Keywords</label>
+					 <div class="formLineRight">
+						 <h:inputText styleClass="tagsInputActTag"
+									  id="inputKeywords"
+									  value="#{activityEditBean.activityData.tagsString}"
+									  pt:placeholder="Type and press 'Enter'"
+									  pt:data-role="tagsinput">
+						 </h:inputText>
+					 </div>
+				 </div>
+				 <script>$('.tagsInputActTag').tagsinput();</script>
+
 				<div class="formLine">
 					<label>Other</label>
 					<div class="formLineRight">
@@ -335,6 +348,19 @@
 						<h:message for="maxPoints" style="color:red" />
 					</div>
 				</div>
+
+				<div class="formLine">
+					<label>Keywords</label>
+					<div class="formLineRight">
+						<h:inputText styleClass="tagsInputActTag"
+									 id="inputKeywordsExt"
+									 value="#{activityEditBean.activityData.tagsString}"
+									 pt:placeholder="Type and press 'Enter'"
+									 pt:data-role="tagsinput">
+						</h:inputText>
+					</div>
+				</div>
+				<script>$('.tagsInputActTag').tagsinput();</script>
 
 				<div class="formLine">
 					<label>Other</label>

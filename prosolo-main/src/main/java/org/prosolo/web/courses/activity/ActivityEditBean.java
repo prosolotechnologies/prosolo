@@ -159,7 +159,7 @@ public class ActivityEditBean implements Serializable {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(mode)
 					.addPrivilege(UserGroupPrivilege.Edit);
 			RestrictedAccessResult<ActivityData> res = activityManager.getActivityData(credId, compId, actId, 
-					loggedUser.getUserId(), true, req);
+					loggedUser.getUserId(), true, true, req);
 			unpackResult(res);
 			
 			if(!access.isCanAccess()) {
