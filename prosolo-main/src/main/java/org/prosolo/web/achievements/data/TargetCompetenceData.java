@@ -1,8 +1,8 @@
 package org.prosolo.web.achievements.data;
 
-import java.io.Serializable;
-
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+
+import java.io.Serializable;
 
 /**
  * 
@@ -21,11 +21,10 @@ public class TargetCompetenceData implements Serializable {
     private long duration;
     private LearningResourceType learningResourceType;
     private long competenceId;
-    private long credentialId;
 
     public TargetCompetenceData(Long id, String description, String title, boolean hiddenFromProfile,
             long duration, LearningResourceType learningResourceType, 
-            long competenceId, long credentialId) {
+            long competenceId) {
         this.id = id;
         this.description = description;
         this.title = title;
@@ -33,7 +32,6 @@ public class TargetCompetenceData implements Serializable {
         this.duration = duration;
         this.learningResourceType = learningResourceType;
         this.competenceId = competenceId;
-        this.credentialId = credentialId;
     }
 
     public Long getId() {
@@ -94,14 +92,6 @@ public class TargetCompetenceData implements Serializable {
 
     public void setCompetenceId(long competenceId) {
         this.competenceId = competenceId;
-    }
-
-    public long getCredentialId() {
-        return credentialId;
-    }
-
-    public void setCredentialId(long credentialId) {
-        this.credentialId = credentialId;
     }
 
 }

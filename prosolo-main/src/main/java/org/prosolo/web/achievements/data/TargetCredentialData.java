@@ -2,9 +2,6 @@ package org.prosolo.web.achievements.data;
 
 import java.io.Serializable;
 
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-
 /**
  * 
  * @author "Musa Paljos"
@@ -19,26 +16,22 @@ public class TargetCredentialData implements Serializable {
 	private String title;
 	private boolean hiddenFromProfile;
 	private long duration = 0l;
-	private LearningResourceType learningResourceType;
 	private long credentialId;
 	private int progress;
 	
 	private long nextCompetenceToLearnId;
-	private long nextActivityToLearnId;
 
 	public TargetCredentialData(long id, String title, String description, boolean hiddenFromProfile, 
-			UrlIdEncoder idEncoder,long duration, LearningResourceType learningResourceType, long credentialId,
-			int progress, long nextCompetenceToLearnId, long nextActivityToLearnId) {
+			long duration, long credentialId,
+			int progress, long nextCompetenceToLearnId) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.hiddenFromProfile = hiddenFromProfile;
 		this.duration = duration;
-		this.learningResourceType = learningResourceType;
 		this.credentialId = credentialId;
 		this.progress = progress;
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 
 	public Long getId() {
@@ -81,10 +74,6 @@ public class TargetCredentialData implements Serializable {
 		this.duration = duration;
 	}
 
-	public boolean madeByUniversity() {
-		return learningResourceType.equals(LearningResourceType.UNIVERSITY_CREATED);
-	}
-
 	public long getCredentialId() {
 		return credentialId;
 	}
@@ -107,14 +96,6 @@ public class TargetCredentialData implements Serializable {
 
 	public void setNextCompetenceToLearnId(long nextCompetenceToLearnId) {
 		this.nextCompetenceToLearnId = nextCompetenceToLearnId;
-	}
-
-	public long getNextActivityToLearnId() {
-		return nextActivityToLearnId;
-	}
-
-	public void setNextActivityToLearnId(long nextActivityToLearnId) {
-		this.nextActivityToLearnId = nextActivityToLearnId;
 	}
 	
 }

@@ -1,12 +1,10 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="../templates/masterLayout2.xhtml"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:util="http://www.prosolo.com/util">
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui"
+				template="../templates/masterLayout2.xhtml"
+				xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
 		Achievements - Competences
@@ -70,7 +68,6 @@
 								<h2>
 									<h:link	outcome="/competence">
 										#{targetCompetence.title}
-				                		<f:param name="credId" value="#{util:encodeId(targetCompetence.credentialId)}"/>
 				                		<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
 									</h:link>
 								</h2>
@@ -81,11 +78,9 @@
 								<div class="metaBox">
 									<div class="metaLeft">
 										<div class="checkbox checkLine">
-
-											<h:inputHidden value="#{targetCompetence.id}" />
 											<h:selectBooleanCheckbox id="competenceAchievements"
 												value="#{targetCompetence.hiddenFromProfile}">
-												<f:ajax event="click" execute="@form"
+												<f:ajax event="click" execute="@this"
 													listener="#{competenceAchievementsBean.hideTargetCompetenceFromProfile(targetCompetence.id)}"
 													render="completedCompetencesForm" />
 											</h:selectBooleanCheckbox>
