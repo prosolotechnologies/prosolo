@@ -6,36 +6,36 @@
 				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 	<ui:define name="windowTitle" >
-		<ui:fragment rendered="#{empty adminEditBean.id}">Create Admin</ui:fragment>
-		<ui:fragment rendered="#{not empty adminEditBean.id}">Edit Admin</ui:fragment>
+		<ui:fragment rendered="#{empty userEditBean.id}">Create Admin</ui:fragment>
+		<ui:fragment rendered="#{not empty userEditBean.id}">Edit Admin</ui:fragment>
 	</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{adminEditBean.id}" />
-			<f:viewAction action="#{adminEditBean.initAdmin()}" />
+			<f:viewParam name="id" value="#{userEditBean.id}" />
+			<f:viewAction action="#{userEditBean.initAdmin()}" />
 		</f:metadata>
 	</ui:define>
 
 	<ui:define name="resourceTitle" >
 		<h1>
-			<h:outputText rendered="#{not empty adminEditBean.id}" value="#{adminEditBean.admin.fullName}" />
+			<h:outputText rendered="#{not empty userEditBean.id}" value="#{userEditBean.user.fullName}" />
 		</h1>
 		<h1>
-			<h:outputText rendered="#{ empty adminEditBean.id}" value="New Admin" />
+			<h:outputText rendered="#{ empty userEditBean.id}" value="New Admin" />
 		</h1>
 	</ui:define>
 
 
 	<ui:define name="navLinks">
-		<ui:fragment rendered="#{not empty adminEditBean.id}">
+		<ui:fragment rendered="#{not empty userEditBean.id}">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation" class="active"><h:link
 						outcome="/admin/adminNew">
-					<f:param name="id" value="#{adminEditBean.id}" />Personal Info</h:link></li>
+					<f:param name="id" value="#{userEditBean.id}" />Personal Info</h:link></li>
 				<li role="presentation"><h:link
 						outcome="/admin/adminEditAdminPassword">
-					<f:param name="id" value="#{adminEditBean.id}" />Change Password</h:link></li>
+					<f:param name="id" value="#{userEditBean.id}" />Change Password</h:link></li>
 			</ul>
 		</ui:fragment>
 	</ui:define>

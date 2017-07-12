@@ -1,10 +1,8 @@
 <ui:component
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:h="http://java.sun.com/jsf/html"
-		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:p="http://primefaces.org/ui"
-		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 >
@@ -22,7 +20,7 @@
 			<div class="row">
 				<div class="col-md-12">
 					<div class="whiteBox">
-						<ui:fragment rendered="#{cc.attrs.showFormTitle and adminEditBean.admin.id le 0}">
+						<ui:fragment rendered="#{cc.attrs.showFormTitle and userEditBean.user.id le 0}">
 							<h2>New User</h2>
 						</ui:fragment>
 						<h:form id="formMain">
@@ -33,7 +31,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminName" required="true"
 													 requiredMessage="First name is required"
-													 value="#{adminEditBean.admin.name}">
+													 value="#{userEditBean.user.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminName')}"
@@ -47,7 +45,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminLastname" required="true"
 													 requiredMessage="Last name is required"
-													 value="#{adminEditBean.admin.lastName}">
+													 value="#{userEditBean.user.lastName}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminLastname')}"
@@ -62,7 +60,7 @@
 										<h:inputText id="inputTextAdminEmail"
 													 name="emailAddress"
 													 validator="emailValidator"
-													 value="#{adminEditBean.admin.email}"></h:inputText>
+													 value="#{userEditBean.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminEmail')}"
@@ -74,14 +72,14 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{adminEditBean.admin.position}"></h:inputText>
+										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
 									<label>Role</label>
 									<div class="formLineRight">
 
-										<ui:repeat value="#{adminEditBean.allRoles}" var="role">
+										<ui:repeat value="#{userEditBean.allRoles}" var="role">
 											<div class="checkbox checkLine">
 												<h:selectBooleanCheckbox id="selectRoles" label="#{role.label}"
 																		 value="#{role.selected}"
@@ -99,7 +97,7 @@
 
 									</div>
 								</div>
-								<ui:fragment rendered="#{empty adminEditBean.id}">
+								<ui:fragment rendered="#{empty userEditBean.id}">
 									<div class="formLine">
 										<label>&#160;</label>
 										<div class="formLineRight">
@@ -110,14 +108,14 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Save Changes'}"
-													   action="#{adminEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
+										<p:commandLink styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
+                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
 										</p:commandLink>
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-													   action="#{adminEditBean.setUserToDelete()}"
+													   action="#{userEditBean.setUserToDelete()}"
 													   update=":#{cc.clientId}:formDelete"
 													   oncomplete="$('#deleteAdmin').modal('show');"
-													   rendered="#{not empty adminEditBean.id}">
+													   rendered="#{not empty userEditBean.id}">
 											Delete
 										</p:commandLink>
 									</div>
@@ -141,28 +139,28 @@
 							<h2 class="modal-title">Delete admin?</h2>
 						</div>
 						<div class="modal-body alignLeft">
-							<p>Are you sure you want to delete #{adminEditBean.admin.name}
-								#{adminEditBean.admin.lastName}?</p>
+							<p>Are you sure you want to delete #{userEditBean.user.name}
+								#{userEditBean.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
 								<h:panelGroup layuot="block" id="selectNewOwner">
-									<h:panelGroup rendered="#{adminEditBean.newOwner.userSet}">
+									<h:panelGroup rendered="#{userEditBean.newOwner.userSet}">
 										<ul class="list">
 											<li>
 												<div class="instructorInfo">
 													<utilcomp:userAvatar
-															avatar="#{adminEditBean.newOwner.avatarUrl}"
-															fullName="#{adminEditBean.newOwner.fullName}"
+															avatar="#{userEditBean.newOwner.avatarUrl}"
+															fullName="#{userEditBean.newOwner.fullName}"
 															width="48"
 															height="48"/>
 													<div class="infoWrap">
-														<h3>#{adminEditBean.newOwner.fullName}</h3>
-														<span>#{adminEditBean.newOwner.position}</span>
+														<h3>#{userEditBean.newOwner.fullName}</h3>
+														<span>#{userEditBean.newOwner.position}</span>
 													</div>
 
 													<div class="assignOpt">
 														<p:commandLink styleClass="removeX"
-																	   action="#{adminEditBean.userReset()}"
+																	   action="#{userEditBean.userReset()}"
 																	   update="selectNewOwner :#{cc.clientId}:formDelete:formDeleteBtn">Close</p:commandLink>
 													</div>
 												</div>
@@ -170,25 +168,25 @@
 										</ul>
 									</h:panelGroup>
 
-									<h:inputText rendered="#{not adminEditBean.newOwner.userSet}"
-												 onkeyup="searchListener(execSearchUsers);"
-												 value="#{adminEditBean.searchTerm}" id="newName"
-												 placeholder="Type name..." name="newName" autocomplete="off" />
+									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
+                                                 onkeyup="searchListener(execSearchUsers);"
+                                                 value="#{userEditBean.searchTerm}" id="newName"
+                                                 placeholder="Type name..." name="newName" autocomplete="off" />
 
 									<p:remoteCommand name="execSearchUsers" process="newName"
-													 action="#{adminEditBean.resetAndSearch()}"
+													 action="#{userEditBean.resetAndSearch()}"
 													 update="usersListPanel" />
 
 									<h:panelGroup id="usersListPanel">
 										<h:panelGroup
-												rendered="#{not adminEditBean.newOwner.userSet and adminEditBean.admins != null and adminEditBean.admins.size() > 0}">
+												rendered="#{not userEditBean.newOwner.userSet and userEditBean.users != null and userEditBean.users.size() > 0}">
 											<ul id="usersList" class="dropdown-menu searchResultsDrop"
 												style="display: block;">
-												<ui:repeat value="#{adminEditBean.admins}" var="user"
+												<ui:repeat value="#{userEditBean.users}" var="user"
 														   varStatus="iterator">
 													<li><p:commandLink style="cursor: pointer;"
 																	   id="userlink-#{user.id}"
-																	   action="#{adminEditBean.setNewOwner(user)}"
+																	   action="#{userEditBean.setNewOwner(user)}"
 																	   update=":#{cc.clientId}:formDelete:selectNewOwner :#{cc.clientId}:formDelete:formDeleteBtn">
 														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 																			 fullName="#{user.fullName}" />
@@ -205,8 +203,8 @@
 						<div class="modal-footer alignLeft">
 							<h:panelGroup id="formDeleteBtn">
 								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
-											   action="#{adminEditBean.delete()}"
-											   rendered="#{adminEditBean.newOwner.userSet}"
+											   action="#{userEditBean.delete()}"
+											   rendered="#{userEditBean.newOwner.userSet}"
 											   update=":#{cc.clientId}:formMain"
 											   oncomplete="$('#deleteUser').modal('hide');">
 									Delete

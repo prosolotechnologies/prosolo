@@ -10,22 +10,22 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="orgId" value="#{adminAdmins.orgId}" />
-			<f:viewParam name="p" value="#{adminAdmins.paginationData.pageString}" default="1" />
-			<f:viewParam name="role" value="#{adminAdmins.roleId}" default="null" />
-			<f:viewAction action="#{adminAdmins.initOrgUsers()}" />
+			<f:viewParam name="orgId" value="#{usersBean.orgId}" />
+			<f:viewParam name="p" value="#{usersBean.paginationData.pageString}" default="1" />
+			<f:viewParam name="role" value="#{usersBean.roleId}" default="null" />
+			<f:viewAction action="#{usersBean.initOrgUsers()}" />
 		</f:metadata>
 	</ui:define>
 
 	<ui:define name="resourceTitle">
-		<h1>#{adminAdmins.orgTitle}</h1>
-		<org:organizationHeaderLinks orgId="#{adminAdmins.decodedOrgId}" />
+		<h1>#{usersBean.orgTitle}</h1>
+		<org:organizationHeaderLinks orgId="#{usersBean.decodedOrgId}" />
 	</ui:define>
 
 	<ui:define name="content">
 		<user:userList
 			mode="ORGANIZATION"
-			orgId="#{adminAdmins.decodedOrgId}"
+			orgId="#{usersBean.decodedOrgId}"
 		/>
 	</ui:define>
 </ui:composition>

@@ -12,20 +12,20 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="orgId" value="#{adminEditBean.orgId}" />
-			<f:viewParam name="id" value="#{adminEditBean.id}" />
-			<f:viewAction action="#{adminEditBean.initOrgUser()}" />
+			<f:viewParam name="orgId" value="#{userEditBean.orgId}" />
+			<f:viewParam name="id" value="#{userEditBean.id}" />
+			<f:viewAction action="#{userEditBean.initOrgUser()}" />
 		</f:metadata>
 	</ui:define>
 
 	<ui:define name="resourceTitle" >
 		<h1>
-			#{adminEditBean.admin.id gt 0 ? adminEditBean.admin.fullName : adminEditBean.organizationTitle}
+			#{userEditBean.user.id gt 0 ? userEditBean.user.fullName : userEditBean.organizationTitle}
 		</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
-		<ui:fragment rendered="#{adminEditBean.admin.id gt 0}">
+		<ui:fragment rendered="#{userEditBean.user.id gt 0}">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation" class="active">
 					<a href="javascript:void(0);">Personal Info</a></li>
@@ -33,14 +33,14 @@
 					<h:link
 						outcome="/admin/userEditPassword">
 						<f:param name="orgId" value="#{param.orgId}" />
-						<f:param name="id" value="#{adminEditBean.id}" />
+						<f:param name="id" value="#{userEditBean.id}" />
 						Change Password
 					</h:link>
 				</li>
 			</ul>
 		</ui:fragment>
-		<ui:fragment rendered="#{adminEditBean.admin.id le 0}">
-			<org:organizationHeaderLinks orgId="#{adminEditBean.decodedOrgId}" />
+		<ui:fragment rendered="#{userEditBean.user.id le 0}">
+			<org:organizationHeaderLinks orgId="#{userEditBean.decodedOrgId}" />
 		</ui:fragment>
 	</ui:define>
 

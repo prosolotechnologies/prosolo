@@ -9,9 +9,9 @@
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="p" value="#{adminAdmins.paginationData.pageString}" default="1" />
-		<f:viewParam name="role" value="#{adminAdmins.roleId}" default="null" />
-		<f:viewAction action="#{adminAdmins.initAdmins()}" />
+		<f:viewParam name="p" value="#{usersBean.paginationData.pageString}" default="1" />
+		<f:viewParam name="role" value="#{usersBean.roleId}" default="null" />
+		<f:viewAction action="#{usersBean.initAdmins()}" />
 	</f:metadata>
 </ui:define>
 

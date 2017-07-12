@@ -1,13 +1,18 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
+import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
@@ -19,55 +24,98 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@ManagedBean(name = "adminUsers")
-@Component("adminUsers")
-@Scope("view")
-public class UsersBean implements Serializable, Paginable {
+/**
+ * @author Bojan
+ *
+ * May 24, 2017
+ */
 
-	private static final long serialVersionUID = 138952619791500473L;
+@ManagedBean(name = "usersBean")
+@Component("usersBean")
+@Scope("view")
+public class UsersBean implements Serializable,Paginable{
+
+	private static final long serialVersionUID = -941411747259924715L;
 
 	protected static Logger logger = Logger.getLogger(UsersBean.class);
 
-	@Inject private UserTextSearch userTextSearch;
+	@Inject
+	private UserTextSearch textSearch;
+	@Inject
+	private UrlIdEncoder idEncoder;
+	@Inject
+	private AuthenticationService authService;
+	@Inject
+	private LoggedUserBean loggedUserBean;
+	@Inject
+	private RoleManager roleManager;
+	@Inject
+	private UserManager userManager;
+	@Inject
+	private OrganizationManager orgManager;
 
-	@Inject private UrlIdEncoder idEncoder;
-	@Inject private AuthenticationService authService;
-	@Inject private LoggedUserBean loggedUserBean;
-	
+	private String orgId;
+	private long decodedOrgId;
+	private String orgTitle;
+
 	private String roleId;
-	
-	private List<UserData> users;	
-	private UserData userToDelete;
-
-	// used for search
+	private List<UserData> users;
+	String[] rolesArray;
+	List<Role> roles;
 	private String searchTerm = "";
 	
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 	
 	private PaginationData paginationData = new PaginationData();
+	
 
-	public void init() {
-		logger.debug("initializing");
+	public void initAdmins(){
+		logger.info("initializing users");
+		long filterId = getFilterId();
+		rolesArray = new String[]{"Admin","Super Admin"};
+		roles = roleManager.getRolesByNames(rolesArray);
+		filter = new RoleFilter(filterId,"All", 0);
+		loadUsers();
+	}
+
+	public void initOrgUsers() {
+		logger.info("initializing organization users");
+		decodedOrgId = idEncoder.decodeId(orgId);
+		if (decodedOrgId > 0) {
+			orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
+			if (orgTitle == null) {
+				PageUtil.notFound();
+			} else {
+				long filterId = getFilterId();
+				filter = new RoleFilter(filterId, "All", 0);
+				loadUsers();
+			}
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
+	private long getFilterId() {
 		long filterId = 0;
 		long decodedRoleId = idEncoder.decodeId(roleId);
-		if(decodedRoleId > 0) {
+		if(decodedRoleId > 0){
 			filterId = decodedRoleId;
 		}
-		filter = new RoleFilter(filterId, "All", 0);
-		loadUsers();
+		return filterId;
 	}
 	
-	public void resetAndSearch() {
+	public void resetAndSearch(){
 		this.paginationData.setPage(1);
-		loadUsers();
+		searchUsers();
 	}
-
-	public void applySearchFilter(RoleFilter filter) {
+	
+	public void applySearchFilter(RoleFilter filter){
 		this.filter = filter;
 		paginationData.setPage(1);
-		loadUsers();
+		searchUsers();
 	}
+
 
 	@Override
 	public void changePage(int page) {
@@ -76,44 +124,51 @@ public class UsersBean implements Serializable, Paginable {
 			loadUsers();
 		}
 	}
-	
+
 	@Override
 	public PaginationData getPaginationData() {
-		return paginationData;
+		return this.paginationData;
 	}
+
 
 	@SuppressWarnings("unchecked")
-	public void loadUsers() {
-//		this.users = new ArrayList<UserData>();
-//		try {
-//			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
-//					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
-//					true, null);
-//			users = res.getFoundNodes();
-//			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
-//			filters = roleFilters != null ? roleFilters : new ArrayList<>();
-//			RoleFilter roleFilter = (RoleFilter) res.getAdditionalInfo().get("selectedFilter");
-//			filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
-//			this.paginationData.update((int) res.getHitsNumber());
-//		} catch(Exception e) {
-//			logger.error(e);
-//		}
+	private void searchUsers(){
+		try {
+			PaginatedResult<UserData> res = textSearch.getUsersWithRoles(
+					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true,
+					filter.getId(), roles, true, null, decodedOrgId);
+			users = res.getFoundNodes();
+			setFilters(res);
+		} catch (Exception e) {
+			logger.error(e);
+		}
 	}
 
+	private void loadUsers() {
+		try{
+			PaginatedResult<UserData> res = userManager.getUsersWithRoles(paginationData.getPage() - 1,
+					paginationData.getLimit(), filter.getId(), roles, decodedOrgId);
+			users = res.getFoundNodes();
+			setFilters(res);
+		} catch (Exception e){
+			logger.error("Error", e);
+		}
+	}
+
+	private void setFilters(PaginatedResult<UserData> res){
+		List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");
+		filters = roleFilters != null ? roleFilters : new ArrayList<>();
+		RoleFilter roleFilter = (RoleFilter)  res.getAdditionalInfo().get("selectedFilter");
+		filter = roleFilter != null ? roleFilter : new RoleFilter(0, "All", 0);
+		this.paginationData.update((int) res.getHitsNumber());
+	}
+	
 	/*
 	 * GETTERS / SETTERS
 	 */
 
 	public List<UserData> getUsers() {
 		return this.users;
-	}
-
-	public UserData getUserToDelete() {
-		return userToDelete;
-	}
-
-	public void setUserToDelete(UserData userToDelete) {
-		this.userToDelete = userToDelete;
 	}
 
 	public String getSearchTerm() {
@@ -148,4 +203,27 @@ public class UsersBean implements Serializable, Paginable {
 		this.filters = filters;
 	}
 
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
+	public void setDecodedOrgId(long decodedOrgId) {
+		this.decodedOrgId = decodedOrgId;
+	}
+
+	public String getOrgTitle() {
+		return orgTitle;
+	}
+
+	public void setOrgTitle(String orgTitle) {
+		this.orgTitle = orgTitle;
+	}
 }
