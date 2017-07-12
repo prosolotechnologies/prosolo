@@ -44,11 +44,11 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <a class="btn btn-green btn-sm item" data-toggle="modal"
-                                       onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
-                                       $('#newUnitModal').modal('show');">
-                            New Unit
-                        </a>
+                        <p:commandLink  styleClass="btn btn-green btn-sm item" data-toggle="modal" value="New Unit"
+                                        oncomplete="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
+                                        $('#newUnitModal').modal('show');"
+                                        update="newUnitModal:formNewUnitModal">
+                        </p:commandLink>
                     </div>
                 </div>
             </div>
