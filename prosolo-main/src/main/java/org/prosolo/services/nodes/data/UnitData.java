@@ -34,7 +34,13 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this();
         this.id = unit.getId();
         this.title = unit.getTitle();
-        this.parentUnit = null;
+    }
+
+    public UnitData(Unit unit,UnitData parentUnit){
+        this();
+        this.id = unit.getId();
+        this.title = unit.getTitle();
+        this.parentUnit = parentUnit;
     }
 
     public void addChildren(List<UnitData> children){

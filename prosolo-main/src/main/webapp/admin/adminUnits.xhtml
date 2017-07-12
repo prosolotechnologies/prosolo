@@ -60,6 +60,7 @@
                     <div class="col-md-12">
                         <ul class="whiteBox adminUnitsList">
                             <ui:repeat value="#{unitEditBean.units}" var="unit">
+                                <ui:fragment rendered="#{unit.parentUnit eq null}">
                                 <li>
                                     <div class="liContent">
                                         <div class="adminUnitsListLeft">
@@ -71,7 +72,13 @@
                                             </h2>
                                         </div>
                                         <div class="adminUnitsListRight">
-                                            <a href="#" class="btn btn-sm btn-green-stroke" data-toggle="modal" data-target="#newSubUnitModal">Add Sub-Unit</a>
+                                            <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Sub-Unit"
+                                                            action="#{unitEditBean.setParentUnit(unit.id)}"
+                                                            oncomplete="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
+                                                            $('#newUnitModal').modal('show');"
+                                                            update="newUnitModal:formNewUnitModal">
+                                                <f:param name="id" value="#{util:encodeId(unit.id)}"></f:param>
+                                            </p:commandLink>
                                             <a href="admin-organizations-unit-edit.html">Edit</a>
                                             <div class="dropdown optMoreMenu">
                                                 <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
@@ -82,6 +89,7 @@
                                         </div>
                                     </div>
                                 </li>
+                                </ui:fragment>
                             </ui:repeat>
                         </ul>
                     </div>

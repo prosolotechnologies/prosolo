@@ -72,17 +72,22 @@ public class UnitEditBean implements Serializable {
         }
     }
 
+    public void setParentUnit(long unitId){
+        UnitData parentUnit = unitManager.getUnitDataById(unitId);
+        this.unit.setParentUnit(parentUnit);
+    }
+
     public void createNewUnit(){
         try{
             LearningContextData lcd = PageUtil.extractLearningContextData();
 
             UnitData unit = unitManager.createNewUnit(this.unit.getTitle(),this.organizationData.getId(),
-                    loggedUser.getUserId(),lcd);
+                    this.unit.getParentUnit(), loggedUser.getUserId(),lcd);
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
-
             PageUtil.fireSuccessfulInfoMessage("New unit is created");
             this.units.add(unit);
+            this.unit.setParentUnit(null);
             Collections.sort(this.units);
         } catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
@@ -99,7 +104,7 @@ public class UnitEditBean implements Serializable {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save unit data");
         }
-    }
+     }
 
 
     private void updateUnit(){
