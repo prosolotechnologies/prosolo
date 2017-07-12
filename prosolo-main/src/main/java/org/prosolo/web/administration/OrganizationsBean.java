@@ -46,7 +46,7 @@ public class OrganizationsBean implements Serializable,Paginable {
         this.organizations = new ArrayList<>();
         try{
             PaginatedResult<OrganizationData> res = organizationManager.getAllOrganizations(paginationData.getPage() - 1,
-                    paginationData.getLimit());
+                    paginationData.getLimit(), true);
             organizations = res.getFoundNodes();
             this.paginationData.update((int) res.getHitsNumber());
         }catch (Exception e){

@@ -161,7 +161,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit) {
+    @Transactional(readOnly = true)
+    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins) {
         PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
         String query =
@@ -169,21 +170,30 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 "FROM Organization organization " +
                 "WHERE organization.deleted IS FALSE ";
 
-        List<Organization> organizations = persistence.currentManager().createQuery(query)
-                .setFirstResult(page*limit)
-                .setMaxResults(limit)
-                .list();
+        Query q = persistence.currentManager().createQuery(query);
+        if (page >= 0 && limit > 0) {
+            q.setFirstResult(page * limit);
+            q.setMaxResults(limit);
+        }
 
-        for(Organization o : organizations){
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+        List<Organization> organizations = q.list();
 
-            List<User> chosenAdmins = getOrganizationUsers(o.getId(),false,persistence.currentManager(),adminRoles);
-            List<UserData> listToPass = new ArrayList<>();
-            for(User u : chosenAdmins){
-                listToPass.add(new UserData(u));
+        for(Organization o : organizations) {
+            OrganizationData od;
+            if (loadAdmins) {
+                String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+                List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
+                List<UserData> listToPass = new ArrayList<>();
+                for (User u : chosenAdmins) {
+                    listToPass.add(new UserData(u));
+                }
+                od = new OrganizationData(o, listToPass);
+            } else {
+                od = new OrganizationData(o);
             }
-            OrganizationData od = new OrganizationData(o,listToPass);
+
             response.addFoundNode(od);
         }
         response.setHitsNumber(getOrganizationsCount());

@@ -9,9 +9,11 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.OrganizationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,7 @@ public class BulkDataAdministration implements Serializable {
 	@Inject private CompetenceESService compESService;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private UserGroupESService userGroupESService;
+	@Inject private OrganizationManager orgManager;
 
 	private static Logger logger = Logger.getLogger(AfterContextLoader.class.getName());
 
@@ -69,6 +72,13 @@ public class BulkDataAdministration implements Serializable {
 				try {
 					logger.info("Delete and reindex users started");
 					deleteAndInitIndex(ESIndexNames.INDEX_USERS);
+
+					List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+							.getFoundNodes();
+					for (OrganizationData o : organizations) {
+						deleteAndInitIndex(ESIndexNames.INDEX_USERS
+								+ ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+					}
 					indexUsers();
 					logger.info("Delete and reindex users finished");
 				} catch (IndexingServiceNotAvailable e) {
