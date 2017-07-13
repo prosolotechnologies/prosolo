@@ -19,13 +19,13 @@ import java.util.List;
  */
 public interface UnitManager extends AbstractManager{
 
-    UnitData createNewUnit(String title,long organizationId,UnitData parentUnit, long creatorId, LearningContextData contextData)
+    UnitData createNewUnit(String title,long organizationId,long parentUnitId, long creatorId, LearningContextData contextData)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Unit> createNewUnitAndGetEvents(String title,long organizationId,UnitData parentUnit, long creatorId,
+    Result<Unit> createNewUnitAndGetEvents(String title,long organizationId,long parentUnitId, long creatorId,
                                            LearningContextData contextData) throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
 
     List<UnitData> getUnitsWithSubUnits(long organizationId);
 
-    UnitData getUnitDataById(long unitId) throws DbConnectionException;
+    UnitData getUnitData(long unitId) throws DbConnectionException;
 }

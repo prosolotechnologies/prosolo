@@ -58,6 +58,13 @@
             <div class="row">
                 <h:form id="formUnits">
                     <div class="col-md-12">
+                        <ui:fragment rendered="#{empty unitEditBean.units}">
+                            <div class="noContentMessage">
+                                <p>
+                                    No units.
+                                </p>
+                            </div>
+                        </ui:fragment>
                         <ul class="whiteBox adminUnitsList">
                             <ui:repeat value="#{unitEditBean.units}" var="unit">
                                 <li>
@@ -71,9 +78,9 @@
                                             </h2>
                                         </div>
                                         <div class="adminUnitsListRight">
-                                            <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Sub-Unit"
+                                            <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
                                                             action="#{unitEditBean.setParentUnit(unit.id)}"
-                                                            oncomplete="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
+                                                            onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
                                                             $('#newUnitModal').modal('show');"
                                                             update="newUnitModal:formNewUnitModal">
                                             </p:commandLink>
@@ -99,9 +106,9 @@
                                                         </h3>
                                                     </div>
                                                     <div class="adminUnitsListRight">
-                                                        <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Sub-Unit"
+                                                        <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
                                                                         action="#{unitEditBean.setParentUnit(child.id)}"
-                                                                        oncomplete="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
+                                                                        onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
                                                                         $('#newUnitModal').modal('show');"
                                                                         update="newUnitModal:formNewUnitModal">
                                                         </p:commandLink>
@@ -158,10 +165,10 @@
                 <div class="modal-content">
                     <div class="modal-header alignLeft">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title">Add New Sub-Unit</h2>
+                        <h2 class="modal-title">Add New Subunit</h2>
                     </div>
                     <div class="modal-body alignLeft">
-                        <input type="text" placeholder="Sub-Unit Name"/>
+                        <input type="text" placeholder="Subunit Name"/>
                     </div>
                     <div class="modal-footer alignLeft">
                         <a href="#" class="btn btn-green">Add</a>

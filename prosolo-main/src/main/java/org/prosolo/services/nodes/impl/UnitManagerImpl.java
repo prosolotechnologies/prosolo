@@ -49,19 +49,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     private RoleManager roleManager;
 
     @Override
-    public UnitData createNewUnit(String title, long organizationId,UnitData parentUnit, long creatorId, LearningContextData contextData)
+    public UnitData createNewUnit(String title, long organizationId,long parentUnitId, long creatorId, LearningContextData contextData)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
 
-        Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnit, creatorId, contextData);
+        Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnitId, creatorId, contextData);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
-        return new UnitData(res.getResult(),parentUnit);
+        return new UnitData(res.getResult(),parentUnitId);
     }
 
     @Override
     @Transactional
-    public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, UnitData parentUnit, long creatorId,
+    public Result<Unit> createNewUnitAndGetEvents(String title, long organizationId, long parentUnitId, long creatorId,
                                                   LearningContextData contextData)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         try {
@@ -71,10 +71,10 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = new Unit();
             unit.setTitle(title);
             unit.setOrganization(organization);
-            if(parentUnit == null) {
+            if(parentUnitId == 0) {
                 unit.setParentUnit(null);
             }else{
-                unit.setParentUnit(getUnitById(parentUnit.getId()));
+                unit.setParentUnit(loadResource(Unit.class,parentUnitId));
             }
             saveEntity(unit);
 
@@ -147,7 +147,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public UnitData getUnitDataById(long unitId) throws DbConnectionException {
+    @Transactional(readOnly = true)
+    public UnitData getUnitData(long unitId) throws DbConnectionException {
         try {
             Unit unit = loadResource(Unit.class, unitId);
 
@@ -155,20 +156,6 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (ResourceCouldNotBeLoadedException e) {
             throw new DbConnectionException("Error while loading unit");
         }
-    }
-
-    @Transactional(readOnly = true)
-    private Unit getUnitById(long unitId){
-        String query =
-                "SELECT unit " +
-                "FROM Unit unit " +
-                "WHERE unit.id = :unitId ";
-
-        Unit unit = (Unit) persistence.currentManager().createQuery(query)
-                .setParameter("unitId",unitId)
-                .uniqueResult();
-
-        return unit;
     }
 
 }

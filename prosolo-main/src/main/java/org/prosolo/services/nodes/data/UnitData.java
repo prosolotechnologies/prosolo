@@ -16,18 +16,18 @@ public class UnitData implements Serializable,Comparable<UnitData> {
 
     private long id;
     private String title;
-    private UnitData parentUnit;
+    private long parentUnitId;
     private List<UnitData> childrenUnits;
 
     public UnitData(){
         childrenUnits = new ArrayList<>();
     }
 
-    public UnitData(long id,String title, UnitData parentUnit) {
+    public UnitData(long id,String title, long parentUnitId) {
         this();
         this.id = id;
         this.title = title;
-        this.parentUnit = parentUnit;
+        this.parentUnitId = parentUnitId;
     }
 
     public UnitData(Unit unit){
@@ -36,14 +36,12 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.title = unit.getTitle();
     }
 
-    public UnitData(Unit unit,UnitData parentUnit){
+    public UnitData(Unit unit,long parentUnitId){
         this();
         this.id = unit.getId();
         this.title = unit.getTitle();
-        this.parentUnit = parentUnit;
+        this.parentUnitId = parentUnitId;
     }
-
-    public void setChild(UnitData child) { childrenUnits.add(child); }
 
     public void addChildren(List<UnitData> children){
         childrenUnits.addAll(children);
@@ -65,12 +63,12 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.id = id;
     }
 
-    public UnitData getParentUnit() {
-        return parentUnit;
+    public long getParentUnitId() {
+        return parentUnitId;
     }
 
-    public void setParentUnit(UnitData parentUnit) {
-        this.parentUnit = parentUnit;
+    public void setParentUnitId(long parentUnitId) {
+        this.parentUnitId = parentUnitId;
     }
 
     public String getTitle() {
