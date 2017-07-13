@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.bigdata.session.impl.LearningEventsMatchSummary.DailyHits;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 import com.google.gson.JsonObject;
 
@@ -77,7 +77,7 @@ public class LearningEventsCalculator {
 		 * date in every matcher, only to access same fields with same values) */
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(event.getTimestamp());
-		eventCounters.stream().forEach((counter) -> counter.processEvent(event, DateUtil.getDaysSinceEpoch(event.getTimestamp())));
+		eventCounters.stream().forEach((counter) -> counter.processEvent(event, DateEpochUtil.getDaysSinceEpoch(event.getTimestamp())));
 	}
 	
 }
