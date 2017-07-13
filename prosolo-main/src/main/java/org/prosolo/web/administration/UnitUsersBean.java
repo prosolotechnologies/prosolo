@@ -96,5 +96,13 @@ public class UnitUsersBean implements Serializable {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
+	public long getDecodedId() {
+		return decodedId;
+	}
 }
 
