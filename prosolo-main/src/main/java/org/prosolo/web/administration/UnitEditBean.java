@@ -86,8 +86,12 @@ public class UnitEditBean implements Serializable {
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
             PageUtil.fireSuccessfulInfoMessage("New unit is created");
-            this.units.add(unit);
+
+            if(unit.getParentUnit() == null) {
+                this.units.add(unit);
+            }
             this.unit.setParentUnit(null);
+            loadUnits();
             Collections.sort(this.units);
         } catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);

@@ -93,6 +93,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Transactional
     private List<Unit> getOrganizationUnits(long organizationId) {
 
         String query =

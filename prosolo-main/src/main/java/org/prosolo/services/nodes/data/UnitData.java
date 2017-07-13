@@ -43,6 +43,8 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.parentUnit = parentUnit;
     }
 
+    public void setChild(UnitData child) { childrenUnits.add(child); }
+
     public void addChildren(List<UnitData> children){
         childrenUnits.addAll(children);
     }
