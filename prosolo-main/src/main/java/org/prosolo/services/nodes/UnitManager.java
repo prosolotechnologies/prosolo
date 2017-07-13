@@ -4,11 +4,13 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.UnitData;
+import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -27,4 +29,17 @@ public interface UnitManager extends AbstractManager{
                                            LearningContextData contextData) throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
 
     List<UnitData> getUnitsWithSubUnits(long organizationId);
+
+    UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
+                               LearningContextData context) throws DbConnectionException, EventException;
+
+    Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
+                                                                 LearningContextData context) throws DbConnectionException;
+
+    void removeUserFromUnitWithRole(UnitRoleMembershipData unitRoleMembership, long actorId,
+                                    LearningContextData context) throws DbConnectionException, EventException;
+
+    Result<Void> removeUserFromUnitWithRoleAndGetEvents(UnitRoleMembershipData unitRoleMembership,
+                                                        long actorId, LearningContextData context)
+            throws DbConnectionException;
 }

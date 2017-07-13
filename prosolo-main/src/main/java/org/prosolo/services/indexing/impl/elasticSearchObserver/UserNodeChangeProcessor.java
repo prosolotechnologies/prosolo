@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.event.ChangeProgressEvent;
 import org.prosolo.services.event.Event;
@@ -45,7 +46,17 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
 
-		if (eventType == EventType.USER_ASSIGNED_TO_ORGANIZATION) {
+		if (eventType == EventType.ADD_USER_TO_UNIT) {
+			String roleIdStr = params.get("roleId");
+			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
+			userEntityESService.addUserToUnitWithRole(unit.getOrganization().getId(),
+					event.getObject().getId(), unit.getId(), Long.parseLong(roleIdStr));
+		} else if (eventType == EventType.REMOVE_USER_FROM_UNIT) {
+			String roleIdStr = params.get("roleId");
+			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
+			userEntityESService.removeUserFromUnitWithRole(unit.getOrganization().getId(),
+					event.getObject().getId(), unit.getId(), Long.parseLong(roleIdStr));
+		} else if (eventType == EventType.USER_ASSIGNED_TO_ORGANIZATION) {
 			userEntityESService.addUserToOrganization(
 					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId(), session);
 		} else if (eventType == EventType.USER_REMOVED_FROM_ORGANIZATION) {

@@ -252,6 +252,9 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		for(Role role : user.getRoles()) {
 			builder.startObject();
 			builder.field("id", role.getId());
+			builder.startArray("units");
+
+			builder.endArray();
 			builder.endObject();
 		}
 		builder.endArray();
@@ -453,6 +456,65 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, userId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addUserToUnitWithRole(long organizationId, long userId, long unitId, long roleId) {
+		try {
+			String script = "ctx._source.roles.findAll {it.id == roleId } " +
+					".each {" +
+						"if (it.units == null) { " +
+							"it.units = unit " +
+						"} else { " +
+							"it.units += unit " +
+						"}" +
+					" }";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("roleId", roleId);
+			Map<String, Object> unitParam = new HashMap<>();
+			unitParam.put("id", unitId);
+			params.put("unit", unitParam);
+			partialUpdateByScript(
+					ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ESIndexTypes.ORGANIZATION_USER,
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void removeUserFromUnitWithRole(long organizationId, long userId, long unitId, long roleId) {
+		try {
+			String script = "for (role in ctx._source.roles) { "
+								+ "if (role.id == roleId) { "
+									+ "unitToRemove = null; "
+									+ "for (unit in role.units) { "
+										+ "if (unit.id == unitId) { "
+											+ "unitToRemove = unit; "
+											+ "break; "
+										+ "} "
+									+ "}; "
+									+ "if (unitToRemove != null) { "
+										+ "role.units.remove(unitToRemove); "
+									+ "}; "
+									+ "break;"
+								+ "}"
+					      + "}";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("roleId", roleId);
+			params.put("unitId", unitId);
+			partialUpdateByScript(
+					ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ESIndexTypes.ORGANIZATION_USER,
+					userId+"", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

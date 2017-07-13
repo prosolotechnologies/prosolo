@@ -65,6 +65,8 @@ public class NodeChangeProcessorFactory {
 			case STATUS_CHANGED:
 			case USER_ASSIGNED_TO_ORGANIZATION:
 			case USER_REMOVED_FROM_ORGANIZATION:
+			case ADD_USER_TO_UNIT:
+			case REMOVE_USER_FROM_UNIT:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
 							credentialESService, competenceESService, EventUserRole.Object);

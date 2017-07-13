@@ -7,6 +7,8 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
@@ -18,6 +20,7 @@ import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UnitData;
+import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -142,5 +145,114 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return unitsToReturn;
     }
 
+    private List<UnitRoleMembershipData> getUnitUsersInRole(long organizationId, long unitId, long roleId,
+                                                           int offset, int limit) {
 
+        String query =
+                "SELECT urm " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN urm.unit unit " +
+                        "WITH unit.id = :unitId AND unit.organization.id = :orgId AND unit.deleted IS FALSE " +
+                "INNER JOIN fetch urm.user user " +
+                        "WITH user.deleted IS FALSE " +
+                "WHERE urm.role.id = :roleId " +
+                "ORDER BY user.name ASC, user.lastname ASC";
+
+        List<UnitRoleMembership> result = persistence.currentManager()
+                .createQuery(query)
+                .setLong("orgId", organizationId)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .setMaxResults(limit)
+                .setFirstResult(offset)
+                .list();
+
+        List<UnitRoleMembershipData> unitRoleMemberships = new ArrayList<>();
+        for (UnitRoleMembership urm : result) {
+            unitRoleMemberships.add(new UnitRoleMembershipData(
+                    urm.getId(), urm.getUnit().getId(), urm.getRole().getId(), urm.getUser()));
+        }
+
+        return unitRoleMemberships;
+    }
+
+    @Override
+    //nt
+    public UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
+                                      LearningContextData context) throws DbConnectionException, EventException {
+        Result<UnitRoleMembership> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, actorId, context);
+
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+
+        return res.getResult();
+    }
+
+    @Override
+    @Transactional
+    public Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
+                                                                        LearningContextData context) throws DbConnectionException {
+        try {
+            UnitRoleMembership urm = new UnitRoleMembership();
+            urm.setUser((User) persistence.currentManager().load(User.class, userId));
+            urm.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            urm.setRole((Role) persistence.currentManager().load(Role.class, roleId));
+
+            saveEntity(urm);
+
+            User user = new User(userId);
+            Unit unit = new Unit();
+            unit.setId(unitId);
+            Result<UnitRoleMembership> result = new Result<>();
+            Map<String, String> params = new HashMap<>();
+            params.put("roleId", roleId + "");
+            result.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_USER_TO_UNIT, actorId, user, unit, context, params));
+
+            result.setResult(urm);
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while adding user to unit");
+        }
+    }
+
+
+    @Override
+    //nt
+    public void removeUserFromUnitWithRole(UnitRoleMembershipData unitRoleMembership, long actorId,
+                                           LearningContextData context) throws DbConnectionException, EventException {
+        Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(unitRoleMembership, actorId, context);
+
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeUserFromUnitWithRoleAndGetEvents(UnitRoleMembershipData unitRoleMembership,
+                                                               long actorId, LearningContextData context)
+            throws DbConnectionException {
+        try {
+            UnitRoleMembership urmToDelete = (UnitRoleMembership) persistence.currentManager()
+                    .load(UnitRoleMembership.class, unitRoleMembership.getId());
+            delete(urmToDelete);
+
+            User user = new User(unitRoleMembership.getUser().getId());
+            Unit unit = new Unit();
+            unit.setId(unitRoleMembership.getUnitId());
+            Result<Void> result = new Result<>();
+            Map<String, String> params = new HashMap<>();
+            params.put("roleId", unitRoleMembership.getRoleId() + "");
+            result.addEvent(eventFactory.generateEventData(
+                    EventType.REMOVE_USER_FROM_UNIT, actorId, user, unit, context, params));
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing user from unit");
+        }
+    }
 }

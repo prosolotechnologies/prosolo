@@ -69,7 +69,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.USER_GROUP_CHANGE,
 			EventType.OWNER_CHANGE,
 			EventType.USER_REMOVED_FROM_ORGANIZATION,
-			EventType.USER_ASSIGNED_TO_ORGANIZATION
+			EventType.USER_ASSIGNED_TO_ORGANIZATION,
+			EventType.ADD_USER_TO_UNIT,
+			EventType.REMOVE_USER_FROM_UNIT
 		};
 	}
 
