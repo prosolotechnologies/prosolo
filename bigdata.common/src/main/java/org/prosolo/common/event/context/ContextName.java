@@ -74,7 +74,8 @@ public enum ContextName {
 	RESTORE_DIALOG(""),
 	START_DELIVERY(""),
 	ORGANIZATION("Organization"),
-    NEW_UNIT("");
+    NEW_UNIT(""),
+	UPDATE_UNIT("");
 	
     private String objectType; 
     
