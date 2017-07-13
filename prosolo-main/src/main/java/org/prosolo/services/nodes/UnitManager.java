@@ -28,4 +28,10 @@ public interface UnitManager extends AbstractManager{
     List<UnitData> getUnitsWithSubUnits(long organizationId);
 
     UnitData getUnitDataById(long unitId) throws DbConnectionException;
+
+    Unit updateUnit(long unitId,String title, long creatorId,LearningContextData contextData) throws
+            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
+
+    Result<Unit> updateUnitAndGetEvents(long unitId,String title, long creatorId,LearningContextData contextData) throws
+            DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 }

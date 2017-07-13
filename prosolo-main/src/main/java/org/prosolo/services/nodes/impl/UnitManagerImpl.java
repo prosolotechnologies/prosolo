@@ -49,14 +49,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     private RoleManager roleManager;
 
     @Override
-    public UnitData createNewUnit(String title, long organizationId,UnitData parentUnit, long creatorId, LearningContextData contextData)
+    public UnitData createNewUnit(String title, long organizationId, UnitData parentUnit, long creatorId, LearningContextData contextData)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnit, creatorId, contextData);
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
-        return new UnitData(res.getResult(),parentUnit);
+        return new UnitData(res.getResult(), parentUnit);
     }
 
     @Override
@@ -71,9 +71,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = new Unit();
             unit.setTitle(title);
             unit.setOrganization(organization);
-            if(parentUnit == null) {
+            if (parentUnit == null) {
                 unit.setParentUnit(null);
-            }else{
+            } else {
                 unit.setParentUnit(getUnitById(parentUnit.getId()));
             }
             saveEntity(unit);
@@ -98,10 +98,10 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
         String query =
                 "SELECT unit " +
-                        "FROM Unit unit " +
-                        "WHERE unit.deleted IS FALSE " +
-                        "AND unit.organization.id = :organizationId " +
-                        "ORDER BY unit.title ASC ";
+                "FROM Unit unit " +
+                "WHERE unit.deleted IS FALSE " +
+                "AND unit.organization.id = :organizationId " +
+                "ORDER BY unit.title ASC ";
 
         List<Unit> result = persistence.currentManager()
                 .createQuery(query)
@@ -157,15 +157,52 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    public Unit updateUnit(long unitId, String title, long creatorId, LearningContextData contextData)
+            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+
+        Result<Unit> res = self.updateUnitAndGetEvents(unitId, title, creatorId, contextData);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+        return res.getResult();
+    }
+
+    @Override
+    public Result<Unit> updateUnitAndGetEvents(long unitId, String title, long creatorId, LearningContextData contextData)
+            throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
+        try {
+            Result<Unit> res = new Result<>();
+
+            Unit unit = loadResource(Unit.class, unitId);
+            unit.setTitle(title);
+
+            saveEntity(unit);
+
+            res.addEvent(eventFactory.generateEventData(EventType.Edit, creatorId, unit, null, contextData, null));
+            res.setResult(unit);
+
+            return res;
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+            throw new DbConnectionException("Error while saving organization unit");
+        }
+    }
+
     @Transactional(readOnly = true)
-    private Unit getUnitById(long unitId){
+    private Unit getUnitById(long unitId) {
         String query =
                 "SELECT unit " +
                 "FROM Unit unit " +
                 "WHERE unit.id = :unitId ";
 
         Unit unit = (Unit) persistence.currentManager().createQuery(query)
-                .setParameter("unitId",unitId)
+                .setParameter("unitId", unitId)
                 .uniqueResult();
 
         return unit;
