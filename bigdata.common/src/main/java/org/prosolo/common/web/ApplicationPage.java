@@ -74,7 +74,11 @@ public enum ApplicationPage {
 	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
 	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
 	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-visibility.xhtml"),
-	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml");
+	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
+	ADMIN_ORGANIZATION_USER_EDIT("/admin/orgUserEdit.xhtml"),
+	ADMIN_UNIT_TEACHERS("/admin/unit-teachers.xhtml"),
+	ADMIN_UNIT_STUDENTS("/admin/unit-students.xhtml"),
+	ADMIN_UNIT_INSTRUCTORS("/admin/unit-instructors.xhtml");
 	
     private String uri; 
     

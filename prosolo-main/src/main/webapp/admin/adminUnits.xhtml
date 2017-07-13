@@ -62,7 +62,11 @@
                                         </div>
                                         <div class="adminUnitsListRight">
                                             <a href="#" class="btn btn-sm btn-green-stroke" data-toggle="modal" data-target="#newSubUnitModal">Add Sub-Unit</a>
-                                            <a href="admin-organizations-unit-edit.html">Edit</a>
+                                            <h:link outcome="/admin/unit-teachers">
+                                                <f:param name="orgId" value="#{param.id}"/>
+                                                <f:param name="id" value="#{util:encodeId(unit.id)}" />
+                                                Edit
+                                            </h:link>
                                             <div class="dropdown optMoreMenu">
                                                 <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                                 <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
