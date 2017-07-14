@@ -70,7 +70,7 @@
 									<div class="liContent">
 										<div class="adminUnitsListLeft">
 											<h2>
-												<h:link outcome="/admin/adminOrganizationNew">
+												<h:link outcome="/admin/adminUnitEdit">
 													#{unit.title}
 													<f:param name="id" value="#{util:encodeId(unit.id)}"></f:param>
 												</h:link>
@@ -82,7 +82,7 @@
 															oncomplete="$('#newUnitModal').modal('show');"
 															update="newUnitModal:formNewUnitModal">
 											</p:commandLink>
-											<h:link outcome="/admin/adminOrganizationNew">
+											<h:link outcome="/admin/adminUnitEdit">
 												Edit
 												<f:param name="id" value="#{util:encodeId(unit.id)}"></f:param>
 											</h:link>
@@ -100,7 +100,7 @@
 												<div class="liContent">
 													<div class="adminUnitsListLeft">
 														<h3>
-															<h:link outcome="/admin/adminOrganizationNew">
+															<h:link outcome="/admin/adminUnitEdit">
 																#{child.title}
 																<f:param name="id" value="#{util:encodeId(child.id)}"></f:param>
 															</h:link>
@@ -112,7 +112,7 @@
 																		oncomplete="$('#newUnitModal').modal('show');"
 																		update="newUnitModal:formNewUnitModal">
 														</p:commandLink>
-														<h:link outcome="/admin/adminOrganizationNew">
+														<h:link outcome="/admin/adminUnitEdit">
 															Edit
 															<f:param name="id" value="#{util:encodeId(child.id)}"></f:param>
 														</h:link>
@@ -129,13 +129,13 @@
 														<li>
 															<div class="liContent">
 																<div class="adminUnitsListLeft">
-																	<h:link outcome="/admin/adminOrganizationNew">
+																	<h:link outcome="/admin/adminUnitEdit">
 																		#{child2.title}
 																		<f:param name="id" value="#{util:encodeId(child2.id)}"></f:param>
 																	</h:link>
 																</div>
 																<div class="adminUnitsListRight">
-																	<h:link outcome="/admin/adminOrganizationNew">
+																	<h:link outcome="/admin/adminUnitEdit">
 																		Edit
 																		<f:param name="id" value="#{util:encodeId(child2.id)}"></f:param>
 																	</h:link>
