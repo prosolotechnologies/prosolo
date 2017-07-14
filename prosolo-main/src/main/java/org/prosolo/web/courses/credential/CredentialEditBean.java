@@ -30,10 +30,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -203,13 +201,8 @@ public class CredentialEditBean implements Serializable {
 	
 	public void saveAndNavigateToCreateCompetence() {
 		boolean saved = saveCredentialData(false);
-		if(saved) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + "/manage/competences/new?credId=" + id);
-			} catch (IOException e) {
-				logger.error(e);
-			}
+		if (saved) {
+			PageUtil.redirect("/manage/competences/new?credId=" + id);
 		}
 	}
 
@@ -220,10 +213,8 @@ public class CredentialEditBean implements Serializable {
 		//redirect to credential edit page if credential is saved for the first time
 		if (saved && isCreateUseCase) {
 			PageUtil.keepFiredMessagesAcrossPages();
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			//when competence is saved for the first time redirect to edit page
-			PageUtil.redirect(extContext.getRequestContextPath() +
-					"/manage/credentials/" + id + "/edit");
+			PageUtil.redirect("/manage/credentials/" + id + "/edit");
 		}
 	}
 	
@@ -330,9 +321,8 @@ public class CredentialEditBean implements Serializable {
 			if(credentialData.getId() > 0 && isDelivery()) {
 				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserId());
 				credentialData = new CredentialData(false);
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted"); 
-				PageUtil.redirect(extContext.getRequestContextPath() + "/manage/library");
+				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted");
+				PageUtil.redirect("/manage/library");
 			}
 		} catch (StaleDataException sde) {
 			logger.error(sde);
