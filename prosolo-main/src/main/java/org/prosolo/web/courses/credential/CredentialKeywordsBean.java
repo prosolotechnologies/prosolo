@@ -241,7 +241,7 @@ public class CredentialKeywordsBean {
 			filteredCompetences.clear();
 			for (CompetenceData1 comp : getCompetences()) {
 				if (selectedKeywords.stream()
-						.anyMatch(tag -> comp.getTags()
+						.allMatch(tag -> comp.getTags()
 										 .stream()
 										 .anyMatch(t -> t.getTitle().equals(tag)))) {
 					filteredCompetences.add(comp);
@@ -257,7 +257,7 @@ public class CredentialKeywordsBean {
 			filteredActivities.clear();
 			for (ActivityData act : activities) {
 				if (selectedKeywords.stream()
-						.anyMatch(tag -> act.getTags()
+						.allMatch(tag -> act.getTags()
 								         .stream()
 								         .anyMatch(t -> t.getTitle().equals(tag)))) {
 					filteredActivities.add(act);
