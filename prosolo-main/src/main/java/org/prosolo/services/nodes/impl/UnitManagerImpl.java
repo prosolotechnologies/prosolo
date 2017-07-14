@@ -174,11 +174,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException {
         try {
             Result<Unit> res = new Result<>();
+            Unit unit = new Unit();
+            unit.setId(unitId);
 
-            Unit unit = loadResource(Unit.class, unitId);
-            unit.setTitle(title);
+            String query =
+                    "UPDATE Unit unit " +
+                    "SET unit.title = :title " +
+                    "WHERE unit.id = :unitId ";
 
-            saveEntity(unit);
+            persistence.currentManager()
+                    .createQuery(query)
+                    .setString("title",title)
+                    .setParameter("unitId",unitId)
+                    .executeUpdate();
 
             res.addEvent(eventFactory.generateEventData(EventType.Edit, creatorId, unit, null, contextData, null));
             res.setResult(unit);

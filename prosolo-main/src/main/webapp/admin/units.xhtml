@@ -11,19 +11,19 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{unitEditBean.organizationId}" />
-			<f:viewAction action="#{unitEditBean.init()}" />
+			<f:viewParam name="id" value="#{unitsBean.organizationId}" />
+			<f:viewAction action="#{unitsBean.init()}" />
 		</f:metadata>
 	</ui:define>
 
 	<ui:define name="navLinks">
-		<ui:fragment  rendered="#{not empty unitEditBean.organizationId}">
+		<ui:fragment  rendered="#{not empty unitsBean.organizationId}">
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"><h:link outcome="/admin/adminOrganizationNew">
-					<f:param name="id" value="#{unitEditBean.organizationId}" />Organization Details
+					<f:param name="id" value="#{unitsBean.organizationId}" />Organization Details
 				</h:link></li>
 				<li role="presentation" class="active"><h:link outcome="/admin/units">
-					<f:param name="id" value="#{unitEditBean.organizationId}" />Units
+					<f:param name="id" value="#{unitsBean.organizationId}" />Units
 				</h:link></li>
 				<li role="presentation"><a href="#">People</a></li>
 				<li role="presentation"><a href="#">Groups</a></li>
@@ -33,7 +33,7 @@
 
 	<ui:define name="resourceTitle">
 		<h1>
-			<h:outputText value="#{unitEditBean.organizationData.title}" />
+			<h:outputText value="#{unitsBean.organizationData.title}" />
 		</h1>
 	</ui:define>
 
@@ -57,7 +57,7 @@
 			<div class="row">
 				<h:form id="formUnits">
 					<div class="col-md-12">
-						<ui:fragment rendered="#{empty unitEditBean.units}">
+						<ui:fragment rendered="#{empty unitsBean.units}">
 							<div class="noContentMessage">
 								<p>
 									No units.
@@ -65,26 +65,28 @@
 							</div>
 						</ui:fragment>
 						<ul class="whiteBox adminUnitsList">
-							<ui:repeat value="#{unitEditBean.units}" var="unit">
+							<ui:repeat value="#{unitsBean.units}" var="unit">
 								<li>
 									<div class="liContent">
 										<div class="adminUnitsListLeft">
 											<h2>
 												<h:link outcome="/admin/adminUnitEdit">
 													#{unit.title}
-													<f:param name="id" value="#{util:encodeId(unit.id)}"></f:param>
+													<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+													<f:param name="unitId" value="#{util:encodeId(unit.id)}"></f:param>
 												</h:link>
 											</h2>
 										</div>
 										<div class="adminUnitsListRight">
 											<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
-															action="#{unitEditBean.setParentUnit(unit.id)}"
+															action="#{unitsBean.setParentUnit(unit.id)}"
 															oncomplete="$('#newUnitModal').modal('show');"
 															update="newUnitModal:formNewUnitModal">
 											</p:commandLink>
 											<h:link outcome="/admin/adminUnitEdit">
 												Edit
-												<f:param name="id" value="#{util:encodeId(unit.id)}"></f:param>
+												<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+												<f:param name="unitId" value="#{util:encodeId(unit.id)}"></f:param>
 											</h:link>
 											<div class="dropdown optMoreMenu">
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
@@ -102,19 +104,21 @@
 														<h3>
 															<h:link outcome="/admin/adminUnitEdit">
 																#{child.title}
-																<f:param name="id" value="#{util:encodeId(child.id)}"></f:param>
+																<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+																<f:param name="unitId" value="#{util:encodeId(child.id)}"></f:param>
 															</h:link>
 														</h3>
 													</div>
 													<div class="adminUnitsListRight">
 														<p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
-																		action="#{unitEditBean.setParentUnit(child.id)}"
+																		action="#{unitsBean.setParentUnit(child.id)}"
 																		oncomplete="$('#newUnitModal').modal('show');"
 																		update="newUnitModal:formNewUnitModal">
 														</p:commandLink>
 														<h:link outcome="/admin/adminUnitEdit">
 															Edit
-															<f:param name="id" value="#{util:encodeId(child.id)}"></f:param>
+															<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+															<f:param name="unitId" value="#{util:encodeId(child.id)}"></f:param>
 														</h:link>
 														<div class="dropdown optMoreMenu">
 															<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
@@ -131,13 +135,15 @@
 																<div class="adminUnitsListLeft">
 																	<h:link outcome="/admin/adminUnitEdit">
 																		#{child2.title}
-																		<f:param name="id" value="#{util:encodeId(child2.id)}"></f:param>
+																		<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+																		<f:param name="unitId" value="#{util:encodeId(child2.id)}"></f:param>
 																	</h:link>
 																</div>
 																<div class="adminUnitsListRight">
 																	<h:link outcome="/admin/adminUnitEdit">
 																		Edit
-																		<f:param name="id" value="#{util:encodeId(child2.id)}"></f:param>
+																		<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
+																		<f:param name="unitId" value="#{util:encodeId(child2.id)}"></f:param>
 																	</h:link>
 																	<div class="dropdown optMoreMenu">
 																		<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>

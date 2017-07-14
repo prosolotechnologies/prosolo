@@ -19,7 +19,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collections;
@@ -31,8 +30,8 @@ import java.util.List;
  * @since 0.7
  */
 
-@ManagedBean(name = "unitEditBean")
-@Component("unitEditBean")
+@ManagedBean(name = "unitsBean")
+@Component("unitsBean")
 @Scope("view")
 public class UnitsBean implements Serializable {
 
@@ -54,17 +53,11 @@ public class UnitsBean implements Serializable {
     private OrganizationData organizationData;
     private List<UnitData> units;
     private String id;
-    private long decodedId;
 
     public void init(){
         try{
-            decodedId = idEncoder.decodeId(id);
-            if(decodedId > 0){
-                this.unit = unitManager.getUnitData(decodedId);
-            }else {
-                this.unit = new UnitData();
-                this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
-            }
+            this.unit = new UnitData();
+            this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
             loadUnits();
         }catch (Exception e){
             logger.error(e);
@@ -115,32 +108,6 @@ public class UnitsBean implements Serializable {
             PageUtil.fireErrorMessage("Error while trying to save unit data");
         }
      }
-
-
-    public void updateUnit(){
-        try{
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
-            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(),loggedUser.getUserId(),lcd);
-
-            logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
-            PageUtil.fireSuccessfulInfoMessage("Unit is updated");
-
-        }catch (ConstraintViolationException | DataIntegrityViolationException e){
-            logger.error(e);
-            e.printStackTrace();
-
-            FacesContext context = FacesContext.getCurrentInstance();
-            UIInput input = (UIInput) context.getViewRoot().findComponent(
-                    "formMainEditUnit:inputTextUnitTitle");
-            input.setValid(false);
-            context.addMessage("formMainEditUnit:inputTextUnitTitle",
-                    new FacesMessage("Unit with this name already exists") );
-        }catch (Exception e){
-            logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to update unit data");
-        }
-    }
 
     public UnitData getUnit() {
         return unit;
