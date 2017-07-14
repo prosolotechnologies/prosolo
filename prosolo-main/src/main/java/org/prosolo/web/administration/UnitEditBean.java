@@ -60,7 +60,7 @@ public class UnitEditBean implements Serializable {
         try{
             decodedId = idEncoder.decodeId(id);
             if(decodedId > 0){
-                this.unit = unitManager.getUnitDataById(decodedId);
+                this.unit = unitManager.getUnitData(decodedId);
             }else {
                 this.unit = new UnitData();
                 this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
