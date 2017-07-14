@@ -5,7 +5,9 @@
 				xmlns:p="http://primefaces.org/ui"
 				template="templates/masterLayout2.xhtml"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:admin="http://java.sun.com/jsf/composite/components/admin">
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+				xmlns:admin="http://java.sun.com/jsf/composite/components/admin"
+				xmlns:course="http://java.sun.com/jsf/composite/components/courses">
 
 	<ui:define name="windowTitle" >Units</ui:define>
 
@@ -91,7 +93,14 @@
 											<div class="dropdown optMoreMenu">
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-													<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+													<li>
+														<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+																	   action="#{unitsBean.setUnitToDelete(unit)}"
+																	   oncomplete="$('#deleteModal').modal('show');">
+														Delete
+														</p:commandLink>
+													</li>
+
 												</ul>
 											</div>
 										</div>
@@ -171,42 +180,14 @@
 				id="newUnitModal"
 				toUpdate=":formUnits" />
 
-		<div class="modal fade newFeedModal" id="newSubUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header alignLeft">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-						<h2 class="modal-title">Add New Subunit</h2>
-					</div>
-					<div class="modal-body alignLeft">
-						<input type="text" placeholder="Subunit Name"/>
-					</div>
-					<div class="modal-footer alignLeft">
-						<a href="#" class="btn btn-green">Add</a>
-						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-					</div>
-				</div>
-			</div>
-		</div>
+		<course:deleteModalDialog
+				deleteActionMethodName=""
+				deleteAction="#{unitsBean.delete()}"
+				toUpdate=""
+				modalDeleteTitle="Unit"
+				modalDeleteText="unit"/>
 
-		<div class="modal fade" id="deleteUnit" tabindex="-1" role="dialog" aria-labelledby="deleteUni">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-						<h2 class="modal-title" id="deleteUni">Delete Unit?</h2>
-					</div>
-					<div class="modal-body">
-						<p>Are you sure you want to delete unit?<br/><br/>
-							<small>Note: Action can NOT be un-done!</small></p>
-					</div>
-					<div class="modal-footer">
-						<a href="#" class="btn btn-red">Delete</a>
-						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-					</div>
-				</div>
-			</div>
-		</div>
+
 	</ui:define>
 
 </ui:composition>

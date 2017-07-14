@@ -203,4 +203,33 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    public void delete(long unitId,List<UnitData> children) throws DbConnectionException, EventException {
+        try{
+            Unit unit = loadResource(Unit.class,unitId);
+
+
+
+            if(children != null){
+                for(UnitData ud : children){
+                    if(ud.getChildrenUnits() != null && !ud.getChildrenUnits().isEmpty()){
+                        for(UnitData ud1 : ud.getChildrenUnits()) {
+                            Unit u1 = loadResource(Unit.class,ud1.getId());
+                            u1.setDeleted(true);
+                            saveEntity(u1);
+                        }
+                    }
+                    Unit u1 = loadResource(Unit.class,ud.getId());
+                    u1.setDeleted(true);
+                    saveEntity(u1);
+                }
+            }
+
+            unit.setDeleted(true);
+            saveEntity(unit);
+        } catch (ResourceCouldNotBeLoadedException e) {
+            throw new DbConnectionException("Error while deleting unit");
+        }
+    }
+
 }

@@ -49,6 +49,7 @@ public class UnitsBean implements Serializable {
     private OrganizationDataFactory organizationDataFactory;
 
     private UnitData unit;
+    private UnitData unitToDelete;
     private String organizationId;
     private OrganizationData organizationData;
     private List<UnitData> units;
@@ -107,6 +108,24 @@ public class UnitsBean implements Serializable {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save unit data");
         }
+     }
+
+     public void setUnitToDelete(UnitData unitToDelete){
+        this.unitToDelete = unitToDelete;
+     }
+
+     public void delete(){
+         if(unitToDelete != null){
+             try {
+                 unitManager.delete(this.unitToDelete.getId(),this.unitToDelete.getChildrenUnits());
+
+                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
+
+             } catch (Exception ex) {
+                 logger.error(ex);
+                 PageUtil.fireErrorMessage("Error while trying to delete unit");
+             }
+         }
      }
 
     public UnitData getUnit() {

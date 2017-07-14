@@ -90,7 +90,4 @@ public class OrganizationsBean implements Serializable,Paginable {
         this.organizations = organizations;
     }
 
-    public OrganizationData getOrganizationToDelete() {
-        return organizationToDelete;
-    }
 }
