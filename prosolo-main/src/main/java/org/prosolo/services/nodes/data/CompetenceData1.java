@@ -1,10 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.annotation.Tag;
@@ -72,6 +69,7 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
 		credentialsWithIncludedCompetence = new ArrayList<>();
+		tags = new HashSet<>();
 		this.listenChanges = listenChanges;
 	}
 	

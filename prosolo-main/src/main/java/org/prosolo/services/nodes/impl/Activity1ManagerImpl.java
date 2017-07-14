@@ -3,6 +3,7 @@ package org.prosolo.services.nodes.impl;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -10,6 +11,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -58,38 +60,122 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentDataFactory commentDataFactory;
-	
+	@Inject private Activity1Manager self;
+	@Inject private TagManager tagManager;
+
 	@Override
-	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
+	//nt
+	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context)
 			throws DbConnectionException, EventException, IllegalDataStateException {
 		try {
-			Result<Activity1> res = resourceFactory.createActivity(data, userId);
-			
-			Activity1 act = res.getResult();
+			Result<Activity1> res = self.createActivity(data, userId, context);
 
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
 			for(EventData ev : res.getEvents()) {
-				ev.setPage(page);
-				ev.setContext(lContext);
-				ev.setService(service);
 				eventFactory.generateEvent(ev);
 			}
-			
-			User user = new User();
-			user.setId(userId);
-			eventFactory.generateEvent(EventType.Create, user.getId(), act, null, page, lContext,
-					service, null);
 
-			return act;
+			return res.getResult();
 		} catch (IllegalDataStateException idse) {
 			throw idse;
 		} catch (DbConnectionException dbe) {
 			logger.error(dbe);
 			dbe.printStackTrace();
 			throw dbe;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
+											long userId, LearningContextData context)
+			throws DbConnectionException, IllegalDataStateException {
+		try {
+			Result<Activity1> result = new Result<>();
+			Activity1 activity = activityFactory.getActivityFromActivityData(data);
+
+			if (data.getLinks() != null) {
+				Set<ResourceLink> activityLinks = new HashSet<>();
+
+				for (ResourceLinkData rl : data.getLinks()) {
+					ResourceLink link = new ResourceLink();
+					link.setLinkName(rl.getLinkName());
+					link.setUrl(rl.getUrl());
+					if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
+						link.setIdParameterName(rl.getIdParamName());
+					}
+					saveEntity(link);
+					activityLinks.add(link);
+				}
+				activity.setLinks(activityLinks);
+			}
+
+			Set<ResourceLink> activityFiles = new HashSet<>();
+
+			if (data.getFiles() != null) {
+				for (ResourceLinkData rl : data.getFiles()) {
+					ResourceLink link = new ResourceLink();
+					link.setLinkName(rl.getLinkName());
+					link.setUrl(rl.getUrl());
+					saveEntity(link);
+					activityFiles.add(link);
+				}
+				activity.setFiles(activityFiles);
+			}
+
+			if(data.getActivityType() == org.prosolo.services.nodes.data.ActivityType.VIDEO) {
+				Set<ResourceLink> captions = new HashSet<>();
+
+				if (data.getCaptions() != null) {
+					for (ResourceLinkData rl : data.getCaptions()) {
+						ResourceLink link = new ResourceLink();
+						link.setLinkName(rl.getLinkName());
+						link.setUrl(rl.getUrl());
+						saveEntity(link);
+						captions.add(link);
+					}
+					((UrlActivity1) activity).setCaptions(captions);
+				}
+			}
+
+			User creator = (User) persistence.currentManager().load(User.class, userId);
+			activity.setCreatedBy(creator);
+
+			//GradingOptions go = new GradingOptions();
+			//go.setMinGrade(0);
+			//go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+			//saveEntity(go);
+			//activity.setGradingOptions(go);
+			activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
+
+			activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
+			activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
+			activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
+
+			activity.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(data.getTagsString())));
+
+			saveEntity(activity);
+
+			if(data.getCompetenceId() > 0) {
+				EventData ev = compManager.addActivityToCompetence(data.getCompetenceId(),
+						activity, userId, context);
+				if (ev != null) {
+					result.addEvent(ev);
+				}
+			}
+
+			result.addEvent(eventFactory.generateEventData(
+					EventType.Create, userId, activity, null, context, null));
+
+			result.setResult(activity);
+			return result;
+		} catch(IllegalDataStateException idse) {
+			throw idse;
+		} catch(DbConnectionException dce) {
+			throw dce;
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while saving activity");
 		}
 	}
 
@@ -332,7 +418,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Transactional(readOnly = true)
 	@Override
 	public RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, ResourceAccessRequirements req) 
+			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException {
 		try {
 			if(req == null) {
@@ -340,14 +426,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			}
 			
 			CompetenceActivity1 res = getCompetenceActivity(credId, competenceId, activityId, 
-					loadLinks, true);
+					loadLinks, loadTags, true);
 
 			if(res == null) {
 				throw new ResourceNotFoundException();
 			}
-			
+
+			Set<ResourceLink> links = loadLinks ? res.getActivity().getLinks() : null;
+			Set<ResourceLink> files = loadLinks ? res.getActivity().getFiles() : null;
+			Set<Tag> tags = loadTags ? res.getActivity().getTags() : null;
 			ActivityData actData = activityFactory.getActivityData(
-					res, res.getActivity().getLinks(), res.getActivity().getFiles(), true);
+					res, links, files, tags, true);
 			//we need user privilege for competence on which activity is dependent
 			ResourceAccessData access = compManager.getResourceAccessData(competenceId, userId, req);
 			
@@ -396,7 +485,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
-			boolean loadLinks, boolean loadCompetence) {
+			boolean loadLinks, boolean loadTags, boolean loadCompetence) {
 		try {
 			checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
@@ -406,12 +495,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					   "FROM CompetenceActivity1 compAct " +
 					   "INNER JOIN fetch compAct.activity act ");
 			
-			if(loadLinks) {
+			if (loadLinks) {
 				queryB.append("LEFT JOIN fetch act.links link " +
 							  "LEFT JOIN fetch act.files file ");
 			}
+
+			if (loadTags) {
+				queryB.append("LEFT JOIN fetch act.tags ");
+			}
 			
-			if(loadCompetence) {
+			if (loadCompetence) {
 				queryB.append("INNER JOIN fetch compAct.competence comp ");
 			}
 			
@@ -542,6 +635,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			actToUpdate.setStudentCanEditResponse(data.isStudentCanEditResponse());
 			actToUpdate.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
 			actToUpdate.setDifficulty(data.getDifficulty());
+			if (data.isTagsStringChanged()) {
+				actToUpdate.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(
+						data.getTagsString())));
+			}
 			
 			//changes which are not allowed if competence is once published
 			if(!compOncePublished) {
@@ -692,7 +789,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		CompetenceData1 compData = null;
 		try {
 			RestrictedAccessResult<ActivityData> activityWithDetails = getActivityData(credId, compId, activityId, 
-					creatorId, true, req);
+					creatorId, true, true, req);
 			compData = new CompetenceData1(false);
 			compData.setActivityToShowWithDetails(activityWithDetails.getResource());
 			
@@ -863,7 +960,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		CompetenceData1 compData = null;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
-					true, isManager);
+					true, true, isManager);
 
 			if (activityWithDetails != null) {
 				compData = new CompetenceData1(false);
@@ -894,7 +991,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 */
 	@Transactional(readOnly = true)
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
-			boolean loadResourceLinks, boolean isManager) 
+			boolean loadResourceLinks, boolean loadTags, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {	
 			/*
@@ -908,9 +1005,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					   "INNER JOIN targetAct.targetCompetence targetComp " +
 					   		"WITH targetComp.competence.id = :compId " +
 					   		"AND targetComp.user.id = :userId ");
-			if(loadResourceLinks) {
+			if (loadResourceLinks) {
 				query.append("LEFT JOIN fetch act.links link " + 
 							 "LEFT JOIN fetch act.files files ");
+			}
+			if (loadTags) {
+				query.append("LEFT JOIN fetch act.tags tag ");
 			}
 			query.append("WHERE act.id = :actId");
 
@@ -924,8 +1024,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (res != null) {
 				Set<ResourceLink> links = loadResourceLinks ? res.getActivity().getLinks() : null;
 				Set<ResourceLink> files = loadResourceLinks ? res.getActivity().getFiles() : null;
-				ActivityData activity = activityFactory.getActivityData(res, links, 
-						files, true, 0, isManager);
+				Set<Tag> tags = loadTags ? res.getActivity().getTags() : null;
+				ActivityData activity = activityFactory.getActivityData(res, links,
+						files, tags, true, 0, isManager);
 				
 				return activity;
 			}
@@ -1049,7 +1150,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		CompetenceData1 compData = null;
 		try {			
 			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, 
-					userId, false, isManager);
+					userId, false, false, isManager);
 			
 			if (activityWithDetails != null) {
 				//if it is not allowed for students to see other students responses throw AccessDeniedException
@@ -1524,7 +1625,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				if ((hasUserPostedResponse && targetActivity.getActivity().isStudentCanSeeOtherResponses())
 						|| isUserAssessor) {
 					ActivityData activityData = activityFactory.getActivityData(targetActivity, null,
-							null, false, 0, false);
+							null, null, false, 0, false);
 
 					UserData ud = new UserData(user.getId(), user.getFullName(),
 							AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120), user.getPosition(), user.getEmail(), true);

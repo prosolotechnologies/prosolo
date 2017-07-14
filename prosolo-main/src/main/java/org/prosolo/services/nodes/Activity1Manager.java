@@ -21,6 +21,10 @@ public interface Activity1Manager extends AbstractManager {
 	
 	Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context) 
 			throws DbConnectionException, EventException, IllegalDataStateException;
+
+	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
+									 long userId, LearningContextData context)
+			throws DbConnectionException, IllegalDataStateException;
 	
 	/**
 	 * Sets deleted flag for activity to true.
@@ -213,7 +217,7 @@ public interface Activity1Manager extends AbstractManager {
 			boolean instructor, boolean isManager, long loggedUserId);
 
 	RestrictedAccessResult<ActivityData> getActivityData(long credId, long competenceId, 
-			long activityId, long userId, boolean loadLinks, ResourceAccessRequirements req) 
+			long activityId, long userId, boolean loadLinks, boolean loadTags, ResourceAccessRequirements req)
 					throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	//TargetActivity1 replaceTargetActivityOutcome(long targetActivityId, Outcome outcome, Session session);
