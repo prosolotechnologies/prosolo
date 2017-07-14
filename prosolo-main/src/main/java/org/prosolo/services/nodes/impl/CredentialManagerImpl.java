@@ -2817,6 +2817,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				
 				cred.getCompetences().add(cc);
 			}
+
+			userGroupManager.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
+					credentialId, cred.getId(), persistence.currentManager());
 			
 			res.setResult(cred);
 			
