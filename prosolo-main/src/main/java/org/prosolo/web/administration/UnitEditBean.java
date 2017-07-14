@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 
 /**
- * @author ivana
+ * @author Bojan Trifkovic
  * @date 2017-07-14
  * @since 0.7
  */
