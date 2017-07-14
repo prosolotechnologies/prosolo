@@ -8,15 +8,13 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.util.RoleUtil;
 import org.springframework.stereotype.Service;
@@ -47,6 +45,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Inject
 	private RoleManager roleManager;
 	@Inject private Competence1Manager compManager;
+	@Inject private UnitManager unitManager;
 
 	@Override
 	public void saveUserNode(User user, Session session) {
@@ -132,7 +131,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private void saveOrganizationUser(User user, long organizationId, Session session) {
 		if (user != null) {
 			try {
-				XContentBuilder builder = getBasicOrgUserDataSet(user);
+				XContentBuilder builder = getBasicOrgUserDataSet(user, session);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
@@ -220,7 +219,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private void updateBasicOrgUserData(User user, long organizationId, Session session) {
 		if(user!=null) {
 	 		try {
-				XContentBuilder builder = getBasicOrgUserDataSet(user);
+				XContentBuilder builder = getBasicOrgUserDataSet(user, session);
 				builder.endObject();
 				partialUpdate(ESIndexNames.INDEX_USERS +
 						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER,
@@ -231,7 +230,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 	
-	private XContentBuilder getBasicOrgUserDataSet(User user) throws IOException {
+	private XContentBuilder getBasicOrgUserDataSet(User user, Session session) throws IOException {
 		XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 		builder.field("id", user.getId());
 	//	builder.field("url", user.getUri());
@@ -253,7 +252,12 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.startObject();
 			builder.field("id", role.getId());
 			builder.startArray("units");
-
+			List<Unit> units = unitManager.getAllUnitsWithUserInARole(user.getId(), role.getId(), session);
+			for (Unit unit : units) {
+				builder.startObject();
+				builder.field("id", unit.getId());
+				builder.endObject();
+			}
 			builder.endArray();
 			builder.endObject();
 		}

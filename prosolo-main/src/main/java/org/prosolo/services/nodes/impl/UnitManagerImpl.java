@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -10,6 +11,7 @@ import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -255,4 +257,28 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throw new DbConnectionException("Error while removing user from unit");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException {
+        try {
+            String query = "SELECT unit FROM UnitRoleMembership urm " +
+                           "INNER JOIN urm.unit unit " +
+                           "WHERE urm.user.id = :userId " +
+                           "AND urm.role.id = :roleId";
+
+            @SuppressWarnings("unchecked")
+            List<Unit> units = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            return units;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving units");
+        }
+    }
+
 }

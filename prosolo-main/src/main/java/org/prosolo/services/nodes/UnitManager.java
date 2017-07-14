@@ -1,7 +1,7 @@
 package org.prosolo.services.nodes;
 
+import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.jdom.IllegalDataException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
@@ -42,4 +42,7 @@ public interface UnitManager extends AbstractManager{
     Result<Void> removeUserFromUnitWithRoleAndGetEvents(UnitRoleMembershipData unitRoleMembership,
                                                         long actorId, LearningContextData context)
             throws DbConnectionException;
+
+    List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException;
+
 }
