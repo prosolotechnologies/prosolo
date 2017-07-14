@@ -2798,7 +2798,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			//lock competencies so they cannot be unpublished after they are published here which would violate our integrity rule
 			List<CredentialCompetence1> competences = compManager.getCredentialCompetences(
 					credentialId, false, false, true, true);
-			
+
+			//if credential does not have at least one competency, delivery should not be created
+			if (competences.isEmpty()) {
+				throw new IllegalDataStateException("Can not create delivery without competencies");
+			}
+
 			for (CredentialCompetence1 credComp : competences) {
 				//create new credential competence which will be referenced by delivery
 				CredentialCompetence1 cc = new CredentialCompetence1();
