@@ -33,9 +33,9 @@ import java.util.List;
 @ManagedBean(name = "unitEditBean")
 @Component("unitEditBean")
 @Scope("view")
-public class UnitEditBean implements Serializable {
+public class UnitsBean implements Serializable {
 
-    protected static Logger logger = Logger.getLogger(UnitEditBean.class);
+    protected static Logger logger = Logger.getLogger(UnitsBean.class);
 
     @Inject
     private LoggedUserBean loggedUser;

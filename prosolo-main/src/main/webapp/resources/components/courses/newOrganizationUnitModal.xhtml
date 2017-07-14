@@ -20,6 +20,7 @@
                             </div>
                         <div class="modal-body alignLeft">
                             <h:inputText id="inputTextOrganizationUnitName"
+                                         autocomplete="off"
                                          value="#{unitEditBean.unit.title}"
                                          required="true"
                                          requiredMessage="Unit name is required"
@@ -31,10 +32,14 @@
                             </h:panelGroup>
                         </div>
                         <div class="modal-footer alignLeft">
-                            <p:commandLink  styleClass="btn btn-green" value="Add"
-                                            action="#{unitEditBean.createNewUnit()}"
-                                            update="@form #{cc.attrs.toUpdate}"
-                                            oncomplete="
+                            <p:defaultCommand target="createUnit" />
+                            <p:commandLink
+                                    id="createUnit"
+                                    styleClass="btn btn-green"
+                                    value="Add"
+                                    action="#{unitEditBean.createNewUnit()}"
+                                    update="@form #{cc.attrs.toUpdate}"
+                                    oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
                                                 $('#newUnitModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
@@ -47,6 +52,11 @@
                         </div>
                     </div>
                 </div>
+                <script>
+                    $('#newUnitModal').on('shown.bs.modal', function () {
+                        $('#newUnitModal input').focus();
+                    })
+                </script>
             </h:form>
         </div>
     </composite:implementation>
