@@ -150,8 +150,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   //.antMatchers("/notfound").permitAll()
 		   
 		   .antMatchers("/people").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/achievements/achievements-competences").hasAuthority("BASIC.USER.ACCESS")
-		   .antMatchers("/achievements/achievements-credentials").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/achievements").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/achievements/credentials").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/achievements/competences").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/achievements/inprogress").hasAuthority("BASIC.USER.ACCESS")
+		   .antMatchers("/achievements/externalcompetences").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 		   .antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")

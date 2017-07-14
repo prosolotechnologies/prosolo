@@ -1,12 +1,10 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="../templates/masterLayout2.xhtml"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:util="http://www.prosolo.com/util">
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui"
+				template="../templates/masterLayout2.xhtml"
+				xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
 		Achievements - In Progress
@@ -70,7 +68,7 @@
 							<article class="whiteBox summaryCard">
 								<h2>
 									<h:link outcome="/credential">
-				                		<f:param name="id" value="#{util:encodeId(1)}"/>
+				                		<f:param name="id" value="#{util:encodeId(targetCredential.credentialId)}"/>
 				                		#{targetCredential.title}
 				                	</h:link>
 								</h2>
@@ -81,12 +79,10 @@
 								<div class="metaBox">
 									<div class="metaLeft">
 										<div class="checkbox checkLine">
-											<h:inputHidden value="#{targetCredential.id}" />
-											
 											<h:selectBooleanCheckbox
 												id="inProgresscredentialAchievements"
 												value="#{targetCredential.hiddenFromProfile}">
-												<f:ajax event="click" execute="@form"
+												<f:ajax event="click" execute="@this"
 													listener="#{credentialAchievementsBean.hideInProgressTargetCredentialFromProfile(targetCredential.id)}"
 													render="inProgressCredentialsForm" />
 											</h:selectBooleanCheckbox>

@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -165,9 +166,10 @@ public interface Competence1Manager {
 	 * @param compId
 	 * @param act
 	 * @param userId id of a user that created activity
+	 * @param context
 	 * @throws DbConnectionException, IllegalDataStateException
 	 */
-	EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
+	EventData addActivityToCompetence(long compId, Activity1 act, long userId, LearningContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	/**

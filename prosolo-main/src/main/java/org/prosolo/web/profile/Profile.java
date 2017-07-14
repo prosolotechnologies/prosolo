@@ -1,15 +1,5 @@
 package org.prosolo.web.profile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -42,6 +32,15 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "profile")
 @Component("profile")
@@ -214,7 +213,7 @@ public class Profile {
 				student.getId(), 
 				true);
 		
-		credentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
+		credentialAchievementsData = new CredentialAchievementsDataToPageMapper()
 				.mapDataToPageObject(targetCredential1List);
 	}
 	
@@ -222,7 +221,7 @@ public class Profile {
 		try {
 			List<TargetCompetence1> targetCompetence1List = competenceManager.getAllCompletedCompetences(
 					student.getId(), 
-					false);
+					true);
 			
 			competenceAchievementsData = new CompetenceAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCompetence1List);
@@ -250,7 +249,7 @@ public class Profile {
 					student.getId(), 
 					true);
 			
-			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper(idEncoder)
+			inProgressCredentialAchievementsData = new CredentialAchievementsDataToPageMapper()
 					.mapDataToPageObject(targetCompetence1List);
 		} catch (Exception e) {
 			PageUtil.fireErrorMessage("Credential data could not be loaded!");
