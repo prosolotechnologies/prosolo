@@ -5,7 +5,7 @@
 				xmlns:p="http://primefaces.org/ui"
 				template="templates/masterLayout2.xhtml"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+				xmlns:admin="http://java.sun.com/jsf/composite/components/admin">
 
 	<ui:define name="windowTitle" >Units</ui:define>
 
@@ -161,10 +161,9 @@
 			</div>
 		</div>
 
-		<courses:newOrganizationUnitModal
+		<admin:newOrganizationUnitModal
 				id="newUnitModal"
-				toUpdate=":formUnits">
-		</courses:newOrganizationUnitModal>
+				toUpdate=":formUnits" />
 
 		<div class="modal fade newFeedModal" id="newSubUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
 			<div class="modal-dialog">
