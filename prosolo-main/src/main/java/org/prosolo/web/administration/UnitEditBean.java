@@ -73,6 +73,7 @@ public class UnitEditBean implements Serializable {
     }
 
     public void setParentUnit(long unitId){
+        this.unit = new UnitData();
         UnitData parentUnit = unitManager.getUnitData(unitId);
         this.unit.setParentUnitId(parentUnit.getId());
     }

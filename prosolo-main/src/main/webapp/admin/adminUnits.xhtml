@@ -80,8 +80,7 @@
                                         <div class="adminUnitsListRight">
                                             <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
                                                             action="#{unitEditBean.setParentUnit(unit.id)}"
-                                                            onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
-                                                            $('#newUnitModal').modal('show');"
+                                                            onclick="$('#newUnitModal').modal('show');"
                                                             update="newUnitModal:formNewUnitModal">
                                             </p:commandLink>
                                             <a href="admin-organizations-unit-edit.html">Edit</a>
@@ -108,8 +107,7 @@
                                                     <div class="adminUnitsListRight">
                                                         <p:commandLink  styleClass="btn btn-sm btn-green-stroke" data-toggle="modal" value="Add Subunit"
                                                                         action="#{unitEditBean.setParentUnit(child.id)}"
-                                                                        onclick="$('#newUnitModal\\:formNewUnitModal\\:inputTextOrganizationUnitName').val('');
-                                                                        $('#newUnitModal').modal('show');"
+                                                                        onclick="$('#newUnitModal').modal('show');"
                                                                         update="newUnitModal:formNewUnitModal">
                                                         </p:commandLink>
                                                         <a href="admin-organizations-unit-edit.html">Edit</a>
