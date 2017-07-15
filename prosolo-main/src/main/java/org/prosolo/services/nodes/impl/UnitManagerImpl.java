@@ -208,8 +208,6 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         try{
             Unit unit = loadResource(Unit.class,unitId);
 
-
-
             if(children != null){
                 for(UnitData ud : children){
                     if(ud.getChildrenUnits() != null && !ud.getChildrenUnits().isEmpty()){

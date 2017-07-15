@@ -120,7 +120,8 @@ public class UnitsBean implements Serializable {
                  unitManager.delete(this.unitToDelete.getId(),this.unitToDelete.getChildrenUnits());
 
                  PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
-
+                 this.unitToDelete = new UnitData();
+                 loadUnits();
              } catch (Exception ex) {
                  logger.error(ex);
                  PageUtil.fireErrorMessage("Error while trying to delete unit");

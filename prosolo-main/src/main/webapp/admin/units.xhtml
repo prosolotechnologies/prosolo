@@ -40,7 +40,6 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 		<div class="whiteBar">
 			<div class="container">
 				<div class="whiteBarContent">
@@ -58,6 +57,7 @@
 		<div class="container">
 			<div class="row">
 				<h:form id="formUnits">
+					<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 					<div class="col-md-12">
 						<ui:fragment rendered="#{empty unitsBean.units}">
 							<div class="noContentMessage">
@@ -132,7 +132,11 @@
 														<div class="dropdown optMoreMenu">
 															<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 															<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+																<li><p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+																				   action="#{unitsBean.setUnitToDelete(child)}"
+																				   oncomplete="$('#deleteModal').modal('show');">
+																	Delete
+																</p:commandLink></li>
 															</ul>
 														</div>
 													</div>
@@ -157,7 +161,11 @@
 																	<div class="dropdown optMoreMenu">
 																		<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 																		<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																			<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+																			<li><p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+																							   action="#{unitsBean.setUnitToDelete(child2)}"
+																							   oncomplete="$('#deleteModal').modal('show');">
+																				Delete
+																			</p:commandLink></li>
 																		</ul>
 																	</div>
 																</div>
@@ -183,7 +191,7 @@
 		<course:deleteModalDialog
 				deleteActionMethodName=""
 				deleteAction="#{unitsBean.delete()}"
-				toUpdate=""
+				toUpdate=":formUnits"
 				modalDeleteTitle="Unit"
 				modalDeleteText="unit"/>
 
