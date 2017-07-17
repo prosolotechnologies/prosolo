@@ -45,7 +45,7 @@ public class UnitEditBean implements Serializable {
 
     public void init(){
         try{
-            decodedId = idEncoder.decodeId(id);
+            this.decodedId = idEncoder.decodeId(id);
             this.unit = unitManager.getUnitData(decodedId);
         }catch (Exception e){
             logger.error(e);
@@ -61,7 +61,6 @@ public class UnitEditBean implements Serializable {
 
             logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
             PageUtil.fireSuccessfulInfoMessage("Unit is updated");
-
         }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
@@ -74,7 +73,7 @@ public class UnitEditBean implements Serializable {
                     new FacesMessage("Unit with this name already exists") );
         }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to update unit data");
+            PageUtil.fireErrorMessage("Error while trying to update unit");
         }
     }
 

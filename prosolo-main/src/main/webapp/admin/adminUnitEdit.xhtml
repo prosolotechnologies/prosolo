@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml">
 
-    <ui:define name="windowTitle" >Unit details</ui:define>
+    <ui:define name="windowTitle" >Unit details - </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
@@ -61,11 +61,14 @@
                                 <div class="formLine">
                                     <label>&#160;</label>
                                     <div class="formLineRight">
-                                        <p:commandLink styleClass="btn btn-green" value="Save Changes"
+                                        <p:commandLink id="saveBtn"
+                                                       styleClass="btn btn-green"
+                                                       value="Save Changes"
                                                        action="#{unitEditBean.updateUnit()}" update=":formMainEditUnit">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                             <f:param name="learningContext" value="name:update_unit" />
                                         </p:commandLink>
+                                        <p:defaultCommand target="saveBtn" />
                                     </div>
                                 </div>
                             </div>
