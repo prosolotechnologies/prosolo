@@ -13,12 +13,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
 
 @ManagedBean(name = "deliveryStartBean")
 @Component("deliveryStartBean")
@@ -46,13 +42,7 @@ public class DeliveryStartBean implements Serializable {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserId(), context).getId();
 
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + "/manage/credentials/" 
-						+ idEncoder.encodeId(deliveryId) + "/edit");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+			PageUtil.redirect("/manage/credentials/" + idEncoder.encodeId(deliveryId) + "/edit");
 		} catch (EventException ee) {
 			logger.error(ee);
 		} catch (DbConnectionException dce) {

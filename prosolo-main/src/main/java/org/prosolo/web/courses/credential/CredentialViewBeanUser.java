@@ -1,17 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -43,6 +31,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialViewBean")
 @Component("credentialViewBean")
@@ -150,14 +147,8 @@ public class CredentialViewBeanUser implements Serializable {
 			LearningContextData context = PageUtil.extractLearningContextData();
 			
 			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), context);
-			
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+
+			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while enrolling in a competency");
