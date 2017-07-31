@@ -60,8 +60,8 @@ public interface UserTextSearch extends AbstractManager {
 			int page, int limit);
 	
 	/**
-	 * Returns users defined on a system level if {@code organizationId} is greater than 0 and users
-	 * from organization with {@code organizationId} otherwise
+	 * Returns users defined on a system level if {@code organizationId} is less than or equals 0 and users
+	 * from organization with {@code organizationId} id otherwise
 	 *
 	 * Call {@link PaginatedResult#getAdditionalInfo()} to get search filters:
 	 * under key 'filters' all filters can be retrieved with type {@code List<RoleFilter>},

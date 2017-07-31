@@ -5,10 +5,13 @@
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
 >
 
 	<composite:interface>
 		<composite:attribute name="showFormTitle" default="false" />
+		<composite:attribute name="mode" default="ADMIN" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -16,6 +19,32 @@
 				src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<div class="whiteBar"></div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
+					<li><h:link outcome="/admin/adminAdmins">Admins</h:link></li>
+					<li class="active">#{userEditBean.user.fullName}</li>
+				</c:if>
+				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
+					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+					<li>
+						<h:link outcome="/admin/adminOrganizationNew">
+							#{userEditBean.organizationTitle}
+							<f:param name="id" value="#{userEditBean.orgId}" />
+						</h:link>
+					</li>
+					<li>
+						<h:link outcome="/admin/organizationUsers">
+							Users
+							<f:param name="orgId" value="#{userEditBean.orgId}" />
+						</h:link>
+					</li>
+					<li class="active">#{userEditBean.user.fullName}</li>
+				</c:if>
+			</ol>
+		</div>
+
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
@@ -33,11 +62,7 @@
 													 requiredMessage="First name is required"
 													 value="#{userEditBean.user.name}">
 										</h:inputText>
-										<h:panelGroup layout="block"
-													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminName')}"
-													  styleClass="alert alert-danger" pt:role="alert">
-											<h:message for="inputTextAdminName"></h:message>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextAdminName"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -47,11 +72,7 @@
 													 requiredMessage="Last name is required"
 													 value="#{userEditBean.user.lastName}">
 										</h:inputText>
-										<h:panelGroup layout="block"
-													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminLastname')}"
-													  styleClass="alert alert-danger" pt:role="alert">
-											<h:message for="inputTextAdminLastname"></h:message>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextAdminLastname"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -62,11 +83,8 @@
 													 validator="emailValidator"
 													 value="#{userEditBean.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
-										<h:panelGroup layout="block"
-													  rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminEmail')}"
-													  styleClass="alert alert-danger" pt:role="alert">
-											<h:message for="inputTextAdminEmail"></h:message>
-										</h:panelGroup>
+										<br></br>
+										<small class="redText"><h:message for="inputTextAdminEmail"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -89,11 +107,8 @@
 										</ui:repeat>
 										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="0">
 										</h:inputHidden>
-										<h:panelGroup layout="block"
-													  rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
-													  styleClass="alert alert-danger" pt:role="alert">
-											<h:message for="hiddenInput"></h:message>
-										</h:panelGroup>
+
+										<small class="redText"><h:message for="hiddenInput"></h:message></small>
 
 									</div>
 								</div>
@@ -108,7 +123,8 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
+										<p:defaultCommand target="saveUserDataBtn" />
+										<p:commandLink id="saveUserDataBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
                                                        action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
 										</p:commandLink>
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
