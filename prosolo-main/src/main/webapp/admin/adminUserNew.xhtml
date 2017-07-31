@@ -1,20 +1,18 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
 
 	<ui:define name="windowTitle">Edit User</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{userEditBean.id}" />
-			<f:viewAction action="#{userEditBean.init()}" />
+			<f:viewParam name="id" value="#{userEditBean1.id}" />
+			<f:viewAction action="#{userEditBean1.init()}" />
 		</f:metadata>
 	</ui:define>
 	<ui:define name="content">
@@ -33,7 +31,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserName" required="true"
 											requiredMessage="First name is required"
-											value="#{userEditBean.user.name}">
+											value="#{userEditBean1.user.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}"
@@ -47,7 +45,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserLastname" required="true"
 											requiredMessage="Last name is required"
-											value="#{userEditBean.user.lastName}">
+											value="#{userEditBean1.user.lastName}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}"
@@ -61,7 +59,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserEmail" required="true"
 											name="emailAddress" requiredMessage="Email is required"
-											value="#{userEditBean.user.email}"></h:inputText>
+											value="#{userEditBean1.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}"
@@ -73,18 +71,18 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+										<h:inputText value="#{userEditBean1.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
 									<label>Role</label>
 									<div class="formLineRight">
 										<h:selectManyCheckbox id="selectRoles"
-											value="#{userEditBean.user.roleIds}" layout="pageDirection"
-											styleClass="checkbox checkLine" required="true"
-											requiredMessage="At least one role should be selected">
-											<f:selectItems value="#{userEditBean.allRoles}" var="role"
-												itemValue="role" />
+                                                              value="#{userEditBean1.user.roleIds}" layout="pageDirection"
+                                                              styleClass="checkbox checkLine" required="true"
+                                                              requiredMessage="At least one role should be selected">
+											<f:selectItems value="#{userEditBean1.allRoles}" var="role"
+                                                           itemValue="role" />
 										</h:selectManyCheckbox>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}"
@@ -104,7 +102,7 @@
 									<label>&#160;</label>
 									<div class="formLineRight">
 										<p:commandLink styleClass="btn btn-green" value="Create"
-											action="#{userEditBean.saveUser()}" update=":formMain">
+                                                       action="#{userEditBean1.saveUser()}" update=":formMain">
 										</p:commandLink>
 									</div>
 								</div>

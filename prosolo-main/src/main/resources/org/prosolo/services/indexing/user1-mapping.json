@@ -37,19 +37,10 @@
 
 			
 			"roles": {
-				"type": "nested",
 				"properties": {
 					"id": {
 						"store": false,
 						"type": "long"
-					},
-					"units" : {
-						"properties": {
-							"id": {
-								"store": false,
-								"type": "long"
-							}
-						}
 					}
 				}
 			},

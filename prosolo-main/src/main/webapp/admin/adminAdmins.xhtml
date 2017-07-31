@@ -1,22 +1,17 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="templates/masterLayout2.xhtml"
+				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 
 <ui:define name="windowTitle">Admins</ui:define>
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="p" value="#{adminAdmins.paginationData.pageString}" default="1" />
-		<f:viewParam name="role" value="#{adminAdmins.roleId}" default="null" />
-		<f:viewAction action="#{adminAdmins.init()}" />
+		<f:viewParam name="p" value="#{usersBean.paginationData.pageString}" default="1" />
+		<f:viewParam name="role" value="#{usersBean.roleId}" default="null" />
+		<f:viewAction action="#{usersBean.initAdmins()}" />
 	</f:metadata>
 </ui:define>
 
@@ -25,149 +20,6 @@
 </ui:define>
 
 <ui:define name="content">
-	<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-	<div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-                    <h:link outcome="/admin/adminNew" styleClass="btn btn-green btn-sm item">New Admin</h:link>
-
-                    <div class="searchBox">
-                    	<h:form>
-                    		<p:remoteCommand
-								name="execSearchUsers"
-								process="inputAdminSearch"
-								update=":panelAdmins :panelSearchFilters :pagination"
-								action="#{adminAdmins.resetAndSearch()}" />
-
-							<h:inputText id="inputAdminSearch"
-								type="search"
-								placeholder="Filter by Keywords"
-								value="#{adminAdmins.searchTerm}"
-								onclick="$(this).select();"
-								onkeyup="searchListener(execSearchUsers);"/>
-                    	</h:form>
-                    </div>
-                </div>
-                <div class="whiteBarRight">
-                    <h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
-						<span>Show:</span>
-						<h:link
-							id="linkSearchFilter"
-							pt:data-toggle="dropdown"
-							pt:aria-haspopup="true"
-							pt:aria-expanded="true">
-							#{adminAdmins.filter.label} (#{adminAdmins.filter.numberOfResults})
-							<span class="arrowDown">arrowDown</span>
-						</h:link>
-
-						<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-							<ui:repeat var="searchFilter" value="#{adminAdmins.filters}">
-								<li>
-									<p:commandLink
-										process="@this"
-										value="#{searchFilter.label} (#{searchFilter.numberOfResults})"
-										action="#{adminAdmins.applySearchFilter(searchFilter)}"
-										update=":panelAdmins :pagination :panelSearchFilters" />
-								</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="row">
-        	<h:panelGroup layout="block" id="panelAdmins" styleClass="col-md-12">
-            	<ul class="whiteBox peopleList">
-                	<ui:repeat var="admin" value="#{adminAdmins.admins}">
-	                    <li>
-	                        <div class="peopleListLeft">
-	                        	<h:link outcome="">
-			                   		<utilcomp:userAvatar
-										avatar="#{admin.avatarUrl}"
-										fullName="#{admin.commaSeparatedFullName}"
-										width="64"
-										height="64"
-								    />
-									<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
-			                    </h:link>
-
-	                            <div>
-	                            	<h2>
-	                                	<h:link outcome="/admin/adminNew">
-					                   		#{admin.commaSeparatedFullName}
-								    		<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
-			                    		</h:link>
-			                    	</h2>
-	                                <span>#{admin.position}</span>
-	                            </div>
-	                        </div>
-	                        <div class="peopleListRight">
-								<div class="userRole">
-									#{admin.rolesCSV}
-								</div>
-	                            <div class="userEditOpt">
-	                                <h:link outcome="/admin/adminNew" styleClass="btn btn-green-stroke">
-		                                 <f:param name="id" value="#{util:encodeId(admin.id)}"/>
-		                               	 Edit
-	                                </h:link>
-
-	                                <p:commandLink
-	                                	styleClass="btn btn-green-stroke"
-	                                	pt:data-toggle="modal"
-	                                	action="#{loggeduser.prepareLoginAsUser(admin)}"
-	                                	update=":formLoginAs:panelLoginAs"
-	                                	oncomplete="$('#loginAs').modal('show');">
-	                                	Login as...
-	                                </p:commandLink>
-	                            </div>
-	                        </div>
-	                    </li>
-                    </ui:repeat>
-				</ul>
-			</h:panelGroup>
-        </div>
-
-        <utilcomp:pagination
-			id="pagination"
-			bean="#{adminAdmins}"
-			updateUrl="true"
-			toUpdate=":panelAdmins"
-		/>
-    </div>
-
-    <h:form id="formLoginAs">
-		 <div class="modal fade" id="loginAs" tabindex="-1" role="dialog" aria-labelledby="loginAsAdmin">
-             <div class="modal-dialog" role="document">
-                 <h:panelGroup id="panelLoginAs" layout="block" styleClass="modal-content">
-                     <div class="modal-header">
-                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                         <h2 class="modal-title" id="loginAsAdmin">Login as...</h2>
-                     </div>
-                     <div class="modal-body">
-                         <p>
-                             By proceeding your current session will end and you will be logged in as a student [#{loggeduser.loginAsUser.fullName}]. All actions performed during this session will be contributed to this student.
-                         </p>
-                     </div>
-                     <div class="modal-footer">
-                         <p:commandLink
-                         	styleClass="btn btn-green"
-                         	process="@this"
-                         	action="#{loggeduser.loginAs()}"
-                         	update=":growlMain"
-                         	oncomplete="$('#loginAs').modal('hide');">
-                         	Proceed
-                         </p:commandLink>
-                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                     </div>
-                 </h:panelGroup>
-             </div>
-         </div>
-	</h:form>
-
+	<user:userList mode="ADMIN" />
 </ui:define>
 </ui:composition>

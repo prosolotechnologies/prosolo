@@ -5,7 +5,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
 
     <ui:define name="windowTitle" >
         <ui:fragment rendered="#{organizationEditBean.decodedId == 0}">New Organization</ui:fragment>
@@ -14,16 +15,7 @@
 
     <ui:define name="navLinks">
         <ui:fragment  rendered="#{organizationEditBean.decodedId gt 0}">
-        <ul class="nav nav-tabs headerSubmenu">
-            <li role="presentation" class="active"><h:link outcome="/admin/adminOrganizationNew">
-                <f:param name="id" value="#{organizationEditBean.id}" />Organization Details
-            </h:link></li>
-            <li role="presentation"><h:link outcome="/admin/units">
-                <f:param name="id" value="#{organizationEditBean.id}" />Units
-            </h:link></li>
-            <li role="presentation"><a href="#">People</a></li>
-            <li role="presentation"><a href="#">Groups</a></li>
-        </ul>
+            <org:organizationHeaderLinks orgId="#{organizationEditBean.decodedId}" />
         </ui:fragment>
     </ui:define>
 
@@ -44,7 +36,6 @@
     <ui:define name="content">
         <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
         <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
-        <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
         <div class="whiteBar">
 
         </div>

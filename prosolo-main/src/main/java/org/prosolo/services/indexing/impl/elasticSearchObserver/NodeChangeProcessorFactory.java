@@ -63,6 +63,8 @@ public class NodeChangeProcessorFactory {
 			case RESOURCE_VISIBILITY_CHANGE:
 			case VISIBLE_TO_ALL_CHANGED:
 			case STATUS_CHANGED:
+			case USER_ASSIGNED_TO_ORGANIZATION:
+			case USER_REMOVED_FROM_ORGANIZATION:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
 							credentialESService, competenceESService, EventUserRole.Object);

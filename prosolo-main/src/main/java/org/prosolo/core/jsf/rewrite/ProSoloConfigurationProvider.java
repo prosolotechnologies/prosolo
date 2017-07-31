@@ -1,12 +1,12 @@
 package org.prosolo.core.jsf.rewrite;
 
-import javax.servlet.ServletContext;
-
 import org.ocpsoft.rewrite.annotation.RewriteConfiguration;
 import org.ocpsoft.rewrite.config.Configuration;
 import org.ocpsoft.rewrite.config.ConfigurationBuilder;
 import org.ocpsoft.rewrite.servlet.config.HttpConfigurationProvider;
 import org.ocpsoft.rewrite.servlet.config.rule.Join;
+
+import javax.servlet.ServletContext;
 
 /**
  * @author Nikola Milikic
@@ -174,6 +174,10 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/organizations").to("/admin/adminOrganizations.xhtml"))
 				.addRule(Join.path("/admin/admins/{id}/edit").to("/admin/adminNew.xhtml"))
 				.addRule(Join.path("/admin/admins/new").to("/admin/adminNew.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/{id}/edit/password").to("/admin/userEditPassword.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/{id}/edit").to("/admin/orgUserEdit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/new").to("/admin/orgUserEdit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users").to("/admin/organizationUsers.xhtml"))
 				.addRule(Join.path("/admin/organizations/{id}/edit").to("/admin/adminOrganizationNew.xhtml"))
 				.addRule(Join.path("/admin/organizations/{id}/units/{unitId}/edit").to("/admin/adminUnitEdit.xhtml"))
 				.addRule(Join.path("/admin/organizations/{id}/units").to("/admin/units.xhtml"))
