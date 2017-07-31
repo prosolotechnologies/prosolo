@@ -13,6 +13,8 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	private static final long serialVersionUID = 2969424744312704839L;
 	
 	private long id;
+	private String firstName;
+	private String lastName;
 	private String name;
 	private ResourceVisibilityMemberType type;
 	//user group specific
@@ -46,6 +48,8 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 			boolean listenChanges) {
 		this.id = userGroupUserId;
 		this.userId = user.getId();
+		this.firstName = user.getName();
+		this.lastName = user.getLastname();
 		setFullName(user.getName(), user.getLastname());
 		this.avatar = AvatarUtils.getAvatarUrlInFormat(user.getAvatarUrl(), ImageFormat.size120x120);
 		this.position = user.getPosition();
@@ -60,6 +64,13 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	
 	private static String getFullName(String name, String lastName) {
 		return name + (lastName != null ? " " + lastName : "");
+	}
+
+	public String getCommaSeparatedFullName() {
+		String fName = firstName != null ? firstName : "";
+		String lName = lastName != null ? lastName : "";
+		String infix = !fName.isEmpty() && !lName.isEmpty() ? ", " : "";
+		return lName + infix + fName;
 	}
 	
 	public long getId() {

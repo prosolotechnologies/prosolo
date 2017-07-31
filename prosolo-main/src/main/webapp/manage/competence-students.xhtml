@@ -138,7 +138,7 @@
 									<h:link	outcome="studentProfile">
 										<utilcomp:userAvatar
 											avatar="#{student.user.avatarUrl}"
-											fullName="#{student.user.fullName}"	
+											fullName="#{student.user.commaSeparatedFullName}"
 											width="64"
 											height="64" />
 										<f:param name="id" value="#{util:encodeId(student.user.id)}" />
@@ -147,7 +147,7 @@
 									<div>
 										<h2>
 											<h:link outcome="studentProfile">
-												#{student.user.fullName}
+												#{student.user.commaSeparatedFullName}
 												<f:param name="id" value="#{util:encodeId(student.user.id)}" />
 											</h:link>
 										</h2>
