@@ -1,15 +1,13 @@
 <ui:component
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
 	<composite:interface>
 		<composite:attribute name="toUpdate" default=""></composite:attribute>
@@ -22,7 +20,9 @@
 	    <script src="#{request.contextPath}/resources/javascript2/createActivity.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
-	    
+		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
+		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
+
 	    <div class="whiteBar">
 	    </div>
 	    
@@ -133,6 +133,7 @@
 			                                    	</script>
 			                                    </div>
 			                                </div>
+
 			                                <div class="formLine">
 			                                    <label>Activity type</label>
 			                                    

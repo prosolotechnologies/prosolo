@@ -242,7 +242,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			if(targetComp.getTargetActivities() != null) {
 				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
-					ActivityData act = activityFactory.getActivityData(ta, null, null, false, 0, false);
+					ActivityData act = activityFactory.getActivityData(ta, null, null, null, false, 0, false);
 					cd.addActivity(act);
 				}
 			}
@@ -799,7 +799,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public EventData addActivityToCompetence(long compId, Activity1 act, long userId) 
+	public EventData addActivityToCompetence(long compId, Activity1 act, long userId, LearningContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
 			/*

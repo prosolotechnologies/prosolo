@@ -24,10 +24,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -212,24 +209,19 @@ public class CompetenceEditBean implements Serializable {
 		competenceData.setPublished(false);
 		boolean saved = saveCompetenceData(false);
 		if (saved) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				StringBuilder builder = new StringBuilder();
-				/*
-				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
-				 * may not be what we really want.
-				 */
-				builder.append(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() 
-						+ "/competences/" + id + "/newActivity");
-				
-				if(credId != null && !credId.isEmpty()) {
-					builder.append("?credId=" + credId);
-				}
-				extContext.redirect(builder.toString());
-			} catch (IOException e) {
-				logger.error(e);
+			StringBuilder builder = new StringBuilder();
+			/*
+			 * this will not work if there are multiple levels of directories in current view path
+			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * may not be what we really want.
+			 */
+			builder.append(PageUtil.getSectionForView().getPrefix()
+					+ "/competences/" + id + "/newActivity");
+
+			if (credId != null && !credId.isEmpty()) {
+				builder.append("?credId=" + credId);
 			}
+			PageUtil.redirect(builder.toString());
 		}
 	}
 	
@@ -238,18 +230,17 @@ public class CompetenceEditBean implements Serializable {
 		boolean saved = saveCompetenceData(!isCreateUseCase);
 		if (saved && isCreateUseCase) {
 			PageUtil.keepFiredMessagesAcrossPages();
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 			if (addToCredential) {
 				/*
 				 * this will not work if there are multiple levels of directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
-				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
 						"/credentials/" + credId + "/edit?tab=competences");
 			} else {
 				//when competence is saved for the first time redirect to edit page
-				PageUtil.redirect(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
+				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
 						"/competences/" + id + "/edit");
 			}
 		}
@@ -375,13 +366,8 @@ public class CompetenceEditBean implements Serializable {
 		try {
 			long compId = compManager.duplicateCompetence(decodedId, 
 					loggedUser.getUserId(), ctx);
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + "/manage/competences/" 
-						+ idEncoder.encodeId(compId) + "/edit");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+
+			PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to duplicate competence");

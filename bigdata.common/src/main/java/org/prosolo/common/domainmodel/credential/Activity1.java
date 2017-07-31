@@ -1,25 +1,15 @@
 package org.prosolo.common.domainmodel.credential;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
-
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Activity1 is versioned entity so special care should be taken of its version field value in all situations
@@ -63,10 +53,13 @@ public class Activity1 extends BaseEntity {
 	private boolean autograde;
 	
 	private List<CompetenceActivity1> competenceActivities;
+
+	private Set<Tag> tags;
 	
 	public Activity1() {
 		links = new HashSet<>();
 		files = new HashSet<>();
+		tags = new HashSet<>();
 	}
 	
 	/**
@@ -207,6 +200,15 @@ public class Activity1 extends BaseEntity {
 
 	public void setCompetenceActivities(List<CompetenceActivity1> competenceActivities) {
 		this.competenceActivities = competenceActivities;
+	}
+
+	@ManyToMany
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
 	}
 	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -29,6 +30,7 @@ import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.util.url.URLUtil;
+import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,7 +39,7 @@ public class ActivityDataFactory {
 	private static final Logger logger = Logger.getLogger(ActivityDataFactory.class);
 	
 	public ActivityData getActivityData(CompetenceActivity1 competenceActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges) throws MediaDataException {
+										Set<ResourceLink> files, Set<Tag> tags, boolean shouldTrackChanges) throws MediaDataException {
 		if(competenceActivity == null || competenceActivity.getActivity() == null) {
 			return null;
 		}
@@ -63,6 +65,10 @@ public class ActivityDataFactory {
 		data.setVisibleForUnenrolledStudents(activity.isVisibleForUnenrolledStudents());
 		data.setDifficulty(activity.getDifficulty());
 		data.setAutograde(activity.isAutograde());
+		if (tags != null) {
+			data.setTags(tags);
+			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+		}
 		
 		if(links != null) {
 			List<ResourceLinkData> activityLinks = new ArrayList<>();
@@ -144,7 +150,7 @@ public class ActivityDataFactory {
 		comp.setId(compId);
 		ca.setCompetence(comp);
 		ca.setOrder(order);
-		return getActivityData(ca, links, files, shouldTrackChanges);
+		return getActivityData(ca, links, files, null, shouldTrackChanges);
 	}
 
 	private void populateTypeSpecificData(ActivityData act, Activity1 activity) {
@@ -318,7 +324,7 @@ public class ActivityDataFactory {
 	 * 
 	 */
 	public ActivityData getActivityData(TargetActivity1 targetActivity, Set<ResourceLink> links,
-			Set<ResourceLink> files, boolean shouldTrackChanges, int order, boolean isManager) {
+			Set<ResourceLink> files, Set<Tag> tags, boolean shouldTrackChanges, int order, boolean isManager) {
 		if (targetActivity == null || targetActivity.getActivity() == null) {
 			throw new NullPointerException();
 		}
@@ -340,7 +346,11 @@ public class ActivityDataFactory {
 		data.setMaxPointsString(String.valueOf(activity.getMaxPoints()));
 		data.setStudentCanEditResponse(activity.isStudentCanEditResponse());
 		data.setStudentCanSeeOtherResponses(activity.isStudentCanSeeOtherResponses());
-		
+		if (tags != null) {
+			data.setTags(tags);
+			data.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
+		}
+
 		data.setObjectStatus(ObjectStatus.UP_TO_DATE);
 		
 		if (shouldTrackChanges) {

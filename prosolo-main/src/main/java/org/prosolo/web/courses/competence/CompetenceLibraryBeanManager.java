@@ -3,16 +3,6 @@
  */
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -33,6 +23,13 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component("competenceLibraryBeanManager")
 @Scope("view")
@@ -202,13 +199,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			try {
 				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(), 
 						loggedUserBean.getUserId(), ctx);
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				try {
-					extContext.redirect(extContext.getRequestContextPath() + "/manage/competences/" 
-							+ idEncoder.encodeId(compId) + "/edit");
-				} catch (IOException e) {
-					logger.error(e);
-				}
+				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);
 				PageUtil.fireErrorMessage("Error while trying to duplicate competence");

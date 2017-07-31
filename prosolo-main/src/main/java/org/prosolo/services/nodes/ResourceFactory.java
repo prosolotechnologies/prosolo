@@ -53,17 +53,6 @@ public interface ResourceFactory extends AbstractManager {
 	CredentialBookmark bookmarkCredential(long credId, long userId) 
 			throws DbConnectionException;
 
-	/**
-	 * Returns Result with saved activity that can be accessed using {@link Result#getResult()} method
-	 * and events data that can be accessed using {@link Result#getEvents()}
-	 * @param activityData
-	 * @param userId
-	 * @return
-	 * @throws DbConnectionException, IllegalDataStateException
-	 */
-	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
-    		long userId) throws DbConnectionException, IllegalDataStateException;
-
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException;
 	

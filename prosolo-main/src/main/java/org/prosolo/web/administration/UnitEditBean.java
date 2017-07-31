@@ -3,11 +3,8 @@ package org.prosolo.web.administration;
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.event.context.data.LearningContextData;
-import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.OrganizationData;
 import org.prosolo.services.nodes.data.UnitData;
-import org.prosolo.services.nodes.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -21,12 +18,10 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * @author Bojan
- * @date 2017-07-04
+ * @author Bojan Trifkovic
+ * @date 2017-07-14
  * @since 0.7
  */
 
@@ -43,86 +38,58 @@ public class UnitEditBean implements Serializable {
     private UrlIdEncoder idEncoder;
     @Inject
     private UnitManager unitManager;
-    @Inject
-    private OrganizationManager organizationManager;
-    @Inject
-    private OrganizationDataFactory organizationDataFactory;
 
     private UnitData unit;
-    private String organizationId;
-    private OrganizationData organizationData;
-    private List<UnitData> units;
+    private String id;
+    private long decodedId;
 
     public void init(){
         try{
-            this.unit = new UnitData();
-            this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
-            loadUnits();
+            this.decodedId = idEncoder.decodeId(id);
+            this.unit = unitManager.getUnitData(decodedId);
         }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while loading page");
+            e.printStackTrace();
         }
     }
 
-    private void loadUnits(){
-        try{
-            this.units = unitManager.getUnitsWithSubUnits(this.organizationData.getId());
-        }catch (Exception e){
-            logger.error(e);
-        }
-    }
-
-    public void createNewUnit(){
+    public void updateUnit(){
         try{
             LearningContextData lcd = PageUtil.extractLearningContextData();
 
-            UnitData unit = unitManager.createNewUnit(this.unit.getTitle(),this.organizationData.getId(),
-                    loggedUser.getUserId(),lcd);
+            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(),loggedUser.getUserId(),lcd);
 
-            logger.debug("New Organization Unit (" + unit.getTitle() + ")");
-
-            PageUtil.fireSuccessfulInfoMessage("New unit is created");
-            this.units.add(unit);
-            Collections.sort(this.units);
-        } catch (ConstraintViolationException | DataIntegrityViolationException e){
+            logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("Unit is updated");
+        }catch (ConstraintViolationException | DataIntegrityViolationException e){
             logger.error(e);
             e.printStackTrace();
 
             FacesContext context = FacesContext.getCurrentInstance();
             UIInput input = (UIInput) context.getViewRoot().findComponent(
-                    "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
+                    "formMainEditUnit:inputTextUnitTitle");
             input.setValid(false);
-            context.addMessage("newUnitModal:formNewUnitModal:inputTextOrganizationUnitName",
+            context.addMessage("formMainEditUnit:inputTextUnitTitle",
                     new FacesMessage("Unit with this name already exists") );
-            context.validationFailed();
-        } catch (Exception e){
+        }catch (Exception e){
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save unit data");
+            PageUtil.fireErrorMessage("Error while trying to update unit");
         }
-    }
-
-
-    private void updateUnit(){
-
     }
 
     public UnitData getUnit() {
         return unit;
     }
 
-    public String getOrganizationId() {
-        return organizationId;
+    public void setUnit(UnitData unit) {
+        this.unit = unit;
     }
 
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
+    public String getId() {
+        return id;
     }
 
-    public List<UnitData> getUnits() {
-        return units;
-    }
-
-    public OrganizationData getOrganizationData() {
-        return organizationData;
+    public void setId(String id) {
+        this.id = id;
     }
 }

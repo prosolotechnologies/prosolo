@@ -30,7 +30,6 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Nikola Milikic
@@ -296,94 +298,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public CredentialBookmark bookmarkCredential(long credId, long userId)
             throws DbConnectionException {
         return credentialManager.bookmarkCredential(credId, userId);
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
-                                            long userId) throws DbConnectionException, IllegalDataStateException {
-        try {
-            Result<Activity1> result = new Result<>();
-            Activity1 activity = activityFactory.getActivityFromActivityData(data);
-
-            if (data.getLinks() != null) {
-                Set<ResourceLink> activityLinks = new HashSet<>();
-
-                for (ResourceLinkData rl : data.getLinks()) {
-                    ResourceLink link = new ResourceLink();
-                    link.setLinkName(rl.getLinkName());
-                    link.setUrl(rl.getUrl());
-                    if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
-                        link.setIdParameterName(rl.getIdParamName());
-                    }
-                    saveEntity(link);
-                    activityLinks.add(link);
-                }
-                activity.setLinks(activityLinks);
-            }
-
-            Set<ResourceLink> activityFiles = new HashSet<>();
-
-            if (data.getFiles() != null) {
-                for (ResourceLinkData rl : data.getFiles()) {
-                    ResourceLink link = new ResourceLink();
-                    link.setLinkName(rl.getLinkName());
-                    link.setUrl(rl.getUrl());
-                    saveEntity(link);
-                    activityFiles.add(link);
-                }
-                activity.setFiles(activityFiles);
-            }
-
-            if(data.getActivityType() == org.prosolo.services.nodes.data.ActivityType.VIDEO) {
-                Set<ResourceLink> captions = new HashSet<>();
-
-                if (data.getCaptions() != null) {
-                    for (ResourceLinkData rl : data.getCaptions()) {
-                        ResourceLink link = new ResourceLink();
-                        link.setLinkName(rl.getLinkName());
-                        link.setUrl(rl.getUrl());
-                        saveEntity(link);
-                        captions.add(link);
-                    }
-                    ((UrlActivity1) activity).setCaptions(captions);
-                }
-            }
-
-            User creator = (User) persistence.currentManager().load(User.class, userId);
-            activity.setCreatedBy(creator);
-
-            //GradingOptions go = new GradingOptions();
-            //go.setMinGrade(0);
-            //go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-            //saveEntity(go);
-            //activity.setGradingOptions(go);
-            activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-
-            activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
-            activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
-            activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
-
-            saveEntity(activity);
-
-            if(data.getCompetenceId() > 0) {
-                EventData ev = competenceManager.addActivityToCompetence(data.getCompetenceId(),
-                        activity, userId);
-                if(ev != null) {
-                    result.addEvent(ev);
-                }
-            }
-            result.setResult(activity);
-            return result;
-        } catch(IllegalDataStateException idse) {
-            throw idse;
-        } catch(DbConnectionException dce) {
-            throw dce;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while saving activity");
-        }
     }
 
     @Override
