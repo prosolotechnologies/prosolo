@@ -14,7 +14,7 @@ public class CredentialDeliveryUtil {
     public static void populateCollectionsBasedOnDeliveryStartAndEnd(List<CredentialData> deliveries,
                                                                      List<CredentialData> activeDeliveries,
                                                                      List<CredentialData> pendingDeliveries,
-                                                                     List<CredentialData> finishedDeliveries) {
+                                                                     List<CredentialData> pastDeliveries) {
         //put each delivery in right collection
         for (CredentialData d : deliveries) {
             switch (d.getDeliveryStatus()) {
@@ -25,7 +25,7 @@ public class CredentialDeliveryUtil {
                     pendingDeliveries.add(d);
                     break;
                 case ENDED:
-                    finishedDeliveries.add(d);
+                    pastDeliveries.add(d);
                     break;
             }
         }
