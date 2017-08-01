@@ -94,13 +94,21 @@
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
 													<li>
-														<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-																	   action="#{unitsBean.setUnitToDelete(unit)}"
-																	   oncomplete="$('#deleteModal').modal('show');">
-														Delete
-														</p:commandLink>
+														<ui:fragment rendered="#{!unit.hasUsers and empty unit.childrenUnits}">
+															<p:commandLink styleClass="linkRed"
+																		   action="#{unitsBean.setUnitToDelete(unit)}"
+																		   oncomplete="$('#deleteModal').modal('show');">
+															    Delete
+															</p:commandLink>
+														</ui:fragment>
+														<ui:fragment rendered="#{unit.hasUsers or not empty unit.childrenUnits}">
+															<a  class="linkRed" data-toggle="tooltip"
+															    title="#{not empty unit.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+															    disabled="disabled">
+																Delete
+															</a>
+														</ui:fragment>
 													</li>
-
 												</ul>
 											</div>
 										</div>
@@ -132,11 +140,22 @@
 														<div class="dropdown optMoreMenu">
 															<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 															<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																<li><p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-																				   action="#{unitsBean.setUnitToDelete(child)}"
-																				   oncomplete="$('#deleteModal').modal('show');">
-																	Delete
-																</p:commandLink></li>
+                                                                <li>
+                                                                    <ui:fragment rendered="#{!child.hasUsers and empty child.childrenUnits}">
+                                                                        <p:commandLink styleClass="linkRed"
+                                                                                       action="#{unitsBean.setUnitToDelete(child)}"
+                                                                                       oncomplete="$('#deleteModal').modal('show');">
+                                                                            Delete
+                                                                        </p:commandLink>
+                                                                    </ui:fragment>
+                                                                    <ui:fragment rendered="#{child.hasUsers or not empty child.childrenUnits}">
+                                                                        <a  class="linkRed" data-toggle="tooltip"
+                                                                            title="#{not empty child.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+                                                                            disabled="disabled">
+                                                                            Delete
+                                                                        </a>
+                                                                    </ui:fragment>
+                                                                </li>
 															</ul>
 														</div>
 													</div>
@@ -161,11 +180,22 @@
 																	<div class="dropdown optMoreMenu">
 																		<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 																		<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																			<li><p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-																							   action="#{unitsBean.setUnitToDelete(child2)}"
-																							   oncomplete="$('#deleteModal').modal('show');">
-																				Delete
-																			</p:commandLink></li>
+                                                                            <li>
+                                                                                <ui:fragment rendered="#{!child2.hasUsers}">
+                                                                                    <p:commandLink styleClass="linkRed"
+                                                                                                   action="#{unitsBean.setUnitToDelete(child2)}"
+                                                                                                   oncomplete="$('#deleteModal').modal('show');">
+                                                                                        Delete
+                                                                                    </p:commandLink>
+                                                                                </ui:fragment>
+                                                                                <ui:fragment rendered="#{child2.hasUsers}">
+                                                                                    <a  class="linkRed" data-toggle="tooltip"
+                                                                                        title="Unit can not be deleted as there are users associated with it"
+                                                                                        disabled="disabled">
+                                                                                        Delete
+                                                                                    </a>
+                                                                                </ui:fragment>
+                                                                            </li>
 																		</ul>
 																	</div>
 																</div>

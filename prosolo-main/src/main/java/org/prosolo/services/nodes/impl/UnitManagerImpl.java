@@ -94,22 +94,36 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Transactional
-    private List<Unit> getOrganizationUnits(long organizationId) {
+    private List<UnitData> getOrganizationUnits(long organizationId) {
 
         String query =
-                "SELECT unit " +
+                "SELECT unit, COUNT(memb) " +
                 "FROM Unit unit " +
+                "LEFT JOIN unit.unitRoleMemberships memb " +
                 "WHERE unit.deleted IS FALSE " +
                 "AND unit.organization.id = :organizationId " +
+                "GROUP BY unit " +
                 "ORDER BY unit.title ASC ";
 
-        List<Unit> result = persistence.currentManager()
+        List<Object[]> result =  persistence.currentManager()
                 .createQuery(query)
                 .setParameter("organizationId", organizationId)
                 .list();
 
-        if (result != null) {
-            return result;
+        UnitData unitData;
+        List<UnitData> resultList = new ArrayList<>();
+
+        for (Object[] res : result) {
+            Unit unit = (Unit) res[0];
+            long count = (long) res[1];
+
+            unitData = new UnitData(unit,unit.getParentUnit());
+            unitData.setHasUsers(count > 0);
+            resultList.add(unitData);
+        }
+
+        if (result != null && resultList != null) {
+            return resultList;
         }
 
         return new ArrayList<>();
@@ -118,23 +132,22 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
 
-        List<Unit> units = getOrganizationUnits(organizationId);
+        List<UnitData> units = getOrganizationUnits(organizationId);
         Map<Long, List<UnitData>> childUnits = new HashMap<>();
         Map<Long, UnitData> parentUnits = new HashMap<>();
         List<UnitData> unitsToReturn = new ArrayList<>();
 
-        for (Unit u : units) {
-            UnitData ud = new UnitData(u);
-            parentUnits.put(u.getId(), ud);
+        for (UnitData u : units) {
+            parentUnits.put(u.getId(), u);
             if (u.getParentUnit() == null) {
-                unitsToReturn.add(ud);
+                unitsToReturn.add(u);
             } else {
                 List<UnitData> children = childUnits.get(u.getParentUnit().getId());
                 if (children != null) {
-                    children.add(ud);
+                    children.add(u);
                 } else {
                     List<UnitData> children1 = new ArrayList<>();
-                    children1.add(ud);
+                    children1.add(u);
                     childUnits.put(u.getParentUnit().getId(), children1);
                 }
             }
@@ -213,18 +226,14 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     if(ud.getChildrenUnits() != null && !ud.getChildrenUnits().isEmpty()){
                         for(UnitData ud1 : ud.getChildrenUnits()) {
                             Unit u1 = loadResource(Unit.class,ud1.getId());
-                            u1.setDeleted(true);
-                            saveEntity(u1);
+                            delete(u1);
                         }
                     }
                     Unit u1 = loadResource(Unit.class,ud.getId());
-                    u1.setDeleted(true);
-                    saveEntity(u1);
+                    delete(u1);
                 }
             }
-
-            unit.setDeleted(true);
-            saveEntity(unit);
+            delete(unit);
         } catch (ResourceCouldNotBeLoadedException e) {
             throw new DbConnectionException("Error while deleting unit");
         }

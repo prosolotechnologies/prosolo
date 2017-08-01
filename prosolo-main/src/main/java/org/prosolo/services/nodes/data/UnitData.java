@@ -1,14 +1,13 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.user.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Bojan
+ * @author Bojan Trifkovic
  * @date 2017-07-04
  * @since 0.7
  */
@@ -18,6 +17,8 @@ public class UnitData implements Serializable,Comparable<UnitData> {
     private String title;
     private long parentUnitId;
     private List<UnitData> childrenUnits;
+    private boolean hasUsers;
+    private Unit parentUnit;
 
     public UnitData(){
         childrenUnits = new ArrayList<>();
@@ -34,6 +35,13 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this();
         this.id = unit.getId();
         this.title = unit.getTitle();
+    }
+
+    public UnitData(Unit unit,Unit parentUnit){
+        this();
+        this.id = unit.getId();
+        this.title = unit.getTitle();
+        this.parentUnit = parentUnit;
     }
 
     public UnitData(Unit unit,long parentUnitId){
@@ -77,6 +85,22 @@ public class UnitData implements Serializable,Comparable<UnitData> {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public boolean isHasUsers() {
+        return hasUsers;
+    }
+
+    public void setHasUsers(boolean hasUsers) {
+        this.hasUsers = hasUsers;
+    }
+
+    public Unit getParentUnit() {
+        return parentUnit;
+    }
+
+    public void setParentUnit(Unit parentUnit) {
+        this.parentUnit = parentUnit;
     }
 
     @Override

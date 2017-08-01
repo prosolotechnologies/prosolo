@@ -117,11 +117,15 @@ public class UnitsBean implements Serializable {
      public void delete(){
          if(unitToDelete != null){
              try {
-                 unitManager.delete(this.unitToDelete.getId(),this.unitToDelete.getChildrenUnits());
+                 if(!unitToDelete.isHasUsers()) {
+                     unitManager.delete(this.unitToDelete.getId(), this.unitToDelete.getChildrenUnits());
 
-                 PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
-                 this.unitToDelete = new UnitData();
-                 loadUnits();
+                     PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
+                     this.unitToDelete = new UnitData();
+                     loadUnits();
+                 }else{
+                     PageUtil.fireErrorMessage("Unit can not be deleted as there are users associated with it.");
+                 }
              } catch (Exception ex) {
                  logger.error(ex);
                  PageUtil.fireErrorMessage("Error while trying to delete unit");
