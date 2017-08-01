@@ -127,7 +127,7 @@
 			                        <div class="manageCompetencesListLeft">
 			                            <h2>
 			                            	<h:link outcome="/manage/competence">
-			                            		#{comp.title}<span>#{comp.published or comp.archived ? '' : ' (Draft)'}</span>
+			                            		#{comp.title}<span>#{!comp.published and comp.datePublished ne null ? ' (Unpublished) ' : ' (Draft)'}</span>
 			                            		<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            	</h:link>
 			                            </h2>
