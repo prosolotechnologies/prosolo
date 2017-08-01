@@ -116,14 +116,14 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">Competence Info</a></li>
+			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">Competency Info</a></li>
 			                        <li role="presentation" class="#{param.tab eq 'activities' ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'activities' ? 'active in' : '' }" id="info">
 			                        <div class="whiteBox">
-			                            <h2>Competence Info</h2>
+			                            <h2>Competency Info</h2>
 			                            <div class="formWrapper">
 			                                <h:panelGroup layout="block" rendered="#{not competenceEditBean.createUseCase or competenceEditBean.decodedCredId gt 0}" styleClass="formLine">
 			                                    <label>Parent credential(s)</label>
