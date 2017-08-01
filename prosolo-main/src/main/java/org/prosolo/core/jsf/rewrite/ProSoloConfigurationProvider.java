@@ -183,6 +183,7 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/organizations/{orgId}/units/{id}/teachers").to("/admin/unit-teachers.xhtml"))
 				.addRule(Join.path("/admin/organizations/{orgId}/units/{id}/students").to("/admin/unit-students.xhtml"))
 				.addRule(Join.path("/admin/organizations/{orgId}/units/{id}/instructors").to("/admin/unit-instructors.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/units/{id}/groups").to("/admin/unit-groups.xhtml"))
 				.addRule(Join.path("/admin/organizations/new").to("/admin/adminOrganizationNew.xhtml"))
 				.addRule(Join.path("/admin/admins/{id}/edit/password").to("/admin/adminEditAdminPassword.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))
