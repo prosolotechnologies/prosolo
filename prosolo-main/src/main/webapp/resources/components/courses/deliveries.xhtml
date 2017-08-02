@@ -1,17 +1,28 @@
 <ui:component
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:composite="http://java.sun.com/jsf/composite"
-		xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:f="http://xmlns.jcp.org/jsf/core">
 
 	<composite:interface>
 		<composite:attribute name="activeDeliveries" required="true" />
 		<composite:attribute name="pendingDeliveries" required="true" />
 		<composite:attribute name="finishedDeliveries" required="true" />
+		<composite:attribute name="credTitle" />
+		<composite:attribute name="credId" />
 		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
 	</composite:interface>
 	
 	<composite:implementation>
+		<div class="container">
+			<ol class="breadcrumb">
+				<li><h:link value="Credentials" outcome="credentialLibrary"></h:link></li>
+				<li class="active">#{cc.attrs.credTitle}</li>
+			</ol>
+		</div>
 		<div class="col-md-12">
 			<h2>Active Deliveries</h2>
 			<div class="whiteBox deliveriesList">
