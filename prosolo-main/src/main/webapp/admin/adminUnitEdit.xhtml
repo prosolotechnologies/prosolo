@@ -48,10 +48,8 @@
                             <h:link value="Units" outcome="/admin/units">
                             <f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
                         </li>
-                        <li>
-                            <h:link value="#{unitEditBean.unit.title}" outcome="/admin/adminUnitEdit">
-                                <f:param name="id" value="#{unitsBean.organizationId}"></f:param>
-                                <f:param name="unitId" value="#{util:encodeId(unitEditBean.unit.id)}"></f:param></h:link>
+                        <li class="active">
+                            #{unitEditBean.unit.title}
                         </li>
                     </ol>
                 </div>

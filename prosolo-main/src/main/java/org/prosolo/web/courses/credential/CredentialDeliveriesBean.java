@@ -108,14 +108,6 @@ public class CredentialDeliveriesBean implements Serializable {
 		this.id = id;
 	}
 
-	public long getDecodedId() {
-		return decodedId;
-	}
-
-	public void setDecodedId(long decodedId) {
-		this.decodedId = decodedId;
-	}
-
 	public List<CredentialData> getActiveDeliveries() {
 		return activeDeliveries;
 	}

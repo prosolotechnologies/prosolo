@@ -56,11 +56,12 @@
                         <li>
                             <h:link value="Organizations" outcome="/admin/adminOrganizations"/>
                         </li>
-                        <li>
-                            <h:link rendered="#{not empty organizationEditBean.id}" value="#{organizationEditBean.organization.title}" outcome="/admin/adminOrganizationNew">
-                                <f:param name="id" value="#{organizationEditBean.id}" /></h:link>
-                            <h:link rendered="#{empty organizationEditBean.id}" value="New Organization" outcome="/admin/adminOrganizationNew"></h:link>
-                        </li>
+                        <ui:fragment rendered="#{not empty organizationEditBean.id}">
+                            <li class="active">#{organizationEditBean.organization.title}</li>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{empty organizationEditBean.id}">
+                            <li class="active">New Organization</li>
+                        </ui:fragment>
                     </ol>
                 </div>
                 <div class="col-md-12">
