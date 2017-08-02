@@ -224,23 +224,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
-		try {
-			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			UserGroupUser ugUser = new UserGroupUser();
-			ugUser.setGroup(group);
-			ugUser.setUser(user);
-			saveEntity(ugUser);
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while adding the user to the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
 	public void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException {
 		try {
 			Optional<UserGroupUser> groupUser = getUserGroupUser(groupId, userId);
@@ -878,6 +861,19 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throw new NullPointerException();
 		}
 		saveNewUserToUserGroup(userId, compGroup.getUserGroup(), session);
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			saveNewUserToUserGroup(userId, group, persistence.currentManager());
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while adding the user to the group");
+		}
 	}
 
 	private void saveNewUserToUserGroup(long userId, UserGroup userGroup, Session session) {

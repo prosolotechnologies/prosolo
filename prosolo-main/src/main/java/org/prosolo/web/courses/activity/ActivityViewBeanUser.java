@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.IOException;
@@ -239,20 +238,11 @@ public class ActivityViewBeanUser implements Serializable {
 			lcd.setService(PageUtil.getPostParameter("service"));
 			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), lcd);
 			//initializeActivityData();
-			
-			try {
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				if(decodedCredId > 0) {
-					extContext.redirect(extContext.getRequestContextPath() + "/credentials/" + 
-						credId + "/" + compId + "/" + actId);
-				} else {
-					FacesContext.getCurrentInstance().getExternalContext().redirect(
-							extContext.getRequestContextPath() +
-							"/competences/" + compId + "/" + actId);
-				}
-			} catch (IOException e) {
-				logger.error(e);
-				e.printStackTrace();
+
+			if (decodedCredId > 0) {
+				PageUtil.redirect("/credentials/" + credId + "/" + compId + "/" + actId);
+			} else {
+				PageUtil.redirect("/competences/" + compId + "/" + actId);
 			}
 		} catch(DbConnectionException e) {
 			logger.error(e);
