@@ -55,6 +55,17 @@
 
 		<div class="container">
 			<div class="row">
+				<div class="container">
+					<ol class="breadcrumb">
+						<li>
+							<h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+						</li>
+						<li>
+							<h:link value="Units" outcome="/admin/units">
+								<f:param name="id" value="#{unitEditBean.organizationId}" /></h:link>
+						</li>
+					</ol>
+				</div>
 				<h:form id="formUnits">
 					<div class="col-md-12">
 						<ui:fragment rendered="#{empty unitEditBean.units}">

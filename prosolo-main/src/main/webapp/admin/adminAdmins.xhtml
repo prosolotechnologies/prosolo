@@ -81,6 +81,13 @@
 
     <div class="container">
         <div class="row">
+			<div class="container">
+				<ol class="breadcrumb">
+					<li>
+						<h:link value="Admins" outcome="/admin/adminAdmins"/>
+					</li>
+				</ol>
+			</div>
         	<h:panelGroup layout="block" id="panelAdmins" styleClass="col-md-12">
             	<ul class="whiteBox peopleList">
                 	<ui:repeat var="admin" value="#{adminAdmins.admins}">
