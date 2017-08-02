@@ -281,4 +281,23 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public String getUnitTitle(long organizationId, long unitId) throws DbConnectionException {
+        try {
+            String query = "SELECT unit.title FROM Unit unit " +
+                    "WHERE unit.id = :unitId " +
+                    "AND unit.organization.id = :orgId";
+
+            return (String) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("orgId", organizationId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit title");
+        }
+    }
+
 }

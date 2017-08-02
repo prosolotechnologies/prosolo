@@ -77,8 +77,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					logger.info("ID: " + hit.getSource().get("id"));
 					long id = Long.parseLong(hit.getSource().get("id").toString());
 					String name = (String) hit.getSource().get("name");
-					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
-					UserGroupData group = new UserGroupData(id, name, userCount);
+					UserGroupData group = userGroupManager.getUserCountAndCanBeDeletedGroupData(id);
+					group.setId(id);
+					group.setName(name);
 					response.addFoundNode(group);
 				}
 			}

@@ -72,10 +72,10 @@ public class PageUtil {
 	}
 	
 	public static void fireSuccessfulInfoMessage(String clientId, String description) {
-		fireInfoMessage(clientId, "Successful", description); 
+		fireWarnMessage(clientId, "Successful", description);
 	} 
 
-	public static void fireInfoMessage(String clientId, String title, String description) {
+	public static void fireWarnMessage(String clientId, String title, String description) {
 		FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(title, description));
 	}
 	
@@ -89,6 +89,10 @@ public class PageUtil {
 	
 	public static void fireErrorMessage(String clientId, String title, String description) {
 		FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR, title, description));
+	}
+
+	public static void fireWarnMessage(String title, String description) {
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, title, description));
 	}
 	
 	@SuppressWarnings("unchecked")

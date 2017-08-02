@@ -45,4 +45,5 @@ public interface UnitManager extends AbstractManager{
 
     List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException;
 
+    String getUnitTitle(long organizationId, long unitId) throws DbConnectionException;
 }

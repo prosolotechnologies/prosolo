@@ -16,15 +16,17 @@ public class UserGroupData implements Serializable {
 	private boolean isUserInGroup;
 	private boolean joinUrlActive;
 	private String joinUrlPassword;
+	private boolean canBeDeleted;
 	
 	public UserGroupData() {
 		
 	}
 	
-	public UserGroupData(long id, String name, long userCount) {
+	public UserGroupData(long id, String name, boolean canBeDeleted, long userCount) {
 		this.id = id;
 		this.name = name;
 		this.userCount = userCount;
+		this.canBeDeleted = canBeDeleted;
 	}
 	
 	public UserGroupData(long id, String name, long userCount, boolean isUserInGroup) {
@@ -39,6 +41,11 @@ public class UserGroupData implements Serializable {
 		this.name = group.getName();
 		this.joinUrlActive = group.isJoinUrlActive();
 		this.joinUrlPassword = group.getJoinUrlPassword();
+	}
+
+	public UserGroupData(long userCount, boolean canBeDeleted) {
+		this.userCount = userCount;
+		this.canBeDeleted = canBeDeleted;
 	}
 
 	public long getId() {
@@ -93,5 +100,8 @@ public class UserGroupData implements Serializable {
 	public void setJoinUrlPassword(String joinUrlPassword) {
 		this.joinUrlPassword = joinUrlPassword;
 	}
-	
+
+	public boolean isCanBeDeleted() {
+		return canBeDeleted;
+	}
 }

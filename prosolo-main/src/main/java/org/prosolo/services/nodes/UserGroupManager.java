@@ -227,4 +227,6 @@ public interface UserGroupManager extends AbstractManager {
 														 boolean isDefault, long actorId, LearningContextData context)
 			throws DbConnectionException;
 
+	UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException;
+
 }

@@ -88,14 +88,17 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			throws DbConnectionException {
 		try {
 			String query = 
-				"SELECT g " +
+				"SELECT g, COUNT(distinct credGroup), COUNT(distinct compGroup) " +
 				"FROM UserGroup g " +
+				"LEFT JOIN g.credentialUserGroups credGroup " +
+				"LEFT JOIN g.competenceUserGroups compGroup " +
 				"WHERE g.name LIKE :term " +
+				"GROUP BY g " +
 				"ORDER BY g.name ASC";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = persistence.currentManager()
+			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
 					.setString("term", "%" + term)
 					.setFirstResult(page * limit)
@@ -106,8 +109,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				return new ArrayList<>();
 			}
 			List<UserGroupData> groups = new ArrayList<>();
-			for(UserGroup group : result) {
-				groups.add(new UserGroupData(group.getId(), group.getName(), group.getUsers().size()));
+			for(Object[] res : result) {
+				UserGroup group = (UserGroup) res[0];
+				long credGroupsNo = (long) res[1];
+				long compGroupsNo = (long) res[2];
+				groups.add(
+						new UserGroupData(
+								group.getId(), group.getName(),
+								(credGroupsNo + compGroupsNo) == 0, group.getUsers().size()));
 			}
 			return groups;
 		} catch(Exception e) {
@@ -361,6 +370,34 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while retrieving number of users in a group");
     	}
     }
+
+	@Override
+	@Transactional(readOnly = true)
+	public UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(distinct user), COUNT(distinct credGroup), COUNT(distinct compGroup) FROM UserGroup g " +
+					"LEFT JOIN g.users user " +
+					"LEFT JOIN g.credentialUserGroups credGroup " +
+					"LEFT JOIN g.competenceUserGroups compGroup " +
+					"WHERE g.id = :groupId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("groupId", groupId)
+					.uniqueResult();
+
+			long userCount = (long) res[0];
+			long credGroupsCount = (long) res[1];
+			long compGroupsCount = (long) res[2];
+
+			UserGroupData ugd = new UserGroupData(userCount, (credGroupsCount + compGroupsCount) == 0);
+			return ugd;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving user group data");
+		}
+	}
 	
 	@Override
 	@Transactional(readOnly = true)

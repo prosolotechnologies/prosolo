@@ -1,4 +1,4 @@
-package org.prosolo.web.users;
+package org.prosolo.web.administration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,9 +12,13 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.users.GroupUsersBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -34,6 +38,14 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	@Inject private GroupUsersBean groupUsersBean;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private UnitManager unitManager;
+	@Inject private OrganizationManager orgManager;
+
+	private String orgId;
+	private long decodedOrgId;
+	private String unitId;
+	private long decodedUnitId;
 	
 	private List<UserGroupData> groups;
 	
@@ -41,11 +53,26 @@ public class ManageGroupsBean implements Serializable, Paginable {
 
 	// used for group search
 	private String searchTerm = "";
+
+	private String unitTitle;
+	private String organizationTitle;
 	
 	private PaginationData paginationData = new PaginationData();
 
 	public void init() {
-		loadGroups();
+		decodedOrgId = idEncoder.decodeId(orgId);
+		decodedUnitId = idEncoder.decodeId(unitId);
+		if (decodedOrgId > 0 && decodedUnitId > 0) {
+			unitTitle = unitManager.getUnitTitle(decodedOrgId, decodedUnitId);
+			if (unitTitle != null) {
+				organizationTitle = orgManager.getOrganizationTitle(decodedOrgId);
+				loadGroupsFromDB();
+			} else {
+				PageUtil.notFound();
+			}
+		} else {
+			PageUtil.notFound();
+		}
 	}
 	
 	public void prepareGroupForEdit(UserGroupData group) {
@@ -130,9 +157,12 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			PageUtil.fireSuccessfulInfoMessage("Group " + groupForEdit.getName() + " is deleted");
 			loadGroupsFromDB();
 			groupForEdit = null;
-		} catch (Exception ex) {
+		} catch (DbConnectionException ex) {
 			logger.error(ex);
-			PageUtil.fireErrorMessage("Error while trying to delete group " + groupForEdit.getName());
+			loadGroupsFromDB();
+			String groupName = groupForEdit.getName();
+			groupForEdit = null;
+			PageUtil.fireWarnMessage("Error","Error while trying to delete group " + groupName);
 		}
 	}
 	
@@ -196,5 +226,36 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	public PaginationData getPaginationData() {
 		return paginationData;
 	}
-	
+
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getUnitId() {
+		return unitId;
+	}
+
+	public void setUnitId(String unitId) {
+		this.unitId = unitId;
+	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
+	public long getDecodedUnitId() {
+		return decodedUnitId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public String getUnitTitle() {
+		return unitTitle;
+	}
 }
