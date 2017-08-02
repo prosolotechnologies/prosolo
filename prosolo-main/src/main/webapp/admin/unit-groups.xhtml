@@ -109,7 +109,12 @@
                                     Users: <span>#{group.userCount}</span>
                                 </div>
                                 <div class="userEditOpt">
-                                    <a href="admin-organizations-unit-group.html">Manage Users</a>
+                                    <h:link outcome="/admin/unit-group-users">
+                                        Manage Users
+                                        <f:param name="orgId" value="#{param.orgId}" />
+                                        <f:param name="unitId" value="#{param.id}" />
+                                        <f:param name="id" value="#{util:encodeId(group.id)}" />
+                                    </h:link>
                                     <p:commandLink pt:data-toggle="modal"
                                                    process="@this"
                                                    action="#{manageGroupsBean.prepareGroupForEditJoinURL(group.id)}"
