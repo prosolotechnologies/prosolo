@@ -1,20 +1,11 @@
 package org.prosolo.search.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-//import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -24,6 +15,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
@@ -33,6 +25,16 @@ import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+//import org.elasticsearch.index.query.BoolQueryBuilder;
+//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -63,12 +65,13 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	@Transactional
 	@Override
 	public PaginatedResult<UserGroupData> searchUserGroups (
-			String searchString, int page, int limit) {
+			long orgId, long unitId, String searchString, int page, int limit) {
 		
 		PaginatedResult<UserGroupData> response = new PaginatedResult<>();
 		
 		try {
-			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
+			List<Long> unitIds = Arrays.asList(unitId);
+			SearchResponse sResponse = getUserGroupsSearchResponse(orgId, unitIds, searchString, page, limit);
 	
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -98,7 +101,8 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		PaginatedResult<UserGroupData> response = new PaginatedResult<>();
 		
 		try {
-			SearchResponse sResponse = getUserGroupsSearchResponse(searchString, page, limit);
+			//TODO see what to do with org and unit id
+			SearchResponse sResponse = getUserGroupsSearchResponse(0, null, searchString, page, limit);
 	
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
@@ -120,7 +124,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		return response;
 	}
 	
-	private SearchResponse getUserGroupsSearchResponse(String searchString, int page, int limit) {
+	private SearchResponse getUserGroupsSearchResponse(long orgId, List<Long> unitIds, String searchString, int page, int limit) {
 		int start = 0;
 		int size = maxResults;
 		if(limit > 0) {
@@ -129,16 +133,26 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		
 		Client client = ElasticSearchFactory.getClient();
-		esIndexer.addMapping(client, ESIndexNames.INDEX_USER_GROUP, ESIndexTypes.USER_GROUP);
+		String fullIndexName = ESIndexNames.INDEX_USER_GROUP + ElasticsearchUtil
+				.getOrganizationIndexSuffix(orgId);
+		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
 		
 		QueryBuilder qb = QueryBuilders
 				.queryStringQuery(searchString.toLowerCase() + "*").useDisMax(true)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-		bQueryBuilder.should(qb);
+		bQueryBuilder.filter(qb);
+
+		if (unitIds != null && !unitIds.isEmpty()) {
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("unit", unitId));
+			}
+			bQueryBuilder.filter(unitFilter);
+		}
 		
-		SearchRequestBuilder srb = client.prepareSearch(ESIndexNames.INDEX_USER_GROUP)
+		SearchRequestBuilder srb = client.prepareSearch(fullIndexName)
 				.setTypes(ESIndexTypes.USER_GROUP)
 				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 				.setQuery(bQueryBuilder)

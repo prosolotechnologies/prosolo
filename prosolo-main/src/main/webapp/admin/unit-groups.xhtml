@@ -7,6 +7,7 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
 >
 
     <ui:define name="windowTitle" >
@@ -34,6 +35,8 @@
 
     <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
     <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+
+    <ui:param name="learningContext" value="name:ORGANIZATION|id:#{manageGroupsBean.decodedOrgId}|context:/name:UNIT|id:#{manageGroupsBean.decodedUnitId}/"></ui:param>
 
     <div class="whiteBar">
         <div class="container">
@@ -187,7 +190,7 @@
                                            update=":growlMain"
                                            oncomplete="$('#joinURLModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                <f:param name="learningContext" value="name:join_by_url_group_dialog|id:#{manageGroupsBean.groupForEdit.id}" />
+                                <f:param name="learningContext" value="#{util:addSubContext(learningContext, 'name:join_by_url_group_dialog|id:'.concat(manageGroupsBean.groupForEdit.id))}" />
                                 Done
                             </p:commandLink>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -223,7 +226,7 @@
                                            oncomplete="$('#deleteGroup').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                 <f:param name="learningContext"
-                                         value="name:delete_dialog|id:#{manageGroupsBean.groupForEdit.id}" />
+                                         value="#{util:addSubContext(learningContext, 'name:delete_dialog|id:'.concat(manageGroupsBean.groupForEdit.id))}" />
                                 Delete
                             </p:commandLink>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -261,7 +264,7 @@
                                            oncomplete="$('#newGroupModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                 <f:param name="learningContext"
-                                         value="name:edit_dialog#{manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''}" />
+                                         value="#{util:addSubContext(learningContext, 'name:edit_dialog'.concat(manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''))}" />
                                 #{manageGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
                             </p:commandLink>
                             <p:defaultCommand target="create" />

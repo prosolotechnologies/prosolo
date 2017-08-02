@@ -115,9 +115,9 @@ public class ManageGroupsBean implements Serializable, Paginable {
 						loggedUserBean.getUserId(), lcd);
 				PageUtil.fireSuccessfulInfoMessage("Group name is updated");
 			} else {
-				userGroupManager.saveNewGroup(groupForEdit.getName(), false, 
+				userGroupManager.saveNewGroup(decodedUnitId, groupForEdit.getName(), false,
 						loggedUserBean.getUserId(), lcd);
-				PageUtil.fireSuccessfulInfoMessage("Group " + groupForEdit.getName() + " is created");
+				PageUtil.fireSuccessfulInfoMessage("Group '" + groupForEdit.getName() + "' is created");
 			}
 			loadGroupsFromDB();
 			groupForEdit = null;
@@ -174,8 +174,9 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	public void loadGroups() {
 		this.groups = new ArrayList<UserGroupData>();
 		try {
-			PaginatedResult<UserGroupData> res = userGroupTextSearch.searchUserGroups(searchTerm,
-					paginationData.getPage() - 1, paginationData.getLimit());
+			PaginatedResult<UserGroupData> res = userGroupTextSearch.searchUserGroups(
+					decodedOrgId, decodedUnitId, searchTerm, paginationData.getPage() - 1,
+					paginationData.getLimit());
 			this.paginationData.update((int) res.getHitsNumber());
 			groups = res.getFoundNodes();
 		} catch(Exception e) {
@@ -185,11 +186,11 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	
 	public void loadGroupsFromDB() {
 		try {
-			this.paginationData.update((int) userGroupManager.countGroups(searchTerm));
+			this.paginationData.update((int) userGroupManager.countGroups(decodedUnitId, searchTerm));
 			if(paginationData.getPage() > paginationData.getNumberOfPages()) {
 				paginationData.setPage(paginationData.getNumberOfPages());
 			}
-			groups = userGroupManager.searchGroups(searchTerm, paginationData.getLimit(), paginationData.getPage() - 1);
+			groups = userGroupManager.searchGroups(decodedUnitId, searchTerm, paginationData.getLimit(), paginationData.getPage() - 1);
 		} catch(DbConnectionException e) {
 			logger.error(e);
 		}

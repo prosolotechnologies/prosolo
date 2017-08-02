@@ -44,14 +44,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroup> getAllGroups() throws DbConnectionException {
+	public List<UserGroup> getAllGroups(boolean returnDefaultGroups, Session session) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT g " +
-				"FROM UserGroup g";
+				"FROM UserGroup g ";
+
+			if (!returnDefaultGroups) {
+				query += "WHERE g.defaultGroup IS FALSE";
+			}
 			
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = persistence.currentManager().createQuery(query).list();
+			List<UserGroup> result = session.createQuery(query).list();
 			
 			return result == null ? new ArrayList<>() : result; 
 		} catch(Exception e) {
@@ -84,7 +88,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroupData> searchGroups(String searchTerm, int limit, int page) 
+	public List<UserGroupData> searchGroups(long unitId, String searchTerm, int limit, int page)
 			throws DbConnectionException {
 		try {
 			String query = 
@@ -92,7 +96,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"FROM UserGroup g " +
 				"LEFT JOIN g.credentialUserGroups credGroup " +
 				"LEFT JOIN g.competenceUserGroups compGroup " +
-				"WHERE g.name LIKE :term " +
+				"WHERE g.unit.id = :unitId " +
+				"AND g.name LIKE :term " +
 				"GROUP BY g " +
 				"ORDER BY g.name ASC";
 			
@@ -100,6 +105,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
+					.setLong("unitId", unitId)
 					.setString("term", "%" + term)
 					.setFirstResult(page * limit)
 					.setMaxResults(limit)
@@ -128,16 +134,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-	public long countGroups(String searchTerm) throws DbConnectionException {
+	public long countGroups(long unitId, String searchTerm) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT COUNT(g.id) " +
 				"FROM UserGroup g " +
-				"WHERE g.name LIKE :term";
+				"WHERE g.unit.id = :unitId " +
+				"AND g.name LIKE :term";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			Long result = (Long) persistence.currentManager()
 					.createQuery(query)
+					.setLong("unitId", unitId)
 					.setString("term", "%" + term)
 					.uniqueResult();
 			
@@ -151,10 +159,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserGroup saveNewGroup(String name, boolean isDefault, long userId, 
+	public UserGroup saveNewGroup(long unitId, String name, boolean isDefault, long userId,
 			LearningContextData context) throws DbConnectionException {
 		try {
-			UserGroup group = resourceFactory.saveNewGroup(name, isDefault);
+			UserGroup group = resourceFactory.saveNewGroup(unitId, name, isDefault);
 			String page = context != null ? context.getPage() : null;
 			String lContext = context != null ? context.getLearningContext() : null;
 			String service = context != null ? context.getService() : null;

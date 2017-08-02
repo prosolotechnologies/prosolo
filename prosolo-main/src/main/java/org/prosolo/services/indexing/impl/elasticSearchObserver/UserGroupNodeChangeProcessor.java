@@ -12,6 +12,9 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.context.LearningContextUtil;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
@@ -26,16 +29,18 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private UserGroupManager userGroupManager;
 	private CompetenceESService compESService;
 	private Session session;
+	private ContextJsonParserService ctxJsonParserService;
 	
 	
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
 			CredentialESService credESService, UserGroupManager userGroupManager, 
-			CompetenceESService compESService, Session session) {
+			CompetenceESService compESService, ContextJsonParserService ctxJsonParserService, Session session) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
 		this.compESService = compESService;
+		this.ctxJsonParserService = ctxJsonParserService;
 		this.session = session;
 	}
 	
@@ -44,15 +49,19 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 		EventType type = event.getAction();
 		BaseEntity object = event.getObject();
 		BaseEntity target = event.getTarget();
-		if(type == EventType.Create || type == EventType.Edit) {
-			UserGroup group = (UserGroup) object;
-			if(!group.isDefaultGroup()) {
-				groupESService.saveUserGroup(group);
-			}
-		} else if(type == EventType.Delete) {
-			UserGroup group = (UserGroup) object;
-			if(!group.isDefaultGroup()) {
-				groupESService.deleteNodeFromES(group);
+		if (type == EventType.Create || type == EventType.Edit || type == EventType.Delete) {
+			long orgId = LearningContextUtil.getIdFromContext(
+					ctxJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
+			if (type == EventType.Create || type == EventType.Edit) {
+				UserGroup group = (UserGroup) object;
+				if (!group.isDefaultGroup()) {
+					groupESService.saveUserGroup(orgId, group);
+				}
+			} else if (type == EventType.Delete) {
+				UserGroup group = (UserGroup) object;
+				if (!group.isDefaultGroup()) {
+					groupESService.deleteUserGroup(orgId, group.getId());
+				}
 			}
 		} else if(type == EventType.ADD_USER_TO_GROUP || type == EventType.REMOVE_USER_FROM_GROUP) {
 			long userId = ((User) object).getId();

@@ -142,11 +142,9 @@ public class BulkDataAdministration implements Serializable {
 			}
 			
 			//index user groups
-			List<UserGroup> groups = userGroupManager.getAllGroups();
+			List<UserGroup> groups = userGroupManager.getAllGroups(false, session);
 			for(UserGroup group : groups) {
-				if(!group.isDefaultGroup()) {
-					userGroupESService.saveUserGroup(group);
-				}
+				userGroupESService.saveUserGroup(group.getUnit().getOrganization().getId(), group);
 			}
 		} catch (Exception e) {
 			logger.error("Exception in handling message", e);

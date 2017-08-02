@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserGroupESService;
 import org.prosolo.services.nodes.UserGroupManager;
@@ -24,19 +25,29 @@ public class UserGroupESServiceImpl extends AbstractBaseEntityESServiceImpl impl
 	
 	@Override
 	@Transactional
-	public void saveUserGroup(UserGroup group) {
+	public void saveUserGroup(long orgId, UserGroup group) {
 	 	try {
 			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 			builder.field("id", group.getId());
+			builder.field("unit", group.getUnit().getId());
 			builder.field("name", group.getName());
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
-			indexNode(builder, String.valueOf(group.getId()), ESIndexNames.INDEX_USER_GROUP, 
+			String fullIndexName = ESIndexNames.INDEX_USER_GROUP +
+					ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			indexNode(builder, String.valueOf(group.getId()), fullIndexName,
 					ESIndexTypes.USER_GROUP);
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void deleteUserGroup(long orgId, long groupId) {
+		String fullIndexName = ESIndexNames.INDEX_USER_GROUP +
+				ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+		delete(groupId + "", fullIndexName, ESIndexTypes.USER_GROUP);
 	}
 
 }
