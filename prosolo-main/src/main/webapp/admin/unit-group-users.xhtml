@@ -1,0 +1,215 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
+>
+
+    <ui:define name="windowTitle" >
+        #{groupUsersBean.userGroupTitle} - Users
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="orgId" value="#{groupUsersBean.orgId}" />
+            <f:viewParam name="unitId" value="#{groupUsersBean.unitId}" />
+            <f:viewParam name="id" value="#{groupUsersBean.groupId}" />
+            <f:viewParam name="p" value="#{groupUsersBean.page}" default="1" />
+            <f:viewAction action="#{groupUsersBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle" >
+        <h1>#{groupUsersBean.userGroupTitle}</h1>
+    </ui:define>
+
+    <ui:define name="content">
+        <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+        <ui:param name="learningContext" value="name:ORGANIZATION|id:#{groupUsersBean.decodedOrgId}|context:/name:UNIT|id:#{groupUsersBean.decodedUnitId}|context:/name:USER_GROUP|id:#{groupUsersBean.decodedGroupId}//"></ui:param>
+        
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <a href="#" class="btn btn-green btn-sm item" data-toggle="modal" data-target="#addStudentsModal">Add Students</a>
+
+                        <div class="searchBox">
+                            <h:form>
+                                <p:remoteCommand name="execSearchGroupUsers"
+                                                 process="inputGroupUsersSearch"
+                                                 update=":panelUsers :pagination"
+                                                 action="#{groupUsersBean.resetAndSearch()}" />
+
+                                <h:inputText id="inputGroupUsersSearch" type="search"
+                                             placeholder="Filter by Name" value="#{groupUsersBean.searchTerm}"
+                                             onclick="$(this).select();"
+                                             onkeyup="searchListener(execSearchGroupUsers);" />
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+                <li>
+                    <h:link outcome="/admin/adminOrganizationNew">
+                        #{groupUsersBean.organizationTitle}
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/adminUnits">
+                        Units
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/adminUnitEdit">
+                        #{groupUsersBean.unitTitle}
+                        <f:param name="id" value="#{param.orgId}" />
+                        <f:param name="unitId" value="#{param.unitId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/unit-groups">
+                        Unit Groups
+                        <f:param name="orgId" value="#{param.orgId}" />
+                        <f:param name="id" value="#{param.unitId}" />
+                    </h:link>
+                </li>
+                <li class="active">#{groupUsersBean.userGroupTitle}</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="whiteBox manageVisibility">
+                        <div class="innerWrapper">
+                            <p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import students from CSV file</a></p>
+                        </div>
+                        <h:panelGroup id="panelUsers">
+                            <ul class="list hasTopBorder">
+                                <ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
+                                    <li>
+                                        <div class="instructorInfo">
+                                            <utilcomp:userAvatar avatar="#{user.avatarUrl}"
+                                                                 fullName="#{user.fullName}" width="48" height="48" />
+
+                                            <div class="infoWrap">
+                                                <h3>#{user.fullName}</h3>
+                                                <span>#{user.position}</span>
+                                            </div>
+                                        </div>
+                                        <div class="assignOpt">
+                                            <p:commandLink styleClass="removeX" process="@this"
+                                                           action="#{groupUsersBean.removeUserFromGroup(user)}"
+                                                           update=":panelUsers">
+                                                Close
+                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                <f:param name="learningContext"
+                                                         value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
+                                            </p:commandLink>
+                                        </div>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </h:panelGroup>
+
+                        <utilcomp:pagination id="pagination"
+                                             bean="#{groupUsersBean}"
+                                             toUpdate=":panelUsers"
+                                             updateUrl="true"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade importStudentsModal" id="importStudentsModal" tabindex="-1" role="dialog" aria-labelledby="impStudentsModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title">Import users</h2>
+                    </div>
+                    <div class="modal-body alignLeft">
+                        <p>Upload CSV with student data in order to add them to the group. Student data should be in the format:<br></br><strong>name,lastname,email</strong></p>
+                        <div class="uploadBtn">
+                            <a href="#" class="btn btn-green btn-sm">Choose File</a>
+                            file.csv
+                        </div>
+                    </div>
+                    <div class="modal-footer alignLeft">
+                        <a href="#" class="btn btn-green">Import</a>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade addStudentsModal" id="addStudentsModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title">Add Students to Unit</h2>
+                    </div>
+                    <div class="searchInstructors">
+                        <input type="search" name="name" value="" placeholder="Search Students or Groups"></input>
+                    </div>
+                    <ul class="list">
+                        <li>
+                            <div class="instructorInfo">
+                                <img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
+                                <div class="infoWrap">
+                                    <h3>Gustavo Fring</h3>
+                                    <span>Teaching Assistant, University of Texas</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <div class="buttonWrapper">
+                                    <a href="#" class="btn btn-green btn-sm">Add</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instructorInfo">
+                                <span class="letterAvatar letterAvatar48 img-circle">WW</span>
+                                <div class="infoWrap">
+                                    <h3>Gustavo Fring</h3>
+                                    <span>Teaching Assistant, University of Texas</span>
+                                </div>
+                            </div>
+                            <div class="assignOpt">
+                                <div class="buttonWrapper">
+                                    <a href="#" class="btn btn-green btn-sm">Add</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <nav class="paginationWrapper">
+                        <ul class="pagination">
+                            <li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
+                            <li><a href="#">1</a></li>
+                            <li class="active"><a href="#">2</a></li>
+                            <li>...</li>
+                            <li><a href="#">7</a></li>
+                            <li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

@@ -46,6 +46,7 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	private RoleManager roleManager;
 	@Inject private Competence1Manager compManager;
 	@Inject private UnitManager unitManager;
+	@Inject private UserGroupManager userGroupManager;
 
 	@Override
 	public void saveUserNode(User user, Session session) {
@@ -200,6 +201,15 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 						builder.field("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(
 								tc.getDateCompleted()));
 					}
+					builder.endObject();
+				}
+				builder.endArray();
+
+				builder.startArray("groups");
+				List<Long> groups = userGroupManager.getUserGroupIds(user.getId(), false);
+				for (long id : groups) {
+					builder.startObject();
+					builder.field("id", id);
 					builder.endObject();
 				}
 				builder.endArray();
@@ -519,6 +529,53 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 					ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
 					ESIndexTypes.ORGANIZATION_USER,
 					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addGroup(long orgId, long userId, long groupId) {
+		try {
+			String script =
+					"if (ctx._source[\"groups\"] == null) { " +
+							"ctx._source.groups = group " +
+							"} else { " +
+							"ctx._source.groups += group " +
+							"}";
+
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", groupId);
+			params.put("group", param);
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			partialUpdateByScript(indexName, ESIndexTypes.ORGANIZATION_USER,
+					userId + "", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void removeGroup(long orgId, long userId, long groupId) {
+		try {
+			String script = "groupToRemove = null; "
+					+ "for (g in ctx._source.groups) {"
+					+ "if (g['id'] == groupId) "
+					+ "{ groupToRemove = g; break; } }; "
+					+ "if (groupToRemove != null) "
+					+ "{ ctx._source.groups.remove(groupToRemove); }";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("groupId", groupId);
+
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			partialUpdateByScript(indexName, ESIndexTypes.ORGANIZATION_USER,
+					userId + "", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

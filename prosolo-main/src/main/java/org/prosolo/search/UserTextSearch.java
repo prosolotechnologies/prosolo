@@ -99,9 +99,9 @@ public interface UserTextSearch extends AbstractManager {
 	 */
 	PaginatedResult<UserData> searchPeopleUserFollows(String searchTerm,
                                                       int page, int limit, long userId);
-	
-	PaginatedResult<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
+
+	PaginatedResult<UserData> searchUsersInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
 
 	/**
 	 * Searches through credential members by their name and last name, except for the excluded ones.

@@ -53,4 +53,5 @@ public interface UnitManager extends AbstractManager{
     Result<Unit> updateUnitAndGetEvents(long unitId,String title, long creatorId,LearningContextData contextData) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
+    String getUnitTitle(long organizationId, long unitId) throws DbConnectionException;
 }

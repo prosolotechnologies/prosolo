@@ -98,7 +98,6 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
-    @Transactional
     private List<Unit> getOrganizationUnits(long organizationId) {
 
         String query =
@@ -317,13 +316,13 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
             String query =
                     "UPDATE Unit unit " +
-                    "SET unit.title = :title " +
-                    "WHERE unit.id = :unitId ";
+                            "SET unit.title = :title " +
+                            "WHERE unit.id = :unitId ";
 
             persistence.currentManager()
                     .createQuery(query)
-                    .setString("title",title)
-                    .setParameter("unitId",unitId)
+                    .setString("title", title)
+                    .setParameter("unitId", unitId)
                     .executeUpdate();
 
             res.addEvent(eventFactory.generateEventData(EventType.Edit, creatorId, unit, null, contextData, null));
@@ -338,6 +337,25 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while saving organization unit");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getUnitTitle(long organizationId, long unitId) throws DbConnectionException {
+        try {
+            String query = "SELECT unit.title FROM Unit unit " +
+                    "WHERE unit.id = :unitId " +
+                    "AND unit.organization.id = :orgId";
+
+            return (String) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("orgId", organizationId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit title");
         }
     }
 

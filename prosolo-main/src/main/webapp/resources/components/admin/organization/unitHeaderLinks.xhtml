@@ -60,8 +60,16 @@
 					 <a href="javascript:void(0);">Instructors</a>
 				 </ui:fragment>
 			 </li>
-			 <li role="presentation">
-				 <a href="javascript:void(0);">Groups</a>
+			 <li role="presentation" class="#{page eq 'unit-groups' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-groups'}"
+						 outcome="/admin/unit-groups">
+					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Student Groups
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'unit-groups'}">
+					 <a href="javascript:void(0);">Student Groups</a>
+				 </ui:fragment>
 			 </li>
 		 </ul>
      </div>

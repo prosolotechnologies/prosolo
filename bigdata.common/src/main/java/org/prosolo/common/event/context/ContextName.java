@@ -75,8 +75,10 @@ public enum ContextName {
 	START_DELIVERY(""),
 	ORGANIZATION("Organization"),
     NEW_UNIT(""),
-	UPDATE_UNIT("");
-	
+	UPDATE_UNIT(""),
+	UNIT("Unit"),
+	USER_GROUP("UserGroup");
+
     private String objectType; 
     
     ContextName(String objectType) {

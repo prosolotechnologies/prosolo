@@ -5,6 +5,10 @@
 				"store": false,
 				"type":"long"
 			},
+			"unit": {
+				"store": false,
+				"type" : "long"
+			},
 			"name":{
 				"store": false,
 				"type": "string"
