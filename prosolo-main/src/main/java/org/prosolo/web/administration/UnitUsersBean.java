@@ -48,7 +48,7 @@ public class UnitUsersBean implements Serializable {
 	private long roleId;
 	//users currently added to unit with role
 	private List<UnitRoleMembershipData> existingUsers;
-	//users not added to unit that are being searched
+	//users available for adding to unit with role
 	private List<UserData> users;
 	private String searchTerm = "";
 
@@ -72,6 +72,7 @@ public class UnitUsersBean implements Serializable {
 			decodedId = idEncoder.decodeId(id);
 
 			if (decodedOrgId > 0 && decodedId > 0) {
+
 				roleId = roleManager.getRoleIdsForName(role).get(0);
 
 			}

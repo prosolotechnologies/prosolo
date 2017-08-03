@@ -1,0 +1,153 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://www.prosolo.com/util"
+		xmlns:util="http://www.prosolo.com/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="resource" required="true" />
+		<composite:attribute name="resourcePlural" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+						<a href="#" class="btn btn-green btn-sm item" data-toggle="modal" data-target="#addStudentsModal">Add #{util:capitalizeWord(cc.attrs.resourcePlural)}</a>
+						<div class="modal fade addStudentsModal" id="addStudentsModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModal">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header alignLeft">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+										<h2 class="modal-title">Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit</h2>
+									</div>
+									<div class="searchInstructors">
+										<input type="search" name="name" value="" placeholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"></input>
+									</div>
+									<ul class="list">
+										<li>
+											<div class="instructorInfo">
+												<img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
+												<div class="infoWrap">
+													<h3>Gustavo Fring</h3>
+													<span>Teaching Assistant, University of Texas</span>
+												</div>
+											</div>
+											<div class="assignOpt">
+												<div class="buttonWrapper">
+													<a href="#" class="btn btn-green btn-sm">Add</a>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="instructorInfo">
+												<span class="letterAvatar letterAvatar48 img-circle">WW</span>
+												<div class="infoWrap">
+													<h3>Gustavo Fring</h3>
+													<span>Teaching Assistant, University of Texas</span>
+												</div>
+											</div>
+											<div class="assignOpt">
+												<div class="buttonWrapper">
+													<a href="#" class="btn btn-green btn-sm">Add</a>
+												</div>
+											</div>
+										</li>
+									</ul>
+									<nav class="paginationWrapper">
+										<ul class="pagination">
+											<li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
+											<li><a href="#">1</a></li>
+											<li class="active"><a href="#">2</a></li>
+											<li>...</li>
+											<li><a href="#">7</a></li>
+											<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+										</ul>
+									</nav>
+								</div>
+							</div>
+						</div>
+						<div class="searchBox">
+							<input type="search" name="name" value="" placeholder="Filter by Keywords"></input>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox manageVisibility">
+						<div class="innerWrapper">
+							<h2>#{util:capitalizeWord(cc.attrs.resourcePlural)}</h2>
+							<p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import #{cc.attrs.resourcePlural} from CSV file.</a></p>
+						</div>
+						<ul class="list hasTopBorder">
+							<li>
+								<div class="instructorInfo">
+									<span class="letterAvatar letterAvatar48 img-circle">WW</span>
+									<div class="infoWrap">
+										<h3>Gustavo Fring</h3>
+										<span>Teaching Assistant, University of Texas</span>
+									</div>
+								</div>
+								<div class="assignOpt">
+									<a href="#" class="removeX">Close</a>
+								</div>
+							</li>
+							<li>
+								<div class="instructorInfo">
+									<img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
+									<div class="infoWrap">
+										<h3>Gustavo Fring</h3>
+										<span>Teaching Assistant, University of Texas</span>
+									</div>
+								</div>
+								<div class="assignOpt">
+									<a href="#" class="removeX">Close</a>
+								</div>
+							</li>
+						</ul>
+						<nav class="paginationWrapper">
+							<ul class="pagination">
+								<li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
+								<li><a href="#">1</a></li>
+								<li class="active"><a href="#">2</a></li>
+								<li>...</li>
+								<li><a href="#">7</a></li>
+								<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade importStudentsModal" id="importStudentsModal" tabindex="-1" role="dialog" aria-labelledby="impStudentsModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title">Import users</h2>
+					</div>
+					<div class="modal-body alignLeft">
+						<p>Upload CSV with #{cc.attrs.resource} data in order to add them to the unit. #{util:capitalizeWord(cc.attrs.resource)} data should be in the format:<br></br><strong>name,lastname,email</strong></p>
+						<div class="uploadBtn">
+							<a href="#" class="btn btn-green btn-sm">Choose File</a>
+							file.csv
+						</div>
+					</div>
+					<div class="modal-footer alignLeft">
+						<a href="#" class="btn btn-green">Import</a>
+						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>
