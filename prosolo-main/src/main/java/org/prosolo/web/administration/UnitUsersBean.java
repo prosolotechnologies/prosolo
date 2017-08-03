@@ -2,8 +2,10 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -54,6 +56,9 @@ public class UnitUsersBean implements Serializable {
 
 	private PaginationData paginationData = new PaginationData();
 
+	private String organizationTitle;
+	private String unitTitle;
+
 	public void initTeachers() {
 		init(RoleNames.MANAGER);
 	}
@@ -72,14 +77,33 @@ public class UnitUsersBean implements Serializable {
 			decodedId = idEncoder.decodeId(id);
 
 			if (decodedOrgId > 0 && decodedId > 0) {
-
-				roleId = roleManager.getRoleIdsForName(role).get(0);
-
+				TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedId);
+				if (td != null) {
+					organizationTitle = td.getOrganizationTitle();
+					unitTitle = td.getUnitTitle();
+					roleId = roleManager.getRoleIdsForName(role).get(0);
+					loadUsersFromDB();
+				} else {
+					PageUtil.notFound();
+				}
+			} else {
+				PageUtil.notFound();
 			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
+	}
+
+	private void loadUsersFromDB() {
+		extractPaginatedResult(unitManager.getPaginatedUnitUsersInRole(
+				decodedId, roleId, (paginationData.getPage() - 1) * paginationData.getLimit(),
+				paginationData.getLimit()));
+	}
+
+	private void extractPaginatedResult(PaginatedResult<UnitRoleMembershipData> data) {
+		this.paginationData.update((int) data.getHitsNumber());
+		existingUsers = data.getFoundNodes();
 	}
 
 	public String getOrgId() {
@@ -104,6 +128,14 @@ public class UnitUsersBean implements Serializable {
 
 	public long getDecodedId() {
 		return decodedId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public String getUnitTitle() {
+		return unitTitle;
 	}
 }
 

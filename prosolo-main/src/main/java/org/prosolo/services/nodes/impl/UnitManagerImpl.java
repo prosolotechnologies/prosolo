@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -20,6 +21,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,21 +152,37 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return unitsToReturn;
     }
 
-    private List<UnitRoleMembershipData> getUnitUsersInRole(long organizationId, long unitId, long roleId,
-                                                           int offset, int limit) {
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResult<UnitRoleMembershipData> getPaginatedUnitUsersInRole(long unitId, long roleId,
+                                                                               int offset, int limit)
+            throws DbConnectionException {
+        try {
+            PaginatedResult<UnitRoleMembershipData> res = new PaginatedResult<>();
+            res.setHitsNumber(countUnitUsersInRole(unitId, roleId));
+            if (res.getHitsNumber() > 0) {
+                res.setFoundNodes(getUnitUsersInRole(unitId, roleId, offset, limit));
+            }
+
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit users");
+        }
+    }
+
+    private List<UnitRoleMembershipData> getUnitUsersInRole(long unitId, long roleId, int offset, int limit) {
         String query =
                 "SELECT urm " +
                 "FROM UnitRoleMembership urm " +
-                "INNER JOIN urm.unit unit " +
-                        "WITH unit.id = :unitId AND unit.organization.id = :orgId AND unit.deleted IS FALSE " +
                 "INNER JOIN fetch urm.user user " +
                         "WITH user.deleted IS FALSE " +
                 "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId " +
                 "ORDER BY user.name ASC, user.lastname ASC";
 
         List<UnitRoleMembership> result = persistence.currentManager()
                 .createQuery(query)
-                .setLong("orgId", organizationId)
                 .setLong("unitId", unitId)
                 .setLong("roleId", roleId)
                 .setMaxResults(limit)
@@ -178,6 +196,22 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
 
         return unitRoleMemberships;
+    }
+
+    private long countUnitUsersInRole(long unitId, long roleId) {
+        String query =
+                "SELECT COUNT(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN fetch urm.user user " +
+                "WITH user.deleted IS FALSE " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .uniqueResult();
     }
 
     @Override
@@ -353,6 +387,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setLong("unitId", unitId)
                     .setLong("orgId", organizationId)
                     .uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit title");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TitleData getOrganizationAndUnitTitle(long organizationId, long unitId) throws DbConnectionException {
+        try {
+            String query = "SELECT org.title, unit.title FROM Unit unit " +
+                    "INNER JOIN unit.organization org " +
+                        "WITH org.id = :orgId " +
+                    "WHERE unit.id = :unitId";
+
+            Object[] res = (Object[]) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("orgId", organizationId)
+                    .uniqueResult();
+
+            return res != null
+                    ? TitleData.ofOrganizationAndUnitTitle((String) res[0], (String) res[1])
+                    : null;
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving unit title");

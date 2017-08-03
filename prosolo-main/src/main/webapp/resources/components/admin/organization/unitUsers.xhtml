@@ -3,7 +3,6 @@
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:composite="http://java.sun.com/jsf/composite"
-		xmlns:utilcomp="http://www.prosolo.com/util"
 		xmlns:util="http://www.prosolo.com/util"
 >
 
@@ -77,6 +76,32 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+				<li>
+					<h:link outcome="/admin/adminOrganizationNew">
+						#{unitUsersBean.organizationTitle}
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/units">
+						Units
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/adminUnitEdit">
+						#{unitUsersBean.unitTitle}
+						<f:param name="id" value="#{param.orgId}" />
+						<f:param name="unitId" value="#{param.id}" />
+					</h:link>
+				</li>
+				<li class="active">#{util:capitalizeWord(cc.attrs.resourcePlural)}</li>
+			</ol>
 		</div>
 
 		<div class="container">
