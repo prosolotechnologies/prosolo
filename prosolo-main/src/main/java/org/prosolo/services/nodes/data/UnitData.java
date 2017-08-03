@@ -18,30 +18,15 @@ public class UnitData implements Serializable,Comparable<UnitData> {
     private long parentUnitId;
     private List<UnitData> childrenUnits;
     private boolean hasUsers;
-    private Unit parentUnit;
 
     public UnitData(){
         childrenUnits = new ArrayList<>();
-    }
-
-    public UnitData(long id,String title, long parentUnitId) {
-        this();
-        this.id = id;
-        this.title = title;
-        this.parentUnitId = parentUnitId;
     }
 
     public UnitData(Unit unit){
         this();
         this.id = unit.getId();
         this.title = unit.getTitle();
-    }
-
-    public UnitData(Unit unit,Unit parentUnit){
-        this();
-        this.id = unit.getId();
-        this.title = unit.getTitle();
-        this.parentUnit = parentUnit;
     }
 
     public UnitData(Unit unit,long parentUnitId){
@@ -95,13 +80,6 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.hasUsers = hasUsers;
     }
 
-    public Unit getParentUnit() {
-        return parentUnit;
-    }
-
-    public void setParentUnit(Unit parentUnit) {
-        this.parentUnit = parentUnit;
-    }
 
     @Override
     public int compareTo(UnitData o) {

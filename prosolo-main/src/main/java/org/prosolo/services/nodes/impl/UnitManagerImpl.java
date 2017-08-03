@@ -117,7 +117,11 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             Unit unit = (Unit) res[0];
             long count = (long) res[1];
 
-            unitData = new UnitData(unit,unit.getParentUnit());
+            if(unit.getParentUnit() != null) {
+                unitData = new UnitData(unit, unit.getParentUnit().getId());
+            }else {
+                unitData = new UnitData(unit);
+            }
             unitData.setHasUsers(count > 0);
             resultList.add(unitData);
         }
@@ -139,16 +143,16 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
         for (UnitData u : units) {
             parentUnits.put(u.getId(), u);
-            if (u.getParentUnit() == null) {
+            if (u.getParentUnitId() == 0) {
                 unitsToReturn.add(u);
             } else {
-                List<UnitData> children = childUnits.get(u.getParentUnit().getId());
+                List<UnitData> children = childUnits.get(u.getParentUnitId());
                 if (children != null) {
                     children.add(u);
                 } else {
                     List<UnitData> children1 = new ArrayList<>();
                     children1.add(u);
-                    childUnits.put(u.getParentUnit().getId(), children1);
+                    childUnits.put(u.getParentUnitId(), children1);
                 }
             }
         }
@@ -221,7 +225,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         try{
             Unit unit = loadResource(Unit.class,unitId);
 
-            if(children != null){
+            if(children.size() == 0){
                 for(UnitData ud : children){
                     if(ud.getChildrenUnits() != null && !ud.getChildrenUnits().isEmpty()){
                         for(UnitData ud1 : ud.getChildrenUnits()) {
@@ -232,8 +236,8 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     Unit u1 = loadResource(Unit.class,ud.getId());
                     delete(u1);
                 }
+                delete(unit);
             }
-            delete(unit);
         } catch (ResourceCouldNotBeLoadedException e) {
             throw new DbConnectionException("Error while deleting unit");
         }
