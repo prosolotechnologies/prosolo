@@ -34,7 +34,7 @@
 						<h2>
 							<ui:fragment rendered="#{cc.attrs.isEdit}">
 								#{comp.title}
-								<h:panelGroup rendered="#{!comp.published}"><span>#{!comp.published and comp.datePublished ne null ? ' (Unpublished) ' : ' (Draft)'}</span></h:panelGroup>
+								<h:panelGroup rendered="#{!comp.published}"><span>#{comp.datePublished ne null ? ' (Unpublished) ' : ' (Draft)'}</span></h:panelGroup>
 							</ui:fragment>
 							
 							<ui:fragment rendered="#{!cc.attrs.isEdit}">
