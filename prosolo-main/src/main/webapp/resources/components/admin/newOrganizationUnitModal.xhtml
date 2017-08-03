@@ -20,21 +20,26 @@
                             </div>
                         <div class="modal-body alignLeft">
                             <h:inputText id="inputTextOrganizationUnitName"
-                                         value="#{unitEditBean.unit.title}"
+                                         autocomplete="off"
+                                         value="#{unitsBean.unit.title}"
                                          required="true"
                                          requiredMessage="Unit name is required"
                                          placeholder="Unit Name"/>
 
                             <h:panelGroup
                                     rendered="#{not empty facesContext.getMessageList('newUnitModal:formNewUnitModal:inputTextOrganizationUnitName')}">
-                                <small class="redText"><h:message for="inputTextOrganizationUnitName"></h:message></small>
+                                <small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTextOrganizationUnitName" /></small>
                             </h:panelGroup>
                         </div>
                         <div class="modal-footer alignLeft">
-                            <p:commandLink  styleClass="btn btn-green" value="Add"
-                                            action="#{unitEditBean.createNewUnit()}"
-                                            update="@form #{cc.attrs.toUpdate}"
-                                            oncomplete="
+                            <p:defaultCommand target="createUnit" />
+                            <p:commandLink
+                                    id="createUnit"
+                                    styleClass="btn btn-green"
+                                    value="Add"
+                                    action="#{unitsBean.createNewUnit()}"
+                                    update="@form #{cc.attrs.toUpdate}"
+                                    oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)
                                                 $('#newUnitModal').modal('hide');">
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
@@ -47,6 +52,11 @@
                         </div>
                     </div>
                 </div>
+                <script>
+                    $('#newUnitModal').on('shown.bs.modal', function () {
+                        $('#newUnitModal input').focus();
+                    })
+                </script>
             </h:form>
         </div>
     </composite:implementation>

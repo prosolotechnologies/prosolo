@@ -12,7 +12,10 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentRequestData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -26,10 +29,7 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ManagedBean(name = "credentialKeywordBean")
 @Component("credentialKeywordBean")
@@ -55,13 +55,12 @@ public class CredentialKeywordsBean {
 	private EventFactory eventFactory;
 
 	private String id;
-	private List<TagCountData> tags;
-	private List<TagCountData> selectedKeywords;
-	private TagCountData lastSelected;
+	private List<String> tags;
+	private Set<String> selectedKeywords;
 	private List<CompetenceData1> competences;
 	private List<ActivityData> activities;
-	private String chosenKeywordsString;
 	private List<CompetenceData1> filteredCompetences;
+	private List<ActivityData> filteredActivities;
 	private CredentialData credentialData;
 	private long numberOfUsersLearningCred;
 	private AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
@@ -77,14 +76,14 @@ public class CredentialKeywordsBean {
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
 		credentialData = credentialManager.getTargetCredentialData(decodedId,
-				loggedUser.getSessionData().getUserId(), false);
+				loggedUser.getUserId(), false);
 		if (credentialData != null) {
-			selectedKeywords = new ArrayList<>();
+			selectedKeywords = new HashSet<>();
 			filteredCompetences = new ArrayList<>();
-			tags = credentialManager.getTagsForCredentialCompetences(decodedId);
-			competences = credentialManager.getCompetencesForKeywordSearch(credentialData.getTargetCredId());
-			activities = credentialManager.getActivitiesForKeywordSearch(credentialData.getTargetCredId());
-			filterCompetences();
+			tags = credentialManager.getTagsFromCredentialCompetencesAndActivities(decodedId);
+			competences = credentialManager.getCompetencesForKeywordSearch(decodedId);
+			activities = credentialManager.getActivitiesForKeywordSearch(decodedId);
+			filterResults();
 
 			logger.info("init credential keywords");
 		} else {
@@ -97,19 +96,25 @@ public class CredentialKeywordsBean {
 		return filteredCompetences;
 	}
 
-	public String getChosenKeywordsString() {
-		return AnnotationUtil.getAnnotationsAsSortedCSVForTagCountData(selectedKeywords);
+	public List<ActivityData> getFilteredActivities() {
+		return filteredActivities;
 	}
 
-	public void setChosenKeywordsString(String chosenKeywordsString) {
-		this.chosenKeywordsString = chosenKeywordsString;
+	public String getChosenKeywordsString() {
+		return AnnotationUtil.getAnnotationsAsSortedCSVForTagTitles(selectedKeywords);
+	}
+
+	public String getUnselectedTagsCSV() {
+		Set<String> unselectedTags = new HashSet<>(tags);
+		unselectedTags.removeAll(selectedKeywords);
+		return AnnotationUtil.getAnnotationsAsSortedCSVForTagTitles(unselectedTags);
 	}
 
 	public List<CompetenceData1> getCompetences() {
 		return competences;
 	}
 
-	public List<TagCountData> getTags() {
+	public List<String> getTags() {
 		return tags;
 	}
 
@@ -153,7 +158,7 @@ public class CredentialKeywordsBean {
 		this.peerSearchTerm = peerSearchTerm;
 	}
 
-	public List<TagCountData> getSelectedKeywords() {
+	public Set<String> getSelectedKeywords() {
 		return selectedKeywords;
 	}
 
@@ -213,43 +218,33 @@ public class CredentialKeywordsBean {
 		this.decodedId = decodedId;
 	}
 
-	public void addKeyword(TagCountData t) {
-		lastSelected = t;
+	public void addKeyword(String t) {
 		selectedKeywords.add(t);
-		filterCompetences();
+		filterResults();
 	}
 
 	public List<ActivityData> getActivities() {
-		List<ActivityData> filteredActivities = new ArrayList<>();
-		if (!selectedKeywords.isEmpty()) {
-			for (ActivityData activity : activities) {
-				for (CompetenceData1 competence : filteredCompetences) {
-					if (activity.getCompetenceId() == competence.getCompetenceId()) {
-						filteredActivities.add(activity);
-						break;
-					}
-				}
-			}
-
-		} else {
-			filteredActivities = activities;
-		}
-		return filteredActivities;
+		return activities;
 	}
 
 	public void setActivities(List<ActivityData> activities) {
 		this.activities = activities;
 	}
 
-	public void filterCompetences() {
-		if (!selectedKeywords.isEmpty() || !getChosenKeywordsString().equals("")) {
+	private void filterResults() {
+		filterCompetences();
+		filterActivities();
+	}
+
+	private void filterCompetences() {
+		if (!selectedKeywords.isEmpty()) {
 			filteredCompetences.clear();
 			for (CompetenceData1 comp : getCompetences()) {
-				for (TagCountData tag : selectedKeywords) {
-					if (comp.getTagsString().contains(tag.getTitle())) {
-						filteredCompetences.add(comp);
-						break;
-					}
+				if (selectedKeywords.stream()
+						.allMatch(tag -> comp.getTags()
+										 .stream()
+										 .anyMatch(t -> t.getTitle().equals(tag)))) {
+					filteredCompetences.add(comp);
 				}
 			}
 		} else {
@@ -257,15 +252,32 @@ public class CredentialKeywordsBean {
 		}
 	}
 
+	private void filterActivities() {
+		if (!selectedKeywords.isEmpty()) {
+			filteredActivities.clear();
+			for (ActivityData act : activities) {
+				if (selectedKeywords.stream()
+						.allMatch(tag -> act.getTags()
+								         .stream()
+								         .anyMatch(t -> t.getTitle().equals(tag)))) {
+					filteredActivities.add(act);
+				}
+			}
+		} else {
+			filteredActivities = new ArrayList<>(activities);
+		}
+	}
+
 	public void removeTag() {
 		String tagToRemove = PageUtil.getGetParameter("tag");
-		for (int i = 0; i < selectedKeywords.size(); i++) {
-			if (selectedKeywords.get(i).getTitle().equals(tagToRemove)) {
-				selectedKeywords.remove(i);
-				filterCompetences();
-				break;
-			}
-		}
+		selectedKeywords.remove(tagToRemove);
+		filterResults();
+	}
+
+	public void addTag() {
+		String tagToAdd = PageUtil.getGetParameter("tag");
+		selectedKeywords.add(tagToAdd);
+		filterResults();
 	}
 
 	public boolean userHasAssessmentForCredential() {
