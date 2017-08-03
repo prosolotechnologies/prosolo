@@ -1,12 +1,5 @@
 package org.prosolo.web.administration;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -18,12 +11,17 @@ import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserGroupData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.users.GroupUsersBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "manageGroupsBean")
 @Component("manageGroupsBean")
@@ -35,7 +33,6 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	protected static Logger logger = Logger.getLogger(ManageGroupsBean.class);
 
 	@Inject private UserGroupTextSearch userGroupTextSearch;
-	@Inject private GroupUsersBean groupUsersBean;
 	@Inject private UserGroupManager userGroupManager;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
@@ -85,10 +82,6 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	
 	public void prepareGroupForAdding() {
 		this.groupForEdit = new UserGroupData();
-	}
-	
-	public void prepareGroupUsers(long groupId) {
-		groupUsersBean.init(groupId);
 	}
 	
 	public void resetAndSearch() {
@@ -164,11 +157,6 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			groupForEdit = null;
 			PageUtil.fireWarnMessage("Error","Error while trying to delete group " + groupName);
 		}
-	}
-	
-	public void updateGroupUsers() {
-		groupUsersBean.updateGroupUsers();
-		loadGroupsFromDB();
 	}
 
 	public void loadGroups() {

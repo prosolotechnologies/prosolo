@@ -18,6 +18,7 @@ import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
+import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.indexing.UserGroupESService;
 import org.prosolo.services.nodes.UserGroupManager;
 
@@ -28,18 +29,21 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private CredentialESService credESService;
 	private UserGroupManager userGroupManager;
 	private CompetenceESService compESService;
+	private UserEntityESService userEntityESService;
 	private Session session;
 	private ContextJsonParserService ctxJsonParserService;
 	
 	
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
 			CredentialESService credESService, UserGroupManager userGroupManager, 
-			CompetenceESService compESService, ContextJsonParserService ctxJsonParserService, Session session) {
+			CompetenceESService compESService, UserEntityESService userEntityESService,
+			ContextJsonParserService ctxJsonParserService, Session session) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
 		this.compESService = compESService;
+		this.userEntityESService = userEntityESService;
 		this.ctxJsonParserService = ctxJsonParserService;
 		this.session = session;
 	}
@@ -64,15 +68,21 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				}
 			}
 		} else if(type == EventType.ADD_USER_TO_GROUP || type == EventType.REMOVE_USER_FROM_GROUP) {
+			long orgId = LearningContextUtil.getIdFromContext(
+					ctxJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
 			long userId = ((User) object).getId();
 			long groupId = ((UserGroup) target).getId();
 			//get all credentials associated with this user group
 			List<CredentialUserGroup> credGroups = userGroupManager.getCredentialUserGroups(groupId);
 			if(type == EventType.ADD_USER_TO_GROUP) {
+				//add user to all credential indexes
 				for(CredentialUserGroup g : credGroups) {
 					credESService.addUserToCredentialIndex(g.getCredential().getId(), userId, 
 							g.getPrivilege());
 				}
+
+				//add group to user index
+				userEntityESService.addGroup(orgId, userId, groupId);
 			} else {
 				for(CredentialUserGroup g : credGroups) {
 					/*
@@ -83,6 +93,9 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 					 */
 					credESService.updateCredentialUsersWithPrivileges(g.getCredential().getId(), session);
 				}
+
+				//remove group from user index
+				userEntityESService.removeGroup(orgId, userId, groupId);
 			}
 			//get all competences associated with this user group
 			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);

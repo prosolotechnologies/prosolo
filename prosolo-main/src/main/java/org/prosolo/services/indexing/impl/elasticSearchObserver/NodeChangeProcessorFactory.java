@@ -92,7 +92,7 @@ public class NodeChangeProcessorFactory {
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService,
 							credentialESService, userGroupManager, competenceESService,
-							ctxJsonParserService, session);
+							userEntityESService, ctxJsonParserService, session);
 				} else if (node instanceof Organization) {
 					return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
 							organizationManager, event, session);
@@ -110,7 +110,7 @@ public class NodeChangeProcessorFactory {
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
 							credentialESService, userGroupManager, competenceESService,
-							ctxJsonParserService, session);
+							userEntityESService, ctxJsonParserService, session);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -132,7 +132,7 @@ public class NodeChangeProcessorFactory {
 			case REMOVE_USER_FROM_GROUP:
 			case USER_GROUP_CHANGE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
-						userGroupManager, competenceESService, ctxJsonParserService, session);
+						userGroupManager, competenceESService, userEntityESService, ctxJsonParserService, session);
 			case ARCHIVE:
 				if (node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 

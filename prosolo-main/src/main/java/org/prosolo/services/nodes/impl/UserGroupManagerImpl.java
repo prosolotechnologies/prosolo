@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -22,9 +23,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1910,6 +1909,119 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving user privilege");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<UserData> getPaginatedGroupUsers(long groupId, int limit, int offset)
+			throws DbConnectionException {
+		try {
+			PaginatedResult<UserData> pRes = new PaginatedResult<>();
+			pRes.setFoundNodes(getGroupUsers(groupId, limit, offset));
+			pRes.setHitsNumber(countGroupUsers(groupId));
+
+			return pRes;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving user groups");
+		}
+	}
+
+	private long countGroupUsers(long groupId) {
+		String query =
+				"SELECT COUNT(u) " +
+				"FROM UserGroupUser ugu " +
+				"INNER JOIN ugu.user u " +
+				"WHERE ugu.group.id = :groupId";
+
+		return (long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.uniqueResult();
+	}
+
+	private List<UserData> getGroupUsers(long groupId, int limit, int offset) {
+		String query =
+				"SELECT u " +
+				"FROM UserGroupUser ugu " +
+				"INNER JOIN ugu.user u " +
+				"WHERE ugu.group.id = :groupId " +
+				"ORDER BY u.name ASC";
+
+		@SuppressWarnings("unchecked")
+		List<User> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.list();
+
+		List<UserData> res = new ArrayList<>();
+		if(result != null) {
+			for (User u : result) {
+				res.add(new UserData(u));
+			}
+		}
+
+		return res;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
+			throws DbConnectionException {
+		try {
+			String q = "SELECT g.name, unit.title, org.title " +
+					"FROM UserGroup g " +
+					"INNER JOIN g.unit unit " +
+						"WITH unit.id = :unitId " +
+					"INNER JOIN unit.organization org " +
+						"WITH org.id = :orgId " +
+					"WHERE g.id = :groupId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(q)
+					.setLong("groupId", groupId)
+					.setLong("unitId", unitId)
+					.setLong("orgId", organizationId)
+					.uniqueResult();
+
+			return res != null
+					? TitleData.ofOrganizationUnitAndUserGroupTitle(
+							(String) res[2], (String) res[1], (String) res[0])
+					: null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user group data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
+			throws DbConnectionException {
+		try {
+			String q = "SELECT g.id " +
+					"FROM UserGroupUser ugu " +
+					"INNER JOIN ugu.group g " +
+					"WHERE ugu.user.id = :userId ";
+
+			if (!returnDefaultGroupIds) {
+				q += "AND g.defaultGroup IS FALSE";
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(q)
+					.setLong("userId", userId)
+					.list();
+
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user group ids");
 		}
 	}
 

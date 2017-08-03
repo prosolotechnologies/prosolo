@@ -1232,33 +1232,38 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public PaginatedResult<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers) {
-		PaginatedResult<UserSelectionData> response = new PaginatedResult<>();
+	public PaginatedResult<UserData> searchUsersInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId,
+			boolean includeSystemUsers) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 		
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			if(searchTerm != null && !searchTerm.isEmpty()) {
+			if (searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
 						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("name").field("lastname");
 				
-				bQueryBuilder.must(qb);
+				bQueryBuilder.filter(qb);
 			}
 			
 			if (!includeSystemUsers) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			bQueryBuilder.filter(termQuery("groups.id", groupId));
+
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-					.setTypes(ESIndexTypes.USER)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
 					.setFetchSource(includes, null);
@@ -1271,26 +1276,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			//System.out.println(searchRequestBuilder.toString());
 			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
 			
-			if(sResponse != null) {
+			if (sResponse != null) {
 				SearchHits searchHits = sResponse.getHits();
 				response.setHitsNumber(searchHits.getTotalHits());
 				
-				if(searchHits != null) {
-					for(SearchHit sh : searchHits) {
-						Map<String, Object> fields = sh.getSource();
-						User user = new User();
-						user.setId(Long.parseLong(fields.get("id") + ""));
-						user.setName((String) fields.get("name"));
-						user.setLastname((String) fields.get("lastname"));
-						user.setAvatarUrl((String) fields.get("avatar"));
-						user.setPosition((String) fields.get("position"));
-						UserData userData = new UserData(user);
-						
-						boolean isUserInGroup = userGroupManager.isUserInGroup(groupId, 
-								userData.getId());
-						UserSelectionData data = new UserSelectionData(userData, isUserInGroup);
-						
-						response.addFoundNode(data);			
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
 					}
 				}
 			}
@@ -1299,6 +1291,17 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			logger.error(e1);
 		}
 		return response;
+	}
+
+	private UserData getUserDataFromSearchHit(SearchHit sh) {
+		Map<String, Object> fields = sh.getSource();
+		User user = new User();
+		user.setId(Long.parseLong(fields.get("id") + ""));
+		user.setName((String) fields.get("name"));
+		user.setLastname((String) fields.get("lastname"));
+		user.setAvatarUrl((String) fields.get("avatar"));
+		user.setPosition((String) fields.get("position"));
+		return new UserData(user);
 	}
 	
 	@Override
@@ -1597,16 +1600,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 					if (searchHits != null) {
 						for (SearchHit sh : searchHits) {
-							Map<String, Object> fields = sh.getSource();
-							User user = new User();
-							user.setId(Long.parseLong(fields.get("id") + ""));
-							user.setName((String) fields.get("name"));
-							user.setLastname((String) fields.get("lastname"));
-							user.setAvatarUrl((String) fields.get("avatar"));
-							user.setPosition((String) fields.get("position"));
-							UserData userData = new UserData(user);
-
-							response.addFoundNode(userData);
+							response.addFoundNode(getUserDataFromSearchHit(sh));
 						}
 
 						return response;

@@ -7,9 +7,12 @@ import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
+import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.UserGroupData;
 
 import java.util.List;
@@ -228,4 +231,12 @@ public interface UserGroupManager extends AbstractManager {
 
 	UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException;
 
+	PaginatedResult<UserData> getPaginatedGroupUsers(long groupId, int limit, int offset)
+			throws DbConnectionException;
+
+	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
+			throws DbConnectionException;
+
+	List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
+			throws DbConnectionException;
 }

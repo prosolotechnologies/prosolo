@@ -75,7 +75,8 @@ public enum ContextName {
 	START_DELIVERY(""),
 	ORGANIZATION("Organization"),
     NEW_UNIT(""),
-	UNIT("Unit");
+	UNIT("Unit"),
+	USER_GROUP("UserGroup");
 	
     private String objectType; 
     
