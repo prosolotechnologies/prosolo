@@ -166,7 +166,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				long id = Long.parseLong(hit.getSource().get("id").toString());
 				String name = (String) hit.getSource().get("name");
 				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
-				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false));
+				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false, false));
 			}
 			for(int i = 0; i < userNumber; i++) {
 				SearchHit hit = userHits[i];
@@ -313,7 +313,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		user.setLastname((String) fields.get("lastname"));
 		user.setAvatarUrl((String) fields.get("avatar"));
 		user.setPosition((String) fields.get("position"));
-		return new ResourceVisibilityMember(0, user, null, false);
+		return new ResourceVisibilityMember(0, user, null, false, false);
 	}
 	
 	@Override
