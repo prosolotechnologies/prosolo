@@ -127,7 +127,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             resultList.add(unitData);
         }
 
-        if (result != null && resultList != null) {
+        if (result != null) {
             return resultList;
         }
 
