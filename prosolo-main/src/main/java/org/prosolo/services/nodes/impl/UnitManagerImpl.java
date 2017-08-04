@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -221,25 +222,52 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public void delete(long unitId,List<UnitData> children) throws DbConnectionException, EventException {
-        try{
-            Unit unit = loadResource(Unit.class,unitId);
+    public void delete(long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT unit " +
+                    "FROM Unit unit " +
+                    "WHERE unit.parentUnit.id = :unitId";
 
-            if(children.size() == 0){
-                for(UnitData ud : children){
-                    if(ud.getChildrenUnits() != null && !ud.getChildrenUnits().isEmpty()){
-                        for(UnitData ud1 : ud.getChildrenUnits()) {
-                            Unit u1 = loadResource(Unit.class,ud1.getId());
-                            delete(u1);
-                        }
-                    }
-                    Unit u1 = loadResource(Unit.class,ud.getId());
-                    delete(u1);
-                }
-                delete(unit);
+            String query1 =
+                    "SELECT COUNT(unit_role_membership) " +
+                    "FROM UnitRoleMembership unit_role_membership " +
+                    "WHERE unit_role_membership.unit.id = :unitId ";
+
+            String deleteQuery =
+                    "DELETE FROM Unit unit " +
+                    "WHERE unit.id = :unitId ";
+
+            List<Unit> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .list();
+
+            Long numberOfUsers = (Long) persistence.currentManager()
+                    .createQuery(query1)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            if (result.size() != 0 ) {
+                throw new IllegalStateException("Unit can not be deleted since it has subunits");
             }
-        } catch (ResourceCouldNotBeLoadedException e) {
-            throw new DbConnectionException("Error while deleting unit");
+            if(numberOfUsers != 0){
+                throw new IllegalStateException("Unit can not be deleted as there are users associated with it");
+            }
+
+            int affected = persistence.currentManager()
+                    .createQuery(deleteQuery)
+                    .setLong("unitId", unitId)
+                    .executeUpdate();
+
+            logger.info("Deleted unit : " + affected);
+
+        }catch (IllegalStateException ise){
+            throw ise;
+        }catch(Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            throw new DbConnectionException("Error while trying to retrieve units");
         }
     }
 
