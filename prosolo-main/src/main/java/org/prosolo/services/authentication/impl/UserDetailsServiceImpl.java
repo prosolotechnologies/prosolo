@@ -43,27 +43,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		for (Role role : user.getRoles()) {
 			List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role.getId());
-			//userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
 			if(capabilities != null){
 				for(String cap:capabilities){
 					userAuthorities.add(new SimpleGrantedAuthority(cap.toUpperCase()));
 				}
 			}
 		}
-		/*for (Role role : user.getRoles()) {
-			userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(role.getTitle())));
-		}*/
-		
-		/*Collection<Unit_User> userUnit = user.getUnitUser();
-
-		for (Unit_User unit_User : userUnit) {
-			Collection<Unit_User_Role> unitUserRole = unit_User.getUnitUserRole();
-
-			for (Unit_User_Role unit_User_Role : unitUserRole) {
-				Role userRole = unit_User_Role.getRole();
-				userAuthorities.add(new SimpleGrantedAuthority(addRolePrefix(userRole.getTitle())));
-			}
-		}*/
 
 		boolean enabled = true;
 		boolean accountNonExpired = true;
@@ -81,10 +66,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return new User(email, password, enabled,
 				accountNonExpired, credentialsNonExpired, accountNonLocked,
 				userAuthorities);
-	}
-
-	private String addRolePrefix(String role) {
-		return "ROLE_" + role.toUpperCase();
 	}
 
 }
