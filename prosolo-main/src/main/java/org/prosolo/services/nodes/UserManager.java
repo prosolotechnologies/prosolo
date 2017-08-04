@@ -89,4 +89,7 @@ public interface UserManager extends AbstractManager {
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
 
 	UserData getUserData(long id) throws DbConnectionException;
+
+	PaginatedResult<UserData> getPaginatedOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, int offset, int limit) throws DbConnectionException;
 }

@@ -77,7 +77,8 @@ public enum ContextName {
     NEW_UNIT(""),
 	UPDATE_UNIT(""),
 	UNIT("Unit"),
-	USER_GROUP("UserGroup");
+	USER_GROUP("UserGroup"),
+	ADD_USERS_DIALOG("User");
 
     private String objectType; 
     

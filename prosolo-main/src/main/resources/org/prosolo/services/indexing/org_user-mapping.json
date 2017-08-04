@@ -35,7 +35,6 @@
 				"type": "geo_point"
 			},
 
-			
 			"roles": {
 				"type": "nested",
 				"properties": {

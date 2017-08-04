@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UnitRoleMembershipData;
+import org.prosolo.services.nodes.data.UserData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -154,11 +155,11 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResult<UnitRoleMembershipData> getPaginatedUnitUsersInRole(long unitId, long roleId,
-                                                                               int offset, int limit)
+    public PaginatedResult<UserData> getPaginatedUnitUsersInRole(long unitId, long roleId,
+                                                                 int offset, int limit)
             throws DbConnectionException {
         try {
-            PaginatedResult<UnitRoleMembershipData> res = new PaginatedResult<>();
+            PaginatedResult<UserData> res = new PaginatedResult<>();
             res.setHitsNumber(countUnitUsersInRole(unitId, roleId));
             if (res.getHitsNumber() > 0) {
                 res.setFoundNodes(getUnitUsersInRole(unitId, roleId, offset, limit));
@@ -171,17 +172,17 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
-    private List<UnitRoleMembershipData> getUnitUsersInRole(long unitId, long roleId, int offset, int limit) {
+    private List<UserData> getUnitUsersInRole(long unitId, long roleId, int offset, int limit) {
         String query =
-                "SELECT urm " +
+                "SELECT user " +
                 "FROM UnitRoleMembership urm " +
-                "INNER JOIN fetch urm.user user " +
-                        "WITH user.deleted IS FALSE " +
+                "INNER JOIN urm.user user " +
+                    "WITH user.deleted IS FALSE " +
                 "WHERE urm.role.id = :roleId " +
                 "AND urm.unit.id = :unitId " +
-                "ORDER BY user.name ASC, user.lastname ASC";
+                "ORDER BY user.lastname ASC, user.name ASC";
 
-        List<UnitRoleMembership> result = persistence.currentManager()
+        List<User> result = persistence.currentManager()
                 .createQuery(query)
                 .setLong("unitId", unitId)
                 .setLong("roleId", roleId)
@@ -189,20 +190,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 .setFirstResult(offset)
                 .list();
 
-        List<UnitRoleMembershipData> unitRoleMemberships = new ArrayList<>();
-        for (UnitRoleMembership urm : result) {
-            unitRoleMemberships.add(new UnitRoleMembershipData(
-                    urm.getId(), urm.getUnit().getId(), urm.getRole().getId(), urm.getUser()));
+        List<UserData> res = new ArrayList<>();
+        for (User u : result) {
+            res.add(new UserData(u));
         }
 
-        return unitRoleMemberships;
+        return res;
     }
 
     private long countUnitUsersInRole(long unitId, long roleId) {
         String query =
                 "SELECT COUNT(urm) " +
                 "FROM UnitRoleMembership urm " +
-                "INNER JOIN fetch urm.user user " +
+                "INNER JOIN urm.user user " +
                 "WITH user.deleted IS FALSE " +
                 "WHERE urm.role.id = :roleId " +
                 "AND urm.unit.id = :unitId";
@@ -259,9 +259,9 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     //nt
-    public void removeUserFromUnitWithRole(UnitRoleMembershipData unitRoleMembership, long actorId,
+    public void removeUserFromUnitWithRole(long userId, long unitId, long roleId, long actorId,
                                            LearningContextData context) throws DbConnectionException, EventException {
-        Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(unitRoleMembership, actorId, context);
+        Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(userId, unitId, roleId, actorId, context);
 
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
@@ -270,20 +270,30 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional
-    public Result<Void> removeUserFromUnitWithRoleAndGetEvents(UnitRoleMembershipData unitRoleMembership,
+    public Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId,
                                                                long actorId, LearningContextData context)
             throws DbConnectionException {
         try {
-            UnitRoleMembership urmToDelete = (UnitRoleMembership) persistence.currentManager()
-                    .load(UnitRoleMembership.class, unitRoleMembership.getId());
-            delete(urmToDelete);
+            String query = "DELETE FROM UnitRoleMembership urm " +
+                           "WHERE urm.unit.id = :unitId " +
+                           "AND urm.user.id = :userId " +
+                           "AND urm.role.id = :roleId";
 
-            User user = new User(unitRoleMembership.getUser().getId());
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .executeUpdate();
+
+            logger.info("Number of deleted users in a unit in a role: " + affected);
+
+            User user = new User(userId);
             Unit unit = new Unit();
-            unit.setId(unitRoleMembership.getUnitId());
+            unit.setId(unitId);
             Result<Void> result = new Result<>();
             Map<String, String> params = new HashMap<>();
-            params.put("roleId", unitRoleMembership.getRoleId() + "");
+            params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
                     EventType.REMOVE_USER_FROM_UNIT, actorId, user, unit, context, params));
 

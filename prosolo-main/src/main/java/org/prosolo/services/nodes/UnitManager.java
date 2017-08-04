@@ -13,6 +13,7 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UnitRoleMembershipData;
+import org.prosolo.services.nodes.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -38,10 +39,10 @@ public interface UnitManager extends AbstractManager{
     Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
                                                                  LearningContextData context) throws DbConnectionException;
 
-    void removeUserFromUnitWithRole(UnitRoleMembershipData unitRoleMembership, long actorId,
+    void removeUserFromUnitWithRole(long userId, long unitId, long roleId, long actorId,
                                     LearningContextData context) throws DbConnectionException, EventException;
 
-    Result<Void> removeUserFromUnitWithRoleAndGetEvents(UnitRoleMembershipData unitRoleMembership,
+    Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId,
                                                         long actorId, LearningContextData context)
             throws DbConnectionException;
 
@@ -59,7 +60,7 @@ public interface UnitManager extends AbstractManager{
 
     TitleData getOrganizationAndUnitTitle(long organizationId, long unitId) throws DbConnectionException;
 
-    PaginatedResult<UnitRoleMembershipData> getPaginatedUnitUsersInRole(long unitId, long roleId,
-                                                                        int offset, int limit)
+    PaginatedResult<UserData> getPaginatedUnitUsersInRole(long unitId, long roleId,
+                                                          int offset, int limit)
             throws DbConnectionException;
 }

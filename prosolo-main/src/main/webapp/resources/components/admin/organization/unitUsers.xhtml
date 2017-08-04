@@ -4,6 +4,10 @@
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:util="http://www.prosolo.com/util"
+		xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 >
 
 	<composite:interface>
@@ -12,66 +16,35 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+		<ui:param name="learningContext" value="name:ORGANIZATION|id:#{unitUsersBean.decodedOrgId}|context:/name:UNIT|id:#{unitUsersBean.decodedId}/"></ui:param>
+
+		<p:growl id="growlMain" globalOnly="true" showDetail="true" />
+
 		<div class="whiteBar">
 			<div class="container">
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft">
-						<a href="#" class="btn btn-green btn-sm item" data-toggle="modal" data-target="#addStudentsModal">Add #{util:capitalizeWord(cc.attrs.resourcePlural)}</a>
-						<div class="modal fade addStudentsModal" id="addStudentsModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModal">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header alignLeft">
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-										<h2 class="modal-title">Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit</h2>
-									</div>
-									<div class="searchInstructors">
-										<input type="search" name="name" value="" placeholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"></input>
-									</div>
-									<ul class="list">
-										<li>
-											<div class="instructorInfo">
-												<img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
-												<div class="infoWrap">
-													<h3>Gustavo Fring</h3>
-													<span>Teaching Assistant, University of Texas</span>
-												</div>
-											</div>
-											<div class="assignOpt">
-												<div class="buttonWrapper">
-													<a href="#" class="btn btn-green btn-sm">Add</a>
-												</div>
-											</div>
-										</li>
-										<li>
-											<div class="instructorInfo">
-												<span class="letterAvatar letterAvatar48 img-circle">WW</span>
-												<div class="infoWrap">
-													<h3>Gustavo Fring</h3>
-													<span>Teaching Assistant, University of Texas</span>
-												</div>
-											</div>
-											<div class="assignOpt">
-												<div class="buttonWrapper">
-													<a href="#" class="btn btn-green btn-sm">Add</a>
-												</div>
-											</div>
-										</li>
-									</ul>
-									<nav class="paginationWrapper">
-										<ul class="pagination">
-											<li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
-											<li><a href="#">1</a></li>
-											<li class="active"><a href="#">2</a></li>
-											<li>...</li>
-											<li><a href="#">7</a></li>
-											<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
-										</ul>
-									</nav>
-								</div>
-							</div>
-						</div>
+						<p:commandLink styleClass="btn btn-green btn-sm item"
+									   pt:data-toggle="modal"
+									   action="#{unitUsersBean.prepareAddingUsers()}"
+									   update=":#{cc.clientId}:addUsers:panelUsers :#{cc.clientId}:addUsers:pagination"
+									   oncomplete="$('#addUsersModal').modal('show');">
+							Add #{util:capitalizeWord(cc.attrs.resourcePlural)}
+						</p:commandLink>
 						<div class="searchBox">
-							<input type="search" name="name" value="" placeholder="Filter by Keywords"></input>
+							<h:form id="formSearchExistingUsers">
+								<p:remoteCommand name="execSearchExistingUsers"
+												 process="inputUserSearch" update=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination"
+												 action="#{unitUsersBean.resetAndSearch()}" />
+
+								<h:inputText id="inputUserSearch" type="search"
+											 placeholder="Filter by Name"
+											 value="#{unitUsersBean.searchTerm}"
+											 onclick="$(this).select();"
+											 onkeyup="searchListener(execSearchExistingUsers);" />
+							</h:form>
 						</div>
 					</div>
 				</div>
@@ -112,42 +85,39 @@
 							<h2>#{util:capitalizeWord(cc.attrs.resourcePlural)}</h2>
 							<p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import #{cc.attrs.resourcePlural} from CSV file.</a></p>
 						</div>
-						<ul class="list hasTopBorder">
-							<li>
-								<div class="instructorInfo">
-									<span class="letterAvatar letterAvatar48 img-circle">WW</span>
-									<div class="infoWrap">
-										<h3>Gustavo Fring</h3>
-										<span>Teaching Assistant, University of Texas</span>
-									</div>
-								</div>
-								<div class="assignOpt">
-									<a href="#" class="removeX">Close</a>
-								</div>
-							</li>
-							<li>
-								<div class="instructorInfo">
-									<img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
-									<div class="infoWrap">
-										<h3>Gustavo Fring</h3>
-										<span>Teaching Assistant, University of Texas</span>
-									</div>
-								</div>
-								<div class="assignOpt">
-									<a href="#" class="removeX">Close</a>
-								</div>
-							</li>
-						</ul>
-						<nav class="paginationWrapper">
-							<ul class="pagination">
-								<li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
-								<li><a href="#">1</a></li>
-								<li class="active"><a href="#">2</a></li>
-								<li>...</li>
-								<li><a href="#">7</a></li>
-								<li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+						<h:panelGroup id="panelUsers">
+							<ul class="list hasTopBorder">
+								<ui:repeat value="#{unitUsersBean.existingUsers}" var="user">
+									<li>
+										<div class="instructorInfo">
+											<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																 fullName="#{user.fullName}" width="48" height="48" />
+
+											<div class="infoWrap">
+												<h3>#{user.fullName}</h3>
+												<span>#{user.position}</span>
+											</div>
+										</div>
+										<div class="assignOpt">
+											<p:commandLink styleClass="removeX" process="@this"
+														   action="#{unitUsersBean.removeUser(user)}"
+														   update=":#{cc.clientId}:formSearchExistingUsers:inputUserSearch :#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain">
+												Close
+												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+												<f:param name="learningContext"
+														 value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
+											</p:commandLink>
+										</div>
+									</li>
+								</ui:repeat>
 							</ul>
-						</nav>
+						</h:panelGroup>
+
+						<utilcomp:pagination id="pagination"
+											 bean="#{unitUsersBean}"
+											 toUpdate=":#{cc.clientId}:panelUsers"
+											 updateUrl="true"
+						/>
 					</div>
 				</div>
 			</div>
@@ -174,5 +144,18 @@
 				</div>
 			</div>
 		</div>
+
+		<user:addUsers
+				id="addUsers"
+				modalTitle="Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit"
+				searchPlaceholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"
+				searchBean="#{unitUserAddBean}"
+				actionBean="#{unitUsersBean}"
+				toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain"
+				userPanelId="panelUsers"
+				paginationPanelId="pagination"
+				learningContext="#{learningContext}"
+		/>
+
 	</composite:implementation>
 </ui:component>
