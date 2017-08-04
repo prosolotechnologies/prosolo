@@ -35,6 +35,6 @@ public interface UnitManager extends AbstractManager{
     Result<Unit> updateUnitAndGetEvents(long unitId,String title, long creatorId,LearningContextData contextData) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    void delete(long unitId) throws DbConnectionException;
+    void deleteUnit(long unitId) throws DbConnectionException;
 
 }

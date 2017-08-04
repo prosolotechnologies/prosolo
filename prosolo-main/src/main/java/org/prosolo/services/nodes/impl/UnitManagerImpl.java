@@ -222,38 +222,39 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
-    public void delete(long unitId) throws DbConnectionException {
+    public void deleteUnit(long unitId) throws DbConnectionException {
         try {
             String query =
-                    "SELECT unit " +
+                    "SELECT COUNT(unit) " +
                     "FROM Unit unit " +
                     "WHERE unit.parentUnit.id = :unitId";
+
+            Long numberOfSubunits = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            if (numberOfSubunits != 0 ) {
+                throw new IllegalStateException("Unit can not be deleted since it has subunits");
+            }
 
             String query1 =
                     "SELECT COUNT(unit_role_membership) " +
                     "FROM UnitRoleMembership unit_role_membership " +
                     "WHERE unit_role_membership.unit.id = :unitId ";
 
-            String deleteQuery =
-                    "DELETE FROM Unit unit " +
-                    "WHERE unit.id = :unitId ";
-
-            List<Unit> result = persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("unitId", unitId)
-                    .list();
-
             Long numberOfUsers = (Long) persistence.currentManager()
                     .createQuery(query1)
                     .setLong("unitId", unitId)
                     .uniqueResult();
 
-            if (result.size() != 0 ) {
-                throw new IllegalStateException("Unit can not be deleted since it has subunits");
-            }
             if(numberOfUsers != 0){
                 throw new IllegalStateException("Unit can not be deleted as there are users associated with it");
             }
+
+            String deleteQuery =
+                    "DELETE FROM Unit unit " +
+                    "WHERE unit.id = :unitId ";
 
             int affected = persistence.currentManager()
                     .createQuery(deleteQuery)
