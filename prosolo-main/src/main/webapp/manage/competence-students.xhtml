@@ -116,8 +116,17 @@
 	
 	    <div class="container">
 	        <ol class="breadcrumb">
-	            <li><a href="#">Competences</a></li>
-	            <li class="active">#{competenceStudentsBean.competenceTitle}</li>
+				<li>
+					<h:link value="Competencies" outcome="competenceLibrary"/>
+				</li>
+				<li>
+					<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
+						<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+					</h:link>
+				</li>
+				<li class="active">
+					Students
+				</li>
 	        </ol>
 	    </div>
 	
@@ -127,7 +136,7 @@
 	                <ui:fragment rendered="#{empty competenceStudentsBean.students}" >
 		                <div class="noContentMessage">
 		                    <p>
-		                        No students
+		                        No students.
 		                    </p>
 		                </div>
 		            </ui:fragment>

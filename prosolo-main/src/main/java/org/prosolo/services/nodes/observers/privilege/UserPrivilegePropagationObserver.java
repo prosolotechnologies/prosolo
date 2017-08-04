@@ -116,14 +116,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 					}
 					break;
 				case Create:
-					if (object instanceof Credential1) {
-						Credential1 credObj = (Credential1) object;
-						if(credObj.getType() == CredentialType.Delivery) {
-							res = userGroupManager
-									.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
-											credObj.getDeliveryOf().getId(), credObj.getId(), session);
-						}
-					} else if (object instanceof Competence1) {
+					if (object instanceof Competence1) {
 						//todo observer refactor - remove this because we should only react to attach event for competence
 						if (params != null) {
 							String credIdString = params.get("credentialId");

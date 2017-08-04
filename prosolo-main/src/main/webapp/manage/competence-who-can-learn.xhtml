@@ -46,6 +46,19 @@
 
     	<div class="container">
             <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li>
+                            <h:link value="Competencies" outcome="competenceLibrary"/>
+                        </li>
+                        <li>
+                            <h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+                                <f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
+                            </h:link>
+                        </li>
+                        <li class="active">Who can learn</li>
+                    </ol>
+                </div>
                 <div class="col-md-12">
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">

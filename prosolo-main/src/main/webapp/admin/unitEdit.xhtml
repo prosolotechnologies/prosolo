@@ -3,14 +3,17 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                template="templates/masterLayout2.xhtml">
+                template="templates/masterLayout2.xhtml"
+                xmlns:util="http://www.prosolo.com/util">
 
     <ui:define name="windowTitle" >Unit details</ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="unitId" value="#{unitEditBean.id}" />
+            <f:viewParam name="id" value="#{unitsBean.organizationId}" />
             <f:viewAction action="#{unitEditBean.init()}" />
+            <f:viewAction action="#{unitsBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -36,6 +39,20 @@
 
         <div class="container">
             <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li>
+                            <h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+                        </li>
+                        <li>
+                            <h:link value="#{unitsBean.organizationData.title}" outcome="/admin/adminOrganizationNew">
+                            <f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
+                        </li>
+                        <li class="active">
+                            #{unitEditBean.unit.title}
+                        </li>
+                    </ol>
+                </div>
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <h:form id="formMainEditUnit">
@@ -61,11 +78,14 @@
                                 <div class="formLine">
                                     <label>&#160;</label>
                                     <div class="formLineRight">
-                                        <p:commandLink styleClass="btn btn-green" value="Save Changes"
+                                        <p:commandLink id="saveBtn"
+                                                       styleClass="btn btn-green"
+                                                       value="Save Changes"
                                                        action="#{unitEditBean.updateUnit()}" update=":formMainEditUnit">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                             <f:param name="learningContext" value="name:update_unit" />
                                         </p:commandLink>
+                                        <p:defaultCommand target="saveBtn" />
                                     </div>
                                 </div>
                             </div>

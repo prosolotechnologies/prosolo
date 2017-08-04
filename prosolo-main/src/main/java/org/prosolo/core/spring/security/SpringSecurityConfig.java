@@ -201,8 +201,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/competences/new").hasAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/competences/*/visibility").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-		   .antMatchers("/manage/competences/*/privacy").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/competences/*/who-can-learn").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+		   .antMatchers("/manage/competences/*/editors").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 		   .antMatchers("/manage/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/competences/*/students").hasAnyAuthority("COURSE.CREATE")
 		   //.antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
@@ -212,8 +212,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/students/*").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/edit").hasAuthority("COURSE.CREATE")
-		   .antMatchers("/manage/credentials/*/privacy").hasAnyAuthority("COURSE.CREATE")
-           .antMatchers("/manage/credentials/*/visibility").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/editors").hasAnyAuthority("COURSE.CREATE")
+           .antMatchers("/manage/credentials/*/who-can-learn").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/new").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?
 		   //for manage competence 

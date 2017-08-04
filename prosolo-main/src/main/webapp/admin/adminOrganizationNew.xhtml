@@ -51,6 +51,19 @@
 
         <div class="container">
             <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li>
+                            <h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+                        </li>
+                        <ui:fragment rendered="#{not empty organizationEditBean.id}">
+                            <li class="active">#{organizationEditBean.organization.title}</li>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{empty organizationEditBean.id}">
+                            <li class="active">New Organization</li>
+                        </ui:fragment>
+                    </ol>
+                </div>
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
