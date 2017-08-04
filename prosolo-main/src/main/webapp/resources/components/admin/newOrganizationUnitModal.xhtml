@@ -21,7 +21,7 @@
                         <div class="modal-body alignLeft">
                             <h:inputText id="inputTextOrganizationUnitName"
                                          autocomplete="off"
-                                         value="#{unitEditBean.unit.title}"
+                                         value="#{unitsBean.unit.title}"
                                          required="true"
                                          requiredMessage="Unit name is required"
                                          placeholder="Unit Name"/>
@@ -37,7 +37,7 @@
                                     id="createUnit"
                                     styleClass="btn btn-green"
                                     value="Add"
-                                    action="#{unitEditBean.createNewUnit()}"
+                                    action="#{unitsBean.createNewUnit()}"
                                     update="@form #{cc.attrs.toUpdate}"
                                     oncomplete="
                                             if (args &amp;&amp; !args.validationFailed)

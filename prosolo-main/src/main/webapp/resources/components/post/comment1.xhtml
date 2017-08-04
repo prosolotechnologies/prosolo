@@ -54,15 +54,15 @@
 						<div class="contentEditableComment"
 							strip-br="true" contenteditable="true"
 							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
-						
-						<p:commandButton
+
+						<p:commandLink
 							styleClass="btn btn-sm btn-green submitBtn"
 							value="Submit"
 							action="#{commentBean.editComment(comment, cc.attrs.comments)}"
 							update="@(.commentMainRegion_#{comment.commentId})">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
-						</p:commandButton>          
+						</p:commandLink>
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
 					</h:panelGroup>
 	                
@@ -110,8 +110,8 @@
 							<div class="contentEditableComment" placeholder="Add Comment..." 
 								strip-br="true" contenteditable="true"
 								onkeyup="displaySubmitButton(this);"></div>
-								
-							<p:commandButton 
+
+							<p:commandLink
 								styleClass="btn btn-sm btn-green hidden submitBtn"
 								value="Submit"
 								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
@@ -119,7 +119,7 @@
 								oncomplete="scrollToNewestComment('#{cc.attrs.newestCommentId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
-							</p:commandButton>
+							</p:commandLink>
 							
 							<script>
 							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {

@@ -1,0 +1,28 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:composite="http://java.sun.com/jsf/composite"
+              xmlns:p="http://primefaces.org/ui">
+
+    <composite:implementation>
+
+    </composite:implementation>
+    <div class="modal fade" id="deleteUnit" tabindex="-1" role="dialog" aria-labelledby="deleteUnit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                    <h2 class="modal-title" id="deleteUni">Delete Unit?</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete unit?<br/><br/>
+                        <small>Note: Action can NOT be un-done!</small></p>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-red">Delete</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:component>
