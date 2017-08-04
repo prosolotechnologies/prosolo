@@ -70,10 +70,10 @@ public enum ApplicationPage {
 	MANAGER_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
 	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
 	MANAGER_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
-	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-visibility.xhtml"),
-	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
-	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
-	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-visibility.xhtml");
+	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-who-can-learn.xhtml"),
+	MANAGER_COMPETENCE_PRIVACY("/manage/competence-editors.xhtml"),
+	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-editors.xhtml"),
+	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml");
 	
     private String uri; 
     
