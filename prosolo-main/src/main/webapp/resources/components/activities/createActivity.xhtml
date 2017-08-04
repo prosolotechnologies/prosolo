@@ -196,13 +196,25 @@
 			            </div>
 			            <div class="col-md-4">
 			                <div class="whiteBox publishBox">
-			                    <h2>Publish</h2>
-			                    <h:link
-			                    	outcome="activity"
-			                    	value="Preview"
-			                    	class="linkPreview">
-									<f:param name="actId" value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>	                    
-			                    </h:link>
+			                    <h2>Options</h2>
+								<ui:fragment rendered="#{activityEditBean.activityData.activityId gt 0}">
+									<h:link
+										target="_blank"
+										outcome="activity"
+										value="Preview"
+										class="linkPreview">
+										<f:param name="compId" value="#{activityEditBean.compId}" />
+										<f:param name="actId" value="#{util:encodeId(activityEditBean.activityData.activityId)}"></f:param>
+									</h:link>
+								</ui:fragment>
+								<ui:fragment rendered="#{not (activityEditBean.activityData.activityId gt 0)}">
+									<a href="javascript:void(0);"
+									   class="linkPreview disabled"
+									   data-toggle="tooltip"
+									   title="You need to save the activity in order to preview latest changes">
+									   Preview
+									</a>
+								</ui:fragment>
 			                    <div class="clear"></div>
 			                    <div class="estimatedTime">
 			                        <p>Estimated time to complete:</p>

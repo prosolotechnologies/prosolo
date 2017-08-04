@@ -50,7 +50,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private RoleManager roleManager;
     @Inject
     private OrganizationDataFactory organizationDataFactory;
-
     @Inject
     private OrganizationManager self;
 
