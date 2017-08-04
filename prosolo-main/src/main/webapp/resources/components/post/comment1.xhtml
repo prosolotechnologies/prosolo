@@ -50,7 +50,7 @@
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
 						<h:inputTextarea class="hidden"
 								value="#{comment.comment}" />
-							
+
 						<div class="contentEditableComment"
 							strip-br="true" contenteditable="true"
 							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
@@ -64,6 +64,12 @@
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
 						</p:commandLink>
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+
+						<script>
+                            $('#' + escapeColons('comment_#{comment.commentId}') + ' .editComment .contentEditableComment').on('keyup', function(e) {
+                                $(this).parent().find('textarea').val($(this).html());
+                            });
+						</script>
 					</h:panelGroup>
 	                
 					<div class="commentOptions">
@@ -123,7 +129,7 @@
 							
 							<script>
 							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {
-								$(this).prev('textarea').val($(this).html());
+								$(this).parent().find('textarea').val($(this).html());
 							});
 							</script>
 						</div>
