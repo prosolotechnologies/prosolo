@@ -45,7 +45,7 @@
                             <h:link value="Organizations" outcome="/admin/adminOrganizations"/>
                         </li>
                         <li>
-                            <h:link value="Units" outcome="/admin/units">
+                            <h:link value="#{unitsBean.organizationData.title}" outcome="/admin/adminOrganizationNew">
                             <f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
                         </li>
                         <li class="active">

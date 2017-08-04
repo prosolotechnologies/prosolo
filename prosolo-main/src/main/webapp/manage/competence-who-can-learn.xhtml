@@ -51,7 +51,12 @@
                         <li>
                             <h:link value="Competencies" outcome="competenceLibrary"/>
                         </li>
-                        <li class="active">#{competenceUserPrivilegeBean.competenceTitle}</li>
+                        <li>
+                            <h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+                                <f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
+                            </h:link>
+                        </li>
+                        <li class="active">Who can learn</li>
                     </ol>
                 </div>
                 <div class="col-md-12">

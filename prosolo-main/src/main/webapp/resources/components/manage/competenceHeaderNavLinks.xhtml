@@ -40,10 +40,10 @@
 				</li>
 				<li
 						role="presentation"
-						class="#{page  == 'competence-visibility' ? 'active' : ''}">
+						class="#{page  == 'competence-who-can-learn' ? 'active' : ''}">
 					<h:link
 							value="Who can learn"
-							outcome="competence-visibility">
+							outcome="competence-who-can-learn">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
@@ -58,10 +58,10 @@
 				</li>
 				<li
 						role="presentation"
-						class="#{page  == 'competence-privacy' ? 'active' : ''}">
+						class="#{page  == 'competence-editors' ? 'active' : ''}">
 					<h:link
 							value="Editors"
-							outcome="competence-privacy">
+							outcome="competence-editors">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>

@@ -10,18 +10,11 @@
 		<composite:attribute name="activeDeliveries" required="true" />
 		<composite:attribute name="pendingDeliveries" required="true" />
 		<composite:attribute name="finishedDeliveries" required="true" />
-		<composite:attribute name="credTitle" />
 		<composite:attribute name="showNumberOfStudentsAndInstructors" default="false" />
 		<composite:attribute name="canEdit" default="false" />
 	</composite:interface>
 	
 	<composite:implementation>
-		<div class="container">
-			<ol class="breadcrumb">
-				<li><h:link value="Credentials" outcome="credentialLibrary"></h:link></li>
-				<li class="active">#{cc.attrs.credTitle}</li>
-			</ol>
-		</div>
 		<div class="col-md-12">
 			<h2>Active Deliveries</h2>
 			<div class="whiteBox deliveriesList">

@@ -119,7 +119,14 @@
 				<li>
 					<h:link value="Competencies" outcome="competenceLibrary"/>
 				</li>
-	            <li class="active">#{competenceStudentsBean.competenceTitle}</li>
+				<li>
+					<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
+						<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+					</h:link>
+				</li>
+				<li class="active">
+					Students
+				</li>
 	        </ol>
 	    </div>
 	
