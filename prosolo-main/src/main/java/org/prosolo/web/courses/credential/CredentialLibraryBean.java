@@ -3,17 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CredentialTextSearch;
@@ -31,6 +20,14 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialLibraryBean")
 @Component("credentialLibraryBean")
@@ -134,14 +131,8 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			LearningContextData context = new LearningContextData(page, lContext, service);
 			
 			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
-			
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+
+			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while enrolling in a credential");

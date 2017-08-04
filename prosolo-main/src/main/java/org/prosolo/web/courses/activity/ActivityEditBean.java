@@ -1,15 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -28,11 +18,7 @@ import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -44,6 +30,14 @@ import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "activityEditBean")
 @Component("activityEditBean")
@@ -346,22 +340,17 @@ public class ActivityEditBean implements Serializable {
 		boolean saved = saveActivityData(!isNew);
 		
 		if (saved && isNew) {
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				/*
-				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/create-credential will return /credentials as a section but this
-				 * may not be what we really want.
-				 */
-				StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?tab=activities");
-				if (credId != null && !credId.isEmpty()) {
-					url.append("&credId=" + credId);
-				}
-				extContext.redirect(url.toString());
-			} catch (IOException e) {
-				logger.error(e);
+			/*
+			 * this will not work if there are multiple levels of directories in current view path
+			 * example: /credentials/create-credential will return /credentials as a section but this
+			 * may not be what we really want.
+			 */
+			StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
+					"/competences/" + compId + "/edit?tab=activities");
+			if (credId != null && !credId.isEmpty()) {
+				url.append("&credId=" + credId);
 			}
+			PageUtil.redirect(url.toString());
 		}
 	}
 	
@@ -414,26 +403,21 @@ public class ActivityEditBean implements Serializable {
 	
 	public void delete() {
 		try {
-			if(activityData.getActivityId() > 0) {
+			if (activityData.getActivityId() > 0) {
 				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
 				//activityData = new ActivityData(false);
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				try {
-					/*
-					 * this will not work if there are multiple levels of directories in current view path
-					 * example: /credentials/create-credential will return /credentials as a section but this
-					 * may not be what we really want.
-					 */
-					StringBuilder url = new StringBuilder(extContext.getRequestContextPath() + PageUtil.getSectionForView().getPrefix() +
-							"/competences/" + compId + "/edit?tab=activities");
-					if (credId != null && !credId.isEmpty()) {
-						url.append("&credId=" + credId);
-					}
-					extContext.redirect(url.toString());
-				} catch (IOException e) {
-					logger.error(e);
+				/*
+				 * this will not work if there are multiple levels of directories in current view path
+				 * example: /credentials/create-credential will return /credentials as a section but this
+				 * may not be what we really want.
+				 */
+				StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
+						"/competences/" + compId + "/edit?tab=activities");
+				if (credId != null && !credId.isEmpty()) {
+					url.append("&credId=" + credId);
 				}
+				PageUtil.redirect(url.toString());
 			} else {
 				PageUtil.fireErrorMessage("Activity is not saved so it can't be deleted");
 			}
