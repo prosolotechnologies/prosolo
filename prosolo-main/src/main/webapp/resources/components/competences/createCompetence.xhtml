@@ -240,10 +240,25 @@
 			                
 			                <div id="#{cc.clientId}" class="whiteBox publishBox">
 								<h2>Publish</h2>
-			
-								<h:link outcome="/manage/competence" value="Preview" class="linkPreview">
-									<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}"></f:param>
-								</h:link>
+
+								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId gt 0}">
+									<h:link
+											target="_blank"
+											outcome="competence"
+											value="Preview"
+											class="linkPreview">
+										<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}" />
+									</h:link>
+								</ui:fragment>
+								<ui:fragment rendered="#{not (competenceEditBean.competenceData.competenceId gt 0)}">
+									<a href="javascript:void(0);"
+									   class="linkPreview disabled"
+									   data-toggle="tooltip"
+									   title="You need to save the competency in order to preview latest changes">
+										Preview
+									</a>
+								</ui:fragment>
+
 								<div class="clear"></div>
 
 								<label>Status:</label>
