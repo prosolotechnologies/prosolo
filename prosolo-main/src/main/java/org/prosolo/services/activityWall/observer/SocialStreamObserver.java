@@ -39,8 +39,9 @@ public class SocialStreamObserver extends EventObserver {
 	}
 
 	public EventType[] getSupportedEvents() {
-		return new EventType[] { 
-			EventType.Comment,
+		return new EventType[] {
+			//TODO for now we do not create social activities for competency and activity comments. This should be rethinked.
+			//EventType.Comment,
 			EventType.Post, 
 			EventType.Completion, 
 		};
@@ -53,7 +54,8 @@ public class SocialStreamObserver extends EventObserver {
 			Credential1.class, 
 			Activity1.class,
 			TargetActivity1.class,
-			Comment1.class
+			//TODO for now we do not create social activities for competency and activity comments. This should be rethinked.
+			//Comment1.class
 		};
 	}
 

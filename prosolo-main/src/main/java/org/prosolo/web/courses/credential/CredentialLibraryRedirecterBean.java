@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 
@@ -27,17 +25,16 @@ public class CredentialLibraryRedirecterBean implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 
 	public void init() {
-		ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
 		/*
 		if user has manage library view capability redirect him to credential library page for managers,
 		otherwise redirect him to credential library for instructors
 	    */
 		if (loggedUserBean.hasCapability("MANAGE.LIBRARY.VIEW")) {
 			logger.info("Redirect to manager credential library page");
-			PageUtil.redirect(extContext.getRequestContextPath() + "/manage/library/credentials");
+			PageUtil.redirect("/manage/library/credentials");
 		} else {
 			logger.info("Redirect to instructor credential library page");
-			PageUtil.redirect(extContext.getRequestContextPath() + "/manage/library/instructor/credentials");
+			PageUtil.redirect("/manage/library/instructor/credentials");
 		}
 	}
 

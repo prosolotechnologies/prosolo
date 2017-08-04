@@ -30,8 +30,8 @@ import java.util.List;
  * @since 0.7
  */
 
-@ManagedBean(name = "unitEditBean")
-@Component("unitEditBean")
+@ManagedBean(name = "unitsBean")
+@Component("unitsBean")
 @Scope("view")
 public class UnitsBean implements Serializable {
 
@@ -52,6 +52,7 @@ public class UnitsBean implements Serializable {
     private String organizationId;
     private OrganizationData organizationData;
     private List<UnitData> units;
+    private String id;
 
     public void init(){
         try{
@@ -108,11 +109,6 @@ public class UnitsBean implements Serializable {
         }
      }
 
-
-    private void updateUnit(){
-
-    }
-
     public UnitData getUnit() {
         return unit;
     }
@@ -131,5 +127,13 @@ public class UnitsBean implements Serializable {
 
     public OrganizationData getOrganizationData() {
         return organizationData;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

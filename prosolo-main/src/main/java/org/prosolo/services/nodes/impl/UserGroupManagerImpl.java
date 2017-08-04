@@ -224,23 +224,6 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = false)
-	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
-		try {
-			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
-			UserGroupUser ugUser = new UserGroupUser();
-			ugUser.setGroup(group);
-			ugUser.setUser(user);
-			saveEntity(ugUser);
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			throw new DbConnectionException("Error while adding the user to the group");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = false)
 	public void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException {
 		try {
 			Optional<UserGroupUser> groupUser = getUserGroupUser(groupId, userId);
@@ -487,7 +470,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				for(CredentialUserGroup group : credGroups) {
 					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
 							group.getUserGroup().getName(), group.getUserGroup().getUsers().size(), 
-							group.getPrivilege(), true));
+							group.getPrivilege(), false, true));
 				}
 			}
 			
@@ -578,7 +561,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					List<UserGroupUser> users = group.getUserGroup().getUsers();
 					for(UserGroupUser u : users) {
 						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(),
-								group.getPrivilege(), true));
+								group.getPrivilege(), false, true));
 					}
 				}
 			}
@@ -880,6 +863,19 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		saveNewUserToUserGroup(userId, compGroup.getUserGroup(), session);
 	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
+		try {
+			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
+			saveNewUserToUserGroup(userId, group, persistence.currentManager());
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while adding the user to the group");
+		}
+	}
+
 	private void saveNewUserToUserGroup(long userId, UserGroup userGroup, Session session) {
 		try {
 			UserGroupUser userGroupUser = new UserGroupUser();
@@ -1094,13 +1090,31 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			List<CompetenceUserGroup> compGroups = getCompetenceUserGroups(compId, false,
+			List<UserGroup> compGroups = getCompetenceUserGroups(compId, false,
 					privilege, persistence.currentManager());
-			if(compGroups != null) {
-				for(CompetenceUserGroup group : compGroups) {
-					members.add(new ResourceVisibilityMember(group.getId(), group.getUserGroup().getId(),
-							group.getUserGroup().getName(), group.getUserGroup().getUsers().size(), 
-							group.getPrivilege(), true));
+			if (compGroups != null) {
+				for (UserGroup group : compGroups) {
+					//check if user group is inherited and get comp group id
+					String query = "SELECT compGroup " +
+							       "FROM CompetenceUserGroup compGroup " +
+								   "INNER JOIN compGroup.userGroup userGroup " +
+							       "WHERE compGroup.competence.id = :compId " +
+								   "AND userGroup.id = :userGroupId " +
+							 	   "AND userGroup.defaultGroup IS FALSE " +
+								   "AND compGroup.privilege = :priv " +
+								   "ORDER BY CASE WHEN compGroup.inherited IS TRUE THEN 1 ELSE 2 END";
+
+					CompetenceUserGroup compGroup = (CompetenceUserGroup) persistence.currentManager()
+							.createQuery(query)
+							.setLong("compId", compId)
+							.setLong("userGroupId", group.getId())
+							.setString("priv", privilege.name())
+							.setMaxResults(1)
+							.uniqueResult();
+
+					members.add(new ResourceVisibilityMember(compGroup.getId(), group.getId(),
+							group.getName(), group.getUsers().size(), compGroup.getPrivilege(),
+							compGroup.isInherited(), true));
 				}
 			}
 			
@@ -1118,35 +1132,44 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throws DbConnectionException {
     	List<ResourceVisibilityMember> members = new ArrayList<>();
 		try {
-			String query = "SELECT distinct compGroup FROM CompetenceUserGroup compGroup " +
-					   "INNER JOIN fetch compGroup.userGroup userGroup " +
-					   "LEFT JOIN fetch userGroup.users users " +
+			String query = "SELECT distinct user FROM CompetenceUserGroup compGroup " +
+					   "INNER JOIN compGroup.userGroup userGroup " +
+					   "INNER JOIN userGroup.users userGroupUser " +
+					   "INNER JOIN userGroupUser.user user " +
 					   "WHERE compGroup.competence.id = :compId " +
-					   "AND userGroup.defaultGroup = :defaultGroup ";
-
-			if (privilege != null) {
-				query += "AND compGroup.privilege = :priv ";
-			}
+					   "AND userGroup.defaultGroup IS TRUE " +
+					   "AND compGroup.privilege = :priv ";
 
 			Query q = persistence.currentManager()
 					.createQuery(query)
 					.setLong("compId", compId)
-					.setBoolean("defaultGroup", true);
-
-			if (privilege != null) {
-				q.setString("priv", privilege.name());
-			}
+					.setString("priv", privilege.name());
 
 			@SuppressWarnings("unchecked")
-			List<CompetenceUserGroup> defaultGroups = q.list();
+			List<User> users = q.list();
 
-			if(defaultGroups != null) {
-				for(CompetenceUserGroup group : defaultGroups) {
-					List<UserGroupUser> users = group.getUserGroup().getUsers();
-					for(UserGroupUser u : users) {
-						members.add(new ResourceVisibilityMember(u.getId(), u.getUser(),
-								group.getPrivilege(), true));
-					}
+			if (users != null) {
+				for (User user : users) {
+					String q1 = "SELECT user, compGroup.inherited FROM CompetenceUserGroup compGroup " +
+							"INNER JOIN compGroup.userGroup userGroup " +
+							"INNER JOIN userGroup.users user " +
+							"WITH user.user.id = :userId " +
+							"WHERE compGroup.competence.id = :compId " +
+							"AND userGroup.defaultGroup IS TRUE " +
+							"AND compGroup.privilege = :priv " +
+							"ORDER BY CASE WHEN compGroup.inherited IS TRUE THEN 1 ELSE 2 END";
+
+					Object[] res = (Object[]) persistence.currentManager().createQuery(q1)
+							.setLong("userId", user.getId())
+							.setLong("compId", compId)
+							.setString("priv", privilege.name())
+							.setMaxResults(1)
+							.uniqueResult();
+
+					UserGroupUser ugu = (UserGroupUser) res[0];
+					boolean inherited = (boolean) res[1];
+					members.add(new ResourceVisibilityMember(ugu.getId(), user,
+							privilege, inherited,true));
 				}
 			}
 			
@@ -1159,36 +1182,31 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     }
 
 	@Transactional(readOnly = true)
-	private List<CompetenceUserGroup> getCompetenceUserGroups(long compId, boolean returnDefaultGroups,
+	private List<UserGroup> getCompetenceUserGroups(long compId, boolean returnDefaultGroups,
 															  UserGroupPrivilege privilege, Session session)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder (
-							"SELECT compGroup FROM CompetenceUserGroup compGroup " +
-							"INNER JOIN fetch compGroup.userGroup userGroup " +
-							"WHERE compGroup.competence.id = :compId ");
+							"SELECT DISTINCT userGroup FROM CompetenceUserGroup compGroup " +
+							"INNER JOIN compGroup.userGroup userGroup " +
+							"WHERE compGroup.competence.id = :compId " +
+							"AND compGroup.privilege = :priv ");
 
 			if (!returnDefaultGroups) {
 				query.append("AND userGroup.defaultGroup = :defaultGroup ");
 			}
 
-			if (privilege != null) {
-				query.append("AND compGroup.privilege = :priv ");
-			}
-
 			Query q = session
 					.createQuery(query.toString())
-					.setLong("compId", compId);
+					.setLong("compId", compId)
+					.setParameter("priv", privilege);
 
 			if (!returnDefaultGroups) {
 				q.setBoolean("defaultGroup", false);
 			}
-			if (privilege != null) {
-				q.setParameter("priv", privilege);
-			}
 
 			@SuppressWarnings("unchecked")
-			List<CompetenceUserGroup> compGroups = q.list();
+			List<UserGroup> compGroups = q.list();
 
 			return compGroups;
 		} catch(Exception e) {
