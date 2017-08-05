@@ -6,19 +6,20 @@
 >
 
     <ui:define name="windowTitle" >
-        Prosolo - Admin | Organizations
+        #{unitUsersBean.unitTitle} - Instructors
     </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="orgId" value="#{unitUsersBean.orgId}" />
             <f:viewParam name="id" value="#{unitUsersBean.id}" />
+            <f:viewParam name="p" value="#{unitUsersBean.page}" default="1" />
             <f:viewAction action="#{unitUsersBean.initInstructors()}" />
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle" >
-        <h1>Unit Name</h1>
+        <h1>#{unitUsersBean.unitTitle}</h1>
     </ui:define>
 
     <ui:define name="navLinks">
@@ -26,110 +27,6 @@
     </ui:define>
 
     <ui:define name="content">
-
-    <div class="whiteBar">
-
-    </div>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="whiteBox manageVisibility">
-                    <div class="innerWrapper">
-                        <h2>Instructors</h2>
-                        <p>Select instructors for [Unit name].<br></br>Note: if you select a group, only users with role "Instructor" will be added. Later, every new user added to a group will be automatically added as an instructor for unit where that group is present.</p>
-                    </div>
-                    <div class="searchInstructors">
-                        <input type="search" name="name" value="" placeholder="Search Users or Groups"></input>
-                        <ul class="dropdown-menu searchResultsDrop" style="display:block;">
-                            <li>
-                                <a href="#">
-                                    <div class="instructorInfo">
-                                        <span class="letterAvatar letterAvatar48 img-circle">WW</span>
-                                        <div class="infoWrap">
-                                            <h3>Gustavo Fring</h3>
-                                            <span>Teaching Assistant, University of Texas</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <div class="instructorInfo">
-                                        <div class="infoWrap">
-                                            <h3>Group Name</h3>
-                                            <span>23 users</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul class="list">
-                        <li>
-                            <div class="instructorInfo">
-                                <div class="infoWrap">
-                                    <h3>Group Name</h3>
-                                    <span>23 users</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <a href="#" class="removeX">Close</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="instructorInfo">
-                                <span class="letterAvatar letterAvatar48 img-circle">WW</span>
-                                <div class="infoWrap">
-                                    <h3>Gustavo Fring</h3>
-                                    <span>Teaching Assistant, University of Texas</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <a href="#" class="removeX">Close</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="instructorInfo">
-                                <img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
-                                <div class="infoWrap">
-                                    <h3>Gustavo Fring</h3>
-                                    <span>Teaching Assistant, University of Texas</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <a href="#" class="removeX">Close</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="instructorInfo">
-                                <div class="infoWrap">
-                                    <h3>Group name</h3>
-                                    <span>23 users</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <a href="#" class="removeX">Close</a>
-                            </div>
-                        </li>
-                    </ul>
-                    <nav class="paginationWrapper">
-                        <ul class="pagination">
-                            <li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
-                            <li><a href="#">1</a></li>
-                            <li class="active"><a href="#">2</a></li>
-                            <li>...</li>
-                            <li><a href="#">7</a></li>
-                            <li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
-                        </ul>
-                    </nav>
-                    <div class="lastRow">
-                        <a href="#" class="btn btn-green">Save Changes</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+        <org:unitUsers resource="instructor" resourcePlural="instructors" />
     </ui:define>
 </ui:composition>

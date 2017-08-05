@@ -17,7 +17,7 @@ public class PaginationData {
 	private List<PaginationLink> links;
 	
 	public PaginationData() {
-		this.limit = 1;
+		this.limit = 10;
 		this.page = 1;
 		this.generateAllLinks = false;
 		this.numberOfLinksArroundCurrent = 1;

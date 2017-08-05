@@ -44,6 +44,9 @@
 
 					<h:panelGroup id="#{cc.attrs.userPanelId}">
 						<ul class="list">
+							<ui:fragment rendered="#{empty cc.attrs.searchBean.users}">
+								<li class="noPeople">There are no users.</li>
+							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.searchBean.users}" var="user">
 								<li>
 									<div class="instructorInfo">

@@ -86,31 +86,40 @@
 							<p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import #{cc.attrs.resourcePlural} from CSV file.</a></p>
 						</div>
 						<h:panelGroup id="panelUsers">
-							<ul class="list hasTopBorder">
-								<ui:repeat value="#{unitUsersBean.existingUsers}" var="user">
-									<li>
-										<div class="instructorInfo">
-											<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-																 fullName="#{user.fullName}" width="48" height="48" />
+							<ui:fragment rendered="#{empty unitUsersBean.existingUsers}">
+								<div class="noContentMessage">
+									<p>
+										There are no results.
+									</p>
+								</div>
+							</ui:fragment>
+							<ui:fragment rendered="#{not empty unitUsersBean.existingUsers}">
+								<ul class="list hasTopBorder">
+									<ui:repeat value="#{unitUsersBean.existingUsers}" var="user">
+										<li>
+											<div class="instructorInfo">
+												<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																	 fullName="#{user.fullName}" width="48" height="48" />
 
-											<div class="infoWrap">
-												<h3>#{user.fullName}</h3>
-												<span>#{user.position}</span>
+												<div class="infoWrap">
+													<h3>#{user.fullName}</h3>
+													<span>#{user.position}</span>
+												</div>
 											</div>
-										</div>
-										<div class="assignOpt">
-											<p:commandLink styleClass="removeX" process="@this"
-														   action="#{unitUsersBean.removeUser(user)}"
-														   update=":#{cc.clientId}:formSearchExistingUsers:inputUserSearch :#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain">
-												Close
-												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-												<f:param name="learningContext"
-														 value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
-											</p:commandLink>
-										</div>
-									</li>
-								</ui:repeat>
-							</ul>
+											<div class="assignOpt">
+												<p:commandLink styleClass="removeX" process="@this"
+															   action="#{unitUsersBean.removeUser(user)}"
+															   update=":#{cc.clientId}:formSearchExistingUsers:inputUserSearch :#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain">
+													Close
+													<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+													<f:param name="learningContext"
+															 value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
+												</p:commandLink>
+											</div>
+										</li>
+									</ui:repeat>
+								</ul>
+							</ui:fragment>
 						</h:panelGroup>
 
 						<utilcomp:pagination id="pagination"
