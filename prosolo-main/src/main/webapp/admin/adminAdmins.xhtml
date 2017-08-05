@@ -89,6 +89,13 @@
 				</ol>
 			</div>
         	<h:panelGroup layout="block" id="panelAdmins" styleClass="col-md-12">
+				<ui:fragment rendered="#{empty adminAdmins.admins}">
+					<div class="noContentMessage">
+						<p>
+							No admins.
+						</p>
+					</div>
+				</ui:fragment>
             	<ul class="whiteBox peopleList">
                 	<ui:repeat var="admin" value="#{adminAdmins.admins}">
 	                    <li>
