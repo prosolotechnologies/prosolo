@@ -26,12 +26,12 @@
 						 <a href="javascript:void(0);">Organization Details</a>
 					 </ui:fragment>
 				 </li>
-				 <li role="presentation" class="#{page eq 'adminUnits' ? 'active' : ''}">
-					 <h:link rendered="#{page ne 'adminUnits'}" outcome="/admin/adminUnits">
+				 <li role="presentation" class="#{page eq 'units' ? 'active' : ''}">
+					 <h:link rendered="#{page ne 'units'}" outcome="/admin/units">
 						 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 						 Units
 					 </h:link>
-					 <ui:fragment rendered="#{page eq 'adminUnits'}">
+					 <ui:fragment rendered="#{page eq 'units'}">
 						 <a href="javascript:void(0);">Units</a>
 					 </ui:fragment>
 				 </li>

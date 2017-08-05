@@ -105,7 +105,13 @@
 										value="Users" outcome="/admin/users" />
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'adminOrganizations' or util:getPagePath(view.viewId)  == 'adminOrganizationNew' or util:getPagePath(view.viewId)  == 'organizationUsers' or util:getPagePath(view.viewId)  == 'orgUserEdit' or util:getPagePath(view.viewId)  == 'userEditPassword' or util:getPagePath(view.viewId)  == 'adminUnits' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'adminOrganizations'
+								or util:getPagePath(view.viewId)  == 'adminOrganizationNew'
+								or util:getPagePath(view.viewId)  == 'organizationUsers'
+								or util:getPagePath(view.viewId)  == 'orgUserEdit'
+								or util:getPagePath(view.viewId)  == 'userEditPassword'
+								or util:getPagePath(view.viewId)  == 'units' ? 'active' : ''}">
+
 								<h:link onclick="sendLogPageNavigation('organizations','mainmenu');"
 										value="Organizations" outcome="/admin/adminOrganizations" />
 							</li>

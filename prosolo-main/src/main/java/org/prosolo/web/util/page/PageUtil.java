@@ -110,10 +110,16 @@ public class PageUtil {
 	public static void redirectToLoginPage() {
 		redirect("login?faces-redirect=true");
 	}
-	
+
+	/**
+	 * Redirects to the url specified by {@code url} argument after prepending application context path.
+	 *
+	 * @param url - relative url
+	 */
 	public static void redirect(String url) {
 		try {
-			FacesContext.getCurrentInstance().getExternalContext().redirect(url);
+			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+			extContext.redirect(extContext.getRequestContextPath() + url);
 		} catch (IOException e) {
 			logger.error(e);
 		}

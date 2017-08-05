@@ -95,6 +95,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
+		tags = new HashSet<>();
 	}
 	
 	@Override

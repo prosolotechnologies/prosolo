@@ -30,6 +30,14 @@ public class TitleData implements Serializable {
 		return td;
 	}
 
+	public static TitleData ofOrganizationAndUnitTitle(
+			String organizationTitle, String unitTitle) {
+		TitleData td = new TitleData();
+		td.organizationTitle = organizationTitle;
+		td.unitTitle = unitTitle;
+		return td;
+	}
+
 	public String getOrganizationTitle() {
 		return organizationTitle;
 	}

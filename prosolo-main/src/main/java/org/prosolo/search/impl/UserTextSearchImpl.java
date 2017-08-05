@@ -1616,4 +1616,110 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
+	@Override
+	public PaginatedResult<UserData> searchOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers) {
+		return searchOrganizationUsersWithRole(orgId, unitId, roleId, searchTerm, page, limit,
+				includeSystemUsers, false);
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchUnitUsersInRole(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers) {
+		return searchOrganizationUsersWithRole(orgId, unitId, roleId, searchTerm, page, limit,
+				includeSystemUsers, true);
+	}
+
+	/**
+	 * Returns (paginated) users belonging to organization with {@code orgId} id that have role with {@code roleId} id
+	 *
+	 * If {@code searchUsersBelongingToUnit} flag is true, only users that are already added to unit in a role
+	 * with {@code roleId} id are returned. Otherwise, only users that are not already added to unit are returned.
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param includeSystemUsers
+	 * @param searchUsersBelongingToUnit
+	 * @return
+	 */
+	private PaginatedResult<UserData> searchOrganizationUsersWithRole(long orgId, long unitId,
+																	  long roleId, String searchTerm,
+																	  int page, int limit,
+																	  boolean includeSystemUsers,
+																	  boolean searchUsersBelongingToUnit) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			Client client = ElasticSearchFactory.getClient();
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(searchTerm.toLowerCase() + "*").useDisMax(true)
+						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.field("name").field("lastname");
+
+				bQueryBuilder.filter(qb);
+			}
+
+			if (!includeSystemUsers) {
+				bQueryBuilder.mustNot(termQuery("system", true));
+			}
+
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			QueryBuilder qb = termQuery("roles.units.id", unitId);
+			if (searchUsersBelongingToUnit) {
+				unitRoleFilter.filter(qb);
+			} else {
+				unitRoleFilter.mustNot(qb);
+			}
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+					.setTypes(ESIndexTypes.ORGANIZATION_USER)
+					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+					.setQuery(bQueryBuilder)
+					.setFetchSource(includes, null);
+
+			searchRequestBuilder.setFrom(start).setSize(limit);
+
+			//add sorting
+			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
+			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			//System.out.println(searchRequestBuilder.toString());
+			SearchResponse sResponse = searchRequestBuilder.execute().actionGet();
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
+					}
+				}
+			}
+
+		} catch (Exception e1) {
+			logger.error(e1);
+		}
+		return response;
+	}
+
 }

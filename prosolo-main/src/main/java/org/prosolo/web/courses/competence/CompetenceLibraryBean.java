@@ -3,17 +3,6 @@
  */
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -33,6 +22,14 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component("competenceLibraryBean")
 @Scope("view")
@@ -144,14 +141,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			LearningContextData context = PageUtil.extractLearningContextData();
 			
 			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), context);
-			
-			ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-			try {
-				extContext.redirect(extContext.getRequestContextPath() + 
-						"/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			} catch (IOException e) {
-				logger.error(e);
-			}
+
+			PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while enrolling in a competency");
