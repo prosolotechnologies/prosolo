@@ -24,7 +24,7 @@
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 					<li><h:link outcome="/admin/adminAdmins">Admins</h:link></li>
-					<li class="active">#{userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : userEditBean.user.fullName}</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
@@ -36,11 +36,11 @@
 					</li>
 					<li>
 						<h:link outcome="/admin/organizationUsers">
-							Users
+							People
 							<f:param name="orgId" value="#{userEditBean.orgId}" />
 						</h:link>
 					</li>
-					<li class="active">#{userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New User' : userEditBean.user.fullName}</li>
 				</c:if>
 			</ol>
 		</div>
