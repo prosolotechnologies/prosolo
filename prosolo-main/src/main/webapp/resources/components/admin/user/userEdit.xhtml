@@ -6,10 +6,12 @@
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
 >
 
 	<composite:interface>
 		<composite:attribute name="showFormTitle" default="false" />
+		<composite:attribute name="mode" default="ADMIN" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -22,7 +24,7 @@
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 					<li><h:link outcome="/admin/adminAdmins">Admins</h:link></li>
-					<li class="active">#{empty userEditBean.user.id ? 'New Admin' : userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : userEditBean.user.fullName}</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
@@ -38,7 +40,7 @@
 							<f:param name="orgId" value="#{userEditBean.orgId}" />
 						</h:link>
 					</li>
-					<li class="active">#{empty userEditBean.user.id ? 'New User' : userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New User' : userEditBean.user.fullName}</li>
 				</c:if>
 			</ol>
 		</div>
