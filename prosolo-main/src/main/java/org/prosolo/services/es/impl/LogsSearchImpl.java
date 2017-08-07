@@ -21,6 +21,9 @@ import org.prosolo.bigdata.common.events.serialization.LearningContextDeserializ
 import org.prosolo.bigdata.common.events.serialization.ServiceDeserializer;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.activities.events.EventType;
+import org.prosolo.common.domainmodel.credential.Activity1;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.context.ContextJsonParserService;
@@ -52,7 +55,7 @@ public class LogsSearchImpl implements LogsSearch {
         int bQueryMinShouldMatch=0;
         if(logsFilter.getCredentials().size()>0){
             //System.out.println("HAS CREDENTIALS:"+logsFilter.getCredentials().size());
-            BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCredentials(),"Credential1",1);
+            BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCredentials(),Credential1.class.getSimpleName(),1);
 
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
@@ -60,13 +63,13 @@ public class LogsSearchImpl implements LogsSearch {
 
         if(logsFilter.getCompetences().size()>0){
             //System.out.println("HAS COMPETENCES:"+logsFilter.getCompetences().size());
-            BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCompetences(),"Competence1",2);
+            BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCompetences(),Competence1.class.getSimpleName(),2);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
         if(logsFilter.getActivities().size()>0){
             //System.out.println("HAS Activities:"+logsFilter.getActivities().size());
-            BoolQueryBuilder contextQueryBuilder = createContextQueryBuilder(logsFilter.getActivities(),"Activity1",3);
+            BoolQueryBuilder contextQueryBuilder = createContextQueryBuilder(logsFilter.getActivities(),Activity1.class.getSimpleName(),3);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
