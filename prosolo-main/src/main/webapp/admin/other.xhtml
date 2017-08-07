@@ -183,12 +183,13 @@
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green" value="Save"
+								<p:commandLink id="saveSymptom" styleClass="btn btn-green" value="Save"
 									oncomplete="if (args &amp;&amp; !args.validationFailed)
 									$('#editSymptomModal').modal('hide');"
 									action="#{otherSettingsBean.updateSymptom()}"
 									update=":formEditSymptom:panelSymptomContent :symptomForm">
 								</p:commandLink>
+								<p:defaultCommand target="saveSymptom"></p:defaultCommand>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>
@@ -226,12 +227,13 @@
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green" value="Save"
+								<p:commandLink id="saveSuggestion" styleClass="btn btn-green" value="Save"
 									oncomplete="if (args &amp;&amp; !args.validationFailed)
 									$('#editSuggestionModal').modal('hide');"
 									action="#{otherSettingsBean.updateSuggestion()}"
 									update=":formEditSuggestion:panelSuggestionContent :suggestionForm">
 								</p:commandLink>
+								<p:defaultCommand target="saveSuggestion"></p:defaultCommand>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>
