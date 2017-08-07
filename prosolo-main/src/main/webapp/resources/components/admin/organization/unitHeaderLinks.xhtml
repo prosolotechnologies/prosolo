@@ -16,14 +16,14 @@
 	 <div id="#{cc.clientId}">
 		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
 		 <ul class="nav nav-tabs headerSubmenu">
-			 <li role="presentation" class="#{page eq 'adminUnitEdit' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'adminUnitEdit'}"
-						 outcome="/admin/adminUnitEdit">
+			 <li role="presentation" class="#{page eq 'unitEdit' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unitEdit'}"
+						 outcome="/admin/unitEdit">
 					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
 					 Unit Details
 				 </h:link>
-				 <ui:fragment rendered="#{page eq 'adminUnitEdit'}">
+				 <ui:fragment rendered="#{page eq 'unitEdit'}">
 					 <a href="javascript:void(0);">Unit Details</a>
 				 </ui:fragment>
 			 </li>
