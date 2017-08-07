@@ -79,10 +79,8 @@
                                                  required="true"
                                                  requiredMessage="Organization name is required"
                                                  value="#{organizationEditBean.organization.title}"/>
-                                    <h:panelGroup  layout="block"
-                                                    rendered="#{not empty facesContext.getMessageList('formMain:inputTextOrganizationName')}"
-                                                    styleClass="alert alert-danger" pt:role="alert">
-                                                    <h:message for="inputTextOrganizationName"></h:message>
+                                    <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextOrganizationName')}">
+                                        <small class="redText"><h:message for="inputTextOrganizationName"></h:message></small>
                                     </h:panelGroup>
                                 </div>
                             </div>
@@ -159,10 +157,8 @@
                                             </h:panelGroup>
                                             <h:inputHidden validator="selectUserForOrganizationValidator" value="0"
                                                            id="hiddenInput"></h:inputHidden>
-                                            <h:panelGroup layout="block"
-                                                          rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}"
-                                                          styleClass="alert alert-danger" pt:role="alert">
-                                                <h:message for="hiddenInput"></h:message>
+                                            <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}">
+                                                <small class="redText"><h:message for="hiddenInput"></h:message></small>
                                             </h:panelGroup>
                                         </h:panelGroup>
                                 </div>

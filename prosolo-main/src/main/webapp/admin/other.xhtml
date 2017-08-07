@@ -43,7 +43,11 @@
 									process="newSymptomDesc"
 									actionListener="#{otherSettingsBean.saveSymptom()}" value="Add"
 									update="@form :symptomForm :newSymptomForm">
-								</p:commandLink>
+								</p:commandLink><br/>
+
+								<h:panelGroup rendered="#{not empty facesContext.getMessageList('newSymptomForm:newSymptomDesc')}">
+									<small class="redText"><h:message for="newSymptomDesc"></h:message></small>
+								</h:panelGroup>
 							</h:form>
 						</div>
 						<h:form id="symptomForm">
@@ -106,7 +110,11 @@
 									process="newSuggestionDesc"
 									actionListener="#{otherSettingsBean.saveSuggestion()}"
 									value="Add" update="@form :suggestionForm :newSuggestionForm">
-								</p:commandLink>
+								</p:commandLink><br/>
+
+								<h:panelGroup rendered="#{not empty facesContext.getMessageList('newSuggestionForm:newSuggestionDesc')}">
+									<small class="redText"><h:message for="newSuggestionDesc"></h:message></small>
+								</h:panelGroup>
 							</h:form>
 						</div>
 						<h:form id="suggestionForm">

@@ -145,12 +145,9 @@
 							requiredMessage="Name is required"
 							validator="#{roles.validateName}" 
 							placeholder="Role Name"/>
-					  <h:panelGroup 
-                      	layout="block" 
-                      	rendered="#{not empty facesContext.getMessageList('formEditRole:inputRoleName')}" 
-                      	styleClass="alert alert-danger" 
-                      	pt:role="alert">
-                          <h:message for="inputRoleName"></h:message>
+
+					  <h:panelGroup rendered="#{not empty facesContext.getMessageList('formEditRole:inputRoleName')}">
+						  <small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRoleName"></h:message></small>
                       </h:panelGroup>
                   </div>
                   <div class="modal-footer alignLeft">

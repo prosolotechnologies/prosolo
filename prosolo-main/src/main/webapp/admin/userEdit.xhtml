@@ -42,12 +42,8 @@
 	                            		requiredMessage="First name is required"
 	                            		value="#{userEditBean.user.name}">
 	                            	</h:inputText>
-	                            	<h:panelGroup 
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="inputTextUserName"></h:message>
+	                            	<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}">
+			                            <small class="redText"><h:message for="inputTextUserName"></h:message></small>
 			                        </h:panelGroup>
 	                            </div>
 	                        </div>
@@ -59,12 +55,8 @@
 	                                	requiredMessage="Last name is required"
 	                                	value="#{userEditBean.user.lastName}">
 	                                </h:inputText>
-	                                <h:panelGroup 
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="inputTextUserLastname"></h:message>
+	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}">
+			                            <small class="redText"><h:message for="inputTextUserLastname"></h:message></small>
 			                        </h:panelGroup>
 	                            </div>
 	                        </div>
@@ -75,13 +67,9 @@
 	                            		required="true" 
 	                            		requiredMessage="Email is required"
 	                            		value="#{userEditBean.user.email}"></h:inputText>
-	                                <small>Email will not be publicly displayed.</small>
-	                                <h:panelGroup 
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="inputTextUserEmail"></h:message>
+	                                <small>Email will not be publicly displayed.</small><br/>
+	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}">
+										<small class="redText"><h:message for="inputTextUserEmail"></h:message></small>
 			                        </h:panelGroup>
 	                            </div>
 	                        </div>
@@ -104,12 +92,8 @@
 										<f:selectItems value="#{userEditBean.allRoles}" var="role"
 											itemValue="role" />
 									</h:selectManyCheckbox>
-									<h:panelGroup 
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="selectRoles"></h:message>
+									<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}">
+										<small class="redText"><h:message for="selectRoles"></h:message></small>
 			                        </h:panelGroup>
 	                            </div>
 	                        </div>
@@ -124,12 +108,8 @@
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
 	                                	<f:validateLength minimum="6"></f:validateLength>
 	                                </p:password>
-	                                <h:panelGroup
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:inputPassword')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="inputPassword"></h:message>
+	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputPassword')}">
+										<small class="redText"><h:message for="inputPassword"></h:message></small>
 			                        </h:panelGroup>
 	                                <p:password rendered="#{!userEditBean.isCreateUseCase()}"
 	                                	id="inputPasswordEdit"
@@ -137,12 +117,8 @@
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
 	                                	<f:validateLength minimum="6"></f:validateLength>
 	                                </p:password>
-	                                <h:panelGroup
-			                        	layout="block" 
-			                        	rendered="#{not empty facesContext.getMessageList('formMain:inputPasswordEdit')}" 
-			                        	styleClass="alert alert-danger" 
-			                        	pt:role="alert">
-			                            <h:message for="inputPasswordEdit"></h:message>
+	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputPasswordEdit')}">
+										<small class="redText"><h:message for="inputPasswordEdit"></h:message></small>
 			                        </h:panelGroup>
 	                              
 	                            </div>
