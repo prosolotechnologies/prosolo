@@ -39,11 +39,11 @@ public class Unit extends BaseEntity {
 
 	@OneToMany(mappedBy = "unit", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@LazyCollection(LazyCollectionOption.EXTRA)
-	public List<UnitRoleMembership> getUnitRoleMembership(){
+	public List<UnitRoleMembership> getUnitRoleMemberships(){
 		return unitRoleMemberships;
 	}
 	
-	public void setUnitRoleMembership(List<UnitRoleMembership> unitRoleMemberships){
+	public void setUnitRoleMemberships(List<UnitRoleMembership> unitRoleMemberships){
 		this.unitRoleMemberships = unitRoleMemberships;
 	}
 	

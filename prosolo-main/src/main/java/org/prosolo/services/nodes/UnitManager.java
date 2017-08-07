@@ -12,7 +12,6 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
-import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.prosolo.services.nodes.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -67,4 +66,7 @@ public interface UnitManager extends AbstractManager{
     PaginatedResult<UserData> getPaginatedUnitUsersInRoleNotAddedToGroup(long unitId, long roleId,
                                                                          long groupId, int offset, int limit)
             throws DbConnectionException;
+
+    void deleteUnit(long unitId) throws DbConnectionException;
+
 }

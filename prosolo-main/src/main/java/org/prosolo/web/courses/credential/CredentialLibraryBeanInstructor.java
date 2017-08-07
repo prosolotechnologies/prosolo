@@ -30,7 +30,7 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 
 	private List<CredentialData> activeDeliveries;
 	private List<CredentialData> pendingDeliveries;
-	private List<CredentialData> finishedDeliveries;
+	private List<CredentialData> pastDeliveries;
 
 	private String context = "name:library";
 
@@ -42,7 +42,7 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 	private void initializeValues() {
 		activeDeliveries = new ArrayList<>();
 		pendingDeliveries = new ArrayList<>();
-		finishedDeliveries = new ArrayList<>();
+		pastDeliveries = new ArrayList<>();
 	}
 
 	public void loadCredentials() {
@@ -50,7 +50,7 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 			List<CredentialData> deliveries = credManager.getCredentialDeliveriesForUserWithInstructPrivilege(
 					loggedUserBean.getUserId());
 			CredentialDeliveryUtil.populateCollectionsBasedOnDeliveryStartAndEnd(
-					deliveries, activeDeliveries, pendingDeliveries, finishedDeliveries
+					deliveries, activeDeliveries, pendingDeliveries, pastDeliveries
 			);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,12 +74,12 @@ public class CredentialLibraryBeanInstructor implements Serializable {
 		this.pendingDeliveries = pendingDeliveries;
 	}
 
-	public List<CredentialData> getFinishedDeliveries() {
-		return finishedDeliveries;
+	public List<CredentialData> getPastDeliveries() {
+		return pastDeliveries;
 	}
 
-	public void setFinishedDeliveries(List<CredentialData> finishedDeliveries) {
-		this.finishedDeliveries = finishedDeliveries;
+	public void setPastDeliveries(List<CredentialData> pastDeliveries) {
+		this.pastDeliveries = pastDeliveries;
 	}
 
 }
