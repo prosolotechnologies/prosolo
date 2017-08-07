@@ -5,7 +5,9 @@
 				xmlns:p="http://primefaces.org/ui"
 				template="templates/masterLayout2.xhtml"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:admin="http://java.sun.com/jsf/composite/components/admin">
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+				xmlns:admin="http://java.sun.com/jsf/composite/components/admin"
+				xmlns:course="http://java.sun.com/jsf/composite/components/courses">
 
 	<ui:define name="windowTitle" >Units</ui:define>
 
@@ -38,7 +40,6 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 		<div class="whiteBar">
 			<div class="container">
 				<div class="whiteBarContent">
@@ -55,7 +56,22 @@
 
 		<div class="container">
 			<div class="row">
+				<div class="container">
+					<ol class="breadcrumb">
+						<li>
+							<h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+						</li>
+						<li>
+							<h:link value="#{unitsBean.organizationData.title}" outcome="/admin/adminOrganizationNew">
+								<f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
+						</li>
+						<li class="active">
+							Units
+						</li>
+					</ol>
+				</div>
 				<h:form id="formUnits">
+					<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 					<div class="col-md-12">
 						<ui:fragment rendered="#{empty unitsBean.units}">
 							<div class="noContentMessage">
@@ -70,7 +86,7 @@
 									<div class="liContent">
 										<div class="adminUnitsListLeft">
 											<h2>
-												<h:link outcome="/admin/adminUnitEdit">
+												<h:link outcome="/admin/unitEdit">
 													#{unit.title}
 													<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 													<f:param name="unitId" value="#{util:encodeId(unit.id)}"></f:param>
@@ -83,7 +99,7 @@
 															oncomplete="$('#newUnitModal').modal('show');"
 															update="newUnitModal:formNewUnitModal">
 											</p:commandLink>
-											<h:link outcome="/admin/adminUnitEdit">
+											<h:link outcome="/admin/unitEdit">
 												Edit
 												<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 												<f:param name="unitId" value="#{util:encodeId(unit.id)}"></f:param>
@@ -91,7 +107,22 @@
 											<div class="dropdown optMoreMenu">
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-													<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+													<li>
+														<ui:fragment rendered="#{!unit.hasUsers and empty unit.childrenUnits}">
+															<p:commandLink styleClass="linkRed"
+																		   action="#{unitsBean.setUnitToDelete(unit)}"
+																		   oncomplete="$('#deleteModal').modal('show');">
+															    Delete
+															</p:commandLink>
+														</ui:fragment>
+														<ui:fragment rendered="#{unit.hasUsers or not empty unit.childrenUnits}">
+															<a  class="linkRed" data-toggle="tooltip"
+															    title="#{not empty unit.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+															    disabled="disabled">
+																Delete
+															</a>
+														</ui:fragment>
+													</li>
 												</ul>
 											</div>
 										</div>
@@ -102,7 +133,7 @@
 												<div class="liContent">
 													<div class="adminUnitsListLeft">
 														<h3>
-															<h:link outcome="/admin/adminUnitEdit">
+															<h:link outcome="/admin/unitEdit">
 																#{child.title}
 																<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 																<f:param name="unitId" value="#{util:encodeId(child.id)}"></f:param>
@@ -115,7 +146,7 @@
 																		oncomplete="$('#newUnitModal').modal('show');"
 																		update="newUnitModal:formNewUnitModal">
 														</p:commandLink>
-														<h:link outcome="/admin/adminUnitEdit">
+														<h:link outcome="/admin/unitEdit">
 															Edit
 															<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 															<f:param name="unitId" value="#{util:encodeId(child.id)}"></f:param>
@@ -123,7 +154,22 @@
 														<div class="dropdown optMoreMenu">
 															<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 															<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+                                                                <li>
+                                                                    <ui:fragment rendered="#{!child.hasUsers and empty child.childrenUnits}">
+                                                                        <p:commandLink styleClass="linkRed"
+                                                                                       action="#{unitsBean.setUnitToDelete(child)}"
+                                                                                       oncomplete="$('#deleteModal').modal('show');">
+                                                                            Delete
+                                                                        </p:commandLink>
+                                                                    </ui:fragment>
+                                                                    <ui:fragment rendered="#{child.hasUsers or not empty child.childrenUnits}">
+                                                                        <a  class="linkRed" data-toggle="tooltip"
+                                                                            title="#{not empty child.childrenUnits ? 'Unit can not be deleted since it has subunits' : 'Unit can not be deleted as there are users associated with it'}"
+                                                                            disabled="disabled">
+                                                                            Delete
+                                                                        </a>
+                                                                    </ui:fragment>
+                                                                </li>
 															</ul>
 														</div>
 													</div>
@@ -133,14 +179,14 @@
 														<li>
 															<div class="liContent">
 																<div class="adminUnitsListLeft">
-																	<h:link outcome="/admin/adminUnitEdit">
+																	<h:link outcome="/admin/unitEdit">
 																		#{child2.title}
 																		<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 																		<f:param name="unitId" value="#{util:encodeId(child2.id)}"></f:param>
 																	</h:link>
 																</div>
 																<div class="adminUnitsListRight">
-																	<h:link outcome="/admin/adminUnitEdit">
+																	<h:link outcome="/admin/unitEdit">
 																		Edit
 																		<f:param name="id" value="#{unitsBean.organizationId}"></f:param>
 																		<f:param name="unitId" value="#{util:encodeId(child2.id)}"></f:param>
@@ -148,7 +194,22 @@
 																	<div class="dropdown optMoreMenu">
 																		<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 																		<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-																			<li><a href="#" data-toggle="modal" data-target="#deleteUnit">Delete</a></li>
+                                                                            <li>
+                                                                                <ui:fragment rendered="#{!child2.hasUsers}">
+                                                                                    <p:commandLink styleClass="linkRed"
+                                                                                                   action="#{unitsBean.setUnitToDelete(child2)}"
+                                                                                                   oncomplete="$('#deleteModal').modal('show');">
+                                                                                        Delete
+                                                                                    </p:commandLink>
+                                                                                </ui:fragment>
+                                                                                <ui:fragment rendered="#{child2.hasUsers}">
+                                                                                    <a  class="linkRed" data-toggle="tooltip"
+                                                                                        title="Unit can not be deleted as there are users associated with it"
+                                                                                        disabled="disabled">
+                                                                                        Delete
+                                                                                    </a>
+                                                                                </ui:fragment>
+                                                                            </li>
 																		</ul>
 																	</div>
 																</div>
@@ -171,42 +232,14 @@
 				id="newUnitModal"
 				toUpdate=":formUnits" />
 
-		<div class="modal fade newFeedModal" id="newSubUnitModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header alignLeft">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-						<h2 class="modal-title">Add New Subunit</h2>
-					</div>
-					<div class="modal-body alignLeft">
-						<input type="text" placeholder="Subunit Name"/>
-					</div>
-					<div class="modal-footer alignLeft">
-						<a href="#" class="btn btn-green">Add</a>
-						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-					</div>
-				</div>
-			</div>
-		</div>
+		<course:deleteModalDialog
+				deleteActionMethodName=""
+				deleteAction="#{unitsBean.delete()}"
+				toUpdate=":formUnits"
+				modalDeleteTitle="Unit"
+				modalDeleteText="unit"/>
 
-		<div class="modal fade" id="deleteUnit" tabindex="-1" role="dialog" aria-labelledby="deleteUni">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-						<h2 class="modal-title" id="deleteUni">Delete Unit?</h2>
-					</div>
-					<div class="modal-body">
-						<p>Are you sure you want to delete unit?<br/><br/>
-							<small>Note: Action can NOT be un-done!</small></p>
-					</div>
-					<div class="modal-footer">
-						<a href="#" class="btn btn-red">Delete</a>
-						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-					</div>
-				</div>
-			</div>
-		</div>
+
 	</ui:define>
 
 </ui:composition>

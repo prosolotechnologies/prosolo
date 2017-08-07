@@ -7,12 +7,14 @@
                 xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
                 xmlns:util="http://www.prosolo.com/util">
 
-    <ui:define name="windowTitle" >Unit details - </ui:define>
+    <ui:define name="windowTitle" >Unit details</ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="unitId" value="#{unitEditBean.id}" />
+            <f:viewParam name="id" value="#{unitsBean.organizationId}" />
             <f:viewAction action="#{unitEditBean.init()}" />
+            <f:viewAction action="#{unitsBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -33,6 +35,20 @@
 
         <div class="container">
             <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li>
+                            <h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+                        </li>
+                        <li>
+                            <h:link value="#{unitsBean.organizationData.title}" outcome="/admin/adminOrganizationNew">
+                            <f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
+                        </li>
+                        <li class="active">
+                            #{unitEditBean.unit.title}
+                        </li>
+                    </ol>
+                </div>
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <h:form id="formMainEditUnit">

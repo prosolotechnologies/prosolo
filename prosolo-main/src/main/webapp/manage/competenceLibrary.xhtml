@@ -112,11 +112,18 @@
 	
 	    <div class="container">
 	    	<h:panelGroup layout="block" id="panelCompetences" styleClass="row">
+				<div class="container">
+					<ol class="breadcrumb">
+						<li class="active">
+							Competencies
+						</li>
+					</ol>
+				</div>
 	            <div class="col-md-12">
 	            	<ui:fragment rendered="#{empty competenceLibraryBeanManager.competences}">
 						<div class="noContentMessage">
 		                    <p>
-		                        There are no competencies you are allowed to see currently.
+		                        No competencies.
 		                    </p>
 		                </div>
 	                </ui:fragment>
@@ -127,7 +134,7 @@
 			                        <div class="manageCompetencesListLeft">
 			                            <h2>
 			                            	<h:link outcome="/manage/competence">
-			                            		#{comp.title}<span>#{comp.published or comp.archived ? '' : ' (Draft)'}</span>
+			                            		#{comp.title}<ui:fragment rendered="#{!comp.published}"><span>#{comp.datePublished == null ? ' (Draft) ' : ' (Unpublished)'}</span></ui:fragment>
 			                            		<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
 			                            	</h:link>
 			                            </h2>

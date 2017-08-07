@@ -5,6 +5,7 @@
 		xmlns:p="http://primefaces.org/ui"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
 >
 
 	<composite:interface>
@@ -16,6 +17,33 @@
 				src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<div class="whiteBar"></div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
+					<li><h:link outcome="/admin/adminAdmins">Admins</h:link></li>
+					<li class="active">#{empty userEditBean.user.id ? 'New Admin' : userEditBean.user.fullName}</li>
+				</c:if>
+				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
+					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+					<li>
+						<h:link outcome="/admin/adminOrganizationNew">
+							#{userEditBean.organizationTitle}
+							<f:param name="id" value="#{userEditBean.orgId}" />
+						</h:link>
+					</li>
+					<li>
+						<h:link outcome="/admin/organizationUsers">
+							Users
+							<f:param name="orgId" value="#{userEditBean.orgId}" />
+						</h:link>
+					</li>
+					<li class="active">#{empty userEditBean.user.id ? 'New User' : userEditBean.user.fullName}</li>
+				</c:if>
+			</ol>
+		</div>
+
+
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">

@@ -56,6 +56,7 @@ public class CredentialDataFactory {
 
 		if (credential.getType() == CredentialType.Delivery) {
 			cred.setDeliveryOfId(credential.getDeliveryOf().getId());
+			cred.setDeliveryOfTitle(credential.getDeliveryOf().getTitle());
 			cred.setDeliveryStartTime(DateUtil.getMillisFromDate(credential.getDeliveryStart()));
 			cred.setDeliveryEndTime(DateUtil.getMillisFromDate(credential.getDeliveryEnd()));
 			cred.setDeliveryStatus(deliveryStatusFactory.getDeliveryStatus(
