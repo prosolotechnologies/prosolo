@@ -25,6 +25,24 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
+					<div class="whiteBox adminIndexesBox">
+						<h2>Indexes</h2>
+						<p:commandLink value="Reindex Users"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   action="#{bulkDataAdministration.deleteAndReindexUsers}"
+						/>
+						<p:commandLink value="Reindex Everything"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+						/>
+						<div class="clear top30"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
 					<div class="whiteBox">
 						<h2>Symptoms</h2>
 						<div class="addSymtomForm">
@@ -253,7 +271,7 @@
 									aria-label="Close">
 									<span aria-hidden="true">&#215;</span>
 								</button>
-								<h2 class="modal-title">Delete Suggestion?</h2>
+								<h2 class="modal-title">Delete Suggestion?</h2>	
 							</div>
 							<div class="modal-body">
 								<p>
