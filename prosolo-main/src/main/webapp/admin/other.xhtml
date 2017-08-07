@@ -5,9 +5,7 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
 	<ui:define name="windowTitle">
 	ProSolo - Admin | Other
@@ -35,6 +33,8 @@
 									sticky="true" />
 
 								<h:inputText id="newSymptomDesc" placeholder="Symptom name..."
+									autofocus="true"
+									autocomplete="off"
 									value="#{otherSettingsBean.newSymptom.description}"
 									required="true" requiredMessage="Name is required"
 									validator="#{otherSettingsBean.validateNewSymptomName}" />
@@ -42,8 +42,10 @@
 								<p:commandLink pt:role="button" styleClass="btn btn-green"
 									process="newSymptomDesc"
 									actionListener="#{otherSettingsBean.saveSymptom()}" value="Add"
-									update="@form :symptomForm :newSymptomForm">
+									update="@form :symptomForm :newSymptomForm"
+									id="addSymptomBtn">
 								</p:commandLink>
+								<p:defaultCommand target="addSymptomBtn"></p:defaultCommand>
 							</h:form>
 						</div>
 						<h:form id="symptomForm">
@@ -98,6 +100,7 @@
 
 								<h:inputText id="newSuggestionDesc"
 									placeholder="Suggestion name..."
+									autocomplete="off"
 									value="#{otherSettingsBean.newSuggestion.description}"
 									required="true" requiredMessage="Name is required"
 									validator="#{otherSettingsBean.validateNewSuggestionName}" />
@@ -105,8 +108,10 @@
 								<p:commandLink pt:role="button" styleClass="btn btn-green"
 									process="newSuggestionDesc"
 									actionListener="#{otherSettingsBean.saveSuggestion()}"
-									value="Add" update="@form :suggestionForm :newSuggestionForm">
+									value="Add" update="@form :suggestionForm :newSuggestionForm"
+									id="addSuggestionBtn">
 								</p:commandLink>
+								<p:defaultCommand target="addSuggestionBtn"></p:defaultCommand>
 							</h:form>
 						</div>
 						<h:form id="suggestionForm">
@@ -170,7 +175,7 @@
 							<div class="modal-body alignLeft">
 								<h:inputText id="inputSymptomName"
 									value="#{otherSettingsBean.symptomForEdit.description}"
-									required="true" requiredMessage="Name is required"></h:inputText>
+									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
 								<h:panelGroup layout="block"
 									rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}"
 									styleClass="alert alert-danger" pt:role="alert">
@@ -213,7 +218,7 @@
 							<div class="modal-body alignLeft">
 								<h:inputText id="inputSuggestionName"
 									value="#{otherSettingsBean.suggestionForEdit.description}"
-									required="true" requiredMessage="Name is required"></h:inputText>
+									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
 								<h:panelGroup layout="block"
 									rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}"
 									styleClass="alert alert-danger" pt:role="alert">

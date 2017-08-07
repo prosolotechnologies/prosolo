@@ -5,8 +5,6 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">Edit User</ui:define>
@@ -60,9 +58,13 @@
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserName" required="true"
-											requiredMessage="First name is required"
-											value="#{userEditBean.user.name}">
+										<h:inputText
+												id="inputTextUserName"
+												required="true"
+												autocomplete="off"
+												autofocus="true"
+												requiredMessage="First name is required"
+												value="#{userEditBean.user.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}"
@@ -74,9 +76,12 @@
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserLastname" required="true"
-											requiredMessage="Last name is required"
-											value="#{userEditBean.user.lastName}">
+										<h:inputText
+												id="inputTextUserLastname"
+												required="true"
+												autocomplete="off"
+												requiredMessage="Last name is required"
+												value="#{userEditBean.user.lastName}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}"
@@ -88,9 +93,12 @@
 								<div class="formLine">
 									<label>Email</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserEmail" required="true"
-											requiredMessage="Email is required"
-											value="#{userEditBean.user.email}"></h:inputText>
+										<h:inputText
+												id="inputTextUserEmail"
+												required="true"
+												autocomplete="off"
+												requiredMessage="Email is required"
+												value="#{userEditBean.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}"
@@ -102,7 +110,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -126,10 +134,12 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green"
+										<p:commandLink id="saveBtn" styleClass="btn btn-green"
 													   action="#{userEditBean.saveUser()}" update=":formMain">
 											Save Changes
 										</p:commandLink>
+										<p:defaultCommand target="saveBtn"></p:defaultCommand>
+										<p:commandLink action="saveBtn"></p:commandLink>
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
 													   action="#{userEditBean.setUserToDelete()}"
 													   update=":formDelete"
@@ -179,7 +189,7 @@
 									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
 										onkeyup="searchListener(execSearchUsers);"
 										value="#{userEditBean.searchTerm}" id="newName"
-										placeholder="Type name..." name="newName" autocomplete="off" />
+										placeholder="Type name..." name="newName" autocomplete="off"/>
 
 									<p:remoteCommand name="execSearchUsers" process="newName"
 										action="#{userEditBean.resetAndSearch()}"
