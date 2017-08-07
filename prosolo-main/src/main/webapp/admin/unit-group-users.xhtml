@@ -8,6 +8,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
                 xmlns:util="http://www.prosolo.com/util"
+                xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
 >
 
     <ui:define name="windowTitle" >
@@ -32,12 +33,20 @@
         <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 
         <ui:param name="learningContext" value="name:ORGANIZATION|id:#{groupUsersBean.decodedOrgId}|context:/name:UNIT|id:#{groupUsersBean.decodedUnitId}|context:/name:USER_GROUP|id:#{groupUsersBean.decodedGroupId}//"></ui:param>
-        
+
+        <p:growl id="growlMain" showDetail="true" globalOnly="true" />
+
         <div class="whiteBar">
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <a href="#" class="btn btn-green btn-sm item" data-toggle="modal" data-target="#addStudentsModal">Add Students</a>
+                        <p:commandLink styleClass="btn btn-green btn-sm item"
+                                       pt:data-toggle="modal"
+                                       action="#{groupUsersBean.prepareAddingUsers()}"
+                                       update=":addUsers:panelUsers :addUsers:pagination"
+                                       oncomplete="$('#addUsersModal').modal('show');">
+                            Add Students
+                        </p:commandLink>
 
                         <div class="searchBox">
                             <h:form>
@@ -67,7 +76,7 @@
                     </h:link>
                 </li>
                 <li>
-                    <h:link outcome="/admin/adminUnits">
+                    <h:link outcome="/admin/units">
                         Units
                         <f:param name="id" value="#{param.orgId}" />
                     </h:link>
@@ -113,7 +122,7 @@
                                         <div class="assignOpt">
                                             <p:commandLink styleClass="removeX" process="@this"
                                                            action="#{groupUsersBean.removeUserFromGroup(user)}"
-                                                           update=":panelUsers">
+                                                           update=":panelUsers :growlMain">
                                                 Close
                                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                                 <f:param name="learningContext"
@@ -157,59 +166,17 @@
             </div>
         </div>
 
-        <div class="modal fade addStudentsModal" id="addStudentsModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header alignLeft">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title">Add Students to Unit</h2>
-                    </div>
-                    <div class="searchInstructors">
-                        <input type="search" name="name" value="" placeholder="Search Students or Groups"></input>
-                    </div>
-                    <ul class="list">
-                        <li>
-                            <div class="instructorInfo">
-                                <img src="images2/temp-walter.png" class="img-circle" width="48" height="48" alt="Walter White" />
-                                <div class="infoWrap">
-                                    <h3>Gustavo Fring</h3>
-                                    <span>Teaching Assistant, University of Texas</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <div class="buttonWrapper">
-                                    <a href="#" class="btn btn-green btn-sm">Add</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="instructorInfo">
-                                <span class="letterAvatar letterAvatar48 img-circle">WW</span>
-                                <div class="infoWrap">
-                                    <h3>Gustavo Fring</h3>
-                                    <span>Teaching Assistant, University of Texas</span>
-                                </div>
-                            </div>
-                            <div class="assignOpt">
-                                <div class="buttonWrapper">
-                                    <a href="#" class="btn btn-green btn-sm">Add</a>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                    <nav class="paginationWrapper">
-                        <ul class="pagination">
-                            <li><a href="#" aria-label="Previous"><span aria-hidden="true">Prev</span></a></li>
-                            <li><a href="#">1</a></li>
-                            <li class="active"><a href="#">2</a></li>
-                            <li>...</li>
-                            <li><a href="#">7</a></li>
-                            <li><a href="#" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
+        <user:addUsers
+                id="addUsers"
+                modalTitle="Add Students to Group"
+                searchPlaceholder="Search Students"
+                searchBean="#{groupUserAddBean}"
+                actionBean="#{groupUsersBean}"
+                toUpdate=":panelUsers :growlMain"
+                userPanelId="panelUsers"
+                paginationPanelId="pagination"
+                learningContext="#{learningContext}"
+        />
 
     </ui:define>
 </ui:composition>

@@ -63,4 +63,8 @@ public interface UnitManager extends AbstractManager{
     PaginatedResult<UserData> getPaginatedUnitUsersInRole(long unitId, long roleId,
                                                           int offset, int limit)
             throws DbConnectionException;
+
+    PaginatedResult<UserData> getPaginatedUnitUsersInRoleNotAddedToGroup(long unitId, long roleId,
+                                                                         long groupId, int offset, int limit)
+            throws DbConnectionException;
 }

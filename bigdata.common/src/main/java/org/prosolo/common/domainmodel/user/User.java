@@ -44,6 +44,7 @@ public class User extends BaseEntity {
 	private String verificationKey;
 
 	private List<UnitRoleMembership> unitMemberships;
+	private List<UserGroupUser> groups;
 	
 	public User() {
 		roles = new HashSet<Role>();
@@ -230,5 +231,14 @@ public class User extends BaseEntity {
 
 	public void setUnitMemberships(List<UnitRoleMembership> unitMemberships) {
 		this.unitMemberships = unitMemberships;
+	}
+
+	@OneToMany(mappedBy = "user")
+	public List<UserGroupUser> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<UserGroupUser> groups) {
+		this.groups = groups;
 	}
 }

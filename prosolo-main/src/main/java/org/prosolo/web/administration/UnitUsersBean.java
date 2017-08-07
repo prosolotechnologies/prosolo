@@ -141,13 +141,15 @@ public class UnitUsersBean implements Serializable, Paginable {
 	}
 
 	public void addUser(UserData userData) {
-		unitUserAddBean.addUser(userData, unitTitle);
-		resetSearchData();
-		try {
-			loadUsersFromDB();
-		} catch (DbConnectionException e) {
-			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while loading user data");
+		boolean success = unitUserAddBean.addUser(userData, unitTitle);
+		if (success) {
+			resetSearchData();
+			try {
+				loadUsersFromDB();
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error while loading user data");
+			}
 		}
 	}
 

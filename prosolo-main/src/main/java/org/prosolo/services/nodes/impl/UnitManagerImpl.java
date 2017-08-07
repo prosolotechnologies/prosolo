@@ -427,4 +427,74 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResult<UserData> getPaginatedUnitUsersInRoleNotAddedToGroup(long unitId, long roleId,
+                                                                 long groupId, int offset, int limit)
+            throws DbConnectionException {
+        try {
+            PaginatedResult<UserData> res = new PaginatedResult<>();
+            res.setHitsNumber(countUnitUsersInRoleNotAddedToGroup(unitId, roleId, groupId));
+            if (res.getHitsNumber() > 0) {
+                res.setFoundNodes(getUnitUsersInRoleNotAddedToGroup(unitId, roleId, groupId, offset, limit));
+            }
+
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit users");
+        }
+    }
+
+    private List<UserData> getUnitUsersInRoleNotAddedToGroup(long unitId, long roleId, long groupId,
+                                                             int offset, int limit) {
+        String query =
+                "SELECT user " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN urm.user user " +
+                "WITH user.deleted IS FALSE " +
+                "LEFT JOIN user.groups userGroupUser " +
+                    "WITH userGroupUser.group.id = :groupId " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId " +
+                "AND userGroupUser IS NULL " +
+                "ORDER BY user.lastname ASC, user.name ASC";
+
+        List<User> result = persistence.currentManager()
+                .createQuery(query)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .setLong("groupId", groupId)
+                .setMaxResults(limit)
+                .setFirstResult(offset)
+                .list();
+
+        List<UserData> res = new ArrayList<>();
+        for (User u : result) {
+            res.add(new UserData(u));
+        }
+
+        return res;
+    }
+
+    private long countUnitUsersInRoleNotAddedToGroup(long unitId, long roleId, long groupId) {
+        String query =
+                "SELECT count(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN urm.user user " +
+                "WITH user.deleted IS FALSE " +
+                "LEFT JOIN user.groups userGroupUser " +
+                "WITH userGroupUser.group.id = :groupId " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId " +
+                "AND userGroupUser IS NULL";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .setLong("groupId", groupId)
+                .uniqueResult();
+    }
+
 }
