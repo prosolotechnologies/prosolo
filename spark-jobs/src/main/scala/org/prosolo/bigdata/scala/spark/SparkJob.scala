@@ -4,5 +4,5 @@ package org.prosolo.bigdata.scala.spark
   * Created by zoran on 26/07/17.
   */
 trait SparkJob {
-
+  def jobName=this.getClass.getName
 }

@@ -16,6 +16,7 @@ public class ESIndexNames {
 	public static String INDEX_USERS=CommonSettings.getInstance().config.elasticSearch.usersIndex+CommonSettings.getInstance().config.getNamespaceSufix();//"users";
 	public static String INDEX_RECOMMENDATION_DATA=CommonSettings.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	public static String INDEX_USER_GROUP = CommonSettings.getInstance().config.elasticSearch.userGroupIndex + CommonSettings.getInstance().config.getNamespaceSufix();
+	public static String INDEX_JOBS_LOGS = CommonSettings.getInstance().config.elasticSearch.jobsLogsIndex + CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_RECOMMENDATIONDATA = CommonSettings
 			//.getInstance().config.elasticSearch.recommendationdataIndex+CommonSettings.getInstance().config.getNamespaceSufix();
 	//public static String INDEX_ASSOCRULES = CommonSettings.getInstance().config.elasticSearch.associationrulesIndex

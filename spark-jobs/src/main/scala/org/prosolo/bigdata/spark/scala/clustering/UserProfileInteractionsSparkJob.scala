@@ -1,10 +1,12 @@
 package org.prosolo.bigdata.spark.scala.clustering
 
 import org.prosolo.bigdata.dal.cassandra.impl.TablesNames
+
 import scala.collection.JavaConverters._
 import play.api.libs.json.Json
 import com.datastax.spark.connector._
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
+
 import scala.collection.Seq
 
 
@@ -14,11 +16,12 @@ import scala.collection.Seq
 /**
   * zoran 05/02/17
   */
-object UserProfileInteractionsSparkJob {
+object UserProfileInteractionsSparkJob extends SparkJob {
 
   val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds:java.util.List[java.lang.Long],dbName:String):Unit={
+    println("JOB NAME:"+jobName)
     val credentialsIdsScala: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
     credentialsIdsScala.foreach { credentialid =>
       println("RUNNING USER PROFILE ANALYZER FOR credential:" + credentialid)

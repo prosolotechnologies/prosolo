@@ -49,6 +49,9 @@ public class ElasticSearchConfig {
 	
 	@Element(name = "userGroup-index")
 	public String userGroupIndex;
+
+	@Element(name = "jobsLogs-index")
+	public String jobsLogsIndex;
 	
 	
 }

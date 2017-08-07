@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
 import org.prosolo.bigdata.scala.clustering.userprofiling.{HmmClustering, UsersClustering}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
 import org.prosolo.bigdata.dal.cassandra.impl.ProfilesDAO
 
 import scala.collection.mutable.Iterable
@@ -18,7 +18,7 @@ import scala.collection.mutable.Iterable
 /**
   * zoran 20/02/17
   */
-object UserProfileClusteringSparkJob {
+object UserProfileClusteringSparkJob extends SparkJob{
   val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, days: IndexedSeq[DateTime],

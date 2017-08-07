@@ -4,9 +4,9 @@ import java.util.List
 
 import com.datastax.driver.core.Row
 import org.apache.spark.rdd.RDD
-import org.prosolo.bigdata.dal.cassandra.impl.{SNAClustersDAO}
+import org.prosolo.bigdata.dal.cassandra.impl.SNAClustersDAO
 import org.prosolo.bigdata.scala.clustering.sna.{DirectedNetwork, UserLink, UserNode}
-import org.prosolo.bigdata.scala.spark.SparkContextLoader
+import org.prosolo.bigdata.scala.spark.{SparkContextLoader, SparkJob}
 import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
@@ -19,7 +19,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * zoran 18/03/17
   */
-object SNAClusteringSparkJob {
+object SNAClusteringSparkJob extends SparkJob{
   val sc = SparkContextLoader.getSC
   val edgesToRemove=2
 
@@ -120,12 +120,6 @@ object SNAClusteringSparkJob {
        println("SOURCE INTERACTIONS CONVERTED:"+sourceInteractionsConv.toString)
 
     }
-   /* def updateTimestamp(timestamp:Long)={
-      val dbManager=new SNAClustersDAO(dbName)
-      dbManager.updateCurrentTimestamp(TableNames.INSIDE_CLUSTER_INTERACTIONS,timestamp)
-      dbManager.updateCurrentTimestamp(TableNames.OUTSIDE_CLUSTER_INTERACTIONS,timestamp)
-      dbManager.updateCurrentTimestamp(TableNames.STUDENT_CLUSTER,timestamp)
-    }*/
 
 
   }
