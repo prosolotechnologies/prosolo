@@ -5,9 +5,7 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
 
 	<ui:define name="windowTitle">
 	ProSolo - Admin | Other
@@ -27,6 +25,24 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
+					<div class="whiteBox adminIndexesBox">
+						<h2>Indexes</h2>
+						<p:commandLink value="Reindex Users"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   action="#{bulkDataAdministration.deleteAndReindexUsers}"
+						/>
+						<p:commandLink value="Reindex Everything"
+									   pt:role="button"
+									   styleClass="btn btn-green"
+									   action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
+						/>
+						<div class="clear top30"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
 					<div class="whiteBox">
 						<h2>Symptoms</h2>
 						<div class="addSymtomForm">
@@ -35,6 +51,8 @@
 									sticky="true" />
 
 								<h:inputText id="newSymptomDesc" placeholder="Symptom name..."
+									autofocus="true"
+									autocomplete="off"
 									value="#{otherSettingsBean.newSymptom.description}"
 									required="true" requiredMessage="Name is required"
 									validator="#{otherSettingsBean.validateNewSymptomName}" />
@@ -42,12 +60,14 @@
 								<p:commandLink pt:role="button" styleClass="btn btn-green"
 									process="newSymptomDesc"
 									actionListener="#{otherSettingsBean.saveSymptom()}" value="Add"
-									update="@form :symptomForm :newSymptomForm">
+									update="@form :symptomForm :newSymptomForm"
+									id="addSymptomBtn">
 								</p:commandLink><br/>
 
 								<h:panelGroup rendered="#{not empty facesContext.getMessageList('newSymptomForm:newSymptomDesc')}">
 									<small class="redText"><h:message for="newSymptomDesc"></h:message></small>
 								</h:panelGroup>
+								<p:defaultCommand target="addSymptomBtn"></p:defaultCommand>
 							</h:form>
 						</div>
 						<h:form id="symptomForm">
@@ -102,6 +122,7 @@
 
 								<h:inputText id="newSuggestionDesc"
 									placeholder="Suggestion name..."
+									autocomplete="off"
 									value="#{otherSettingsBean.newSuggestion.description}"
 									required="true" requiredMessage="Name is required"
 									validator="#{otherSettingsBean.validateNewSuggestionName}" />
@@ -109,12 +130,14 @@
 								<p:commandLink pt:role="button" styleClass="btn btn-green"
 									process="newSuggestionDesc"
 									actionListener="#{otherSettingsBean.saveSuggestion()}"
-									value="Add" update="@form :suggestionForm :newSuggestionForm">
+									value="Add" update="@form :suggestionForm :newSuggestionForm"
+									id="addSuggestionBtn">
 								</p:commandLink><br/>
 
 								<h:panelGroup rendered="#{not empty facesContext.getMessageList('newSuggestionForm:newSuggestionDesc')}">
 									<small class="redText"><h:message for="newSuggestionDesc"></h:message></small>
 								</h:panelGroup>
+								<p:defaultCommand target="addSuggestionBtn"></p:defaultCommand>
 							</h:form>
 						</div>
 						<h:form id="suggestionForm">
@@ -178,18 +201,19 @@
 							<div class="modal-body alignLeft">
 								<h:inputText id="inputSymptomName"
 									value="#{otherSettingsBean.symptomForEdit.description}"
-									required="true" requiredMessage="Name is required"></h:inputText>
+									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
 								<h:panelGroup rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}">
 									<small class="redText"><h:message for="inputSymptomName"></h:message></small>
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green" value="Save"
+								<p:commandLink id="saveSymptom" styleClass="btn btn-green" value="Save"
 									oncomplete="if (args &amp;&amp; !args.validationFailed)
 									$('#editSymptomModal').modal('hide');"
 									action="#{otherSettingsBean.updateSymptom()}"
 									update=":formEditSymptom:panelSymptomContent :symptomForm">
 								</p:commandLink>
+								<p:defaultCommand target="saveSymptom"></p:defaultCommand>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>
@@ -219,18 +243,20 @@
 							<div class="modal-body alignLeft">
 								<h:inputText id="inputSuggestionName"
 									value="#{otherSettingsBean.suggestionForEdit.description}"
-									required="true" requiredMessage="Name is required"></h:inputText>
+									required="true" requiredMessage="Name is required" autocomplete="off"></h:inputText>
 								<h:panelGroup rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}">
 									<small class="redText"><h:message for="inputSuggestionName"></h:message></small>
 								</h:panelGroup>
+
 							</div>
 							<div class="modal-footer alignLeft">
-								<p:commandLink styleClass="btn btn-green" value="Save"
+								<p:commandLink id="saveSuggestion" styleClass="btn btn-green" value="Save"
 									oncomplete="if (args &amp;&amp; !args.validationFailed)
 									$('#editSuggestionModal').modal('hide');"
 									action="#{otherSettingsBean.updateSuggestion()}"
 									update=":formEditSuggestion:panelSuggestionContent :suggestionForm">
 								</p:commandLink>
+								<p:defaultCommand target="saveSuggestion"></p:defaultCommand>
 								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</ui:fragment>
@@ -250,7 +276,7 @@
 									aria-label="Close">
 									<span aria-hidden="true">&#215;</span>
 								</button>
-								<h2 class="modal-title">Delete Suggestion?</h2>
+								<h2 class="modal-title">Delete Suggestion?</h2>	
 							</div>
 							<div class="modal-body">
 								<p>

@@ -6,7 +6,6 @@
 	template="templates/masterLayout2.xhtml"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 
@@ -34,7 +33,7 @@
                     <h:link outcome="/admin/adminNew" styleClass="btn btn-green btn-sm item">New Admin</h:link>
 
                     <div class="searchBox">
-                    	<h:form>
+                    	<h:form id="searchForm">
                     		<p:remoteCommand
 								name="execSearchUsers"
 								process="inputAdminSearch"
@@ -42,6 +41,8 @@
 								action="#{adminAdmins.resetAndSearch()}" />
 
 							<h:inputText id="inputAdminSearch"
+								autofocus="true"
+								autocomplete="off"
 								type="search"
 								placeholder="Filter by Keywords"
 								value="#{adminAdmins.searchTerm}"
@@ -169,6 +170,7 @@
                      </div>
                      <div class="modal-footer">
                          <p:commandLink
+							id="proceedBtn"
                          	styleClass="btn btn-green"
                          	process="@this"
                          	action="#{loggeduser.loginAs()}"
@@ -176,6 +178,7 @@
                          	oncomplete="$('#loginAs').modal('hide');">
                          	Proceed
                          </p:commandLink>
+						 <p:defaultCommand target="proceedBtn"></p:defaultCommand>
                          <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                      </div>
                  </h:panelGroup>

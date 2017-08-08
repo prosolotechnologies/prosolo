@@ -29,16 +29,6 @@
             <div class="whiteBarContent">
                 <div class="whiteBarLeft">
                     <h:link outcome="/admin/adminUserNew" styleClass="btn btn-green btn-sm item">New User</h:link>
-					<p:commandLink value="Reindex ElasticSearch"
-						pt:role="button"
-						styleClass="btn btn-green btn-sm item"
-						action="#{bulkDataAdministration.deleteAndReindexElasticSearch}"
-					/>
-					<p:commandLink value="Reindex Users"
-						pt:role="button"
-						styleClass="btn btn-green btn-sm item"
-						action="#{bulkDataAdministration.deleteAndReindexUsers}"
-					/>
                     <div class="searchBox">
                     	<h:form>
                     		<p:remoteCommand 
@@ -48,6 +38,8 @@
 								action="#{adminUsers.resetAndSearch()}" />
 														
 							<h:inputText id="inputUserSearch"
+								autofocus="true"
+								autocomplete="off"
 								type="search"
 								placeholder="Filter by Keywords"
 								value="#{adminUsers.searchTerm}"

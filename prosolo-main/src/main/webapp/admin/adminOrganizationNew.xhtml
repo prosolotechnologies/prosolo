@@ -76,6 +76,8 @@
                                 <label>Name</label>
                                 <div class="formLineRight">
                                     <h:inputText id="inputTextOrganizationName"
+                                                 autofocus="true"
+                                                 autocomplete="off"
                                                  required="true"
                                                  requiredMessage="Organization name is required"
                                                  value="#{organizationEditBean.organization.title}"/>
@@ -89,18 +91,15 @@
                                 <div class="formLineRight">
                                         <div class="inputWrapper">
 
-
                                             <h:inputText onkeyup="searchListener(execSearchUsers);"
                                                          value="#{organizationEditBean.searchTerm}" id="newName"
                                                          placeholder="Type name..." name="newName" autocomplete="off"
-                                                        styleClass="adminSearchFieldSelector"
+                                                         styleClass="adminSearchFieldSelector"
                                                          process="@this"/>
 
                                             <p:remoteCommand name="execSearchUsers" process="newName"
                                                              action="#{organizationEditBean.resetAndSearch()}"
                                                              update=":formMain:usersListPanel" />
-
-
 
                                             <h:panelGroup id="usersListPanel">
                                                 <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.admins.size() > 0}">
@@ -166,11 +165,12 @@
                             <div class="formLine">
                                 <label>&#160;</label>
                                 <div class="formLineRight">
-                                    <p:commandLink  styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
+                                    <p:commandLink  id="saveBtn" styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
                                                     action="#{organizationEditBean.saveOrganization()}" update="formMain">
                                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                                     <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
                                     </p:commandLink>
+                                    <p:defaultCommand target="saveBtn" />
                                 </div>
                             </div>
                         </div>
