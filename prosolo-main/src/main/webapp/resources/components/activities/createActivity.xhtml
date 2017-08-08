@@ -469,16 +469,16 @@
 		                            </h:panelGroup>
 		                        </div>
 								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">							
-									 Language must be entered
+								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">
+									<small class="redText">Language must be entered<small class="redText"></small>
 								</h:panelGroup>
 								
 								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
 									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
-									  	Subtitles must be uploaded
+										  <small class="redText">Subtitles must be uploaded</small>
 									  </ui:fragment>
 									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
-									  	Invalid file. Only SRT format allowed.
+										  <small class="redText">Invalid file. Only SRT format allowed.</small>
 									  </ui:fragment>
 								</h:panelGroup>
 		                    </div>

@@ -179,10 +179,8 @@
 								<h:inputText id="inputSymptomName"
 									value="#{otherSettingsBean.symptomForEdit.description}"
 									required="true" requiredMessage="Name is required"></h:inputText>
-								<h:panelGroup layout="block"
-									rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}"
-									styleClass="alert alert-danger" pt:role="alert">
-									<h:message for="inputSymptomName"></h:message>
+								<h:panelGroup rendered="#{not empty facesContext.getMessageList('formEditSymptom:inputSymptomName')}">
+									<small class="redText"><h:message for="inputSymptomName"></h:message></small>
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
@@ -222,10 +220,8 @@
 								<h:inputText id="inputSuggestionName"
 									value="#{otherSettingsBean.suggestionForEdit.description}"
 									required="true" requiredMessage="Name is required"></h:inputText>
-								<h:panelGroup layout="block"
-									rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}"
-									styleClass="alert alert-danger" pt:role="alert">
-									<h:message for="inputSuggestionName"></h:message>
+								<h:panelGroup rendered="#{not empty facesContext.getMessageList('formEditSuggestion:inputSuggestionName')}">
+									<small class="redText"><h:message for="inputSuggestionName"></h:message></small>
 								</h:panelGroup>
 							</div>
 							<div class="modal-footer alignLeft">
