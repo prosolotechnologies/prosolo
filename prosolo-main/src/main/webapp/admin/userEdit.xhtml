@@ -4,10 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <ui:define name="windowTitle">
 	#{userEditBean.isCreateUseCase() ? 'New' : 'Edit'} User
@@ -37,7 +34,9 @@
 	                        <div class="formLine">
 	                            <label>First name</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText id="inputTextUserName" 
+	                            	<h:inputText id="inputTextUserName"
+										autocomplete="off"
+										autofocus="true"
 	                            		required="true" 
 	                            		requiredMessage="First name is required"
 	                            		value="#{userEditBean.user.name}">
@@ -54,10 +53,11 @@
 	                        <div class="formLine">
 	                            <label>Last name</label>
 	                            <div class="formLineRight">
-	                                <h:inputText id="inputTextUserLastname" 
+	                                <h:inputText id="inputTextUserLastname"
 	                                	required="true" 
 	                                	requiredMessage="Last name is required"
-	                                	value="#{userEditBean.user.lastName}">
+	                                	value="#{userEditBean.user.lastName}"
+										autocomplete="off">
 	                                </h:inputText>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -74,7 +74,7 @@
 	                            	<h:inputText id="inputTextUserEmail" 
 	                            		required="true" 
 	                            		requiredMessage="Email is required"
-	                            		value="#{userEditBean.user.email}"></h:inputText>
+	                            		value="#{userEditBean.user.email}" autocomplete="off"></h:inputText>
 	                                <small>Email will not be publicly displayed.</small>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -88,7 +88,7 @@
 	                        <div class="formLine">
 	                            <label>Position</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+	                            	<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -150,12 +150,14 @@
 	                        <div class="formLine">
 	                            <label>&#160;</label>
 	                            <div class="formLineRight">
-	                                <p:commandLink 
+	                                <p:commandLink
+										id="saveBtn"
 	                                	styleClass="btn btn-green"
 	                                	action="#{userEditBean.saveUser()}"
 	                                	update=":formMain">
 	                                	Save Changes
 	                                </p:commandLink>
+									<p:defaultCommand target="saveBtn"></p:defaultCommand>
 	                            </div>
 	                        </div>
 	                    </div>

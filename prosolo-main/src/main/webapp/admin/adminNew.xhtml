@@ -48,6 +48,7 @@
 				src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+
 		<div class="whiteBar"></div>
 		<div class="container">
 			<div class="row">
@@ -73,6 +74,8 @@
 									<label>First name</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminName" required="true"
+													 autofocus="true"
+													 autocomplete="off"
 													 requiredMessage="First name is required"
 													 value="#{adminEditBean.admin.name}">
 										</h:inputText>
@@ -87,6 +90,7 @@
 									<label>Last name</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminLastname" required="true"
+													 autocomplete="off"
 													 requiredMessage="Last name is required"
 													 value="#{adminEditBean.admin.lastName}">
 										</h:inputText>
@@ -102,6 +106,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminEmail"
 													 name="emailAddress"
+													 autocomplete="off"
 													 validator="emailValidator"
 													 value="#{adminEditBean.admin.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
@@ -115,7 +120,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{adminEditBean.admin.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{adminEditBean.admin.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -151,9 +156,10 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Save Changes'}"
+										<p:commandLink id="saveBtn" styleClass="btn btn-green" value="#{empty adminEditBean.id ? 'Create' : 'Save Changes'}"
 													   action="#{adminEditBean.saveUser()}" update=":formMain">
 										</p:commandLink>
+										<p:defaultCommand target="saveBtn" />
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
 													   action="#{adminEditBean.setUserToDelete()}"
 													   update=":formDelete"
