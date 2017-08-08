@@ -31,7 +31,7 @@
 							</h:link>
 						</c:if>
 						<div class="searchBox">
-							<h:form>
+							<h:form id="searchForm">
 								<p:remoteCommand
 										name="execSearchUsers"
 										process="inputAdminSearch"
@@ -39,6 +39,8 @@
 										action="#{usersBean.resetAndSearch()}" />
 
 								<h:inputText id="inputAdminSearch"
+											 autofocus="true"
+											 autocomplete="off"
 											 type="search"
 											 placeholder="Filter by Keywords"
 											 value="#{usersBean.searchTerm}"
@@ -195,6 +197,7 @@
 						</div>
 						<div class="modal-footer">
 							<p:commandLink
+									id="proceedBtn"
 									styleClass="btn btn-green"
 									process="@this"
 									action="#{loggeduser.loginAs()}"
@@ -202,6 +205,7 @@
 									oncomplete="$('#loginAs').modal('hide');">
 								Proceed
 							</p:commandLink>
+							<p:defaultCommand target="proceedBtn"></p:defaultCommand>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 						</div>
 					</h:panelGroup>

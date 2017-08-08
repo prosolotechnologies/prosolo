@@ -30,8 +30,10 @@
 									<label>First name</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserName" required="true"
-											requiredMessage="First name is required"
-											value="#{userEditBean1.user.name}">
+													 autofocus="true"
+													 autocomplete="off"
+													 requiredMessage="First name is required"
+													 value="#{userEditBean1.user.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}"
@@ -45,7 +47,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserLastname" required="true"
 											requiredMessage="Last name is required"
-											value="#{userEditBean1.user.lastName}">
+											value="#{userEditBean1.user.lastName}" autocomplete="off">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}"
@@ -59,7 +61,7 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextUserEmail" required="true"
 											name="emailAddress" requiredMessage="Email is required"
-											value="#{userEditBean1.user.email}"></h:inputText>
+											value="#{userEditBean1.user.email}" autocomplete="off"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}"
@@ -71,7 +73,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean1.user.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{userEditBean1.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -101,9 +103,10 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight">
-										<p:commandLink styleClass="btn btn-green" value="Create"
-                                                       action="#{userEditBean1.saveUser()}" update=":formMain">
+										<p:commandLink id="createBtn" styleClass="btn btn-green" value="Create"
+											action="#{userEditBean1.saveUser()}" update=":formMain">
 										</p:commandLink>
+										<p:defaultCommand target="createBtn"></p:defaultCommand>
 									</div>
 								</div>
 							</div>

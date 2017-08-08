@@ -59,7 +59,10 @@
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextAdminName" required="true"
+										<h:inputText id="inputTextAdminName"
+													 autofocus="true"
+													 autocomplete="off"
+													 required="true"
 													 requiredMessage="First name is required"
 													 value="#{userEditBean.user.name}">
 										</h:inputText>
@@ -73,7 +76,9 @@
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextAdminLastname" required="true"
+										<h:inputText id="inputTextAdminLastname"
+													 autocomplete="off"
+													 required="true"
 													 requiredMessage="Last name is required"
 													 value="#{userEditBean.user.lastName}">
 										</h:inputText>
@@ -88,6 +93,7 @@
 									<label>Email</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminEmail"
+													 autocomplete="off"
 													 name="emailAddress"
 													 validator="emailValidator"
 													 value="#{userEditBean.user.email}"></h:inputText>
@@ -102,7 +108,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -138,9 +144,10 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
+										<p:commandLink id="saveBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
                                                        action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
 										</p:commandLink>
+										<p:defaultCommand target="saveBtn" />
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
 													   action="#{userEditBean.setUserToDelete()}"
 													   update=":#{cc.clientId}:formDelete"

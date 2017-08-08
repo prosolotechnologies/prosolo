@@ -35,7 +35,9 @@
 	                        <div class="formLine">
 	                            <label>First name</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText id="inputTextUserName" 
+	                            	<h:inputText id="inputTextUserName"
+										autocomplete="off"
+										autofocus="true"
 	                            		required="true" 
 	                            		requiredMessage="First name is required"
 	                            		value="#{userEditBean1.user.name}">
@@ -52,10 +54,11 @@
 	                        <div class="formLine">
 	                            <label>Last name</label>
 	                            <div class="formLineRight">
-	                                <h:inputText id="inputTextUserLastname" 
+	                                <h:inputText id="inputTextUserLastname"
 	                                	required="true" 
 	                                	requiredMessage="Last name is required"
-	                                	value="#{userEditBean1.user.lastName}">
+	                                	value="#{userEditBean1.user.lastName}"
+										autocomplete="off">
 	                                </h:inputText>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -72,7 +75,7 @@
 	                            	<h:inputText id="inputTextUserEmail" 
 	                            		required="true" 
 	                            		requiredMessage="Email is required"
-	                            		value="#{userEditBean1.user.email}"></h:inputText>
+	                            		value="#{userEditBean1.user.email}" autocomplete="off"></h:inputText>
 	                                <small>Email will not be publicly displayed.</small>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -86,7 +89,7 @@
 	                        <div class="formLine">
 	                            <label>Position</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText value="#{userEditBean1.user.position}"></h:inputText>
+	                            	<h:inputText autocomplete="off" value="#{userEditBean1.user.position}"></h:inputText>
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -148,12 +151,14 @@
 	                        <div class="formLine">
 	                            <label>&#160;</label>
 	                            <div class="formLineRight">
-	                                <p:commandLink 
+	                                <p:commandLink
+										id="saveBtn"
 	                                	styleClass="btn btn-green"
 	                                	action="#{userEditBean1.saveUser()}"
 	                                	update=":formMain">
 	                                	Save Changes
 	                                </p:commandLink>
+									<p:defaultCommand target="saveBtn"></p:defaultCommand>
 	                            </div>
 	                        </div>
 	                    </div>
