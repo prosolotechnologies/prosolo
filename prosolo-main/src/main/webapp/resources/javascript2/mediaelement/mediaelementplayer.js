@@ -1489,7 +1489,7 @@ if (typeof jQuery != 'undefined') {
 		remove: function() {
 			var t = this, featureIndex, feature;
 
-			t.container.prev('.mejs-offscreen').remove();
+			t.container.parent().find('.mejs-offscreen').remove();
 
 			// invoke features cleanup
 			for (featureIndex in t.options.features) {

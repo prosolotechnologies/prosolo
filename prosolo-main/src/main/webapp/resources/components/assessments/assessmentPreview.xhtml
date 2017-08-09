@@ -48,17 +48,17 @@
 			//comment form hide/show
 			function displaySubmitButton(inputElem) {
 				if ($(inputElem).val().length == 0) {
-					$(inputElem).next('a.btn-green').addClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
 				} else {
-					$(inputElem).next('a.btn-green').removeClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
 				}
 			}
 
 			function displaySubmitButtonPrivateConvModal(inputElem) {
 				if ($(inputElem).val().length == 0) {
-					$(inputElem).next('a.btn-green').addClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
 				} else {
-					$(inputElem).next('a.btn-green').removeClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
 				}
 			}
 		

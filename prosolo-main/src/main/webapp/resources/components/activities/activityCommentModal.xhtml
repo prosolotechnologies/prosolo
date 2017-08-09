@@ -1,11 +1,11 @@
 <ui:component xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	template="templates/masterLayout2.xhtml"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:composite="http://java.sun.com/jsf/composite">
+			  xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:p="http://primefaces.org/ui"
+			  template="templates/masterLayout2.xhtml"
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+			  xmlns:composite="http://java.sun.com/jsf/composite">
 
 	<composite:interface>
 		<composite:attribute name="toUpdate" default=""/>
@@ -22,9 +22,9 @@
             //comment form hide/show
             function displaySubmitButtonPrivateConvModal(inputElem) {
                 if ($(inputElem).val().length == 0) {
-                    $(inputElem).next('a.btn-green').addClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
                 } else {
-                    $(inputElem).next('a.btn-green').removeClass('hidden');
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
                 }
             }
 		</script>
@@ -78,7 +78,8 @@
 																	<p:inputTextarea name="name"
 																					 styleClass="contentEditableComment"
 																					 style="width:100%;" rows="1"
-																					 value="#{activityMessageData.content}"></p:inputTextarea>
+																					 value="#{activityMessageData.content}"
+																					 onkeyup="displaySubmitButtonPrivateConvModal(this)"></p:inputTextarea>
 																	<p:commandLink styleClass="btn btn-sm btn-green"
 																				   oncomplete="hideEditPrivateConversationComment(this);"
 																				   update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
