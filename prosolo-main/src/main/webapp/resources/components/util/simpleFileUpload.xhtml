@@ -21,31 +21,23 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<span id="#{cc.clientId}">
-			<p:fileUpload id="fileUploadFile" 
-          		process="@this"
-   				style="display: none;"
-   				styleClass="fileUploadFile"
-				fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"  
-	            dragDropSupport="true"
-	            fileLimit="1"
-	        	auto="true"
-	            label="Choose a file"
-	            update="@this #{cc.attrs.toUpdate}"
-	            onstart="$('#' + escapeColons('#{cc.clientId}') + '  #loaderSimpleFileUpload').show();"
-	            oncomplete="$('#' + escapeColons('#{cc.clientId}') + '  #loaderSimpleFileUpload').hide(); #{cc.attrs.oncomplete}">
-	            <f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
-	        	<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />
-	        	<f:attribute name="service" value="#{cc.attrs.service}" />
-            </p:fileUpload>
-            <a href="javascript:void(0);" id="linkTriggerSimpleFileUpload" class="#{cc.attrs.uploadButtonStyle}">#{cc.attrs.chooseFileLabel}</a>
-	        <img class="loaderSvg" id="loaderSimpleFileUpload" src="#{request.contextPath}/resources/images2/loader.svg" width="20" height="20" style="display:none;"/>
-            <script>
-            	$('#' + escapeColons('#{cc.clientId}') + ' #linkTriggerSimpleFileUpload').on('click', function(e){
-			 		e.stopPropagation();
-					$('#' + escapeColons('#{cc.clientId}') + ' .fileUploadFile :input').trigger('click');
-				});
-            </script>
-        </span>
+		<p:fileUpload id="fileUploadFile"
+			process="@this"
+			style="display: none;"
+			fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"
+			dragDropSupport="true"
+			fileLimit="1"
+			auto="true"
+			label="Choose a file"
+			update="@this #{cc.attrs.toUpdate}"
+			onstart="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).show();"
+			oncomplete="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).hide(); #{cc.attrs.oncomplete}">
+			<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
+			<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />
+			<f:attribute name="service" value="#{cc.attrs.service}" />
+		</p:fileUpload>
+		<a href="javascript:void(0);" id="linkTriggerSimpleFileUpload" class="#{cc.attrs.uploadButtonStyle}"
+			onclick="$('#' + escapeColons('#{cc.clientId}:fileUploadFile') + ' :input').trigger('click');">#{cc.attrs.chooseFileLabel}</a>
+		<img class="loaderSvg" id="#{cc.clientId}:loaderSvg" src="#{request.contextPath}/resources/images2/loader.svg" width="20" height="20" style="display:none;"/>
 	</composite:implementation>
 </ui:component>
