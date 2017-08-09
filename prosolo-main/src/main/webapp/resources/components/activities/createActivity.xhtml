@@ -105,9 +105,8 @@
 			                                    		value="#{activityEditBean.activityData.title}"
 			                                    		required="true"
 														requiredMessage="Title is required" />
-													<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}">
-							                            <small class="redText"><h:message for="inputTitle" /></small>
-							                        </h:panelGroup>
+
+													<small class="redText"><h:message for="inputTitle" /></small>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -118,10 +117,8 @@
 			                                    		value="#{activityEditBean.activityData.description}"
 			                                    		required="true"
 			                                    		requiredMessage="Description is required"/>
-													<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}">
-														<small class="redText"><h:message for="description"></h:message></small>
-                    								</h:panelGroup>
-			                                    		
+
+													<small class="redText"><h:message for="description"></h:message></small>
 			                                    	<script>
 			                                    		initTinyMCE('#createActivity\\:formMain\\:description');
 			                                    	</script>
@@ -247,9 +244,7 @@
 			                        	</h:selectOneMenu>
 			                            <p>minutes</p>
 			                        </div>
-			                        <h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:estimatedTimeHours'))}">
-										<small class="redText"><h:message for="estimatedTimeHours"></h:message></small>
-									</h:panelGroup>
+									<small class="redText"><h:message for="estimatedTimeHours"></h:message></small>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			                    <div class="difficultyLevel">
@@ -265,9 +260,7 @@
 			                        		<f:selectItem itemValue="5"/>
 			                        	</h:selectOneMenu>
 			                        </div>
-			                        <h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:difficultyLevelSelect'))}">
-										<small class="redText"><h:message for="difficultyLevelSelect"></h:message></small>
-									</h:panelGroup>
+									<small class="redText"><h:message for="difficultyLevelSelect"></h:message></small>
 			                        <script>$('.selectpicker').selectpicker('refresh');</script>
 			                    </div>
 			          
@@ -334,14 +327,10 @@
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
-								
-								<h:panelGroup  rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
-									<small class="redText">File title must be entered</small>
-								</h:panelGroup><br/>
-								
-								<h:panelGroup rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
-									<small class="redText">File must be uploaded</small>
-								</h:panelGroup>
+
+								<small class="redText">File title must be entered</small>
+
+								<small class="redText">File must be uploaded</small>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -414,12 +403,8 @@
 		                        </p:remoteCommand>
 
 		                        <h:panelGroup id="errorMessages">
-			                        <h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrlTitle'))}">
-			                            <small class="redText"><h:message for="inputUrlTitle" /></small>
-			                        </h:panelGroup><br/>
-			                        <h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formModalAddUrl:inputUrl'))}">
-										<small class="redText"><h:message for="inputUrl" /></small>
-			                        </h:panelGroup>
+									<small class="redText"><h:message for="inputUrlTitle" /></small>
+									<small class="redText"><h:message for="inputUrl" /></small>
 		                        </h:panelGroup>
 		                    </div>
 		                    
@@ -468,10 +453,8 @@
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
-								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}" styleClass="alert alert-warning">
-									<small class="redText">Language must be entered<small class="redText"></small>
-								</h:panelGroup>
+
+								<small class="redText">Language must be entered<small class="redText"></small>
 								
 								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
 									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">

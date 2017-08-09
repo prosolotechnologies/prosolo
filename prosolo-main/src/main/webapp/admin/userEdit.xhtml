@@ -41,9 +41,9 @@
 	                            		requiredMessage="First name is required"
 	                            		value="#{userEditBean.user.name}">
 	                            	</h:inputText>
-	                            	<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}">
-			                            <small class="redText"><h:message for="inputTextUserName"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="inputTextUserName"></h:message></small>
+
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -55,9 +55,9 @@
 	                                	value="#{userEditBean.user.lastName}"
 										autocomplete="off">
 	                                </h:inputText>
-	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}">
-			                            <small class="redText"><h:message for="inputTextUserLastname"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="inputTextUserLastname"></h:message></small>
+
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -68,9 +68,9 @@
 	                            		requiredMessage="Email is required"
 	                            		value="#{userEditBean.user.email}"></h:inputText>
 	                                <small>Email will not be publicly displayed.</small><br/>
-	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}">
-										<small class="redText"><h:message for="inputTextUserEmail"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="inputTextUserEmail"></h:message></small>
+
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -92,9 +92,9 @@
 										<f:selectItems value="#{userEditBean.allRoles}" var="role"
 											itemValue="role" />
 									</h:selectManyCheckbox>
-									<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}">
-										<small class="redText"><h:message for="selectRoles"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="selectRoles"></h:message></small>
+
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -108,18 +108,17 @@
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
 	                                	<f:validateLength minimum="6"></f:validateLength>
 	                                </p:password>
-	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputPassword')}">
-										<small class="redText"><h:message for="inputPassword"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="inputPassword"></h:message></small>
+
 	                                <p:password rendered="#{!userEditBean.isCreateUseCase()}"
 	                                	id="inputPasswordEdit"
 	                                	value="#{userEditBean.user.password}" 
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
 	                                	<f:validateLength minimum="6"></f:validateLength>
 	                                </p:password>
-	                                <h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputPasswordEdit')}">
-										<small class="redText"><h:message for="inputPasswordEdit"></h:message></small>
-			                        </h:panelGroup>
+
+									<small class="redText"><h:message for="inputPasswordEdit"></h:message></small>
 	                              
 	                            </div>
 	                        </div>

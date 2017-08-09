@@ -51,9 +51,8 @@
 							value="#{cc.attrs.activity.videoLink}"
 							validator="youtubeValidator" required="true"
 							requiredMessage="Video URL is required" autocomplete="off" />
-						<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputVideoUrl'))}">
-							<small class="redText"><h:message for="inputVideoUrl"></h:message></small>
-						</h:panelGroup>
+
+						<small class="redText"><h:message for="inputVideoUrl"></h:message></small>
 					</div>
 				</div>
 
@@ -103,9 +102,7 @@
 							value="#{cc.attrs.activity.text}"
 							styleClass="textareaBig pasteable" />
 
-						<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}">
-							<small class="redText"><h:message for="inputTextActText" /></small>
-						</h:panelGroup>
+						<small class="redText"><h:message for="inputTextActText" /></small>
 
 						<script>
 							initTinyMCE('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');
@@ -124,9 +121,8 @@
 							value="#{cc.attrs.activity.slidesLink}"
 							validator="slideshareValidator" required="true"
 							requiredMessage="Slideshare URL is required" autocomplete="off" />
-						<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSlideshareUrl'))}">
-							<small class="redText"><h:message for="inputSlideshareUrl"></h:message></small>
-						</h:panelGroup>
+
+						<small class="redText"><h:message for="inputSlideshareUrl"></h:message></small>
 					</div>
 				</div>
 			</h:panelGroup>
@@ -304,9 +300,8 @@
 						<h:inputText id="inputLaunchUrl" styleClass="pasteable"
 							value="#{cc.attrs.activity.launchUrl}" validator="urlValidator"
 							required="true" requiredMessage="Launch URL is required" autocomplete="off"/>
-						<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputLaunchUrl'))}">
-							<small class="redText"><h:message for="inputLaunchUrl"></h:message></small>
-						</h:panelGroup>
+
+						<small class="redText"><h:message for="inputLaunchUrl"></h:message></small>
 					</div>
 				</div>
 				<div class="formLine">
@@ -315,9 +310,8 @@
 						<h:inputText id="inputSecret" styleClass="pasteable"
 							value="#{cc.attrs.activity.sharedSecret}" required="true"
 							requiredMessage="Shared secret is required" autocomplete="off"/>
-						<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSecret'))}">
-							<small class="redText"><h:message for="inputSecret"></h:message></small>
-						</h:panelGroup>
+
+						<small class="redText"><h:message for="inputSecret"></h:message></small>
 					</div>
 				</div>
 				<div class="formLine">

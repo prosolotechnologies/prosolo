@@ -79,9 +79,7 @@
 													 requiredMessage="First name is required"
 													 value="#{adminEditBean.admin.name}">
 										</h:inputText>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminName')}">
-											<small class="redText"><h:message for="inputTextAdminName"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextAdminName"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -92,9 +90,7 @@
 													 requiredMessage="Last name is required"
 													 value="#{adminEditBean.admin.lastName}">
 										</h:inputText>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminLastname')}">
-											<small class="redText"><h:message for="inputTextAdminLastname"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextAdminLastname"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -106,9 +102,7 @@
 													 validator="emailValidator"
 													 value="#{adminEditBean.admin.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small><br/>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextAdminEmail')}">
-											<small class="redText"><h:message for="inputTextAdminEmail"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextAdminEmail"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -131,9 +125,7 @@
 										</ui:repeat>
 										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="0">
 										</h:inputHidden>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:hiddenInput')}">
-											<small class="redText"><h:message for="hiddenInput"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="hiddenInput"></h:message></small>
 
 									</div>
 								</div>

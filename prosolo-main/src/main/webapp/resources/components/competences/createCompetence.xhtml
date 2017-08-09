@@ -152,9 +152,7 @@
 														autocomplete="off"
 														autofocus="true"
 													/>
-													<h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:inputTitle'))}">
-														<small class="redText"><h:message for="inputTitle"></h:message></small>
-							                        </h:panelGroup>
+													<small class="redText"><h:message for="inputTitle"></h:message></small>
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
@@ -166,9 +164,8 @@
 			                                        	value="#{competenceEditBean.competenceData.description}" 
 			                                        	required="true"
 			                                        	requiredMessage="Description is required"/>
-			                                        <h:panelGroup rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':formMain:description'))}">
-														<small class="redText"><h:message for="description"></h:message></small>
-                    								</h:panelGroup>
+
+													<small class="redText"><h:message for="description"></h:message></small>
 			                                        <script>
 			                                    		initTinyMCE('#createCompetence\\:formMain\\:description');
 			                                    	</script>

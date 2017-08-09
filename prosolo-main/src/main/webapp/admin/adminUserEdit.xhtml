@@ -66,9 +66,7 @@
 												requiredMessage="First name is required"
 												value="#{userEditBean.user.name}">
 										</h:inputText>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}">
-											<small class="redText"><h:message for="inputTextUserName"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextUserName"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -81,9 +79,7 @@
 												requiredMessage="Last name is required"
 												value="#{userEditBean.user.lastName}">
 										</h:inputText>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}">
-											<small class="redText"><h:message for="inputTextUserLastname"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextUserLastname"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -93,9 +89,7 @@
 											requiredMessage="Email is required"
 											value="#{userEditBean.user.email}" autocomplete="off"></h:inputText>
 										<small>Email will not be publicly displayed.</small><br/>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}">
-											<small class="redText"><h:message for="inputTextUserEmail"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="inputTextUserEmail"></h:message></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -114,9 +108,7 @@
 											<f:selectItems value="#{userEditBean.allRoles}" var="role"
 												itemValue="role" />
 										</h:selectManyCheckbox>
-										<h:panelGroup rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}">
-											<small class="redText"><h:message for="selectRoles"></h:message></small>
-										</h:panelGroup>
+										<small class="redText"><h:message for="selectRoles"></h:message></small>
 									</div>
 								</div>
 

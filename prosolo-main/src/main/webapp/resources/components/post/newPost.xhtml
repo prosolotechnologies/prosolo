@@ -148,14 +148,10 @@
                             	placeholder="Description..."
                             	value="#{activityWallBean.uploadFile.description}">
                             </h:inputTextarea>
-                            
-                            <h:panelGroup layout="block" rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}" styleClass="alert alert-warning">							
-								 <small class="redText">File title must be entered</small>
-							</h:panelGroup>
-							
-							<h:panelGroup layout="block" rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}" styleClass="alert alert-warning">
-								<small class="redText">File must be uploaded</small>
-							</h:panelGroup>
+
+							<small class="redText">File title must be entered</small>
+
+							<small class="redText">File must be uploaded</small>
                         </div>
                         <div class="modal-footer alignLeft">
                         	<p:commandLink
