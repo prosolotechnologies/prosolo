@@ -162,12 +162,6 @@
 							</ui:repeat>
 						</ui:fragment>
 				    </h:panelGroup>
-					
-					<script>
-					$('#comment_#{comment.commentId} .editComment .contentEditableComment').on('keyup', function(e) {
-						$(this).prev('textarea').val($(this).html());
-					});
-					</script>
 				</c:if>
             </div>
 		</div>
