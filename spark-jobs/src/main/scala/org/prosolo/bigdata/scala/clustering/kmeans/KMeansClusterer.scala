@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.scala.clustering.kmeans
 
 //import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 
 /**
@@ -44,7 +44,7 @@ object KMeansClusterer {
     println("BEST MAX ITERATIONS:"+bestMaxIterations)
     bestKMeansModel
   }
-  def performClustering(dataFrame: DataFrame, sqlContext:SQLContext, possibleNumClusters:Seq[Int],possibleMaxIterations:Seq[Int]): DataFrame ={
+  def performClustering(dataFrame: DataFrame, sqlContext:SparkSession, possibleNumClusters:Seq[Int],possibleMaxIterations:Seq[Int]): DataFrame ={
     val bestKMeansModel=findBestKMeansModel(dataFrame, possibleNumClusters, possibleMaxIterations)
     val kmeansClusters=bestKMeansModel.transform(dataFrame)
     kmeansClusters.select("*")

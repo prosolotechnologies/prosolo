@@ -3,6 +3,8 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -14,6 +16,7 @@ import org.prosolo.common.domainmodel.user.User;
  */
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})})
 public class Organization extends BaseEntity {
 
 	private static final long serialVersionUID = -144242317896188428L;

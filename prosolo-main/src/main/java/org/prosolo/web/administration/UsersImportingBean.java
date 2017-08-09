@@ -83,7 +83,7 @@ public class UsersImportingBean implements Serializable {
 							User user = ServiceLocator
 									.getInstance()
 									.getService(UserManager.class)
-									.createNewUser(firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null);
+									.createNewUser(0, firstName, lastName, emailAddress, true, "pass", rolePosition, null, null, null);
 							
 							emailSenderManager.sendEmailAboutNewAccount(user, emailAddress);
 							

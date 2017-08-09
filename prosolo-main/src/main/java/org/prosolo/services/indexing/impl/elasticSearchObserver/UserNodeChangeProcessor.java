@@ -1,7 +1,5 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
@@ -16,6 +14,8 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
+
+import java.util.Map;
 
 public class UserNodeChangeProcessor implements NodeChangeProcessor {
 
@@ -44,8 +44,14 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		User user = null;
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
-		
-		if (eventType == EventType.ENROLL_COURSE) {
+
+		if (eventType == EventType.USER_ASSIGNED_TO_ORGANIZATION) {
+			userEntityESService.addUserToOrganization(
+					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId(), session);
+		} else if (eventType == EventType.USER_REMOVED_FROM_ORGANIZATION) {
+			userEntityESService.removeUserFromOrganization(
+					(User) session.load(User.class, event.getObject().getId()), event.getTarget().getId());
+		} else if (eventType == EventType.ENROLL_COURSE) {
 			Credential1 cred = (Credential1) event.getObject();
 			long instructorId = Long.parseLong(params.get("instructorId"));
 			String dateEnrolledString = params.get("dateEnrolled");
@@ -113,8 +119,9 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
-	    	BaseEntity obj = event.getObject();
-	    	long userId = 0;
+			BaseEntity obj = event.getObject();
+
+			long userId = 0;
 	    	/*
 	    	 * this means that actor is not the owner of edited profile.
 	    	 * This is the case when admin is editing someone else's profile.
@@ -124,9 +131,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			} else {
 				userId = event.getActorId();
 			}
-	    	user = (User) session.load(User.class, userId);
-	    	userEntityESService.updateBasicUserData(user, session);
+			user = (User) session.load(User.class, userId);
+			userEntityESService.updateBasicUserData(user, session);
+		} else if (eventType == EventType.Registered) {
+			userEntityESService.saveUserNode((User) session.load(User.class, event.getActorId()), session);
 		} else {
+			//TODO check if there is a use case where this block is entered
 			if (userRole == EventUserRole.Subject) {
 				long userId = event.getActorId();
 				user = (User) session.load(User.class, userId);

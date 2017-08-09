@@ -1,17 +1,13 @@
 <ui:component
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
+		xmlns:post="http://java.sun.com/jsf/composite/components/post"
+		xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -146,6 +142,14 @@
 								service="#{cc.attrs.service}"
 							/>
 						</div>
+						<h:panelGroup layout="block" styleClass="sidebarBlock" rendered="#{not empty cc.attrs.bean.competenceData.activityToShowWithDetails.tags}">
+							<h2>Keywords</h2>
+							<ul class="tags">
+								<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.activityToShowWithDetails.tags}">
+									<li><a href="javascript:void(0)">#{tag.title}</a></li>
+								</ui:repeat>
+							</ul>
+						</h:panelGroup>
 					</h:panelGroup>
 				</div>
 		    </div>

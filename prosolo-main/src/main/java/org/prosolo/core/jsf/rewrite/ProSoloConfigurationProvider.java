@@ -1,12 +1,12 @@
 package org.prosolo.core.jsf.rewrite;
 
-import javax.servlet.ServletContext;
-
 import org.ocpsoft.rewrite.annotation.RewriteConfiguration;
 import org.ocpsoft.rewrite.config.Configuration;
 import org.ocpsoft.rewrite.config.ConfigurationBuilder;
 import org.ocpsoft.rewrite.servlet.config.HttpConfigurationProvider;
 import org.ocpsoft.rewrite.servlet.config.rule.Join;
+
+import javax.servlet.ServletContext;
 
 /**
  * @author Nikola Milikic
@@ -82,11 +82,11 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/library/credentials").to("/credentialLibrary.xhtml"))
 				.addRule(Join.path("/library/competencies").to("/competenceLibrary.xhtml"))
 				.addRule(Join.path("/notifications").to("/notifications.xhtml"))
+				.addRule(Join.path("/achievements").to("/achievements/credentials.xhtml"))
 				.addRule(Join.path("/achievements/credentials").to("/achievements/credentials.xhtml"))
 				.addRule(Join.path("/achievements/competences").to("/achievements/competences.xhtml"))
 				.addRule(Join.path("/achievements/inprogress").to("/achievements/inprogress.xhtml"))
 				.addRule(Join.path("/achievements/externalcompetences").to("/achievements/externalcompetences.xhtml"))
-				.addRule(Join.path("/achievements").to("/achievements/credentials"))
 				.addRule(Join.path("/people").to("/people.xhtml"))
 				/* student viewing all his assessments (credential-assessments.html)*/
 				.addRule(Join.path("/assessments").to("/assessments.xhtml"))
@@ -174,8 +174,13 @@ public class ProSoloConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/organizations").to("/admin/adminOrganizations.xhtml"))
 				.addRule(Join.path("/admin/admins/{id}/edit").to("/admin/adminNew.xhtml"))
 				.addRule(Join.path("/admin/admins/new").to("/admin/adminNew.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/{id}/edit/password").to("/admin/userEditPassword.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/{id}/edit").to("/admin/orgUserEdit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users/new").to("/admin/orgUserEdit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/users").to("/admin/organizationUsers.xhtml"))
 				.addRule(Join.path("/admin/organizations/{id}/edit").to("/admin/adminOrganizationNew.xhtml"))
-				.addRule(Join.path("/admin/organizations/{id}/units").to("/admin/adminOrganizationsUnits.xhtml"))
+				.addRule(Join.path("/admin/organizations/{id}/units/{unitId}/edit").to("/admin/adminUnitEdit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{id}/units").to("/admin/units.xhtml"))
 				.addRule(Join.path("/admin/organizations/new").to("/admin/adminOrganizationNew.xhtml"))
 				.addRule(Join.path("/admin/admins/{id}/edit/password").to("/admin/adminEditAdminPassword.xhtml"))
 				.addRule(Join.path("/admin/dashboard").to("/admin/dashboard.xhtml"))

@@ -1,15 +1,13 @@
 package org.prosolo.services.nodes.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
+import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.ScoreCalculation;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.util.TimeUtil;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class ActivityData extends StandardObservable implements Serializable {
 
@@ -44,6 +42,9 @@ public class ActivityData extends StandardObservable implements Serializable {
 	private List<ResourceLinkData> captions;
 	private String typeString;
 	private LearningResourceType type;
+
+	private String tagsString;
+	private Set<Tag> tags;
 	
 	private ObjectStatus objectStatus;
 	
@@ -94,6 +95,7 @@ public class ActivityData extends StandardObservable implements Serializable {
 		activityType = ActivityType.TEXT;
 		resultData = new ActivityResultData(listenChanges);
 		gradeOptions = new GradeData();
+		tags = new HashSet<>();
 	}
 	
 	@Override
@@ -469,7 +471,24 @@ public class ActivityData extends StandardObservable implements Serializable {
 		observeAttributeChange("scoreCalculation", this.scoreCalculation, scoreCalculation);
 		this.scoreCalculation = scoreCalculation;
 	}
-	
+
+	public String getTagsString() {
+		return tagsString;
+	}
+
+	public void setTagsString(String tagsString) {
+		observeAttributeChange("tagsString", this.tagsString, tagsString);
+		this.tagsString = tagsString;
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
 	//change tracking get methods
 
 	public boolean isTitleChanged() {
@@ -542,6 +561,10 @@ public class ActivityData extends StandardObservable implements Serializable {
 	
 	public boolean isAutogradeChanged() {
 		return changedAttributes.containsKey("autograde");
+	}
+
+	public boolean isTagsStringChanged() {
+		return changedAttributes.containsKey("tagsString");
 	}
 	
 	//special methods to retrieve duration before update
@@ -692,4 +715,5 @@ public class ActivityData extends StandardObservable implements Serializable {
 	public void setTargetCompetenceId(long targetCompetenceId) {
 		this.targetCompetenceId = targetCompetenceId;
 	}
+
 }

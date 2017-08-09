@@ -35,7 +35,7 @@ public interface ResourceFactory extends AbstractManager {
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
-    User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
+    User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
             String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
 
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
@@ -52,17 +52,6 @@ public interface ResourceFactory extends AbstractManager {
 	
 	CredentialBookmark bookmarkCredential(long credId, long userId) 
 			throws DbConnectionException;
-
-	/**
-	 * Returns Result with saved activity that can be accessed using {@link Result#getResult()} method
-	 * and events data that can be accessed using {@link Result#getEvents()}
-	 * @param activityData
-	 * @param userId
-	 * @return
-	 * @throws DbConnectionException, IllegalDataStateException
-	 */
-	Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData activityData, 
-    		long userId) throws DbConnectionException, IllegalDataStateException;
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException;
@@ -82,7 +71,7 @@ public interface ResourceFactory extends AbstractManager {
 	
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles) throws DbConnectionException;
+			String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException;
 	
 	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
 

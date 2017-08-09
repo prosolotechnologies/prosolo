@@ -139,7 +139,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endArray();
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
-			String indexType = getIndexTypeForNode(cred);
+			String indexType = ESIndexTypes.CREDENTIAL;
 			indexNode(builder, String.valueOf(cred.getId()), ESIndexNames.INDEX_NODES, indexType);
 		} catch (IOException e) {
 			logger.error(e);

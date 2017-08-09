@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
@@ -28,7 +29,6 @@ import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ResourceLinkData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +101,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified,
+    public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
                               String password, String position, boolean system, InputStream avatarStream, String avatarFilename, List<Long> roles) throws EventException {
 
         emailAddress = emailAddress.toLowerCase();
@@ -113,6 +113,10 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         user.setEmail(emailAddress);
         user.setVerified(emailVerified);
         user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+        if (organizationId > 0) {
+            user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+        }
 
         if (password != null) {
             user.setPassword(passwordEncrypter.encodePassword(password));
@@ -294,94 +298,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
-                                            long userId) throws DbConnectionException, IllegalDataStateException {
-        try {
-            Result<Activity1> result = new Result<>();
-            Activity1 activity = activityFactory.getActivityFromActivityData(data);
-
-            if (data.getLinks() != null) {
-                Set<ResourceLink> activityLinks = new HashSet<>();
-
-                for (ResourceLinkData rl : data.getLinks()) {
-                    ResourceLink link = new ResourceLink();
-                    link.setLinkName(rl.getLinkName());
-                    link.setUrl(rl.getUrl());
-                    if (rl.getIdParamName() != null && !rl.getIdParamName().isEmpty()) {
-                        link.setIdParameterName(rl.getIdParamName());
-                    }
-                    saveEntity(link);
-                    activityLinks.add(link);
-                }
-                activity.setLinks(activityLinks);
-            }
-
-            Set<ResourceLink> activityFiles = new HashSet<>();
-
-            if (data.getFiles() != null) {
-                for (ResourceLinkData rl : data.getFiles()) {
-                    ResourceLink link = new ResourceLink();
-                    link.setLinkName(rl.getLinkName());
-                    link.setUrl(rl.getUrl());
-                    saveEntity(link);
-                    activityFiles.add(link);
-                }
-                activity.setFiles(activityFiles);
-            }
-
-            if(data.getActivityType() == org.prosolo.services.nodes.data.ActivityType.VIDEO) {
-                Set<ResourceLink> captions = new HashSet<>();
-
-                if (data.getCaptions() != null) {
-                    for (ResourceLinkData rl : data.getCaptions()) {
-                        ResourceLink link = new ResourceLink();
-                        link.setLinkName(rl.getLinkName());
-                        link.setUrl(rl.getUrl());
-                        saveEntity(link);
-                        captions.add(link);
-                    }
-                    ((UrlActivity1) activity).setCaptions(captions);
-                }
-            }
-
-            User creator = (User) persistence.currentManager().load(User.class, userId);
-            activity.setCreatedBy(creator);
-
-            //GradingOptions go = new GradingOptions();
-            //go.setMinGrade(0);
-            //go.setMaxGrade(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-            //saveEntity(go);
-            //activity.setGradingOptions(go);
-            activity.setMaxPoints(data.getMaxPointsString().isEmpty() ? 0 : Integer.parseInt(data.getMaxPointsString()));
-
-            activity.setStudentCanSeeOtherResponses(data.isStudentCanSeeOtherResponses());
-            activity.setStudentCanEditResponse(data.isStudentCanEditResponse());
-            activity.setVisibleForUnenrolledStudents(data.isVisibleForUnenrolledStudents());
-
-            saveEntity(activity);
-
-            if(data.getCompetenceId() > 0) {
-                EventData ev = competenceManager.addActivityToCompetence(data.getCompetenceId(),
-                        activity, userId);
-                if(ev != null) {
-                    result.addEvent(ev);
-                }
-            }
-            result.setResult(activity);
-            return result;
-        } catch(IllegalDataStateException idse) {
-            throw idse;
-        } catch(DbConnectionException dce) {
-            throw dce;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error while saving activity");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
             throws DbConnectionException, StaleDataException {
         return activityManager.updateActivityData(data);
@@ -490,7 +406,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public User updateUser(long userId, String name, String lastName, String email,
                            boolean emailVerified, boolean changePassword, String password,
-                           String position, List<Long> roles) throws DbConnectionException {
+                           String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException {
         try {
             User user = loadResource(User.class, userId);
             user.setName(name);
@@ -505,9 +421,28 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             }
 
             if(roles != null) {
-                user.getRoles().clear();
-                for(Long id : roles) {
-                    Role role = (Role) persistence.currentManager().load(Role.class, id);
+                Set<Long> rolesToAdd = new HashSet<>(roles);
+                /*
+                roles that should be deleted (if user had them) are all roles that should be updated
+                except for roles that should be added
+                 */
+                Set<Long> rolesToDelete = new HashSet<>(rolesToUpdate);
+                rolesToDelete.removeAll(rolesToAdd);
+
+                //update only roles that should be updated based on a rolesToUpdate argument
+                Iterator<Role> roleIterator = user.getRoles().iterator();
+                while (roleIterator.hasNext()) {
+                    Role r = roleIterator.next();
+                    boolean keepRole = rolesToAdd.remove(r.getId());
+                    if (!keepRole) {
+                        if (rolesToDelete.contains(r.getId())) {
+                            roleIterator.remove();
+                        }
+                    }
+                }
+                //assign new roles to user
+                for (Long roleId : rolesToAdd) {
+                    Role role = (Role) persistence.currentManager().load(Role.class, roleId);
                     user.addRole(role);
                 }
             }

@@ -1,15 +1,11 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	template="templates/masterLayout2.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks">
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui"
+				template="templates/masterLayout2.xhtml"
+				xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+>
 	
 	<ui:define name="windowTitle">
 		#{profile.studentFullName}
@@ -228,10 +224,6 @@
 										</div>
 										
 										<div class="metaRight">
-											<ui:fragment rendered="#{targetCredential.madeByUniversity()}" >
-												<a href="" class="madeByUniversity" data-toggle="tooltip" 
-													title="Made by University">made by university</a>
-											</ui:fragment>
 											<div class="duration">#{targetCredential.duration} minutes</div>
 										</div>
 									</div>
@@ -267,7 +259,6 @@
 									<h2>
 										<h:link	outcome="competence">
 											#{targetCompetence.title}
-					                		<f:param name="credId" value="#{util:encodeId(targetCompetence.credentialId)}"/>
 					                		<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
 										</h:link>
 									</h2>
@@ -281,10 +272,6 @@
 										</h:panelGroup>
 										
 										<div class="metaRight">
-											<ui:fragment rendered="#{targetCompetence.madeByUniversity()}" >
-												<a href="" class="madeByUniversity" data-toggle="tooltip" 
-													title="Made by University">made by university</a>
-											</ui:fragment>
 											<div class="duration">#{targetCompetence.duration} minutes</div>
 										</div>
 									</div>
@@ -354,10 +341,9 @@
 		                                    <h:link
 												value="Resume"
 												styleClass="btn btn-green btn-sm"
-												outcome="/activity">
+												outcome="/competence">
 												<f:param name="credId" value="#{util:encodeId(inProgressCredential.credentialId)}"/>
 												<f:param name="compId" value="#{util:encodeId(inProgressCredential.nextCompetenceToLearnId)}"/>
-												<f:param name="actId" value="#{util:encodeId(inProgressCredential.nextActivityToLearnId)}"/>
 											</h:link>
 		                                    
 		                                    <div class="progressBar">
@@ -371,9 +357,6 @@
 		                                </div>
 		                                
 		                                <div class="metaRight">
-											<ui:fragment rendered="#{inProgressCredential.madeByUniversity()}" >
-												<a href="" class="madeByUniversity" data-toggle="tooltip" title="Made by University">made by university</a>
-											</ui:fragment>
 											<div class="duration">#{inProgressCredential.duration} minutes</div>
 										</div>
 									</div>

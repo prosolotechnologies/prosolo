@@ -13,8 +13,11 @@ import org.prosolo.common.config.ElasticSearchConfig;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.data.OrganizationData;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,15 +33,25 @@ import static org.prosolo.common.util.ElasticsearchUtil.copyToStringFromClasspat
 @Service("org.prosolo.services.indexing.ESAdministration")
 public class ESAdministrationImpl implements ESAdministration {
 
+	@Inject private OrganizationManager orgManager;
 	private static final long serialVersionUID = 830150223713546004L;
 	private static Logger logger = Logger.getLogger(ESAdministrationImpl.class);
 	
 	@Override
 	public boolean createIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes = ESIndexNames.getSystemIndexes();
 		
 		for (String index : indexes) {
 			createIndex(index);
+		}
+
+		List<String> orgIndexes = ESIndexNames.getOrganizationIndexes();
+		List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+				.getFoundNodes();
+		for (String ind : orgIndexes) {
+			for (OrganizationData o : organizations) {
+				createIndex(ind + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+			}
 		}
 		return true;
 	}
@@ -80,7 +93,11 @@ public class ESAdministrationImpl implements ESAdministration {
 				this.addMapping(client, fullIndexName, ESIndexTypes.CREDENTIAL, isOrganizationIndex);
 				this.addMapping(client, fullIndexName, ESIndexTypes.COMPETENCE, isOrganizationIndex);
 			} else if (indexName.equals(ESIndexNames.INDEX_USERS)) {
-				this.addMapping(client, fullIndexName, ESIndexTypes.USER, isOrganizationIndex);
+				if (isOrganizationIndex) {
+					this.addMapping(client, fullIndexName, ESIndexTypes.ORGANIZATION_USER, false);
+				} else {
+					this.addMapping(client, fullIndexName, ESIndexTypes.USER, false);
+				}
 			} else if(ESIndexNames.INDEX_USER_GROUP.equals(indexName)) {
 				this.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP, isOrganizationIndex);
 			}
@@ -104,10 +121,19 @@ public class ESAdministrationImpl implements ESAdministration {
 
 	@Override
 	public boolean deleteIndexes() throws IndexingServiceNotAvailable {
-		List<String> indexes = ESIndexNames.getAllIndexes();
+		List<String> indexes = ESIndexNames.getSystemIndexes();
 		
 		for (String index : indexes) {
 			deleteIndex(index);
+		}
+
+		List<String> orgIndexes = ESIndexNames.getOrganizationIndexes();
+		List<OrganizationData> organizations = orgManager.getAllOrganizations(-1, 0, false)
+				.getFoundNodes();
+		for (String ind : orgIndexes) {
+			for (OrganizationData o : organizations) {
+				deleteIndex(ind + ElasticsearchUtil.getOrganizationIndexSuffix(o.getId()));
+			}
 		}
 		return true;
 	}

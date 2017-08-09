@@ -16,25 +16,24 @@ public class CompetenceAchievementsDataToPageMapper
 
     @Override
     public CompetenceAchievementsData mapDataToPageObject(List<TargetCompetence1> targetCompetence1List) {
-    	//TODO cred-redesign-07
-    	//        CompetenceAchievementsData competenceAchievementsData = new CompetenceAchievementsData();
-//
-//        TargetCompetenceData targetCompetenceData;
-//
-//        for (TargetCompetence1 targetCompetence1 : targetCompetence1List) {
-//            if (targetCompetence1 != null) {
-//                targetCompetenceData = new TargetCompetenceData(targetCompetence1.getId(),
-//                        targetCompetence1.getDescription(), targetCompetence1.getTitle(),
-//                        targetCompetence1.isHiddenFromProfile(), 
-//                        targetCompetence1.getDuration(), 
-//                        targetCompetence1.getType(),
-//                        targetCompetence1.getCompetence().getId(),
-//                        targetCompetence1.getTargetCredential().getCredential().getId());
-//                competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
-//            }
-//        }
-//        return competenceAchievementsData;
-    	return null;
+        CompetenceAchievementsData competenceAchievementsData = new CompetenceAchievementsData();
+
+        TargetCompetenceData targetCompetenceData;
+
+        for (TargetCompetence1 targetCompetence1 : targetCompetence1List) {
+            if (targetCompetence1 != null) {
+                targetCompetenceData = new TargetCompetenceData(
+                        targetCompetence1.getId(),
+                        targetCompetence1.getCompetence().getDescription(),
+                        targetCompetence1.getCompetence().getTitle(),
+                        targetCompetence1.isHiddenFromProfile(),
+                        targetCompetence1.getCompetence().getDuration(),
+                        targetCompetence1.getCompetence().getType(),
+                        targetCompetence1.getCompetence().getId());
+                competenceAchievementsData.getTargetCompetenceDataList().add(targetCompetenceData);
+            }
+        }
+        return competenceAchievementsData;
     }
 
 }

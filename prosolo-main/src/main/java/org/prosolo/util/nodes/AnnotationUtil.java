@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.services.nodes.data.TagCountData;
-import org.prosolo.util.nodes.CreatedAscComparator;
 
 public class AnnotationUtil {
 
@@ -22,11 +20,11 @@ public class AnnotationUtil {
 		return "";
 	}
 
-	public static String getAnnotationsAsSortedCSVForTagCountData(Collection<TagCountData> tags) {
+	public static String getAnnotationsAsSortedCSVForTagTitles(Collection<String> tags) {
 		if (tags != null && !tags.isEmpty()) {
-			List<TagCountData> sortedAnnotationsForTagCountData = new ArrayList<TagCountData>(tags);
-			Collections.sort(sortedAnnotationsForTagCountData, new CreatedAscComparator());
-			return getCSVStringForTagCountData(sortedAnnotationsForTagCountData, ",");
+			List<String> sortedAnnotationsForTagData = new ArrayList<String>(tags);
+			Collections.sort(sortedAnnotationsForTagData);
+			return getCSVString(sortedAnnotationsForTagData);
 		}
 		return "";
 	}
@@ -43,16 +41,6 @@ public class AnnotationUtil {
 			}
 			i++;
 
-		}
-
-		return sb.toString();
-	}
-
-	public static String getCSVStringForTagCountData(Collection<TagCountData> tags, String separator) {
-		StringBuffer sb = new StringBuffer();
-		for (TagCountData tag : tags) {
-			sb.append(tag.getTitle());
-			sb.append(separator);
 		}
 
 		return sb.toString();
