@@ -21,14 +21,14 @@
 	<ui:define name="navLinks">
 		<ui:fragment  rendered="#{not empty unitsBean.organizationId}">
 			<ul class="nav nav-tabs headerSubmenu">
-				<li role="presentation"><h:link outcome="/admin/adminOrganizationNew">
-					<f:param name="id" value="#{unitsBean.organizationId}" />Organization Details
-				</h:link></li>
 				<li role="presentation" class="active"><h:link outcome="/admin/units">
 					<f:param name="id" value="#{unitsBean.organizationId}" />Units
 				</h:link></li>
 				<li role="presentation"><a href="#">People</a></li>
 				<li role="presentation"><a href="#">Groups</a></li>
+				<li role="presentation"><h:link outcome="/admin/adminOrganizationNew">
+					<f:param name="id" value="#{unitsBean.organizationId}" />Organization Details
+				</h:link></li>
 			</ul>
 		</ui:fragment>
 	</ui:define>
