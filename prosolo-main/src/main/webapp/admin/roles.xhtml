@@ -7,7 +7,6 @@
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <ui:define name="windowTitle">
@@ -139,12 +138,13 @@
                       <h2 class="modal-title">#{roles.isCreateRoleUseCase() ? 'Add New Role' : 'Rename Role'}</h2>
                   </div>
                   <div class="modal-body alignLeft">
-                  	  <h:inputText id="inputRoleName" 
+                  	  <h:inputText id="inputRoleName"
 							value="#{roles.formData.name}" 
 							required="true" 
 							requiredMessage="Name is required"
 							validator="#{roles.validateName}" 
-							placeholder="Role Name"/>
+							placeholder="Role Name"
+					  		autocomplete="off"/>
 					  <h:panelGroup 
                       	layout="block" 
                       	rendered="#{not empty facesContext.getMessageList('formEditRole:inputRoleName')}" 
@@ -154,7 +154,7 @@
                       </h:panelGroup>
                   </div>
                   <div class="modal-footer alignLeft">
-                      <p:commandLink 
+                      <p:commandLink id="saveBtn"
                       	styleClass="btn btn-green"
                       	oncomplete="
 							if (args &amp;&amp; !args.validationFailed)
@@ -163,10 +163,16 @@
 					 	update=":formEditRole:panelNewRoleContent :panelRoles :formCapabilities">
                       	#{roles.isCreateRoleUseCase() ? 'Add' : 'Save'}
                       </p:commandLink>
+					  <p:defaultCommand target="saveBtn"></p:defaultCommand>
                       <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                   </div>
                  </ui:fragment>
               </h:panelGroup>
+			  <script>
+                  $('#newRoleModal').on('shown.bs.modal', function () {
+                      $('#newRoleModal input').focus();
+                  })
+			  </script>
           </div>
       </div>
     </h:form>
