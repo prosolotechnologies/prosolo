@@ -40,6 +40,7 @@ println("Initializing SparkContextLoader")
   val maxCores=SparkApplicationConfig.conf.getString("spark.maxCores")
   val mode=SparkApplicationConfig.conf.getString("spark.mode")
   val maxNumberCores=if(numOfCores>maxCores.toInt) maxCores else numOfCores
+  println("SPARK MODE:"+mode)
   val master=if(mode.equals("local")) "local["+numOfCores+"]" else SparkApplicationConfig.conf.getString("spark.master")
   val executorMemory=SparkApplicationConfig.conf.getString("spark.executorMemory")
  //val numOfCores=1;

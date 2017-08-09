@@ -19,6 +19,7 @@ object SimilarUsersBasedOnPreferencesSparkJob{
   //val sqlContext = SQLContext.getOrCreate(sc)
  // val sparkSession:SparkSession=new SparkSession(sc)
   val sparkSession:SparkSession=SparkContextLoader.getSparkSession
+  sparkSession.sparkContext.setLogLevel("WARN")
 
   println("CREATED SQL CONTEXT")
   /**
