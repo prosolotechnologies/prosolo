@@ -1,9 +1,9 @@
-package org.prosolo.bigdata.events.serialization;/**
+package org.prosolo.bigdata.common.events.serialization;/**
  * Created by zoran on 26/07/16.
  */
 
 import com.google.gson.*;
-import org.prosolo.bigdata.events.pojo.LogEvent;
+//import org.prosolo.bigdata.events.pojo.LogEvent;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.Service;

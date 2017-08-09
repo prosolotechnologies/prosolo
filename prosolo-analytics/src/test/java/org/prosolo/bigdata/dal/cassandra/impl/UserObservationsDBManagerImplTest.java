@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.UserRecommendationsDBManager;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -73,7 +73,7 @@ public class UserObservationsDBManagerImplTest {
         int credMax=30;
         int compMax=100;
         int actMax=300;
-        long date=DateUtil.getDaysSinceEpoch();
+        long date= DateEpochUtil.getDaysSinceEpoch();
         for (int  xd=0;xd<10;xd++){
             long d=date-xd;
            System.out.println("GENERATING DATE:"+d) ;

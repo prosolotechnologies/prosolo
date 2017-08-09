@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.joda.time.Days;
@@ -43,13 +44,19 @@ import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
+
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
+import org.prosolo.services.indexing.LoggingESService;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
+import org.prosolo.web.ApplicationBean;
+import org.prosolo.web.LoggedUserBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -76,8 +83,16 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
 
+
     @Inject
     private AnalyticalServiceCollector analyticalServiceCollector;
+
+	@Inject
+	private LoggingESService loggingESService;
+
+	@Autowired
+	private ApplicationBean applicationBean;
+
 
 	private static String pageNavigationCollection = "log_page_navigation";
 	private static String serviceUseCollection = "log_service_use";
@@ -606,6 +621,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			//DBObject logObject = new BasicDBObject();
 			JSONObject logObject=new JSONObject();
 			logObject.put("timestamp", System.currentTimeMillis());
+			logObject.put("date", DateEpochUtil.getDaysSinceEpoch(System.currentTimeMillis()));
 			logObject.put("eventType", eventType.name());
 	
 			if (actorId > 0) {
@@ -615,6 +631,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String link = parameters.get("link");
 	
 			logObject.put("actorId", actorId);
+		    logObject.put("sessionId",getSessionId(actorId));
 			logObject.put("objectType", objectType);
 			logObject.put("objectId", objectId);
 			logObject.put("objectTitle", objectTitle);
@@ -666,6 +683,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			String linkString = logObject.get("link") != null ? "\nlink: " + logObject.get("link") : "";
 			String context = parameters.get("context") != null ? parameters.get("context") : "";
 			String action = parameters.get("action") != null ? parameters.get("action") : "";
+
 			logger.debug("LOG:"+logObject.toJSONString());
 			logger.debug("\ntimestamp: " + timestamp + 
 		 			"\neventType: " + eventType + 
@@ -684,7 +702,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			
 			// timestamp,eventType,objectType,targetType,link,context,action
 			logger.info(timestamp + "," + eventType + "," + objectType + "," + targetTypeString + "," + link + "," + context + "," + action);
-			
+			loggingESService.storeEventObservedLog(logObject);
 			logsMessageDistributer.distributeMessage(logObject);
         if(courseId>0 && actorId>0){
             System.out.println("INCREASING USER ACTIVITY FOR CREDENTIAL...");
@@ -699,6 +717,26 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}*/
 
 	//	}
+	}
+
+	private String getSessionId(long userId){
+		System.out.println("getSessionIdForUser:"+userId);
+		String sessionId="";
+		if(userId>0){
+			HttpSession httpSession = applicationBean.getUserSession(userId);
+			if (httpSession != null) {
+				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
+						.getAttribute("loggeduser");
+				if (loggedUserBean != null) {
+					if (!loggedUserBean.isInitialized()) {
+						loggedUserBean.initializeSessionData(httpSession);
+					}
+					sessionId=loggedUserBean.getSessionData().getSessionId();
+					System.out.println("SESSION ID:"+sessionId);
+				}
+			}
+		}
+		return sessionId;
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 public class TwitterHashtagDailyCountTest {
 
@@ -14,7 +14,7 @@ public class TwitterHashtagDailyCountTest {
 	public void generateEntries() {
 		// Generates 10000 hashtag counts for last two weeks.
 		TwitterHashtagStatisticsDBManagerImpl manager =  TwitterHashtagStatisticsDBManagerImpl.getInstance();
-		long to = DateUtil.getDaysSinceEpoch();
+		long to = DateEpochUtil.getDaysSinceEpoch();
 		long from = to - 15;
 
 		for (int hashtagIndex = 0; hashtagIndex < 10000; hashtagIndex++) {

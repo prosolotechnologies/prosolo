@@ -75,7 +75,7 @@ public class LogEventsPersisterObserver implements EventObserver {
 						if(eventsChecker.isEventObserved(logEvent)){
 														ObservationType observationType=eventsChecker.getObservationType(logEvent);
 
-						//	long date = DateUtil.getDaysSinceEpoch(logEvent.getTimestamp());
+						//	long date = DateEpochUtil.getDaysSinceEpoch(logEvent.getTimestamp());
 							SocialInteractionStatisticsDBManagerImpl.getInstance().updateToFromInteraction(courseId, actorId, targetUserId,observationType);
 						}
 					}
