@@ -101,7 +101,7 @@
 									<h:link outcome="/admin/adminNew">
 										<utilcomp:userAvatar
 												avatar="#{admin.avatarUrl}"
-												fullName="#{admin.fullName}"
+												fullName="#{admin.commaSeparatedFullName}"
 												width="64"
 												height="64"
 										/>
@@ -112,13 +112,13 @@
 										<h2>
 											<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 												<h:link outcome="/admin/adminNew">
-													#{admin.fullName}
+													#{admin.commaSeparatedFullName}
 													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
 												</h:link>
 											</c:if>
 											<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 												<h:link outcome="/admin/organizationUserEdit">
-													#{admin.fullName}
+													#{admin.commaSeparatedFullName}
 													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
 												</h:link>

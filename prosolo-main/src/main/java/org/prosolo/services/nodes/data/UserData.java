@@ -92,9 +92,16 @@ public class UserData implements Serializable {
 	}
 
 	private static String getFullName(String name, String lastName) {
+		String fName = name != null ? name + " " : "";
+		String lName = lastName != null ? lastName : "";
+		return fName + lName;
+	}
+
+	public String getCommaSeparatedFullName() {
 		String fName = name != null ? name : "";
-		String lName = lastName != null ? lastName + " " : "";
-		return lName + fName;
+		String lName = lastName != null ? lastName : "";
+		String infix = !fName.isEmpty() && !lName.isEmpty() ? ", " : "";
+		return lName + infix + fName;
 	}
 
 	public long getId() {

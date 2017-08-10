@@ -107,8 +107,8 @@
                                                                                update=":formMain:selectNewOwner"
                                                                                oncomplete="$('.adminSearchFieldSelector').val(''); $('.panelAdminSearchResultsSelector').first().stop(true, true).slideUp(10);">
                                                                     <utilcomp:userAvatar avatar="#{user.avatarUrl}"
-                                                                                         fullName="#{user.fullName}" />
-                                                                    <h3>#{user.fullName}</h3>
+                                                                                         fullName="#{user.commaSeparatedFullName}" />
+                                                                    <h3>#{user.commaSeparatedFullName}</h3>
                                                                 </p:commandLink>
                                                             </li>
 
@@ -126,11 +126,11 @@
                                                         <div class="instructorInfo">
                                                             <utilcomp:userAvatar
                                                                     avatar="#{admin.avatarUrl}"
-                                                                    fullName="#{admin.fullName}"
+                                                                    fullName="#{admin.commaSeparatedFullName}"
                                                                     width="48"
                                                                     height="48"/>
                                                             <div class="infoWrap">
-                                                                <h3>#{admin.fullName}</h3>
+                                                                <h3>#{admin.commaSeparatedFullName}</h3>
                                                                 <span>#{admin.position}</span>
                                                             </div>
                                                         </div>

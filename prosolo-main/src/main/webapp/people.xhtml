@@ -73,13 +73,13 @@
 									<div class="peopleListLeft">
 										<h:link outcome="/profile">
 											<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-												fullName="#{user.fullName}" width="64" height="64" />
+												fullName="#{user.commaSeparatedFullName}" width="64" height="64" />
 											<f:param name="id" value="#{util:encodeId(user.id)}" />
 										</h:link>
 										<div>
 											<h2>
 												<h:link outcome="/profile">
-													#{user.fullName}
+													#{user.commaSeparatedFullName}
 													<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
 												</h:link>
 											</h2>
