@@ -55,4 +55,6 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 
 	void removeGroup(long orgId, long userId, long groupId);
 
+	void removeUserFromIndex(User user);
+
 }

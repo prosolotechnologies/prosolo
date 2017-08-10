@@ -66,7 +66,9 @@ public class JoinGroupBean implements Serializable {
 				this.password.equals(groupData.getJoinUrlPassword())) {
 			
 			try {
-				userGroupManager.addUserToTheGroup(decodedId, loggedUserBean.getUserId());
+				//TODO generate events here
+				userGroupManager.addUserToTheGroupAndGetEvents(decodedId, loggedUserBean.getUserId(),
+						loggedUserBean.getUserId(), null);
 				
 				PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
 			} catch (DbConnectionException e) {

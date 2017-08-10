@@ -32,10 +32,10 @@ public interface UnitManager extends AbstractManager{
 
     List<UnitData> getUnitsWithSubUnits(long organizationId);
 
-    UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
+    void addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
                                LearningContextData context) throws DbConnectionException, EventException;
 
-    Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
+    Result<Void> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
                                                                  LearningContextData context) throws DbConnectionException;
 
     void removeUserFromUnitWithRole(long userId, long unitId, long roleId, long actorId,

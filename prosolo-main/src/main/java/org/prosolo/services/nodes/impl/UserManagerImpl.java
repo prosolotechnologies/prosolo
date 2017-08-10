@@ -2,35 +2,44 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.email.EmailSenderManager;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.UnitRoleMembershipData;
+import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
+import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -51,6 +60,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private OrganizationManager organizationManager;
 	@Inject
 	private UserManager self;
+	@Inject private AvatarProcessor avatarProcessor;
+	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
+	@Inject private UserGroupManager userGroupManager;
 
 	@Autowired private PasswordEncrypter passwordEncrypter;
 	@Autowired private EventFactory eventFactory;
@@ -58,6 +71,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Autowired private UserEntityESService userEntityESService;
 
 	@Autowired private UserDataFactory userDataFactory;
+
+	@Inject private EmailSenderManager emailSenderManager;
+
+	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -78,6 +95,38 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return result;
 		}
 		return null;
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public User getUser(long organizationId, String email) throws DbConnectionException {
+		try {
+			email = email.toLowerCase();
+
+			String query =
+					"SELECT user " +
+							"FROM User user " +
+							"WHERE user.email = :email " +
+							"AND user.verified = :verifiedEmail ";
+			if (organizationId > 0) {
+				query += "AND user.organization.id = :orgId";
+			} else {
+				query += "AND user.organization IS NULL ";
+			}
+
+			Query q = persistence.currentManager().createQuery(query)
+					.setString("email", email)
+					.setBoolean("verifiedEmail", true);
+
+			if (organizationId > 0) {
+				q.setLong("orgId", organizationId);
+			}
+
+			return (User) q.uniqueResult();
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error while retrieving user data");
+		}
 	}
 
 	@Override
@@ -416,7 +465,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				assignNewOwner(newCreatorId, oldCreatorId);
 				saveEntity(user);
 				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
-				userEntityESService.deleteNodeFromES(user);
+
+				User u = new User(oldCreatorId);
+				//actor not passed
+				result.addEvent(eventFactory.generateEventData(EventType.Delete, 0,
+						u, null, null, null));
+				//TODO check if line below is needed
+				//userEntityESService.deleteNodeFromES(user);
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Error", e);
@@ -704,6 +759,285 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				.setLong("roleId", roleId)
 				.setLong("orgId", orgId)
 				.uniqueResult();
+	}
+
+	@Override
+	//nt
+	public boolean createNewUserAndConnectToResources(long organizationId,
+												   String name, String lastname, String emailAddress,
+												   String password, String position, long unitId,
+												   long unitRoleId, long userGroupId,
+												   LearningContextData context, long actorId)
+			throws DbConnectionException, EventException {
+		Result<UserCreationData> res = self.createNewUserConnectToResourcesAndGetEvents(
+				organizationId, name, lastname, emailAddress, password, position, unitId, unitRoleId,
+				userGroupId, context, actorId);
+
+		if (res.getResult() != null) {
+			for (EventData ev : res.getEvents()) {
+				eventFactory.generateEvent(ev);
+				if (ev.getEventType() == EventType.Registered) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						logger.error("Error", e);
+					}
+				}
+			}
+
+			if (res.getResult().isNewAccount()) {
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						boolean emailSent = false;
+						Session session = persistence.openSession();
+						Transaction t = null;
+						try {
+							t = session.beginTransaction();
+							emailSent = emailSenderManager.sendEmailAboutNewAccount(
+									res.getResult().getUser(), emailAddress, session);
+							t.commit();
+						} catch (Exception e) {
+							logger.error("Error", e);
+							e.printStackTrace();
+							if(t != null) {
+								t.rollback();
+							}
+						} finally {
+							session.close();
+						}
+						if (!emailSent) {
+							logger.error("Error while sending email to the user ("
+									+ res.getResult().getUser().getId() + ") with new account created");
+						}
+					}
+				});
+			}
+
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	@Transactional
+	public Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(long organizationId,
+														   String name, String lastname, String emailAddress,
+														   String password, String position, long unitId,
+														   long unitRoleId, long userGroupId,
+														   LearningContextData context, long actorId)
+			throws DbConnectionException {
+		try {
+			Result<UserCreationData> res = new Result<>();
+
+			Result<UserCreationData> newUserRes = createOrUpdateUser(
+					organizationId, name, lastname, emailAddress, true,
+					password, position, false, null, null,
+					unitRoleId, context, actorId);
+
+			res.setResult(newUserRes.getResult());
+			res.addEvents(newUserRes.getEvents());
+
+			//only if user is created/updated and retrieved successfully other operations can be performed
+			if (newUserRes.getResult() != null) {
+				if (unitId > 0 && unitRoleId > 0) {
+					res.addEvents(unitManager.addUserToUnitWithRoleAndGetEvents(
+							newUserRes.getResult().getUser().getId(), unitId, unitRoleId, actorId, context).getEvents());
+				}
+
+				if (userGroupId > 0) {
+					res.addEvents(userGroupManager.addUserToTheGroupAndGetEvents(userGroupId, newUserRes.getResult().getUser().getId(),
+							actorId, context).getEvents());
+				}
+			}
+
+			return res;
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw e;
+		}
+	}
+
+	/*
+	TODO merge this with resource factory createNewUser method when we agree on exact implementation
+	and when there is time for refactoring
+	 */
+	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+							   String password, String position, boolean system, InputStream avatarStream,
+						       String avatarFilename, List<Long> roles, LearningContextData context)
+			throws UserAlreadyRegisteredException, DbConnectionException {
+		try {
+			if (checkIfUserExists(emailAddress)) {
+				throw new UserAlreadyRegisteredException("User with email address " + emailAddress + " is already registered.");
+			}
+
+			emailAddress = emailAddress.toLowerCase();
+
+			User user = new User();
+			return registerUser(user, organizationId, name, lastname, emailAddress, emailVerified,
+					password, position, system, avatarStream, avatarFilename, roles, context);
+		} catch (UserAlreadyRegisteredException e) {
+			logger.error("Error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while saving new user account");
+		}
+	}
+
+	private Result<User> registerUser(User user, long organizationId, String name, String lastname,
+									  String emailAddress, boolean emailVerified, String password,
+									  String position, boolean system, InputStream avatarStream,
+									  String avatarFilename, List<Long> roles,
+									  LearningContextData context) {
+		user.setDeleted(false);
+		user.setName(name);
+		user.setLastname(lastname);
+
+		user.setEmail(emailAddress);
+		user.setVerified(emailVerified);
+		user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+		if (organizationId > 0) {
+			user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+		}
+
+		if (password != null) {
+			user.setPassword(passwordEncrypter.encodePassword(password));
+			user.setPasswordLength(password.length());
+		}
+
+		user.setSystem(system);
+		user.setPosition(position);
+
+		user.setUserType(UserType.REGULAR_USER);
+
+		user.getRoles().clear();
+		if (roles != null) {
+			for (Long id : roles) {
+				Role role = (Role) persistence.currentManager().load(Role.class, id);
+				user.addRole(role);
+			}
+		}
+		user = saveEntity(user);
+
+		try {
+			if (avatarStream != null) {
+				user.setAvatarUrl(avatarProcessor.storeUserAvatar(
+						user.getId(), avatarStream, avatarFilename, true));
+			}
+		} catch (IOException e) {
+			logger.error(e);
+		}
+
+		Result<User> res = new Result<>();
+		res.setResult(user);
+		/*
+		TODO i don't know if we rely somewhere on event actor being new user that is just created
+		so I used new user id as an actor in event, but this is probably not semantically correct
+		 */
+		res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
+				user, null, context, null));
+
+		return res;
+	}
+
+	/**
+	 * Creates or updates user and retrieves it with information if user account is just created.
+	 *
+	 * If user with {@code emailAddress} email exists, it is retrieved if it belongs to an organization
+	 * with {@code organizationId} id, and role with {@code roleId} id is assigned to the user if he does not
+	 * already have that role. Only role is updated for existing users. If such user (with email that belongs
+	 * to the given organization) does not exist, result with null for user is returned.
+	 *
+	 * Deleted user is reregistered.
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param system
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roleId
+	 * @param context
+	 * @param actorId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	private Result<UserCreationData> createOrUpdateUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+														String password, String position, boolean system, InputStream avatarStream,
+														String avatarFilename, long roleId, LearningContextData context, long actorId)
+			throws DbConnectionException {
+		try {
+			List<Long> roleIds = null;
+			if (roleId > 0) {
+				roleIds = new ArrayList<>();
+				roleIds.add(roleId);
+			}
+
+			Result<User> newUserRes = createNewUser(organizationId, name, lastname, emailAddress, emailVerified,
+					password, position, system, avatarStream, avatarFilename, roleIds, context);
+			Result<UserCreationData> res = new Result<>();
+			res.setResult(new UserCreationData(newUserRes.getResult(), true));
+			res.addEvents(newUserRes.getEvents());
+			return res;
+		} catch (UserAlreadyRegisteredException e) {
+			try {
+				Result<UserCreationData> res = new Result<>();
+				/*
+				TODO for now we only consider user if he is a part of the passed organization already
+				That should be revisited when there can be two users with same email address and different
+				organization
+				 */
+				User user = getUser(organizationId, emailAddress.toLowerCase());
+				if (user != null) {
+					if (user.isDeleted()) {
+						List<Long> roleIds = null;
+						if (roleId > 0) {
+							roleIds = new ArrayList<>();
+							roleIds.add(roleId);
+						}
+						Result<User> reregisteredUserRes = registerUser(user, organizationId, name,
+								lastname, emailAddress, emailVerified, password, position, system,
+								avatarStream, avatarFilename, roleIds, context);
+						res.setResult(new UserCreationData(reregisteredUserRes.getResult(), true));
+						res.addEvents(reregisteredUserRes.getEvents());
+						return res;
+					} else {
+						res.setResult(new UserCreationData(user, false));
+						if (roleId > 0) {
+							boolean roleAlreadyAdded = false;
+							for (Role role : user.getRoles()) {
+								if (role.getId() == roleId) {
+									roleAlreadyAdded = true;
+									break;
+								}
+							}
+							//add new role if user does not have it already
+							if (!roleAlreadyAdded) {
+								user.getRoles().add(
+										(Role) persistence.currentManager().load(Role.class, roleId));
+								User us = new User(user.getId());
+								res.addEvent(eventFactory.generateEventData(
+										EventType.USER_ROLES_UPDATED, actorId, us, null, context, null));
+							}
+						}
+					}
+				}
+
+				return res;
+			} catch (Exception ex) {
+				logger.error("Error", ex);
+				throw new DbConnectionException("Error while updating user data");
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw e;
+		}
 	}
 
 }

@@ -37,7 +37,8 @@ public interface UserGroupManager extends AbstractManager {
 
 	void deleteUserGroup(long id, long userId, LearningContextData context) throws DbConnectionException;
 
-	void addUserToTheGroup(long groupId, long userId) throws DbConnectionException;
+	Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, long actorId,
+											   LearningContextData context) throws DbConnectionException;
 
 	void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException;
 

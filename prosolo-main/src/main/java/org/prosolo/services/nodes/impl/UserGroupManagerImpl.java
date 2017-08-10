@@ -40,6 +40,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private UserGroupManager self;
 	 
 	@Override
 	@Transactional(readOnly = true)
@@ -258,7 +259,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
 		try {
 			for(Long user : userIds) {
-				addUserToTheGroup(groupId, user);
+				addUserToTheGroupAndGetEvents(groupId, user, 0, null);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -306,7 +307,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
 			for(Long group : groupIds) {
-				addUserToTheGroup(group, userId);
+				addUserToTheGroupAndGetEvents(group, userId, 0, null);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -908,11 +909,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	@Override
-	@Transactional(readOnly = false)
-	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
+	@Transactional
+	public Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, long actorId,
+											  LearningContextData context) throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
 			saveNewUserToUserGroup(userId, group, persistence.currentManager());
+
+			Result<Void> res = new Result<>();
+
+			//TODO don't generate event if user was already added to the group
+			UserGroup ug = new UserGroup();
+			ug.setId(groupId);
+			User u = new User();
+			u.setId(userId);
+			res.addEvent(eventFactory.generateEventData(
+					EventType.ADD_USER_TO_GROUP, actorId, u, ug, context, null));
+			return res;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
