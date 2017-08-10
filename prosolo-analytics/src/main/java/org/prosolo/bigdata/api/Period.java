@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.api;
 
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 enum Period {
 	DAY, WEEK;
@@ -8,7 +8,7 @@ enum Period {
 	public Long firstDayFor(long day) {
 		switch(this) {
 		case WEEK:
-			return DateUtil.getFirstDayOfWeek((int) day);
+			return DateEpochUtil.getFirstDayOfWeek((int) day);
 		case DAY:
 			return day;
 		default:

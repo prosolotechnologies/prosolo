@@ -40,7 +40,7 @@
 												 action="#{unitUsersBean.resetAndSearch()}" />
 
 								<h:inputText id="inputUserSearch" type="search"
-											 placeholder="Filter by Name"
+											 placeholder="Search by name"
 											 value="#{unitUsersBean.searchTerm}"
 											 onclick="$(this).select();"
 											 onkeyup="searchListener(execSearchExistingUsers);" />
@@ -94,10 +94,8 @@
 						</div>
 						<h:panelGroup id="panelUsers">
 							<ui:fragment rendered="#{empty unitUsersBean.existingUsers}">
-								<div class="noContentMessage">
-									<p>
-										There are no results.
-									</p>
+								<div class="noPeopleMessage">
+									<p>No #{cc.attrs.resourcePlural}</p>
 								</div>
 							</ui:fragment>
 							<ui:fragment rendered="#{not empty unitUsersBean.existingUsers}">

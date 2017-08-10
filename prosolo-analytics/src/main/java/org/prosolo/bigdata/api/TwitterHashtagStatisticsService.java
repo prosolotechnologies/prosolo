@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.api;
 
-import static org.prosolo.bigdata.utils.DateUtil.getTimeSinceEpoch;
+import static org.prosolo.common.util.date.DateEpochUtil.getTimeSinceEpoch;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,9 +25,8 @@ import javax.ws.rs.core.Response;
 
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.TwitterHashtagWeeklyAverage;
-import org.prosolo.bigdata.dal.cassandra.TwitterHashtagStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.TwitterHashtagStatisticsDBManagerImpl;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +44,8 @@ public class TwitterHashtagStatisticsService {
 		//	@QueryParam("hashtags[]") String[] hashtags, @QueryParam("period") String period) throws ParseException {
 		@QueryParam("hashtags[]") List<String> hashtagsList, @QueryParam("period") String period) throws ParseException {
 		String[] hashtags=hashtagsList.toArray(new String[hashtagsList.size()]);
-		long daysFrom = DateUtil.getDaysSinceEpoch(parse(dateFrom));
-		long daysTo = DateUtil.getDaysSinceEpoch(parse(dateTo));
+		long daysFrom = DateEpochUtil.getDaysSinceEpoch(parse(dateFrom));
+		long daysTo = DateEpochUtil.getDaysSinceEpoch(parse(dateTo));
 
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
 

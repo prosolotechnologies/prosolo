@@ -6,7 +6,7 @@
 				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
 
 
-<ui:define name="windowTitle">Admins</ui:define>
+<ui:define name="windowTitle">People - #{usersBean.orgTitle}</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
@@ -17,9 +17,12 @@
 		</f:metadata>
 	</ui:define>
 
+	<ui:define name="navLinks">
+		<org:organizationHeaderLinks orgId="#{usersBean.decodedOrgId}" />
+	</ui:define>
+
 	<ui:define name="resourceTitle">
 		<h1>#{usersBean.orgTitle}</h1>
-		<org:organizationHeaderLinks orgId="#{usersBean.decodedOrgId}" />
 	</ui:define>
 
 	<ui:define name="content">

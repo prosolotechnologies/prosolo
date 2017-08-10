@@ -53,7 +53,11 @@
 		<users-index>users</users-index>
 		<associationrules-index>associationrules</associationrules-index>
 		<recommendationdata-index>recommendationdata</recommendationdata-index>
+
 		<userGroup-index>usergroups</userGroup-index>
+
+		<logs-index>logs</logs-index>
+
 	</elastic-search-config>
 	<mysql-config>
 		<host>localhost</host>
