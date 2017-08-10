@@ -13,7 +13,7 @@
 		<composite:attribute name="mode" default="ADMIN" />
 		<composite:attribute name="orgId" default="0" />
 	</composite:interface>
-	
+
 	<composite:implementation>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
@@ -79,9 +79,9 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 					<li>
-						<h:link outcome="/admin/adminOrganizationNew">
+						<h:link outcome="/admin/organizationNew">
 							#{usersBean.orgTitle}
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
@@ -128,7 +128,7 @@
 													</h:link>
 												</c:if>
 												<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-													<h:link outcome="/admin/orgUserEdit">
+													<h:link outcome="/admin/organizationUserEdit">
 														#{admin.fullName}
 														<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 														<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
@@ -150,7 +150,7 @@
 												</h:link>
 											</c:if>
 											<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-												<h:link outcome="/admin/orgUserEdit">
+												<h:link outcome="/admin/organizationUserEdit">
 													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}"/>
 													<f:param name="id" value="#{util:encodeId(admin.id)}"/>
 													Edit

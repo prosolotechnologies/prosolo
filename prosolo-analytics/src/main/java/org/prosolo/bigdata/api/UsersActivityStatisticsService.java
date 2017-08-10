@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.api;
 
-import static org.prosolo.bigdata.utils.DateUtil.getDaysSinceEpoch;
-import static org.prosolo.bigdata.utils.DateUtil.getTimeSinceEpoch;
+import static org.prosolo.common.util.date.DateEpochUtil.getDaysSinceEpoch;
+import static org.prosolo.common.util.date.DateEpochUtil.getTimeSinceEpoch;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.prosolo.bigdata.common.dal.pojo.EventDailyCount;
 import org.prosolo.bigdata.common.dal.pojo.InstanceLoggedUsersCount;
 import org.prosolo.bigdata.common.dal.pojo.UserEventDailyCount;
-import org.prosolo.bigdata.dal.cassandra.UserActivityStatisticsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserActivityStatisticsDBManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

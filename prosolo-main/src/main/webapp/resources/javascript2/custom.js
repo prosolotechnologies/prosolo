@@ -32,8 +32,8 @@ function toggleReplyInput(replyBtn) {
 }
 
 function showEditComment(editBtn) {
-    $(editBtn).parent().prev('.editComment').toggleClass('hidden');
-    $(editBtn).parent().prevAll('.commentText').toggleClass('hidden');
+    $(editBtn).parent().parent().find('.editComment').toggleClass('hidden');
+    $(editBtn).parent().parent().find('.commentText').toggleClass('hidden');
     $(editBtn).addClass('hidden');
     return false;
 }

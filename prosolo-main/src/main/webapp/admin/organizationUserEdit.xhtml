@@ -7,7 +7,7 @@
 				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
 
 	<ui:define name="windowTitle" >
-		Prosolo - Admin | Organizations
+		#{userEditBean.user.id gt 0 ? 'Edit '.concat(userEditBean.user.fullName).concat(' - ').concat(userEditBean.organizationTitle) : 'New User - '.concat(userEditBean.organizationTitle)}
 	</ui:define>
 
 	<ui:define name="metadata">

@@ -5,7 +5,9 @@ import java.util
 import com.typesafe.config.{ConfigList, ConfigObject}
 import org.apache.commons.lang.StringUtils
 import org.apache.spark.api.java.JavaSparkContext
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
+
 import scala.collection.JavaConverters._
 //import org.prosolo.bigdata.config.Settings
 //import org.prosolo.common.config.{CommonSettings, ElasticSearchHost}
@@ -54,59 +56,35 @@ println("Initializing SparkContextLoader")
   sparkConf.set("spark.ui.port","4041")
   println("MODE:"+mode)
   if(mode=="standalone"){
-   /* val jars:java.util.List[_ <: ConfigObject]=SparkApplicationConfig.conf.getObjectList("spark.jars")
-    val l=jars.asScala.toSeq
-    val jarArray=Array
-    val sparkJars:Seq[java.lang.String]=l.map(item=>{
-      val path:java.lang.String=item.toString
-      path
-    })*/
+
     sparkConf.setJars(List(SparkApplicationConfig.conf.getString("spark.oneJar")))
     println("ADDED JARS")
   }
   addESConfig(sparkConf)
       println("SPARK CONFIG:"+sparkConf.toDebugString)
+  //val sparkSession=SparkSession.builder().appName(SparkApplicationConfig.conf.getString("spark.applicationName")).master(master).getOrCreate()
+  val sparkSession:SparkSession=SparkSession.builder().config(sparkConf).getOrCreate()
+
 
 /*
-  //val numOfCores=Runtime.getRuntime.availableProcessors()
-  val numOfCores=1
- // val dbConfig = Settings.getInstance().config.dbConfig.dbServerConfig
- // val sparkConfig = Settings.getInstance().config.sparkConfig
-//  val esConfig=CommonSettings.getInstance().config.elasticSearch
-val mode="local"
- // val master="localhost"
-  val dbHost = "dev.prosolo.ca"
-  val dbPort = 9042
-  val maxCores=1
-  val master=if(mode.equals("local")) "local["+numOfCores+"]" else "localhost"
-  println("MASTER:"+master)
-  //val numOfCores=1;
 
-  @transient val sparkConf = new SparkConf()
-
-  sparkConf.setMaster(master)
-
-  sparkConf.set("spark.cores_max",maxCores.toString)
-  sparkConf.set("spark.executor.memory","4g")
-  sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-  sparkConf.setAppName("appName")
-  //added for spark cassandra connection
-  sparkConf.set("spark.cassandra.connection.host", dbHost)
-  sparkConf.set("spark.cassandra.connection.port", dbPort.toString())
-  sparkConf.set("spark.ui.port","4041")
-  addESConfig(sparkConf)
   */
 
 
-  @transient  val sc = new SparkContext(sparkConf)
-
+ // @transient  val sc = new SparkContext(sparkConf)
+val sc=sparkSession.sparkContext
   val jsc=new JavaSparkContext(sc)
+
   def getSC:SparkContext={
     sc
   }
   def getJSC:JavaSparkContext={
     jsc
   }
+  def getSparkSession:SparkSession={
+    sparkSession
+  }
+
   def addESConfig(sparkConf:SparkConf): Unit ={
     sparkConf.set("es.index.auto.create","true")
     sparkConf.set("es.http.timeout","5m")

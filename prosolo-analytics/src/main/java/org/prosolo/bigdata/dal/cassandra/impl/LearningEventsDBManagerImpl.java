@@ -2,29 +2,24 @@ package org.prosolo.bigdata.dal.cassandra.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.api.RecommendationServices;
 import org.prosolo.bigdata.common.dal.pojo.SessionRecord;
 import org.prosolo.bigdata.dal.cassandra.LearningEventsDBManager;
 import org.prosolo.bigdata.session.impl.LearningEventSummary;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.BatchStatement.Type;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Statement;
 import com.google.gson.Gson;
@@ -154,7 +149,7 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		for (Row eventCounterRow : eventCountersRows) {
 			LearningEventSummary summary = new LearningEventSummary();
-			long milliseconds = DateUtil.getTimeSinceEpoch(Math.toIntExact(eventCounterRow.getLong(1)));
+			long milliseconds = DateEpochUtil.getTimeSinceEpoch(Math.toIntExact(eventCounterRow.getLong(1)));
 			summary.setDate(sdf.format(new Date(milliseconds)));
 			summary.setValue(eventCounterRow.getLong(2));
 			Row milestoneRow = findMilestoneRowForSameDay(eventCounterRow, milestoneRows);
@@ -216,7 +211,7 @@ public class LearningEventsDBManagerImpl extends SimpleCassandraClientImpl imple
 	
 	private LearningEventSummary createBlankSummary(long daysSinceEpoch) {
 		LearningEventSummary summary = new LearningEventSummary();
-		Date date = DateUtil.getDateFromDaysSinceEpoch(daysSinceEpoch);
+		Date date = DateEpochUtil.getDateFromDaysSinceEpoch(daysSinceEpoch);
 		summary.setDate(new SimpleDateFormat(summaryDateFormat).format(date));
 		summary.setValue(0);
 		return summary;

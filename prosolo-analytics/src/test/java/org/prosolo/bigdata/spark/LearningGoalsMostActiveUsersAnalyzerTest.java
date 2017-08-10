@@ -1,7 +1,7 @@
 package org.prosolo.bigdata.spark;
 
 import org.junit.Test;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 /**
  * @author Zoran Jeremic May 24, 2015
@@ -13,7 +13,7 @@ public class LearningGoalsMostActiveUsersAnalyzerTest {
 	@Test
 	public void testAnalyzeLearningGoalsMostActiveUsers() {
 		LearningGoalsMostActiveUsersAnalyzer analyzer = new LearningGoalsMostActiveUsersAnalyzer();
-		final long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
+		final long daysSinceEpoch = DateEpochUtil.getDaysSinceEpoch();
 		// final RecommendationDataIndexer indexer=new
 		// RecommendationDataIndexerImpl();
 		// List<Long> daysToAnalyze=new ArrayList<Long>();
