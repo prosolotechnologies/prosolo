@@ -5,7 +5,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -808,7 +807,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 						TODO this is a hack until we implement a mechanism for
 						sequential handling of events
 						 */
-						if (ev.getEventType() == EventType.Registered) {
+						if (ev.getEventType() == EventType.Registered ||
+								ev.getEventType() == EventType.Account_Activated) {
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
@@ -881,8 +881,54 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			emailAddress = emailAddress.toLowerCase();
 
 			User user = new User();
-			return registerUser(user, organizationId, name, lastname, emailAddress, emailVerified,
-					password, position, system, avatarStream, avatarFilename, roles, context);
+			user.setName(name);
+			user.setLastname(lastname);
+
+			user.setEmail(emailAddress);
+			user.setVerified(emailVerified);
+			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+			if (organizationId > 0) {
+				user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+			}
+
+			if (password != null) {
+				user.setPassword(passwordEncrypter.encodePassword(password));
+				user.setPasswordLength(password.length());
+			}
+
+			user.setSystem(system);
+			user.setPosition(position);
+
+			user.setUserType(UserType.REGULAR_USER);
+
+			if (roles != null) {
+				for (Long id : roles) {
+					Role role = (Role) persistence.currentManager().load(Role.class, id);
+					user.addRole(role);
+				}
+			}
+			user = saveEntity(user);
+
+			try {
+				if (avatarStream != null) {
+					user.setAvatarUrl(avatarProcessor.storeUserAvatar(
+							user.getId(), avatarStream, avatarFilename, true));
+				}
+			} catch (IOException e) {
+				logger.error(e);
+			}
+
+			Result<User> res = new Result<>();
+			res.setResult(user);
+			/*
+			TODO i don't know if we rely somewhere on event actor being new user that is just created
+			so I used new user id as an actor in event, but this is probably not semantically correct
+			 */
+			res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
+					user, null, context, null));
+
+			return res;
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error("Error", e);
 			throw e;
@@ -890,63 +936,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while saving new user account");
 		}
-	}
-
-	private Result<User> registerUser(User user, long organizationId, String name, String lastname,
-									  String emailAddress, boolean emailVerified, String password,
-									  String position, boolean system, InputStream avatarStream,
-									  String avatarFilename, List<Long> roles,
-									  LearningContextData context) {
-		user.setDeleted(false);
-		user.setName(name);
-		user.setLastname(lastname);
-
-		user.setEmail(emailAddress);
-		user.setVerified(emailVerified);
-		user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-		if (organizationId > 0) {
-			user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
-		}
-
-		if (password != null) {
-			user.setPassword(passwordEncrypter.encodePassword(password));
-			user.setPasswordLength(password.length());
-		}
-
-		user.setSystem(system);
-		user.setPosition(position);
-
-		user.setUserType(UserType.REGULAR_USER);
-
-		user.getRoles().clear();
-		if (roles != null) {
-			for (Long id : roles) {
-				Role role = (Role) persistence.currentManager().load(Role.class, id);
-				user.addRole(role);
-			}
-		}
-		user = saveEntity(user);
-
-		try {
-			if (avatarStream != null) {
-				user.setAvatarUrl(avatarProcessor.storeUserAvatar(
-						user.getId(), avatarStream, avatarFilename, true));
-			}
-		} catch (IOException e) {
-			logger.error(e);
-		}
-
-		Result<User> res = new Result<>();
-		res.setResult(user);
-		/*
-		TODO i don't know if we rely somewhere on event actor being new user that is just created
-		so I used new user id as an actor in event, but this is probably not semantically correct
-		 */
-		res.addEvent(eventFactory.generateEventData(EventType.Registered, user.getId(),
-				user, null, context, null));
-
-		return res;
 	}
 
 	/**
@@ -957,7 +946,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	 * already have that role. Only role is updated for existing users. If such user (with email that belongs
 	 * to the given organization) does not exist, result with null for user is returned.
 	 *
-	 * Deleted user is reregistered.
+	 * Deleted user is activated with name, last name and position updated and also role ({@code roleId}) added
 	 *
 	 * @param organizationId
 	 * @param name
@@ -1003,16 +992,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				User user = getUser(organizationId, emailAddress.toLowerCase());
 				if (user != null) {
 					if (user.isDeleted()) {
-						List<Long> roleIds = null;
-						if (roleId > 0) {
-							roleIds = new ArrayList<>();
-							roleIds.add(roleId);
-						}
-						Result<User> reregisteredUserRes = registerUser(user, organizationId, name,
-								lastname, emailAddress, emailVerified, password, position, system,
-								avatarStream, avatarFilename, roleIds, context);
-						res.setResult(new UserCreationData(reregisteredUserRes.getResult(), true));
-						res.addEvents(reregisteredUserRes.getEvents());
+						res.addEvents(activateUserAndUpdateBasicInfo(user, name, lastname, position, roleId,
+								context, actorId).getEvents());
+						res.setResult(new UserCreationData(user, true));
 						return res;
 					} else {
 						res.setResult(new UserCreationData(user, false));
@@ -1045,6 +1027,43 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			logger.error("Error", e);
 			throw e;
 		}
+	}
+
+	/**
+	 * Activates deleted user account and updates first name, last name, position and adds role if
+	 * passed id is greater than 0
+	 *
+	 * @param user
+	 * @param firstName
+	 * @param lastName
+	 * @param position
+	 * @return
+	 */
+	private Result<Void> activateUserAndUpdateBasicInfo(User user, String firstName, String lastName,
+														String position, long roleId,
+														LearningContextData context, long actorId) {
+		user.setDeleted(false);
+		user.setName(firstName);
+		user.setLastname(lastName);
+		user.setPosition(position);
+
+		/*
+		TODO remove all old roles, this should be done when user is deleted.
+		When that method is reimplemented, line below should be removed.
+		 */
+		user.getRoles().clear();
+		//add role if passed
+		if (roleId > 0) {
+			user.getRoles().add((Role) persistence.currentManager()
+					.load(Role.class, roleId));
+		}
+
+		User u = new User(user.getId());
+		Result<Void> res = new Result<>();
+		res.addEvent(eventFactory.generateEventData(EventType.Account_Activated, actorId,
+				u, null, context, null));
+
+		return res;
 	}
 
 }

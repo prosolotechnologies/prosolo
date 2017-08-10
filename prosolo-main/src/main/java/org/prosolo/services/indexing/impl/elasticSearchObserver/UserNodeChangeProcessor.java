@@ -148,7 +148,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.updateBasicUserData(user, session);
 		} else if (eventType == EventType.Registered) {
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getActorId()), session);
-		} else if (eventType == EventType.USER_ROLES_UPDATED) {
+		} else if (eventType == EventType.Account_Activated || eventType == EventType.USER_ROLES_UPDATED) {
 			/*
 			we need to update whole index when roles are updated because we don't know if user exists
 			in one of the indexes (system or organization index) so maybe he should be indexed for the first time

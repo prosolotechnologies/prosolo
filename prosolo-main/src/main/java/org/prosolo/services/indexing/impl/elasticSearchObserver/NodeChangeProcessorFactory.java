@@ -44,6 +44,7 @@ public class NodeChangeProcessorFactory {
 		BaseEntity node = event.getObject();
 		switch (type) {
 			case Registered:
+			case Account_Activated:
 			case Edit_Profile:
 			case ENROLL_COURSE:
 			case ENROLL_COMPETENCE:

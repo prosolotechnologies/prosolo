@@ -1979,7 +1979,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"FROM UserGroupUser ugu " +
 				"INNER JOIN ugu.user u " +
 				"WHERE ugu.group.id = :groupId " +
-				"ORDER BY u.name ASC";
+				"ORDER BY u.lastname ASC, u.name ASC";
 
 		@SuppressWarnings("unchecked")
 		List<User> result = persistence.currentManager()
