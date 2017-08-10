@@ -50,20 +50,26 @@
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
 						<h:inputTextarea class="hidden"
 								value="#{comment.comment}" />
-							
+
 						<div class="contentEditableComment"
 							strip-br="true" contenteditable="true"
 							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
-						
-						<p:commandButton
+
+						<p:commandLink
 							styleClass="btn btn-sm btn-green submitBtn"
 							value="Submit"
 							action="#{commentBean.editComment(comment, cc.attrs.comments)}"
 							update="@(.commentMainRegion_#{comment.commentId})">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
-						</p:commandButton>          
+						</p:commandLink>
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+
+						<script>
+                            $('#' + escapeColons('comment_#{comment.commentId}') + ' .editComment .contentEditableComment').on('keyup', function(e) {
+                                $(this).parent().find('textarea').val($(this).html());
+                            });
+						</script>
 					</h:panelGroup>
 	                
 					<div class="commentOptions">
@@ -110,8 +116,8 @@
 							<div class="contentEditableComment" placeholder="Add Comment..." 
 								strip-br="true" contenteditable="true"
 								onkeyup="displaySubmitButton(this);"></div>
-								
-							<p:commandButton 
+
+							<p:commandLink
 								styleClass="btn btn-sm btn-green hidden submitBtn"
 								value="Submit"
 								action="#{commentBean.saveNewComment(comment, cc.attrs.comments)}"
@@ -119,11 +125,11 @@
 								oncomplete="scrollToNewestComment('#{cc.attrs.newestCommentId}');">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
-							</p:commandButton>
+							</p:commandLink>
 							
 							<script>
 							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {
-								$(this).prev('textarea').val($(this).html());
+								$(this).parent().find('textarea').val($(this).html());
 							});
 							</script>
 						</div>
@@ -156,12 +162,6 @@
 							</ui:repeat>
 						</ui:fragment>
 				    </h:panelGroup>
-					
-					<script>
-					$('#comment_#{comment.commentId} .editComment .contentEditableComment').on('keyup', function(e) {
-						$(this).prev('textarea').val($(this).html());
-					});
-					</script>
 				</c:if>
             </div>
 		</div>

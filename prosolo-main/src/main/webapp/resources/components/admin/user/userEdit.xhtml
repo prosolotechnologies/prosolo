@@ -23,13 +23,13 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
-					<li><h:link outcome="/admin/adminAdmins">Admins</h:link></li>
+					<li><h:link outcome="/admin/admins">Admins</h:link></li>
 					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : userEditBean.user.fullName}</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 					<li>
-						<h:link outcome="/admin/adminOrganizationNew">
+						<h:link outcome="/admin/organizationNew">
 							#{userEditBean.organizationTitle}
 							<f:param name="id" value="#{userEditBean.orgId}" />
 						</h:link>
@@ -59,20 +59,21 @@
 									<label>First name</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminName" required="true"
+													 autofocus="true"
+													 autocomplete="off"
 													 requiredMessage="First name is required"
-													 value="#{userEditBean.user.name}">
-										</h:inputText>
-										<small class="redText"><h:message for="inputTextAdminName"></h:message></small>
+													 value="#{userEditBean.user.name}" />
+										<small class="redText"><h:message for="inputTextAdminName" /></small>
 									</div>
 								</div>
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminLastname" required="true"
+													 autocomplete="off"
 													 requiredMessage="Last name is required"
-													 value="#{userEditBean.user.lastName}">
-										</h:inputText>
-										<small class="redText"><h:message for="inputTextAdminLastname"></h:message></small>
+													 value="#{userEditBean.user.lastName}" />
+										<small class="redText"><h:message for="inputTextAdminLastname" /></small>
 									</div>
 								</div>
 								<div class="formLine">
@@ -80,17 +81,19 @@
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminEmail"
 													 name="emailAddress"
+													 autocomplete="off"
 													 validator="emailValidator"
-													 value="#{userEditBean.user.email}"></h:inputText>
+													 value="#{userEditBean.user.email}" />
 										<small>Email will not be publicly displayed.</small>
 										<br></br>
-										<small class="redText"><h:message for="inputTextAdminEmail"></h:message></small>
+										<small class="redText"><h:message for="inputTextAdminEmail" /></small>
 									</div>
 								</div>
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean.user.position}"></h:inputText>
+										<h:inputText value="#{userEditBean.user.position}"
+													 autocomplete="off" />
 									</div>
 								</div>
 								<div class="formLine">
@@ -100,16 +103,13 @@
 										<ui:repeat value="#{userEditBean.allRoles}" var="role">
 											<div class="checkbox checkLine">
 												<h:selectBooleanCheckbox id="selectRoles" label="#{role.label}"
-																		 value="#{role.selected}"
-												></h:selectBooleanCheckbox>
-												<h:outputLabel value="#{role.label}" for="selectRoles"></h:outputLabel>
+																		 value="#{role.selected}" />
+												<h:outputLabel value="#{role.label}" for="selectRoles" />
 											</div>
 										</ui:repeat>
-										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="0">
-										</h:inputHidden>
+										<h:inputHidden id="hiddenInput" validator="selectedAdminRolesValidator" value="0" />
 
-										<small class="redText"><h:message for="hiddenInput"></h:message></small>
-
+										<small class="redText"><h:message for="hiddenInput" /></small>
 									</div>
 								</div>
 								<ui:fragment rendered="#{empty userEditBean.id}">
@@ -123,17 +123,17 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:defaultCommand target="saveUserDataBtn" />
 										<p:commandLink id="saveUserDataBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
-                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
-										</p:commandLink>
+                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain" />
+
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
 													   action="#{userEditBean.setUserToDelete()}"
+													   value="Delete"
 													   update=":#{cc.clientId}:formDelete"
 													   oncomplete="$('#deleteAdmin').modal('show');"
-													   rendered="#{not empty userEditBean.id}">
-											Delete
-										</p:commandLink>
+													   rendered="#{not empty userEditBean.id}" />
+
+										<p:defaultCommand target="saveUserDataBtn" />
 									</div>
 								</div>
 							</div>
