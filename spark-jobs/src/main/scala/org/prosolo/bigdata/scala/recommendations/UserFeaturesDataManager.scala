@@ -36,7 +36,7 @@ object UserFeaturesDataManager {
     * @param sqlContext
     * @return
     */
-  def prepareUsersCredentialDataFrame(sqlContext: SQLContext, keyspaceName: String): (DataFrame, DataFrame) = {
+  def prepareUsersCredentialDataFrame(sqlContext: SparkSession, keyspaceName: String): (DataFrame, DataFrame) = {
     import sqlContext.implicits._
 
     val usersCredentialsDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
@@ -62,7 +62,7 @@ object UserFeaturesDataManager {
     * @param usersWithCredentialsDF
     * @return
     */
-  def combineUserCredentialVectors(sqlContext: SQLContext, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
+  def combineUserCredentialVectors(sqlContext: SparkSession, resultsDF:DataFrame, usersWithCredentialsDF:DataFrame):DataFrame={
     import sqlContext.implicits._
     implicit val myObjEncoder = org.apache.spark.sql.Encoders.kryo[Tuple2[Long,DoubleMatrix]]
     usersWithCredentialsDF.show(100)
@@ -94,7 +94,7 @@ object UserFeaturesDataManager {
     result
   }
 
-  def interpretKMeansClusteringResults(sqlContext: SQLContext,clusteringResults:DataFrame,keyspaceName:String): Unit ={
+  def interpretKMeansClusteringResults(sqlContext: SparkSession,clusteringResults:DataFrame,keyspaceName:String): Unit ={
     import sqlContext.implicits._
     clusteringResults.sort($"clusterId" asc).show(1000)
   //  val count=clusteringResults.groupBy("clusterId").count
@@ -105,7 +105,7 @@ object UserFeaturesDataManager {
       (s._1,s._2.map(row=>row.get(1)))})
     clustersUsers.saveToCassandra(keyspaceName,TablesNames.USERRECOM_CLUSTERUSERS,SomeColumns("cluster","users"))
   }
-  def loadUsersInClusters(sqlContext: SQLContext,keyspaceName:String):DataFrame={
+  def loadUsersInClusters(sqlContext: SparkSession,keyspaceName:String):DataFrame={
     println("LOAD USERS IN CLUSTERS:"+keyspaceName)
     val clustersUsers = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USERRECOM_CLUSTERUSERS)).load()

@@ -83,7 +83,7 @@ public class ManageUsersBean implements Serializable, Paginable {
 		try {
 			PaginatedResult<UserData> res = userTextSearch.getUsersWithRoles(
 					searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), true, filter.getId(), null,
-					false, null);
+					false, null, 0);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
 			List<RoleFilter> roleFilters = (List<RoleFilter>) res.getAdditionalInfo().get("filters");

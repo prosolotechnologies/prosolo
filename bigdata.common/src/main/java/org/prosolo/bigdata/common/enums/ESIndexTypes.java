@@ -18,4 +18,6 @@ public class ESIndexTypes {
 
 	public static final String FREQ_COMPETENCE_ACTIVITIES = "frequent_competence_activity";
 
+	public static final String ORGANIZATION_USER = "org_user";
+
 }

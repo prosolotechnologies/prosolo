@@ -795,7 +795,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 			User newUser = ServiceLocator
 					.getInstance()
 					.getService(UserManager.class)
-					.createNewUser(name, lastname, emailAddress,
+					.createNewUser(0, name, lastname, emailAddress,
 							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator

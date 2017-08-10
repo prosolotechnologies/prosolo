@@ -35,7 +35,7 @@ public interface ResourceFactory extends AbstractManager {
 
     AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
 
-    User createNewUser(String name, String lastname, String emailAddress, boolean emailVerified, String password, 
+    User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified, String password,
             String position, boolean system, InputStream imageInputStream, String avatarFilename, List<Long> roles) throws EventException;
 
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
@@ -71,7 +71,7 @@ public interface ResourceFactory extends AbstractManager {
 	
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles) throws DbConnectionException;
+			String position, List<Long> roles, List<Long> rolesToUpdate) throws DbConnectionException;
 	
 	UserGroup updateGroupName(long groupId, String newName) throws DbConnectionException;
 

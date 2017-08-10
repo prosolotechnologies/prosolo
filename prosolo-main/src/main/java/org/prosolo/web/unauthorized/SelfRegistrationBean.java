@@ -107,6 +107,7 @@ public class SelfRegistrationBean {
 		
 		try {
 			User user = userManager.createNewUser(
+					0,
 					name, 
 					lastName, 
 					email,
@@ -135,7 +136,7 @@ public class SelfRegistrationBean {
 		User user = null;
 		
 		try {
-			user = userManager.createNewUser(firstName, lastName, email, true, null, null, null, null, null);
+			user = userManager.createNewUser(0, firstName, lastName, email, true, null, null, null, null, null);
 		} catch (UserAlreadyRegisteredException e) {
 			logger.error(e);
 		} catch (EventException e) {

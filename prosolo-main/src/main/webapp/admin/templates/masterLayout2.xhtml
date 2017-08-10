@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	  xmlns:h="http://java.sun.com/jsf/html"
-	  xmlns:f="http://java.sun.com/jsf/core"
-	  xmlns:ui="http://java.sun.com/jsf/facelets"
-	  xmlns:c="http://java.sun.com/jsp/jstl/core"
-	  xmlns:comp="http://java.sun.com/jsf/composite/components"
-	  xmlns:p="http://primefaces.org/ui"
-	  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-	  xmlns:util="http://www.prosolo.com/util"
-	  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:util="http://www.prosolo.com/util"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 <ui:insert name="metadata" />
 
@@ -78,7 +76,7 @@
 								<li class="selected"><h:link
 										rendered="#{loggeduser.hasCapability('basic.admin.access')}"
 										onclick="sendLogPageNavigation( '/admin', 'mainmenu');"
-										outcome="/admin/users">
+										outcome="/admin/organizations">
 									<span></span>Admin
 								</h:link></li>
 							</ul>
@@ -87,7 +85,7 @@
 
 					<h:link id="logo"
 							onclick="sendLogPageNavigation('index','mainmenu');"
-							outcome="/admin/users">
+							outcome="/admin/organizations">
 						ProSolo
 					</h:link>
 
@@ -102,23 +100,21 @@
 								</li>
 							</ui:remove>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'users' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('users','mainmenu');"
-										value="Users" outcome="/admin/users" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'adminOrganizations' ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'adminOrganizationNew' ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'units' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'organizations'
+									or util:getPagePath(view.viewId)  == 'organizationNew'
+									or util:getPagePath(view.viewId)  == 'organizationUsers'
+									or util:getPagePath(view.viewId)  == 'organizationUserEdit'
+									or util:getPagePath(view.viewId)  == 'userEditPassword'
+									or util:getPagePath(view.viewId)  == 'units' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('organizations','mainmenu');"
-										value="Organizations" outcome="/admin/adminOrganizations" />
+										value="Organizations" outcome="/admin/organizations" />
 							</li>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'adminAdmins'  ? 'active' : ''}
+								class="#{util:getPagePath(view.viewId)  == 'admins'  ? 'active' : ''}
 								#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'adminEditAdminPassword'  ? 'active' : ''}">
+								#{util:getPagePath(view.viewId)  == 'adminEditPassword'  ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
-										value="Admins" outcome="/admin/adminAdmins" />
+										value="Admins" outcome="/admin/admins" />
 							</li>
 							<li role="presentation"
 								class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
