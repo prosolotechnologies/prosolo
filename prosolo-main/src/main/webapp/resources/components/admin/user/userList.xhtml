@@ -25,7 +25,7 @@
 							<h:link outcome="/admin/adminNew" styleClass="btn btn-green btn-sm item">New Admin</h:link>
 						</c:if>
 						<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-							<h:link outcome="/admin/orgUserEdit" styleClass="btn btn-green btn-sm item">
+							<h:link outcome="/admin/organizationUserEdit" styleClass="btn btn-green btn-sm item">
 								New User
 								<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 							</h:link>
@@ -79,9 +79,9 @@
 		<div class="container">
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-					<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 					<li>
-						<h:link outcome="/admin/adminOrganizationNew">
+						<h:link outcome="/admin/organizationNew">
 							#{usersBean.orgTitle}
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
@@ -117,7 +117,7 @@
 												</h:link>
 											</c:if>
 											<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-												<h:link outcome="/admin/orgUserEdit">
+												<h:link outcome="/admin/organizationUserEdit">
 													#{admin.commaSeparatedFullName}
 													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
@@ -139,7 +139,7 @@
 											</h:link>
 										</c:if>
 										<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-											<h:link outcome="/admin/orgUserEdit">
+											<h:link outcome="/admin/organizationUserEdit">
 												<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}"/>
 												<f:param name="id" value="#{util:encodeId(admin.id)}"/>
 												Edit

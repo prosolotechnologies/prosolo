@@ -28,10 +28,11 @@
                        </div>
                        <div class="modal-body">
                            <p>Are you sure you want to delete #{cc.attrs.modalDeleteText}?<br></br><br></br>
-                           <small>Note: Action CANNOT be un-done!</small></p>
+                           <small>Note: Action CANNOT be undone!</small></p>
                        </div>
                        <div class="modal-footer">
                        	  <p:commandLink
+								id="deleteBtn"
                        	  		value="Delete"
                        	  		styleClass="btn btn-red"
                        	  		process="@this"
@@ -42,6 +43,7 @@
         	  					<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
         	  					<f:param name="service" value="#{util:addSubService(cc.attrs.service, 'name:delete_dialog')}" />
        	  				  </p:commandLink>
+						   <p:defaultCommand target="deleteBtn" />
                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                        </div>
                    </div>

@@ -59,13 +59,17 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="container">
-        	<ol class="breadcrumb">
-            	<li><a href="#">Credentials</a></li>
-            	<li class="active">#{announcementBean.credentialTitle}</li>
-        	</ol>
-    	</div>
+			<ol class="breadcrumb">
+				<li><h:link value="Credentials" outcome="credentialLibrary"></h:link></li>
+				<li><h:link value="#{announcementBean.credentialTitle}"
+							outcome="/manage/create-credential">
+					<f:param name="id" value="#{announcementBean.credentialId}"></f:param>
+				</h:link></li>
+				<li class="active">Announcements</li>
+			</ol>
+		</div>
 		
 		<h:panelGroup id="containerDiv" layout="block" styleClass="container">
 			<p:growl showDetail="true"/>

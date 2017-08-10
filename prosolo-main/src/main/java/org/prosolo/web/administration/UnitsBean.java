@@ -49,42 +49,43 @@ public class UnitsBean implements Serializable {
     private OrganizationDataFactory organizationDataFactory;
 
     private UnitData unit;
+    private UnitData unitToDelete;
     private String organizationId;
     private OrganizationData organizationData;
     private List<UnitData> units;
     private String id;
 
-    public void init(){
-        try{
+    public void init() {
+        try {
             this.unit = new UnitData();
             this.organizationData = organizationManager.getOrganizationDataWithoutAdmins(idEncoder.decodeId(organizationId));
             loadUnits();
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while loading page");
         }
     }
 
-    private void loadUnits(){
-        try{
+    private void loadUnits() {
+        try {
             this.units = unitManager.getUnitsWithSubUnits(this.organizationData.getId());
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
         }
     }
 
-    public void setParentUnit(long unitId){
+    public void setParentUnit(long unitId) {
         this.unit = new UnitData();
         UnitData parentUnit = unitManager.getUnitData(unitId);
         this.unit.setParentUnitId(parentUnit.getId());
     }
 
-    public void createNewUnit(){
-        try{
+    public void createNewUnit() {
+        try {
             LearningContextData lcd = PageUtil.extractLearningContextData();
 
-            UnitData unit = unitManager.createNewUnit(this.unit.getTitle(),this.organizationData.getId(),
-                    this.unit.getParentUnitId(), loggedUser.getUserId(),lcd);
+            UnitData unit = unitManager.createNewUnit(this.unit.getTitle(), this.organizationData.getId(),
+                    this.unit.getParentUnitId(), loggedUser.getUserId(), lcd);
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
             PageUtil.fireSuccessfulInfoMessage("New unit is created");
@@ -92,7 +93,7 @@ public class UnitsBean implements Serializable {
             this.unit = new UnitData();
             loadUnits();
             Collections.sort(this.units);
-        } catch (ConstraintViolationException | DataIntegrityViolationException e){
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error(e);
             e.printStackTrace();
 
@@ -101,13 +102,35 @@ public class UnitsBean implements Serializable {
                     "newUnitModal:formNewUnitModal:inputTextOrganizationUnitName");
             input.setValid(false);
             context.addMessage("newUnitModal:formNewUnitModal:inputTextOrganizationUnitName",
-                    new FacesMessage("Unit with this name already exists") );
+                    new FacesMessage("Unit with this name already exists"));
             context.validationFailed();
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
             PageUtil.fireErrorMessage("Error while trying to save unit data");
         }
-     }
+    }
+
+    public void setUnitToDelete(UnitData unitToDelete) {
+        this.unitToDelete = unitToDelete;
+    }
+
+    public void delete() {
+        if (unitToDelete != null) {
+            try {
+                unitManager.deleteUnit(this.unitToDelete.getId());
+
+                PageUtil.fireSuccessfulInfoMessageAcrossPages("Unit " + unitToDelete.getTitle() + " is deleted.");
+                this.unitToDelete = new UnitData();
+                loadUnits();
+            } catch (IllegalStateException ise) {
+                logger.error(ise);
+                PageUtil.fireErrorMessage(ise.getMessage());
+            } catch (Exception ex) {
+                logger.error(ex);
+                PageUtil.fireErrorMessage("Error while trying to delete unit");
+            }
+        }
+    }
 
     public UnitData getUnit() {
         return unit;

@@ -28,7 +28,7 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:link outcome="/admin/adminOrganizationNew" styleClass="btn btn-green btn-sm item">New Organization</h:link>
+                        <h:link outcome="/admin/organizationNew" styleClass="btn btn-green btn-sm item">New Organization</h:link>
                     </div>
                 </div>
             </div>
@@ -36,13 +36,20 @@
 
         <div class="container">
             <div class="row">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="active">
+                            Organizations
+                        </li>
+                    </ol>
+                </div>
                 <h:panelGroup layout="block" id="panelOrganizations" styleClass="col-md-12">
                     <ul class="whiteBox adminOrganizationsList">
                         <ui:repeat value="#{adminOrganizations.organizations}" var="organization">
                         <li>
                             <div class="adminOrganizationsListLeft">
                                 <h2>
-                                    <h:link outcome="/admin/adminOrganizationNew">
+                                    <h:link outcome="/admin/units">
                                         #{organization.title}
                                         <f:param name="id" value="#{util:encodeId(organization.id)}"></f:param>
                                     </h:link>
@@ -57,7 +64,7 @@
                                 </div>
                             </div>
                             <div class="adminOrganizationsListRight">
-                                <h:link outcome="/admin/adminOrganizationNew" styleClass="btn btn-green-stroke">
+                                <h:link outcome="/admin/organizationNew" styleClass="btn btn-green-stroke">
                                     <f:param name="id" value="#{util:encodeId(organization.id)}"/>
                                     Edit
                                 </h:link>

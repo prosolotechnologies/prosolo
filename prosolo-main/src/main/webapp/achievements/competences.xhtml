@@ -7,7 +7,7 @@
 				xmlns:util="http://www.prosolo.com/util">
 
 	<ui:define name="windowTitle">
-		Achievements - Competences
+		Achievements - Competencies
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -27,7 +27,7 @@
 				</li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}">
-					<h:link value="Competences" outcome="/achievements/competences" />
+					<h:link value="Competencies" outcome="/achievements/competences" />
 				</li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
@@ -50,9 +50,9 @@
 						<div class="col-md-12">
 							<div class="noContentMessage">
 								<p>
-									No completed competences yet.<br/>
+									No competencies.<br/>
 									<h:link outcome="/credentialLibrary">
-										Browse competences
+										Browse competencies
 									</h:link>
 								</p>
 							</div>

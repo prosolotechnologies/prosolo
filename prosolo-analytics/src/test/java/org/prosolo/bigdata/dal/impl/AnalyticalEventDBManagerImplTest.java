@@ -7,9 +7,8 @@ import org.prosolo.bigdata.common.events.pojo.DataName;
 import org.prosolo.bigdata.common.events.pojo.DataType;
 import org.prosolo.bigdata.dal.cassandra.impl.AnalyticalEventDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
-import com.datastax.driver.core.BoundStatement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -38,7 +37,7 @@ public class AnalyticalEventDBManagerImplTest {
 		AnalyticalEventDBManagerImpl dbManager =  AnalyticalEventDBManagerImpl.getInstance();
 		Random r = new Random();
 
-		long epoch = DateUtil.getDaysSinceEpoch();
+		long epoch = DateEpochUtil.getDaysSinceEpoch();
 		long numberOfDays = 7;
 		for (int d = 0; d < numberOfDays; d++) {
 			long daysSinceEpoch = epoch - d;

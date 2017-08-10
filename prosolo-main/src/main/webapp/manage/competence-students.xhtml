@@ -3,14 +3,10 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout2.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
 	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
@@ -116,8 +112,17 @@
 	
 	    <div class="container">
 	        <ol class="breadcrumb">
-	            <li><a href="#">Competences</a></li>
-	            <li class="active">#{competenceStudentsBean.competenceTitle}</li>
+				<li>
+					<h:link value="Competencies" outcome="competenceLibrary"/>
+				</li>
+				<li>
+					<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
+						<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+					</h:link>
+				</li>
+				<li class="active">
+					Students
+				</li>
 	        </ol>
 	    </div>
 	
@@ -127,7 +132,7 @@
 	                <ui:fragment rendered="#{empty competenceStudentsBean.students}" >
 		                <div class="noContentMessage">
 		                    <p>
-		                        No students
+		                        No students.
 		                    </p>
 		                </div>
 		            </ui:fragment>

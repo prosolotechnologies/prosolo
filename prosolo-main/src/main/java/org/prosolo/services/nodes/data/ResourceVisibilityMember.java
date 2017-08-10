@@ -26,26 +26,24 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	private String position;
 	
 	private UserGroupPrivilege privilege;
+	private boolean inherited;
 	
 	private ObjectStatus status = ObjectStatus.UP_TO_DATE;
 	
-	public ResourceVisibilityMember(boolean listenChanges) {
-		this.listenChanges = listenChanges;
-	}
-	
-	public ResourceVisibilityMember(long resourceGroupId, long groupId, String groupName, 
-			long userCount, UserGroupPrivilege priv, boolean listenChanges) {
+	public ResourceVisibilityMember(long resourceGroupId, long groupId, String groupName,
+			long userCount, UserGroupPrivilege priv, boolean inherited, boolean listenChanges) {
 		this.id = resourceGroupId;
 		this.groupId = groupId;
 		this.name = groupName;
 		this.userCount = userCount;
 		this.privilege = priv;
 		this.type = ResourceVisibilityMemberType.Group;
+		this.inherited = inherited;
 		this.listenChanges = listenChanges;
 	}
 	
 	public ResourceVisibilityMember(long userGroupUserId, User user, UserGroupPrivilege priv,
-			boolean listenChanges) {
+			boolean inherited, boolean listenChanges) {
 		this.id = userGroupUserId;
 		this.userId = user.getId();
 		this.firstName = user.getName();
@@ -55,6 +53,7 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 		this.position = user.getPosition();
 		this.privilege = priv;
 		this.type = ResourceVisibilityMemberType.User;
+		this.inherited = inherited;
 		this.listenChanges = listenChanges;
 	}
 	
@@ -153,5 +152,8 @@ public class ResourceVisibilityMember extends StandardObservable implements Seri
 	public void setType(ResourceVisibilityMemberType type) {
 		this.type = type;
 	}
-	
+
+	public boolean isInherited() {
+		return inherited;
+	}
 }

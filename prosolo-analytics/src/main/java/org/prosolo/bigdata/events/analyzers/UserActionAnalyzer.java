@@ -2,10 +2,9 @@ package org.prosolo.bigdata.events.analyzers;
 
 
 
-import org.prosolo.bigdata.dal.cassandra.UserObservationsDBManager;
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl;
 import org.prosolo.bigdata.events.pojo.LogEvent;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.domainmodel.activities.events.EventType;
 
 /**
@@ -18,7 +17,7 @@ public class UserActionAnalyzer implements EventAnalyzer {
 
 	@Override
 	public void analyzeLogEvent(LogEvent event) {
-		long date = DateUtil.getDaysSinceEpoch(event.getTimestamp());
+		long date = DateEpochUtil.getDaysSinceEpoch(event.getTimestamp());
  
 		UserActionGroup userAction = null;
 		EventType eventType = event.getEventType();
