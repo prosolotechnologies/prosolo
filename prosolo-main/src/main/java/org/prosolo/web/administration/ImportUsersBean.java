@@ -43,7 +43,7 @@ public class ImportUsersBean implements Serializable {
 	private int numberOfUsersSuccessfullyImported;
 	private boolean importFinished;
 
-	public void initGroupImport() {
+	public void init() {
 		resetData();
 	}
 
@@ -102,6 +102,10 @@ public class ImportUsersBean implements Serializable {
 
 	public void importUsersToGroup(long organizationId, long unitId, long roleId, long groupId) {
 		importUsers(organizationId, unitId, roleId, groupId);
+	}
+
+	public void importUsersToUnit(long organizationId, long unitId, long roleId) {
+		importUsers(organizationId, unitId, roleId, 0);
 	}
 
 	private void importUsers(long organizationId, long unitId, long roleId, long groupId) {

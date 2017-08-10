@@ -131,7 +131,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	}
 
 	public void prepareImportingUsers() {
-		importUsersBean.initGroupImport();
+		importUsersBean.init();
 	}
 
 	public void importUsers() {

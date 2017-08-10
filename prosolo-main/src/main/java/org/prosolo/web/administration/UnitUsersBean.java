@@ -44,6 +44,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 	@Inject private RoleManager roleManager;
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private UnitUserAddBean unitUserAddBean;
+	@Inject private ImportUsersBean importUsersBean;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -102,6 +103,21 @@ public class UnitUsersBean implements Serializable, Paginable {
 
 	public void prepareAddingUsers() {
 		unitUserAddBean.init(decodedOrgId, decodedId, roleId);
+	}
+
+	public void prepareImportingUsers() {
+		importUsersBean.init();
+	}
+
+	public void importUsers() {
+		importUsersBean.importUsersToUnit(decodedOrgId, decodedId, roleId);
+		resetSearchData();
+		try {
+			loadUsersFromDB();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error while loading user data");
+		}
 	}
 
 	private void loadUsersFromDB() {
