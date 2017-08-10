@@ -14,7 +14,9 @@
     </ui:define>
 
     <ui:define name="navLinks">
-        <org:organizationHeaderLinks orgId="#{organizationEditBean.decodedId}" />
+        <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">
+            <org:organizationHeaderLinks orgId="#{organizationEditBean.decodedId}" />
+        </ui:fragment>
     </ui:define>
 
     <ui:define name="metadata">
@@ -59,7 +61,6 @@
                             <h2>Organization Details</h2>
                         </ui:fragment>
                         <h:form id="formMain">
-                        <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
                         <div class="formWrapper editOrgForm">
                             <div class="formLine">
                                 <label>Name</label>

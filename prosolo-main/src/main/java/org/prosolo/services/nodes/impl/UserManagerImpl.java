@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
@@ -21,6 +22,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
@@ -632,6 +634,76 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user data");
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<UserData> getPaginatedOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, int offset, int limit) throws DbConnectionException {
+		try {
+			PaginatedResult<UserData> res = new PaginatedResult<>();
+			res.setHitsNumber(countOrganizationUsersWithRoleNotAddedToUnit(orgId, unitId, roleId));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getOrgUsersWithRoleNotAddedToUnit(orgId, unitId, roleId, offset, limit));
+			}
+
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving unit users");
+		}
+	}
+
+	private List<UserData> getOrgUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, int offset, int limit) {
+		String query =
+				"SELECT user " +
+				"FROM User user " +
+				"INNER JOIN user.roles role " +
+						"WITH role.id = :roleId " +
+				"LEFT JOIN user.unitMemberships um " +
+						"WITH um.unit.id = :unitId " +
+						"AND um.role.id = :roleId " +
+				"WHERE user.organization.id = :orgId " +
+				"AND user.deleted IS FALSE " +
+				"AND um IS NULL " +
+				"ORDER BY user.lastname ASC, user.name ASC";
+
+		List<User> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("unitId", unitId)
+				.setLong("roleId", roleId)
+				.setLong("orgId", orgId)
+				.setMaxResults(limit)
+				.setFirstResult(offset)
+				.list();
+
+		List<UserData> users = new ArrayList<>();
+		for (User u : result) {
+			users.add(new UserData(u));
+		}
+
+		return users;
+	}
+
+	private long countOrganizationUsersWithRoleNotAddedToUnit(long orgId, long unitId, long roleId) {
+		String query =
+				"SELECT COUNT(user) " +
+				"FROM User user " +
+				"INNER JOIN user.roles role " +
+				"WITH role.id = :roleId " +
+				"LEFT JOIN user.unitMemberships um " +
+				"WITH um.unit.id = :unitId " +
+				"AND um.role.id = :roleId " +
+				"WHERE user.organization.id = :orgId " +
+				"AND user.deleted IS FALSE " +
+				"AND um IS NULL";
+		return (long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("unitId", unitId)
+				.setLong("roleId", roleId)
+				.setLong("orgId", orgId)
+				.uniqueResult();
 	}
 
 }

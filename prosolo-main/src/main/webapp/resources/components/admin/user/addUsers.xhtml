@@ -1,0 +1,88 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+>
+
+	<composite:interface>
+		<composite:attribute name="modalTitle" required="true" />
+		<composite:attribute name="searchPlaceholder" required="true" />
+		<composite:attribute name="searchBean" required="true" />
+		<composite:attribute name="actionBean" required="true" />
+		<composite:attribute name="toUpdate" default="" />
+		<composite:attribute name="learningContext" default="" />
+		<composite:attribute name="userPanelId" required="true"/>
+		<composite:attribute name="paginationPanelId" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<div class="modal fade addStudentsModal" id="addUsersModal" tabindex="-1" role="dialog" aria-labelledby="addUsersModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title">#{cc.attrs.modalTitle}</h2>
+					</div>
+					<div class="searchInstructors">
+						<h:form id="formSearchUsersToAdd">
+							<p:remoteCommand name="execSearchUsers"
+											 process="inputUserSearch"
+											 update=":#{cc.clientId}:#{cc.attrs.userPanelId} :#{cc.clientId}:#{cc.attrs.paginationPanelId}"
+											 action="#{cc.attrs.searchBean.resetAndSearch()}" />
+
+							<h:inputText id="inputUserSearch" type="search"
+										 placeholder="#{cc.attrs.searchPlaceholder}"
+										 value="#{cc.attrs.searchBean.searchTerm}"
+										 onclick="$(this).select();"
+										 onkeyup="searchListener(execSearchUsers);" />
+						</h:form>
+					</div>
+
+					<h:panelGroup id="#{cc.attrs.userPanelId}">
+						<ul class="list">
+							<ui:fragment rendered="#{empty cc.attrs.searchBean.users}">
+								<li class="noPeople">There are no users.</li>
+							</ui:fragment>
+							<ui:repeat value="#{cc.attrs.searchBean.users}" var="user">
+								<li>
+									<div class="instructorInfo">
+										<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+															 fullName="#{user.fullName}" width="48" height="48" />
+
+										<div class="infoWrap">
+											<h3>#{user.fullName}</h3>
+											<span>#{user.position}</span>
+										</div>
+									</div>
+									<div class="assignOpt">
+										<div class="buttonWrapper">
+											<p:commandLink styleClass="btn btn-green btn-sm" process="@this"
+														   action="#{cc.attrs.actionBean.addUser(user)}"
+														   update="#{cc.attrs.toUpdate} :#{cc.clientId}:formSearchUsersToAdd:inputUserSearch :#{cc.clientId}:#{cc.attrs.userPanelId} :#{cc.clientId}:#{cc.attrs.paginationPanelId}">
+												Add
+												<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+												<f:param name="learningContext"
+														 value="#{cc.attrs.learningContext}" />
+												<f:param name="service" value="name:ADD_USERS_DIALOG|id:#{user.id}" />
+											</p:commandLink>
+										</div>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+					</h:panelGroup>
+
+					<utilcomp:pagination id="#{cc.attrs.paginationPanelId}"
+										 bean="#{cc.attrs.searchBean}"
+										 toUpdate=":#{cc.clientId}:#{cc.attrs.userPanelId}"
+										 updateUrl="false"
+					/>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</ui:component>

@@ -3,15 +3,6 @@
  */
 package org.prosolo.core.spring.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-
-import javax.inject.Inject;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -41,12 +32,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.saml.SAMLAuthenticationProvider;
-import org.springframework.security.saml.SAMLBootstrap;
-import org.springframework.security.saml.SAMLEntryPoint;
-import org.springframework.security.saml.SAMLLogoutFilter;
-import org.springframework.security.saml.SAMLLogoutProcessingFilter;
-import org.springframework.security.saml.SAMLProcessingFilter;
+import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
@@ -56,28 +42,12 @@ import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
 import org.springframework.security.saml.metadata.MetadataDisplayFilter;
 import org.springframework.security.saml.parser.ParserPoolHolder;
-import org.springframework.security.saml.processor.HTTPArtifactBinding;
-import org.springframework.security.saml.processor.HTTPPAOS11Binding;
-import org.springframework.security.saml.processor.HTTPPostBinding;
-import org.springframework.security.saml.processor.HTTPRedirectDeflateBinding;
-import org.springframework.security.saml.processor.HTTPSOAP11Binding;
-import org.springframework.security.saml.processor.SAMLBinding;
-import org.springframework.security.saml.processor.SAMLProcessorImpl;
+import org.springframework.security.saml.processor.*;
 import org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer;
 import org.springframework.security.saml.trust.httpclient.TLSProtocolSocketFactory;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.security.saml.util.VelocityFactory;
-import org.springframework.security.saml.websso.ArtifactResolutionProfile;
-import org.springframework.security.saml.websso.ArtifactResolutionProfileImpl;
-import org.springframework.security.saml.websso.SingleLogoutProfile;
-import org.springframework.security.saml.websso.SingleLogoutProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfile;
-import org.springframework.security.saml.websso.WebSSOProfileConsumer;
-import org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl;
-import org.springframework.security.saml.websso.WebSSOProfileConsumerImpl;
-import org.springframework.security.saml.websso.WebSSOProfileECPImpl;
-import org.springframework.security.saml.websso.WebSSOProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
+import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -90,6 +60,9 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import javax.inject.Inject;
+import java.util.*;
 
 /**
  * @author "Nikola Milikic"
@@ -283,8 +256,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
            .antMatchers("/admin/admins/*/edit/password").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations").hasAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/teachers").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/students").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/instructors").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/admin/organizations/*/units/*/edit").hasAuthority("ADMINS.VIEW")
-
+		   .antMatchers("/admin/organizations/*/units/*/groups").hasAnyAuthority("ADMINS.VIEW")
+		   .antMatchers("/admin/organizations/*/units/*/groups/*/users").hasAnyAuthority("ADMINS.VIEW")
 		   .antMatchers("/manage/**").denyAll()
 		   .antMatchers("/admin/**").denyAll()
 		   .antMatchers("/**").hasAnyAuthority("BASIC.USER.ACCESS")

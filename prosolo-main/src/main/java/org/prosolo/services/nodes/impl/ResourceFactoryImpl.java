@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.User;
@@ -493,12 +494,13 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional (readOnly = false)
-    public UserGroup saveNewGroup(String name, boolean isDefault) throws DbConnectionException {
+    public UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException {
         try {
             UserGroup group = new UserGroup();
             group.setDateCreated(new Date());
             group.setDefaultGroup(isDefault);
             group.setName(name);
+            group.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
 
             saveEntity(group);
             return group;

@@ -1,0 +1,291 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
+>
+
+    <ui:define name="windowTitle" >
+        Unit Groups
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="orgId" value="#{manageGroupsBean.orgId}" />
+            <f:viewParam name="id" value="#{manageGroupsBean.unitId}" />
+            <f:viewParam name="p" value="#{manageGroupsBean.paginationData.pageString}" default="1" />
+            <f:viewAction action="#{manageGroupsBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle" >
+        <h1>#{manageGroupsBean.unitTitle}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{manageGroupsBean.decodedOrgId}" unitId="#{manageGroupsBean.decodedUnitId}" />
+    </ui:define>
+
+    <ui:define name="content">
+
+    <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+    <p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+
+    <ui:param name="learningContext" value="name:ORGANIZATION|id:#{manageGroupsBean.decodedOrgId}|context:/name:UNIT|id:#{manageGroupsBean.decodedUnitId}/"></ui:param>
+
+    <div class="whiteBar">
+        <div class="container">
+            <div class="whiteBarContent">
+                <div class="whiteBarLeft">
+                    <p:commandLink styleClass="btn btn-green btn-sm item"
+                                   pt:data-toggle="modal"
+                                   process="@this"
+                                   action="#{manageGroupsBean.prepareGroupForAdding()}"
+                                   update=":newGroupForm:panelNewGroup"
+                                   oncomplete="$('#newGroupModal').modal('show');">
+                        New Group
+                    </p:commandLink>
+
+                    <div class="searchBox">
+                        <h:form>
+                            <p:remoteCommand name="execSearchGroups"
+                                             process="inputGroupSearch" update=":panelGroups :pagination"
+                                             action="#{manageGroupsBean.resetAndSearch()}" />
+
+                            <h:inputText id="inputGroupSearch" type="search"
+                                         placeholder="Search by name"
+                                         value="#{manageGroupsBean.searchTerm}"
+                                         onclick="$(this).select();"
+                                         onkeyup="searchListener(execSearchGroups);" />
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+            <li>
+                <h:link outcome="/admin/adminOrganizationNew">
+                    #{manageGroupsBean.organizationTitle}
+                    <f:param name="id" value="#{param.orgId}" />
+                </h:link>
+            </li>
+            <li>
+                <h:link outcome="/admin/units">
+                    Units
+                    <f:param name="id" value="#{param.orgId}" />
+                </h:link>
+            </li>
+            <li>
+                <h:link outcome="/admin/unitEdit">
+                    #{manageGroupsBean.unitTitle}
+                    <f:param name="id" value="#{param.orgId}" />
+                    <f:param name="unitId" value="#{param.id}" />
+                </h:link>
+            </li>
+            <li class="active">User Groups</li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <h:panelGroup layout="block" id="panelGroups" styleClass="col-md-12">
+                <ul class="whiteBox peopleList">
+                    <ui:repeat value="#{manageGroupsBean.groups}" var="group">
+                        <li>
+                            <div class="peopleListLeft">
+                                <h2>#{group.name}</h2>
+                            </div>
+                            <div class="peopleListRight">
+                                <div class="studentsNum">
+                                    Users: <span>#{group.userCount}</span>
+                                </div>
+                                <div class="userEditOpt">
+                                    <h:link outcome="/admin/unit-group-users">
+                                        Manage Users
+                                        <f:param name="orgId" value="#{param.orgId}" />
+                                        <f:param name="unitId" value="#{param.id}" />
+                                        <f:param name="id" value="#{util:encodeId(group.id)}" />
+                                    </h:link>
+                                    <p:commandLink pt:data-toggle="modal"
+                                                   process="@this"
+                                                   action="#{manageGroupsBean.prepareGroupForEditJoinURL(group.id)}"
+                                                   update=":joinURLForm"
+                                                   oncomplete="$('#joinURLModal').modal('show');">Join URL</p:commandLink>
+
+                                    <p:commandLink pt:data-toggle="modal"
+                                                   process="@this"
+                                                   action="#{manageGroupsBean.prepareGroupForEdit(group)}"
+                                                   update=":newGroupForm:panelNewGroup"
+                                                   oncomplete="$('#newGroupModal').modal('show');">Edit Name</p:commandLink>
+
+                                    <ui:fragment rendered="#{not group.canBeDeleted}">
+                                        <a href="javascript:void(0);" class="linkRed disabled"
+                                           data-toggle="tooltip"
+                                           title="This group can't be deleted because it is being used in at least one credential/competency">Delete</a>
+                                    </ui:fragment>
+                                    <p:commandLink rendered="#{group.canBeDeleted}" styleClass="linkRed" pt:data-toggle="modal"
+                                                   process="@this"
+                                                   action="#{manageGroupsBean.prepareGroupForEdit(group)}"
+                                                   update=":formDeleteGroup:panelDeleteGroup"
+                                                   oncomplete="$('#deleteGroup').modal('show');">Delete</p:commandLink>
+                                </div>
+                            </div>
+                        </li>
+                    </ui:repeat>
+                </ul>
+            </h:panelGroup>
+        </div>
+
+        <utilcomp:pagination id="pagination"
+                             bean="#{manageGroupsBean}"
+                             updateUrl="true"
+                             toUpdate=":panelGroups" />
+    </div>
+
+    <h:form id="joinURLForm">
+        <div class="modal fade joinURLModal" id="joinURLModal" tabindex="-1" role="dialog" aria-labelledby="jURLModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&#215;</span>
+                            </button>
+                            <h2 class="modal-title">Join URL</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <div class="checkbox checkLine">
+                                <h:selectBooleanCheckbox id="activateJoiningViaUrl"
+                                                         value="#{manageGroupsBean.groupForEdit.joinUrlActive}"
+                                                         onchange="$('#joinUrlHidden').toggle();">
+                                </h:selectBooleanCheckbox>
+                                <h:outputLabel for="activateJoiningViaUrl">Activate joining via URL</h:outputLabel>
+                            </div>
+                            <div id="joinUrlHidden">
+                                <p>Share this URL with students and they will automatically join this group:</p>
+                                <input type="text" value="#{applicationbean.commonConfig.appConfig.domain}groups/#{util:encodeId(manageGroupsBean.groupForEdit.id)}/join" readonly="true" />
+
+                                <p>Only students who enter the following password can join the group:</p>
+                                <h:inputText type="text"
+                                             placeholder="Password to join the group..."
+                                             value="#{manageGroupsBean.groupForEdit.joinUrlPassword}" />
+                            </div>
+                            <script>
+                                if (!#{manageGroupsBean.groupForEdit.joinUrlActive}) {
+                                    $('#joinUrlHidden').hide();
+                                }
+
+                                $("#joinURLModal #joinUrlHidden input[type='text']").click(function () {
+                                    $(this).select();
+                                });
+                            </script>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                            <p:commandLink styleClass="btn btn-green"
+                                           action="#{manageGroupsBean.saveGroupJoinUrl()}"
+                                           update=":growlMain"
+                                           oncomplete="$('#joinURLModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="#{util:addSubContext(learningContext, 'name:join_by_url_group_dialog|id:'.concat(manageGroupsBean.groupForEdit.id))}" />
+                                Done
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </ui:fragment>
+                </div>
+            </div>
+        </div>
+    </h:form>
+
+    <h:form id="formDeleteGroup">
+        <div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog" aria-labelledby="delGroup">
+            <div class="modal-dialog" role="document">
+                <h:panelGroup layout="block" id="panelDeleteGroup" styleClass="modal-content">
+                    <ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&#215;</span>
+                            </button>
+                            <h2 class="modal-title" id="delGroup">Delete group?</h2>
+                        </div>
+
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete group "#{manageGroupsBean.groupForEdit.name}"?</p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <p:commandLink styleClass="btn btn-red"
+                                           process="@this"
+                                           action="#{manageGroupsBean.deleteGroup()}"
+                                           update=":panelGroups :pagination :growlMain"
+                                           oncomplete="$('#deleteGroup').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext"
+                                         value="#{util:addSubContext(learningContext, 'name:delete_dialog|id:'.concat(manageGroupsBean.groupForEdit.id))}" />
+                                Delete
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </ui:fragment>
+                </h:panelGroup>
+            </div>
+        </div>
+    </h:form>
+
+    <h:form id="newGroupForm">
+        <div class="modal fade newGroupModal" id="newGroupModal" tabindex="-1" role="dialog" aria-labelledby="nGroupModal">
+            <div class="modal-dialog">
+                <h:panelGroup layout="block" id="panelNewGroup" styleClass="modal-content">
+                    <ui:fragment rendered="#{not empty manageGroupsBean.groupForEdit}">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&#215;</span>
+                            </button>
+                            <h2 class="modal-title">#{manageGroupsBean.groupForEdit.id > 0 ? 'Edit Group Name' : 'New Group'}</h2>
+                        </div>
+
+                        <div class="modal-body alignLeft">
+                            <h:inputText id="nameSearch" placeholder="Group Name"
+                                         value="#{manageGroupsBean.groupForEdit.name}" />
+                        </div>
+
+                        <div class="modal-footer alignLeft">
+                            <p:commandLink id="create"
+                                           styleClass="btn btn-green"
+                                           process="@form"
+                                           action="#{manageGroupsBean.saveGroup()}"
+                                           update=":panelGroups :growlMain :pagination"
+                                           oncomplete="$('#newGroupModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext"
+                                         value="#{util:addSubContext(learningContext, 'name:edit_dialog'.concat(manageGroupsBean.groupForEdit.id > 0 ? '|id:'.concat(manageGroupsBean.groupForEdit.id) : ''))}" />
+                                #{manageGroupsBean.groupForEdit.id > 0 ? 'Done' : 'Create'}
+                            </p:commandLink>
+                            <p:defaultCommand target="create" />
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </ui:fragment>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <script>
+            $('#newGroupModal').on('shown.bs.modal', function () {
+                $('#newGroupForm\\:nameSearch').focus();
+            })
+        </script>
+    </h:form>
+
+    </ui:define>
+</ui:composition>

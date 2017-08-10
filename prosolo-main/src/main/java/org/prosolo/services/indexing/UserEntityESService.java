@@ -47,4 +47,12 @@ public interface UserEntityESService  extends AbstractBaseEntityESService {
 	
 	void updateCompetenceProgress(long userId, long compId, int progress, String completionDate);
 
+	void addUserToUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+
+	void removeUserFromUnitWithRole(long organizationId, long userId, long unitId, long roleId);
+
+	void addGroup(long orgId, long userId, long groupId);
+
+	void removeGroup(long orgId, long userId, long groupId);
+
 }

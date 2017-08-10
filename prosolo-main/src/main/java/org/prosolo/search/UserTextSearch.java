@@ -99,9 +99,9 @@ public interface UserTextSearch extends AbstractManager {
 	 */
 	PaginatedResult<UserData> searchPeopleUserFollows(String searchTerm,
                                                       int page, int limit, long userId);
-	
-	PaginatedResult<UserSelectionData> searchUsersInGroups(
-			String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
+
+	PaginatedResult<UserData> searchUsersInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId, boolean includeSystemUsers);
 
 	/**
 	 * Searches through credential members by their name and last name, except for the excluded ones.
@@ -131,4 +131,38 @@ public interface UserTextSearch extends AbstractManager {
 			CompetenceStudentsSortOption sortOption, int page, int limit);
 
 	PaginatedResult<UserData> searchUsers(String searchTerm, int limit,List<UserData> usersToExcludeFromSearch ,List<Long> userRoles);
+
+	/**
+	 * Returns users belonging to organization with {@code orgId} id who have a role with {@code roleId} id
+	 * and who are not already added to the unit with {@code unitId} id in that role.
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param includeSystemUsers
+	 * @return
+	 */
+	PaginatedResult<UserData> searchOrganizationUsersWithRoleNotAddedToUnit(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers);
+
+	/**
+	 * Returns users that are added to the unit with {@code unitId} id in a role with {@code roleId} id
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param includeSystemUsers
+	 * @return
+	 */
+	PaginatedResult<UserData> searchUnitUsersInRole(
+			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
+			boolean includeSystemUsers);
+
 }

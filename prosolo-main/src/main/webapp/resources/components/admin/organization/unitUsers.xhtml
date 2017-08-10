@@ -1,0 +1,168 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:util="http://www.prosolo.com/util"
+		xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
+
+	<composite:interface>
+		<composite:attribute name="resource" required="true" />
+		<composite:attribute name="resourcePlural" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+
+		<ui:param name="learningContext" value="name:ORGANIZATION|id:#{unitUsersBean.decodedOrgId}|context:/name:UNIT|id:#{unitUsersBean.decodedId}/"></ui:param>
+
+		<p:growl id="growlMain" globalOnly="true" showDetail="true" />
+
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+						<p:commandLink styleClass="btn btn-green btn-sm item"
+									   pt:data-toggle="modal"
+									   action="#{unitUsersBean.prepareAddingUsers()}"
+									   update=":#{cc.clientId}:addUsers:panelUsers :#{cc.clientId}:addUsers:pagination"
+									   oncomplete="$('#addUsersModal').modal('show');">
+							Add #{util:capitalizeWord(cc.attrs.resourcePlural)}
+						</p:commandLink>
+						<div class="searchBox">
+							<h:form id="formSearchExistingUsers">
+								<p:remoteCommand name="execSearchExistingUsers"
+												 process="inputUserSearch" update=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination"
+												 action="#{unitUsersBean.resetAndSearch()}" />
+
+								<h:inputText id="inputUserSearch" type="search"
+											 placeholder="Search by name"
+											 value="#{unitUsersBean.searchTerm}"
+											 onclick="$(this).select();"
+											 onkeyup="searchListener(execSearchExistingUsers);" />
+							</h:form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+			<ol class="breadcrumb">
+				<li><h:link outcome="/admin/adminOrganizations">Organizations</h:link></li>
+				<li>
+					<h:link outcome="/admin/adminOrganizationNew">
+						#{unitUsersBean.organizationTitle}
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/units">
+						Units
+						<f:param name="id" value="#{param.orgId}" />
+					</h:link>
+				</li>
+				<li>
+					<h:link outcome="/admin/unitEdit">
+						#{unitUsersBean.unitTitle}
+						<f:param name="id" value="#{param.orgId}" />
+						<f:param name="unitId" value="#{param.id}" />
+					</h:link>
+				</li>
+				<li class="active">#{util:capitalizeWord(cc.attrs.resourcePlural)}</li>
+			</ol>
+		</div>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox manageVisibility">
+						<div class="innerWrapper">
+							<h2>#{util:capitalizeWord(cc.attrs.resourcePlural)}</h2>
+							<p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import #{cc.attrs.resourcePlural} from CSV file.</a></p>
+						</div>
+						<h:panelGroup id="panelUsers">
+							<ui:fragment rendered="#{empty unitUsersBean.existingUsers}">
+								<div class="noPeopleMessage">
+									<p>No #{cc.attrs.resourcePlural}</p>
+								</div>
+							</ui:fragment>
+							<ui:fragment rendered="#{not empty unitUsersBean.existingUsers}">
+								<ul class="list hasTopBorder">
+									<ui:repeat value="#{unitUsersBean.existingUsers}" var="user">
+										<li>
+											<div class="instructorInfo">
+												<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																	 fullName="#{user.fullName}" width="48" height="48" />
+
+												<div class="infoWrap">
+													<h3>#{user.fullName}</h3>
+													<span>#{user.position}</span>
+												</div>
+											</div>
+											<div class="assignOpt">
+												<p:commandLink styleClass="removeX" process="@this"
+															   action="#{unitUsersBean.removeUser(user)}"
+															   update=":#{cc.clientId}:formSearchExistingUsers:inputUserSearch :#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain">
+													Close
+													<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+													<f:param name="learningContext"
+															 value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
+												</p:commandLink>
+											</div>
+										</li>
+									</ui:repeat>
+								</ul>
+							</ui:fragment>
+						</h:panelGroup>
+
+						<utilcomp:pagination id="pagination"
+											 bean="#{unitUsersBean}"
+											 toUpdate=":#{cc.clientId}:panelUsers"
+											 updateUrl="true"
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade importStudentsModal" id="importStudentsModal" tabindex="-1" role="dialog" aria-labelledby="impStudentsModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header alignLeft">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title">Import users</h2>
+					</div>
+					<div class="modal-body alignLeft">
+						<p>Upload CSV with #{cc.attrs.resource} data in order to add them to the unit. #{util:capitalizeWord(cc.attrs.resource)} data should be in the format:<br></br><strong>name,lastname,email</strong></p>
+						<div class="uploadBtn">
+							<a href="#" class="btn btn-green btn-sm">Choose File</a>
+							file.csv
+						</div>
+					</div>
+					<div class="modal-footer alignLeft">
+						<a href="#" class="btn btn-green">Import</a>
+						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<user:addUsers
+				id="addUsers"
+				modalTitle="Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit"
+				searchPlaceholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"
+				searchBean="#{unitUserAddBean}"
+				actionBean="#{unitUsersBean}"
+				toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain"
+				userPanelId="panelUsers"
+				paginationPanelId="pagination"
+				learningContext="#{learningContext}"
+		/>
+
+	</composite:implementation>
+</ui:component>

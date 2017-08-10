@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+>
+
+    <ui:define name="windowTitle" >
+         #{unitUsersBean.unitTitle} - Teachers
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="orgId" value="#{unitUsersBean.orgId}" />
+            <f:viewParam name="id" value="#{unitUsersBean.id}" />
+            <f:viewParam name="p" value="#{unitUsersBean.page}" default="1" />
+            <f:viewAction action="#{unitUsersBean.initTeachers()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle" >
+        <h1>#{unitUsersBean.unitTitle}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{unitUsersBean.decodedOrgId}" unitId="#{unitUsersBean.decodedId}" />
+    </ui:define>
+
+    <ui:define name="content">
+        <org:unitUsers resource="teacher" resourcePlural="teachers" />
+    </ui:define>
+</ui:composition>

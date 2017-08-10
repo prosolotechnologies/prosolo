@@ -13,7 +13,7 @@
 		<composite:attribute name="mode" default="ADMIN" />
 		<composite:attribute name="orgId" default="0" />
 	</composite:interface>
-	
+
 	<composite:implementation>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
@@ -40,7 +40,7 @@
 
 								<h:inputText id="inputAdminSearch"
 											 type="search"
-											 placeholder="Filter by Keywords"
+											 placeholder="Serach by name"
 											 value="#{usersBean.searchTerm}"
 											 onclick="$(this).select();"
 											 onkeyup="searchListener(execSearchUsers);"/>
@@ -88,75 +88,87 @@
 					</li>
 					<li class="active">People</li>
 				</c:if>
+				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
+					<li class="active">Admins</li>
+				</c:if>
 			</ol>
 		</div>
 
 		<div class="container">
 			<div class="row">
 				<h:panelGroup layout="block" id="panelAdmins" styleClass="col-md-12">
-					<ul class="whiteBox peopleList">
-						<ui:repeat var="admin" value="#{usersBean.users}">
-							<li>
-								<div class="peopleListLeft">
-									<h:link outcome="/admin/adminNew">
-										<utilcomp:userAvatar
-												avatar="#{admin.avatarUrl}"
-												fullName="#{admin.commaSeparatedFullName}"
-												width="64"
-												height="64"
-										/>
-										<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
-									</h:link>
+					<ui:fragment rendered="#{empty usersBean.users}">
+						<div class="noContentMessage">
+							<p>
+								No users.
+							</p>
+						</div>
+					</ui:fragment>
+					<ui:fragment rendered="#{not empty usersBean.users}">
+						<ul class="whiteBox peopleList">
+							<ui:repeat var="admin" value="#{usersBean.users}">
+								<li>
+									<div class="peopleListLeft">
+										<h:link outcome="/admin/adminNew">
+											<utilcomp:userAvatar
+													avatar="#{admin.avatarUrl}"
+													fullName="#{admin.commaSeparatedFullName}"
+													width="64"
+													height="64"
+											/>
+											<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
+										</h:link>
 
-									<div>
-										<h2>
+										<div>
+											<h2>
+												<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
+													<h:link outcome="/admin/adminNew">
+														#{admin.fullName}
+														<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
+													</h:link>
+												</c:if>
+												<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
+													<h:link outcome="/admin/organizationUserEdit">
+														#{admin.fullName}
+														<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
+														<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
+													</h:link>
+												</c:if>
+											</h2>
+											<span>#{admin.position}</span>
+										</div>
+									</div>
+									<div class="peopleListRight">
+										<div class="userRole">
+											#{admin.rolesCSV}
+										</div>
+										<div class="userEditOpt">
 											<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 												<h:link outcome="/admin/adminNew">
-													#{admin.commaSeparatedFullName}
-													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
+													<f:param name="id" value="#{util:encodeId(admin.id)}"/>
+													Edit
 												</h:link>
 											</c:if>
 											<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 												<h:link outcome="/admin/organizationUserEdit">
-													#{admin.commaSeparatedFullName}
-													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
-													<f:param name="id" value="#{util:encodeId(admin.id)}"></f:param>
+													<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}"/>
+													<f:param name="id" value="#{util:encodeId(admin.id)}"/>
+													Edit
 												</h:link>
 											</c:if>
-										</h2>
-										<span>#{admin.position}</span>
+											<p:commandLink
+													pt:data-toggle="modal"
+													action="#{loggeduser.prepareLoginAsUser(admin)}"
+													update=":#{cc.clientId}:formLoginAs:panelLoginAs"
+													oncomplete="$('#loginAs').modal('show');">
+												Login as...
+											</p:commandLink>
+										</div>
 									</div>
-								</div>
-								<div class="peopleListRight">
-									<div class="userRole">
-										#{admin.rolesCSV}
-									</div>
-									<div class="userEditOpt">
-										<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
-											<h:link outcome="/admin/adminNew">
-												<f:param name="id" value="#{util:encodeId(admin.id)}"/>
-												Edit
-											</h:link>
-										</c:if>
-										<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-											<h:link outcome="/admin/organizationUserEdit">
-												<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}"/>
-												<f:param name="id" value="#{util:encodeId(admin.id)}"/>
-												Edit
-											</h:link>
-										</c:if>
-										<p:commandLink
-												pt:data-toggle="modal"
-												action="#{loggeduser.prepareLoginAsUser(admin)}"
-												update=":#{cc.clientId}:formLoginAs:panelLoginAs"
-												oncomplete="$('#loginAs').modal('show');">
-											Login as...
-										</p:commandLink>
-									</div>
-								</div>
-							</li>
-						</ui:repeat>
-					</ul>
+								</li>
+							</ui:repeat>
+						</ul>
+					</ui:fragment>
 				</h:panelGroup>
 			</div>
 

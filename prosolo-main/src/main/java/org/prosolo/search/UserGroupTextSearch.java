@@ -15,7 +15,7 @@ import org.prosolo.services.nodes.data.UserGroupData;
 public interface UserGroupTextSearch extends AbstractManager {
 
 	PaginatedResult<UserGroupData> searchUserGroups (
-			String searchString, int page, int limit);
+			long orgId, long unitId, String searchString, int page, int limit);
 	
 	PaginatedResult<UserGroupData> searchUserGroupsForUser (
 			String searchString, long userId, int page, int limit);

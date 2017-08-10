@@ -35,7 +35,6 @@
 				"type": "geo_point"
 			},
 
-			
 			"roles": {
 				"type": "nested",
 				"properties": {
@@ -116,6 +115,15 @@
 			},
 			
 			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+
+			"groups": {
 				"properties": {
 					"id": {
 						"store": false,
