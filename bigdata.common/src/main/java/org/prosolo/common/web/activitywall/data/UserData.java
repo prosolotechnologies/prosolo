@@ -27,9 +27,11 @@ public class UserData implements Serializable, Comparable<UserData> {
 	private boolean followed;
 	private boolean loggedUser;
 	private boolean externalUser;
+	private String firstName;
+	private String lastName;
 	
 	private PublishingServiceData publishingService;
-	
+
 	// location
 	private String locationName;
 	private String latitude;
@@ -145,6 +147,13 @@ public class UserData implements Serializable, Comparable<UserData> {
 		this.externalUser = externalUser;
 	}
 
+	public String getCommaSeparatedFullName() {
+		String fName = firstName != null ? firstName : "";
+		String lName = lastName != null ? lastName : "";
+		String infix = !fName.isEmpty() && !lName.isEmpty() ? ", " : "";
+		return lName + infix + fName;
+	}
+
 	@Override
 	public String toString() {
 		return "UserData [id=" + id + ", name=" + name + ", profileUrl=" + profileUrl + ", avatarUrl=" + avatarUrl
@@ -210,5 +219,20 @@ public class UserData implements Serializable, Comparable<UserData> {
 			return "N/A";
 		}
 	}
-	
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 }

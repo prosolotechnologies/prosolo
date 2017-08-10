@@ -2,6 +2,7 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -27,7 +28,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -84,6 +88,8 @@ public class UserEditBean implements Serializable {
 
 	private String organizationTitle;
 
+	private static final String passwordFieldId = "editUserPassword:formMain:inputPassword";
+
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
@@ -91,9 +97,25 @@ public class UserEditBean implements Serializable {
 			user = userManager.getUserData(decodedId);
 			accountData = new AccountData();
 			usersToExclude.add(user);
+
+			if (orgId != null) {
+				decodedOrgId = idEncoder.decodeId(orgId);
+				initOrgTitle();
+			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
+		}
+	}
+
+	private void initOrgTitle() {
+		if (decodedOrgId > 0) {
+			organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
+			if (organizationTitle == null) {
+				PageUtil.notFound();
+			}
+		} else {
+			PageUtil.notFound();
 		}
 	}
 
@@ -103,17 +125,9 @@ public class UserEditBean implements Serializable {
 
 	public void initOrgUser() {
 		decodedOrgId = idEncoder.decodeId(orgId);
-		init(new String[] {"User", "Instructor", "Manager"});
-		//load organization title if 'create' use case
-		if (user.getId() <= 0) {
-			if (decodedOrgId > 0) {
-				organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
-				if (organizationTitle == null) {
-					PageUtil.notFound();
-				}
-			} else {
-				PageUtil.notFound();
-			}
+		initOrgTitle();
+		if (organizationTitle != null) {
+			init(new String[]{"User", "Instructor", "Manager"});
 		}
 	}
 
@@ -189,9 +203,9 @@ public class UserEditBean implements Serializable {
 
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("New user is created");
 			if (decodedOrgId > 0) {
-				PageUtil.redirect("/user/organizations/" + orgId + "/users");
+				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
 			} else {
-				PageUtil.redirect("/user/users");
+				PageUtil.redirect("/admin/admins");
 			}
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
@@ -366,7 +380,13 @@ public class UserEditBean implements Serializable {
 
 	public void savePassChangeForAnotherUser() {
 		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("The password is too short. It has to contain more than 6 characters.");
+			FacesContext context = FacesContext.getCurrentInstance();
+			UIInput input = (UIInput) context.getViewRoot().findComponent(
+					passwordFieldId);
+			input.setValid(false);
+			context.addMessage(passwordFieldId, new FacesMessage(
+					"The password is too short. It has to contain at least 6 characters."));
+			FacesContext.getCurrentInstance().validationFailed();
 			return;
 		}
 		try {

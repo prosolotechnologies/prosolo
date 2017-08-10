@@ -5,7 +5,7 @@
 				xmlns:p="http://primefaces.org/ui"
 				template="templates/masterLayout2.xhtml"
 				xmlns:util="http://www.prosolo.com/util"
-				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
 				xmlns:admin="http://java.sun.com/jsf/composite/components/admin"
 				xmlns:course="http://java.sun.com/jsf/composite/components/courses">
 
@@ -19,18 +19,7 @@
 	</ui:define>
 
 	<ui:define name="navLinks">
-		<ui:fragment  rendered="#{not empty unitsBean.organizationId}">
-			<ul class="nav nav-tabs headerSubmenu">
-				<li role="presentation"><h:link outcome="/admin/adminOrganizationNew">
-					<f:param name="id" value="#{unitsBean.organizationId}" />Organization Details
-				</h:link></li>
-				<li role="presentation" class="active"><h:link outcome="/admin/units">
-					<f:param name="id" value="#{unitsBean.organizationId}" />Units
-				</h:link></li>
-				<li role="presentation"><a href="#">People</a></li>
-				<li role="presentation"><a href="#">Groups</a></li>
-			</ul>
-		</ui:fragment>
+		<org:organizationHeaderLinks orgId="#{util:decodeId(param.id)}" />
 	</ui:define>
 
 	<ui:define name="resourceTitle">
@@ -59,10 +48,10 @@
 				<div class="container">
 					<ol class="breadcrumb">
 						<li>
-							<h:link value="Organizations" outcome="/admin/adminOrganizations"/>
+							<h:link value="Organizations" outcome="/admin/organizations"/>
 						</li>
 						<li>
-							<h:link value="#{unitsBean.organizationData.title}" outcome="/admin/adminOrganizationNew">
+							<h:link value="#{unitsBean.organizationData.title}" outcome="/admin/organizationNew">
 								<f:param name="id" value="#{unitsBean.organizationId}" /></h:link>
 						</li>
 						<li class="active">
@@ -238,8 +227,6 @@
 				toUpdate=":formUnits"
 				modalDeleteTitle="Unit"
 				modalDeleteText="unit"/>
-
-
 	</ui:define>
 
 </ui:composition>

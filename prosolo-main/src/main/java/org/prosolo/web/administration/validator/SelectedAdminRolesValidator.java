@@ -46,7 +46,7 @@ public class SelectedAdminRolesValidator implements Validator {
         }
         FacesMessage msg = new FacesMessage("At least one role should be selected");
         msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-        facesContext.addMessage("formMain:hiddenInput", msg);
+        facesContext.addMessage("userEdit:formMain:hiddenInput", msg);
         throw new ValidatorException(msg);
 
     }

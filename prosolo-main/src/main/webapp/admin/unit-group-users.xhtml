@@ -2,7 +2,6 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
-                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:h="http://java.sun.com/jsf/html"
@@ -56,7 +55,7 @@
                                                  action="#{groupUsersBean.resetAndSearch()}" />
 
                                 <h:inputText id="inputGroupUsersSearch" type="search"
-                                             placeholder="Filter by Name" value="#{groupUsersBean.searchTerm}"
+                                             placeholder="Search by name" value="#{groupUsersBean.searchTerm}"
                                              onclick="$(this).select();"
                                              onkeyup="searchListener(execSearchGroupUsers);" />
                             </h:form>
