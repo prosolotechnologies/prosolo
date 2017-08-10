@@ -47,7 +47,7 @@
                                                  action="#{groupUsersBean.resetAndSearch()}" />
 
                                 <h:inputText id="inputGroupUsersSearch" type="search"
-                                             placeholder="Filter by Name" value="#{groupUsersBean.searchTerm}"
+                                             placeholder="Search by name" value="#{groupUsersBean.searchTerm}"
                                              onclick="$(this).select();"
                                              onkeyup="searchListener(execSearchGroupUsers);" />
                             </h:form>
@@ -165,7 +165,7 @@
                         <h2 class="modal-title">Add Students to Unit</h2>
                     </div>
                     <div class="searchInstructors">
-                        <input type="search" name="name" value="" placeholder="Search Students or Groups"></input>
+                        <input type="search" name="name" value="" placeholder="Search students or groups"></input>
                     </div>
                     <ul class="list">
                         <li>
