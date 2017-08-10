@@ -18,7 +18,9 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -71,6 +73,7 @@ public class ImportUsersBean implements Serializable {
 				InputStream inputStream = file.getInputstream();
 				BufferedReader bReader = new BufferedReader(new InputStreamReader(
 						inputStream, "UTF-8"))) {
+			Set<String> uniqueEmails = new HashSet<>();
 			String line;
 			while ((line = bReader.readLine()) != null) {
 				String[] user = line.split(",");
@@ -84,6 +87,11 @@ public class ImportUsersBean implements Serializable {
 						fileContentValid = false;
 						return;
 					}
+
+					if (uniqueEmails.contains(email)) {
+						//if there is already a user with same email address in the file we skip this one
+						continue;
+					}
 					String firstName = CharMatcher.WHITESPACE.trimFrom(user[1]);
 					String lastName = CharMatcher.WHITESPACE.trimFrom(user[2]);
 					String position = null;
@@ -92,6 +100,7 @@ public class ImportUsersBean implements Serializable {
 					}
 
 					users.add(new UserImportData(email, firstName, lastName, position));
+					uniqueEmails.add(email);
 				}
 			}
 			fileContentValid = true;
