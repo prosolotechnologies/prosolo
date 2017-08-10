@@ -25,7 +25,7 @@
 							<h:link outcome="/admin/adminNew" styleClass="btn btn-green btn-sm item">New Admin</h:link>
 						</c:if>
 						<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
-							<h:link outcome="/admin/orgUserEdit" styleClass="btn btn-green btn-sm item">
+							<h:link outcome="/admin/organizationUserEdit" styleClass="btn btn-green btn-sm item">
 								New User
 								<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 							</h:link>
@@ -112,7 +112,7 @@
 										<h:link outcome="/admin/adminNew">
 											<utilcomp:userAvatar
 													avatar="#{admin.avatarUrl}"
-													fullName="#{admin.fullName}"
+													fullName="#{admin.commaSeparatedFullName}"
 													width="64"
 													height="64"
 											/>

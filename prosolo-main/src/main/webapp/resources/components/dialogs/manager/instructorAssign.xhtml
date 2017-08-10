@@ -46,12 +46,12 @@
 		                          <div class="instructorInfo">
 		                          	  <utilcomp:userAvatar
 											avatar="#{instructor.user.avatarUrl}"
-											fullName="#{instructor.user.fullName}"	
+											fullName="#{instructor.user.commaSeparatedFullName}"
 											width="48"
 											height="48"
 									  />
 		                              <div class="infoWrap">
-		                                  <h3>#{instructor.user.fullName}</h3>
+		                                  <h3>#{instructor.user.commaSeparatedFullName}</h3>
 		                                  <span>#{instructor.user.position}</span>
 		                              </div>
 		                          </div>
