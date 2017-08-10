@@ -774,45 +774,52 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userGroupId, context, actorId);
 
 		if (res.getResult() != null) {
-			for (EventData ev : res.getEvents()) {
-				eventFactory.generateEvent(ev);
-				if (ev.getEventType() == EventType.Registered) {
+			taskExecutor.execute(() -> {
+				//send email if new or activated account
+				if (res.getResult().isNewAccount()) {
+					boolean emailSent = false;
+					Session session = persistence.openSession();
+					Transaction t = null;
 					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
+						t = session.beginTransaction();
+						emailSent = emailSenderManager.sendEmailAboutNewAccount(
+								res.getResult().getUser(), emailAddress, session);
+						t.commit();
+					} catch (Exception e) {
 						logger.error("Error", e);
+						e.printStackTrace();
+						if (t != null) {
+							t.rollback();
+						}
+					} finally {
+						session.close();
+					}
+					if (!emailSent) {
+						logger.error("Error while sending email to the user ("
+								+ res.getResult().getUser().getId() + ") with new account created");
 					}
 				}
-			}
 
-			if (res.getResult().isNewAccount()) {
-				taskExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						boolean emailSent = false;
-						Session session = persistence.openSession();
-						Transaction t = null;
-						try {
-							t = session.beginTransaction();
-							emailSent = emailSenderManager.sendEmailAboutNewAccount(
-									res.getResult().getUser(), emailAddress, session);
-							t.commit();
-						} catch (Exception e) {
-							logger.error("Error", e);
-							e.printStackTrace();
-							if(t != null) {
-								t.rollback();
+				//generate events
+				for (EventData ev : res.getEvents()) {
+					try {
+						eventFactory.generateEvent(ev);
+						/*
+						TODO this is a hack until we implement a mechanism for
+						sequential handling of events
+						 */
+						if (ev.getEventType() == EventType.Registered) {
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								logger.error("Error", e);
 							}
-						} finally {
-							session.close();
 						}
-						if (!emailSent) {
-							logger.error("Error while sending email to the user ("
-									+ res.getResult().getUser().getId() + ") with new account created");
-						}
+					} catch (EventException ee) {
+						logger.error("Error", ee);
 					}
-				});
-			}
+				}
+			});
 
 			return true;
 		}
