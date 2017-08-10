@@ -311,7 +311,7 @@
 									
 									<script>
 										$('#' + escapeColons('formCommentOnOtherResult:panelModalAssessmentComments') + ' .addComment .contentEditableComment').on('keyup', function(e) {
-											$(this).prev('textarea').val($(this).html());
+                                            $(this).parent().find('textarea').val($(this).html());
 										});
 									</script>
 								</div>
@@ -386,7 +386,7 @@
 									
 									<script>
 										$('#' + escapeColons('formCommentOnOtherResult:panelModalAssessmentComments') + ' .addComment .contentEditableComment').on('keyup', function(e) {
-											$(this).prev('textarea').val($(this).html());
+                                            $(this).parent().find('textarea').val($(this).html());
 										});
 									</script>
 								</div>
