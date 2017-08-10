@@ -130,13 +130,12 @@
 										<p:defaultCommand target="saveBtn" />
 
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+													   process="@this"
 													   action="#{userEditBean.setUserToDelete()}"
 													   value="Delete"
 													   update=":#{cc.clientId}:formDelete"
 													   oncomplete="$('#deleteAdmin').modal('show');"
 													   rendered="#{not empty userEditBean.id}" />
-
-										<p:defaultCommand target="saveUserDataBtn" />
 									</div>
 								</div>
 							</div>
@@ -155,7 +154,7 @@
 									aria-label="Close">
 								<span aria-hidden="true">&#215;</span>
 							</button>
-							<h2 class="modal-title">Delete admin?</h2>
+							<h2 class="modal-title">Delete user?</h2>
 						</div>
 						<div class="modal-body alignLeft">
 							<p>Are you sure you want to delete #{userEditBean.user.name}
