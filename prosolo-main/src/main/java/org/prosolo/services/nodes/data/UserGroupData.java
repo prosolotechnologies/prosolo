@@ -17,6 +17,7 @@ public class UserGroupData implements Serializable {
 	private boolean joinUrlActive;
 	private String joinUrlPassword;
 	private boolean canBeDeleted;
+	private long unitId;
 	
 	public UserGroupData() {
 		
@@ -41,6 +42,7 @@ public class UserGroupData implements Serializable {
 		this.name = group.getName();
 		this.joinUrlActive = group.isJoinUrlActive();
 		this.joinUrlPassword = group.getJoinUrlPassword();
+		this.unitId = group.getUnit().getId();
 	}
 
 	public UserGroupData(long userCount, boolean canBeDeleted) {
@@ -103,5 +105,9 @@ public class UserGroupData implements Serializable {
 
 	public boolean isCanBeDeleted() {
 		return canBeDeleted;
+	}
+
+	public long getUnitId() {
+		return unitId;
 	}
 }

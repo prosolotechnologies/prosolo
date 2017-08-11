@@ -39,6 +39,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private EventFactory eventFactory;
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private UrlIdEncoder idEncoder;
+	@Inject private GroupUserAddBean groupUserAddBean;
 	
 	private List<UserData> users;
 
@@ -101,7 +102,15 @@ public class GroupUsersBean implements Serializable, Paginable {
 					u, group, page, lContext,
 					service, null);
 
-			loadUsersFromDB();
+			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " successfully removed from the group");
+
+			resetSearchData();
+			try {
+				loadUsersFromDB();
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error while loading user data");
+			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while removing user " + user.getFullName() + " from the group");
@@ -110,34 +119,27 @@ public class GroupUsersBean implements Serializable, Paginable {
 		}
 	}
 
-//	public void updateGroupUsers() {
-//		try {
-//			userGroupManager.updateGroupUsers(decodedGroupId, usersToAddToGroup, usersToRemoveFromGroup);
-//			String page = PageUtil.getPostParameter("page");
-//			String lContext = PageUtil.getPostParameter("learningContext");
-//			String service = PageUtil.getPostParameter("service");
-//			UserGroup group = new UserGroup();
-//			group.setId(decodedGroupId);
-//			for(long id : usersToAddToGroup) {
-//				User user = new User();
-//				user.setId(id);
-//				eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUserBean.getUserId(),
-//						user, group, page, lContext,
-//						service, null);
-//			}
-//			for(long id : usersToRemoveFromGroup) {
-//				User user = new User();
-//				user.setId(id);
-//				eventFactory.generateEvent(EventType.REMOVE_USER_FROM_GROUP, loggedUserBean.getUserId(),
-//						user, group, page, lContext,
-//						service, null);
-//			}
-//			PageUtil.fireSuccessfulInfoMessage("Group is updated");
-//		} catch(Exception e) {
-//			logger.error(e);
-//			PageUtil.fireErrorMessage("Error while updating group users");
-//		}
-//	}
+	public void prepareAddingUsers() {
+		groupUserAddBean.init(decodedOrgId, decodedUnitId, decodedGroupId);
+	}
+
+	public void addUser(UserData userData) {
+		boolean success = groupUserAddBean.addUser(userData, userGroupTitle);
+		if (success) {
+			resetSearchData();
+			try {
+				loadUsersFromDB();
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error while loading user data");
+			}
+		}
+	}
+
+	private void resetSearchData() {
+		searchTerm = "";
+		this.paginationData.setPage(1);
+	}
 	
 	public void resetAndSearch() {
 		this.paginationData.setPage(1);
