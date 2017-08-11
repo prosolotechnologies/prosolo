@@ -1,7 +1,5 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
@@ -10,11 +8,14 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 
 @Service
 public class NodeChangeProcessorFactory {
@@ -35,6 +36,8 @@ public class NodeChangeProcessorFactory {
 	private ESAdministration esAdministration;
 	@Inject
 	private OrganizationManager organizationManager;
+	@Inject
+	private ContextJsonParserService ctxJsonParserService;
 	
 	public NodeChangeProcessor getNodeChangeProcessor(Event event, Session session) {
 		EventType type = event.getAction();
@@ -63,6 +66,10 @@ public class NodeChangeProcessorFactory {
 			case RESOURCE_VISIBILITY_CHANGE:
 			case VISIBLE_TO_ALL_CHANGED:
 			case STATUS_CHANGED:
+			case USER_ASSIGNED_TO_ORGANIZATION:
+			case USER_REMOVED_FROM_ORGANIZATION:
+			case ADD_USER_TO_UNIT:
+			case REMOVE_USER_FROM_UNIT:
 				if (node instanceof User) {
 					return new UserNodeChangeProcessor(event, session, userEntityESService, 
 							credentialESService, competenceESService, EventUserRole.Object);
@@ -84,7 +91,8 @@ public class NodeChangeProcessorFactory {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, operation, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService,
-							credentialESService, userGroupManager, competenceESService, session);
+							credentialESService, userGroupManager, competenceESService,
+							userEntityESService, ctxJsonParserService, session);
 				} else if (node instanceof Organization) {
 					return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
 							organizationManager, event, session);
@@ -101,7 +109,8 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Delete, session);
 				} else if(node instanceof UserGroup) {
 					return new UserGroupNodeChangeProcessor(event, userGroupESService, 
-							credentialESService, userGroupManager, competenceESService, session);
+							credentialESService, userGroupManager, competenceESService,
+							userEntityESService, ctxJsonParserService, session);
 				}
 				return new RegularNodeChangeProcessor(event, nodeEntityESService, NodeOperation.Delete);
 			case Attach:
@@ -123,7 +132,7 @@ public class NodeChangeProcessorFactory {
 			case REMOVE_USER_FROM_GROUP:
 			case USER_GROUP_CHANGE:
 				return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService, 
-						userGroupManager, competenceESService, session);
+						userGroupManager, competenceESService, userEntityESService, ctxJsonParserService, session);
 			case ARCHIVE:
 				if (node instanceof Competence1) {
 					return new CompetenceNodeChangeProcessor(event, competenceESService, 

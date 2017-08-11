@@ -164,8 +164,6 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
     public OrganizationData getOrganizationDataWithoutAdmins(long organizationId) {
         String query =
                 "SELECT organization " +
@@ -182,7 +180,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit) {
+    @Transactional(readOnly = true)
+    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins) {
         PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
         String query =
@@ -190,21 +189,30 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 "FROM Organization organization " +
                 "WHERE organization.deleted IS FALSE ";
 
-        List<Organization> organizations = persistence.currentManager().createQuery(query)
-                .setFirstResult(page*limit)
-                .setMaxResults(limit)
-                .list();
+        Query q = persistence.currentManager().createQuery(query);
+        if (page >= 0 && limit > 0) {
+            q.setFirstResult(page * limit);
+            q.setMaxResults(limit);
+        }
 
-        for(Organization o : organizations){
-            String[] rolesArray = new String[]{"Admin","Super Admin"};
-            List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+        List<Organization> organizations = q.list();
 
-            List<User> chosenAdmins = getOrganizationUsers(o.getId(),false,persistence.currentManager(),adminRoles);
-            List<UserData> listToPass = new ArrayList<>();
-            for(User u : chosenAdmins){
-                listToPass.add(new UserData(u));
+        for(Organization o : organizations) {
+            OrganizationData od;
+            if (loadAdmins) {
+                String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+                List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
+                List<UserData> listToPass = new ArrayList<>();
+                for (User u : chosenAdmins) {
+                    listToPass.add(new UserData(u));
+                }
+                od = new OrganizationData(o, listToPass);
+            } else {
+                od = new OrganizationData(o);
             }
-            OrganizationData od = new OrganizationData(o,listToPass);
+
             response.addFoundNode(od);
         }
         response.setHitsNumber(getOrganizationsCount());
@@ -270,6 +278,24 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving users");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getOrganizationTitle(long organizationId) throws DbConnectionException {
+        try {
+            String query = "SELECT org.title FROM Organization org " +
+                           "WHERE org.id = :orgId " +
+                           "AND org.deleted IS false";
+
+            return (String) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving organization title");
         }
     }
 }

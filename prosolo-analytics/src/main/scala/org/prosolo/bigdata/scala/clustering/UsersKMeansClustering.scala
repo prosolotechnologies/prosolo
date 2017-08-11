@@ -1,29 +1,26 @@
 package org.prosolo.bigdata.scala.clustering
 
 import org.prosolo.bigdata.dal.cassandra.impl.UserObservationsDBManagerImpl
-import org.prosolo.bigdata.scala.clustering.userprofiling.{FeaturesToProfileMatcher, ClusterResults, ClusterHelper, ClusterName}
+import org.prosolo.bigdata.scala.clustering.userprofiling.{ClusterHelper, ClusterName, ClusterResults, FeaturesToProfileMatcher}
 import org.prosolo.bigdata.scala.statistics.FeatureQuartiles
-import org.prosolo.bigdata.utils.DateUtil
-
 import com.datastax.driver.core.Row
-
-import org.apache.mahout.math.{ DenseVector, NamedVector, VectorWritable }
-import org.apache.hadoop.io.{ SequenceFile, Text }
+import org.apache.mahout.math.{DenseVector, NamedVector, VectorWritable}
+import org.apache.hadoop.io.{SequenceFile, Text}
 import org.apache.mahout.common.HadoopUtil
 import org.apache.mahout.common.distance.CosineDistanceMeasure
 import org.apache.mahout.clustering.classify.WeightedPropertyVectorWritable
-import org.apache.mahout.clustering.kmeans.{ KMeansDriver, RandomSeedGenerator, Kluster }
+import org.apache.mahout.clustering.kmeans.{KMeansDriver, Kluster, RandomSeedGenerator}
 import org.apache.mahout.clustering.Cluster
-
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{ Path, FileSystem }
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.SequenceFile
-
-import java.io.{ File, PrintWriter, FileWriter, BufferedWriter }
-import java.util.{ Date, Calendar }
+import java.io.{BufferedWriter, File, FileWriter, PrintWriter}
+import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
-import scala.collection.mutable.{ Buffer, ListBuffer, ArrayBuffer, Map, HashMap }
+import org.prosolo.common.util.date.DateEpochUtil
+
+import scala.collection.mutable.{ArrayBuffer, Buffer, HashMap, ListBuffer, Map}
 import scala.collection.JavaConverters._
 
 /**
@@ -276,9 +273,9 @@ object UsersKMeansClustering {
 
   def calculateUsersClasteringForPeriod(startDate: Date, endDate: Date) = {
 
-    val startDateSinceEpoch = DateUtil.getDaysSinceEpoch(startDate)
+    val startDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(startDate)
     println("DAYS SINCE EPOCH FOR:" + startDate + " is:" + startDateSinceEpoch)
-    val endDateSinceEpoch = DateUtil.getDaysSinceEpoch(endDate)
+    val endDateSinceEpoch = DateEpochUtil.getDaysSinceEpoch(endDate)
     for (date <- startDateSinceEpoch to endDateSinceEpoch) {
       calculateUsersClasteringForDate(date)
     }

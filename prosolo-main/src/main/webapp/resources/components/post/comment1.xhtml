@@ -46,14 +46,15 @@
 					<p class="commentText">
 						<h:outputText escape="false" value="#{comment.comment}" />
 					</p>
-                	
+
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
 						<h:inputTextarea class="hidden"
 								value="#{comment.comment}" />
-							
+
 						<div class="contentEditableComment"
-							strip-br="true" contenteditable="true"
-							onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
+							 strip-br="true" contenteditable="true"
+							 placeholder="Add Comment..."
+							 onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
 
 						<p:commandLink
 							styleClass="btn btn-sm btn-green submitBtn"
@@ -64,6 +65,12 @@
 							<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment|id:'.concat(comment.commentId))}"/>
 						</p:commandLink>
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
+
+						<script>
+                            $('#' + escapeColons('comment_#{comment.commentId}') + ' .editComment .contentEditableComment').on('keyup', function(e) {
+                                $(this).parent().find('textarea').val($(this).html());
+                            });
+						</script>
 					</h:panelGroup>
 	                
 					<div class="commentOptions">
@@ -106,8 +113,8 @@
 						<div class="commentForm">
 							<h:inputTextarea class="hidden"
 								value="#{comment.replyToComment}" />
-							
-							<div class="contentEditableComment" placeholder="Add Comment..." 
+
+							<div class="contentEditableComment" placeholder="Add Comment..."
 								strip-br="true" contenteditable="true"
 								onkeyup="displaySubmitButton(this);"></div>
 
@@ -123,7 +130,7 @@
 							
 							<script>
 							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {
-								$(this).prev('textarea').val($(this).html());
+								$(this).parent().find('textarea').val($(this).html());
 							});
 							</script>
 						</div>
@@ -156,12 +163,6 @@
 							</ui:repeat>
 						</ui:fragment>
 				    </h:panelGroup>
-					
-					<script>
-					$('#comment_#{comment.commentId} .editComment .contentEditableComment').on('keyup', function(e) {
-						$(this).prev('textarea').val($(this).html());
-					});
-					</script>
 				</c:if>
             </div>
 		</div>

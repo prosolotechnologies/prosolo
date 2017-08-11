@@ -118,7 +118,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			
 			builder.endObject();
 			System.out.println("JSON: " + builder.prettyPrint().string());
-			String indexType = getIndexTypeForNode(comp);
+			String indexType = ESIndexTypes.COMPETENCE;
 			indexNode(builder, String.valueOf(comp.getId()), ESIndexNames.INDEX_NODES, indexType);
 		} catch (Exception e) {
 			logger.error(e);

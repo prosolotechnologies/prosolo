@@ -15,6 +15,7 @@ import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -22,9 +23,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.nodes.data.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,14 +43,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroup> getAllGroups() throws DbConnectionException {
+	public List<UserGroup> getAllGroups(boolean returnDefaultGroups, Session session) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT g " +
-				"FROM UserGroup g";
+				"FROM UserGroup g ";
+
+			if (!returnDefaultGroups) {
+				query += "WHERE g.defaultGroup IS FALSE";
+			}
 			
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = persistence.currentManager().createQuery(query).list();
+			List<UserGroup> result = session.createQuery(query).list();
 			
 			return result == null ? new ArrayList<>() : result; 
 		} catch(Exception e) {
@@ -84,19 +87,24 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserGroupData> searchGroups(String searchTerm, int limit, int page) 
+	public List<UserGroupData> searchGroups(long unitId, String searchTerm, int limit, int page)
 			throws DbConnectionException {
 		try {
 			String query = 
-				"SELECT g " +
+				"SELECT g, COUNT(distinct credGroup), COUNT(distinct compGroup) " +
 				"FROM UserGroup g " +
-				"WHERE g.name LIKE :term " +
+				"LEFT JOIN g.credentialUserGroups credGroup " +
+				"LEFT JOIN g.competenceUserGroups compGroup " +
+				"WHERE g.unit.id = :unitId " +
+				"AND g.name LIKE :term " +
+				"GROUP BY g " +
 				"ORDER BY g.name ASC";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			@SuppressWarnings("unchecked")
-			List<UserGroup> result = persistence.currentManager()
+			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
+					.setLong("unitId", unitId)
 					.setString("term", "%" + term)
 					.setFirstResult(page * limit)
 					.setMaxResults(limit)
@@ -106,8 +114,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				return new ArrayList<>();
 			}
 			List<UserGroupData> groups = new ArrayList<>();
-			for(UserGroup group : result) {
-				groups.add(new UserGroupData(group.getId(), group.getName(), group.getUsers().size()));
+			for(Object[] res : result) {
+				UserGroup group = (UserGroup) res[0];
+				long credGroupsNo = (long) res[1];
+				long compGroupsNo = (long) res[2];
+				groups.add(
+						new UserGroupData(
+								group.getId(), group.getName(),
+								(credGroupsNo + compGroupsNo) == 0, group.getUsers().size()));
 			}
 			return groups;
 		} catch(Exception e) {
@@ -119,16 +133,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional(readOnly = true)
-	public long countGroups(String searchTerm) throws DbConnectionException {
+	public long countGroups(long unitId, String searchTerm) throws DbConnectionException {
 		try {
 			String query = 
 				"SELECT COUNT(g.id) " +
 				"FROM UserGroup g " +
-				"WHERE g.name LIKE :term";
+				"WHERE g.unit.id = :unitId " +
+				"AND g.name LIKE :term";
 			
 			String term = searchTerm == null ? "" : searchTerm;
 			Long result = (Long) persistence.currentManager()
 					.createQuery(query)
+					.setLong("unitId", unitId)
 					.setString("term", "%" + term)
 					.uniqueResult();
 			
@@ -142,10 +158,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	
 	@Override
 	@Transactional (readOnly = false)
-	public UserGroup saveNewGroup(String name, boolean isDefault, long userId, 
+	public UserGroup saveNewGroup(long unitId, String name, boolean isDefault, long userId,
 			LearningContextData context) throws DbConnectionException {
 		try {
-			UserGroup group = resourceFactory.saveNewGroup(name, isDefault);
+			UserGroup group = resourceFactory.saveNewGroup(unitId, name, isDefault);
 			String page = context != null ? context.getPage() : null;
 			String lContext = context != null ? context.getLearningContext() : null;
 			String service = context != null ? context.getService() : null;
@@ -344,6 +360,34 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		throw new DbConnectionException("Error while retrieving number of users in a group");
     	}
     }
+
+	@Override
+	@Transactional(readOnly = true)
+	public UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException {
+		try {
+			String query = "SELECT COUNT(distinct user), COUNT(distinct credGroup), COUNT(distinct compGroup) FROM UserGroup g " +
+					"LEFT JOIN g.users user " +
+					"LEFT JOIN g.credentialUserGroups credGroup " +
+					"LEFT JOIN g.competenceUserGroups compGroup " +
+					"WHERE g.id = :groupId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(query)
+					.setLong("groupId", groupId)
+					.uniqueResult();
+
+			long userCount = (long) res[0];
+			long credGroupsCount = (long) res[1];
+			long compGroupsCount = (long) res[2];
+
+			UserGroupData ugd = new UserGroupData(userCount, (credGroupsCount + compGroupsCount) == 0);
+			return ugd;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving user group data");
+		}
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1883,6 +1927,119 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while saving user privilege");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginatedResult<UserData> getPaginatedGroupUsers(long groupId, int limit, int offset)
+			throws DbConnectionException {
+		try {
+			PaginatedResult<UserData> pRes = new PaginatedResult<>();
+			pRes.setFoundNodes(getGroupUsers(groupId, limit, offset));
+			pRes.setHitsNumber(countGroupUsers(groupId));
+
+			return pRes;
+		} catch(Exception e) {
+			e.printStackTrace();
+			logger.error(e);
+			throw new DbConnectionException("Error while retrieving user groups");
+		}
+	}
+
+	private long countGroupUsers(long groupId) {
+		String query =
+				"SELECT COUNT(u) " +
+				"FROM UserGroupUser ugu " +
+				"INNER JOIN ugu.user u " +
+				"WHERE ugu.group.id = :groupId";
+
+		return (long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.uniqueResult();
+	}
+
+	private List<UserData> getGroupUsers(long groupId, int limit, int offset) {
+		String query =
+				"SELECT u " +
+				"FROM UserGroupUser ugu " +
+				"INNER JOIN ugu.user u " +
+				"WHERE ugu.group.id = :groupId " +
+				"ORDER BY u.name ASC";
+
+		@SuppressWarnings("unchecked")
+		List<User> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.list();
+
+		List<UserData> res = new ArrayList<>();
+		if(result != null) {
+			for (User u : result) {
+				res.add(new UserData(u));
+			}
+		}
+
+		return res;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
+			throws DbConnectionException {
+		try {
+			String q = "SELECT g.name, unit.title, org.title " +
+					"FROM UserGroup g " +
+					"INNER JOIN g.unit unit " +
+						"WITH unit.id = :unitId " +
+					"INNER JOIN unit.organization org " +
+						"WITH org.id = :orgId " +
+					"WHERE g.id = :groupId";
+
+			Object[] res = (Object[]) persistence.currentManager()
+					.createQuery(q)
+					.setLong("groupId", groupId)
+					.setLong("unitId", unitId)
+					.setLong("orgId", organizationId)
+					.uniqueResult();
+
+			return res != null
+					? TitleData.ofOrganizationUnitAndUserGroupTitle(
+							(String) res[2], (String) res[1], (String) res[0])
+					: null;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user group data");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getUserGroupIds(long userId, boolean returnDefaultGroupIds)
+			throws DbConnectionException {
+		try {
+			String q = "SELECT g.id " +
+					"FROM UserGroupUser ugu " +
+					"INNER JOIN ugu.group g " +
+					"WHERE ugu.user.id = :userId ";
+
+			if (!returnDefaultGroupIds) {
+				q += "AND g.defaultGroup IS FALSE";
+			}
+
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(q)
+					.setLong("userId", userId)
+					.list();
+
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving user group ids");
 		}
 	}
 

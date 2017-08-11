@@ -9,173 +9,178 @@
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-<ui:define name="windowTitle">
-	Roles
-</ui:define>
+	<ui:define name="metadata">
+		<f:metadata>
 
-<ui:define name="metadata">
-	<f:metadata>
+		</f:metadata>
+	</ui:define>
 
-	</f:metadata>
-</ui:define>
+	<ui:define name="windowTitle">
+		Roles
+	</ui:define>
 
-<ui:define name="content">
-	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
-    <div class="whiteBar">
-        <div class="container">
-            <div class="whiteBarContent">
-                <div class="whiteBarLeft">
-                    <p:commandLink 
-                    	styleClass="btn btn-green btn-sm item" 
-                    	pt:data-toggle="modal" 
-                    	action="#{roles.prepareAddRole()}"
-                    	update=":formEditRole:panelNewRoleContent"
-                    	oncomplete="$('#formEditRole\\:inputRoleName').val('');
-                    	$('#newRoleModal').modal('show');">New Role
-                    </p:commandLink>
-                </div>
-            </div>
-        </div>
-    </div>
+	<ui:define name="resourceTitle">
+		<h1>Roles</h1>
+	</ui:define>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="whiteBox">
-                    <h2>Roles</h2>
-                    <h:panelGroup id="panelRoles">
-	                    <table class="tableRoles">
-	                    	<ui:repeat var="role" value="#{roles.roles}" varStatus="status">
-	                    		<tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
-		                            <td class="col1 alignLeft">#{role.name}</td>
-		                            <td class="col2">
-		                            	<h:link rendered="#{not empty role.userIds}" 
-		                            		outcome="/admin/users">
-		                            		<f:param name="role" value="#{util:encodeId(role.id)}"></f:param>
-		                            		#{role.userIds.size()} users
-		                            	</h:link>
-		                            	<h:outputText rendered="#{empty role.userIds}" value="0 users" />
-		                            </td>
-		                            <td class="col3">
-		                            	 <p:commandLink 
-					                    	styleClass="btn btn-green-stroke btn-sm" 
-					                    	pt:data-toggle="modal" 
-					                    	action="#{roles.prepareEditRole(role)}"
-					                    	update=":formEditRole:panelNewRoleContent"
-					                    	oncomplete="$('#newRoleModal').modal('show');">
-					                    	Rename
-					                     </p:commandLink>
-		                              	 <p:commandLink 
-		                              	 	rendered="#{!roles.isRoleUsed(role)}"
-		                                	styleClass="linkRed"
-		                                	pt:data-toggle="modal"
-		                                	action="#{roles.setRoleToDelete(role)}"
-		                                	update=":deleteRoleModal"
-		                                	oncomplete="$('#deleteModal').modal('show');">
-		                                	Delete
-		                                </p:commandLink>
-		                                <ui:fragment rendered="#{roles.isRoleUsed(role)}">
-		                                	<a href="javascript:void(0);" class="linkRed" data-toggle="tooltip" 
-		                                		title="There are users with this role, so it cannot be deleted">
-		                                		Delete
-		                                	</a>
-		                            	</ui:fragment>
-		                            </td>
-		                        </tr>
-	                    	</ui:repeat>
-	                    </table>
-                    </h:panelGroup>
-                    <div class="clear"></div>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="whiteBox">
-                    <h2>Capabilities</h2>
-                    <h:form id="formCapabilities">
-                    	<p:growl id="growlCaps" showDetail="true" globalOnly="true"></p:growl>
-	                    <table class="tableCapabilities">
-	                        <tr>
-	                            <th class="col1">&#160;</th>
-	                            <c:forEach items="#{roles.roles}" var="role">
-									<th class="colCheck">
-		    							#{role.name}
-		    						</th>
-								</c:forEach>
-	                        </tr>
-	                        <ui:repeat var="cap" value="#{roles.capabilities}" varStatus="status">
-	                          <tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
-	                            <td class="alignLeft">#{cap.description}</td>
-	                            <c:forEach items="#{roles.roles}" var="role" varStatus="status1">
-									<td>
-										<div class="checkbox">
-			        						<h:selectBooleanCheckbox id="checkboxCapRole#{status1.index}" checked="#{roles.isSelected(cap,role)}">
-												<p:ajax event="click" process="@this"
-													listener="#{roles.capabilityChanged(cap, role)}" update=":formCapabilities:growlCaps @this" />
-											</h:selectBooleanCheckbox>
-											<h:outputLabel for="checkboxCapRole#{status1.index}">
-												&#160;
-											</h:outputLabel>
-										</div>
-			    					</td>
-								</c:forEach>
-	                          </tr>
-	                        </ui:repeat>
-	                    </table>
-                    </h:form>
-                    <div class="clear"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <h:form id="formEditRole">
-      <div class="modal fade newFeedModal" id="newRoleModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
-          <div class="modal-dialog">
-              <h:panelGroup layout="block" id="panelNewRoleContent" styleClass="modal-content">
-              	<ui:fragment rendered="#{not empty roles.formData}">
-                  <div class="modal-header alignLeft">
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                      <h2 class="modal-title">#{roles.isCreateRoleUseCase() ? 'Add New Role' : 'Rename Role'}</h2>
-                  </div>
-                  <div class="modal-body alignLeft">
-                  	  <h:inputText id="inputRoleName"
-							value="#{roles.formData.name}" 
-							required="true" 
-							requiredMessage="Name is required"
-							validator="#{roles.validateName}"
-							placeholder="Role Name"
-							autocomplete="off"/>
+	<ui:define name="content">
+		<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+						<p:commandLink
+							styleClass="btn btn-green btn-sm item"
+							pt:data-toggle="modal"
+							action="#{roles.prepareAddRole()}"
+							update=":formEditRole:panelNewRoleContent"
+							oncomplete="$('#formEditRole\\:inputRoleName').val('');
+							$('#newRoleModal').modal('show');">New Role
+						</p:commandLink>
+					</div>
+				</div>
+			</div>
+		</div>
 
-					  <small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRoleName"></h:message></small>
-                  </div>
-                  <div class="modal-footer alignLeft">
-                      <p:commandLink id="saveBtn"
-                      	styleClass="btn btn-green"
-                      	oncomplete="
-							if (args &amp;&amp; !args.validationFailed)
-								$('#newRoleModal').modal('hide');"
-					 	action="#{roles.saveRole}" 
-					 	update=":formEditRole:panelNewRoleContent :panelRoles :formCapabilities">
-                      	#{roles.isCreateRoleUseCase() ? 'Add' : 'Save'}
-                      </p:commandLink>
-					  <p:defaultCommand target="saveBtn"></p:defaultCommand>
-                      <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                  </div>
-                 </ui:fragment>
-              </h:panelGroup>
-			  <script>
-                  $('#newRoleModal').on('shown.bs.modal', function () {
-                      $('#newRoleModal input').focus();
-                  })
-			  </script>
-          </div>
-      </div>
-    </h:form>
-	<courses:deleteModalDialog id="deleteRoleModal"
-   			deleteActionMethodName="delete"     	
-          	deleteAction="#{roles.delete}"
-          	toUpdate=":panelRoles :formCapabilities :growlMain" 
-          	modalDeleteTitle="role"
-          	modalDeleteText="role '#{roles.roleToDelete.name}'"/>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h2>Roles</h2>
+						<h:panelGroup id="panelRoles">
+							<table class="tableRoles">
+								<ui:repeat var="role" value="#{roles.roles}" varStatus="status">
+									<tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
+										<td class="col1 alignLeft">#{role.name}</td>
+										<td class="col2">
+											<h:outputText rendered="#{not empty role.userIds}" value="#{role.userIds.size()} users" />
+											<h:outputText rendered="#{empty role.userIds}" value="0 users" />
+										</td>
+										<td class="col3">
+											 <p:commandLink
+												styleClass="btn btn-green-stroke btn-sm"
+												pt:data-toggle="modal"
+												action="#{roles.prepareEditRole(role)}"
+												update=":formEditRole:panelNewRoleContent"
+												oncomplete="$('#newRoleModal').modal('show');">
+												Rename
+											 </p:commandLink>
+											 <p:commandLink
+												rendered="#{!roles.isRoleUsed(role)}"
+												styleClass="linkRed"
+												pt:data-toggle="modal"
+												action="#{roles.setRoleToDelete(role)}"
+												update=":deleteRoleModal"
+												oncomplete="$('#deleteModal').modal('show');">
+												Delete
+											</p:commandLink>
+											<ui:fragment rendered="#{roles.isRoleUsed(role)}">
+												<a href="javascript:void(0);" class="linkRed" data-toggle="tooltip"
+													title="There are users with this role, so it cannot be deleted">
+													Delete
+												</a>
+											</ui:fragment>
+										</td>
+									</tr>
+								</ui:repeat>
+							</table>
+						</h:panelGroup>
+						<div class="clear"></div>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h2>Capabilities</h2>
+						<h:form id="formCapabilities">
+							<p:growl id="growlCaps" showDetail="true" globalOnly="true"></p:growl>
+							<table class="tableCapabilities">
+								<tr>
+									<th class="col1">&#160;</th>
+									<c:forEach items="#{roles.roles}" var="role">
+										<th class="colCheck">
+											#{role.name}
+										</th>
+									</c:forEach>
+								</tr>
+								<ui:repeat var="cap" value="#{roles.capabilities}" varStatus="status">
+								  <tr class="#{status.index % 2 eq 1 ? 'rowGrey' : ''}">
+									<td class="alignLeft">#{cap.description}</td>
+									<c:forEach items="#{roles.roles}" var="role" varStatus="status1">
+										<td>
+											<div class="checkbox">
+												<h:selectBooleanCheckbox id="checkboxCapRole#{status1.index}" checked="#{roles.isSelected(cap,role)}">
+													<p:ajax event="click" process="@this"
+														listener="#{roles.capabilityChanged(cap, role)}" update=":formCapabilities:growlCaps @this" />
+												</h:selectBooleanCheckbox>
+												<h:outputLabel for="checkboxCapRole#{status1.index}">
+													&#160;
+												</h:outputLabel>
+											</div>
+										</td>
+									</c:forEach>
+								  </tr>
+								</ui:repeat>
+							</table>
+						</h:form>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<h:form id="formEditRole">
+		  <div class="modal fade newFeedModal" id="newRoleModal" tabindex="-1" role="dialog" aria-labelledby="newFeedSourceModal">
+			  <div class="modal-dialog">
+				  <h:panelGroup layout="block" id="panelNewRoleContent" styleClass="modal-content">
+					<ui:fragment rendered="#{not empty roles.formData}">
+					  <div class="modal-header alignLeft">
+						  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						  <h2 class="modal-title">#{roles.isCreateRoleUseCase() ? 'Add New Role' : 'Rename Role'}</h2>
+					  </div>
+					  <div class="modal-body alignLeft">
+						  <h:inputText id="inputRoleName"
+								value="#{roles.formData.name}"
+								required="true"
+								requiredMessage="Name is required"
+								validator="#{roles.validateName}"
+								placeholder="Role Name"
+								autocomplete="off"/>
+						  <h:panelGroup
+							layout="block"
+							rendered="#{not empty facesContext.getMessageList('formEditRole:inputRoleName')}"
+							styleClass="alert alert-danger"
+							pt:role="alert">
+							  <h:message for="inputRoleName"></h:message>
+						  </h:panelGroup>
+					  </div>
+					  <div class="modal-footer alignLeft">
+						  <p:commandLink id="saveBtn"
+							styleClass="btn btn-green"
+							oncomplete="
+								if (args &amp;&amp; !args.validationFailed)
+									$('#newRoleModal').modal('hide');"
+							action="#{roles.saveRole}"
+							update=":formEditRole:panelNewRoleContent :panelRoles :formCapabilities">
+							#{roles.isCreateRoleUseCase() ? 'Add' : 'Save'}
+						  </p:commandLink>
+						  <p:defaultCommand target="saveBtn"></p:defaultCommand>
+						  <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					  </div>
+					 </ui:fragment>
+				  </h:panelGroup>
+				  <script>
+					  $('#newRoleModal').on('shown.bs.modal', function () {
+						  $('#newRoleModal input').focus();
+					  })
+				  </script>
+			  </div>
+		  </div>
+		</h:form>
+		<courses:deleteModalDialog id="deleteRoleModal"
+				deleteActionMethodName="delete"
+				deleteAction="#{roles.delete}"
+				toUpdate=":panelRoles :formCapabilities :growlMain"
+				modalDeleteTitle="role"
+				modalDeleteText="role '#{roles.roleToDelete.name}'"/>
 	</ui:define>
 </ui:composition>

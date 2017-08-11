@@ -8,16 +8,15 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.CredentialData;
+import org.prosolo.services.nodes.util.RoleUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,18 +45,94 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Inject
 	private RoleManager roleManager;
 	@Inject private Competence1Manager compManager;
-	
+	@Inject private UnitManager unitManager;
+	@Inject private UserGroupManager userGroupManager;
+
 	@Override
-	@Transactional
 	public void saveUserNode(User user, Session session) {
-		saveUserNode(user, 0, session);
+		//if user has admin role, add it to system user index
+		if (RoleUtil.hasAdminRole(user)) {
+			saveSystemUser(user, session);
+		}
+		//if user has organization set, add it to organization user index
+		if (user.getOrganization() != null) {
+			saveOrganizationUser(user, user.getOrganization().getId(), session);
+		}
 	}
 
 	@Override
-	public void saveUserNode(User user, long organizationId, Session session) {
+	public void addUserToOrganization(User user, long organizationId, Session session) {
+		saveOrganizationUser(user, organizationId, session);
+		//if user is also a system user (admin) update assigned flag to true
+		if (RoleUtil.hasAdminRole(user)) {
+			updateUserAssignedFlag(user.getId(), true);
+		}
+	}
+
+	@Override
+	public void removeUserFromOrganization(User user, long organizationId) {
+		delete(user.getId() + "", ESIndexNames.INDEX_USERS +
+				ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER);
+		//if user is also a system user (admin) update assigned flag to false
+		if (RoleUtil.hasAdminRole(user)) {
+			updateUserAssignedFlag(user.getId(), false);
+		}
+	}
+
+	private void saveSystemUser(User user, Session session) {
 		if (user != null) {
 			try {
-				XContentBuilder builder = getBasicUserDataSet(user);
+				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+
+				builder.field("id", user.getId());
+				//	builder.field("url", user.getUri());
+				builder.field("name", user.getName());
+				builder.field("lastname", user.getLastname());
+
+				builder.field("avatar", user.getAvatarUrl());
+				builder.field("position", user.getPosition());
+
+				builder.field("assigned", user.getOrganization() != null);
+
+				builder.startArray("roles");
+				user.getRoles().stream().filter(role -> RoleUtil.isAdminRole(role)).forEach( role -> {
+					try {
+						builder.startObject();
+						builder.field("id", role.getId());
+						builder.endObject();
+					} catch (IOException e) {
+						logger.error("error", e);
+					}
+				});
+
+				builder.endArray();
+
+				builder.endObject();
+				logger.info("JSON: " + builder.prettyPrint().string());
+				String indexType = ESIndexTypes.USER;
+				indexNode(builder, String.valueOf(user.getId()), ESIndexNames.INDEX_USERS, indexType);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+	}
+
+	@Override
+	public void updateBasicUserData(User user, Session session) {
+		//if user has admin role, add it to system user index
+		if (RoleUtil.hasAdminRole(user)) {
+			saveSystemUser(user, session);
+		}
+		//if user has organization set, add it to organization user index
+		if (user.getOrganization() != null) {
+			updateBasicOrgUserData(user, user.getOrganization().getId(), session);
+		}
+	}
+
+	private void saveOrganizationUser(User user, long organizationId, Session session) {
+		if (user != null) {
+			try {
+				XContentBuilder builder = getBasicOrgUserDataSet(user, session);
 				List<CredentialData> creds = credManager.getTargetCredentialsProgressAndInstructorInfoForUser(
 						user.getId(), session);
 				builder.startArray("credentials");
@@ -130,11 +205,20 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				}
 				builder.endArray();
 
+				builder.startArray("groups");
+				List<Long> groups = userGroupManager.getUserGroupIds(user.getId(), false);
+				for (long id : groups) {
+					builder.startObject();
+					builder.field("id", id);
+					builder.endObject();
+				}
+				builder.endArray();
+
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
-				String indexType = getIndexTypeForNode(user);
+				String indexType = ESIndexTypes.ORGANIZATION_USER;
 				String fullIndexName = ESIndexNames.INDEX_USERS +
-						(organizationId > 0 ? ElasticsearchUtil.getOrganizationIndexSuffix(organizationId) : "");
+						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
 				indexNode(builder, String.valueOf(user.getId()), fullIndexName, indexType);
 			} catch (IOException e) {
 				logger.error(e);
@@ -142,21 +226,21 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 	
-	@Override
-	@Transactional
-	public void updateBasicUserData(User user, Session session) {
+	private void updateBasicOrgUserData(User user, long organizationId, Session session) {
 		if(user!=null) {
 	 		try {
-				XContentBuilder builder = getBasicUserDataSet(user);
+				XContentBuilder builder = getBasicOrgUserDataSet(user, session);
 				builder.endObject();
-				partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, user.getId() + "", builder);
+				partialUpdate(ESIndexNames.INDEX_USERS +
+						ElasticsearchUtil.getOrganizationIndexSuffix(organizationId), ESIndexTypes.ORGANIZATION_USER,
+						user.getId() + "", builder);
 			} catch (IOException e) {
 				logger.error(e);
 			}
 		}
 	}
 	
-	private XContentBuilder getBasicUserDataSet(User user) throws IOException {
+	private XContentBuilder getBasicOrgUserDataSet(User user, Session session) throws IOException {
 		XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 		builder.field("id", user.getId());
 	//	builder.field("url", user.getUri());
@@ -174,10 +258,17 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		builder.field("position", user.getPosition());
 		
 		builder.startArray("roles");
-		List<Role> roles = roleManager.getUserRoles(user.getEmail());
-		for(Role role : roles) {
+		for(Role role : user.getRoles()) {
 			builder.startObject();
 			builder.field("id", role.getId());
+			builder.startArray("units");
+			List<Unit> units = unitManager.getAllUnitsWithUserInARole(user.getId(), role.getId(), session);
+			for (Unit unit : units) {
+				builder.startObject();
+				builder.field("id", unit.getId());
+				builder.endObject();
+			}
+			builder.endArray();
 			builder.endObject();
 		}
 		builder.endArray();
@@ -365,6 +456,126 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			params.put("date", completionDate);
 			partialUpdateByScript(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, 
 					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	private void updateUserAssignedFlag(long userId, boolean assigned) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			builder.field("assigned", assigned);
+			builder.endObject();
+
+			partialUpdate(ESIndexNames.INDEX_USERS, ESIndexTypes.USER, userId + "", builder);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addUserToUnitWithRole(long organizationId, long userId, long unitId, long roleId) {
+		try {
+			String script = "ctx._source.roles.findAll {it.id == roleId } " +
+					".each {" +
+						"if (it.units == null) { " +
+							"it.units = unit " +
+						"} else { " +
+							"it.units += unit " +
+						"}" +
+					" }";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("roleId", roleId);
+			Map<String, Object> unitParam = new HashMap<>();
+			unitParam.put("id", unitId);
+			params.put("unit", unitParam);
+			partialUpdateByScript(
+					ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ESIndexTypes.ORGANIZATION_USER,
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void removeUserFromUnitWithRole(long organizationId, long userId, long unitId, long roleId) {
+		try {
+			String script = "for (role in ctx._source.roles) { "
+								+ "if (role.id == roleId) { "
+									+ "unitToRemove = null; "
+									+ "for (unit in role.units) { "
+										+ "if (unit.id == unitId) { "
+											+ "unitToRemove = unit; "
+											+ "break; "
+										+ "} "
+									+ "}; "
+									+ "if (unitToRemove != null) { "
+										+ "role.units.remove(unitToRemove); "
+									+ "}; "
+									+ "break;"
+								+ "}"
+					      + "}";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("roleId", roleId);
+			params.put("unitId", unitId);
+			partialUpdateByScript(
+					ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
+					ESIndexTypes.ORGANIZATION_USER,
+					userId+"", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addGroup(long orgId, long userId, long groupId) {
+		try {
+			String script =
+					"if (ctx._source[\"groups\"] == null) { " +
+							"ctx._source.groups = group " +
+							"} else { " +
+							"ctx._source.groups += group " +
+							"}";
+
+			Map<String, Object> params = new HashMap<>();
+			Map<String, Object> param = new HashMap<>();
+			param.put("id", groupId);
+			params.put("group", param);
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			partialUpdateByScript(indexName, ESIndexTypes.ORGANIZATION_USER,
+					userId + "", script, params);
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void removeGroup(long orgId, long userId, long groupId) {
+		try {
+			String script = "groupToRemove = null; "
+					+ "for (g in ctx._source.groups) {"
+					+ "if (g['id'] == groupId) "
+					+ "{ groupToRemove = g; break; } }; "
+					+ "if (groupToRemove != null) "
+					+ "{ ctx._source.groups.remove(groupToRemove); }";
+
+			Map<String, Object> params = new HashMap<>();
+			params.put("groupId", groupId);
+
+			String indexName = ESIndexNames.INDEX_USERS
+					+ ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+			partialUpdateByScript(indexName, ESIndexTypes.ORGANIZATION_USER,
+					userId + "", script, params);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

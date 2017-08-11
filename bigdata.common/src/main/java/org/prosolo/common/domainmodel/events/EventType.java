@@ -145,7 +145,10 @@ public enum EventType {
 	ARCHIVE,
 	RESTORE,
 
-	OWNER_CHANGE;
+	OWNER_CHANGE,
+
+	ADD_USER_TO_UNIT,
+	REMOVE_USER_FROM_UNIT;
 	
 	private String customText;
 	
