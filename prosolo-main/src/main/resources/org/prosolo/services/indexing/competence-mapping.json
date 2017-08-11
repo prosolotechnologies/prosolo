@@ -5,6 +5,14 @@
 				"store": false,
 				"type":"long"
 			},
+			"units" : {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
 			"published":{
 				"store": false,
 				"type": "boolean"
