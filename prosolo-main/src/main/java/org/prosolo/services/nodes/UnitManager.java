@@ -69,4 +69,6 @@ public interface UnitManager extends AbstractManager{
 
     void deleteUnit(long unitId) throws DbConnectionException;
 
+    boolean isUserAddedToUnitWithRole(long unitId, long userId, long roleId) throws DbConnectionException;
+
 }

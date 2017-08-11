@@ -564,4 +564,26 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isUserAddedToUnitWithRole(long unitId, long userId, long roleId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT urm.id FROM UnitRoleMembership urm " +
+                    "WHERE urm.unit.id = :unitId " +
+                    "AND urm.user.id = :userId " +
+                    "AND urm.role.id = :roleId";
+
+            return persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .uniqueResult() != null;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user data");
+        }
+    }
+
 }
