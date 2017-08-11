@@ -149,10 +149,10 @@
                             	value="#{activityWallBean.uploadFile.description}">
                             </h:inputTextarea>
 							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}">
-								<small class="redText">File title must be entered</small><br/>
+								<small class="redText bottom30 topMinus30 displayBlock">File title must be entered</small><br/>
 							</ui:fragment>
 							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}">
-								<small class="redText">File must be uploaded</small>
+								<small class="redText bottom30 topMinus30 displayBlock">File must be uploaded</small>
 							</ui:fragment>
                         </div>
                         <div class="modal-footer alignLeft">
