@@ -112,7 +112,7 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{competenceEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-			            		Competency is published... Only limited edits are allowed.
+								Since competency was published, only small edits are allowed.
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
@@ -230,7 +230,7 @@
 			            <div class="col-md-4">
 			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                   	Competency is now <strong>Draft</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+			                   	Competency is now <strong>#{competenceEditBean.competenceData.status}</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
 			                </div>
 			                
 			                <div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.canUnpublish ? 'display:none' : ''}">
