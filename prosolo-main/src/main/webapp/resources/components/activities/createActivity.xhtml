@@ -328,9 +328,12 @@
 		                            </h:panelGroup>
 		                        </div>
 
-								<small class="redText">File title must be entered</small>
-
-								<small class="redText">File must be uploaded</small>
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText">File title must be entered</small><br/>
+								</ui:fragment>
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
+									<small class="redText">File must be uploaded</small>
+								</ui:fragment>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -403,7 +406,7 @@
 		                        </p:remoteCommand>
 
 		                        <h:panelGroup id="errorMessages">
-									<small class="redText"><h:message for="inputUrlTitle" /></small>
+									<small class="redText"><h:message for="inputUrlTitle" /></small><br/>
 									<small class="redText"><h:message for="inputUrl" /></small>
 		                        </h:panelGroup>
 		                    </div>
@@ -454,16 +457,18 @@
 		                            </h:panelGroup>
 		                        </div>
 
-								<small class="redText">Language must be entered<small class="redText"></small>
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
+									<small class="redText">Language must be entered</small>
+								</ui:fragment>
 								
-								<h:panelGroup layout="block" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}" styleClass="alert alert-warning">
+								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									  <ui:fragment rendered="#{empty activityEditBean.resLinkToAdd.url}">
 										  <small class="redText">Subtitles must be uploaded</small>
 									  </ui:fragment>
 									  <ui:fragment rendered="#{not empty activityEditBean.resLinkToAdd.url}">
 										  <small class="redText">Invalid file. Only SRT format allowed.</small>
 									  </ui:fragment>
-								</h:panelGroup>
+								</ui:fragment>
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
