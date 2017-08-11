@@ -165,4 +165,8 @@ public interface UserTextSearch extends AbstractManager {
 			long orgId, long unitId, long roleId, String searchTerm, int page, int limit,
 			boolean includeSystemUsers);
 
+	PaginatedResult<UserData> searchUnitUsersNotAddedToGroup(long orgId, long unitId, long roleId,
+															 long groupId, String searchTerm,
+															 int page, int limit, boolean includeSystemUsers);
+
 }

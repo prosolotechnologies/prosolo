@@ -352,7 +352,10 @@ public class UserEditBean implements Serializable {
 				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
-				PageUtil.redirect("/user/users");
+				String url = decodedOrgId > 0
+						? "/admin/organizations/" + orgId + "/users"
+						: "/admin/admins";
+				PageUtil.redirect(url);
 			} catch (Exception ex) {
 				logger.error(ex);
 				PageUtil.fireErrorMessage("Error while trying to delete user");

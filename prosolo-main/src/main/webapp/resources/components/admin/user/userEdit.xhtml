@@ -58,9 +58,10 @@
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextAdminName" required="true"
+										<h:inputText id="inputTextAdminName"
 													 autofocus="true"
 													 autocomplete="off"
+													 required="true"
 													 requiredMessage="First name is required"
 													 value="#{userEditBean.user.name}" />
 										<small class="redText"><h:message for="inputTextAdminName" /></small>
@@ -69,8 +70,9 @@
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextAdminLastname" required="true"
+										<h:inputText id="inputTextAdminLastname"
 													 autocomplete="off"
+													 required="true"
 													 requiredMessage="Last name is required"
 													 value="#{userEditBean.user.lastName}" />
 										<small class="redText"><h:message for="inputTextAdminLastname" /></small>
@@ -80,8 +82,8 @@
 									<label>Email</label>
 									<div class="formLineRight">
 										<h:inputText id="inputTextAdminEmail"
-													 name="emailAddress"
 													 autocomplete="off"
+													 name="emailAddress"
 													 validator="emailValidator"
 													 value="#{userEditBean.user.email}" />
 										<small>Email will not be publicly displayed.</small>
@@ -92,8 +94,7 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean.user.position}"
-													 autocomplete="off" />
+										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
@@ -123,17 +124,18 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink id="saveUserDataBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
-                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain" />
+										<p:commandLink id="saveBtn" styleClass="btn btn-green" value="#{empty userEditBean.id ? 'Create' : 'Save Changes'}"
+                                                       action="#{userEditBean.saveUser()}" update=":#{cc.clientId}:formMain">
+										</p:commandLink>
+										<p:defaultCommand target="saveBtn" />
 
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
+													   process="@this"
 													   action="#{userEditBean.setUserToDelete()}"
 													   value="Delete"
 													   update=":#{cc.clientId}:formDelete"
 													   oncomplete="$('#deleteAdmin').modal('show');"
 													   rendered="#{not empty userEditBean.id}" />
-
-										<p:defaultCommand target="saveUserDataBtn" />
 									</div>
 								</div>
 							</div>
@@ -152,7 +154,7 @@
 									aria-label="Close">
 								<span aria-hidden="true">&#215;</span>
 							</button>
-							<h2 class="modal-title">Delete admin?</h2>
+							<h2 class="modal-title">Delete user?</h2>
 						</div>
 						<div class="modal-body alignLeft">
 							<p>Are you sure you want to delete #{userEditBean.user.name}

@@ -2,16 +2,17 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.UnitRoleMembershipData;
+import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -28,49 +29,56 @@ import java.util.List;
 
 /**
  * @author Stefan Vuckovic
- * @date 2017-08-03
+ * @date 2017-08-06
  * @since 0.7
  */
-@ManagedBean(name = "unitUserAddBean")
-@Component("unitUserAddBean")
+@ManagedBean(name = "groupUserAddBean")
+@Component("groupUserAddBean")
 @Scope("view")
-public class UnitUserAddBean implements Serializable, Paginable {
+public class GroupUserAddBean implements Serializable, Paginable {
 
-	private static final long serialVersionUID = 1438058399673528357L;
+	private static final long serialVersionUID = 6286496906995515524L;
 
-	protected static Logger logger = Logger.getLogger(UnitUserAddBean.class);
+	protected static Logger logger = Logger.getLogger(GroupUserAddBean.class);
 
 	@Inject private UnitManager unitManager;
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private UserTextSearch userTextSearch;
-	@Inject private UserManager userManager;
+	@Inject private RoleManager roleManager;
+	@Inject private UserGroupManager userGroupManager;
+	@Inject private EventFactory eventFactory;
 
 	private long orgId;
 	private long unitId;
+	private long groupId;
 	private long roleId;
 
-	//users available for adding to unit with role
+	//users available for adding to group
 	private List<UserData> users;
 
 	private String searchTerm = "";
 
 	private PaginationData paginationData = new PaginationData();
 
-	public void init(long orgId, long unitId, long roleId) {
+	public void init(long orgId, long unitId, long groupId) {
 		this.orgId = orgId;
 		this.unitId = unitId;
-		this.roleId = roleId;
+		this.groupId = groupId;
+
 		try {
+			if (roleId == 0) {
+				roleId = roleManager.getRoleIdsForName(RoleNames.USER).get(0);
+			}
 			loadUsersFromDB();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading users");
+			PageUtil.fireErrorMessage("Error while loading data");
 		}
 	}
 
 	private void loadUsersFromDB() {
-		extractPaginatedResult(userManager.getPaginatedOrganizationUsersWithRoleNotAddedToUnit(
-				orgId, unitId, roleId, (paginationData.getPage() - 1) * paginationData.getLimit(),
+		extractPaginatedResult(unitManager.getPaginatedUnitUsersInRoleNotAddedToGroup(
+				unitId, roleId, groupId, (paginationData.getPage() - 1) * paginationData.getLimit(),
 				paginationData.getLimit()));
 	}
 
@@ -80,8 +88,8 @@ public class UnitUserAddBean implements Serializable, Paginable {
 	}
 
 	public void searchUsers() {
-		PaginatedResult<UserData> res = userTextSearch.searchOrganizationUsersWithRoleNotAddedToUnit(
-				orgId, unitId, roleId, searchTerm, paginationData.getPage() - 1,
+		PaginatedResult<UserData> res = userTextSearch.searchUnitUsersNotAddedToGroup(
+				orgId, unitId, roleId, groupId, searchTerm, paginationData.getPage() - 1,
 				paginationData.getLimit(), false);
 		extractPaginatedResult(res);
 	}
@@ -105,12 +113,27 @@ public class UnitUserAddBean implements Serializable, Paginable {
 		return paginationData;
 	}
 
-	public boolean addUser(UserData user, String unitTitle) {
+	public boolean addUser(UserData user, String groupName) {
 		try {
-			unitManager.addUserToUnitWithRole(user.getId(), unitId,
-					roleId, loggedUser.getUserId(), PageUtil.extractLearningContextData());
+			userGroupManager.addUserToTheGroup(groupId, user.getId());
+			/*
+			TODO for now events are fired here in a JSF bean because removeUserFromTheGroup method is called
+			in other places too so event generation can't be moved to this method at the moment. This should be
+			refactored later.
+			 */
+			String page = PageUtil.getPostParameter("page");
+			String lContext = PageUtil.getPostParameter("learningContext");
+			String service = PageUtil.getPostParameter("service");
+			UserGroup group = new UserGroup();
+			group.setId(groupId);
+			User u = new User();
+			u.setId(user.getId());
+			eventFactory.generateEvent(EventType.ADD_USER_TO_GROUP, loggedUser.getUserId(),
+					u, group, page, lContext,
+					service, null);
+
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName()
-					+ " successfully added to the unit '" + unitTitle + "'");
+					+ " successfully added to the group '" + groupName + "'");
 			resetSearchData();
 			try {
 				loadUsersFromDB();
@@ -118,11 +141,12 @@ public class UnitUserAddBean implements Serializable, Paginable {
 				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error while loading user data");
 			}
+
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while trying to add "
-					+ user.getFullName() + " to the unit '" + unitTitle + "'");
+					+ user.getFullName() + " to the group '" + groupName + "'");
 		} catch (EventException e) {
 			logger.error("Error", e);
 		}
