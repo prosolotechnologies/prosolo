@@ -181,42 +181,48 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = true)
-    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins) {
-        PaginatedResult<OrganizationData> response = new PaginatedResult<>();
+    public PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
+            throws DbConnectionException {
+        try {
+            PaginatedResult<OrganizationData> response = new PaginatedResult<>();
 
-        String query =
-                "SELECT organization " +
-                "FROM Organization organization " +
-                "WHERE organization.deleted IS FALSE ";
+            String query =
+                    "SELECT organization " +
+                            "FROM Organization organization " +
+                            "WHERE organization.deleted IS FALSE ";
 
-        Query q = persistence.currentManager().createQuery(query);
-        if (page >= 0 && limit > 0) {
-            q.setFirstResult(page * limit);
-            q.setMaxResults(limit);
-        }
-
-        List<Organization> organizations = q.list();
-
-        for(Organization o : organizations) {
-            OrganizationData od;
-            if (loadAdmins) {
-                String[] rolesArray = new String[]{"Admin", "Super Admin"};
-                List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
-
-                List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
-                List<UserData> listToPass = new ArrayList<>();
-                for (User u : chosenAdmins) {
-                    listToPass.add(new UserData(u));
-                }
-                od = new OrganizationData(o, listToPass);
-            } else {
-                od = new OrganizationData(o);
+            Query q = persistence.currentManager().createQuery(query);
+            if (page >= 0 && limit > 0) {
+                q.setFirstResult(page * limit);
+                q.setMaxResults(limit);
             }
 
-            response.addFoundNode(od);
+            List<Organization> organizations = q.list();
+
+            for (Organization o : organizations) {
+                OrganizationData od;
+                if (loadAdmins) {
+                    String[] rolesArray = new String[]{"Admin", "Super Admin"};
+                    List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+
+                    List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
+                    List<UserData> listToPass = new ArrayList<>();
+                    for (User u : chosenAdmins) {
+                        listToPass.add(new UserData(u));
+                    }
+                    od = new OrganizationData(o, listToPass);
+                } else {
+                    od = new OrganizationData(o);
+                }
+
+                response.addFoundNode(od);
+            }
+            response.setHitsNumber(getOrganizationsCount());
+            return response;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving organization data");
         }
-        response.setHitsNumber(getOrganizationsCount());
-        return response;
     }
 
     private Long getOrganizationsCount(){
