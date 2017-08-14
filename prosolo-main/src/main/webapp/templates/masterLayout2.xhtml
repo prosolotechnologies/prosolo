@@ -57,7 +57,7 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access')}">
+					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access') or loggeduser.hasCapability('basic.instructor.access')}">
 					<h:form>
 						<div class="dropdown roleChanger">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
