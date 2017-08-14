@@ -1,17 +1,13 @@
 {
-    "credential":{
+    "competence":{
 		"properties":{
 			"id":{
 				"store": false,
 				"type":"long"
 			},
-			"units" : {
-				"properties": {
-					"id": {
-						"store": false,
-						"type": "long"
-					}
-				}
+			"published":{
+				"store": false,
+				"type": "boolean"
 			},
 			"archived":{
 				"store": false,
@@ -36,12 +32,7 @@
 				"type":"date",
 				"format":"yyyy/MM/dd HH:mm:ss"
 			},
-			"deliveryStart":{
-				"store": false,
-				"type":"date",
-				"format":"yyyy/MM/dd HH:mm:ss"
-			},
-			"deliveryEnd":{
+			"datePublished":{
 				"store": false,
 				"type":"date",
 				"format":"yyyy/MM/dd HH:mm:ss"
@@ -54,49 +45,17 @@
 					} 
 				}
 			},
-			"hashtags":{
-				"properties":{
-					"title":{
-						"store": false,
-						"type":"string"
-					} 
-				}
+			"type":{
+				"store": false,
+				"type":"string"
 			},
 			"creatorId":{
 				"store": false,
 				"type":"long"
 			},
-			"type":{
-				"store": false,
-				"type":"string"
-			},
 			"visibleToAll":{
 				"store": false,
 				"type":"boolean"
-			},
-			"bookmarkedBy":{
-				"properties":{
-					"id":{
-						"store": false,
-						"type":"long"
-					} 
-				}
-			},
-			"instructors": {
-				"properties": {
-					"id": {
-						"store": false,
-						"type": "long"
-					}
-				}
-			}, 
-			"students": {
-				"properties": {
-					"id": {
-						"store": false,
-						"type": "long"
-					}
-				}
 			},
 			"usersWithEditPrivilege": {
 				"properties": {
@@ -113,9 +72,25 @@
 						"type": "long"
 					}
 				}
+			},
+			"bookmarkedBy":{
+				"properties":{
+					"id":{
+						"store": false,
+						"type":"long"
+					} 
+				}
+			},
+			"students": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
 			}
 		}
 			
-	}
+		}
 
 }

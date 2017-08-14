@@ -12,6 +12,7 @@ import org.prosolo.app.bc.BusinessCase2_AU;
 import org.prosolo.app.bc.BusinessCase3_Statistics;
 import org.prosolo.app.bc.BusinessCase4_EDX;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -66,6 +67,14 @@ public class AfterContextLoader implements ServletContextListener {
 		}
 		
 		if (settings.config.init.formatDB) {
+			//initialize ES indexes
+			try {
+				logger.debug("initialize elasticsearch indexes");
+				initElasticSearchIndexes();
+			} catch (IndexingServiceNotAvailable e1) {
+				logger.error(e1);
+			}
+
 			logger.debug("Initializing static data!");
 			boolean oldEmailNotifierVal = CommonSettings.getInstance().config.emailNotifier.activated;
 			CommonSettings.getInstance().config.emailNotifier.activated = false;
@@ -122,6 +131,12 @@ public class AfterContextLoader implements ServletContextListener {
 		
 		initApplicationServices();
 		logger.debug("Services initialized");
+	}
+
+	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
+		ESAdministration esAdmin = ServiceLocator.getInstance().getService(ESAdministration.class);
+		esAdmin.deleteIndexes();
+		esAdmin.createIndexes();
 	}
 	
 	private void initApplicationServices(){

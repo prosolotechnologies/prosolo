@@ -42,13 +42,6 @@ public class BeforeContextLoader implements ServletContextListener	{
 		if (settings.config.init.formatDB) {
 			logger.debug("deleting logging database collections");
 		  	deleteLoggingDatabaseCollections();
-
-		  	try {
-		  		logger.debug("initialize elasticsearch indexes");
-				initElasticSearchIndexes();
-			} catch (IndexingServiceNotAvailable e1) {
-				logger.error(e1);
-			}
 			
 		  	try {
 		  		logger.debug("droping tables");
@@ -75,12 +68,6 @@ public class BeforeContextLoader implements ServletContextListener	{
 			logger.info("Logging db deleted successfully.");
 		}
 		
-	}
- 
-	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
-		ESAdministration esAdmin=new ESAdministrationImpl();
-		esAdmin.deleteIndexes();
-		esAdmin.createIndexes();
 	}
 	
 	private void createOrEmptyUploadFolder() {
