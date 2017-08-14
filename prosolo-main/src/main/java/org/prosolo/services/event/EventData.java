@@ -12,7 +12,9 @@ public class EventData {
 	private long actorId; 
 	private BaseEntity object; 
 	private BaseEntity target; 
-	private BaseEntity reason; 
+	private BaseEntity reason;
+	private long organizationId;
+	private String sessionId;
 	private String page; 
 	private String context; 
 	private String service; 
@@ -88,5 +90,20 @@ public class EventData {
 	public void setProgress(int progress) {
 		this.progress = progress;
 	}
-	
+
+	public void setOrganizationId(long organizationId) {
+		this.organizationId = organizationId;
+	}
+
+	public long getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
 }

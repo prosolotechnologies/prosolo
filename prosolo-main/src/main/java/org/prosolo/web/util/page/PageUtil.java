@@ -1,21 +1,21 @@
 package org.prosolo.web.util.page;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.web.util.ResourceBundleUtil;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.Map;
 
 public class PageUtil {
 	
@@ -189,6 +189,24 @@ public class PageUtil {
 		String page = getPostParameter("page");
 		String lContext = getPostParameter("learningContext");
 		String service = getPostParameter("service");
+		LearningContextData context = new LearningContextData(page, lContext, service);
+		return context;
+	}
+
+	/**
+	 * Extracts learning context from component attributes and returns result.
+	 *
+	 * Method relies on following attributes names:
+	 *  - 'page' attribute name for page
+	 *  - 'learningContext' attribute name for context
+	 *  - 'service' attribute name for service
+	 *
+	 * @return
+	 */
+	public static LearningContextData extractLearningContextDataFromComponent(UIComponent component) {
+		String page = (String) component.getAttributes().get("page");
+		String lContext = (String) component.getAttributes().get("learningContext");
+		String service = (String) component.getAttributes().get("service");
 		LearningContextData context = new LearningContextData(page, lContext, service);
 		return context;
 	}

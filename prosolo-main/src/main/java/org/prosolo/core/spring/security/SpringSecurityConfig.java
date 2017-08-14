@@ -186,6 +186,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		   .antMatchers("/manage/credentials/*/students/*").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
 		   .antMatchers("/manage/credentials/*/edit").hasAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/*/editors").hasAnyAuthority("COURSE.CREATE")
+		   .antMatchers("/manage/credentials/*/privacy").hasAnyAuthority("COURSE.CREATE")
            .antMatchers("/manage/credentials/*/who-can-learn").hasAnyAuthority("COURSE.CREATE")
 		   .antMatchers("/manage/credentials/new").hasAnyAuthority("COURSE.CREATE")
 		   //capability for external tool?

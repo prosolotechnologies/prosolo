@@ -4,13 +4,12 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
+import org.prosolo.common.domainmodel.organization.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -142,8 +141,17 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
-
         List<UnitData> units = getOrganizationUnits(organizationId);
+        return getRootUnitsWithSubunits(units);
+    }
+
+    /**
+     * Returns list of root units with child units (and their child units) mapped.
+     *
+     * @param units
+     * @return
+     */
+    private List<UnitData> getRootUnitsWithSubunits(List<UnitData> units) {
         Map<Long, List<UnitData>> childUnits = new HashMap<>();
         Map<Long, UnitData> parentUnits = new HashMap<>();
         List<UnitData> unitsToReturn = new ArrayList<>();
@@ -584,6 +592,123 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error("Error", e);
             throw new DbConnectionException("Error while retrieving user data");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnitData> getUnitsWithCredentialSelectionInfo(long organizationId, long credId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT u, CASE WHEN c IS NULL THEN false ELSE true END FROM Unit u " +
+                    "LEFT JOIN u.credentialUnits c " +
+                            "WITH c.credential.id = :credId " +
+                    "WHERE u.organization.id = :orgId";
+
+            List<Object[]> res = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setLong("credId", credId)
+                    .list();
+
+            List<UnitData> units = new ArrayList<>();
+
+            for (Object[] row : res) {
+                Unit u = (Unit) row[0];
+                boolean selected = (boolean) row[1];
+                units.add(new UnitData(u, selected));
+            }
+
+            return getRootUnitsWithSubunits(units);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit data");
+        }
+    }
+
+    @Override
+    //nt
+    public void addCredentialToUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addCredentialToUnitAndGetEvents(credId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addCredentialToUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            CredentialUnit cu = new CredentialUnit();
+            cu.setCredential((Credential1) persistence.currentManager().load(Credential1.class, credId));
+            cu.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            saveEntity(cu);
+
+            Credential1 cr = new Credential1();
+            cr.setId(credId);
+            Unit un = new Unit();
+            un.setId(unitId);
+            res.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_CREDENTIAL_TO_UNIT, context.getActorId(),
+                    context.getOrganizationId(), context.getSessionId(), cr, un,
+                    context.getContext(), null));
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("Credential (" + credId + ") already added to the unit (" + unitId + ") so it can't be added again");
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while adding credential to unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    //nt
+    public void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeCredentialFromUnitAndGetEvents(credId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeCredentialFromUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            String query = "DELETE FROM CredentialUnit cu " +
+                    "WHERE cu.unit.id = :unitId " +
+                    "AND cu.credential.id = :credId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("credId", credId)
+                    .executeUpdate();
+
+            logger.info("Number of removed credentials in a unit: " + affected);
+
+            if (affected > 0) {
+                Credential1 cr = new Credential1();
+                cr.setId(credId);
+                Unit un = new Unit();
+                un.setId(unitId);
+                res.addEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_CREDENTIAL_FROM_UNIT, context.getActorId(),
+                        context.getOrganizationId(), context.getSessionId(), cr, un,
+                        context.getContext(), null));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing credential from unit");
+        }
+
+        return res;
     }
 
 }

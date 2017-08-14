@@ -18,6 +18,7 @@ public class UnitData implements Serializable,Comparable<UnitData> {
     private long parentUnitId;
     private List<UnitData> childrenUnits;
     private boolean hasUsers;
+    private boolean selected;
 
     public UnitData(){
         childrenUnits = new ArrayList<>();
@@ -34,6 +35,14 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.id = unit.getId();
         this.title = unit.getTitle();
         this.parentUnitId = parentUnitId;
+    }
+
+    public UnitData(Unit unit, boolean selected) {
+        this(unit);
+        if (unit.getParentUnit() != null) {
+            this.parentUnitId = unit.getParentUnit().getId();
+        }
+        this.selected = selected;
     }
 
     public void addChildren(List<UnitData> children){
@@ -80,6 +89,17 @@ public class UnitData implements Serializable,Comparable<UnitData> {
         this.hasUsers = hasUsers;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public void changeSelectionStatus() {
+        this.selected = !this.selected;
+    }
 
     @Override
     public int compareTo(UnitData o) {

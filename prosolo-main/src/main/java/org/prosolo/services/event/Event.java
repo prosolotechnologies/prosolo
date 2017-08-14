@@ -36,6 +36,11 @@ public class Event extends BaseEntity  {
 	 * User or resource for which the event is created for.
 	 */
 	private BaseEntity target;
+
+	private long organizationId;
+
+	private String sessionId;
+
 	private Map<String, String> parameters;
 
 	private Class<? extends EventObserver>[] observersToExclude;
@@ -144,6 +149,22 @@ public class Event extends BaseEntity  {
 
 	public void setService(String service) {
 		this.service = service;
+	}
+
+	public void setOrganizationId(long organizationId) {
+		this.organizationId = organizationId;
+	}
+
+	public long getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
 	}
 
 	@Override

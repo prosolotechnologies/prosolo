@@ -83,9 +83,10 @@ public enum ApplicationPage {
 	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
 	MANAGER_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
 	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-who-can-learn.xhtml"),
-	MANAGER_COMPETENCE_PRIVACY("/manage/competence-editors.xhtml"),
-	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-editors.xhtml"),
+	MANAGER_COMPETENCE_EDITORS("/manage/competence-editors.xhtml"),
+	MANAGER_CREDENTIAL_EDITORS("/manage/credential-editors.xhtml"),
 	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml"),
+	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

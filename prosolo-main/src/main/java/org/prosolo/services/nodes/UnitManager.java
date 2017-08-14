@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -71,4 +72,26 @@ public interface UnitManager extends AbstractManager{
 
     boolean isUserAddedToUnitWithRole(long unitId, long userId, long roleId) throws DbConnectionException;
 
+    /**
+     * Returns all organization units (root units with subunits and subunits with their subunits)
+     * and information if credential is added to unit.
+     *
+     * @param organizationId
+     * @param credId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<UnitData> getUnitsWithCredentialSelectionInfo(long organizationId, long credId) throws DbConnectionException;
+
+    Result<Void> addCredentialToUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    void addCredentialToUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> removeCredentialFromUnitAndGetEvents(long credId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
 }

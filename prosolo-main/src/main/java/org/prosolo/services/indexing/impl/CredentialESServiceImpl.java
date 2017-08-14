@@ -421,4 +421,35 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			e.printStackTrace();
 		}
 	}
+
+//	@Override
+//	public void addUnitToCredentialIndex(long organizationId, long credId, long unitId) {
+//		String script = "if (ctx._source[\"instructors\"] == null) { " +
+//				"ctx._source.instructors = instructor " +
+//				"} else { " +
+//				"ctx._source.instructors += instructor " +
+//				"}";
+//		updateCredentialInstructors(credId, userId, script);
+//	}
+//
+//	@Override
+//	public void removeInstructorFromCredentialIndex(long credId, long userId) {
+//		String script = "ctx._source.instructors -= instructor";
+//		updateCredentialInstructors(credId, userId, script);
+//	}
+//
+//	private void updateCredentialInstructors(long credId, long userId, String script) {
+//		try {
+//			Map<String, Object> params = new HashMap<>();
+//			Map<String, Object> param = new HashMap<>();
+//			param.put("id", userId);
+//			params.put("instructor", param);
+//
+//			partialUpdateByScript(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL,
+//					credId+"", script, params);
+//		} catch(Exception e) {
+//			logger.error(e);
+//			e.printStackTrace();
+//		}
+//	}
 }

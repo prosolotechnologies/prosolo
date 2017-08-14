@@ -1,19 +1,5 @@
 package org.prosolo.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.*;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -23,6 +9,9 @@ import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserNotificationsSettings;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.hibernate.HibernateUtil;
@@ -33,7 +22,6 @@ import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.UserManager;
@@ -51,6 +39,19 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @ManagedBean(name = "loggeduser")
 @Component("loggeduser")
@@ -118,6 +119,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (!initialized && userData != null) {
 			sessionData = new SessionData();
 			sessionData.setUserId((long) userData.get("userId"));
+			sessionData.setOrganizationId((long) userData.get("organizationId"));
 			sessionData.setEncodedUserId(idEncoder.encodeId((long) userData.get("userId")));
 			sessionData.setName((String) userData.get("name"));
 			sessionData.setLastName((String) userData.get("lastname"));
@@ -140,6 +142,7 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (user != null) {
 //			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
+			sessionData.setUserId(user.getOrganization().getId());
 			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());
@@ -396,6 +399,15 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		}
 	}
 
+	public UserContextData getUserContext() {
+		return getUserContext(PageUtil.extractLearningContextData());
+	}
+
+	public UserContextData getUserContext(LearningContextData context) {
+		return UserContextData.of(getUserId(), getOrganizationId(), getSessionId(),
+				context);
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
@@ -535,5 +547,13 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 
 	public UserData getLoginAsUser() {
 		return loginAsUser;
+	}
+
+	public long getOrganizationId() {
+		return getSessionData() == null ? null : getSessionData().getOrganizationId();
+	}
+
+	public String getSessionId() {
+		return getSessionData() == null ? null : getSessionData().getSessionId();
 	}
 }
