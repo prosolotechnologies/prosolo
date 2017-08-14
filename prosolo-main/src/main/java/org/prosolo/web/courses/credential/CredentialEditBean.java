@@ -275,7 +275,8 @@ public class CredentialEditBean implements Serializable {
 		try {
 			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserId(), ctx);
 			credentialData.setArchived(true);
-			PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential archived successfully");
+			PageUtil.redirect("/manage/library/credentials");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to archive credential");
