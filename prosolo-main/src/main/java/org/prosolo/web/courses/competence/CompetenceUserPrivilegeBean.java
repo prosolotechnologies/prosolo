@@ -9,8 +9,11 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.nodes.data.CompetenceData1;
+import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -41,15 +44,20 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	@Inject private LoggedUserBean loggedUserBean;
 	@Inject private EventFactory eventFactory;
 	@Inject private Competence1Manager compManager;
+	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
 
 	private String competenceId;
 	private long compId;
+	private String credentialId;
+	private long credId;
 	private long creatorId;
 	private String competenceTitle;
 
 	private UserGroupPrivilege privilege;
+
+	private String credTitle;
 
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
@@ -74,11 +82,15 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private void init() {
 		compId = idEncoder.decodeId(competenceId);
+		credId = idEncoder.decodeId(credentialId);
 		if (compId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
+				if(credId > 0){
+					this.credTitle = credManager.getCredentialTitle(credId);
+				}
 				if(!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
@@ -251,5 +263,25 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public void setCompetenceId(String competenceId) {
 		this.competenceId = competenceId;
+	}
+
+	public String getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(String credentialId) {
+		this.credentialId = credentialId;
+	}
+
+	public long getCredId() {
+		return credId;
+	}
+
+	public void setCredId(long credId) {
+		this.credId = credId;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
 	}
 }

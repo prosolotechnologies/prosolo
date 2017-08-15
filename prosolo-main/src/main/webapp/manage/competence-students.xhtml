@@ -16,6 +16,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{competenceStudentsBean.id}" default="null" />
+			<f:viewParam name="credId" value="#{competenceStudentsBean.credentialId}" default="null" />
 			<f:viewAction action="#{competenceStudentsBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -30,6 +31,7 @@
 		<mngComp:competenceHeaderNavLinks
 				id="headerNavLinks"
 				compId="#{competenceStudentsBean.decodedId}"
+				credId="#{competenceStudentsBean.credentialId}"
 		/>
 	</ui:define>
 	
@@ -109,22 +111,47 @@
 		        </div>
 	        </h:form>
 	    </div>
-	
-	    <div class="container">
-	        <ol class="breadcrumb">
-				<li>
-					<h:link value="Competencies" outcome="competenceLibrary"/>
-				</li>
-				<li>
-					<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
-						<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
-					</h:link>
-				</li>
-				<li class="active">
-					Students
-				</li>
-	        </ol>
-	    </div>
+
+		<div class="container">
+			<ui:fragment rendered="#{not empty param['credId']}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link value="Credentials" outcome="credentialLibrary"/>
+					</li>
+					<li>
+						<h:link
+								value="#{competenceStudentsBean.credTitle}"
+								outcome="create-credential">
+							<f:param name="id" value="#{param['credId']}"></f:param>
+						</h:link>
+					</li>
+					<li>
+						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
+							<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+							<f:param name="credId" value="#{competenceStudentsBean.credentialId}"></f:param>
+						</h:link>
+					</li>
+					<li class="active">
+						Students
+					</li>
+				</ol>
+			</ui:fragment>
+			<ui:fragment rendered="#{empty param['credId']}">
+				<ol class="breadcrumb">
+					<li>
+						<h:link value="Competencies" outcome="competenceLibrary"/>
+					</li>
+					<li>
+						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
+							<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+						</h:link>
+					</li>
+					<li class="active">
+						Students
+					</li>
+				</ol>
+			</ui:fragment>
+		</div>
 	
 	    <div class="container">
 	        <div class="row">
