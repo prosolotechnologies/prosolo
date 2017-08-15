@@ -3,13 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -36,6 +29,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @ManagedBean(name = "credentialInstructorsBean")
 @Component("credentialInstructorsBean")
@@ -79,7 +78,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	private String instructorSearchTerm;
 	private List<UserData> unassignedInstructors;
 	private long instructorRoleId;
-	//list of ids of instructors that are already assigned to this credential
+	//list ofActor ids ofActor instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
 	
 	private ResourceAccessData access;
@@ -168,7 +167,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData ctx = new LearningContextData(page, context, service);
 			credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserId(), ctx);
+					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext());
 			paginationData.setPage(1);
 			searchTerm = "";
 			sortOption = InstructorSortOption.Date;
@@ -216,8 +215,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					+ instructorForRemoval.getInstructorId() + "/";
 			LearningContextData ctx = new LearningContextData(appPage, lContext, service);
 			credInstructorManager.removeInstructorFromCredential(
-					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically, 
-					loggedUserBean.getUserId(), ctx);
+					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
+					loggedUserBean.getUserContext());
 
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();

@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
@@ -65,10 +66,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	//nt
-	public Activity1 saveNewActivity(ActivityData data, long userId, LearningContextData context)
+	public Activity1 saveNewActivity(ActivityData data, UserContextData context)
 			throws DbConnectionException, EventException, IllegalDataStateException {
 		try {
-			Result<Activity1> res = self.createActivity(data, userId, context);
+			Result<Activity1> res = self.createActivity(data, context);
 
 			for(EventData ev : res.getEvents()) {
 				eventFactory.generateEvent(ev);
@@ -86,8 +87,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data,
-											long userId, LearningContextData context)
+	public Result<Activity1> createActivity(org.prosolo.services.nodes.data.ActivityData data, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Activity1> result = new Result<>();
@@ -137,7 +137,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				}
 			}
 
-			User creator = (User) persistence.currentManager().load(User.class, userId);
+			User creator = (User) persistence.currentManager().load(User.class, context.getActorId());
 			activity.setCreatedBy(creator);
 
 			//GradingOptions go = new GradingOptions();
@@ -157,14 +157,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			if(data.getCompetenceId() > 0) {
 				EventData ev = compManager.addActivityToCompetence(data.getCompetenceId(),
-						activity, userId, context);
+						activity, context);
 				if (ev != null) {
 					result.addEvent(ev);
 				}
 			}
 
 			result.addEvent(eventFactory.generateEventData(
-					EventType.Create, userId, activity, null, context, null));
+					EventType.Create, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), activity, null, context.getContext(), null));
 
 			result.setResult(activity);
 			return result;
@@ -181,18 +182,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 deleteActivity(long activityId, long userId) throws DbConnectionException, IllegalDataStateException {
+	public Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			if(activityId > 0) {
 				Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, activityId);
 				act.setDeleted(true);
 				
 				deleteCompetenceActivity(act.getId());
-	
-				
+
+				LearningContextData lcd = context.getContext();
+				String page = null;
+				String lContext = null;
+				String service = null;
+				if (lcd != null) {
+					page = lcd.getPage();
+					lContext = lcd.getLearningContext();
+					service = lcd.getService();
+				}
 				Activity1 activity = new Activity1();
 				activity.setId(activityId);
-				eventFactory.generateEvent(EventType.Delete, userId, activity);
+				eventFactory.generateEvent(EventType.Delete, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), activity,
+						null, page, lContext, service, null, null);
 				
 				return act;
 			}
@@ -208,7 +219,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 	
-	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	private void deleteCompetenceActivity(long actId) throws IllegalDataStateException {
 		Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, actId);
 		long duration = act.getDuration();
@@ -342,8 +352,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Transactional(readOnly = false)
-	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp, 
+	private TargetActivity1 createTargetActivity(TargetCompetence1 targetComp,
 			CompetenceActivity1 activity) throws DbConnectionException {
 		try {
 			TargetActivity1 targetAct = new TargetActivity1();
@@ -453,7 +462,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id 
+	 * Checks if competence specified with {@code compId} id is part ofActor a credential with {@code credId} id
 	 * and if not throws {@link ResourceNotFoundException}.
 	 * 
 	 * @param credId
@@ -530,15 +539,18 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 updateActivity(ActivityData data, long userId, LearningContextData context) 
+	public Activity1 updateActivity(ActivityData data, UserContextData context)
 			throws DbConnectionException, StaleDataException {
 		try {
 			Activity1 act = resourceFactory.updateActivity(data);
-			
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
-			eventFactory.generateEvent(EventType.Edit, userId, act, null, page, lContext, service, null);
+
+			LearningContextData lcd = context.getContext();
+			String page = lcd != null ? lcd.getPage() : null;
+			String lContext = lcd != null ? lcd.getLearningContext() : null;
+			String service = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.Edit, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), act,
+					null, page, lContext, service, null, null);
 
 		    return act;
 		} catch (EventException e) {
@@ -807,8 +819,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional(readOnly = false)
-	public void saveResponse(long targetActId, String path, Date postDate, long userId, 
-			ActivityResultType resType, LearningContextData context) throws DbConnectionException {
+	public void saveResponse(long targetActId, String path, Date postDate,
+			ActivityResultType resType, UserContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.result = :path, " +
@@ -821,18 +833,19 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setString("path", path)
 				.setTimestamp("date", postDate)
 				.executeUpdate();
-			
-			User user = new User();
-			user.setId(userId);
+
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-			String lcPage = context != null ? context.getPage() : null; 
-			String lcContext = context != null ? context.getLearningContext() : null; 
-			String lcService = context != null ? context.getService() : null;
+
+			LearningContextData lcd = context.getContext();
+			String lcPage = lcd != null ? lcd.getPage() : null;
+			String lcContext = lcd!= null ? lcd.getLearningContext() : null;
+			String lcService = lcd != null ? lcd.getService() : null;
 			EventType evType = resType == ActivityResultType.FILE_UPLOAD
 					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
-			eventFactory.generateEvent(evType, user.getId(), tAct, null,
-					lcPage, lcContext, lcService, null);
+			eventFactory.generateEvent(evType, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), tAct, null,
+					lcPage, lcContext, lcService, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -842,8 +855,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional
-	public void updateTextResponse(long targetActId, String path, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public void updateTextResponse(long targetActId, String path, UserContextData context)
+			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.result = :path " +
@@ -854,16 +867,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setLong("actId", targetActId)
 				.setString("path", path)
 				.executeUpdate();
-			
-			User user = new User();
-			user.setId(userId);
+
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-			String lcPage = context != null ? context.getPage() : null; 
-			String lcContext = context != null ? context.getLearningContext() : null; 
-			String lcService = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.Typed_Response_Edit, user.getId(), tAct, null,
-					lcPage, lcContext, lcService, null);
+
+			LearningContextData lcd = context.getContext();
+			String lcPage = lcd != null ? lcd.getPage() : null;
+			String lcContext = lcd != null ? lcd.getLearningContext() : null;
+			String lcService = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.Typed_Response_Edit, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), tAct, null,
+					lcPage, lcContext, lcService, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -873,8 +887,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void completeActivity(long targetActId, long targetCompId, long userId,
-			LearningContextData contextData) throws DbConnectionException {
+	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
+			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
 						   "act.completed = :completed, " +
@@ -888,15 +902,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.setDate("date", new Date())
 				.executeUpdate();
 			
-			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, userId, contextData);
+			List<EventData> events = compManager.updateCompetenceProgress(targetCompId, context);
 			
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
+			LearningContextData contextData = context.getContext();
 			String lcPage = contextData != null ? contextData.getPage() : null; 
 			String lcContext = contextData != null ? contextData.getLearningContext() : null; 
 			String lcService = contextData != null ? contextData.getService() : null;
-			eventFactory.generateEvent(EventType.Completion, userId, tAct, null,
-					lcPage, lcContext, lcService, null);
+			eventFactory.generateEvent(EventType.Completion, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), tAct, null,
+					lcPage, lcContext, lcService, null, null);
 			
 			for(EventData ev : events) {
 				eventFactory.generateEvent(ev);
@@ -928,7 +944,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						userId, req);
 			}
 				
-			/* if user is aleardy learning activity, he doesn't need any of the privileges;
+			/* if user is aleardy learning activity, he doesn't need any ofActor the privileges;
 			 * we just need to determine which privileges he has (can he edit or instruct an activity)
 			 */
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
@@ -953,7 +969,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = true)
 	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException {
@@ -965,7 +980,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (activityWithDetails != null) {
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
-				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
+				//compId is id ofActor a competence and activityWithDetails.getCompetenceId() is id ofActor a target competence
 				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
 				compData.setActivities(activities);
 				return compData;
@@ -979,7 +994,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Returns full target activity data when id of a target activity is not known.
+	 * Returns full target activity data when id ofActor a target activity is not known.
 	 * @param credId
 	 * @param compId
 	 * @param actId
@@ -989,13 +1004,12 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = true)
 	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean loadTags, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {	
 			/*
-			 * check if competence is part of a credential
+			 * check if competence is part ofActor a credential
 			 */
 			checkIfCompetenceIsPartOfACredential(credId, compId);
 			
@@ -1042,7 +1056,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 	@Override
 	@Transactional
-	public void deleteAssignment(long targetActivityId, long userId, LearningContextData context) 
+	public void deleteAssignment(long targetActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -1053,16 +1067,16 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				.createQuery(query)
 				.setLong("id", targetActivityId)
 				.executeUpdate();
-			
-			User user = new User();
-			user.setId(userId);
+
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActivityId);
-			String lcPage = context != null ? context.getPage() : null; 
-			String lcContext = context != null ? context.getLearningContext() : null; 
-			String lcService = context != null ? context.getService() : null;
-			eventFactory.generateEvent(EventType.AssignmentRemoved, user.getId(), tAct, null,
-					lcPage, lcContext, lcService, null);
+			LearningContextData lcd = context.getContext();
+			String lcPage = lcd != null ? lcd.getPage() : null;
+			String lcContext = lcd != null ? lcd.getLearningContext() : null;
+			String lcService = lcd != null ? lcd.getService() : null;
+			eventFactory.generateEvent(EventType.AssignmentRemoved, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), tAct, null,
+					lcPage, lcContext, lcService, null, null);
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1070,8 +1084,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Transactional(readOnly = true)
-	private List<ResourceLink> getActivityLinks(long actId) 
+	private List<ResourceLink> getActivityLinks(long actId)
 			throws DbConnectionException {
 		try {		
 			String query = "SELECT link " +
@@ -1095,8 +1108,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
-	@Transactional(readOnly = true)
-	private List<ResourceLink> getActivityFiles(long actId) 
+	private List<ResourceLink> getActivityFiles(long actId)
 			throws DbConnectionException {
 		try {			
 			String query = "SELECT file " +
@@ -1170,7 +1182,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
-				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
+				//compId is id ofActor a competence and activityWithDetails.getCompetenceId() is id ofActor a target competence
 				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
 				compData.setActivities(activities);
 				return compData;
@@ -1258,7 +1270,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number of students results");
+			throw new DbConnectionException("Error while retrieving number ofActor students results");
 		}
 	}
 
@@ -1807,17 +1819,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //	}
 
 	/**
-	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
+	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate ofActor the given original.
 	 * 
 	 * @param original
 	 * @return newly created {@link CompetenceActivity1} instance
 	 */
 	@Transactional (readOnly = false)
 	@Override
-	public Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public Result<CompetenceActivity1> cloneActivity(CompetenceActivity1 original, long compId,
+			UserContextData context) throws DbConnectionException {
 		try {
-			Result<Activity1> res = clone(original.getActivity(), userId, context);
+			Result<Activity1> res = clone(original.getActivity(), context);
 			
 			CompetenceActivity1 competenceActivity = new CompetenceActivity1();
 			competenceActivity.setActivity(res.getResult());
@@ -1839,13 +1851,13 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	/**
-	 * Creates a new {@link Activity1} instance that is a clone of the given instance.
+	 * Creates a new {@link Activity1} instance that is a clone ofActor the given instance.
 	 * 
 	 * @param original the original activity to be cloned
+	 * @param context
 	 * @return newly created activity
 	 */
-	@Transactional (readOnly = false)
-	private Result<Activity1> clone(Activity1 original, long userId, LearningContextData context) {
+	private Result<Activity1> clone(Activity1 original, UserContextData context) {
 		try {
 			Activity1 activity = cloneActivityBasedOnType(original);
 			
@@ -1860,7 +1872,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			activity.setMaxPoints(original.getMaxPoints());
 			activity.setStudentCanSeeOtherResponses(original.isStudentCanSeeOtherResponses());
 			activity.setStudentCanEditResponse(original.isStudentCanEditResponse());
-			User user = (User) persistence.currentManager().load(User.class, userId);
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
 			activity.setCreatedBy(user);
 			activity.setVisibleForUnenrolledStudents(original.isVisibleForUnenrolledStudents());
 			activity.setDifficulty(original.getDifficulty());
@@ -1870,11 +1882,14 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			res.setResult(activity);
 			EventData ev = new EventData();
 			ev.setEventType(EventType.Create);
-			ev.setActorId(userId);
-			if(context != null) {
-				ev.setPage(context.getPage());
-				ev.setContext(context.getLearningContext());
-				ev.setService(context.getService());
+			ev.setActorId(context.getActorId());
+			ev.setOrganizationId(context.getOrganizationId());
+			ev.setSessionId(context.getSessionId());
+			LearningContextData lcd = context.getContext();
+			if(lcd != null) {
+				ev.setPage(lcd.getPage());
+				ev.setContext(lcd.getLearningContext());
+				ev.setService(lcd.getService());
 			}
 			Activity1 act = new Activity1();
 			act.setId(activity.getId());
@@ -1962,11 +1977,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}catch(Exception e){
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating creator of activities");
+			throw new DbConnectionException("Error while updating creator ofActor activities");
 		}
 	}
 
-	@Transactional (readOnly = true)
 	private boolean hasUserPostedResponseForActivity(long actId, long userId) {
 		String query =
 				"SELECT tAct.result " +

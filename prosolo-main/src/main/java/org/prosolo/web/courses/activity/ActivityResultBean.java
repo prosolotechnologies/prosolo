@@ -1,11 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -20,6 +14,11 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.Date;
 
 @ManagedBean(name = "activityResultBean")
 @Component("activityResultBean")
@@ -49,13 +48,10 @@ public class ActivityResultBean implements Serializable {
 	
 	public void updateTextResponse(ActivityResultData result) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			// strip all tags except <br>
 			//result.setResult(PostUtil.cleanHTMLTagsExceptBrA(result.getResult()));
-			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(), 
-					loggedUser.getUserId(), new LearningContextData(page, lContext, service));
+			activityManager.updateTextResponse(result.getTargetActivityId(), result.getResult(),
+					loggedUser.getUserContext());
 			
 			PageUtil.fireSuccessfulInfoMessage("Response updated");
 		} catch(Exception e) {
@@ -73,8 +69,8 @@ public class ActivityResultBean implements Serializable {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			Date postDate = new Date();
-			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate, loggedUser.getUserId(),
-					ActivityResultType.FILE_UPLOAD, new LearningContextData(page, lContext, service));
+			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate,
+					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(new LearningContextData(page, lContext, service)));
 			result.setAssignmentTitle(fileName);
 			result.setResult(fullPath);
 			result.setResultPostDate(postDate);

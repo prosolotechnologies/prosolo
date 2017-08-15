@@ -41,6 +41,8 @@ public class EventFactory {
 			
 			ChangeProgressEvent changeProgressEvent = new ChangeProgressEvent();
 			changeProgressEvent.setActorId(creatorId);
+			changeProgressEvent.setOrganizationId(organizationId);
+			changeProgressEvent.setSessionId(sessionId);
 			changeProgressEvent.setDateCreated(new Date());
 			changeProgressEvent.setObject(resource);
 			changeProgressEvent.setNewProgressValue(newProgress);
@@ -165,7 +167,7 @@ public class EventFactory {
 		return genericEvent;
 	}
 
-	@Transactional(readOnly = false)
+	@Transactional
 	public Event generateEvent(EventType eventType, long actorId, long organizationId,
 							   String sessionId, BaseEntity object, BaseEntity target,
 							   String page, String context, String service,
@@ -189,22 +191,6 @@ public class EventFactory {
 		genericEvent.setObserversToExclude(observersToExclude);
 		genericEvent.setParameters(parameters);
 		return genericEvent;
-	}
-	
-	public EventData generateEventData(EventType type, long userId, BaseEntity object, BaseEntity target,
-			LearningContextData context, Map<String, String> params) {
-		EventData event = new EventData();
-		event.setEventType(type);
-		event.setActorId(userId);
-		event.setObject(object);
-		event.setTarget(target);
-		if(context != null) {
-			event.setPage(context.getPage());
-			event.setContext(context.getLearningContext());
-			event.setService(context.getService());
-		}
-		event.setParameters(params);
-		return event;
 	}
 
 	public EventData generateEventData(EventType type, long userId, long organizationId, String sessionId, BaseEntity object,

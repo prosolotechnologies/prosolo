@@ -1,19 +1,5 @@
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,16 +9,11 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.assessments.ActivityAssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentBasicData;
-import org.prosolo.services.nodes.data.assessments.AssessmentData;
-import org.prosolo.services.nodes.data.assessments.AssessmentDataFull;
-import org.prosolo.services.nodes.data.assessments.CompetenceAssessmentData;
+import org.prosolo.services.nodes.data.assessments.*;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -41,6 +22,13 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
@@ -193,8 +181,9 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", credentialId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(), 
-						assessment, student, page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentApproved, loggedUserBean.getUserId(),
+						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
+						assessment, student, page, lContext, service, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}
@@ -246,7 +235,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 //			for (CompetenceAssessmentData comp : competenceAssessmentData) {
 //				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
 //					if (encodedTargetActivityId.equals(act.getEncodedTargetActivityId())) {
-//						return Optional.of(act);
+//						return Optional.ofActor(act);
 //					}
 //				}
 //			}
@@ -281,20 +270,16 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 
 	public void updateGrade(boolean retry) {
 		try {
-			LearningContextData lcd = new LearningContextData();
-			lcd.setPage(PageUtil.getPostParameter("page"));
-			lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-			lcd.setService(PageUtil.getPostParameter("service"));
 			if (StringUtils.isBlank(currentActivityAssessment.getEncodedDiscussionId())) {
 				createAssessment(currentActivityAssessment.getTargetActivityId(),
 						currentActivityAssessment.getCompAssessmentId(),
-						currentActivityAssessment.getTargetCompId(), true, lcd);
+						currentActivityAssessment.getTargetCompId(), true);
 			} else {
 				assessmentManager.updateGradeForActivityAssessment(
 						fullAssessmentData.getCredAssessmentId(),
 						currentActivityAssessment.getCompAssessmentId(),
 						idEncoder.decodeId(currentActivityAssessment.getEncodedDiscussionId()),
-						currentActivityAssessment.getGrade().getValue(), loggedUserBean.getUserId(), lcd);
+						currentActivityAssessment.getGrade().getValue(), loggedUserBean.getUserContext());
 			}
 
 			fullAssessmentData.setPoints(assessmentManager.getCredentialAssessmentScore(
@@ -423,7 +408,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 //	}
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
-								  boolean updateGrade, LearningContextData context)
+								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
 		Integer grade = updateGrade
 				? currentActivityAssessment != null ? currentActivityAssessment.getGrade().getValue() : null
@@ -451,13 +436,13 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 							fullAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
 							loggedUserBean.getUserId(), fullAssessmentData.isDefaultAssessment(), grade, true,
-							context).getId()));
+								loggedUserBean.getUserContext()).getId()));
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						fullAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						fullAssessmentData.isDefaultAssessment(), context);
+						fullAssessmentData.isDefaultAssessment(), loggedUserBean.getUserContext());
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 		} catch (IllegalDataStateException e) {
@@ -478,7 +463,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 			logger.error(e);
-			//rethrow exception so caller of this method can react in appropriate way
+			//rethrow exception so caller ofActor this method can react in appropriate way
 			throw e;
 		}
 	}

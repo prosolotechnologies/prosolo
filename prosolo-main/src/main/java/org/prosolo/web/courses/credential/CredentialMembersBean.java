@@ -3,12 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -36,6 +30,11 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 @ManagedBean(name = "credentialMembersBean")
 @Component("credentialMembersBean")
@@ -213,8 +212,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						? studentToAssignInstructor.getInstructor().getUser().getId()
 						: 0;
 				credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getUser().getId(), 
-						instructor.getInstructorId(), decodedId, formerInstructoruserId, 
-						loggedUserBean.getUserId(), ctx);
+						instructor.getInstructorId(), decodedId, formerInstructoruserId,
+						loggedUserBean.getUserContext(ctx));
 				if(studentToAssignInstructor.getInstructor() == null) {
 					action = "assigned";
 				} else {
@@ -223,7 +222,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 				studentToAssignInstructor.setInstructor(instructor);
 			} else {
 				credInstructorManager.unassignStudentFromInstructor(
-						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserId(), ctx);
+						studentToAssignInstructor.getUser().getId(), decodedId, loggedUserBean.getUserContext(ctx));
 				studentToAssignInstructor.setInstructor(null);
 				action = "unassigned";
 			}

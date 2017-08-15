@@ -30,9 +30,9 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 		
 		if(target instanceof Credential1) {
 			if(operation == NodeOperation.Save) {
-				credentialESService.addBookmarkToCredentialIndex(target.getId(), actorId);
+				credentialESService.addBookmarkToCredentialIndex(event.getOrganizationId(), target.getId(), actorId);
 			} else if(operation == NodeOperation.Delete) {
-				credentialESService.removeBookmarkFromCredentialIndex(target.getId(), actorId);
+				credentialESService.removeBookmarkFromCredentialIndex(event.getOrganizationId(), target.getId(), actorId);
 			}
 		} else if(target instanceof Competence1) {
 			if(operation == NodeOperation.Save) {

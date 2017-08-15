@@ -144,9 +144,8 @@ public class CredentialViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), context);
+
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {
@@ -174,7 +173,7 @@ public class CredentialViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			credentialManager.enrollInCredential(decodedId, loggedUser.getUserId(), lcd);
+			credentialManager.enrollInCredential(decodedId, loggedUser.getUserContext(lcd));
 			//reload user credential data after enroll
 			retrieveUserCredentialData();
 			numberOfUsersLearningCred = credentialManager.getNumberOfUsersLearningCredential(decodedId);
@@ -261,11 +260,7 @@ public class CredentialViewBeanUser implements Serializable {
 				populateAssessmentRequestFields();
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-				LearningContextData lcd = new LearningContextData();
-				lcd.setPage(PageUtil.getPostParameter("page"));
-				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-				lcd.setService(PageUtil.getPostParameter("service"));
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, loggedUser.getUserContext());
 				String page = PageUtil.getPostParameter("page");
 				String lContext = PageUtil.getPostParameter("learningContext");
 				String service = PageUtil.getPostParameter("service");
@@ -301,8 +296,9 @@ public class CredentialViewBeanUser implements Serializable {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", decodedId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), assessment, assessor,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(),
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), assessment, assessor,
+						page, lContext, service, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

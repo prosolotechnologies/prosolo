@@ -155,8 +155,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 
 	public void removeUser(UserData data) {
 		try {
-			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserId(),
-					PageUtil.extractLearningContextData());
+			unitManager.removeUserFromUnitWithRole(data.getId(), decodedId, roleId, loggedUser.getUserContext(decodedOrgId));
 			resetSearchData();
 			loadUsersFromDB();
 			PageUtil.fireSuccessfulInfoMessage("User " + data.getFullName()

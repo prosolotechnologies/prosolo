@@ -20,9 +20,25 @@ public class UserContextData {
         this.context = context;
     }
 
+    public static UserContextData empty() {
+        return new UserContextData(0, 0, null, null);
+    }
+
     public static UserContextData of(long actorId, long organizationId, String sessionId,
                                      LearningContextData context) {
         return new UserContextData(actorId, organizationId, sessionId, context);
+    }
+
+    public static UserContextData ofActor(long actorId) {
+        return new UserContextData(actorId, 0, null, null);
+    }
+
+    public static UserContextData ofOrganization(long organizationId) {
+        return new UserContextData(0, organizationId, null, null);
+    }
+
+    public static UserContextData ofLearningContext(LearningContextData lcd) {
+        return new UserContextData(0, 0, null, lcd);
     }
 
     public long getActorId() {

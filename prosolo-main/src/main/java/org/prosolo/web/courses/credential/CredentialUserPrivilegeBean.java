@@ -47,7 +47,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private long credentialId;
 	private long creatorId;
 	private String credentialTitle;
-	//id of a role that user should have in order to be considered when adding privileges
+	//id ofActor a role that user should have in order to be considered when adding privileges
 	private long roleId;
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
@@ -80,7 +80,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					/*
-					administration of edit privileges is performed for original credentials and administration of
+					administration ofActor edit privileges is performed for original credentials and administration ofActor
 					learn privileges is performed for deliveries
 					 */
 					CredentialType credType = privilege == UserGroupPrivilege.Edit
@@ -157,7 +157,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		try {
 			LearningContextData lcd = PageUtil.extractLearningContextData();
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
-					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			saved = true;
 		} catch (DbConnectionException e) {

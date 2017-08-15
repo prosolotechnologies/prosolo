@@ -30,22 +30,24 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 		if (operation == NodeOperation.Update) {
 			if (event.getAction() == EventType.OWNER_CHANGE) {
 				Map<String, String> params = event.getParameters();
-				credentialESService.updateCredentialOwner(cred.getId(), Long.parseLong(params.get("newOwnerId")));
+				credentialESService.updateCredentialOwner(event.getOrganizationId(), cred.getId(),
+						Long.parseLong(params.get("newOwnerId")));
 			} else if (event.getAction() == EventType.RESOURCE_VISIBILITY_CHANGE) {
-				credentialESService.updateCredentialUsersWithPrivileges(cred.getId(), session);
+				credentialESService.updateCredentialUsersWithPrivileges(event.getOrganizationId(), cred.getId(),
+						session);
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
-				credentialESService.updateVisibleToAll(cred.getId(), cred.isVisibleToAll());
+				credentialESService.updateVisibleToAll(event.getOrganizationId(), cred.getId(), cred.isVisibleToAll());
 			} else {
-				credentialESService.updateCredentialNode(cred, session);
+				credentialESService.updateCredentialNode(event.getOrganizationId(), cred, session);
 			}
 		} else if (operation == NodeOperation.Save) {
-			credentialESService.saveCredentialNode(cred, session);
+			credentialESService.saveCredentialNode(event.getOrganizationId(), cred, session);
 		} else if (operation == NodeOperation.Delete) {
 			credentialESService.deleteNodeFromES(cred);
 		} else if (operation == NodeOperation.Archive) {
-			credentialESService.archiveCredential(cred.getId());
+			credentialESService.archiveCredential(event.getOrganizationId(), cred.getId());
 		} else if (operation == NodeOperation.Restore) {
-			credentialESService.restoreCredential(cred.getId());
+			credentialESService.restoreCredential(event.getOrganizationId(), cred.getId());
 		}
 	}
 

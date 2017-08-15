@@ -114,7 +114,7 @@ public class CompetenceEditBean implements Serializable {
 		access = res.getAccess();
 	}
 	
-	//competence is draft when it has never been published or when date of first publish is null
+	//competence is draft when it has never been published or when date ofActor first publish is null
 	public boolean isDraft() {
 		return competenceData.getDatePublished() == null;
 	}
@@ -211,7 +211,7 @@ public class CompetenceEditBean implements Serializable {
 		if (saved) {
 			StringBuilder builder = new StringBuilder();
 			/*
-			 * this will not work if there are multiple levels of directories in current view path
+			 * this will not work if there are multiple levels ofActor directories in current view path
 			 * example: /credentials/create-credential will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
@@ -232,7 +232,7 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.keepFiredMessagesAcrossPages();
 			if (addToCredential) {
 				/*
-				 * this will not work if there are multiple levels of directories in current view path
+				 * this will not work if there are multiple levels ofActor directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
@@ -259,8 +259,7 @@ public class CompetenceEditBean implements Serializable {
 			if (competenceData.getCompetenceId() > 0) {
 				competenceData.getActivities().addAll(activitiesToRemove);
 				if (competenceData.hasObjectChanged()) {
-					compManager.updateCompetence(competenceData, 
-							loggedUser.getUserId(), lcd);
+					compManager.updateCompetence(competenceData, loggedUser.getUserContext(lcd));
 
 					if (reloadData) {
 						initializeValues();
@@ -272,8 +271,8 @@ public class CompetenceEditBean implements Serializable {
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
 				long credentialId = addToCredential ? decodedCredId : 0;
-				Competence1 comp = compManager.saveNewCompetence(competenceData,
-						loggedUser.getUserId(), credentialId, lcd);
+				Competence1 comp = compManager.saveNewCompetence(competenceData, credentialId,
+						loggedUser.getUserContext(lcd));
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
@@ -321,8 +320,8 @@ public class CompetenceEditBean implements Serializable {
 //		try {
 //			if(competenceData.getCompetenceId() > 0) {
 //				/*
-//				 * passing decodedId because we need to pass id of
-//				 * original competence and not id of a draft version
+//				 * passing decodedId because we need to pass id ofActor
+//				 * original competence and not id ofActor a draft version
 //				 */
 //				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
 //				competenceData = new CompetenceData1(false);
@@ -338,9 +337,8 @@ public class CompetenceEditBean implements Serializable {
 //	}
 	
 	public void archive() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			compManager.archiveCompetence(decodedId, loggedUser.getUserId(), ctx);
+			compManager.archiveCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessage("Competency archived successfully");
 		} catch(DbConnectionException e) {
@@ -350,9 +348,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void restore() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserId(), ctx);
+			compManager.restoreArchivedCompetence(decodedId, loggedUser.getUserContext());
 			competenceData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("Competency restored successfully");
 		} catch(DbConnectionException e) {
@@ -362,10 +359,8 @@ public class CompetenceEditBean implements Serializable {
 	}
 	
 	public void duplicate() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			long compId = compManager.duplicateCompetence(decodedId, 
-					loggedUser.getUserId(), ctx);
+			long compId = compManager.duplicateCompetence(decodedId, loggedUser.getUserContext());
 
 			PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 		} catch(DbConnectionException e) {

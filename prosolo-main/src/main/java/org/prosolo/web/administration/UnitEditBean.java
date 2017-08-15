@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -54,10 +53,9 @@ public class UnitEditBean implements Serializable {
     }
 
     public void updateUnit(){
-        try{
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
-            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(),loggedUser.getUserId(),lcd);
+        try {
+            //TODO add organization id to user context
+            unitManager.updateUnit(this.unit.getId(),this.unit.getTitle(), loggedUser.getUserContext(0));
 
             logger.debug("Unit (" + this.unit.getId() + ") updated by the user " + loggedUser.getUserId());
             PageUtil.fireSuccessfulInfoMessage("Unit is updated");

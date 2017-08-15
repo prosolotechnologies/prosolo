@@ -25,35 +25,33 @@ import java.util.List;
  */
 public interface UnitManager extends AbstractManager{
 
-    UnitData createNewUnit(String title,long organizationId,long parentUnitId, long creatorId, LearningContextData contextData)
+    UnitData createNewUnit(String title,long organizationId,long parentUnitId, UserContextData context)
             throws DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Unit> createNewUnitAndGetEvents(String title,long organizationId,long parentUnitId, long creatorId,
-                                           LearningContextData contextData) throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
+    Result<Unit> createNewUnitAndGetEvents(String title,long organizationId,long parentUnitId, UserContextData context)
+            throws DbConnectionException,ConstraintViolationException, DataIntegrityViolationException;
 
     List<UnitData> getUnitsWithSubUnits(long organizationId);
 
-    UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, long actorId,
-                               LearningContextData context) throws DbConnectionException, EventException;
+    UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
+            throws DbConnectionException, EventException;
 
-    Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, long actorId,
-                                                                 LearningContextData context) throws DbConnectionException;
+    Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId,
+                                                                 UserContextData context) throws DbConnectionException;
 
-    void removeUserFromUnitWithRole(long userId, long unitId, long roleId, long actorId,
-                                    LearningContextData context) throws DbConnectionException, EventException;
+    void removeUserFromUnitWithRole(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException, EventException;
 
-    Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId,
-                                                        long actorId, LearningContextData context)
+    Result<Void> removeUserFromUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context)
             throws DbConnectionException;
 
     List<Unit> getAllUnitsWithUserInARole(long userId, long roleId, Session session) throws DbConnectionException;
 
     UnitData getUnitData(long unitId) throws DbConnectionException;
 
-    Unit updateUnit(long unitId,String title, long creatorId,LearningContextData contextData) throws
+    Unit updateUnit(long unitId,String title, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Unit> updateUnitAndGetEvents(long unitId,String title, long creatorId,LearningContextData contextData) throws
+    Result<Unit> updateUnitAndGetEvents(long unitId,String title, UserContextData context) throws
             DbConnectionException, EventException, ConstraintViolationException, DataIntegrityViolationException;
 
     String getUnitTitle(long organizationId, long unitId) throws DbConnectionException;
@@ -94,4 +92,7 @@ public interface UnitManager extends AbstractManager{
 
     void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
             throws DbConnectionException, EventException;
+
+    List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId, Session session)
+            throws DbConnectionException;
 }

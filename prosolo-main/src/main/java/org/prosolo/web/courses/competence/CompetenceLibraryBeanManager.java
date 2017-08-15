@@ -141,7 +141,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -166,7 +166,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserId(), ctx);
+				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -197,8 +197,8 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 		if(selectedComp != null) {
 			LearningContextData ctx = PageUtil.extractLearningContextData();
 			try {
-				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(), 
-						loggedUserBean.getUserId(), ctx);
+				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(),
+						loggedUserBean.getUserContext());
 				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);

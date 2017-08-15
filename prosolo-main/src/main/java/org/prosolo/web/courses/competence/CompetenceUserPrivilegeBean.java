@@ -51,7 +51,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private UserGroupPrivilege privilege;
 
-	//id of a role that user should have in order to be considered when adding privileges
+	//id ofActor a role that user should have in order to be considered when adding privileges
 	private long roleId;
 
 	//private boolean manageSection;
@@ -157,7 +157,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		try {
 			LearningContextData lcd = PageUtil.extractLearningContextData();
 			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
-					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserId(), lcd);
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			saved = true;
 		} catch (DbConnectionException e) {

@@ -261,7 +261,9 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 				try {
 					Map<String, String> parameters = new HashMap<>();
 					parameters.put("ip", ipAddress);
-					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(), null, null, parameters);
+					eventFactory.generateEvent(EventType.SESSIONENDED, getUserId(),
+							getOrganizationId(), event.getSession().getId(), null, null, null,
+							null, null, null, parameters);
 				} catch (EventException e) {
 					logger.error("Generate event failed.", e);
 				}
@@ -407,6 +409,12 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		return UserContextData.of(getUserId(), getOrganizationId(), getSessionId(),
 				context);
 	}
+
+	public UserContextData getUserContext(long organizationId) {
+		return UserContextData.of(getUserId(), organizationId, getSessionId(), PageUtil.extractLearningContextData());
+	}
+
+
 
 	/*
 	 * GETTERS / SETTERS

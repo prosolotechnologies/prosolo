@@ -236,7 +236,7 @@ public class ActivityViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), lcd);
+			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext());
 			//initializeActivityData();
 
 			if (decodedCredId > 0) {
@@ -276,8 +276,8 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					competenceData.getActivityToShowWithDetails().getCompetenceId(),  
-					loggedUser.getUserId(), lcd);
+					competenceData.getActivityToShowWithDetails().getCompetenceId(),
+					loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
 			boolean localNextToLearn = false;
@@ -294,7 +294,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			try {
 				/*
-				 * if all activities from current competence are completed and id of a credential is passed, 
+				 * if all activities from current competence are completed and id ofActor a credential is passed,
 				 * we retrieve the next competence and activity to learn from credential
 				 */
 				//TODO for now we don't want to navigate to another competence so if competence is completed we don't show continue button
@@ -320,9 +320,6 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void saveTextResponse() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			Date postDate = new Date();
 			
 			// strip all tags except <br> and <a>
@@ -330,9 +327,7 @@ public class ActivityViewBeanUser implements Serializable {
 			//ard.setResult(PostUtil.cleanHTMLTagsExceptBrA(ard.getResult()));
 			
 			activityManager.saveResponse(competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
-					ard.getResult(), 
-					postDate, loggedUser.getUserId(), ActivityResultType.TEXT, 
-					new LearningContextData(page, lContext, service));
+					ard.getResult(), postDate, ActivityResultType.TEXT, loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().getResultData().setResultPostDate(postDate);
 			
 			completeActivity();
@@ -352,12 +347,8 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void deleteAssignment() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
 			activityManager.deleteAssignment(competenceData.getActivityToShowWithDetails()
-					.getTargetActivityId(), loggedUser.getUserId(), 
-					new LearningContextData(page, lContext, service));
+					.getTargetActivityId(), loggedUser.getUserContext());
 			competenceData.getActivityToShowWithDetails().getResultData().setAssignmentTitle(null);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
 		} catch(DbConnectionException e) {

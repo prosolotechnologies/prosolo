@@ -186,7 +186,8 @@ public class MessagesBean implements Serializable {
         		parameters.put("context", context1);
         		parameters.put("threadId", String.valueOf(threadData.getId()));
         		
-        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(), thread, null, page1, context1, null, parameters);
+        		eventFactory.generateEvent(EventType.READ_MESSAGE_THREAD, loggedUser.getUserId(),
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), thread, null, page1, context1, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}
@@ -218,12 +219,12 @@ public class MessagesBean implements Serializable {
 		if(!userParticipent.isDeleted()) {
 			List<Message> unreadMessages = messagingManager.getUnreadMessages(threadData.getId(), userParticipent.getLastReadMessage(), userParticipent.getShowMessagesFrom());
 			List<Message> readMessages = new ArrayList<>();
-			//if number of unread messages >= limit, pull 2 already read ones and join them with new ones
+			//if number ofActor unread messages >= limit, pull 2 already read ones and join them with new ones
 			if (unreadMessages.size() >= limit) {
 				readMessages = messagingManager.getMessagesBeforeMessage(threadData.getId(),userParticipent.getLastReadMessage(),2, userParticipent.getShowMessagesFrom());
 			}
 			else {
-				//shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
+				//shift standard pagination for the number ofActor unread messages (first result must be "higher" for that number, last result must be "lower")
 				int startOffset = messages.size();
 				int endOffset = limit - unreadMessages.size();
 				readMessages = messagingManager.getMessagesForThread(threadData.getId(), startOffset, endOffset,userParticipent.getShowMessagesFrom());
@@ -329,7 +330,9 @@ public class MessagesBean implements Serializable {
         		//DirectMessageDialog uses recipient as user param
         		parameters.put("user", String.valueOf(participants.get(0).getId()));
         		parameters.put("message", String.valueOf(message.getId()));
-        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId, message, null, parameters);
+        		eventFactory.generateEvent(EventType.SEND_MESSAGE, senderId,
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), message, null,
+						null, null, null, null, parameters);
         	} catch (EventException e) {
         		logger.error(e);
         	}

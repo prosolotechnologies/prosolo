@@ -5,9 +5,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
-import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
@@ -27,10 +26,10 @@ import java.util.Optional;
 public interface AssessmentManager {
 
 	long requestAssessment(AssessmentRequestData assessmentRequestData,
-						   LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+						   UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 
 	long createDefaultAssessment(TargetCredential1 targetCredential, long assessorId,
-								 LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
+								 UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException;
 	
 	List<AssessmentData> getAllAssessmentsForCredential(long credentialId, long assessorId,
 			boolean searchForPending, boolean searchForApproved, UrlIdEncoder idEncoder, DateFormat simpleDateFormat);
@@ -44,13 +43,13 @@ public interface AssessmentManager {
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
 												long senderId, boolean isDefault, Integer grade,
-												boolean recalculatePoints, LearningContextData context)
+												boolean recalculatePoints, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException;
 	
 	ActivityAssessment createActivityDiscussion(long targetActivityId, long competenceAssessmentId,
 												long credAssessmentId, List<Long> participantIds,
 												long senderId, boolean isDefault, Integer grade,
-												boolean recalculatePoints, Session session, LearningContextData context)
+												boolean recalculatePoints, Session session, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException, EventException;
 
 	ActivityDiscussionMessageData addCommentToDiscussion(long actualDiscussionId, long senderId, String comment)
@@ -88,8 +87,8 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 
 	void updateGradeForActivityAssessment(long credentialAssessmentId, long compAssessmentId,
-										  long activityAssessmentId, Integer points, long userId,
-										  LearningContextData context) throws DbConnectionException, EventException;
+										  long activityAssessmentId, Integer points, UserContextData context)
+			throws DbConnectionException, EventException;
 	
 	Optional<Long> getDefaultCredentialAssessmentId(long credId, long userId) throws DbConnectionException;
 
@@ -109,7 +108,7 @@ public interface AssessmentManager {
 
 	Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
 																 long compId, long targetCompId, long targetActId,
-																 int score, Session session, LearningContextData context)
+																 int score, Session session, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -117,12 +116,12 @@ public interface AssessmentManager {
 	 * 
 	 * @param assessedStrudentId
 	 * @param credentialId
-	 * @return list of assessment data instances
+	 * @return list ofActor assessment data instances
 	 */
 	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
 
 	/**
-	 * Returns true if the given user is an assessor of at least one credential containing activity given by
+	 * Returns true if the given user is an assessor ofActor at least one credential containing activity given by
 	 * {@code activityId}.
 	 * 
 	 * @param userId - user for whom we check if he is assessor
@@ -135,10 +134,10 @@ public interface AssessmentManager {
 										 boolean countDefaultAssessment) throws DbConnectionException;
 
 	/**
-	 * Returns ids of all participant in the activity assessment discussion.
-	 * 
-	 * @param actualDiscussionId
-	 * @return list of participant ids
+	 * Returns ids ofActor all participant in the activity assessment discussion.
+	 * @param activityAssessmentId
+	 *
+	 * @return list ofActor participant ids
 	 */
 	List<Long> getParticipantIds(long activityAssessmentId);
 	
@@ -148,28 +147,28 @@ public interface AssessmentManager {
 	AssessmentBasicData createCompetenceAndActivityAssessment(long credAssessmentId, long targetCompId,
 															  long targetActivityId, List<Long> participantIds,
 															  long senderId, Integer grade, boolean isDefault,
-															  LearningContextData context)
+															  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, EventException;
 
 	Result<Long> createAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-											  String message, boolean defaultAssessment, LearningContextData context)
+											  String message, boolean defaultAssessment, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(long targetActivityId, long competenceAssessmentId,
 																	long credAssessmentId, List<Long> participantIds,
 																	long senderId, boolean isDefault, Integer grade,
 																	boolean recalculatePoints, Session session,
-																	LearningContextData context)
+																	UserContextData context)
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
 	Result<Void> updateGradeForActivityAssessmentAndGetEvents(long credentialAssessmentId,
 															  long compAssessmentId, long activityAssessmentId, Integer points,
-															  long userId, LearningContextData context) throws DbConnectionException;
+															  UserContextData context) throws DbConnectionException;
 
 	Result<AssessmentBasicData> createCompetenceAndActivityAssessmentAndGetEvents(long credAssessmentId, long targetCompId,
 																				  long targetActivityId, List<Long> participantIds,
 																				  long senderId, Integer grade, boolean isDefault,
-																				  LearningContextData context)
+																				  UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;

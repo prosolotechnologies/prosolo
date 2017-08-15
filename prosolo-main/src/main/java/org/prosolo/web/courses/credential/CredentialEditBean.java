@@ -225,10 +225,10 @@ public class CredentialEditBean implements Serializable {
 			if (credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {
-					credentialManager.updateCredential(credentialData, loggedUser.getUserId(), lcd);
+					credentialManager.updateCredential(credentialData, loggedUser.getUserContext());
 				}
 			} else {
-				Credential1 cred = credentialManager.saveNewCredential(credentialData, loggedUser.getUserId(), lcd);
+				Credential1 cred = credentialManager.saveNewCredential(credentialData, loggedUser.getUserContext());
 				credentialData.setId(cred.getId());
 				decodedId = credentialData.getId();
 				id = idEncoder.encodeId(decodedId);
@@ -271,9 +271,8 @@ public class CredentialEditBean implements Serializable {
 	
 	
 	public void archive() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserId(), ctx);
+			credentialManager.archiveCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(true);
 			PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
 		} catch(DbConnectionException e) {
@@ -283,9 +282,8 @@ public class CredentialEditBean implements Serializable {
 	}
 	
 	public void restore() {
-		LearningContextData ctx = PageUtil.extractLearningContextData();
 		try {
-			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserId(), ctx);
+			credentialManager.restoreArchivedCredential(credentialData.getId(), loggedUser.getUserContext());
 			credentialData.setArchived(false);
 			PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
 		} catch(DbConnectionException e) {
@@ -319,7 +317,7 @@ public class CredentialEditBean implements Serializable {
 	public void delete() {
 		try {
 			if(credentialData.getId() > 0 && isDelivery()) {
-				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserId());
+				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserContext());
 				credentialData = new CredentialData(false);
 				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted");
 				PageUtil.redirect("/manage/library");

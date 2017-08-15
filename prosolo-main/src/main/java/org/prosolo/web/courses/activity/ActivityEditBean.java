@@ -341,7 +341,7 @@ public class ActivityEditBean implements Serializable {
 		
 		if (saved && isNew) {
 			/*
-			 * this will not work if there are multiple levels of directories in current view path
+			 * this will not work if there are multiple levels ofActor directories in current view path
 			 * example: /credentials/create-credential will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
@@ -368,10 +368,10 @@ public class ActivityEditBean implements Serializable {
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, loggedUser.getUserId(), lcd);
+					activityManager.updateActivity(activityData, loggedUser.getUserContext());
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserId(), lcd);
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserContext());
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -404,11 +404,11 @@ public class ActivityEditBean implements Serializable {
 	public void delete() {
 		try {
 			if (activityData.getActivityId() > 0) {
-				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
+				activityManager.deleteActivity(decodedId, loggedUser.getUserContext());
 				//activityData = new ActivityData(false);
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 				/*
-				 * this will not work if there are multiple levels of directories in current view path
+				 * this will not work if there are multiple levels ofActor directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */

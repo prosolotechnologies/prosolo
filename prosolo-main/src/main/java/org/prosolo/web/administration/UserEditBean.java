@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -231,7 +230,7 @@ public class UserEditBean implements Serializable {
 					this.user.getPosition(),
 					getSelectedRoles(),
 					userRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
-					loggedUser.getUserId());
+					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
 
@@ -349,7 +348,7 @@ public class UserEditBean implements Serializable {
 	public void delete() {
 		if (userToDelete != null) {
 			try {
-				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
+				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId(), loggedUser.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
 				String url = decodedOrgId > 0

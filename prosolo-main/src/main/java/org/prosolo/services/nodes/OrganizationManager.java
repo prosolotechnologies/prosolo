@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.data.Result;
@@ -28,19 +29,19 @@ public interface OrganizationManager extends AbstractManager {
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException;
 
-    Organization createNewOrganization(String title, List<UserData> adminsChosen, long creatorId, LearningContextData contextData)
+    Organization createNewOrganization(String title, List<UserData> adminsChosen, UserContextData context)
             throws DbConnectionException, EventException;
 
-    Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, long creatorId,
-                                                           LearningContextData contextData) throws DbConnectionException;
+    Result<Organization> createNewOrganizationAndGetEvents(String title, List<UserData> adminsChosen, UserContextData context)
+            throws DbConnectionException;
 
     OrganizationData getOrganizationDataById(long organizationId,List<Role> userRoles) throws DbConnectionException;
 
-    Organization updateOrganization(long organizationId,String title,List<UserData> chosenUsers,long creatorId,
-                                    LearningContextData lcd) throws DbConnectionException,EventException;
+    Organization updateOrganization(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
+            throws DbConnectionException,EventException;
 
-    Result<Organization> updateOrganizationAndGetEvents(long organizationId,String title,List<UserData> chosenUsers,long creatorId,
-                                                        LearningContextData lcd) throws DbConnectionException,EventException;
+    Result<Organization> updateOrganizationAndGetEvents(long organizationId,String title,List<UserData> chosenUsers, UserContextData context)
+            throws DbConnectionException,EventException;
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 

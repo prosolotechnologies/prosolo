@@ -1,16 +1,5 @@
 package org.prosolo.web.courses.activity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -18,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.event.EventException;
@@ -33,6 +21,11 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Bojan
@@ -118,13 +111,9 @@ public class ActivityPrivateConversationBean implements Serializable {
 	public void addCommentToActivityDiscussion(boolean retry) {
 		try {
 			if (StringUtils.isBlank(activityAssessmentData.getEncodedDiscussionId())) {
-				LearningContextData lcd = new LearningContextData();
-				lcd.setPage(PageUtil.getPostParameter("page"));
-				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-				lcd.setService(PageUtil.getPostParameter("service"));
 				createAssessment(activityAssessmentData.getTargetActivityId(),
 						activityAssessmentData.getCompAssessmentId(),
-						activityAssessmentData.getTargetCompId(), false, lcd);
+						activityAssessmentData.getTargetCompId(), false);
 			}
 			addComment();
 			cleanupCommentData();
@@ -145,7 +134,7 @@ public class ActivityPrivateConversationBean implements Serializable {
 	}
 
 	private void createAssessment(long targetActivityId, long competenceAssessmentId, long targetCompetenceId,
-								  boolean updateGrade, LearningContextData context)
+								  boolean updateGrade)
 			throws DbConnectionException, IllegalDataStateException, EventException {
 		Integer grade = updateGrade
 				? activityAssessmentData != null ? activityAssessmentData.getGrade().getValue() : null
@@ -173,13 +162,13 @@ public class ActivityPrivateConversationBean implements Serializable {
 						assessmentManager.createActivityDiscussion(targetActivityId, competenceAssessmentId,
 								activityAssessmentData.getCredAssessmentId(), new ArrayList<Long>(participantIds),
 								loggedUserBean.getUserId(), activityAssessmentData.isDefault(), grade, true,
-								context).getId()));
+								loggedUserBean.getUserContext()).getId()));
 			} else {
 				//if competence assessment does not exist create competence assessment and activity assessment
 				AssessmentBasicData assessmentInfo = assessmentManager.createCompetenceAndActivityAssessment(
 						activityAssessmentData.getCredAssessmentId(), targetCompetenceId, targetActivityId,
 						new ArrayList<Long>(participantIds), loggedUserBean.getUserId(), grade,
-						activityAssessmentData.isDefault(), context);
+						activityAssessmentData.isDefault(), loggedUserBean.getUserContext());
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 		} catch (IllegalDataStateException e) {
@@ -258,8 +247,9 @@ public class ActivityPrivateConversationBean implements Serializable {
 			parameters.put("credentialId", credentialId + "");
 			parameters.put("credentialAssessmentId", credAssessmentId + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(), adm, aa, page,
-						lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentComment, loggedUserBean.getUserId(),
+						loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(), adm, aa, page,
+						lContext, service, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

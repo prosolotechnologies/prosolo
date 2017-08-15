@@ -40,7 +40,7 @@ public class DeliveryStartBean implements Serializable {
 		LearningContextData context = PageUtil.extractLearningContextData();
 		try {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
-					loggedUser.getUserId(), context).getId();
+					loggedUser.getUserContext()).getId();
 
 			PageUtil.redirect("/manage/credentials/" + idEncoder.encodeId(deliveryId) + "/edit");
 		} catch (EventException ee) {

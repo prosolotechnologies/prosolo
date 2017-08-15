@@ -3,16 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -33,6 +23,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "studentAssignBean")
 @Component("studentAssignBean")
@@ -230,7 +229,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 					usersToAssign = studentsToAssign;
 				}
 				credInstructorManager.updateInstructorAndStudentsAssigned(credId, instructorForStudentAssign, 
-						usersToAssign, studentsToUnassign, loggedUserBean.getUserId(), ctx);
+						usersToAssign, studentsToUnassign, loggedUserBean.getUserContext(ctx));
 				//fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
 				//fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
 				int numberOfAffectedStudents = usersToAssign.size() - studentsToUnassign.size();
@@ -268,7 +267,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 //			int max = Integer.parseInt(value.toString());
 //			boolean exceeded = isLimitExceeded(max);
 //			if(exceeded) {
-//				msg = "You have exceeded limit for maximum number of students that can be assigned";
+//				msg = "You have exceeded limit for maximum number ofActor students that can be assigned";
 //			}
 //		} catch (NumberFormatException nfe){
 //			msg = "Only numbers allowed";
@@ -288,7 +287,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 //		
 //		if(currentNumberOfAssigned > maxNumberOfStudents) {
 //			throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-//					"You have exceeded limit for maximum number of students that can be assigned", null));
+//					"You have exceeded limit for maximum number ofActor students that can be assigned", null));
 //		}	
 //	}
 	
