@@ -1,28 +1,28 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-				xmlns:h="http://java.sun.com/jsf/html"
-				xmlns:f="http://java.sun.com/jsf/core"
-				xmlns:ui="http://java.sun.com/jsf/facelets"
-				xmlns:p="http://primefaces.org/ui"
-				template="templates/masterLayout2.xhtml"
-				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">Edit User</ui:define>
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="id" value="#{userEditBean1.id}" />
-			<f:viewAction action="#{userEditBean1.init()}" />
+			<f:viewParam name="id" value="#{userEditBean.id}" />
+			<f:viewAction action="#{userEditBean.init()}" />
 		</f:metadata>
 	</ui:define>
 	<ui:define name="navLinks">
 		<ul class="nav nav-tabs headerSubmenu">
 			<li role="presentation" class="active"><h:link
 					outcome="/admin/adminUserEdit">
-					<f:param name="id" value="#{userEditBean1.id}" />Personal Info</h:link></li>
+					<f:param name="id" value="#{userEditBean.id}" />Personal Info</h:link></li>
 			<li role="presentation"><h:link
 					outcome="/admin/adminUserEditPassword">
-					<f:param name="id" value="#{userEditBean1.id}" />Change Password</h:link></li>
+					<f:param name="id" value="#{userEditBean.id}" />Change Password</h:link></li>
 		</ul>
 	</ui:define>
 	<ui:define name="content">
@@ -49,7 +49,7 @@
 						<h2>Edit User</h2>
 						<H2>
 							<h:outputText
-								value="#{userEditBean1.user.name} #{userEditBean1.user.lastName} - Personal Info" />
+								value="#{userEditBean.user.name} #{userEditBean.user.lastName} - Personal Info" />
 						</H2>
 
 						<div class="formWrapper">
@@ -58,9 +58,13 @@
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserName" required="true"
-											requiredMessage="First name is required"
-											value="#{userEditBean1.user.name}">
+										<h:inputText
+												id="inputTextUserName"
+												required="true"
+												autocomplete="off"
+												autofocus="true"
+												requiredMessage="First name is required"
+												value="#{userEditBean.user.name}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserName')}"
@@ -72,9 +76,12 @@
 								<div class="formLine">
 									<label>Last name</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserLastname" required="true"
-											requiredMessage="Last name is required"
-											value="#{userEditBean1.user.lastName}">
+										<h:inputText
+												id="inputTextUserLastname"
+												required="true"
+												autocomplete="off"
+												requiredMessage="Last name is required"
+												value="#{userEditBean.user.lastName}">
 										</h:inputText>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserLastname')}"
@@ -86,9 +93,12 @@
 								<div class="formLine">
 									<label>Email</label>
 									<div class="formLineRight">
-										<h:inputText id="inputTextUserEmail" required="true"
-											requiredMessage="Email is required"
-											value="#{userEditBean1.user.email}"></h:inputText>
+										<h:inputText
+												id="inputTextUserEmail"
+												required="true"
+												autocomplete="off"
+												requiredMessage="Email is required"
+												value="#{userEditBean.user.email}"></h:inputText>
 										<small>Email will not be publicly displayed.</small>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:inputTextUserEmail')}"
@@ -100,18 +110,18 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText value="#{userEditBean1.user.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 									</div>
 								</div>
 								<div class="formLine">
 									<label>Role</label>
 									<div class="formLineRight">
 										<h:selectManyCheckbox id="selectRoles"
-                                                              value="#{userEditBean1.user.roleIds}" layout="pageDirection"
-                                                              styleClass="checkbox checkLine" required="true"
-                                                              requiredMessage="At least one role should be selected">
-											<f:selectItems value="#{userEditBean1.allRoles}" var="role"
-                                                           itemValue="role" />
+											value="#{userEditBean.user.roleIds}" layout="pageDirection"
+											styleClass="checkbox checkLine" required="true"
+											requiredMessage="At least one role should be selected">
+											<f:selectItems value="#{userEditBean.allRoles}" var="role"
+												itemValue="role" />
 										</h:selectManyCheckbox>
 										<h:panelGroup layout="block"
 											rendered="#{not empty facesContext.getMessageList('formMain:selectRoles')}"
@@ -124,12 +134,13 @@
 								<div class="formLine">
 									<label>&#160;</label>
 									<div class="formLineRight adminUserEditButtons">
-										<p:commandLink styleClass="btn btn-green"
-                                                       action="#{userEditBean1.saveUser()}" update=":formMain">
+										<p:commandLink id="saveBtn" styleClass="btn btn-green"
+													   action="#{userEditBean.saveUser()}" update=":formMain">
 											Save Changes
 										</p:commandLink>
+										<p:defaultCommand target="saveBtn"></p:defaultCommand>
 										<p:commandLink styleClass="linkRed" pt:data-toggle="modal"
-													   action="#{userEditBean1.setUserToDelete()}"
+													   action="#{userEditBean.setUserToDelete()}"
 													   update=":formDelete"
 													   oncomplete="$('#deleteUser').modal('show');">
 											Delete
@@ -157,42 +168,42 @@
 							<h2 class="modal-title">Delete user?</h2>
 						</div>
 						<div class="modal-body alignLeft">
-							<p>Are you sure you want to delete #{userEditBean1.user.name}
-								#{userEditBean1.user.lastName}?</p>
+							<p>Are you sure you want to delete #{userEditBean.user.name}
+								#{userEditBean.user.lastName}?</p>
 							<p>Transfer content ownership to:</p>
 							<div class="inputWrapper">
 								<h:panelGroup layuot="block" id="selectNewOwner">
-									<h:panelGroup rendered="#{userEditBean1.newOwner.userSet}">
+									<h:panelGroup rendered="#{userEditBean.newOwner.userSet}">
 										<utilcomp:userAvatar
-											avatar="#{userEditBean1.newOwner.avatarUrl}"
-											fullName="#{userEditBean1.newOwner.fullName}" />
-										<h3>#{userEditBean1.newOwner.fullName}</h3>
+											avatar="#{userEditBean.newOwner.avatarUrl}"
+											fullName="#{userEditBean.newOwner.fullName}" />
+										<h3>#{userEditBean.newOwner.fullName}</h3>
 										<div class="assignOpt">
 										<p:commandLink styleClass="removeX"
-										action="#{userEditBean1.userReset()}"
+										action="#{userEditBean.userReset()}"
 										update="selectNewOwner :formDelete:formDeleteBtn">Close</p:commandLink>
 										</div>
 									</h:panelGroup>
 
-									<h:inputText rendered="#{not userEditBean1.newOwner.userSet}"
-                                                 onkeyup="searchListener(execSearchUsers);"
-                                                 value="#{userEditBean1.searchTerm}" id="newName"
-                                                 placeholder="Type name..." name="newName" autocomplete="off" />
+									<h:inputText rendered="#{not userEditBean.newOwner.userSet}"
+										onkeyup="searchListener(execSearchUsers);"
+										value="#{userEditBean.searchTerm}" id="newName"
+										placeholder="Type name..." name="newName" autocomplete="off"/>
 
 									<p:remoteCommand name="execSearchUsers" process="newName"
-										action="#{userEditBean1.resetAndSearch()}"
+										action="#{userEditBean.resetAndSearch()}"
 										update="usersListPanel" />
 
 									<h:panelGroup id="usersListPanel">
 										<h:panelGroup
-											rendered="#{not userEditBean1.newOwner.userSet and userEditBean1.users != null and userEditBean1.users.size() > 0}">
+											rendered="#{not userEditBean.newOwner.userSet and userEditBean.users != null and userEditBean.users.size() > 0}">
 											<ul id="usersList" class="dropdown-menu searchResultsDrop"
 												style="display: block;">
-												<ui:repeat value="#{userEditBean1.users}" var="user"
-                                                           varStatus="iterator">
+												<ui:repeat value="#{userEditBean.users}" var="user"
+													varStatus="iterator">
 													<li><p:commandLink style="cursor: pointer;"
 															id="userlink-#{user.id}"
-															action="#{userEditBean1.setNewOwner(user)}"
+															action="#{userEditBean.setNewOwner(user)}"
 															update=":formDelete:selectNewOwner :formDelete:formDeleteBtn">
 															<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 																fullName="#{user.fullName}" />
@@ -209,8 +220,8 @@
 						<div class="modal-footer alignLeft">
 							<h:panelGroup id="formDeleteBtn">
 								<p:commandLink styleClass="btn btn-red" pt:data-toggle="modal"
-									action="#{userEditBean1.delete()}"
-									rendered="#{userEditBean1.newOwner.userSet}"
+									action="#{userEditBean.delete()}"
+									rendered="#{userEditBean.newOwner.userSet}"
 									update=":formMain"
 									oncomplete="$('#deleteUser').modal('hide');">
 	                                	Delete

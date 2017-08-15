@@ -1,20 +1,19 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                template="templates/masterLayout2.xhtml"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
->
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="templates/masterLayout2.xhtml"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <ui:define name="windowTitle">
-	#{userEditBean1.isCreateUseCase() ? 'New' : 'Edit'} User
+	#{userEditBean.isCreateUseCase() ? 'New' : 'Edit'} User
 </ui:define>
 
 <ui:define name="metadata">
 	<f:metadata>
-		<f:viewParam name="id" value="#{userEditBean1.id}" default="null" />
-		<f:viewAction action="#{userEditBean1.init()}" />
+		<f:viewParam name="id" value="#{userEditBean.id}" default="null" />
+		<f:viewAction action="#{userEditBean.init()}" />
 	</f:metadata>
 </ui:define>
 
@@ -28,17 +27,19 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="whiteBox">
-                    <h2>#{userEditBean1.isCreateUseCase() ? 'New' : 'Edit'} User</h2>
+                    <h2>#{userEditBean.isCreateUseCase() ? 'New' : 'Edit'} User</h2>
                     <h:form id="formMain">
                     	<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 	                    <div class="formWrapper">
 	                        <div class="formLine">
 	                            <label>First name</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText id="inputTextUserName" 
+	                            	<h:inputText id="inputTextUserName"
+										autocomplete="off"
+										autofocus="true"
 	                            		required="true" 
 	                            		requiredMessage="First name is required"
-	                            		value="#{userEditBean1.user.name}">
+	                            		value="#{userEditBean.user.name}">
 	                            	</h:inputText>
 	                            	<h:panelGroup 
 			                        	layout="block" 
@@ -52,10 +53,11 @@
 	                        <div class="formLine">
 	                            <label>Last name</label>
 	                            <div class="formLineRight">
-	                                <h:inputText id="inputTextUserLastname" 
+	                                <h:inputText id="inputTextUserLastname"
 	                                	required="true" 
 	                                	requiredMessage="Last name is required"
-	                                	value="#{userEditBean1.user.lastName}">
+	                                	value="#{userEditBean.user.lastName}"
+										autocomplete="off">
 	                                </h:inputText>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -72,7 +74,7 @@
 	                            	<h:inputText id="inputTextUserEmail" 
 	                            		required="true" 
 	                            		requiredMessage="Email is required"
-	                            		value="#{userEditBean1.user.email}"></h:inputText>
+	                            		value="#{userEditBean.user.email}" autocomplete="off"></h:inputText>
 	                                <small>Email will not be publicly displayed.</small>
 	                                <h:panelGroup 
 			                        	layout="block" 
@@ -86,7 +88,7 @@
 	                        <div class="formLine">
 	                            <label>Position</label>
 	                            <div class="formLineRight">
-	                            	<h:inputText value="#{userEditBean1.user.position}"></h:inputText>
+	                            	<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
 	                            </div>
 	                        </div>
 	                        <div class="formLine">
@@ -94,13 +96,13 @@
 	                            <div class="formLineRight">
 	                            	<h:selectManyCheckbox 
 	                            		id="selectRoles"
-										value="#{userEditBean1.user.roleIds}"
+										value="#{userEditBean.user.roleIds}" 
 										layout="pageDirection"
 										styleClass="checkbox checkLine" 
 										required="true" 
 										requiredMessage="At least one role should be selected">
-										<f:selectItems value="#{userEditBean1.allRoles}" var="role"
-                                                       itemValue="role" />
+										<f:selectItems value="#{userEditBean.allRoles}" var="role"
+											itemValue="role" />
 									</h:selectManyCheckbox>
 									<h:panelGroup 
 			                        	layout="block" 
@@ -114,9 +116,9 @@
 	                        <div class="formLine">
 	                            <label>Password</label>
 	                            <div class="formLineRight">
-	                                <p:password rendered="#{userEditBean1.isCreateUseCase()}"
+	                                <p:password rendered="#{userEditBean.isCreateUseCase()}"
 	                                	id="inputPassword"
-	                                	value="#{userEditBean1.user.password}"
+	                                	value="#{userEditBean.user.password}" 
 	                                	required="true"
 	                                	requiredMessage="Password field cannot be empty"
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
@@ -129,9 +131,9 @@
 			                        	pt:role="alert">
 			                            <h:message for="inputPassword"></h:message>
 			                        </h:panelGroup>
-	                                <p:password rendered="#{!userEditBean1.isCreateUseCase()}"
+	                                <p:password rendered="#{!userEditBean.isCreateUseCase()}"
 	                                	id="inputPasswordEdit"
-	                                	value="#{userEditBean1.user.password}"
+	                                	value="#{userEditBean.user.password}" 
 	                                	validatorMessage="Password is too short. It has to contain more that 5 characters.">
 	                                	<f:validateLength minimum="6"></f:validateLength>
 	                                </p:password>
@@ -148,12 +150,14 @@
 	                        <div class="formLine">
 	                            <label>&#160;</label>
 	                            <div class="formLineRight">
-	                                <p:commandLink 
+	                                <p:commandLink
+										id="saveBtn"
 	                                	styleClass="btn btn-green"
-	                                	action="#{userEditBean1.saveUser()}"
+	                                	action="#{userEditBean.saveUser()}"
 	                                	update=":formMain">
 	                                	Save Changes
 	                                </p:commandLink>
+									<p:defaultCommand target="saveBtn"></p:defaultCommand>
 	                            </div>
 	                        </div>
 	                    </div>

@@ -30,7 +30,7 @@ public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 			return null;
 		}
 		CommentSocialActivity act = createNewSocialActivity(target);
-		
+
 		if (act != null) {
 			Date now = new Date();
 			act.setDateCreated(now);
@@ -40,7 +40,7 @@ public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 
 			return socialActivityManager.saveNewSocialActivity(act, session);
 		}
-		
+
 		return null;
 	}
 	

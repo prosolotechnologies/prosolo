@@ -34,7 +34,7 @@ import org.prosolo.bigdata.es.RecommendationDataIndexer;
 import org.prosolo.bigdata.es.impl.RecommendationDataIndexerImpl;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.scala.analyzers.LearningGoalsMostActiveUsers;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 
 import com.google.gson.Gson;
 //import com.google.gson.JsonArray;
@@ -58,7 +58,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 	private static Gson gson = new Gson();
 
 	public void analyzeLearningGoalsForMostActiveUsersForToday() {
-		long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
+		long daysSinceEpoch = DateEpochUtil.getDaysSinceEpoch();
 		//this.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
 		LearningGoalsMostActiveUsers analyser=new LearningGoalsMostActiveUsers();
 		analyser.analyzeLearningGoalsMostActiveUsersForDay(daysSinceEpoch);
@@ -158,7 +158,7 @@ public class LearningGoalsMostActiveUsersAnalyzer implements Serializable {
 	public void analyzeLearningGoalsMostActiveUsersForWeek() {
 
 		//final AnalyticalEventDBManager dbManager = new AnalyticalEventDBManagerImpl();
-		final long daysSinceEpoch = DateUtil.getDaysSinceEpoch();
+		final long daysSinceEpoch = DateEpochUtil.getDaysSinceEpoch();
 		final RecommendationDataIndexer indexer = new RecommendationDataIndexerImpl();
 		List<Long> daysToAnalyze = new ArrayList<Long>();
 		for (int i = 0; i < 7; i++) {

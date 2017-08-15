@@ -1177,7 +1177,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId) {
 		try {
 			String query = 
-					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.defaultAssessment " +
+					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessment.defaultAssessment, assessment.approved " +
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
 					"WHERE assessment.assessedStudent.id = :assessedStrudentId " +
@@ -1198,7 +1198,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					assessmentData.setEncodedAssessmentId(encoder.encodeId((long) record[0]));
 					assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
 					assessmentData.setDefaultAssessment(Boolean.parseBoolean(record[4].toString()));
-					
+					assessmentData.setApproved(Boolean.parseBoolean(record[5].toString()));
+
 					if (record[3] != null)
 						assessmentData.setAssessorAvatarUrl(record[3].toString());
 

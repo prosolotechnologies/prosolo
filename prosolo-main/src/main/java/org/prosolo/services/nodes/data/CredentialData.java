@@ -55,6 +55,7 @@ public class CredentialData extends StandardObservable implements Serializable {
 	
 	//for delivery
 	private long deliveryOfId;
+	private String deliveryOfTitle;
 	private long deliveryStartTime;
 	private long deliveryEndTime;
 	private CredentialType type;
@@ -436,5 +437,13 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setDeliveryEndTime(long deliveryEndTime) {
 		observeAttributeChange("deliveryEndTime", this.deliveryEndTime, deliveryEndTime);
 		this.deliveryEndTime = deliveryEndTime;
+	}
+
+	public String getDeliveryOfTitle() {
+		return deliveryOfTitle;
+	}
+
+	public void setDeliveryOfTitle(String deliveryOfTitle) {
+		this.deliveryOfTitle = deliveryOfTitle;
 	}
 }

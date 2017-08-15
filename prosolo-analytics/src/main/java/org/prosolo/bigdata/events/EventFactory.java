@@ -1,5 +1,8 @@
 package org.prosolo.bigdata.events;
 
+import org.prosolo.bigdata.common.events.serialization.ContextDeserializer;
+import org.prosolo.bigdata.common.events.serialization.LearningContextDeserializer;
+import org.prosolo.bigdata.common.events.serialization.ServiceDeserializer;
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent;
 import org.prosolo.bigdata.events.pojo.DefaultEvent;
 import org.prosolo.bigdata.events.pojo.LogEvent;
@@ -13,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.Service;
-import org.prosolo.common.web.ApplicationPage;
 
 /**
  * @author Zoran Jeremic Apr 5, 2015

@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
@@ -94,22 +95,40 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Transactional
-    private List<Unit> getOrganizationUnits(long organizationId) {
+    private List<UnitData> getOrganizationUnits(long organizationId) {
 
         String query =
-                "SELECT unit " +
+                "SELECT unit, COUNT(memb) " +
                 "FROM Unit unit " +
+                "LEFT JOIN unit.unitRoleMemberships memb " +
                 "WHERE unit.deleted IS FALSE " +
                 "AND unit.organization.id = :organizationId " +
+                "GROUP BY unit " +
                 "ORDER BY unit.title ASC ";
 
-        List<Unit> result = persistence.currentManager()
+        List<Object[]> result =  persistence.currentManager()
                 .createQuery(query)
                 .setParameter("organizationId", organizationId)
                 .list();
 
+        UnitData unitData;
+        List<UnitData> resultList = new ArrayList<>();
+
+        for (Object[] res : result) {
+            Unit unit = (Unit) res[0];
+            long count = (long) res[1];
+
+            if(unit.getParentUnit() != null) {
+                unitData = new UnitData(unit, unit.getParentUnit().getId());
+            }else {
+                unitData = new UnitData(unit);
+            }
+            unitData.setHasUsers(count > 0);
+            resultList.add(unitData);
+        }
+
         if (result != null) {
-            return result;
+            return resultList;
         }
 
         return new ArrayList<>();
@@ -118,24 +137,23 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     @Override
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
 
-        List<Unit> units = getOrganizationUnits(organizationId);
+        List<UnitData> units = getOrganizationUnits(organizationId);
         Map<Long, List<UnitData>> childUnits = new HashMap<>();
         Map<Long, UnitData> parentUnits = new HashMap<>();
         List<UnitData> unitsToReturn = new ArrayList<>();
 
-        for (Unit u : units) {
-            UnitData ud = new UnitData(u);
-            parentUnits.put(u.getId(), ud);
-            if (u.getParentUnit() == null) {
-                unitsToReturn.add(ud);
+        for (UnitData u : units) {
+            parentUnits.put(u.getId(), u);
+            if (u.getParentUnitId() == 0) {
+                unitsToReturn.add(u);
             } else {
-                List<UnitData> children = childUnits.get(u.getParentUnit().getId());
+                List<UnitData> children = childUnits.get(u.getParentUnitId());
                 if (children != null) {
-                    children.add(ud);
+                    children.add(u);
                 } else {
                     List<UnitData> children1 = new ArrayList<>();
-                    children1.add(ud);
-                    childUnits.put(u.getParentUnit().getId(), children1);
+                    children1.add(u);
+                    childUnits.put(u.getParentUnitId(), children1);
                 }
             }
         }
@@ -200,6 +218,57 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.error(e);
             e.printStackTrace();
             throw new DbConnectionException("Error while saving organization unit");
+        }
+    }
+
+    @Override
+    public void deleteUnit(long unitId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT COUNT(unit) " +
+                    "FROM Unit unit " +
+                    "WHERE unit.parentUnit.id = :unitId";
+
+            Long numberOfSubunits = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            if (numberOfSubunits != 0 ) {
+                throw new IllegalStateException("Unit can not be deleted since it has subunits");
+            }
+
+            String query1 =
+                    "SELECT COUNT(unit_role_membership) " +
+                    "FROM UnitRoleMembership unit_role_membership " +
+                    "WHERE unit_role_membership.unit.id = :unitId ";
+
+            Long numberOfUsers = (Long) persistence.currentManager()
+                    .createQuery(query1)
+                    .setLong("unitId", unitId)
+                    .uniqueResult();
+
+            if(numberOfUsers != 0){
+                throw new IllegalStateException("Unit can not be deleted as there are users associated with it");
+            }
+
+            String deleteQuery =
+                    "DELETE FROM Unit unit " +
+                    "WHERE unit.id = :unitId ";
+
+            int affected = persistence.currentManager()
+                    .createQuery(deleteQuery)
+                    .setLong("unitId", unitId)
+                    .executeUpdate();
+
+            logger.info("Deleted unit : " + affected);
+
+        }catch (IllegalStateException ise){
+            throw ise;
+        }catch(Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            throw new DbConnectionException("Error while trying to retrieve units");
         }
     }
 

@@ -107,7 +107,7 @@
 		                    <div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
 		                    <h:link 
 		                    	rendered="#{canEdit}"
-		                    	value="Edit Competence"
+		                    	value="Edit Competency"
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
 		                    	<f:param name="id" value="#{param['compId']}"></f:param>
@@ -175,14 +175,16 @@
 		               />
 		            </div>
 		            <div class="col-md-4">
-						<div class="sidebarBlock">
-			                <h2>Keywords</h2>
-			                <ul class="tags">
-			                	<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.tags}">
-			                		<li><a href="javascript:void(0)">#{tag.title}</a></li>
-			                	</ui:repeat>               
-			                </ul>
-		                </div>
+						<ui:fragment rendered="#{not empty cc.attrs.bean.competenceData.tags}">
+							<div class="sidebarBlock">
+								<h2>Keywords</h2>
+								<ul class="tags">
+									<ui:repeat var="tag" value="#{cc.attrs.bean.competenceData.tags}">
+										<li><a href="javascript:void(0)">#{tag.title}</a></li>
+									</ui:repeat>
+								</ul>
+							</div>
+						</ui:fragment>
 		                
 		                <div class="sidebarBlock">
 			                <h2>Created by</h2>
