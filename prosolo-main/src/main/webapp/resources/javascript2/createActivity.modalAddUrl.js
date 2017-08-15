@@ -19,7 +19,7 @@ $(function(){
 	$('#createActivity\\:formModalAddUrl\\:inputUrl, #createActivity\\:formModalAddUrl\\:idParameterName').on("change paste keyup", function() {
 		updateLinkPreview(); 
 	});
-	
+
 	$('#checkPassID').change(function(){
 		if ($(this).is(":checked")) {
 			$('#addParameterContainer').fadeIn();
@@ -29,3 +29,4 @@ $(function(){
 		}
 	});
 });
+
