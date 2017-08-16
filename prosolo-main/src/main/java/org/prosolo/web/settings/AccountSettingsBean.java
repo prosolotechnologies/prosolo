@@ -55,7 +55,7 @@ public class AccountSettingsBean implements Serializable {
 	 */
 	public void savePassChange() {
 		if(loggedUser.getPassword() != null && !loggedUser.getPassword().isEmpty()) {
-			if (authenticationService.checkPassword(loggedUser.getSessionData().getPassword(), accountData.getPassword())) {
+			if (authenticationService.checkPassword(accountData.getPassword(), loggedUser.getSessionData().getPassword())) {
 				savePasswordIfConditionsAreMet();
 			} else {
 				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
