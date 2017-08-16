@@ -5,11 +5,9 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:competences="http://java.sun.com/jsf/composite/components/competences">
 
 	<composite:interface>
@@ -22,10 +20,11 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<div class="col-md-6">
             <article class="whiteBox summaryCard">
                 <h2>
-                	<h:link outcome="competence">
+                	<h:link outcome="#{msg['label.competence']}">
                 		<f:param name="compId" value="#{util:encodeId(cc.attrs.competence.competenceId)}"/>
                 		#{cc.attrs.competence.title} <span>#{cc.attrs.competence.published ? '' : '(Unpublished)'}</span>
                 	</h:link>

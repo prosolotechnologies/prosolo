@@ -3,14 +3,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -19,8 +13,9 @@
 	</composite:interface>
 	
 	<composite:implementation>
-		<h2>Competence Progress</h2>
-	            	
+		<utilcomp:messagesBundle var="msg" />
+		<h2>#{util:capitalizeWord(msg['label.competence'])} Progress</h2>
+
 		<ul class="competenceProgressList">
 			<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
 				<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(act.activityType)} 

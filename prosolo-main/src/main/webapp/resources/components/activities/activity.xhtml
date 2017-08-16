@@ -7,7 +7,9 @@
 		xmlns:c="http://java.sun.com/jsp/jstl/core"
 		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 		xmlns:post="http://java.sun.com/jsf/composite/components/post"
-		xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
+		xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -15,6 +17,8 @@
 		<composite:attribute name="learningContext" default=""/>
 		<composite:attribute name="service" default="" />
 	</composite:interface>
+
+	<utilcomp:messagesBundle var="msg" />
 	
 	<composite:implementation>
 	    <script src="#{request.contextPath}/resources/javascript2/mediaelement/mediaelement-fix.min.js"></script>
@@ -66,12 +70,12 @@
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
 		    		<ol class="breadcrumb">
 			            <li>
-			            	<h:link value="Credentials" outcome="credentialLibrary"/>
+			            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"/>
 			            </li>
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
-			            		outcome="credential"
+			            		outcome="#{msg['label.credential']}"
 			            		onclick="sendLogPageNavigation('/credential.xhtml', 
 										'#{facesContext.viewRoot.viewId}', 
 										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
@@ -82,7 +86,7 @@
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.title}"
-			            		outcome="competence"
+			            		outcome="#{msg['label.competence']}"
 			            		onclick="sendLogPageNavigation('/competence.xhtml', 
 										'#{facesContext.viewRoot.viewId}', 
 										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(cc.attrs.bean.decodedCompId).concat(&#34;/&#34;))}', 
@@ -97,12 +101,12 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	 
 		    			<li>
-		    				<h:link value="Competencies" outcome="competenceLibrary"/>
+		    				<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 			            </li> 
 		    			<li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.title}"
-			            		outcome="competence">
+			            		outcome="#{msg['label.competence']}">
 			            		<f:param name="compId" value="#{param['compId']}"></f:param>  
 			            	</h:link>
 			            </li>         

@@ -5,10 +5,13 @@
 				template="templates/masterLayout2.xhtml"
 				xmlns:p="http://primefaces.org/ui"
 				xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
-				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+				xmlns:util="http://www.prosolo.com/util">
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		Delivery - #{announcementBean.credentialTitle} - Announcements
+		#{util:capitalizeWord(msg['label.delivery'])} - #{announcementBean.credentialTitle} - Announcements
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -20,7 +23,7 @@
 	</ui:define>
 
 	<ui:define name="resourceTitle">
-		<h1><span>Delivery:</span> #{announcementBean.credentialTitle}</h1>
+		<h1><span>#{util:capitalizeWord(msg['label.delivery'])}:</span> #{announcementBean.credentialTitle}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
@@ -62,7 +65,7 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link value="Credentials" outcome="credentialLibrary"></h:link></li>
+				<li><h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"></h:link></li>
 				<li><h:link value="#{announcementBean.credentialTitle}"
 							outcome="/manage/create-credential">
 					<f:param name="id" value="#{announcementBean.credentialId}"></f:param>
@@ -128,7 +131,7 @@
 										</div>
 										<div class="assessmentModalMeta">
 											<div class="assessmentModalMetaLine">
-												<div class="assessmentModalMetaLeft">Credential:</div>
+												<div class="assessmentModalMetaLeft">#{util:capitalizeWord(msg['label.credential'])}:</div>
 												<div class="assessmentModalMetaRight">
 													<h3>#{announcementBean.credentialTitle}</h3>
 												</div>

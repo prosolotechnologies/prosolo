@@ -3,10 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util">
 
@@ -17,12 +14,13 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<ul>
 			<ui:repeat var="delivery" value="#{cc.attrs.deliveries}">
 	            <li class="deliveryItem">
 	                <div class="deliveryItemLeft">
 	                    <div class="status #{styleUtilBean.getStyleClassBasedOnDeliveryStatus(delivery.deliveryStatus)}"></div>
-	                    <h3><span>Delivery title:</span> #{delivery.title}</h3>
+	                    <h3><span>#{util:capitalizeWord(msg['label.delivery'])} title:</span> #{delivery.title}</h3>
 	                    <div class="deliveryMeta">
 	                        <div class="deliveryTime">
 	                            <div class="start"><span>Start:</span>

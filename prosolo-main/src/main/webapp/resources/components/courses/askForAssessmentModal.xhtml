@@ -3,7 +3,8 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
@@ -12,6 +13,7 @@
 	</composite:interface>
 
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<script src="https://use.typekit.net/zvv0dgl.js"></script>
 		<script>
@@ -50,7 +52,7 @@
 
 					<div class="assessmentModalMeta">
 						<div class="assessmentModalMetaLine">
-							<div class="assessmentModalMetaLeft">Credential:</div>
+							<div class="assessmentModalMetaLeft">#{util:capitalizeWord(msg['label.credential'])}:</div>
 							<div class="assessmentModalMetaRight">
 								<h3>#{cc.attrs.bean.credentialData.title}</h3>
 							</div>

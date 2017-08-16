@@ -4,7 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
-	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
+	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
 		Activity Response
@@ -20,6 +22,8 @@
 			<f:viewAction action="#{activityResultsBeanManager.initIndividualResponse()}" />
 		</f:metadata>
 	</ui:define>
+
+	<utilcomp:messagesBundle var="msg" />
 
     <ui:define name="resourceTitle">
     	<h1>#{activityResultsBeanManager.activity.title}</h1>
@@ -66,7 +70,7 @@
     	<ui:fragment rendered="#{activityResultsBeanManager.credentialId != 0}">
 	    	<ol class="breadcrumb">
 	            <li>
-	            	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
+	            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="/manage/credentialLibrary"/>
 	            </li>
 	            <li>
 	            	<h:link 
@@ -126,7 +130,7 @@
 	     <ui:fragment rendered="#{activityResultsBeanManager.credentialId == 0}">
        		<ol class="breadcrumb">	 
     			<li>
-    				<h:link value="Competencies" outcome="competenceLibrary"/>
+    				<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 	            </li> 
     			<li>
 	            	<h:link 

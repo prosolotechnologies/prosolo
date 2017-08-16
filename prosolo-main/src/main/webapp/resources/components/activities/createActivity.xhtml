@@ -22,7 +22,7 @@
 	    <script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
-
+		<utilcomp:messagesBundle var="msg" />
 	    <div class="whiteBar">
 	    </div>
 	    
@@ -37,7 +37,7 @@
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
 				            <li>
-				            	<h:link value="Credentials" outcome="credentialLibrary"/>
+				            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"
@@ -64,7 +64,7 @@
 			        <ui:fragment rendered="#{empty param['credId']}">
 			    		<ol class="breadcrumb">	 
 			    			<li>
-				            	<h:link value="Competencies" outcome="competenceLibrary"/>
+				            	<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
 				            	<h:link 

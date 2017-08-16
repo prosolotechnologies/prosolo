@@ -9,8 +9,10 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
+	<utilcomp:messagesBundle var="msg" />
+
 	<ui:define name="windowTitle">
-		Competence - #{competenceStudentsBean.competenceTitle} - Students
+		#{util:capitalizeWord(msg['label.competence'])} - #{competenceStudentsBean.competenceTitle} - Students
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -113,7 +115,7 @@
 	    <div class="container">
 	        <ol class="breadcrumb">
 				<li>
-					<h:link value="Competencies" outcome="competenceLibrary"/>
+					<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 				</li>
 				<li>
 					<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">

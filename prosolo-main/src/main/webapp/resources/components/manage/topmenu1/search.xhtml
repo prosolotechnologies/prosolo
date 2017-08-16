@@ -3,9 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:action="http://java.sun.com/jsf/composite/components/actions"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:pt="http://java.sun.com/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util">
 
 	<utilcomp:messagesBundle var="msg" />
@@ -131,9 +129,9 @@
 						<div class="col-md-4">
 							<div class="resBox">
 								<h2>
-									Competences (#{searchCompetencesBean.compsSize})
+									#{util:capitalizeWord(msg['label.competence.plural'])} (#{searchCompetencesBean.compsSize})
 									<h:link class="pull-right seeAllLinkSearch" outcome="/manage/competences" value="See all">
-										<ui:remove><f:param name="tab" value="competences" /></ui:remove>
+										<ui:remove><f:param name="tab" value="#{msg['label.competence.plural']}" /></ui:remove>
 										<f:param name="query" value="" />
 									</h:link>
 								</h2>

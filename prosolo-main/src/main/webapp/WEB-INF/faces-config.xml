@@ -11,13 +11,11 @@
 			<default-locale>en</default-locale>
 		</locale-config>
 
-		<!-- 
-		<resource-bundle>
+		<!--<resource-bundle>
 			<base-name>org.prosolo.web.messages</base-name>
 			<var>msg</var>
-		</resource-bundle>
-		 -->
-		 
+		</resource-bundle>-->
+
 		<message-bundle>
 			org.prosolo.web.generic_messages
 		</message-bundle>

@@ -4,13 +4,8 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs">
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="credentialId" type="java.lang.Long" required="true" />
@@ -19,6 +14,7 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
 		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
@@ -30,7 +26,7 @@
 	                <h:panelGroup id="newDeliveryModalContent" layout="block" styleClass="modal-content">
 	                    <div class="modal-header alignLeft">
 	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-	                        <h2 class="modal-title">Start New Delivery</h2>
+	                        <h2 class="modal-title">Start New #{util:capitalizeWord(msg['label.delivery'])}</h2>
 	                    </div>
 	                    <div class="containerInner30">
 	                        <div class="row">

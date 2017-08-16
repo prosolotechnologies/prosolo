@@ -25,6 +25,8 @@
 	</f:metadata>
 </ui:define>
 
+	<utilcomp:messagesBundle var="msg" />
+
 <ui:define name="resourceTitle">
 	<h1>#{activityResultsBeanManager.activity.title}</h1>
 	<ul class="nav nav-tabs headerSubmenu">
@@ -73,7 +75,7 @@
         <ui:fragment rendered="#{activityResultsBeanManager.credentialId != 0}">
         <ol class="breadcrumb">
             <li>
-            	<h:link value="Credentials" outcome="/manage/credentialLibrary"/>
+            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="/manage/credentialLibrary"/>
             </li>
             <li>
             	<h:link 
@@ -120,7 +122,7 @@
        <ui:fragment rendered="#{activityResultsBeanManager.credentialId == 0}">
        		<ol class="breadcrumb">	 
     			<li>
-    				<h:link value="Competencies" outcome="competenceLibrary"/>
+    				<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 	            </li> 
     			<li>
 	            	<h:link 

@@ -4,9 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
@@ -20,8 +18,9 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<div id="#{cc.clientId}">
-		
+
      	<ui:param name="canEdit" value="#{(cc.attrs.role == 'MANAGER' 
      		and request.isUserInRole('MANAGE.CONTENT.EDIT') || cc.attrs.role != 'MANAGER') and cc.attrs.bean.access.canEdit}"></ui:param>
      	<ui:param name="startedLearning"
@@ -107,7 +106,7 @@
 		                    <div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
 		                    <h:link 
 		                    	rendered="#{canEdit}"
-		                    	value="Edit Competency"
+		                    	value="Edit #{util:capitalizeWord(msg['label.competence'])}"
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
 		                    	<f:param name="id" value="#{param['compId']}"></f:param>
@@ -122,12 +121,12 @@
 		    	<ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId != 0}">
 		    		<ol class="breadcrumb">
 			            <li>
-			            	<h:link value="Credentials" outcome="credentialLibrary"/>
+			            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"/>
 			            </li>
 			            <li>
 			            	<h:link 
 			            		value="#{cc.attrs.bean.competenceData.credentialTitle}"
-			            		outcome="credential"
+			            		outcome="#{msg['label.credential']}"
 			            		onclick="sendLogPageNavigation('/credential.xhtml', 
 										'#{facesContext.viewRoot.viewId}', 
 										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}', 
@@ -141,7 +140,7 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	
 		    			<li>
-			            	<h:link value="Competencies" outcome="competenceLibrary"/>
+			            	<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
 			            </li>
 			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
 			        </ol>
@@ -151,7 +150,7 @@
 		    <div class="container">
 		        <div class="row">
 		            <div class="col-md-8">
-		                <h2>About Competence</h2>
+		                <h2>About #{util:capitalizeWord(msg['label.competence'])}</h2>
 		                <p><h:outputText escape="false" value="#{cc.attrs.bean.competenceData.description}"/></p>
 		                <div class="whiteBox activitiesList">
 			                <courses:activityList
