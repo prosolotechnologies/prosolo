@@ -18,6 +18,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<div id="#{cc.clientId}">
 			<p:growl id="growlDetails" globalOnly="true" showDetail="true" />
 		    
@@ -28,7 +30,7 @@
 	                   	styleClass="btn btn-green btn-sm item"
 	                   	process="@this"
 	                   	action="#{cc.attrs.bean.enrollInCompetence()}">
-	                   	Start Competency
+	                   	Start #{msg['label.competence']}
 	                   	<f:param name="context" value="#{cc.attrs.learningContext}" />
 	                   </p:commandLink>
 	            </div>

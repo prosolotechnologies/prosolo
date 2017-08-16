@@ -12,56 +12,45 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
-	 <div id="#{cc.clientId}">
-		 <ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
-		 <ul class="nav nav-tabs headerSubmenu">
-		 	<ui:fragment rendered="#{cc.attrs.compId le 0}">
-				<li role="presentation" class="active">
-					<a href="javascript:void(0);" data-toggle="tooltip"
-					   title="Competency must be saved first">#{msg['label.competence']} Details
-					</a>
-				</li>
-		 	</ui:fragment>
-		 	<ui:fragment rendered="#{cc.attrs.compId gt 0}">
-				<li
-					role="presentation"
-					class="#{page  == 'create-competence'
+
+		<div id="#{cc.clientId}">
+			<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
+			<ul class="nav nav-tabs headerSubmenu">
+				<ui:fragment rendered="#{cc.attrs.compId le 0}">
+					<li role="presentation" class="active">
+						<a href="javascript:void(0);" data-toggle="tooltip"
+						   title="#{msg['label.competence']} must be saved first">#{msg['label.competence']} Details
+						</a>
+					</li>
+				</ui:fragment>
+				<ui:fragment rendered="#{cc.attrs.compId gt 0}">
+					<li role="presentation"	class="#{page  == 'create-competence'
 						|| page  == 'competence' ? 'active' : ''}">
-					<h:link
-						value="#{msg['label.competence']} Details"
-						outcome="create-competence">
-						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
-					</h:link>
-				</li>
-				<li
-						role="presentation"
-						class="#{page  == 'competence-who-can-learn' ? 'active' : ''}">
-					<h:link
-							value="Who can learn"
-							outcome="competence-who-can-learn">
-						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
-					</h:link>
-				</li>
-				<li
-						role="presentation"
-						class="#{util:getPagePath(view.viewId)  == 'competence-students' ? 'active' : ''}">
-					<h:link
-							value="Students"
-							outcome="competence-students">
-						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
-					</h:link>
-				</li>
-				<li
-						role="presentation"
-						class="#{page  == 'competence-editors' ? 'active' : ''}">
-					<h:link
-							value="Editors"
-							outcome="competence-editors">
-						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
-					</h:link>
-				</li>
-		 	</ui:fragment>
-	     </ul>
-     </div>
+						<h:link value="#{msg['label.competence']} Details"
+								outcome="create-competence">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
+						</h:link>
+					</li>
+					<li role="presentation"	class="#{page  == 'competence-who-can-learn' ? 'active' : ''}">
+						<h:link value="Who can learn"
+								outcome="competence-who-can-learn">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
+						</h:link>
+					</li>
+					<li role="presentation" class="#{util:getPagePath(view.viewId)  == 'competence-students' ? 'active' : ''}">
+						<h:link value="Students"
+								outcome="competence-students">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
+						</h:link>
+					</li>
+					<li role="presentation" class="#{page  == 'competence-editors' ? 'active' : ''}">
+						<h:link value="Editors"
+								outcome="competence-editors">
+							<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
+						</h:link>
+					</li>
+				</ui:fragment>
+			</ul>
+		</div>
 	</composite:implementation>
 </ui:component>

@@ -4,8 +4,7 @@
 			  xmlns:composite="http://java.sun.com/jsf/composite"
 			  xmlns:p="http://primefaces.org/ui"
 			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
->
+			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
@@ -15,6 +14,8 @@
 	</composite:interface>
 
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 
 		<div class="searchInstructors">
@@ -87,7 +88,7 @@
 									Close
 								</p:commandLink>
 							</h:panelGroup>
-							<h:panelGroup layout="block" rendered="#{group.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user group has been given Edit privilege on a credential referencing this competency">
+							<h:panelGroup layout="block" rendered="#{group.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user group has been given Edit privilege on a #{msg['label.credential'].toLowerCase()} referencing this #{msg['label.competence'].toLowerCase()}">
 								Inherited
 							</h:panelGroup>
 						</li>
@@ -112,7 +113,7 @@
 							<h:panelGroup layout="block" rendered="#{cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId}" styleClass="assignOpt">
 								Owner
 							</h:panelGroup>
-							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a credential referencing this competency">
+							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and user.inherited}" styleClass="assignOpt" pt:data-toggle="tooltip" pt:title="" pt:data-original-title="This user is editor on a credential referencing this #{msg['label.competence'].toLowerCase()}">
 								Inherited
 							</h:panelGroup>
 							<h:panelGroup layout="block" rendered="#{(not (cc.attrs.bean.creatorId gt 0 and cc.attrs.bean.creatorId eq user.userId)) and not user.inherited}" styleClass="assignOpt">

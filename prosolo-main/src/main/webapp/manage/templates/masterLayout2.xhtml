@@ -102,7 +102,32 @@
 							</li>
 							</ui:remove>
 							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'  or util:getPagePath(view.viewId)  == 'competenceLibrary' or util:getPagePath(view.viewId)  == 'credential-library-instructor' ? 'active' : ''}">
+								class="#{util:getPagePath(view.viewId)  == 'credentialLibrary'
+										or util:getPagePath(view.viewId)  == 'competenceLibrary'
+										or util:getPagePath(view.viewId)  == 'credential-library-instructor'
+										or util:getPagePath(view.viewId)  == 'create-credential'
+										or util:getPagePath(view.viewId)  == 'credential'
+										or util:getPagePath(view.viewId)  == 'credential-students'
+										or util:getPagePath(view.viewId)  == 'credential-editors'
+										or util:getPagePath(view.viewId)  == 'credential-who-can-learn'
+										or util:getPagePath(view.viewId)  == 'credential-instructors'
+										or util:getPagePath(view.viewId)  == 'credential-assessments'
+										or util:getPagePath(view.viewId)  == 'credential-assessment'
+										or util:getPagePath(view.viewId)  == 'assessment-preview'
+										or util:getPagePath(view.viewId)  == 'credential-rss'
+										or util:getPagePath(view.viewId)  == 'announcements'
+										or util:getPagePath(view.viewId)  == 'credential-deliveries'
+										or util:getPagePath(view.viewId)  == 'competence'
+										or util:getPagePath(view.viewId)  == 'create-competence'
+										or util:getPagePath(view.viewId)  == 'competences'
+										or util:getPagePath(view.viewId)  == 'competence-who-can-learn'
+										or util:getPagePath(view.viewId)  == 'competence-editors'
+										or util:getPagePath(view.viewId)  == 'competence-students'
+										or util:getPagePath(view.viewId)  == 'create-activity'
+										or util:getPagePath(view.viewId)  == 'activity'
+										or util:getPagePath(view.viewId)  == 'activity-responses'
+										or util:getPagePath(view.viewId)  == 'activity-response'
+										or util:getPagePath(view.viewId)  == 'activity-responses' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
 									outcome="/manage/library"
 									value="Library" />

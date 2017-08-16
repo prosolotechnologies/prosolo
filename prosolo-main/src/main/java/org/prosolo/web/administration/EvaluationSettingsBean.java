@@ -59,7 +59,7 @@ public class EvaluationSettingsBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		try {
-			String evaluatorRoleName = ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name", new Locale("en", "US"));
+			String evaluatorRoleName = ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name");
 			Collection<User> users = roleManager.getUsersWithRole(evaluatorRoleName);
 			
 			if (users != null && !users.isEmpty()) {

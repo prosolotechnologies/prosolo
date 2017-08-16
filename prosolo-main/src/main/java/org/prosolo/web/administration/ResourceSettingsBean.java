@@ -76,8 +76,8 @@ public class ResourceSettingsBean implements Serializable {
 			
 			try {
 				Role role = roleManager.getOrCreateNewRole(
-						ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name", new Locale("en", "US")), 
-						ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.description", new Locale("en", "US")), 
+						ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name"),
+						ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.description"),
 						false);
 				
 				for (UserData userData : selectedEvaluators) {
@@ -95,8 +95,8 @@ public class ResourceSettingsBean implements Serializable {
 		if (removedEvaluators != null && !removedEvaluators.isEmpty()) {
 			try {
 				Role role = roleManager.getOrCreateNewRole(
-					ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name", new Locale("en", "US")), 
-					ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.description", new Locale("en", "US")), 
+					ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.name"),
+					ResourceBundleUtil.getMessage("admin.roles.predefinedRole.evaluator.description"),
 					false);
 			
 				for (UserData userData : removedEvaluators) {

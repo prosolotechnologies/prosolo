@@ -54,7 +54,7 @@ public class PasswordReset implements Serializable {
 		} else {
 			try {
 				PageUtil.fireErrorMessage("resetMessage", "Error", 
-						ResourceBundleUtil.getMessage("passwordreset.noUser", new Locale("en"), email));
+						ResourceBundleUtil.getMessage("passwordreset.noUser", email));
 			} catch (KeyNotFoundInBundleException e) {
 				logger.error(e);
 			}  

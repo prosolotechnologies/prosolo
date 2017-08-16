@@ -17,6 +17,7 @@
 
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
+
 		<h:outputStylesheet library="css2" name="bootstrap-slider.css" />
 		<script
 			src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
@@ -79,7 +80,7 @@
 							</ui:fragment>
 
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and not cc.attrs.bean.allCompetencesStarted()}">
-								<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="Credential can't be approved until all competencies are started">Approve</a>
+								<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="Credential can't be approved until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve</a>
 							</ui:fragment>
 
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.allCompetencesStarted()}">
@@ -350,7 +351,7 @@
 							</article>
 						</ui:fragment>
 						<ui:fragment rendered="#{competenceAssessment.readOnly}">
-							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This competency is not started yet">
+							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
 								<div class="innerWrapper">
 									<h2>
 										<h:link outcome="competence">

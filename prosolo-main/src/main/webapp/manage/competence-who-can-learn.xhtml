@@ -35,11 +35,11 @@
 	
 
 	<ui:define name="content">
+        <utilcomp:messagesBundle var="msg" />
+
         <p:growl id="growlMain" globalOnly="true" showDetail="true" />
 
-		<div class="whiteBar">
-        
-    	</div>
+		<div class="whiteBar"></div>
 
     	<div class="container">
             <div class="row">
@@ -60,7 +60,7 @@
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">
                             <h2>Who can learn</h2>
-                            <p>Select which students/student groups can enroll the competency:</p>
+                            <p>Select which students/student groups can enroll the #{msg['label.competence'].toLowerCase()}:</p>
                         </div>
 
                         <h:form id="formMain">

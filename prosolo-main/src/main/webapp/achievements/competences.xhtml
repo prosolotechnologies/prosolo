@@ -4,10 +4,13 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui"
 				template="../templates/masterLayout2.xhtml"
-				xmlns:util="http://www.prosolo.com/util">
+				xmlns:util="http://www.prosolo.com/util"
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		Achievements - Competencies
+		Achievements - #{msg['label.competence.plural']}
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -23,11 +26,11 @@
 			<ul class="nav nav-tabs headerSubmenu">
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'credentials' ? 'active' : ''}">
-					<h:link value="Credentials" outcome="/achievements/credentials" />
+					<h:link value="#{msg['label.credential.plural']}" outcome="/achievements/credentials" />
 				</li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId) == 'competences' ? 'active' : ''}">
-					<h:link value="Competencies" outcome="/achievements/competences" />
+					<h:link value="#{msg['label.competence.plural']}" outcome="/achievements/competences" />
 				</li>
 				<li role="presentation"
 					class="#{util:getPagePath(view.viewId)  == 'inprogress' ? 'active' : ''}">
@@ -50,9 +53,9 @@
 						<div class="col-md-12">
 							<div class="noContentMessage">
 								<p>
-									No competencies.<br/>
+									No #{msg['label.competence.plural'].toLowerCase()}.<br/>
 									<h:link outcome="/credentialLibrary">
-										Browse competencies
+										Browse #{msg['label.competence.plural'].toLowerCase()}
 									</h:link>
 								</p>
 							</div>

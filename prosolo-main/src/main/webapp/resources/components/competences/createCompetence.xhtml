@@ -20,6 +20,7 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
+
 		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
 		<link rel="stylesheet" type="text/css" media="all" href="#{request.contextPath}/resources/css2/bootstrap-tagsinput.css" />
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
@@ -111,7 +112,7 @@
 			        <div class="row">
 			            <div class="col-md-8">
 			            	<h:panelGroup layout="block" rendered="#{competenceEditBean.limitedEdit}" styleClass="alert alert-warning" role="alert">
-								Since competency was published, only small edits are allowed.
+								Since the #{msg['label.competence'].toLowerCase()} has been published, only small edits are allowed.
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
@@ -226,7 +227,7 @@
 			                
 			                <div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.canUnpublish ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                    You are not allowed to unpublish a competency as it is a part of one or more active credential deliveries. Only when all deliveries of a credential with this competency have ended, a competency can be unpublished.
+			                    You are not allowed to unpublish this #{msg['label.competence'].toLowerCase()} as it is a part of one or more active #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()}. Only when all #{msg['label.delivery.plural'].toLowerCase()} of a #{msg['label.credential'].toLowerCase()} with this #{msg['label.competence'].toLowerCase()} end, a #{msg['label.competence'].toLowerCase()} can be unpublished.
 			                </div>
 			                
 			                <div id="#{cc.clientId}" class="whiteBox publishBox">
@@ -245,7 +246,7 @@
 									<a href="javascript:void(0);"
 									   class="linkPreview disabled"
 									   data-toggle="tooltip"
-									   title="You need to save the competency in order to preview latest changes">
+									   title="You need to save the #{msg['label.competence'].toLowerCase()} in order to preview latest changes">
 										Preview
 									</a>
 								</ui:fragment>
@@ -289,7 +290,7 @@
 			                    				<h2 class="modal-title" id="duplicateCredential">Save changes</h2>
 			                				</div>
 			                				<div class="modal-body">
-			                					<p>Are you sure you want to publish this competency? Once published, only small edits can be made on this competency.Competency will be available for enrollment to all students with proper privileges. But also, competency structure can be seen by all users.</p>
+			                					<p>Are you sure you want to publish this #{msg['label.competence'].toLowerCase()}? Once published, only small edits can be made. #{msg['label.competence']} will be available for enrollment to all students with proper privileges. But also, the #{msg['label.competence'].toLowerCase()} structure could be seen by all users.</p>
 			                				</div>
 			                				<div class="modal-footer">
 			                    				<p:commandLink
@@ -313,7 +314,7 @@
 			            				<div class="modal-content">
 			                				<div class="modal-header">
 			                    				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-			                    				<h2 class="modal-title" id="duplicateCredential">Competency can not be published</h2>
+			                    				<h2 class="modal-title" id="duplicateCredential">#{msg['label.competence']} can not be published</h2>
 			                				</div>
 			                				<div class="modal-body">
 			                					<p>You can not publish this #{msg['label.competence'].toLowerCase()} without activities. Please add activities to your #{msg['label.competence'].toLowerCase()}.</p>
@@ -389,9 +390,9 @@
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceEditBean.archive}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-				title="Competency" 
-				resourceType="competency"
-				resourceTypePlural="competencies"
+				title="#{msg['label.competence']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 				
 			<dialogs:restoreResource
@@ -399,9 +400,9 @@
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceEditBean.restore}"
 				toUpdate=":#{cc.clientId}:formMain #{cc.attrs.toUpdate}"
-				title="Competency" 
-				resourceType="competency"
-				resourceTypePlural="competencies"
+				title="#{msg['label.competence']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:competence|id:#{competenceEditBean.competenceData.competenceId}"/>
 				
 	 		<compDialogs:duplicateCompetence   

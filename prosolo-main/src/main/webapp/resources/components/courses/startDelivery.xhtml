@@ -4,8 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="credentialId" type="java.lang.Long" required="true" />
@@ -15,6 +14,7 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
+
 		<h:outputStylesheet name="bootstrap-datetimepicker.css" library="css2"/>
 		<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/bootstrap-datetimepicker.min.js"></script>
@@ -32,9 +32,9 @@
 	                        <div class="row">
 	                        	<div class="col-md-12">
                                      <p>
-                                     By starting a delivery you will create a snapshot of the current credential structure. After starting a delivery, go to the Visibility tab to set the target group of students that can enroll it.
+                                     By starting a #{msg['label.delivery'].toLowerCase()} you will create a snapshot of the current #{msg['label.credential'].toLowerCase()} structure. After starting a #{msg['label.credential'].toLowerCase()}, go to the Who Can Learn tab to set the target group of students that can enroll it.
                                      <br/><br/>
-                                     <small>All unpublished competencies, that are part of the credential, will be published. It is advisable to go through each unpublished competency individually, review them, and publish manually. Delivery start and end dates can be set now or defined later.</small>
+                                     <small>All unpublished #{msg['label.competence'].toLowerCase()}, that are part of the #{msg['label.credential'].toLowerCase()}, will be published. It is advisable to go through each unpublished #{msg['label.competence'].toLowerCase()} individually, review them, and publish manually. #{msg['label.delivery']} start and end dates can be set now or defined later.</small>
                                      </p>
                                 </div>
                                 
@@ -57,7 +57,7 @@
 												timeInputClass="datePickerSelector deliveryEndSelector"
 										/>
 	                                </div>
-	                                <small>If not set, delivery is unlimited.</small>
+	                                <small>If not set, #{msg['label.delivery'].toLowerCase()} is unlimited.</small>
 	                            </div>
 	                            
 	                        </div>
