@@ -15,6 +15,7 @@ import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
@@ -51,6 +52,7 @@ public class CredentialEditBean implements Serializable {
 	@Inject private Activity1Manager activityManager;
 	@Inject private LoggingService loggingService;
 	@Inject private CredentialUserPrivilegeBean visibilityBean;
+	@Inject private UnitManager unitManager;
 
 	private String id;
 	private long decodedId;
@@ -63,6 +65,8 @@ public class CredentialEditBean implements Serializable {
 	private List<Long> compsToExcludeFromSearch;
 	private int currentNumberOfComps;
 	private int competenceForRemovalIndex;
+
+	private List<Long> unitIds;
 
 	private String context;
 
@@ -153,6 +157,9 @@ public class CredentialEditBean implements Serializable {
 					compsToExcludeFromSearch.add(cd.getCompetenceId());
 				}
 				currentNumberOfComps = comps.size();
+
+				//load units credential is connected to
+				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(decodedId);
 				
 				logger.info("Loaded credential data for credential with id "+ id);
 			}
@@ -184,6 +191,7 @@ public class CredentialEditBean implements Serializable {
 	private void initializeValues() {
 		compsToRemove = new ArrayList<>();
 		compsToExcludeFromSearch = new ArrayList<>();
+		unitIds = new ArrayList<>();
 	}
 
 	public boolean hasMoreCompetences(int index) {
@@ -380,7 +388,8 @@ public class CredentialEditBean implements Serializable {
 				toExclude[i] = compsToExcludeFromSearch.get(i);
 			}
 			PaginatedResult<CompetenceData1> searchResponse = compTextSearch.searchCompetencesForAddingToCredential(
-					loggedUser.getUserId(), compSearchTerm, 0, 1000, false, toExclude, SortingOption.ASC);
+					loggedUser.getOrganizationId(), loggedUser.getUserId(), compSearchTerm, 0, 1000, false,
+					unitIds, toExclude, SortingOption.ASC);
 					
 			List<CompetenceData1> comps = searchResponse.getFoundNodes();
 			if(comps != null) {

@@ -100,8 +100,8 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetencesForManager(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption);
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
+				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();

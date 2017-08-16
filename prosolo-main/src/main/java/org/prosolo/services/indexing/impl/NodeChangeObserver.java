@@ -73,7 +73,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.ADD_USER_TO_UNIT,
 			EventType.REMOVE_USER_FROM_UNIT,
 			EventType.ADD_CREDENTIAL_TO_UNIT,
-			EventType.REMOVE_CREDENTIAL_FROM_UNIT
+			EventType.REMOVE_CREDENTIAL_FROM_UNIT,
+			EventType.ADD_COMPETENCE_TO_UNIT,
+			EventType.REMOVE_COMPETENCE_FROM_UNIT
 		};
 	}
 

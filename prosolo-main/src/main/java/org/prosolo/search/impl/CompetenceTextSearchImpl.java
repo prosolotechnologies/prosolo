@@ -18,6 +18,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
@@ -61,18 +63,20 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	@Transactional
-	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long userId,
+	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long organizationId, long userId,
                                                                                    String searchString, int page, int limit, boolean loadOneMore,
-                                                                                   long[] toExclude, SortingOption sortTitleAsc) {
+                                                                                   List<Long> unitIds, long[] toExclude, SortingOption sortTitleAsc) {
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
 			limit = setLimit(limit, loadOneMore);
-			
+
+			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -94,6 +98,14 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 //					bQueryBuilder.filter(tagQB);
 //				}
 //			}
+
+			if (unitIds != null && !unitIds.isEmpty()) {
+				BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+				for (long unitId : unitIds) {
+					unitFilter.should(termQuery("units.id", unitId));
+				}
+				bQueryBuilder.filter(unitFilter);
+			}
 			
 			if (toExclude != null) {
 				for (int i = 0; i < toExclude.length; i++) {
@@ -107,7 +119,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId));
 			
 			SearchRequestBuilder searchResultBuilder = client
-					.prepareSearch(ESIndexNames.INDEX_NODES)
+					.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder).setFrom(start).setSize(limit);
@@ -158,7 +170,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetences(
-			String searchTerm, int page, int limit, long userId, 
+			long organizationId, String searchTerm, int page, int limit, long userId,
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			CompetenceSearchConfig config) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
@@ -166,8 +178,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			int start = 0;
 			start = setStart(page, limit);
 
+			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -229,7 +243,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//System.out.println("QUERY: " + filteredQueryBuilder.toString());
 			
 			String[] includes = {"id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
@@ -288,15 +302,17 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetencesForManager(
-			String searchTerm, int page, int limit, long userId, 
+			long organizationId, String searchTerm, int page, int limit, long userId,
 			CompetenceSearchFilter filter, LearningResourceSortOption sortOption) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
+			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.COMPETENCE);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.COMPETENCE);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -340,7 +356,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						userId));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.COMPETENCE)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)

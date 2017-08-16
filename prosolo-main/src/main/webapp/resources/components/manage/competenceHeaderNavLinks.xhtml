@@ -65,6 +65,15 @@
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
+				<li
+						role="presentation"
+						class="#{page  == 'competence-privacy' ? 'active' : ''}">
+					<h:link
+							value="Privacy"
+							outcome="competence-privacy">
+						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+					</h:link>
+				</li>
 		 	</ui:fragment>
 	     </ul>
      </div>

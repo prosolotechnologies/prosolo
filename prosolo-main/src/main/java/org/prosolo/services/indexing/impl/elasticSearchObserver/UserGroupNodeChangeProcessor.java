@@ -99,7 +99,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
 			if(type == EventType.ADD_USER_TO_GROUP) {
 				for(CompetenceUserGroup g : compGroups) {
-					compESService.addUserToIndex(g.getCompetence().getId(), userId, 
+					compESService.addUserToIndex(event.getOrganizationId(), g.getCompetence().getId(), userId,
 							g.getPrivilege());
 				}
 			} else {
@@ -110,7 +110,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 					 * user should not be removed from index at all. Because of that, a whole collection of users with
 					 * privileges is reindexed.
 					 */
-					compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
+					compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 				}
 			}
 		} else if (type == EventType.USER_GROUP_CHANGE) {
@@ -127,7 +127,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			//get all competences associated with this user group
 			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
 			for(CompetenceUserGroup g : compGroups) {
-				compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
+				compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 			}
 		}
 	}

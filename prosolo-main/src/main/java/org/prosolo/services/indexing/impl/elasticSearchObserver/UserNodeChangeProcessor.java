@@ -83,7 +83,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					comp.getId(), 
 					event.getActorId(),  
 					date);
-			compESService.addStudentToCompetenceIndex(comp.getId(), event.getActorId());
+			compESService.addStudentToCompetenceIndex(event.getOrganizationId(), comp.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {

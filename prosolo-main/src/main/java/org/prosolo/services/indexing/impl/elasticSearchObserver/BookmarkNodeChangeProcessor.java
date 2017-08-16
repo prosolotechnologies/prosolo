@@ -36,9 +36,9 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 			}
 		} else if(target instanceof Competence1) {
 			if(operation == NodeOperation.Save) {
-				compESService.addBookmarkToCompetenceIndex(target.getId(), actorId);
+				compESService.addBookmarkToCompetenceIndex(event.getOrganizationId(), target.getId(), actorId);
 			} else if(operation == NodeOperation.Delete) {
-				compESService.removeBookmarkFromCompetenceIndex(target.getId(), actorId);
+				compESService.removeBookmarkFromCompetenceIndex(event.getOrganizationId(), target.getId(), actorId);
 			}
 		}
 	}

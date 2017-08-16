@@ -28,7 +28,13 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	public void process() {
 		Credential1 cred = (Credential1) session.load(Credential1.class, event.getObject().getId());
 		if (operation == NodeOperation.Update) {
-			if (event.getAction() == EventType.OWNER_CHANGE) {
+			if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT) {
+				credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
+						event.getTarget().getId());
+			} else if(event.getAction() == EventType.REMOVE_CREDENTIAL_FROM_UNIT) {
+				credentialESService.removeUnitFromCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
+						event.getTarget().getId());
+			} else if (event.getAction() == EventType.OWNER_CHANGE) {
 				Map<String, String> params = event.getParameters();
 				credentialESService.updateCredentialOwner(event.getOrganizationId(), cred.getId(),
 						Long.parseLong(params.get("newOwnerId")));

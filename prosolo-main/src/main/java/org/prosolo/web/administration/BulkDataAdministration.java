@@ -144,10 +144,10 @@ public class BulkDataAdministration implements Serializable {
 				credESService.saveCredentialNode(cred, session);
 			}
 			//index competences
-//			List<Competence1> comps = compManager.getAllCompetences(session);
-//			for(Competence1 comp : comps) {
-//				compESService.saveCompetenceNode(comp, session);
-//			}
+			List<Competence1> comps = compManager.getAllCompetences(session);
+			for(Competence1 comp : comps) {
+				compESService.saveCompetenceNode(comp, session);
+			}
 			
 			//index user groups
 			List<UserGroup> groups = userGroupManager.getAllGroups(false, session);

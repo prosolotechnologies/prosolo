@@ -87,6 +87,7 @@ public enum ApplicationPage {
 	MANAGER_CREDENTIAL_EDITORS("/manage/credential-editors.xhtml"),
 	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml"),
 	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
+	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
 
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),

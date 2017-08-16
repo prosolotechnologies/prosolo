@@ -95,4 +95,25 @@ public interface UnitManager extends AbstractManager{
 
     List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId, Session session)
             throws DbConnectionException;
+
+    List<UnitData> getUnitsWithCompetenceSelectionInfo(long organizationId, long compId)
+            throws DbConnectionException;
+
+    void addCompetenceToUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> addCompetenceToUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    void removeCompetenceFromUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException;
+
+    Result<Void> removeCompetenceFromUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException;
+
+    List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId, Session session)
+            throws DbConnectionException;
+
+    List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId)
+            throws DbConnectionException;
 }

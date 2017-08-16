@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.*;
@@ -714,6 +715,13 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId)
+            throws DbConnectionException {
+        return getAllUnitIdsCredentialIsConnectedTo(credId, persistence.currentManager());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId, Session session)
             throws DbConnectionException {
         try {
@@ -725,6 +733,145 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             List<Long> res = session
                     .createQuery(query)
                     .setLong("credId", credId)
+                    .list();
+
+            return res;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving units");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UnitData> getUnitsWithCompetenceSelectionInfo(long organizationId, long compId)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT u, CASE WHEN c IS NULL THEN false ELSE true END FROM Unit u " +
+                            "LEFT JOIN u.competenceUnits c " +
+                            "WITH c.competence.id = :compId " +
+                            "WHERE u.organization.id = :orgId";
+
+            List<Object[]> res = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setLong("compId", compId)
+                    .list();
+
+            List<UnitData> units = new ArrayList<>();
+
+            for (Object[] row : res) {
+                Unit u = (Unit) row[0];
+                boolean selected = (boolean) row[1];
+                units.add(new UnitData(u, selected));
+            }
+
+            return getRootUnitsWithSubunits(units);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving unit data");
+        }
+    }
+
+    @Override
+    //nt
+    public void addCompetenceToUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.addCompetenceToUnitAndGetEvents(compId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> addCompetenceToUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            CompetenceUnit cu = new CompetenceUnit();
+            cu.setCompetence((Competence1) persistence.currentManager().load(Competence1.class, compId));
+            cu.setUnit((Unit) persistence.currentManager().load(Unit.class, unitId));
+            saveEntity(cu);
+
+            Competence1 comp = new Competence1();
+            comp.setId(compId);
+            Unit un = new Unit();
+            un.setId(unitId);
+            res.addEvent(eventFactory.generateEventData(
+                    EventType.ADD_COMPETENCE_TO_UNIT, context.getActorId(),
+                    context.getOrganizationId(), context.getSessionId(), comp, un,
+                    context.getContext(), null));
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("Competency (" + compId + ") already added to the unit (" + unitId + ") so it can't be added again");
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while adding competency to unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    //nt
+    public void removeCompetenceFromUnit(long compId, long unitId, UserContextData context)
+            throws DbConnectionException, EventException {
+        Result<Void> res = self.removeCompetenceFromUnitAndGetEvents(compId, unitId, context);
+        for (EventData ev : res.getEvents()) {
+            eventFactory.generateEvent(ev);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> removeCompetenceFromUnitAndGetEvents(long compId, long unitId, UserContextData context)
+            throws DbConnectionException {
+        Result<Void> res = new Result<>();
+        try {
+            String query = "DELETE FROM CompetenceUnit cu " +
+                    "WHERE cu.unit.id = :unitId " +
+                    "AND cu.competence.id = :compId";
+
+            int affected = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("unitId", unitId)
+                    .setLong("compId", compId)
+                    .executeUpdate();
+
+            logger.info("Number of removed competencies from unit: " + affected);
+
+            if (affected > 0) {
+                Competence1 comp = new Competence1();
+                comp.setId(compId);
+                Unit un = new Unit();
+                un.setId(unitId);
+                res.addEvent(eventFactory.generateEventData(
+                        EventType.REMOVE_COMPETENCE_FROM_UNIT, context.getActorId(),
+                        context.getOrganizationId(), context.getSessionId(), comp, un,
+                        context.getContext(), null));
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while removing competency from unit");
+        }
+
+        return res;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId, Session session)
+            throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT cu.unit.id FROM CompetenceUnit cu " +
+                    "WHERE cu.competence.id = :compId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> res = session
+                    .createQuery(query)
+                    .setLong("compId", compId)
                     .list();
 
             return res;
