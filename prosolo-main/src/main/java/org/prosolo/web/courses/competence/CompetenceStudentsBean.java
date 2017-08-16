@@ -19,6 +19,7 @@ import org.prosolo.search.util.competences.CompetenceStudentsSearchFilter;
 import org.prosolo.search.util.competences.CompetenceStudentsSearchFilterValue;
 import org.prosolo.search.util.competences.CompetenceStudentsSortOption;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -45,10 +46,13 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	@Inject private UserTextSearch userTextSearch;
 	@Inject private Competence1Manager compManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private CredentialManager credManager;
 
 	// PARAMETERS
 	private String id;
 	private long decodedId;
+	private String credId;
+	private long decodedCredId;
 
 	private String searchTerm = "";
 	private CompetenceStudentsSortOption sortOption = CompetenceStudentsSortOption.DATE;
@@ -56,6 +60,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	private CompetenceStudentsSearchFilter searchFilter;
 	
 	private String competenceTitle;
+	private String credTitle;
 	
 	private CompetenceStudentsSearchFilter[] searchFilters;
 	private CompetenceStudentsSortOption[] sortOptions;
@@ -75,11 +80,15 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		searchFilter = new CompetenceStudentsSearchFilter(CompetenceStudentsSearchFilterValue.ALL, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
+		decodedCredId = idEncoder.decodeId(credId);
 		if (decodedId > 0) {
 			//context = "name:COMPETENCE|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
+				if(decodedCredId > 0){
+					this.credTitle = credManager.getCredentialTitle(decodedCredId);
+				}
 				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
@@ -227,5 +236,15 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		return sortOptions;
 	}
 
-	
+	public String getCredId() {
+		return credId;
+	}
+
+	public void setCredId(String credId) {
+		this.credId = credId;
+	}
+
+	public String getCredTitle() {
+		return credTitle;
+	}
 }

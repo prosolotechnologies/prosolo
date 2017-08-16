@@ -11,12 +11,12 @@ import org.hibernate.Session;
 import org.junit.Test;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
-import org.prosolo.services.authentication.PasswordEncrypter;
-import org.prosolo.services.authentication.impl.JasyptStrongPasswordEncryptor;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +80,7 @@ public class TestDataGenerator extends TestContext{
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	private void populateDBwithUsersTest(FileWriter writer){
-		PasswordEncrypter passwordEncrypter = new JasyptStrongPasswordEncryptor();
+		PasswordEncoder passwordEncrypter = new BCryptPasswordEncoder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		Session session=(Session) userManager.getPersistence().openSession();
 		int numberOfUsers=0;
@@ -115,7 +115,7 @@ public class TestDataGenerator extends TestContext{
 			user.setEmail(emailAddress);
 			user.setVerified(true);
 			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
- 			user.setPassword(passwordEncrypter.encodePassword(password, null));
+ 			user.setPassword(passwordEncrypter.encode(password));
 			user.setPasswordLength(password.length());
 			user.setSystem(false);
 			user.setPosition(position);
