@@ -146,14 +146,16 @@
                             
                             <h:inputText id="inputTextFileTitle"
                             	placeholder="Title"
-                            	value="#{activityWallBean.uploadFile.title}">
+                            	value="#{activityWallBean.uploadFile.title}"
+								autocomplete="off">
                             </h:inputText>
 
 							<ui:fragment rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.title}">
 								<small class="redText bottom5 topMinus30 displayBlock">File title must be entered</small><br/>
 							</ui:fragment>
 
-                            <h:inputTextarea 
+                            <h:inputTextarea
+									id="inputTextFileDesc"
                             	placeholder="Description..."
                             	value="#{activityWallBean.uploadFile.description}">
                             </h:inputTextarea>
@@ -166,7 +168,14 @@
 		                  	  	update=":#{cc.clientId}:formUploadFile:panelUploadFileModalContent :#{cc.clientId}:formPost:link"
 		                  	  	oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#uploadFileModal').modal('hide'); afterUploadFile();};">
 		                  	</p:commandLink>
-                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							<p:commandLink
+								id="cancelUrlBtn"
+								styleClass="btn btn-default"
+								value="Cancel"
+								onclick="$('#newPost\\:formUploadFile\\:inputTextFileTitle').val('');
+								$('#newPost\\:formUploadFile\\:inputTextFileDesc').val('');"
+								oncomplete="$('#uploadFileModal').modal('hide');">
+							</p:commandLink>
                              <h:panelGroup id="panelAfterUploadFile" style="display:none;">
 							 	<script>
 							 		function afterUploadFile() {
