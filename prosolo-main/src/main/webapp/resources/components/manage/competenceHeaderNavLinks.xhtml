@@ -3,7 +3,6 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:utilcmp="http://www.prosolo.com/util"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util">
 
@@ -19,7 +18,7 @@
 		 	<ui:fragment rendered="#{cc.attrs.compId le 0}">
 				<li role="presentation" class="active">
 					<a href="javascript:void(0);" data-toggle="tooltip"
-					   title="Competency must be saved first">#{util:capitalizeWord(msg['label.competence'])} Details
+					   title="Competency must be saved first">#{msg['label.competence']} Details
 					</a>
 				</li>
 		 	</ui:fragment>
@@ -31,7 +30,7 @@
 					<h:link
 						value="#{util:capitalizeWord(msg['label.competence'])} Details"
 						outcome="create-competence">
-						<f:param name="id" value="#{utilcmp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -40,7 +39,7 @@
 					<h:link
 							value="Who can learn"
 							outcome="competence-who-can-learn">
-						<f:param name="id" value="#{utilcmp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -49,7 +48,7 @@
 					<h:link
 							value="Students"
 							outcome="competence-students">
-						<f:param name="id" value="#{utilcmp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -58,7 +57,7 @@
 					<h:link
 							value="Editors"
 							outcome="competence-editors">
-						<f:param name="id" value="#{utilcmp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>
 				</li>
 		 	</ui:fragment>

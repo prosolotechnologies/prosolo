@@ -52,7 +52,7 @@
 								<h:inputText id="inputCompName"
 									type="search"
 									styleClass="competencesSearchField"
-									placeholder="Search #{msg['label.competence.plural']}"
+									placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
 									value="#{competenceLibraryBeanManager.searchTerm}"
 									onclick="$(this).select();"
 									onkeyup="searchListener(execSearchCompetences);">
@@ -125,7 +125,7 @@
 	            	<ui:fragment rendered="#{empty competenceLibraryBeanManager.competences}">
 						<div class="noContentMessage">
 		                    <p>
-		                        No #{msg['label.competence.plural']}.
+		                        No #{msg['label.competence.plural'].toLowerCase()}.
 		                    </p>
 		                </div>
 	                </ui:fragment>
@@ -230,9 +230,9 @@
 				archiveActionMethodName="archive"  	
 				archiveAction="#{competenceLibraryBeanManager.archive}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="#{util:capitalizeWord(msg['label.competence'])}"
-				resourceType="#{msg['label.competence']}"
-				resourceTypePlural="#{msg['label.competence.plural']}"
+				title="#{msg['label.competence']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 		<dialogs:restoreResource
@@ -241,8 +241,8 @@
 				restoreAction="#{competenceLibraryBeanManager.restore}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
 				title="#{util:capitalizeWord(msg['label.competence.plural'])}"
-				resourceType="#{msg['label.competence']}"
-				resourceTypePlural="#{msg['label.competence.plural']}"
+				resourceType="#{msg['label.competence'].toLowerCase()}"
+				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>
 				
 	 	<compDialogs:duplicateCompetence   

@@ -37,7 +37,7 @@
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
 				            <li>
-				            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"/>
+				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
 				            	<h:link value="#{activityEditBean.credentialTitle}"

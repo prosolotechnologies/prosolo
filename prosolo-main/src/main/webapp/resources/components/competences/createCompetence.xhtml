@@ -37,7 +37,7 @@
 	    	<ui:fragment rendered="#{not empty param['credId']}">
 	    		<ol class="breadcrumb">
 		            <li>
-		            	<h:link value="#{util:capitalizeWord(msg['label.credential.plural'])}" outcome="credentialLibrary"/>
+		            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 		            </li>
 		            <li>
 		            	<h:link 
@@ -50,7 +50,7 @@
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">New #{msg['label.competence']}</li>
+		            	<li class="active">New #{util:capitalizeWord(msg['label.competence'])}</li>
 		            </ui:fragment>
 		        </ol>
 	    	</ui:fragment>
@@ -155,7 +155,7 @@
 			                                    </div>
 			                                </div>
 			                                <div class="formLine">
-			                                    <label>About #{msg['label.competence']}</label>
+			                                    <label>About #{msg['label.competence'].toLowerCase()}</label>
 			                                    <div class="formLineRight">
 			                                        <h:inputTextarea
 			                                        	id="description"
@@ -316,7 +316,7 @@
 			                    				<h2 class="modal-title" id="duplicateCredential">Competency can not be published</h2>
 			                				</div>
 			                				<div class="modal-body">
-			                					<p>You can not publish a competency without activities. Please add activities to your competency.</p>
+			                					<p>You can not publish this #{msg['label.competence'].toLowerCase()} without activities. Please add activities to your #{msg['label.competence'].toLowerCase()}.</p>
 			                				</div>
 			                				<div class="modal-footer">
 			                    				<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
@@ -366,7 +366,7 @@
 		                        <h2 class="modal-title" id="removeActivity1">Remove Activity?</h2>
 		                    </div>
 		                    <div class="modal-body">
-		                        <p>Are you sure you want to remove this activity from #{msg['label.competence']}?<br></br><br></br></p>
+		                        <p>Are you sure you want to remove this activity from the #{msg['label.competence'].toLowerCase()}?<br></br><br></br></p>
 		                    </div>
 		                    <div class="modal-footer">
 		                    	<p:commandLink
