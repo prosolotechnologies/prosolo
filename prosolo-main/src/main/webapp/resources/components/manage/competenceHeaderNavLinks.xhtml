@@ -13,6 +13,7 @@
 
 	<composite:interface>
 		<composite:attribute name="compId" required="true" />
+		<composite:attribute name="credId"/>
 	</composite:interface>
 	
 	<composite:implementation>
@@ -36,6 +37,7 @@
 						value="Competency Details"
 						outcome="create-competence">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="credId" value="#{cc.attrs.credId}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -45,6 +47,7 @@
 							value="Who can learn"
 							outcome="competence-who-can-learn">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="credId" value="#{cc.attrs.credId}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -54,6 +57,7 @@
 							value="Students"
 							outcome="competence-students">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="credId" value="#{cc.attrs.credId}"></f:param>
 					</h:link>
 				</li>
 				<li
@@ -63,6 +67,7 @@
 							value="Editors"
 							outcome="competence-editors">
 						<f:param name="id" value="#{utilcomp:encodeId(cc.attrs.compId)}"></f:param>
+						<f:param name="credId" value="#{cc.attrs.credId}"></f:param>
 					</h:link>
 				</li>
 		 	</ui:fragment>
