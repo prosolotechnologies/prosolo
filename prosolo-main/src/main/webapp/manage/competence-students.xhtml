@@ -16,7 +16,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{competenceStudentsBean.id}" default="null" />
-			<f:viewParam name="credId" value="#{competenceStudentsBean.credentialId}" default="null" />
+			<f:viewParam name="credId" value="#{competenceStudentsBean.credId}" default="null" />
 			<f:viewAction action="#{competenceStudentsBean.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -31,7 +31,7 @@
 		<mngComp:competenceHeaderNavLinks
 				id="headerNavLinks"
 				compId="#{competenceStudentsBean.decodedId}"
-				credId="#{competenceStudentsBean.credentialId}"
+				credId="#{competenceStudentsBean.credId}"
 		/>
 	</ui:define>
 	
@@ -128,7 +128,7 @@
 					<li>
 						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
 							<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
-							<f:param name="credId" value="#{competenceStudentsBean.credentialId}"></f:param>
+							<f:param name="credId" value="#{competenceStudentsBean.credId}"></f:param>
 						</h:link>
 					</li>
 					<li class="active">

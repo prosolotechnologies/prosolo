@@ -50,8 +50,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private String competenceId;
 	private long compId;
-	private String credentialId;
-	private long credId;
+	private String credId;
+	private long decodedCredId;
 	private long creatorId;
 	private String competenceTitle;
 
@@ -82,14 +82,14 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private void init() {
 		compId = idEncoder.decodeId(competenceId);
-		credId = idEncoder.decodeId(credentialId);
+		decodedCredId = idEncoder.decodeId(credId);
 		if (compId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
-				if(credId > 0){
-					this.credTitle = credManager.getCredentialTitle(credId);
+				if(decodedCredId > 0){
+					this.credTitle = credManager.getCredentialTitle(decodedCredId);
 				}
 				if(!access.isCanAccess()) {
 					PageUtil.accessDenied();
@@ -265,19 +265,11 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		this.competenceId = competenceId;
 	}
 
-	public String getCredentialId() {
-		return credentialId;
-	}
-
-	public void setCredentialId(String credentialId) {
-		this.credentialId = credentialId;
-	}
-
-	public long getCredId() {
+	public String getCredId() {
 		return credId;
 	}
 
-	public void setCredId(long credId) {
+	public void setCredId(String credId) {
 		this.credId = credId;
 	}
 

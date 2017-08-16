@@ -51,8 +51,8 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	// PARAMETERS
 	private String id;
 	private long decodedId;
-	private String credentialId;
-	private long credId;
+	private String credId;
+	private long decodedCredId;
 
 	private String searchTerm = "";
 	private CompetenceStudentsSortOption sortOption = CompetenceStudentsSortOption.DATE;
@@ -80,14 +80,14 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		searchFilter = new CompetenceStudentsSearchFilter(CompetenceStudentsSearchFilterValue.ALL, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
-		credId = idEncoder.decodeId(credentialId);
+		decodedCredId = idEncoder.decodeId(credId);
 		if (decodedId > 0) {
 			//context = "name:COMPETENCE|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
 						decodedId, LearningResourceType.UNIVERSITY_CREATED);
-				if(credId > 0){
-					this.credTitle = credManager.getCredentialTitle(credId);
+				if(decodedCredId > 0){
+					this.credTitle = credManager.getCredentialTitle(decodedCredId);
 				}
 				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
@@ -236,17 +236,15 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		return sortOptions;
 	}
 
-	public String getCredentialId() {
-		return credentialId;
+	public String getCredId() {
+		return credId;
 	}
 
-	public void setCredentialId(String credentialId) {
-		this.credentialId = credentialId;
+	public void setCredId(String credId) {
+		this.credId = credId;
 	}
 
 	public String getCredTitle() {
 		return credTitle;
-
-
 	}
 }

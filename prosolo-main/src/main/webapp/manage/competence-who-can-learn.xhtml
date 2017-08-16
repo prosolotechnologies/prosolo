@@ -14,7 +14,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{competenceUserPrivilegeBean.competenceId}" default="null" />
-            <f:viewParam name="credId" value="#{competenceUserPrivilegeBean.credentialId}" default="null" />
+            <f:viewParam name="credId" value="#{competenceUserPrivilegeBean.credId}" default="null" />
             <f:viewAction action="#{competenceUserPrivilegeBean.initWithLearnPrivilege()}" />
 		</f:metadata>
 	</ui:define>
@@ -27,7 +27,7 @@
          <mngComp:competenceHeaderNavLinks
                  id="headerNavLinks"
                  compId="#{competenceUserPrivilegeBean.compId}"
-                 credId="#{competenceUserPrivilegeBean.credentialId}"
+                 credId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
 	
@@ -57,7 +57,7 @@
                             <li>
                                 <h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
                                     <f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
-                                    <f:param name="credId" value="#{competenceUserPrivilegeBean.credentialId}"></f:param>
+                                    <f:param name="credId" value="#{competenceUserPrivilegeBean.credId}"></f:param>
                                 </h:link>
                             </li>
                             <li class="active">Who can learn</li>
