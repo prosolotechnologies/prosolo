@@ -11,7 +11,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{util:capitalizeWord(msg['label.delivery'])} - #{announcementBean.credentialTitle} - Announcements
+		#{msg['label.delivery']} - #{announcementBean.credentialTitle} - Announcements
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -23,7 +23,7 @@
 	</ui:define>
 
 	<ui:define name="resourceTitle">
-		<h1><span>#{util:capitalizeWord(msg['label.delivery'])}:</span> #{announcementBean.credentialTitle}</h1>
+		<h1><span>#{msg['label.delivery']}:</span> #{announcementBean.credentialTitle}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">

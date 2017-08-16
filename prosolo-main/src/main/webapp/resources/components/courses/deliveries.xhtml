@@ -16,7 +16,7 @@
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
 		<div class="col-md-12">
-			<h2>Active #{util:capitalizeWord(msg['label.delivery.plural'])}</h2>
+			<h2>Active #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.activeDeliveries}">
 					<div class="noContentMessage">
@@ -35,7 +35,7 @@
 					/>
 				</ui:fragment>
 			</div>
-			<h2>Pending #{util:capitalizeWord(msg['label.delivery.plural'])}</h2>
+			<h2>Pending #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.pendingDeliveries}">
 					<div class="noContentMessage">
@@ -54,7 +54,7 @@
 					/>
 				</ui:fragment>
 			</div>
-			<h2>Past #{util:capitalizeWord(msg['label.delivery.plural'])}</h2>
+			<h2>Past #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.pastDeliveries}">
 					<div class="noContentMessage">
