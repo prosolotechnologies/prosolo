@@ -89,7 +89,10 @@
 						</div>
 					</c:if>
 					
-					<a href="#" id="logo">ProSolo</a>
+					<h:link id="logo" onclick="sendLogPageNavigation( '/manage', 'logo');"
+							outcome="/manage/library">
+						ProSolo
+					</h:link>
 
 					<nav>
 						<ul class="nav nav-pills">

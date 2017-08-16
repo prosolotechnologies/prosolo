@@ -114,10 +114,6 @@ public class ResourceBundleUtil {
         return locale;
     }
     
-    public static String getResourceType(Class<?> clazz, Locale locale) {
-		return getResourceType(getClassName(clazz), locale);
-    }
-
     public static String getResourceType(String resourceName, Locale locale) {
 		try {
 			return ResourceBundleUtil.getMessage( 

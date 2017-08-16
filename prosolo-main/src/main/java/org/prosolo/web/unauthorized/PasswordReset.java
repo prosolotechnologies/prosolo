@@ -3,20 +3,16 @@ package org.prosolo.web.unauthorized;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.util.Locale;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.apache.poi.hslf.record.Sound;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -52,12 +48,8 @@ public class PasswordReset implements Serializable {
 				PageUtil.fireErrorMessage("resetMessage", "Error reseting the password");
 			}
 		} else {
-			try {
-				PageUtil.fireErrorMessage("resetMessage", "Error", 
-						ResourceBundleUtil.getMessage("passwordreset.noUser", email));
-			} catch (KeyNotFoundInBundleException e) {
-				logger.error(e);
-			}  
+			PageUtil.fireErrorMessage("resetMessage", "Error",
+					"There is no user registered with an email address "+email+". Please try again.");
 		}
 	}	
 	/*
