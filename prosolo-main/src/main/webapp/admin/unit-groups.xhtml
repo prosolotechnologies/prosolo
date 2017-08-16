@@ -145,7 +145,7 @@
                                         <ui:fragment rendered="#{not group.canBeDeleted}">
                                             <a href="javascript:void(0);" class="linkRed disabled"
                                                data-toggle="tooltip"
-                                               title="This group can't be deleted because it is being used in at least one credential/competency">Delete</a>
+                                               title="This group can't be deleted because it is being used in at least one #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()}">Delete</a>
                                         </ui:fragment>
                                         <p:commandLink rendered="#{group.canBeDeleted}" styleClass="linkRed" pt:data-toggle="modal"
                                                        process="@this"

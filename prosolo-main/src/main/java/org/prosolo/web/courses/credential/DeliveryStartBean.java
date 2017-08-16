@@ -4,10 +4,12 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,7 +49,12 @@ public class DeliveryStartBean implements Serializable {
 			logger.error(ee);
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
-			PageUtil.fireErrorMessage("Error while creating new credential delivery. Please try again.");
+			try {
+				String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";
+				PageUtil.fireErrorMessage(growlMessage);
+			} catch (KeyNotFoundInBundleException e) {
+				logger.error(e);
+			}
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);
 			PageUtil.fireErrorMessage(idse.getMessage());

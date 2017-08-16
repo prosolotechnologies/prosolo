@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.domainmodel.user.socialNetworks.UserSocialNetworks;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.config.AnalyticalServerConfig;
@@ -21,6 +22,7 @@ import org.prosolo.web.manage.students.data.CompetenceProgressData;
 import org.prosolo.web.manage.students.data.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.profile.data.SocialNetworksData;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -146,7 +148,11 @@ public class StudentProfileBean implements Serializable {
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error loading credentials.");
+			try {
+				PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+			} catch (KeyNotFoundInBundleException e1) {
+				logger.error(e1);
+			}
 		}
 	}
 

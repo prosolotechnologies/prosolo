@@ -9,8 +9,10 @@
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
+	<utilcomp:messagesBundle var="msg" />
+
 	<ui:define name="windowTitle">
-		Competence - #{competenceStudentsBean.competenceTitle} - Students
+		#{msg['label.competence']} - #{competenceStudentsBean.competenceTitle} - Students
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -116,19 +118,18 @@
 			<ui:fragment rendered="#{not empty param['credId']}">
 				<ol class="breadcrumb">
 					<li>
-						<h:link value="Credentials" outcome="credentialLibrary"/>
+						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 					</li>
 					<li>
-						<h:link
-								value="#{competenceStudentsBean.credTitle}"
+						<h:link value="#{competenceStudentsBean.credTitle}"
 								outcome="create-credential">
 							<f:param name="id" value="#{param['credId']}"></f:param>
 						</h:link>
 					</li>
 					<li>
 						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
-							<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
-							<f:param name="credId" value="#{competenceStudentsBean.credId}"></f:param>
+							<f:param name="id" value="#{competenceStudentsBean.id}" />
+							<f:param name="credId" value="#{competenceStudentsBean.credId}" />
 						</h:link>
 					</li>
 					<li class="active">
@@ -139,11 +140,11 @@
 			<ui:fragment rendered="#{empty param['credId']}">
 				<ol class="breadcrumb">
 					<li>
-						<h:link value="Competencies" outcome="competenceLibrary"/>
+						<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 					</li>
 					<li>
 						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="create-competence">
-							<f:param name="id" value="#{competenceStudentsBean.id}"></f:param>
+							<f:param name="id" value="#{competenceStudentsBean.id}" />
 						</h:link>
 					</li>
 					<li class="active">
@@ -152,7 +153,7 @@
 				</ol>
 			</ui:fragment>
 		</div>
-	
+
 	    <div class="container">
 	        <div class="row">
 	            <h:panelGroup layout="block" id="panelStudents" styleClass="col-md-12">

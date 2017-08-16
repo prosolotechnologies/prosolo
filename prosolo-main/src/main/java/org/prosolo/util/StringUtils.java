@@ -12,7 +12,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 
-public class StringUtils {
+public class
+StringUtils {
 	
 	private static String indent = "";
 

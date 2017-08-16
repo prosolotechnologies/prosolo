@@ -3,12 +3,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
 	<composite:interface>
@@ -19,6 +16,8 @@
 	</composite:interface>
 
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<h:outputStylesheet library="css2" name="bootstrap-slider.css" />
 		<script
 			src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
@@ -81,7 +80,7 @@
 							</ui:fragment>
 
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and not cc.attrs.bean.allCompetencesStarted()}">
-								<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="Credential can't be approved until all competencies are started">Approve</a>
+								<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="Credential can't be approved until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve</a>
 							</ui:fragment>
 
 							<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isCurrentUserAssessor() and cc.attrs.bean.allCompetencesStarted()}">
@@ -110,7 +109,7 @@
 
 												<div class="assessmentModalMeta">
 													<div class="assessmentModalMetaLine">
-														<div class="assessmentModalMetaLeft">Credential:</div>
+														<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
 														<div class="assessmentModalMetaRight">
 															<h3>#{cc.attrs.bean.fullAssessmentData.title}</h3>
 														</div>
@@ -163,7 +162,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-9 mandatoryFlow">
-					<h2 class="bottom10">Credential Assessment</h2>
+					<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
 
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">
@@ -341,7 +340,7 @@
 											</ui:repeat>
 
 											<li class="competenceScore">
-												<div>Competence score:</div>
+												<div>#{msg['label.competence']} score:</div>
 												<h:panelGroup layout="block" class="compPoints_#{competenceAssessment.competenceId}">
 													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
 												</h:panelGroup>
@@ -352,7 +351,7 @@
 							</article>
 						</ui:fragment>
 						<ui:fragment rendered="#{competenceAssessment.readOnly}">
-							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This competency is not started yet">
+							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This #{msg['label.competence'].toLowerCase()} is not started yet">
 								<div class="innerWrapper">
 									<h2>
 										<h:link outcome="competence">
@@ -391,7 +390,7 @@
 											</ui:repeat>
 
 											<li class="competenceScore">
-												<div>Competence score:</div>
+												<div>#{msg['label.competence']} score:</div>
 												<div>
 													#{competenceAssessment.points} / #{competenceAssessment.maxPoints}
 												</div>

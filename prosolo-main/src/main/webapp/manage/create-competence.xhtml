@@ -5,10 +5,14 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
-	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
+	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+	xmlns:util="http://www.prosolo.com/util">
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		Competence - #{competenceEditBean.pageHeaderTitle}
+		#{msg['label.competence']} - #{competenceEditBean.pageHeaderTitle}
 	</ui:define>
 
 	<ui:define name="metadata">

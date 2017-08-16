@@ -5,11 +5,14 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
     xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
-    xmlns:ls="http://java.sun.com/jsf/composite/components/learningResource">
+    xmlns:ls="http://java.sun.com/jsf/composite/components/learningResource"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
         #{competenceUserPrivilegeBean.competenceTitle}
 	</ui:define>
+
+	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="metadata">
 		<f:metadata>
@@ -33,12 +36,11 @@
 	
 
 	<ui:define name="content">
+		<utilcomp:messagesBundle var="msg" />
 
         <p:growl id="growlMain" globalOnly="true" showDetail="true" />
 
-		<div class="whiteBar">
-        
-    	</div>
+		<div class="whiteBar"></div>
 
     	<div class="container">
             <div class="row">
@@ -46,11 +48,10 @@
 					<ui:fragment rendered="#{not empty param['credId']}">
 						<ol class="breadcrumb">
 							<li>
-								<h:link value="Credentials" outcome="credentialLibrary"/>
+								<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 							</li>
 							<li>
-								<h:link
-										value="#{competenceUserPrivilegeBean.credTitle}"
+								<h:link value="#{competenceUserPrivilegeBean.credTitle}"
 										outcome="create-credential">
 									<f:param name="id" value="#{param['credId']}"></f:param>
 								</h:link>
@@ -69,7 +70,7 @@
 					<ui:fragment rendered="#{empty param['credId']}">
 						<ol class="breadcrumb">
 							<li>
-								<h:link value="Competencies" outcome="competenceLibrary"/>
+								<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 							</li>
 							<li>
 								<h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
@@ -87,7 +88,7 @@
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">
                             <h2>Editors</h2>
-                            <p>Select who can edit content of this competency:</p>
+                            <p>Select who can edit contents of this #{msg['label.competence'].toLowerCase()}:</p>
                         </div>
 
                         <h:form id="formMain">
@@ -101,6 +102,5 @@
                 </div>
             </div>
         </div>
-
 	</ui:define>
 </ui:composition>

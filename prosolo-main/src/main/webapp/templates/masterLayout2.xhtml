@@ -4,9 +4,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:util="http://www.prosolo.com/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
@@ -89,7 +87,7 @@
 					</c:if>
 
 					<h:link id="logo"
-						onclick="sendLogPageNavigation('index','mainmenu');"
+						onclick="sendLogPageNavigation('index','logo');"
 						outcome="/index">
 						ProSolo
 					</h:link>
@@ -123,11 +121,11 @@
 						
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
 							<li>
-								<h:link value="New Credential"
+								<h:link value="New #{msg['label.credential']}"
 									outcome="/create-credential.xhtml" />
 							</li>
 							<li>
-								<h:link value="New Competence"
+								<h:link value="New #{msg['label.competence']}"
 									outcome="/create-competence.xhtml" />
 							</li>
 						</ul>
