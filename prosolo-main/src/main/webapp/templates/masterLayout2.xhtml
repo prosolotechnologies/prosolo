@@ -57,7 +57,7 @@
 		<div class="container">
 			<div class="headerTop">
 				<div class="headerTopLeft">
-					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access')}">
+					<c:if test="#{loggeduser.hasCapability('basic.manager.access') or loggeduser.hasCapability('basic.admin.access') or loggeduser.hasCapability('basic.instructor.access')}">
 					<h:form>
 						<div class="dropdown roleChanger">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">role changer</a>
@@ -78,7 +78,7 @@
 								<li>
 									<h:link rendered="#{loggeduser.hasCapability('basic.admin.access')}"
 										onclick="sendLogPageNavigation( '/admin', 'mainmenu');" 
-										outcome="/admin/users">
+										outcome="/admin/organizations">
 										<span></span>Admin
 									</h:link>
 								</li>

@@ -5,8 +5,6 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:util="http://www.prosolo.com/util"
-	xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<ui:define name="windowTitle">
@@ -48,7 +46,7 @@
 									action="#{manageUsersBean.resetAndSearch()}" />
 
 								<h:inputText id="inputUserSearch" type="search"
-									placeholder="Filter by Name"
+									placeholder="Search by name"
 									value="#{manageUsersBean.searchTerm}"
 									onclick="$(this).select();"
 									onkeyup="searchListener(execSearchUsers);" />
@@ -70,10 +68,10 @@
 							<li>
 								<div class="peopleListLeft">
 									<utilcomp:userAvatar avatar="#{user.avatarUrl}"
-										fullName="#{user.fullName}" width="64" height="64" />
+										fullName="#{user.commaSeparatedFullName}" width="64" height="64" />
 									<div>
 										<h2>
-											<a href="javascript:void(0)">#{user.fullName}</a>
+											<a href="javascript:void(0)">#{user.commaSeparatedFullName}</a>
 										</h2>
 										<span>#{user.position}</span>
 									</div>

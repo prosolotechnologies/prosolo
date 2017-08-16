@@ -47,6 +47,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<version>9.0.0.M10</version>
+			<scope>provided</scope>
+		</dependency>
 		<!--local prosolo repository dependencies-->
 		<dependency>
 			<groupId>ca.prosolo.local</groupId>

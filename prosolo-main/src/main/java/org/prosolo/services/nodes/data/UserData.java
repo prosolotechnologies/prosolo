@@ -83,14 +83,25 @@ public class UserData implements Serializable {
 		return roleIds.contains(roleId);
 	}
 
+	public boolean hasRole(long roleId) {
+		return roles.stream().anyMatch(r -> r.getId() == roleId);
+	}
+
 	public void setFullName(String name, String lastName) {
 		this.fullName = getFullName(name, lastName);
 	}
 
 	private static String getFullName(String name, String lastName) {
+		String fName = name != null ? name + " " : "";
+		String lName = lastName != null ? lastName : "";
+		return fName + lName;
+	}
+
+	public String getCommaSeparatedFullName() {
 		String fName = name != null ? name : "";
-		String lName = lastName != null ? lastName + " " : "";
-		return lName + fName;
+		String lName = lastName != null ? lastName : "";
+		String infix = !fName.isEmpty() && !lName.isEmpty() ? ", " : "";
+		return lName + infix + fName;
 	}
 
 	public long getId() {

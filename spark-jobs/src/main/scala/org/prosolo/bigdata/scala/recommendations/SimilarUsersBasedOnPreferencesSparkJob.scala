@@ -1,6 +1,6 @@
 package org.prosolo.bigdata.scala.recommendations
 
-import org.apache.spark.sql.{DataFrame, Row, SQLContext}
+import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
 import org.prosolo.bigdata.dal.cassandra.impl.{RecommendationsDAO, TablesNames}
 //import org.prosolo.bigdata.es.impl.DataSearchImpl
 import org.prosolo.bigdata.scala.clustering.kmeans.KMeansClusterer
@@ -16,7 +16,10 @@ import scala.collection.JavaConverters._
 object SimilarUsersBasedOnPreferencesSparkJob{
   val sc = SparkContextLoader.getSC
   sc.setLogLevel("WARN")
-  val sqlContext = SQLContext.getOrCreate(sc)
+  //val sqlContext = SQLContext.getOrCreate(sc)
+ // val sparkSession:SparkSession=new SparkSession(sc)
+  val sparkSession:SparkSession=SparkContextLoader.getSparkSession
+
   println("CREATED SQL CONTEXT")
   /**
     * Performs users clustering, in order to limit data model loading to one specific cluster only.
@@ -25,11 +28,11 @@ object SimilarUsersBasedOnPreferencesSparkJob{
   def runKmeans(totalNumberOfUsers:Long, keyspaceName:String, possibleMaxIterations:Seq[Int], clusterAproxSize:Int): Unit ={
     val possibleNumClusters=getMinNumClusters(totalNumberOfUsers, clusterAproxSize)
 
-    val (usersWithCredentialsDF, usersWithExplodedCredentials)= UserFeaturesDataManager.prepareUsersCredentialDataFrame(sqlContext,keyspaceName)
+    val (usersWithCredentialsDF, usersWithExplodedCredentials)= UserFeaturesDataManager.prepareUsersCredentialDataFrame(sparkSession,keyspaceName)
     val resultsDF= FeaturesBuilder.buildAndTransformPipelineModel(usersWithExplodedCredentials)
-    val joinedResults=UserFeaturesDataManager.combineUserCredentialVectors(sqlContext, resultsDF, usersWithCredentialsDF)
-    val clusteringResults= KMeansClusterer.performClustering(joinedResults,sqlContext, possibleNumClusters, possibleMaxIterations)
-    UserFeaturesDataManager.interpretKMeansClusteringResults(sqlContext,clusteringResults,keyspaceName)
+    val joinedResults=UserFeaturesDataManager.combineUserCredentialVectors(sparkSession, resultsDF, usersWithCredentialsDF)
+    val clusteringResults= KMeansClusterer.performClustering(joinedResults,sparkSession, possibleNumClusters, possibleMaxIterations)
+    UserFeaturesDataManager.interpretKMeansClusteringResults(sparkSession,clusteringResults,keyspaceName)
   }
   /**
     * Calculates what are the boundaries for the number of clusters
@@ -46,7 +49,7 @@ object SimilarUsersBasedOnPreferencesSparkJob{
     * Performs recommendation of similar users based on their similarity using Spark ML ALS and cosine similarity
     */
   def runALSUserRecommender(clusterAproxSize:Int,keyspaceName:String,indexRecommendationDataName:String, similarUsersIndexType:String): Unit ={
-    val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sqlContext,keyspaceName).collect()
+    val clustersUsers =UserFeaturesDataManager.loadUsersInClusters(sparkSession,keyspaceName).collect()
     clustersUsers.foreach {
       row: Row =>
         println("RUN ALS ON ROW:"+row.toString())
@@ -57,9 +60,9 @@ object SimilarUsersBasedOnPreferencesSparkJob{
   def createOneCluster(keyspaceName:String)= {
     println("CREATE ONE CLUSTER ONLY")
     println("KEYSPACE:"+keyspaceName+" ")
-    if(sqlContext==null)println("SQL CONTEXT IS NULL")
-    import sqlContext.implicits._
-    val usersInTheSystemDF: DataFrame = sqlContext.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
+    if(sparkSession==null)println("SQL CONTEXT IS NULL")
+    import sparkSession.implicits._
+    val usersInTheSystemDF: DataFrame = sparkSession.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keyspaceName,
       "table" -> TablesNames.USER_COURSES)).load()
     usersInTheSystemDF.show
     val clusterUsers:java.util.List[java.lang.Long] = usersInTheSystemDF.select("userid").map(row => {

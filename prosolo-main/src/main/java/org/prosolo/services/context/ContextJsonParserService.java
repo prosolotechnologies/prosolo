@@ -5,7 +5,7 @@ import org.prosolo.common.event.context.LearningContext;
 
 public interface ContextJsonParserService {
 
-	LearningContext parseCustomContextString(String page, String context, String service);
+ 	LearningContext parseCustomContextString(String page, String context, String service);
 	
 	String addSubContext(String base, String subcontext);
 	

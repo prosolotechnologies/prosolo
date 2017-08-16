@@ -3,14 +3,14 @@ package org.prosolo.common.domainmodel.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
+import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.domainmodel.organization.Unit;
 
 @Entity
 public class UserGroup extends BaseEntity {
@@ -23,6 +23,10 @@ public class UserGroup extends BaseEntity {
 	private String joinUrlPassword;
 	//group where users are put by default, it is not created manually and it is not visible to end users
 	private boolean defaultGroup;
+	//user group belongs to a unit
+	private Unit unit;
+	private List<CredentialUserGroup> credentialUserGroups;
+	private List<CompetenceUserGroup> competenceUserGroups;
 	
 	public UserGroup() {
 		users = new ArrayList<>();
@@ -71,5 +75,32 @@ public class UserGroup extends BaseEntity {
 	public void setDefaultGroup(boolean defaultGroup) {
 		this.defaultGroup = defaultGroup;
 	}
-	
+
+	//unit should not be nullable column but there are existing groups for which we need to set null unit temporarily
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	@OneToMany(mappedBy = "userGroup")
+	public List<CredentialUserGroup> getCredentialUserGroups() {
+		return credentialUserGroups;
+	}
+
+	public void setCredentialUserGroups(List<CredentialUserGroup> credentialUserGroups) {
+		this.credentialUserGroups = credentialUserGroups;
+	}
+
+	@OneToMany(mappedBy = "userGroup")
+	public List<CompetenceUserGroup> getCompetenceUserGroups() {
+		return competenceUserGroups;
+	}
+
+	public void setCompetenceUserGroups(List<CompetenceUserGroup> competenceUserGroups) {
+		this.competenceUserGroups = competenceUserGroups;
+	}
 }

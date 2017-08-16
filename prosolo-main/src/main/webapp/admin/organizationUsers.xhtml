@@ -1,0 +1,34 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="templates/masterLayout2.xhtml"
+				xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+				xmlns:user="http://java.sun.com/jsf/composite/components/admin/user">
+
+
+<ui:define name="windowTitle">People - #{usersBean.orgTitle}</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="orgId" value="#{usersBean.orgId}" />
+			<f:viewParam name="p" value="#{usersBean.paginationData.pageString}" default="1" />
+			<f:viewParam name="role" value="#{usersBean.roleId}" default="null" />
+			<f:viewAction action="#{usersBean.initOrgUsers()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="navLinks">
+		<org:organizationHeaderLinks orgId="#{usersBean.decodedOrgId}" />
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h1>#{usersBean.orgTitle}</h1>
+	</ui:define>
+
+	<ui:define name="content">
+		<user:userList
+			mode="ORGANIZATION"
+			orgId="#{usersBean.decodedOrgId}"
+		/>
+	</ui:define>
+</ui:composition>

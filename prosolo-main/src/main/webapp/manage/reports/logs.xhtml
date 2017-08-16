@@ -55,7 +55,7 @@
     			
     				<strong>From:</strong>&#160;
 					<h:inputText class="dateField"
-						value="#{logsFilterBean.startDate}" required="false" onfocus="blur();">
+						value="#{logsFilterBean.afterDate}" required="false" onfocus="blur();">
 					    <f:convertDateTime pattern="dd.MM.yyyy" />
 					</h:inputText>
 					
@@ -63,26 +63,26 @@
 					
     				<strong>To:</strong>&#160;
 					<h:inputText class="dateField"
-						value="#{logsFilterBean.endDate}" required="false" onfocus="blur();">
+						value="#{logsFilterBean.beforeDate}" required="false" onfocus="blur();">
 					    <f:convertDateTime pattern="dd.MM.yyyy" />
 					</h:inputText>
     				
 	    			<ui:remove>
 	    				<p:calendar styleClass="filterDatePicker" 
-    			 			id="startDate" 
-    			 			value="#{logsFilterBean.startDate}"
+    			 			id="afterDate"
+    			 			value="#{logsFilterBean.afterDate}"
     			 			pattern="MM/dd/yyyy HH:mm" />
     			 
-    			 		<p:watermark for="startDate" value="Select start date" />
+    			 		<p:watermark for="afterDate" value="Select start date" />
     			 		
     			 		&#160;&#160;
     			  
     			  		<p:calendar styleClass="filterDatePicker" 
-    			  			id="endDate" 
-    			  			value="#{logsFilterBean.endDate}" 
+    			  			id="beforeDate"
+    			  			value="#{logsFilterBean.beforeDate}"
     			  			pattern="MM/dd/yyyy HH:mm" />
 				
-						<p:watermark for="endDate" value="Select end date" />
+						<p:watermark for="beforeDate" value="Select end date" />
 	    			</ui:remove>
     			</div>
 		    	

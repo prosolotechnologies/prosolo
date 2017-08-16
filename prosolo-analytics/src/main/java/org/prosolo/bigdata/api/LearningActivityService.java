@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.prosolo.bigdata.dal.cassandra.impl.LearningEventsDBManagerImpl;
 import org.prosolo.bigdata.session.impl.LearningEventSummary;
-import org.prosolo.bigdata.utils.DateUtil;
+import org.prosolo.common.util.date.DateEpochUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,8 @@ public class LearningActivityService {
 		if(dateFrom==null || dateTo==null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		long daysFrom = DateUtil.parseDaysSinceEpoch(dateFrom, "dd.MM.yyyy. Z");
-		long daysTo = DateUtil.parseDaysSinceEpoch(dateTo, "dd.MM.yyyy. Z");
+		long daysFrom = DateEpochUtil.parseDaysSinceEpoch(dateFrom, "dd.MM.yyyy. Z");
+		long daysTo = DateEpochUtil.parseDaysSinceEpoch(dateTo, "dd.MM.yyyy. Z");
 		logger.debug("Parsed days since epoch time: from: {}, to: {}.", daysFrom, daysTo);
 		List<LearningEventSummary> learningEventsData = LearningEventsDBManagerImpl.getInstance().getLearningEventsData(id, daysFrom, daysTo+1);
 		return ResponseUtils.corsOk(learningEventsData);

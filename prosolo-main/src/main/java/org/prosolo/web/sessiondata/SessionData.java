@@ -23,6 +23,11 @@ public class SessionData {
 	private Set<String> pagesTutorialPlayed = new HashSet<String>();
 	private String ipAddress;
 
+
+
+
+	private String sessionId;
+
 	private Filter selectedStatusWallFilter;
 
 	private UserSettings userSettings;
@@ -171,5 +176,14 @@ public class SessionData {
 	public void setPosition(String position) {
 		this.position = position;
 	}
-	
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+
 }

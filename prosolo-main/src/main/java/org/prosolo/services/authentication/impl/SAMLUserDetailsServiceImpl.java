@@ -97,7 +97,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
 
-				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(fName,
+				org.prosolo.common.domainmodel.user.User user = userManager.createNewUser(0, fName,
 						lName, email, true, UUID.randomUUID().toString(), null, null, null, roles);
 				
 				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");

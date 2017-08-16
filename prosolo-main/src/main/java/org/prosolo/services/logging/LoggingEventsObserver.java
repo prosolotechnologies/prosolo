@@ -80,6 +80,7 @@ public class LoggingEventsObserver extends EventObserver {
 			}
 	
 			String ipAddress = null;
+			String sessionId=null;
 			Map<String, String> params = event.getParameters();
 			
 			if (params != null && params.containsKey("ip")) {
@@ -98,6 +99,8 @@ public class LoggingEventsObserver extends EventObserver {
 						}
 					
 						ipAddress = loggedUserBean.getIpAddress();
+						sessionId=loggedUserBean.getSessionData().getSessionId();
+
 					}
 				}
 			} else {

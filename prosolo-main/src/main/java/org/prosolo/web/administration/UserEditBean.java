@@ -1,16 +1,19 @@
 package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.primefaces.mobile.component.page.Page;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
@@ -19,26 +22,35 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.settings.data.AccountData;
 import org.prosolo.web.util.page.PageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.UIInput;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * @author Bojan
+ *
+ * May 25, 2017
+ */
+
 
 @ManagedBean(name = "userEditBean")
 @Component("userEditBean")
 @Scope("view")
 public class UserEditBean implements Serializable {
 
-	private static final long serialVersionUID = 7711054337337237619L;
+	private static final long serialVersionUID = 1787939548656065892L;
 
 	protected static Logger logger = Logger.getLogger(UserEditBean.class);
 
@@ -53,62 +65,90 @@ public class UserEditBean implements Serializable {
 	@Inject
 	private PasswordResetManager passwordResetManager;
 	@Inject
-	private UserTextSearch userTextSearch;
+	@Qualifier("taskExecutor")
+	private ThreadPoolTaskExecutor taskExecutor;
 
-	private UIInput passwordInput;
+	@Autowired
+	private UserTextSearch textSearch;
+	@Inject private OrganizationManager organizationManager;
 
+	private String orgId;
+	private long decodedOrgId;
 	private String id;
 	private long decodedId;
 	private AccountData accountData;
 	private UserData userToDelete;
-
 	private UserData user;
 	private UserData newOwner = new UserData();
-	private SelectItem[] allRoles;
+	private List<RoleCheckboxData> allRoles;
 	private List<UserData> users;
 	private String searchTerm;
-	private RoleFilter filter;
+	private List<Role> userRoles;
 	private List<UserData> usersToExclude = new ArrayList<>();
+
+	private String organizationTitle;
+
+	private static final String passwordFieldId = "editUserPassword:formMain:inputPassword";
 
 	public void initPassword() {
 		logger.debug("initializing");
 		try {
 			decodedId = idEncoder.decodeId(id);
-			user = new UserData();
-			user.setId(decodedId);
+			user = userManager.getUserData(decodedId);
 			accountData = new AccountData();
 			usersToExclude.add(user);
+
+			if (orgId != null) {
+				decodedOrgId = idEncoder.decodeId(orgId);
+				initOrgTitle();
+			}
 		} catch (Exception e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while loading page");
 		}
 	}
 
-	public void init() {
-		logger.debug("initializing");
+	private void initOrgTitle() {
+		if (decodedOrgId > 0) {
+			organizationTitle = organizationManager.getOrganizationTitle(decodedOrgId);
+			if (organizationTitle == null) {
+				PageUtil.notFound();
+			}
+		} else {
+			PageUtil.notFound();
+		}
+	}
+
+	public void initAdmin() {
+		init(new String[] {"Admin", "Super Admin"});
+	}
+
+	public void initOrgUser() {
+		decodedOrgId = idEncoder.decodeId(orgId);
+		initOrgTitle();
+		if (organizationTitle != null) {
+			init(new String[]{"User", "Instructor", "Manager"});
+		}
+	}
+
+	public void init(String [] rolesArray) {
 		try {
 			decodedId = idEncoder.decodeId(id);
 			// edit user
 			if (decodedId > 0) {
-				User user = userManager.getUserWithRoles(decodedId);
+				user = userManager.getUserWithRoles(decodedId, decodedOrgId);
 				if (user != null) {
-					this.user = new UserData(user);
-					Set<Role> roles = user.getRoles();
-					if (roles != null) {
-						for (Role r : roles) {
-							this.user.addRoleId(r.getId());
-						}
-					}
 					accountData = new AccountData();
 				} else {
-					this.user = new UserData();
-					PageUtil.fireErrorMessage("User cannot be found");
+					user = new UserData();
+					PageUtil.fireErrorMessage("Admin cannot be found");
 				}
 			}
 			// new user
 			else {
 				user = new UserData();
 			}
+			userRoles = roleManager.getRolesByNames(rolesArray);
 			usersToExclude.add(user);
 			prepareRoles();
 		} catch (Exception e) {
@@ -119,24 +159,18 @@ public class UserEditBean implements Serializable {
 
 	private void prepareRoles() {
 		try {
-			List<Role> roles = roleManager.getAllRoles();
-			if (roles != null) {
-				allRoles = new SelectItem[roles.size()];
-
-				for (int i = 0; i < roles.size(); i++) {
-					Role r = roles.get(i);
-					SelectItem selectItem = new SelectItem(r.getId(), r.getTitle());
-					allRoles[i] = selectItem;
+			allRoles = new ArrayList<>();
+			if (userRoles != null) {
+				for (int i = 0; i < userRoles.size(); i++) {
+					Role r = userRoles.get(i);
+					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(), this.user.hasRole(r.getId()), r.getId());
+					allRoles.add(roleCheckboxData);
 				}
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
 		}
 
-	}
-
-	public boolean isCreateUseCase() {
-		return user.getId() == 0;
 	}
 
 	public void saveUser() {
@@ -147,20 +181,32 @@ public class UserEditBean implements Serializable {
 		}
 	}
 
+	private List<Long> getSelectedRoles(){
+		return allRoles.stream()
+				.filter(r -> r.isSelected())
+				.map(RoleCheckboxData::getId)
+				.collect(Collectors.toList());
+	}
+
 	private void createNewUser() {
 		try {
-			User user = userManager.createNewUser(this.user.getName(), this.user.getLastName(), this.user.getEmail(),
-					true, this.user.getPassword(), this.user.getPosition(), null, null, this.user.getRoleIds());
+			User adminUser = userManager.createNewUser(decodedOrgId, this.user.getName(), this.user.getLastName(),
+					this.user.getEmail(),true, this.user.getPassword(), this.user.getPosition(),
+					null, null, getSelectedRoles());
 
-			this.user.setId(user.getId());
+			this.user.setId(adminUser.getId());
 
-			logger.debug("New User (" + user.getName() + " " + user.getLastname() + ") for the user "
+			logger.debug("New user (" + adminUser.getName() + " " + adminUser.getLastname() + ") for the user "
 					+ loggedUser.getUserId());
 
-			sendNewPasswordViaEmail();
+			sendNewPassword();
 
-			PageUtil.fireSuccessfulInfoMessageAcrossPages("User successfully saved");
-			PageUtil.redirect("/admin");
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("New user is created");
+			if (decodedOrgId > 0) {
+				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
+			} else {
+				PageUtil.redirect("/admin/admins");
+			}
 		} catch (UserAlreadyRegisteredException e) {
 			logger.debug(e);
 			PageUtil.fireErrorMessage(e.getMessage());
@@ -172,29 +218,9 @@ public class UserEditBean implements Serializable {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public void sendNewPasswordViaEmail() {
-			
-			User userNewPass = userManager.getUser(user.getEmail());
-			if (userNewPass != null) {
-				boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
-						CommonSettings.getInstance().config.appConfig.domain + "recovery");
-				
-				if (resetLinkSent) {
-					PageUtil.fireSuccessfulInfoMessage("resetMessage", "Password instructions have been sent to given email ");
-				} else {
-					PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-				}
-			} else {
-				PageUtil.fireErrorMessage("resetMessage", "User already registrated");
-			}
-		}
-	
-	private void  updateUser() {
+	private void updateUser() {
 		try {
-			boolean shouldChangePassword = this.user.getPassword() != null 
-					&& !this.user.getPassword().isEmpty();
-			User user = userManager.updateUser(
+			User updatedUser = userManager.updateUser(
 					this.user.getId(),
 					this.user.getName(),
 					this.user.getLastName(),
@@ -203,45 +229,32 @@ public class UserEditBean implements Serializable {
 					false,
 					this.user.getPassword(),
 					this.user.getPosition(),
-					this.user.getRoleIds(),
+					getSelectedRoles(),
+					userRoles.stream().map(role -> role.getId()).collect(Collectors.toList()),
 					loggedUser.getUserId());
 
-			logger.debug("User (" + user.getId() + ") updated by the user "
-				+ loggedUser.getUserId());
-			
-			PageUtil.fireSuccessfulInfoMessage("User successfully saved");
-		} catch(DbConnectionException e) {
+			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());
+
+			PageUtil.fireSuccessfulInfoMessage("User is updated");
+		} catch (DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error while trying to update user data");
 		} catch (EventException e) {
 			logger.error(e);
 		}
 	}
-	
-	public void updatePassword() {
-		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
-			return;
-		}
-		try {
-			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error updating the password");
-		}
+
+	public void setUserToDelete() {
+		newOwner.setUserSet(false);
+		searchTerm = "";
+		users = null;
+		this.userToDelete = user;
 	}
 
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public UIInput getPasswordInput() {
-		return passwordInput;
-	}
-
-	public void setPasswordInput(UIInput passwordInput) {
-		this.passwordInput = passwordInput;
+	public void userReset() {
+		searchTerm = "";
+		users = null;
+		newOwner.setUserSet(false);
 	}
 
 	public UserData getUser() {
@@ -260,67 +273,13 @@ public class UserEditBean implements Serializable {
 		this.id = id;
 	}
 
-	public SelectItem[] getAllRoles() {
+	public List<RoleCheckboxData> getAllRoles() {
 		return allRoles;
 	}
 
-	public void setAllRoles(SelectItem[] allRoles) {
+	public void setAllRoles(List<RoleCheckboxData> allRoles) {
 		this.allRoles = allRoles;
 	}
-
-
-	public UserData getUserToDelete() {
-		return userToDelete;
-	}
-
-	public void setUserToDelete() {
-		newOwner.setUserSet(false);
-		searchTerm = "";
-		users = null;
-		this.userToDelete = user;
-	}
-
-	public void userReset() {
-		searchTerm = "";
-		users = null;
-		newOwner.setUserSet(false);
-	}
-
-	public RoleFilter getFilter() {
-		return filter;
-	}
-
-	public void setFilter(RoleFilter filter) {
-		this.filter = filter;
-	}
-
-	public UserData getNewOwner() {
-		return newOwner;
-	}
-
-	public void setNewOwner(UserData userData) {
-		newOwner.setId(userData.getId());
-		newOwner.setAvatarUrl(userData.getAvatarUrl());
-		newOwner.setFullName(userData.getFullName());
-	}
-
-	public void savePassChangeForAnotherUser() {
-		if (accountData.getNewPassword().length() < 6) {
-			PageUtil.fireErrorMessage("Password is too short. It has to contain more than 6 characters.");
-			return;
-		}
-		try {
-			userManager.changePassword(user.getId(), accountData.getNewPassword());
-			PageUtil.fireSuccessfulInfoMessage("Password updated!");
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error updating the password");
-		}
-	}
-
-	/*
-	 * GETTERS / SETTERS
-	 */
 
 	public AccountData getAccountData() {
 		return accountData;
@@ -334,6 +293,14 @@ public class UserEditBean implements Serializable {
 		this.users = users;
 	}
 
+	public UserTextSearch getTextSearch() {
+		return textSearch;
+	}
+
+	public void setTextSearch(UserTextSearch textSearch) {
+		this.textSearch = textSearch;
+	}
+
 	public String getSearchTerm() {
 		return searchTerm;
 	}
@@ -342,34 +309,53 @@ public class UserEditBean implements Serializable {
 		this.searchTerm = searchTerm;
 	}
 
-//	public void sendNewPassword() {
-//
-//		User userNewPass = userManager.getUser(user.getEmail());
-//		if (userNewPass != null) {
-//			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(userNewPass, userNewPass.getEmail(),
-//					CommonSettings.getInstance().config.appConfig.domain + "recovery");
-//
-//			if (resetLinkSent) {
-//				PageUtil.fireSuccessfulInfoMessage("resetMessage",
-//						"Password instructions have been sent to given email ");
-//			} else {
-//				PageUtil.fireErrorMessage("resetMessage", "Error sending password instruction");
-//			}
-//		} else {
-//			PageUtil.fireErrorMessage("resetMessage", "User already registrated");
-//		}
-//	}
+	public UserData getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(UserData userData) {
+		newOwner.setId(userData.getId());
+		newOwner.setAvatarUrl(userData.getAvatarUrl());
+		newOwner.setFullName(userData.getFullName());
+		newOwner.setPosition(userData.getPosition());
+	}
+
+	private void sendNewPassword() {
+
+		final User user = userManager.getUser(this.user.getEmail());
+
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				Session session = (Session) userManager.getPersistence().openSession();
+				try {
+					boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+					CommonSettings.getInstance().config.appConfig.domain + "recovery", session);
+					session.flush();
+					if (resetLinkSent) {
+						logger.info("Password instructions have been sent");
+					} else {
+						logger.error("Error sending password instruction");
+					}
+				}catch (Exception e){
+					logger.error("Exception in handling mail sending", e);
+				}finally {
+					HibernateUtil.close(session);
+				}
+			}
+		});
+	}
 
 	public void delete() {
 		if (userToDelete != null) {
 			try {
 				userManager.deleteUser(this.userToDelete.getId(), newOwner.getId());
-				;
-				users.remove(userToDelete);
 				PageUtil.fireSuccessfulInfoMessage("User " + userToDelete.getFullName() + " is deleted.");
 				userToDelete = null;
-				ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-				extContext.redirect("/admin");
+				String url = decodedOrgId > 0
+						? "/admin/organizations/" + orgId + "/users"
+						: "/admin/admins";
+				PageUtil.redirect(url);
 			} catch (Exception ex) {
 				logger.error(ex);
 				PageUtil.fireErrorMessage("Error while trying to delete user");
@@ -377,13 +363,13 @@ public class UserEditBean implements Serializable {
 		}
 	}
 
-	public void loadUsers() {
+	private void loadUsersForNewOwnerSearch() {
 		this.users = null;
 		if (searchTerm == null || searchTerm.isEmpty()) {
 			users = null;
 		} else {
 			try {
-				PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
+				PaginatedResult<UserData> result = textSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);
@@ -392,8 +378,81 @@ public class UserEditBean implements Serializable {
 	}
 
 	public void resetAndSearch() {
-		loadUsers();
+		loadUsersForNewOwnerSearch();
+	}
+
+	public void savePassChangeForAnotherUser() {
+		if (accountData.getNewPassword().length() < 6) {
+			FacesContext context = FacesContext.getCurrentInstance();
+			UIInput input = (UIInput) context.getViewRoot().findComponent(
+					passwordFieldId);
+			input.setValid(false);
+			context.addMessage(passwordFieldId, new FacesMessage(
+					"The password is too short. It has to contain at least 6 characters."));
+			FacesContext.getCurrentInstance().validationFailed();
+			return;
+		}
+		try {
+			userManager.changePassword(user.getId(), accountData.getNewPassword());
+			PageUtil.fireSuccessfulInfoMessage("Password updated!");
+		} catch (ResourceCouldNotBeLoadedException e) {
+			logger.error(e);
+			PageUtil.fireErrorMessage("Error updating the password");
+		}
+	}
+
+	public String getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(String orgId) {
+		this.orgId = orgId;
+	}
+
+	public String getOrganizationTitle() {
+		return organizationTitle;
+	}
+
+	public long getDecodedOrgId() {
+		return decodedOrgId;
+	}
+
+	public class RoleCheckboxData{
+
+		private String label;
+		private boolean selected;
+		private long id;
+
+		public RoleCheckboxData(String label, boolean selected, long id) {
+			this.label = label;
+			this.selected = selected;
+			this.id = id;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+
+		public long getId() {
+			return id;
+		}
+
+		public void setId(long id) {
+			this.id = id;
+		}
+
 	}
 }
-
 

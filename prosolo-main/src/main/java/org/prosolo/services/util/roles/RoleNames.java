@@ -13,4 +13,5 @@ public class RoleNames {
 	public static final String INSTRUCTOR = "Instructor";
 	public static final String MANAGER = "Manager";
 	public static final String ADMIN = "Admin";
+	public static final String SUPER_ADMIN = "Super Admin";
 }

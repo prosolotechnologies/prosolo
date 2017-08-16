@@ -24,4 +24,11 @@ public interface ESAdministration  extends Serializable{
 
 	boolean deleteOrganizationIndexes(long organizationId) throws IndexingServiceNotAvailable;
 
+	/**
+	 * Deletes index by exact name or wildcard
+	 * @param name
+	 * @return
+	 */
+	boolean deleteIndexByName(String name);
+
 }

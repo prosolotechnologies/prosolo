@@ -20,7 +20,8 @@ import java.util.List;
  */
 public interface OrganizationManager extends AbstractManager {
 
-    PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit);
+    PaginatedResult<OrganizationData> getAllOrganizations(int page, int limit, boolean loadAdmins)
+            throws DbConnectionException;
 
     void deleteOrganization(long organizationId) throws DbConnectionException, EventException;
 
@@ -44,6 +45,6 @@ public interface OrganizationManager extends AbstractManager {
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 
 
-
+    String getOrganizationTitle(long organizationId) throws DbConnectionException;
 }
 

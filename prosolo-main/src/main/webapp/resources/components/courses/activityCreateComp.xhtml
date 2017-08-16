@@ -50,12 +50,9 @@
 						<h:inputText id="inputVideoUrl" styleClass="pasteable"
 							value="#{cc.attrs.activity.videoLink}"
 							validator="youtubeValidator" required="true"
-							requiredMessage="Video URL is required" />
-						<h:panelGroup layout="block"
-							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputVideoUrl'))}"
-							styleClass="alert alert-danger" pt:role="alert">
-							<h:message for="inputVideoUrl"></h:message>
-						</h:panelGroup>
+							requiredMessage="Video URL is required" autocomplete="off" />
+
+						<small class="redText"><h:message for="inputVideoUrl"></h:message></small>
 					</div>
 				</div>
 
@@ -105,11 +102,7 @@
 							value="#{cc.attrs.activity.text}"
 							styleClass="textareaBig pasteable" />
 
-						<h:panelGroup layout="block"
-							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputTextActText'))}"
-							styleClass="alert alert-danger" pt:role="alert">
-							<h:message for="inputTextActText" />
-						</h:panelGroup>
+						<small class="redText"><h:message for="inputTextActText" /></small>
 
 						<script>
 							initTinyMCE('#createActivity\\:formMain\\:activityPanel\\:inputTextActText');
@@ -127,12 +120,9 @@
 						<h:inputText id="inputSlideshareUrl" styleClass="pasteable"
 							value="#{cc.attrs.activity.slidesLink}"
 							validator="slideshareValidator" required="true"
-							requiredMessage="Slideshare URL is required" />
-						<h:panelGroup layout="block"
-							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSlideshareUrl'))}"
-							styleClass="alert alert-danger" pt:role="alert">
-							<h:message for="inputSlideshareUrl"></h:message>
-						</h:panelGroup>
+							requiredMessage="Slideshare URL is required" autocomplete="off" />
+
+						<small class="redText"><h:message for="inputSlideshareUrl"></h:message></small>
 					</div>
 				</div>
 			</h:panelGroup>
@@ -250,10 +240,10 @@
 					<div class="formLineRight">
 						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPoints"
 							value="#{cc.attrs.activity.maxPointsString}"
-							placeholder="e.g. 10" converterMessage="Only numbers are allowed">
+							placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
 							<f:convertNumber integerOnly="true" />
 						</h:inputText>
-						<h:message for="maxPoints" style="color:red" />
+						<small class="redText"><h:message for="maxPoints" /></small>
 						<div class="checkbox checkLine">
 							<h:selectBooleanCheckbox disabled="#{cc.attrs.limitedEdit}"
 								id="checkAutograding1" value="#{cc.attrs.activity.autograde}">
@@ -272,7 +262,8 @@
 									  id="inputKeywords"
 									  value="#{activityEditBean.activityData.tagsString}"
 									  pt:placeholder="Type and press 'Enter'"
-									  pt:data-role="tagsinput">
+									  pt:data-role="tagsinput"
+									  autocomplete="off">
 						 </h:inputText>
 					 </div>
 				 </div>
@@ -308,12 +299,9 @@
 					<div class="formLineRight">
 						<h:inputText id="inputLaunchUrl" styleClass="pasteable"
 							value="#{cc.attrs.activity.launchUrl}" validator="urlValidator"
-							required="true" requiredMessage="Launch URL is required" />
-						<h:panelGroup layout="block"
-							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputLaunchUrl'))}"
-							styleClass="alert alert-danger" pt:role="alert">
-							<h:message for="inputLaunchUrl"></h:message>
-						</h:panelGroup>
+							required="true" requiredMessage="Launch URL is required" autocomplete="off"/>
+
+						<small class="redText"><h:message for="inputLaunchUrl"></h:message></small>
 					</div>
 				</div>
 				<div class="formLine">
@@ -321,19 +309,16 @@
 					<div class="formLineRight">
 						<h:inputText id="inputSecret" styleClass="pasteable"
 							value="#{cc.attrs.activity.sharedSecret}" required="true"
-							requiredMessage="Shared secret is required" />
-						<h:panelGroup layout="block"
-							rendered="#{not empty facesContext.getMessageList(cc.clientId.concat(':inputSecret'))}"
-							styleClass="alert alert-danger" pt:role="alert">
-							<h:message for="inputSecret"></h:message>
-						</h:panelGroup>
+							requiredMessage="Shared secret is required" autocomplete="off"/>
+
+						<small class="redText"><h:message for="inputSecret"></h:message></small>
 					</div>
 				</div>
 				<div class="formLine">
 					<label>Consumer key (optional)</label>
 					<div class="formLineRight">
 						<h:inputText styleClass="pasteable"
-							value="#{cc.attrs.activity.consumerKey}" />
+							value="#{cc.attrs.activity.consumerKey}" autocomplete="off"/>
 					</div>
 				</div>
 
@@ -342,10 +327,10 @@
 					<div class="formLineRight">
 						<h:inputText disabled="#{cc.attrs.limitedEdit}" id="maxPointsExt"
 							value="#{cc.attrs.activity.maxPointsString}"
-							placeholder="e.g. 10" converterMessage="Only numbers are allowed">
+							placeholder="e.g. 10" converterMessage="Only numbers are allowed" autocomplete="off">
 							<f:convertNumber integerOnly="true" />
 						</h:inputText>
-						<h:message for="maxPoints" style="color:red" />
+						<small class="redText"><h:message for="maxPoints"/></small>
 					</div>
 				</div>
 
@@ -356,7 +341,8 @@
 									 id="inputKeywordsExt"
 									 value="#{activityEditBean.activityData.tagsString}"
 									 pt:placeholder="Type and press 'Enter'"
-									 pt:data-role="tagsinput">
+									 pt:data-role="tagsinput"
+									 autocomplete="off">
 						</h:inputText>
 					</div>
 				</div>

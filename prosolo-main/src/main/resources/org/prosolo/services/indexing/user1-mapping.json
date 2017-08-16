@@ -1,0 +1,120 @@
+{
+	"user": {
+		"properties": {
+			"id": {
+				"store": false,
+				"type": "long"
+			},
+			"url": {
+				"store": false,
+				"type": "string"
+			},
+			"name": {
+				"store": false,
+				"type": "string"
+			},
+			"lastname": {
+				"store": false,
+				"type": "string"
+			},
+			"system": {
+				"store": false,
+				"type": "boolean"
+			},
+			"avatar": {
+				"store": false,
+				"type": "string"
+			},
+
+			"position": {
+				"store": false,
+				"type": "string"
+			},
+
+			"location": {
+				"type": "geo_point"
+			},
+
+			
+			"roles": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+
+			"credentials": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"instructorId": {
+						"store": false,
+						"type": "long"
+					},
+					"dateEnrolled":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
+			"competences": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"dateEnrolled":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"dateCompleted":{
+						"store": false,
+						"type": "date",
+						"format": "yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
+			"credentialsWithInstructorRole": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"dateAssigned":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
+			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			}
+			
+		}
+	}
+}

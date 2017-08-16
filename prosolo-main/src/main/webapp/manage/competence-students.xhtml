@@ -3,14 +3,10 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
 	template="templates/masterLayout2.xhtml"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:dlg="http://java.sun.com/jsf/composite/components/dialogs"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
 	xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage">
 
 	<ui:define name="windowTitle">
@@ -147,7 +143,7 @@
 									<h:link	outcome="studentProfile">
 										<utilcomp:userAvatar
 											avatar="#{student.user.avatarUrl}"
-											fullName="#{student.user.fullName}"	
+											fullName="#{student.user.commaSeparatedFullName}"
 											width="64"
 											height="64" />
 										<f:param name="id" value="#{util:encodeId(student.user.id)}" />
@@ -156,7 +152,7 @@
 									<div>
 										<h2>
 											<h:link outcome="studentProfile">
-												#{student.user.fullName}
+												#{student.user.commaSeparatedFullName}
 												<f:param name="id" value="#{util:encodeId(student.user.id)}" />
 											</h:link>
 										</h2>
