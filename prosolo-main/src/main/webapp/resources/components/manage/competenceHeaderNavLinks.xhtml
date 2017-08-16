@@ -28,7 +28,7 @@
 					class="#{page  == 'create-competence'
 						|| page  == 'competence' ? 'active' : ''}">
 					<h:link
-						value="#{util:capitalizeWord(msg['label.competence'])} Details"
+						value="#{msg['label.competence']} Details"
 						outcome="create-competence">
 						<f:param name="id" value="#{util:encodeId(cc.attrs.compId)}"></f:param>
 					</h:link>

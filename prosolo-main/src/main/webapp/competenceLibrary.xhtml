@@ -10,7 +10,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{util:capitalizeWord(msg['label.competence'])} Library
+		#{msg['label.competence']} Library
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -32,7 +32,7 @@
 				</h:link>
 			</li>
 			<li role="presentation" class="active">
-				<a href="javascript:void(0)">#{util:capitalizeWord(msg['label.competence.plural'])}</a>
+				<a href="javascript:void(0)">#{msg['label.competence.plural']}</a>
 			</li>
 		</ul>
     </ui:define>

@@ -14,7 +14,7 @@
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		 #{util:capitalizeWord(msg['label.competence'])} Library
+		 #{msg['label.competence']} Library
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -117,7 +117,7 @@
 				<div class="container">
 					<ol class="breadcrumb">
 						<li class="active">
-							#{util:capitalizeWord(msg['label.competence.plural'])}
+							#{msg['label.competence.plural']}
 						</li>
 					</ol>
 				</div>
@@ -240,7 +240,7 @@
 				restoreActionMethodName="restore"  	
 				restoreAction="#{competenceLibraryBeanManager.restore}"
 				toUpdate=":pagination :panelCompetences :formSearch :growlMain"
-				title="#{util:capitalizeWord(msg['label.competence.plural'])}"
+				title="#{msg['label.competence.plural']}"
 				resourceType="#{msg['label.competence'].toLowerCase()}"
 				resourceTypePlural="#{msg['label.competence.plural'].toLowerCase()}"
 				learningContext="name:library|context:/name:competence|id:#{competenceLibraryBeanManager.selectedComp.competenceId}/"/>

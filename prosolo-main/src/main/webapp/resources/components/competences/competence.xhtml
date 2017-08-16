@@ -106,7 +106,7 @@
 		                    <div class="duration item">#{cc.attrs.bean.competenceData.durationString}</div>
 		                    <h:link 
 		                    	rendered="#{canEdit}"
-		                    	value="Edit #{util:capitalizeWord(msg['label.competence'])}"
+		                    	value="Edit #{msg['label.competence']}"
 		                    	styleClass="btn btn-green-stroke btn-sm item"
 		                    	outcome="create-competence">
 		                    	<f:param name="id" value="#{param['compId']}"></f:param>
@@ -140,7 +140,7 @@
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
 		    		<ol class="breadcrumb">	
 		    			<li>
-			            	<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
+			            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li>
 			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
 			        </ol>
@@ -150,7 +150,7 @@
 		    <div class="container">
 		        <div class="row">
 		            <div class="col-md-8">
-		                <h2>About #{util:capitalizeWord(msg['label.competence'])}</h2>
+		                <h2>About #{msg['label.competence']}</h2>
 		                <p><h:outputText escape="false" value="#{cc.attrs.bean.competenceData.description}"/></p>
 		                <div class="whiteBox activitiesList">
 			                <courses:activityList

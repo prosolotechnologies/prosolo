@@ -50,20 +50,20 @@
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">New #{util:capitalizeWord(msg['label.competence'])}</li>
+		            	<li class="active">New #{msg['label.competence']}</li>
 		            </ui:fragment>
 		        </ol>
 	    	</ui:fragment>
 	        <ui:fragment rendered="#{empty param['credId']}">
 	    		<ol class="breadcrumb">	 
 	    			<li>
-		            	<h:link value="#{util:capitalizeWord(msg['label.competence.plural'])}" outcome="competenceLibrary"/>
+		            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">#{competenceEditBean.competenceData.title}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">New #{util:capitalizeWord(msg['label.competence'])}</li>
+		            	<li class="active">New #{msg['label.competence']}</li>
 		            </ui:fragment>
 		        </ol>
 	    	</ui:fragment>
@@ -115,14 +115,14 @@
 			            	</h:panelGroup>
 			                <div class="whiteBox">
 			                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{util:capitalizeWord(msg['label.competence'])} Info</a></li>
+			                        <li role="presentation" class="#{param.tab ne 'activities' ? 'active' : ''}"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" onclick="setQueryParam('tab','info')">#{msg['label.competence']} Info</a></li>
 			                        <li role="presentation" class="#{param.tab eq 'activities' ? 'active' : ''}"><a href="#activities" aria-controls="activities" role="tab" data-toggle="tab" onclick="setQueryParam('tab','activities')">Activities</a></li>
 			                    </ul>
 			                </div>
 			                <div class="tab-content">
 			                    <div role="tabpanel" class="tab-pane fade #{param.tab ne 'activities' ? 'active in' : '' }" id="info">
 			                        <div class="whiteBox">
-			                            <h2>#{util:capitalizeWord(msg['label.competence'])} Info</h2>
+			                            <h2>#{msg['label.competence']} Info</h2>
 			                            <div class="formWrapper">
 			                                <h:panelGroup layout="block" rendered="#{not competenceEditBean.createUseCase or competenceEditBean.decodedCredId gt 0}" styleClass="formLine">
 			                                    <label>Parent #{msg['label.credential']}(s)</label>
@@ -221,7 +221,7 @@
 			            <div class="col-md-4">
 			            	<div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.published ? 'display:none' : ''}">
 			                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-								#{util:capitalizeWord(msg['label.competence'])} is now <strong>#{competenceEditBean.competenceData.status}</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
+								#{msg['label.competence']} is now <strong>#{competenceEditBean.competenceData.status}</strong>. In order for changes to be available to others, change status to <strong>Published</strong>.
 			                </div>
 			                
 			                <div id="noteDraft" class="alert alert-warning alert-dismissible" role="alert" style="#{competenceEditBean.competenceData.canUnpublish ? 'display:none' : ''}">

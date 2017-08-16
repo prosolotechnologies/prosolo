@@ -14,7 +14,7 @@
 	
 	<composite:implementation>
 		<utilcomp:messagesBundle var="msg" />
-		<h2>#{util:capitalizeWord(msg['label.competence'])} Progress</h2>
+		<h2>#{msg['label.competence']} Progress</h2>
 
 		<ul class="competenceProgressList">
 			<ui:repeat var="act" value="#{cc.attrs.bean.competenceData.activities}">
