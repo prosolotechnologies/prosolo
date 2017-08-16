@@ -104,8 +104,4 @@
 		</beans:property>
 	</beans:bean>
 
-	<authentication-manager >
-		<authentication-provider user-service-ref="userDetailsService" />
-	</authentication-manager>
-	
 </beans:beans>

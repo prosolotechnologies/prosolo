@@ -16,7 +16,6 @@ import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +31,14 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.saml.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.saml.SAMLAuthenticationProvider;
+import org.springframework.security.saml.SAMLBootstrap;
+import org.springframework.security.saml.SAMLEntryPoint;
+import org.springframework.security.saml.SAMLLogoutFilter;
+import org.springframework.security.saml.SAMLLogoutProcessingFilter;
+import org.springframework.security.saml.SAMLProcessingFilter;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
@@ -76,8 +82,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Inject
 	private UserDetailsService userDetailsService;
-	@Inject
-	private PasswordEncrypter passwordEncrypter;
     @Inject
     private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
@@ -310,7 +314,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
 		DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
 		dao.setUserDetailsService(userDetailsService);
-		dao.setPasswordEncoder(passwordEncrypter);
+		dao.setPasswordEncoder(passwordEncoder());
 		return dao;
 	}
 
@@ -325,11 +329,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	
-	/*@Override
+	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncrypter);
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
-	
+
+	/*
 	@Bean 
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -841,15 +846,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
  
     /**
      * Sets a custom authentication provider.
-     * 
+     *
      * @param   auth SecurityBuilder used to create an AuthenticationManager.
-     * @throws  Exception 
+     * @throws  Exception
      */
 //	    @Override
 //	    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //	        auth
 //	            .authenticationProvider(samlAuthenticationProvider());
-//	    }   
+//	    }
 //
-	
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+
 }
