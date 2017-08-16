@@ -170,9 +170,9 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			}
 			
 			/*
-			 * if student is assigned to instructor and id ofActor former instructor passed is 0, then student
-			 * assigned to instructor event is generated, if id ofActor former instructor is greater than 0,
-			 * student reassigned to instructor event is generated and if instructor is null and id ofActor
+			 * if student is assigned to instructor and id of former instructor passed is 0, then student
+			 * assigned to instructor event is generated, if id of former instructor is greater than 0,
+			 * student reassigned to instructor event is generated and if instructor is null and id of
 			 * former instructor is greater than 0, student unassigned from instructor event is generated
 			 */ 
 			long targetInstructorUserId = 0;
@@ -324,7 +324,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     }
 	
 	/**
-	 * Returns instructor with lowest number ofActor students who has available spots from list ofActor instructors
+	 * Returns instructor with lowest number of students who has available spots from list of instructors
 	 * @param instructors
 	 * @return
 	 */
@@ -691,7 +691,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	}
 
 //	/**
-//	 * Returns instructor with lowest number ofActor students who has available spots from list ofActor instructors
+//	 * Returns instructor with lowest number of students who has available spots from list of instructors
 //	 * @param instructors
 //	 * @return
 //	 */

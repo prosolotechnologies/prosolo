@@ -64,15 +64,16 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForUser(
-			String searchTerm, int page, int limit, long userId, 
+			long organizationId, String searchTerm, int page, int limit, long userId,
 			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
+			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -105,7 +106,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					CredentialSearchConfig.forDelivery(true, true, false, false), userId));
 			
 			String[] includes = {"id"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)
@@ -154,15 +155,17 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForManager(
-			String searchTerm, int page, int limit, long userId, 
+			long organizationId, String searchTerm, int page, int limit, long userId,
 			CredentialSearchFilterManager filter, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
 			start = setStart(page, limit);
 
+			String indexName = ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.CREDENTIAL);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -191,7 +194,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 					CredentialSearchConfig.forOriginal(true), userId));
 			
 			String[] includes = {"id", "title", "archived"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_NODES)
+			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
 					.setTypes(ESIndexTypes.CREDENTIAL)
 					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 					.setQuery(bQueryBuilder)

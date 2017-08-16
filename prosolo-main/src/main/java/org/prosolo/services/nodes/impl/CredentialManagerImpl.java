@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -80,7 +81,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	private UserGroupManager userGroupManager;
 	@Inject
 	private ResourceAccessFactory resourceAccessFactory;
-	//self inject for better control ofActor transaction bondaries
+	//self inject for better control of transaction bondaries
 	@Inject private CredentialManager self;
 	@Inject private UserDataFactory userDataFactory;
 	@Inject private ActivityDataFactory activityDataFactory;
@@ -103,6 +104,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			Credential1 cred = new Credential1();
+			cred.setOrganization((Organization) persistence.currentManager().load(Organization.class,
+					context.getOrganizationId()));
 			cred.setCreatedBy(loadResource(User.class, context.getActorId()));
 			cred.setType(CredentialType.Original);
 			cred.setTitle(data.getTitle());
@@ -320,7 +323,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				return getCredentialData(credentialId, true, true, userId, req);
 			}
 			
-			/* if user is aleardy learning credential, he doesn't need any ofActor the privileges;
+			/* if user is aleardy learning credential, he doesn't need any of the privileges;
 			 * we just need to determine which privileges he has (can he edit or instruct a competence)
 			 */
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
@@ -627,7 +630,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new IllegalDataStateException("Delivery cannot be ended before it starts");
 		}
 
-		//group ofActor attributes that can be changed on delivery and original credential
+		//group of attributes that can be changed on delivery and original credential
 		credToUpdate.setTitle(data.getTitle());
 		credToUpdate.setDescription(data.getDescription());
 		credToUpdate.setCompetenceOrderMandatory(data.isMandatoryFlow());
@@ -640,7 +643,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
     				data.getHashtagsString())));
     	}
 		
-    	//this group ofActor attributes can be changed only for original credential and not for delivery
+    	//this group of attributes can be changed only for original credential and not for delivery
     	if(data.getType() == CredentialType.Original) {
 			credToUpdate.setManuallyAssignStudents(!data.isAutomaticallyAssingStudents());
 			credToUpdate.setDefaultNumberOfStudentsPerInstructor(data.getDefaultNumberOfStudentsPerInstructor());
@@ -648,7 +651,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			List<CompetenceData1> comps = data.getCompetences();
 		    if(comps != null) {
 		    	/*
-				 * List ofActor competence ids so we can call method that will publish all draft
+				 * List of competence ids so we can call method that will publish all draft
 				 * competences
 				 */
 				//List<Long> compIds = new ArrayList<>();
@@ -931,7 +934,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			cc.setOrder(cred.getCompetences().size() + 1);
 			saveEntity(cc);
 			/* 
-			 * If duration ofActor added competence is greater than 0 update credential duration
+			 * If duration of added competence is greater than 0 update credential duration
 			*/
 			//TODO check if this requires select + update and if so, use hql update instead
 			if(comp.getDuration() > 0) {
@@ -1543,7 +1546,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				.executeUpdate();
 		} catch (Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field ofActor a credential " + credId);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
 		}
 	}
 
@@ -1960,7 +1963,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number ofActor users learning credential");
+			throw new DbConnectionException("Error while retrieving number of users learning credential");
 		}
 	}
 	
@@ -2120,7 +2123,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving ids ofActor credential assessors for the particular user");
+			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
 		}
 	}
 
@@ -2542,7 +2545,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void archiveCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			//use hql instead ofActor loading object and setting property to avoid version check
+			//use hql instead of loading object and setting property to avoid version check
 			updateArchivedProperty(credId, true);
 			
 			Credential1 credential = new Credential1();
@@ -2571,7 +2574,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void restoreArchivedCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			//use hql instead ofActor loading object and setting property to avoid version check
+			//use hql instead of loading object and setting property to avoid version check
 			updateArchivedProperty(credId, false);
 			
 			Credential1 credential = new Credential1();
@@ -2617,7 +2620,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			List<Long> ids = getCredentialsIdsWithSpecifiedPrivilegeForUser(userId, priv);
 			
-			//if user doesn't have needed privilege for any ofActor the credentials we return 0
+			//if user doesn't have needed privilege for any of the credentials we return 0
 			if(ids.isEmpty()) {
 				return 0;
 			}
@@ -2659,7 +2662,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while counting number ofActor credentials");
+			throw new DbConnectionException("Error while counting number of credentials");
 		}
 	}
 	
@@ -2675,7 +2678,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			List<Long> ids = getCredentialsIdsWithSpecifiedPrivilegeForUser(userId, UserGroupPrivilege.Edit);
 			
-			//if user doesn't have needed privileges for any ofActor the competences, empty list is returned
+			//if user doesn't have needed privileges for any of the competences, empty list is returned
 			if(ids.isEmpty()) {
 				return new ArrayList<>();
 			}
@@ -3015,7 +3018,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		try {
 			/*
 			deliveries with instruct privilege are retrieved by using instructors added to credential
-			because ofActor the better performance than the approach with checking for Instruct privilege.
+			because of the better performance than the approach with checking for Instruct privilege.
 			That does not change end result because only users that are added to delivery as instructors
 			have Instruct privilege for that delivery. If that assumption changes in the future, this
 			method would not return correct results.

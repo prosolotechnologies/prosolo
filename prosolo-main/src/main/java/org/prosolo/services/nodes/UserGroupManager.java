@@ -73,7 +73,7 @@ public interface UserGroupManager extends AbstractManager {
 	List<CompetenceUserGroup> getCompetenceUserGroups(long groupId) throws DbConnectionException;
 
 	/**
-	 * Returns list ofActor all non default user groups for specified credential
+	 * Returns list of all non default user groups for specified credential
 	 *
 	 * @param credId
 	 * @param privilege
@@ -157,10 +157,10 @@ public interface UserGroupManager extends AbstractManager {
 
 	/**
 	 * This method propagates privilege for user group from a credential to all competencies
-	 * that are part ofActor that credential and all credential deliveries and returns event data
+	 * that are part of that credential and all credential deliveries and returns event data
 	 * for all events that should be generated
 	 *
-	 * @param credUserGroupId - id ofActor a CredentialUserGroup instance
+	 * @param credUserGroupId - id of a CredentialUserGroup instance
 	 * @param context
 	 * @param session
 	 * @return

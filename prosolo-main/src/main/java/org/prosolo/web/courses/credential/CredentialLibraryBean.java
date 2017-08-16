@@ -93,7 +93,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(),
 				searchFilter, sortOption);
 				
 		paginationData.update((int) response.getHitsNumber());

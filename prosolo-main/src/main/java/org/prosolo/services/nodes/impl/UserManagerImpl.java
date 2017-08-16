@@ -435,7 +435,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Error", e);
-				throw new DbConnectionException("Error while deleting competences, credentials and activities ofActor user");
+				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
 			}
 	}
 

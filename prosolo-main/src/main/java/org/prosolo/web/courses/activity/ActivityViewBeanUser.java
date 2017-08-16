@@ -294,7 +294,7 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			try {
 				/*
-				 * if all activities from current competence are completed and id ofActor a credential is passed,
+				 * if all activities from current competence are completed and id of a credential is passed,
 				 * we retrieve the next competence and activity to learn from credential
 				 */
 				//TODO for now we don't want to navigate to another competence so if competence is completed we don't show continue button

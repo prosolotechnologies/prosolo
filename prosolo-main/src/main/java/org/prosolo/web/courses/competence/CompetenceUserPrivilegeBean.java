@@ -51,7 +51,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	private UserGroupPrivilege privilege;
 
-	//id ofActor a role that user should have in order to be considered when adding privileges
+	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
 
 	//private boolean manageSection;

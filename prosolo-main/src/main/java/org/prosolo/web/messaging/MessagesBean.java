@@ -219,12 +219,12 @@ public class MessagesBean implements Serializable {
 		if(!userParticipent.isDeleted()) {
 			List<Message> unreadMessages = messagingManager.getUnreadMessages(threadData.getId(), userParticipent.getLastReadMessage(), userParticipent.getShowMessagesFrom());
 			List<Message> readMessages = new ArrayList<>();
-			//if number ofActor unread messages >= limit, pull 2 already read ones and join them with new ones
+			//if number of unread messages >= limit, pull 2 already read ones and join them with new ones
 			if (unreadMessages.size() >= limit) {
 				readMessages = messagingManager.getMessagesBeforeMessage(threadData.getId(),userParticipent.getLastReadMessage(),2, userParticipent.getShowMessagesFrom());
 			}
 			else {
-				//shift standard pagination for the number ofActor unread messages (first result must be "higher" for that number, last result must be "lower")
+				//shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
 				int startOffset = messages.size();
 				int endOffset = limit - unreadMessages.size();
 				readMessages = messagingManager.getMessagesForThread(threadData.getId(), startOffset, endOffset,userParticipent.getShowMessagesFrom());

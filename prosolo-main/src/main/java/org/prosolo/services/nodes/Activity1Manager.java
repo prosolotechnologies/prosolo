@@ -116,8 +116,8 @@ public interface Activity1Manager extends AbstractManager {
 			 throws DbConnectionException;
 
 	/**
-	 * Updates activity flag to true. Also, progress ofActor a competence that includes
-	 * activity is updated, as well as progress ofActor all target credentials. Also, next activity and competence
+	 * Updates activity flag to true. Also, progress of a competence that includes
+	 * activity is updated, as well as progress of all target credentials. Also, next activity and competence
 	 * to learn are set for user competence and credentials.
 	 * 
 	 * @param targetActId
@@ -191,7 +191,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * activity.
 	 * 
 	 * @param credId - if greater than zero, it will be checked if competence given by {@code compId} 
-	 * is part ofActor a credential with {@code credId} id and if not, {@link ResourceNotFoundException} will be thrown
+	 * is part of a credential with {@code credId} id and if not, {@link ResourceNotFoundException} will be thrown
 	 * @param compId
 	 * @param actId
 	 * @param targetActivityId
@@ -225,7 +225,7 @@ public interface Activity1Manager extends AbstractManager {
 	 * Returns activity response and other activity data for the given target activity id and for the specified user to see it.
 	 * Method checks whether the user should see the target activity data. Target activity data should 
 	 * see only a user who is assessing this user activity (credential
-	 * this activity is a part ofActor) and user that posted a response for this activity if 'studentsCanSeeOtherResponses'
+	 * this activity is a part of) and user that posted a response for this activity if 'studentsCanSeeOtherResponses'
 	 * flag is checked for activity.
 	 * 
 	 * @param targetActId

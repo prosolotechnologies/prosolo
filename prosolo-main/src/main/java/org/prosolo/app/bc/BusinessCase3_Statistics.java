@@ -129,7 +129,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			// ///////////////////////////////
 			Credential1 cred1 = createCredential(org.getId(),
 					"Preparing Statistical Data for Analysis",
-					"This section provides an example ofActor the programming code needed to read "
+					"This section provides an example of the programming code needed to read "
 							+ "in a multilevel data file, to create an incident-level aggregated flat file "
 							+ "for summary-level analysis, and to prepare individual data segments for detailed "
 							+ "analysis. For illustration purposes, a National Incident-Based Reporting System "
@@ -145,11 +145,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred1 = createCompetence(org.getId(),
 						userNickPowell,
 						"Outline Descriptive statistics",
-						"Descriptive statistics is the discipline ofActor quantitatively "
-								+ "describing the main features ofActor a collection ofActor data.Descriptive "
+						"Descriptive statistics is the discipline of quantitatively "
+								+ "describing the main features of a collection of data.Descriptive "
 								+ "statistics are distinguished from inferential statistics (or inductive statistics), "
 								+ "in that descriptive statistics aim to summarize a sample, rather than use the data to "
-								+ "learn about the population that the sample ofActor data is thought to represent.",
+								+ "learn about the population that the sample of data is thought to represent.",
 						cred1.getId(),
 						"descriptive statistics, statistics");
 
@@ -202,9 +202,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						userNickPowell,
 						"Differentiate Parametric Data",
 						"Familiarity with parametric tests and parametric data. "
-								+ "Parametric statistics is a branch ofActor statistics that assumes that "
-								+ "the data has come from a type ofActor probability distribution and makes "
-								+ "inferences about the parameters ofActor the distribution. Most well-known "
+								+ "Parametric statistics is a branch of statistics that assumes that "
+								+ "the data has come from a type of probability distribution and makes "
+								+ "inferences about the parameters of the distribution. Most well-known "
 								+ "elementary statistical methods are parametric.",
 						cred2.getId(),
 						"parametric statistics, statistics");
@@ -229,7 +229,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				createActivity(org.getId(),
 						userNickPowell,
-						"List ofActor probability distributions",
+						"List of probability distributions",
 						comp1cred2.getId(),
 						"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 			} catch (EventException e) {
@@ -246,8 +246,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"Illustrate and Prepare Data",
 						"Knowledge in Using frequency distributions, other graphs and "
 								+ "descriptive statistics to screen our data. Statistical graphs "
-								+ "present data and the results ofActor statistical analysis, assist in "
-								+ "the analysis ofActor data, and occasionally are used to facilitate statistical "
+								+ "present data and the results of statistical analysis, assist in "
+								+ "the analysis of data, and occasionally are used to facilitate statistical "
 								+ "computation. Presentation graphs include the familiar bar graph, pie chart, "
 								+ "line graph, scatterplot, and statistical map. Data analysis employs these graphical "
 								+ "forms as well as others.",
@@ -262,7 +262,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				createActivity(org.getId(),
 						userNickPowell,
-						"Box Plot: Display ofActor Distribution",
+						"Box Plot: Display of Distribution",
 						comp2cred2.getId(),
 						"http://www.physics.csbsju.edu/stats/box2.html");
 
@@ -290,12 +290,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 
 			////////////////////////////////////////////////
-			///CREDENTIAL: 'Understanding ofActor Applications ofActor Learning Analytics in Education'
+			///CREDENTIAL: 'Understanding of Applications of Learning Analytics in Education'
 			////////////////////////////////////////////////
 
 			Credential1 cred3 = createCredential(org.getId(),
-					"Understanding ofActor Applications ofActor Learning Analytics in Education",
-					"This is a credential provides a set ofActor competences for the EdX Data Analytics and Learning MOOC",
+					"Understanding of Applications of Learning Analytics in Education",
+					"This is a credential provides a set of competences for the EdX Data Analytics and Learning MOOC",
 					userNickPowell,
 					"learning analytics, education");
 
@@ -357,8 +357,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			try {
 				comp3cred3 = createCompetence(org.getId(),
 						userNickPowell,
-						"Interpret results ofActor social network analysis",
-						"Interpret detailed meaning ofActor SNA result and importance ofActor the position ofActor actors in social networks for information flow. Discuss implications for educational research and practice. ",
+						"Interpret results of social network analysis",
+						"Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ",
 						cred3.getId(),
 						"social network analysis, sna");
 
@@ -385,7 +385,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Learning Statistical Correlation",
 					"Learn how to identify relationship between two or "
 							+ "more variable and what are the most usually used relationships. "
-							+ "Correlation is a measure ofActor relationship between two mathematical "
+							+ "Correlation is a measure of relationship between two mathematical "
 							+ "variables or measured data values, which includes the Pearson correlation "
 							+ "coefficient as a special case.",
 					userNickPowell,
@@ -400,7 +400,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"Construct Bivariate Correlations",
 						"A statistical test that measures the association or relationship between two "
 								+ "continuous/interval/ordinal level variables. Bivariate correlation is a measure "
-								+ "ofActor the relationship between the two variables; it measures the strength ofActor their "
+								+ "of the relationship between the two variables; it measures the strength of their "
 								+ "relationship, which can range from absolute value 1 to 0. The stronger the relationship, "
 								+ "the closer the value is to 1. The relationship can be positive or negative; in positive "
 								+ "relationship, as one value increases, another value increases with it. In the negative "
@@ -422,9 +422,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				createActivity(org.getId(),
 						userNickPowell,
-						"Coefficient ofActor determination",
+						"Coefficient of determination",
 						comp1cred4.getId(),
-						"http://www.statisticshowto.com/articles/how-to-find-the-coefficient-ofActor-determination/");
+						"http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
 
 				createActivity(org.getId(),
 						userNickPowell,
@@ -436,7 +436,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						userNickPowell,
 						"Kendall tau rank correlation coefficient",
 						comp1cred4.getId(),
-						"http://www.statisticssolutions.com/academic-solutions/resources/directory-ofActor-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
+						"http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
 
 				createActivity(org.getId(),
 						userNickPowell,
@@ -488,14 +488,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			// CREDENTIAL Learning Statistical Correlation
 			///////////////////////////////////////
 			Credential1 cred5 = createCredential(org.getId(),
-					"Exploratory analysis ofActor data",
-					"Exploratory analysis ofActor data makes use ofActor graphical and numerical techniques to "
-							+ "study patterns and departures from patterns. In examining distributions ofActor data, "
+					"Exploratory analysis of data",
+					"Exploratory analysis of data makes use of graphical and numerical techniques to "
+							+ "study patterns and departures from patterns. In examining distributions of data, "
 							+ "students should be able to detect important characteristics, such as shape, location, "
-							+ "variability, and unusual values. From careful observations ofActor patterns in data, "
-							+ "students can generate conjectures about relationships among variables. The notion ofActor "
-							+ "how one variable may be associated with another permeates almost all ofActor statistics, from "
-							+ "simple comparisons ofActor proportions through linear regression. The difference between "
+							+ "variability, and unusual values. From careful observations of patterns in data, "
+							+ "students can generate conjectures about relationships among variables. The notion of "
+							+ "how one variable may be associated with another permeates almost all of statistics, from "
+							+ "simple comparisons of proportions through linear regression. The difference between "
 							+ "association and causation must accompany this conceptual development throughout.",
 					userNickPowell,
 					"data, statistics, exploring data");
@@ -535,10 +535,10 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Credential1 cred6 = createCredential(org.getId(),
 					"Statistics 2 – Inference and Association",
 					"This course, the second in a three-course sequence, "
-							+ "provides an easy introduction to inference and association through a series ofActor practical applications, "
+							+ "provides an easy introduction to inference and association through a series of practical applications, "
 							+ "based on the resampling/simulation approach. Once you have completed this course you will be able to "
 							+ "test hypotheses and compute confidence intervals regarding proportions or means, computer correlations and "
-							+ "fit simple linear regressions.  Topics covered also include chi-square goodness-ofActor-fit and paired comparisons.",
+							+ "fit simple linear regressions.  Topics covered also include chi-square goodness-of-fit and paired comparisons.",
 					userNickPowell,
 					"inference, statistics, association");
 
@@ -547,13 +547,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred6 = createCompetence(org.getId(),
 						userNickPowell,
 						"Analyse statistical data",
-						"The process ofActor evaluating data using analytical and logical "
-								+ "reasoning to examine each component ofActor the data provided. "
-								+ "This form ofActor analysis is just one ofActor the many steps that must "
+						"The process of evaluating data using analytical and logical "
+								+ "reasoning to examine each component of the data provided. "
+								+ "This form of analysis is just one of the many steps that must "
 								+ "be completed when conducting a research experiment. Data from "
 								+ "various sources is gathered, reviewed, and then analyzed to form "
-								+ "some sort ofActor finding or conclusion. There are a variety ofActor specific "
-								+ "data analysis method, some ofActor which include data mining, text analytics, "
+								+ "some sort of finding or conclusion. There are a variety of specific "
+								+ "data analysis method, some of which include data mining, text analytics, "
 								+ "business intelligence, and data visualizations.",
 						cred6.getId(),
 						"statistics, data, analysis");
@@ -579,7 +579,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					"Spatial Analysis Techniques in R taught by Dave Unwin",
 					"This course will teach users how to implement spatial statistical "
 							+ "analysis procedures using R software. Topics covered include point pattern analysis, "
-							+ "identifying clusters, measures ofActor spatial association, geographically weighted regression "
+							+ "identifying clusters, measures of spatial association, geographically weighted regression "
 							+ "and surface procession.",
 					userNickPowell,
 					"r, statistics, spatial analysis");
@@ -589,13 +589,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred7 = createCompetence(org.getId(),
 						userNickPowell,
 						"Analyse statistical data",
-						"The process ofActor evaluating data using analytical and logical "
-								+ "reasoning to examine each component ofActor the data provided. "
-								+ "This form ofActor analysis is just one ofActor the many steps that must "
+						"The process of evaluating data using analytical and logical "
+								+ "reasoning to examine each component of the data provided. "
+								+ "This form of analysis is just one of the many steps that must "
 								+ "be completed when conducting a research experiment. Data from "
 								+ "various sources is gathered, reviewed, and then analyzed to form "
-								+ "some sort ofActor finding or conclusion. There are a variety ofActor specific "
-								+ "data analysis method, some ofActor which include data mining, text analytics, "
+								+ "some sort of finding or conclusion. There are a variety of specific "
+								+ "data analysis method, some of which include data mining, text analytics, "
 								+ "business intelligence, and data visualizations.",
 						cred7.getId(),
 						"data analysis, data, statistics");
@@ -619,8 +619,8 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			Credential1 cred8 = createCredential(org.getId(),
 					"Learning Parametric statistics",
-					"Parametric statistics is a branch ofActor statistics that assumes that the data has come from a type ofActor "
-							+ "probability distribution and makes inferences about the parameters ofActor the distribution. Most "
+					"Parametric statistics is a branch of statistics that assumes that the data has come from a type of "
+							+ "probability distribution and makes inferences about the parameters of the distribution. Most "
 							+ "well-known elementary statistical methods are parametric",
 					userNickPowell,
 					"statistics, parametric statistics");
@@ -630,11 +630,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred8 = createCompetence(org.getId(),
 						userNickPowell,
 						"Parametric and Non-parametric statistics",
-						"In the literal meaning ofActor the terms, a parametric statistical test is one that makes assumptions about the "
-								+ "parameters (defining properties) ofActor the population distribution(s) from which one's data are drawn, while "
+						"In the literal meaning of the terms, a parametric statistical test is one that makes assumptions about the "
+								+ "parameters (defining properties) of the population distribution(s) from which one's data are drawn, while "
 								+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 								+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
-								+ "properties ofActor the source population(s).",
+								+ "properties of the source population(s).",
 						cred8.getId(),
 						"parametric statistics, non-parametric statistics, statistics");
 
@@ -663,7 +663,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			Credential1 cred9 = createCredential(org.getId(),
 					"Preparing Data for Analysis",
-					"This section provides an example ofActor the programming code needed to read "
+					"This section provides an example of the programming code needed to read "
 							+ "in a multilevel data file, to create an incident-level aggregated flat file "
 							+ "for summary-level analysis, and to prepare individual data segments for detailed "
 							+ "analysis. For illustration purposes, a National Incident-Based Reporting System "
@@ -678,11 +678,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred9 = createCompetence(org.getId(),
 						userNickPowell,
 						"Data Preparation",
-						"In the literal meaning ofActor the terms, a parametric statistical test is one that makes assumptions about the "
-								+ "parameters (defining properties) ofActor the population distribution(s) from which one's data are drawn, while "
+						"In the literal meaning of the terms, a parametric statistical test is one that makes assumptions about the "
+								+ "parameters (defining properties) of the population distribution(s) from which one's data are drawn, while "
 								+ "a non-parametric test is one that makes no such assumptions. In this strict sense, \"non-parametric\" is "
 								+ "essentially a null category, since virtually all statistical tests assume one thing or another about the "
-								+ "properties ofActor the source population(s).",
+								+ "properties of the source population(s).",
 						cred9.getId(),
 						"data preparation, data, statistics");
 
@@ -718,14 +718,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			Credential1 cred10 = createCredential(org.getId(),
 					"Drawing conclusions from data",
-					"How well do measurements ofActor mercury concentrations in ten "
-							+ "cans ofActor tuna reflect the composition ofActor the factory's entire output? "
-							+ "Why can't you just use the average ofActor these measurements? "
-							+ "How much better would the results ofActor 100 such tests be? This "
+					"How well do measurements of mercury concentrations in ten "
+							+ "cans of tuna reflect the composition of the factory's entire output? "
+							+ "Why can't you just use the average of these measurements? "
+							+ "How much better would the results of 100 such tests be? This "
 							+ "final lesson on measurement will examine these questions and introduce "
-							+ "you to some ofActor the methods ofActor dealing with data. This stuff is important "
+							+ "you to some of the methods of dealing with data. This stuff is important "
 							+ "not only for scientists, but also for any intelligent citizen who wishes "
-							+ "to independenly evaluate the flood ofActor numbers served up by advertisers, "
+							+ "to independenly evaluate the flood of numbers served up by advertisers, "
 							+ "politicians,  experts , and yes— by other scientists.",
 					userNickPowell,
 					"statistics, data analysis, data");
@@ -735,9 +735,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				comp1cred10 = createCompetence(org.getId(),
 						userNickPowell,
 						"Data Analysis",
-						"Analysis ofActor data is a process ofActor inspecting, cleaning, transforming, and modeling data with the goal ofActor "
+						"Analysis of data is a process of inspecting, cleaning, transforming, and modeling data with the goal of "
 								+ "discovering useful information, suggesting conclusions, and supporting decision-making. Data analysis "
-								+ "has multiple facets and approaches, encompassing diverse techniques under a variety ofActor names, in"
+								+ "has multiple facets and approaches, encompassing diverse techniques under a variety of names, in"
 								+ " different business, science, and social science domains.",
 						cred10.getId(),
 						"data analysis, data, statistics");
@@ -750,7 +750,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				createActivity(org.getId(),
 						userNickPowell,
-						"Understanding the units ofActor scientific measurement",
+						"Understanding the units of scientific measurement",
 						comp1cred10.getId(),
 						"http://www.chem1.com/acad/webtext/matmeasure/mm1.html");
 
@@ -767,14 +767,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			Credential1 cred11 = createCredential(org.getId(),
 					"Understanding Descriptive Statistics",
-					"How well do measurements ofActor mercury concentrations in ten "
-							+ "cans ofActor tuna reflect the composition ofActor the factory's entire output? "
-							+ "Why can't you just use the average ofActor these measurements? "
-							+ "How much better would the results ofActor 100 such tests be? This "
+					"How well do measurements of mercury concentrations in ten "
+							+ "cans of tuna reflect the composition of the factory's entire output? "
+							+ "Why can't you just use the average of these measurements? "
+							+ "How much better would the results of 100 such tests be? This "
 							+ "final lesson on measurement will examine these questions and introduce "
-							+ "you to some ofActor the methods ofActor dealing with data. This stuff is important "
+							+ "you to some of the methods of dealing with data. This stuff is important "
 							+ "not only for scientists, but also for any intelligent citizen who wishes "
-							+ "to independenly evaluate the flood ofActor numbers served up by advertisers, "
+							+ "to independenly evaluate the flood of numbers served up by advertisers, "
 							+ "politicians,  experts , and yes— by other scientists.",
 					userNickPowell,
 					"Teaching Prediction Intervals");
@@ -800,7 +800,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 //				.getService(CredentialManager.class);
 //		
 //		RestrictedAccessResult<CredentialData> res = credentialManager.getCredentialData(cred.getId(), false, 
-//				true, creator.getId(), ResourceAccessRequirements.ofActor(AccessMode.MANAGER));
+//				true, creator.getId(), ResourceAccessRequirements.of(AccessMode.MANAGER));
 //		CredentialData credentialData = res.getResource();
 //		if(credentialData != null) {
 //			//credentialData.setPublished(true);

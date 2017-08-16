@@ -121,7 +121,7 @@ public interface Competence1Manager {
 					throws DbConnectionException;
 	
 	/**
-	 * Returns list ofActor credential competencies (together with competencies data loaded) for credential with {@code credentialId} id.
+	 * Returns list of credential competencies (together with competencies data loaded) for credential with {@code credentialId} id.
 	 * 
 	 * @param credentialId
 	 * @param loadCreator
@@ -155,7 +155,7 @@ public interface Competence1Manager {
 	 * Call this method when you want to add activity to competence.
 	 * 
 	 * DB Locks:
-	 * This method uses exclusive lock on a competence1 record with id {@code compId} for the duration ofActor a transaction.
+	 * This method uses exclusive lock on a competence1 record with id {@code compId} for the duration of a transaction.
 	 * 
 	 * Returns data for event that should be generated after transaction is commited.
 	 * 
@@ -170,8 +170,8 @@ public interface Competence1Manager {
 
 	/**
 	 * Duration for competences with activity specified by {@code actId} are updated by adding/subtracting {@code duration} value.
-	 * One or two competences will be updated - draft and/or original version ofActor one competence actually.
-	 * If original version ofActor competence is updated, duration for all credentials that include
+	 * One or two competences will be updated - draft and/or original version of one competence actually.
+	 * If original version of competence is updated, duration for all credentials that include
 	 * this competence is also updated.
 	 * @param actId
 	 * @param duration
@@ -198,7 +198,7 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 	
 //	/**
-//	 * Returns current version ofActor competence for edit if edit mode - draft version if exists
+//	 * Returns current version of competence for edit if edit mode - draft version if exists
 //	 * but only if competence is university based, otherwise null is returned.
 //	 * If view mode, again draft version is returned if exists and competence is university based, 
 //	 * otherwise published version is returned.
@@ -294,7 +294,7 @@ public interface Competence1Manager {
 	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
 	
 	/**
-	 * Returns number ofActor competences for which user specified with {@code userId} has privilege specified by {@code priv}
+	 * Returns number of competences for which user specified with {@code userId} has privilege specified by {@code priv}
 	 * @param searchFilter
 	 * @param userId
 	 * @param priv

@@ -84,8 +84,8 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				for(CredentialUserGroup g : credGroups) {
 					/*
 					 * if user is removed, we can't just remove that user from index because user is maybe 
-					 * a member ofActor some other groups that have a specific privilege in a credential in which case
-					 * user should not be removed from index at all. Because ofActor that, a whole collection ofActor users with
+					 * a member of some other groups that have a specific privilege in a credential in which case
+					 * user should not be removed from index at all. Because of that, a whole collection of users with
 					 * privileges is reindexed.
 					 */
 					credESService.updateCredentialUsersWithPrivileges(event.getOrganizationId(),
@@ -106,8 +106,8 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 				for(CompetenceUserGroup g : compGroups) {
 					/*
 					 * if user is removed, we can't just remove that user from index because user is maybe 
-					 * a member ofActor some other groups that have a specific privilege in a competence in which case
-					 * user should not be removed from index at all. Because ofActor that, a whole collection ofActor users with
+					 * a member of some other groups that have a specific privilege in a competence in which case
+					 * user should not be removed from index at all. Because of that, a whole collection of users with
 					 * privileges is reindexed.
 					 */
 					compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
@@ -115,7 +115,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			}
 		} else if (type == EventType.USER_GROUP_CHANGE) {
 			/*
-			 * user group changed - users added and/or removed so collection ofActor users with privileges should be updated
+			 * user group changed - users added and/or removed so collection of users with privileges should be updated
 			 * for all credentials and competences containing that group
 			 */
 			long groupId = event.getObject().getId();

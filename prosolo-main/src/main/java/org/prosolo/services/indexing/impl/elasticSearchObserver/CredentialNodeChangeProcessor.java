@@ -26,7 +26,7 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	
 	@Override
 	public void process() {
-		Credential1 cred = (Credential1) event.getObject();
+		Credential1 cred = (Credential1) session.load(Credential1.class, event.getObject().getId());
 		if (operation == NodeOperation.Update) {
 			if (event.getAction() == EventType.OWNER_CHANGE) {
 				Map<String, String> params = event.getParameters();
@@ -38,10 +38,10 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 			} else if (event.getAction() == EventType.VISIBLE_TO_ALL_CHANGED) {
 				credentialESService.updateVisibleToAll(event.getOrganizationId(), cred.getId(), cred.isVisibleToAll());
 			} else {
-				credentialESService.updateCredentialNode(event.getOrganizationId(), cred, session);
+				credentialESService.updateCredentialNode(cred, session);
 			}
 		} else if (operation == NodeOperation.Save) {
-			credentialESService.saveCredentialNode(event.getOrganizationId(), cred, session);
+			credentialESService.saveCredentialNode(cred, session);
 		} else if (operation == NodeOperation.Delete) {
 			credentialESService.deleteNodeFromES(cred);
 		} else if (operation == NodeOperation.Archive) {

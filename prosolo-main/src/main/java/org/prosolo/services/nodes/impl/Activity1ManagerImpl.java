@@ -462,7 +462,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Checks if competence specified with {@code compId} id is part ofActor a credential with {@code credId} id
+	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
 	 * and if not throws {@link ResourceNotFoundException}.
 	 * 
 	 * @param credId
@@ -944,7 +944,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						userId, req);
 			}
 				
-			/* if user is aleardy learning activity, he doesn't need any ofActor the privileges;
+			/* if user is aleardy learning activity, he doesn't need any of the privileges;
 			 * we just need to determine which privileges he has (can he edit or instruct an activity)
 			 */
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
@@ -980,7 +980,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			if (activityWithDetails != null) {
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
-				//compId is id ofActor a competence and activityWithDetails.getCompetenceId() is id ofActor a target competence
+				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
 				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
 				compData.setActivities(activities);
 				return compData;
@@ -994,7 +994,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Returns full target activity data when id ofActor a target activity is not known.
+	 * Returns full target activity data when id of a target activity is not known.
 	 * @param credId
 	 * @param compId
 	 * @param actId
@@ -1009,7 +1009,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throws DbConnectionException, ResourceNotFoundException {
 		try {	
 			/*
-			 * check if competence is part ofActor a credential
+			 * check if competence is part of a credential
 			 */
 			checkIfCompetenceIsPartOfACredential(credId, compId);
 			
@@ -1182,7 +1182,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 				
 				compData = new CompetenceData1(false);
 				compData.setActivityToShowWithDetails(activityWithDetails);
-				//compId is id ofActor a competence and activityWithDetails.getCompetenceId() is id ofActor a target competence
+				//compId is id of a competence and activityWithDetails.getCompetenceId() is id of a target competence
 				List<ActivityData> activities = getTargetActivitiesData(activityWithDetails.getCompetenceId());
 				compData.setActivities(activities);
 				return compData;
@@ -1270,7 +1270,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number ofActor students results");
+			throw new DbConnectionException("Error while retrieving number of students results");
 		}
 	}
 
@@ -1819,7 +1819,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //	}
 
 	/**
-	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate ofActor the given original.
+	 * Creates a new {@link CompetenceActivity1} instance that is a duplicate of the given original.
 	 * 
 	 * @param original
 	 * @return newly created {@link CompetenceActivity1} instance
@@ -1851,7 +1851,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	/**
-	 * Creates a new {@link Activity1} instance that is a clone ofActor the given instance.
+	 * Creates a new {@link Activity1} instance that is a clone of the given instance.
 	 * 
 	 * @param original the original activity to be cloned
 	 * @param context
@@ -1977,7 +1977,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}catch(Exception e){
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating creator ofActor activities");
+			throw new DbConnectionException("Error while updating creator of activities");
 		}
 	}
 

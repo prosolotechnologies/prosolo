@@ -78,7 +78,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	private String instructorSearchTerm;
 	private List<UserData> unassignedInstructors;
 	private long instructorRoleId;
-	//list ofActor ids ofActor instructors that are already assigned to this credential
+	//list of ids of instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
 	
 	private ResourceAccessData access;

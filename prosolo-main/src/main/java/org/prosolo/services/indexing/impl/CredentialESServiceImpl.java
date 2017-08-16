@@ -47,116 +47,118 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void saveCredentialNode(long organizationId, Credential1 cred, Session session) {
+	public void saveCredentialNode(Credential1 cred, Session session) {
 	 	try {
-			XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-			builder.field("id", cred.getId());
+	 		if (cred.getOrganization() != null) {
+				XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+				builder.field("id", cred.getId());
 
-			builder.startArray("units");
-			List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(cred.getId(), session);
-			for (long id : units) {
-				builder.startObject();
-				builder.field("id", id);
-				builder.endObject();
-			}
-			builder.endArray();
-
-			builder.field("archived", cred.isArchived());
-			builder.field("title", cred.getTitle());
-			builder.field("description", cred.getDescription());
-			Date date = cred.getDateCreated();
-			if (date != null) {
-				builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
-			}
-			if (cred.getDeliveryStart() != null) {
-				builder.field("deliveryStart", ElasticsearchUtil.getDateStringRepresentation(
-						cred.getDeliveryStart()));
-			}
-			if (cred.getDeliveryEnd() != null) {
-				builder.field("deliveryEnd", ElasticsearchUtil.getDateStringRepresentation(
-						cred.getDeliveryEnd()));
-			}
-			
-			builder.startArray("tags");
-			List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);
-			for(Tag tag : tags){
-				builder.startObject();
- 				builder.field("title", tag.getTitle());
- 				builder.endObject();
-			}
-			builder.endArray();
-			
-			builder.startArray("hashtags");
-			List<Tag> hashtags = credentialManager.getCredentialHashtags(cred.getId(), session);
-			for(Tag hashtag : hashtags){
-				builder.startObject();
- 				builder.field("title", hashtag.getTitle());
- 				builder.endObject();
-			}
-			builder.endArray();
-			
-			builder.field("creatorId", cred.getCreatedBy().getId());
-			builder.field("type", cred.getType());
-			builder.field("visibleToAll", cred.isVisibleToAll());
-			
-			builder.startArray("bookmarkedBy");
-			List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
-					cred.getId(), session);
-			for(CredentialBookmark cb : bookmarks) {
-				builder.startObject();
-				builder.field("id", cb.getUser().getId());
-				builder.endObject();
-			}
-			builder.endArray();
-			List<Long> instructorsUserIds = credInstructorManager
-					.getCredentialInstructorsUserIds(cred.getId());
-			builder.startArray("instructors");
-			for(Long id : instructorsUserIds) {
-				builder.startObject();
-				builder.field("id", id);
-				builder.endObject();
-			}
-			builder.endArray();
-			List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
-					cred.getId());
-			List<CredentialUserGroup> editGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
-			List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
-					g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
-			builder.startArray("usersWithEditPrivilege");
-			for(CredentialUserGroup g : editGroups) {
-				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+				builder.startArray("units");
+				List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(cred.getId(), session);
+				for (long id : units) {
 					builder.startObject();
-					builder.field("id", user.getUser().getId());
+					builder.field("id", id);
 					builder.endObject();
 				}
-			}
-			builder.endArray();
-			builder.startArray("usersWithViewPrivilege");
-			for(CredentialUserGroup g : viewGroups) {
-				for(UserGroupUser user : g.getUserGroup().getUsers()) {
+				builder.endArray();
+
+				builder.field("archived", cred.isArchived());
+				builder.field("title", cred.getTitle());
+				builder.field("description", cred.getDescription());
+				Date date = cred.getDateCreated();
+				if (date != null) {
+					builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(date));
+				}
+				if (cred.getDeliveryStart() != null) {
+					builder.field("deliveryStart", ElasticsearchUtil.getDateStringRepresentation(
+							cred.getDeliveryStart()));
+				}
+				if (cred.getDeliveryEnd() != null) {
+					builder.field("deliveryEnd", ElasticsearchUtil.getDateStringRepresentation(
+							cred.getDeliveryEnd()));
+				}
+
+				builder.startArray("tags");
+				List<Tag> tags = credentialManager.getCredentialTags(cred.getId(), session);
+				for (Tag tag : tags) {
 					builder.startObject();
-					builder.field("id", user.getUser().getId());
+					builder.field("title", tag.getTitle());
 					builder.endObject();
 				}
-			}
-			builder.endArray();
-			List<TargetCredential1> targetCreds = credentialManager.getTargetCredentialsForCredential(
-					cred.getId(), false);
-			builder.startArray("students");
-			for(TargetCredential1 tc : targetCreds) {
-				builder.startObject();
-				builder.field("id", tc.getUser().getId());
+				builder.endArray();
+
+				builder.startArray("hashtags");
+				List<Tag> hashtags = credentialManager.getCredentialHashtags(cred.getId(), session);
+				for (Tag hashtag : hashtags) {
+					builder.startObject();
+					builder.field("title", hashtag.getTitle());
+					builder.endObject();
+				}
+				builder.endArray();
+
+				builder.field("creatorId", cred.getCreatedBy().getId());
+				builder.field("type", cred.getType());
+				builder.field("visibleToAll", cred.isVisibleToAll());
+
+				builder.startArray("bookmarkedBy");
+				List<CredentialBookmark> bookmarks = credentialManager.getBookmarkedByIds(
+						cred.getId(), session);
+				for (CredentialBookmark cb : bookmarks) {
+					builder.startObject();
+					builder.field("id", cb.getUser().getId());
+					builder.endObject();
+				}
+				builder.endArray();
+				List<Long> instructorsUserIds = credInstructorManager
+						.getCredentialInstructorsUserIds(cred.getId());
+				builder.startArray("instructors");
+				for (Long id : instructorsUserIds) {
+					builder.startObject();
+					builder.field("id", id);
+					builder.endObject();
+				}
+				builder.endArray();
+				List<CredentialUserGroup> credGroups = userGroupManager.getAllCredentialUserGroups(
+						cred.getId());
+				List<CredentialUserGroup> editGroups = credGroups.stream().filter(
+						g -> g.getPrivilege() == UserGroupPrivilege.Edit).collect(Collectors.toList());
+				List<CredentialUserGroup> viewGroups = credGroups.stream().filter(
+						g -> g.getPrivilege() == UserGroupPrivilege.Learn).collect(Collectors.toList());
+				builder.startArray("usersWithEditPrivilege");
+				for (CredentialUserGroup g : editGroups) {
+					for (UserGroupUser user : g.getUserGroup().getUsers()) {
+						builder.startObject();
+						builder.field("id", user.getUser().getId());
+						builder.endObject();
+					}
+				}
+				builder.endArray();
+				builder.startArray("usersWithViewPrivilege");
+				for (CredentialUserGroup g : viewGroups) {
+					for (UserGroupUser user : g.getUserGroup().getUsers()) {
+						builder.startObject();
+						builder.field("id", user.getUser().getId());
+						builder.endObject();
+					}
+				}
+				builder.endArray();
+				List<TargetCredential1> targetCreds = credentialManager.getTargetCredentialsForCredential(
+						cred.getId(), false);
+				builder.startArray("students");
+				for (TargetCredential1 tc : targetCreds) {
+					builder.startObject();
+					builder.field("id", tc.getUser().getId());
+					builder.endObject();
+				}
+				builder.endArray();
 				builder.endObject();
+				System.out.println("JSON: " + builder.prettyPrint().string());
+				String indexType = ESIndexTypes.CREDENTIAL;
+				indexNode(
+						builder, String.valueOf(cred.getId()),
+						ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(
+								cred.getOrganization().getId()), indexType);
 			}
-			builder.endArray();
-			builder.endObject();
-			System.out.println("JSON: " + builder.prettyPrint().string());
-			String indexType = ESIndexTypes.CREDENTIAL;
-			indexNode(
-					builder, String.valueOf(cred.getId()),
-					ESIndexNames.INDEX_NODES + ElasticsearchUtil.getOrganizationIndexSuffix(organizationId),
-					indexType);
 		} catch (IOException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -165,8 +167,8 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	
 	@Override
 	@Transactional
-	public void updateCredentialNode(long organizationId, Credential1 cred, Session session) {
-		saveCredentialNode(organizationId, cred, session);
+	public void updateCredentialNode(Credential1 cred, Session session) {
+		saveCredentialNode(cred, session);
 	}
 	
 //	@Override
@@ -245,7 +247,7 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 	@Override
 	public void addUserToCredentialIndex(long organizationId, long credId, long userId,
 										 UserGroupPrivilege privilege) {
-		//temporarely while collection ofActor users with instruct privilege is not introduced
+		//temporarely while collection of users with instruct privilege is not introduced
 		if (privilege != UserGroupPrivilege.Instruct) {
 			String field = privilege == UserGroupPrivilege.Edit ? "usersWithEditPrivilege" : "usersWithViewPrivilege";
 			String script = "if (ctx._source[\"" + field + "\"] == null) { " +

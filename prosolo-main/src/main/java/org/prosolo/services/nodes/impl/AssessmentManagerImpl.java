@@ -1044,7 +1044,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				score, session, context, true);
 	}
 
-	//retry option means that in case ofActor constraint violation, method will be recursively called once more
+	//retry option means that in case of constraint violation, method will be recursively called once more
 	private Result<Void> updateActivityGradeInAllAssessmentsAndGetEvents(long userId, long senderId,
 																		long compId, long targetCompId, long targetActId, int score,
 																		Session session, UserContextData context, boolean retry)
@@ -1221,7 +1221,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			List<Long> credentials = activityManager.getIdsOfCredentialsWithActivity(activityId,
 					CredentialType.Delivery);
-			//if activity is not a part ofActor at least one credential, there can't be an assessment for this activity
+			//if activity is not a part of at least one credential, there can't be an assessment for this activity
 			if (credentials.isEmpty()) {
 				return false;
 			}

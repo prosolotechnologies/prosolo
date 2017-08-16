@@ -267,7 +267,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 //			int max = Integer.parseInt(value.toString());
 //			boolean exceeded = isLimitExceeded(max);
 //			if(exceeded) {
-//				msg = "You have exceeded limit for maximum number ofActor students that can be assigned";
+//				msg = "You have exceeded limit for maximum number of students that can be assigned";
 //			}
 //		} catch (NumberFormatException nfe){
 //			msg = "Only numbers allowed";
@@ -287,7 +287,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 //		
 //		if(currentNumberOfAssigned > maxNumberOfStudents) {
 //			throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-//					"You have exceeded limit for maximum number ofActor students that can be assigned", null));
+//					"You have exceeded limit for maximum number of students that can be assigned", null));
 //		}	
 //	}
 	

@@ -153,7 +153,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving number ofActor groups");
+			throw new DbConnectionException("Error while retrieving number of groups");
 		}
 	}
 	
@@ -368,7 +368,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving number ofActor users in a group");
+    		throw new DbConnectionException("Error while retrieving number of users in a group");
     	}
     }
 
@@ -953,7 +953,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			session.flush();
 		} catch (ConstraintViolationException e) {
 			//it means that user is already added to that group and that is ok, it should not be considered as en error
-			logger.info("User with id: " + userId + " not added to group because he is already part ofActor the group");
+			logger.info("User with id: " + userId + " not added to group because he is already part of the group");
 		}
 	}
 

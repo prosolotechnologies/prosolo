@@ -341,7 +341,7 @@ public class ActivityEditBean implements Serializable {
 		
 		if (saved && isNew) {
 			/*
-			 * this will not work if there are multiple levels ofActor directories in current view path
+			 * this will not work if there are multiple levels of directories in current view path
 			 * example: /credentials/create-credential will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
@@ -408,7 +408,7 @@ public class ActivityEditBean implements Serializable {
 				//activityData = new ActivityData(false);
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 				/*
-				 * this will not work if there are multiple levels ofActor directories in current view path
+				 * this will not work if there are multiple levels of directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */

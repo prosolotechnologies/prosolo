@@ -99,7 +99,7 @@ public class DigestBean implements Serializable{
 //			try {
 //				filter = FilterOption.valueOf(criteria.getFilter());
 //			}  catch (IllegalArgumentException e) {
-//				logger.debug("Could not convert " + criteria.getFilter() + " to a filed ofActor enum FilterOption.");
+//				logger.debug("Could not convert " + criteria.getFilter() + " to a filed of enum FilterOption.");
 //			}
 //		}
 //		

@@ -13,6 +13,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
@@ -102,6 +103,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			Result<Competence1> result = new Result<>();
 			Competence1 comp = new Competence1();
+			comp.setOrganization((Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId()));
 			comp.setTitle(data.getTitle());
 			comp.setDateCreated(new Date());
 			comp.setDescription(data.getDescription());
@@ -841,7 +843,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			saveEntity(ca);
 
 			/* 
-			 * If duration ofActor added activity is greater than 0 update competence duration
+			 * If duration of added activity is greater than 0 update competence duration
 			*/
 			if(act.getDuration() > 0) {
 				comp.setDuration(comp.getDuration() + act.getDuration());
@@ -1000,7 +1002,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						req, false);
 			}
 				
-			/* if user is aleardy learning competence, he doesn't need any ofActor the privileges;
+			/* if user is aleardy learning competence, he doesn't need any of the privileges;
 			 * we just need to determine which privileges he has (can he edit or instruct a competence)
 			 */
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.USER);
@@ -1018,7 +1020,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	/**
-	 * Returns full target competence data when id ofActor a target competence is not
+	 * Returns full target competence data when id of a target competence is not
 	 * known.
 	 * 
 	 * @param credId
@@ -1638,7 +1640,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while counting number ofActor users learning competence");
+			throw new DbConnectionException("Error while counting number of users learning competence");
 		}
 	}
 	
@@ -1647,7 +1649,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void archiveCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			//use hql instead ofActor loading object and setting property to avoid version check
+			//use hql instead of loading object and setting property to avoid version check
 			updateArchivedProperty(compId, true);
 			
 			Competence1 competence = new Competence1();
@@ -1684,7 +1686,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			List<Long> ids = getCompetencesIdsWithSpecifiedPrivilegeForUser(userId, priv);
 			
-			//if user doesn't have needed privilege for any ofActor the competences we return 0
+			//if user doesn't have needed privilege for any of the competences we return 0
 			if(ids.isEmpty()) {
 				return 0;
 			}
@@ -1746,7 +1748,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while counting number ofActor competences");
+			throw new DbConnectionException("Error while counting number of competences");
 		}
 	}
 	
@@ -1762,7 +1764,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			List<Long> ids = getCompetencesIdsWithSpecifiedPrivilegeForUser(userId, UserGroupPrivilege.Edit);
 			
-			//if user doesn't have needed privileges for any ofActor the competences, empty list is returned
+			//if user doesn't have needed privileges for any of the competences, empty list is returned
 			if(ids.isEmpty()) {
 				return new ArrayList<>();
 			}
@@ -1910,7 +1912,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void restoreArchivedCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			//use hql instead ofActor loading object and setting property to avoid version check
+			//use hql instead of loading object and setting property to avoid version check
 			updateArchivedProperty(compId, false);
 			
 			Competence1 competence = new Competence1();
@@ -2241,7 +2243,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating creator ofActor competences");
+			throw new DbConnectionException("Error while updating creator of competences");
 		}
 	}
 	
@@ -2281,7 +2283,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				.executeUpdate();
 		} catch (Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field ofActor a competence " + compId);
+			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
 		}
 	}
 	

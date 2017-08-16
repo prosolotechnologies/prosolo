@@ -145,7 +145,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     /**
-     * Returns list ofActor root units with child units (and their child units) mapped.
+     * Returns list of root units with child units (and their child units) mapped.
      *
      * @param units
      * @return
@@ -310,7 +310,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setLong("roleId", roleId)
                     .executeUpdate();
 
-            logger.info("Number ofActor deleted users in a unit in a role: " + affected);
+            logger.info("Number of deleted users in a unit in a role: " + affected);
 
             User user = new User(userId);
             Unit unit = new Unit();
@@ -692,7 +692,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .setLong("credId", credId)
                     .executeUpdate();
 
-            logger.info("Number ofActor removed credentials in a unit: " + affected);
+            logger.info("Number of removed credentials in a unit: " + affected);
 
             if (affected > 0) {
                 Credential1 cr = new Credential1();

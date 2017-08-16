@@ -6,16 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -23,6 +14,7 @@ import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.CompetenceUnit;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 
 /**
@@ -39,6 +31,7 @@ public class Competence1 extends BaseEntity {
 	
 	//version field that is used for optimistic locking purposes
 	private long version;
+	private Organization organization;
 	private User createdBy;
 	private long duration;
 	private List<CompetenceActivity1> activities;
@@ -214,5 +207,13 @@ public class Competence1 extends BaseEntity {
 		this.competenceUnits = competenceUnits;
 	}
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(nullable = false)
+	public Organization getOrganization() {
+		return organization;
+	}
 
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 }

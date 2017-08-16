@@ -111,7 +111,7 @@ public interface CredentialManager extends AbstractManager {
 	
 	/**
 	 * Returns basic credential data with info whether credential is bookmarked by user or not, but only
-	 * if credential is ofActor type given by {@code type} parameter. Otherwise, null is returned.
+	 * if credential is of type given by {@code type} parameter. Otherwise, null is returned.
 	 * 
 	 * @param credentialId
 	 * @param userId
@@ -125,9 +125,9 @@ public interface CredentialManager extends AbstractManager {
 //	/** Returns credential data for edit. If there is a draft version for a credential
 //	 *  that version data will be returned
 //	 *  
-//	 *  @param credentialId id ofActor a credential
-//	 *  @param creatorId id ofActor a user that will get credential data so
-//	 *  we can check if he is a creator ofActor a credential and he can
+//	 *  @param credentialId id of a credential
+//	 *  @param creatorId id of a user that will get credential data so
+//	 *  we can check if he is a creator of a credential and he can
 //	 *  edit it
 //	 *  @param loadCompetences if true credential competences data will be 
 //	 *  loaded too
@@ -224,7 +224,7 @@ public interface CredentialManager extends AbstractManager {
 	String getCredentialTitle(long id, CredentialType type) throws DbConnectionException;
 	
 	/**
-	 * Returns draft version ofActor credential if exists, otherwise original version is returned.
+	 * Returns draft version of credential if exists, otherwise original version is returned.
 	 * @param credentialId
 	 * @param loadCreator
 	 * @param loadCompetences
@@ -282,7 +282,7 @@ public interface CredentialManager extends AbstractManager {
 			throws DbConnectionException;
 	
 //	/**
-//	 * Returns current version ofActor credential for edit if edit mode - draft version if exists
+//	 * Returns current version of credential for edit if edit mode - draft version if exists
 //	 * but only if credential is university based, otherwise null is returned.
 //	 * If view mode, again draft version is returned if exists and credential is university based, 
 //	 * otherwise published version is returned.
@@ -351,26 +351,26 @@ public interface CredentialManager extends AbstractManager {
 	
 	
 	/**
-	 * Returns list ofActor ids ofActor all assessors that this particular user has asked
+	 * Returns list of ids of all assessors that this particular user has asked
 	 * for assessment for the credential with the given id
 	 * 
 	 * @param credentialId credential id
 	 * @param userId user id
-	 * @return list ofActor ids
+	 * @return list of ids
 	 */
 	List<Long> getAssessorIdsForUserAndCredential(long credentialId, long userId);
 	
 	/**
-	 * Returns list ofActor CompetenceData for given credentials.
+	 * Returns list of CompetenceData for given credentials.
 	 * 
 	 * @param credentialId
-	 * @return list ofActor simple data types from TargetCompetence
+	 * @return list of simple data types from TargetCompetence
 	 * @throws DbConnectionException
 	 */
 	List<CompetenceData1> getCompetencesForKeywordSearch(long credentialId) throws DbConnectionException;
 
 	/**
-	 * Returns tag titles for tags added to competences and activities that are part ofActor the credential
+	 * Returns tag titles for tags added to competences and activities that are part of the credential
 	 * specified by {@code credentialId} id
 	 * 
 	 * @param credentialId
@@ -380,15 +380,15 @@ public interface CredentialManager extends AbstractManager {
 	List<String> getTagsFromCredentialCompetencesAndActivities(long credentialId) throws DbConnectionException;
 
 	/**
-	 * Returns list ofActor ActivityData for given credentials.
+	 * Returns list of ActivityData for given credentials.
 	 * 
 	 * @param credentialId
-	 * @return list ofActor simple data types from TargetActivity(title, id, duration and competenceId)
+	 * @return list of simple data types from TargetActivity(title, id, duration and competenceId)
 	 * @throws DbConnectionException
 	 */
 	List<ActivityData> getActivitiesForKeywordSearch(long credentialId) throws DbConnectionException;
 	/**
-	 * Returns list ofActor ids ofActor all users that currently do not have instructor assigned for credential
+	 * Returns list of ids of all users that currently do not have instructor assigned for credential
 	 * with {@code credId} id, except users which ids are contained in {@code usersToExclude} list.
 	 * 
 	 * If you do not want to exclude any user, pass null or empty list for {@code usersToExclude} parameter.

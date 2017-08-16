@@ -7,19 +7,17 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 public interface CredentialESService  extends AbstractBaseEntityESService {
 
 	/**
-	 * @param organizationId
-	 * @param cred 
-	 * @param session
-	 */
-	void saveCredentialNode(long organizationId, Credential1 cred, Session session);
-
-	/**
-	 *
-	 * @param organizationId
 	 * @param cred
 	 * @param session
 	 */
-	void updateCredentialNode(long organizationId, Credential1 cred, Session session);
+	void saveCredentialNode(Credential1 cred, Session session);
+
+	/**
+	 *
+	 * @param cred
+	 * @param session
+	 */
+	void updateCredentialNode(Credential1 cred, Session session);
 	
 	void addBookmarkToCredentialIndex(long organizationId, long credId, long userId);
 	

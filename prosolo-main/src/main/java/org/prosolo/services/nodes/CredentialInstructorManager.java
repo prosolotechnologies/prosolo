@@ -43,7 +43,7 @@ public interface CredentialInstructorManager {
 	
 	/**
 	 * Assigns students with target credential ids to instructors that currently have lowest 
-	 * number ofActor students assigned.
+	 * number of students assigned.
 	 * 
 	 * @param credId
 	 * @param targetCreds

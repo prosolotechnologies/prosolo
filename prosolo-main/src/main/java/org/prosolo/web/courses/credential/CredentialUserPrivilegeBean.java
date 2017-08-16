@@ -47,7 +47,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private long credentialId;
 	private long creatorId;
 	private String credentialTitle;
-	//id ofActor a role that user should have in order to be considered when adding privileges
+	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
@@ -80,7 +80,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 					PageUtil.accessDenied();
 				} else {
 					/*
-					administration ofActor edit privileges is performed for original credentials and administration ofActor
+					administration of edit privileges is performed for original credentials and administration of
 					learn privileges is performed for deliveries
 					 */
 					CredentialType credType = privilege == UserGroupPrivilege.Edit

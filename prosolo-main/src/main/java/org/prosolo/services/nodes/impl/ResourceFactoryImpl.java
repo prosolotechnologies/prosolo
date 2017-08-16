@@ -477,7 +477,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Competence1 competence = new Competence1();
 
-            competence.setTitle("Copy ofActor " + comp.getTitle());
+            competence.setTitle("Copy of " + comp.getTitle());
             competence.setDescription(comp.getDescription());
             competence.setDateCreated(new Date());
             competence.setTags(new HashSet<Tag>(comp.getTags()));

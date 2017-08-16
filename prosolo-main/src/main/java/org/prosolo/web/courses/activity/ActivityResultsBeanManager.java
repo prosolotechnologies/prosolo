@@ -432,7 +432,7 @@ public class ActivityResultsBeanManager implements Serializable, Paginable {
 				currentResult.getAssessment().setCompAssessmentId(assessmentInfo.getCompetenceAssessmentId());
 			}
 			logger.error(e);
-			//rethrow exception so caller ofActor this method can react in appropriate way
+			//rethrow exception so caller of this method can react in appropriate way
 			throw e;
 		}
 	}

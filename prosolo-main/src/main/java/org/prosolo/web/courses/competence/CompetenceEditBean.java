@@ -114,7 +114,7 @@ public class CompetenceEditBean implements Serializable {
 		access = res.getAccess();
 	}
 	
-	//competence is draft when it has never been published or when date ofActor first publish is null
+	//competence is draft when it has never been published or when date of first publish is null
 	public boolean isDraft() {
 		return competenceData.getDatePublished() == null;
 	}
@@ -211,7 +211,7 @@ public class CompetenceEditBean implements Serializable {
 		if (saved) {
 			StringBuilder builder = new StringBuilder();
 			/*
-			 * this will not work if there are multiple levels ofActor directories in current view path
+			 * this will not work if there are multiple levels of directories in current view path
 			 * example: /credentials/create-credential will return /credentials as a section but this
 			 * may not be what we really want.
 			 */
@@ -232,7 +232,7 @@ public class CompetenceEditBean implements Serializable {
 			PageUtil.keepFiredMessagesAcrossPages();
 			if (addToCredential) {
 				/*
-				 * this will not work if there are multiple levels ofActor directories in current view path
+				 * this will not work if there are multiple levels of directories in current view path
 				 * example: /credentials/create-credential will return /credentials as a section but this
 				 * may not be what we really want.
 				 */
@@ -320,8 +320,8 @@ public class CompetenceEditBean implements Serializable {
 //		try {
 //			if(competenceData.getCompetenceId() > 0) {
 //				/*
-//				 * passing decodedId because we need to pass id ofActor
-//				 * original competence and not id ofActor a draft version
+//				 * passing decodedId because we need to pass id of
+//				 * original competence and not id of a draft version
 //				 */
 //				compManager.deleteCompetence(competenceData, loggedUser.getUserId());
 //				competenceData = new CompetenceData1(false);

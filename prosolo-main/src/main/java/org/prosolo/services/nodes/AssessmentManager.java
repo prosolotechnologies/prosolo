@@ -116,12 +116,12 @@ public interface AssessmentManager {
 	 * 
 	 * @param assessedStrudentId
 	 * @param credentialId
-	 * @return list ofActor assessment data instances
+	 * @return list of assessment data instances
 	 */
 	List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStrudentId, long credentialId);
 
 	/**
-	 * Returns true if the given user is an assessor ofActor at least one credential containing activity given by
+	 * Returns true if the given user is an assessor of at least one credential containing activity given by
 	 * {@code activityId}.
 	 * 
 	 * @param userId - user for whom we check if he is assessor
@@ -134,10 +134,10 @@ public interface AssessmentManager {
 										 boolean countDefaultAssessment) throws DbConnectionException;
 
 	/**
-	 * Returns ids ofActor all participant in the activity assessment discussion.
+	 * Returns ids of all participant in the activity assessment discussion.
 	 * @param activityAssessmentId
 	 *
-	 * @return list ofActor participant ids
+	 * @return list of participant ids
 	 */
 	List<Long> getParticipantIds(long activityAssessmentId);
 	

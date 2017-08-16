@@ -235,7 +235,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 //			for (CompetenceAssessmentData comp : competenceAssessmentData) {
 //				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
 //					if (encodedTargetActivityId.equals(act.getEncodedTargetActivityId())) {
-//						return Optional.ofActor(act);
+//						return Optional.of(act);
 //					}
 //				}
 //			}
@@ -463,7 +463,7 @@ public class CredentialAssessmentBean implements Serializable, Paginable {
 				populateCompetenceAndActivityAssessmentIds(assessmentInfo);
 			}
 			logger.error(e);
-			//rethrow exception so caller ofActor this method can react in appropriate way
+			//rethrow exception so caller of this method can react in appropriate way
 			throw e;
 		}
 	}
