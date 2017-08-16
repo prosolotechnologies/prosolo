@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
@@ -25,6 +26,7 @@ import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -159,12 +161,20 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to archive credential");
+				try {
+					PageUtil.fireErrorMessage("Error while trying to archive " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+				} catch (KeyNotFoundInBundleException e1) {
+					logger.error(e1);
+				}
 			}
 			if(archived) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential archived successfully");
+					try {
+						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " archived successfully");
+					} catch (KeyNotFoundInBundleException e) {
+						logger.error(e);
+					}
 				} catch(DbConnectionException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Error while refreshing data");
@@ -184,12 +194,20 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 				paginationData.setPage(1);
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to restore credential");
+				try {
+					PageUtil.fireErrorMessage("Error while trying to restore " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+				} catch (KeyNotFoundInBundleException e1) {
+					logger.error(e1);
+				}
 			}
 			if(success) {
 				try {
 					reloadDataFromDB();
-					PageUtil.fireSuccessfulInfoMessage("Credential restored successfully");
+					try {
+						PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.credential") + " restored successfully");
+					} catch (KeyNotFoundInBundleException e) {
+						logger.error(e);
+					}
 				} catch(DbConnectionException e) {
 					logger.error(e);
 					PageUtil.fireErrorMessage("Error while refreshing data");

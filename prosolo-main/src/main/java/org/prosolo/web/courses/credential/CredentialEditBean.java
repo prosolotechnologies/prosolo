@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.exceptions.KeyNotFoundInBundleException;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -24,6 +25,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -321,7 +323,12 @@ public class CredentialEditBean implements Serializable {
 			if(credentialData.getId() > 0 && isDelivery()) {
 				credentialManager.deleteDelivery(credentialData.getId(), loggedUser.getUserId());
 				credentialData = new CredentialData(false);
-				PageUtil.fireSuccessfulInfoMessageAcrossPages("Credential delivery deleted");
+				try {
+					String growlMessage = ResourceBundleUtil.getMessage("label.credential") + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " deleted";
+					PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
+				} catch (KeyNotFoundInBundleException e) {
+					logger.error(e);
+				}
 				PageUtil.redirect("/manage/library");
 			}
 		} catch (StaleDataException sde) {
