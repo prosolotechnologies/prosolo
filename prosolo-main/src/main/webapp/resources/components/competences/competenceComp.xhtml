@@ -24,7 +24,7 @@
 		<div class="col-md-6">
             <article class="whiteBox summaryCard">
                 <h2>
-                	<h:link outcome="#{msg['label.competence']}">
+                	<h:link outcome="competence">
                 		<f:param name="compId" value="#{util:encodeId(cc.attrs.competence.competenceId)}"/>
                 		#{cc.attrs.competence.title} <span>#{cc.attrs.competence.published ? '' : '(Unpublished)'}</span>
                 	</h:link>

@@ -216,7 +216,7 @@
 										<p:growl />
 
 										<h2>
-											<h:link outcome="#{msg['label.competence']}">
+											<h:link outcome="competence">
 												#{competenceAssessment.title}
 												<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
 												<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
@@ -353,7 +353,7 @@
 							<article class="whiteBox summaryCard summaryCompetence summaryAssessments disabledCompetence" data-toggle="tooltip" title="This competency is not started yet">
 								<div class="innerWrapper">
 									<h2>
-										<h:link outcome="#{msg['label.competence']}">
+										<h:link outcome="competence">
 											#{competenceAssessment.title}
 											<f:param name="compId" value="#{util:encodeId(competenceAssessment.competenceId)}" />
 											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.credentialId)}"
