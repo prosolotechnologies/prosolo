@@ -41,6 +41,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
 	@Inject private CredentialManager credManager;
+	@Inject private UserGroupManager self;
 	 
 	@Override
 	@Transactional(readOnly = true)
@@ -269,7 +270,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUsersToTheGroup(long groupId, List<Long> userIds) throws DbConnectionException {
 		try {
 			for(Long user : userIds) {
-				addUserToTheGroup(groupId, user);
+				//TODO add context
+				addUserToTheGroupAndGetEvents(groupId, user, UserContextData.empty());
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -317,7 +319,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	public void addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
 			for(Long group : groupIds) {
-				addUserToTheGroup(group, userId);
+				//TODO add context
+				addUserToTheGroupAndGetEvents(group, userId, UserContextData.empty());
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -931,11 +934,23 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	@Override
-	@Transactional(readOnly = false)
-	public void addUserToTheGroup(long groupId, long userId) throws DbConnectionException {
+	@Transactional
+	public Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException {
 		try {
 			UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
 			saveNewUserToUserGroup(userId, group, persistence.currentManager());
+
+			Result<Void> res = new Result<>();
+
+			//TODO don't generate event if user was already added to the group
+			UserGroup ug = new UserGroup();
+			ug.setId(groupId);
+			User u = new User();
+			u.setId(userId);
+			res.addEvent(eventFactory.generateEventData(
+					EventType.ADD_USER_TO_GROUP, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), u, ug, context.getContext(), null));
+			return res;
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
@@ -1986,7 +2001,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				"FROM UserGroupUser ugu " +
 				"INNER JOIN ugu.user u " +
 				"WHERE ugu.group.id = :groupId " +
-				"ORDER BY u.name ASC";
+				"ORDER BY u.lastname ASC, u.name ASC";
 
 		@SuppressWarnings("unchecked")
 		List<User> result = persistence.currentManager()

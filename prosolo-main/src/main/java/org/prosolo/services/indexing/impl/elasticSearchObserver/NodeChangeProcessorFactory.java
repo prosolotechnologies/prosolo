@@ -44,6 +44,7 @@ public class NodeChangeProcessorFactory {
 		BaseEntity node = event.getObject();
 		switch (type) {
 			case Registered:
+			case Account_Activated:
 			case Edit_Profile:
 			case ENROLL_COURSE:
 			case ENROLL_COMPETENCE:
@@ -101,7 +102,10 @@ public class NodeChangeProcessorFactory {
 				}
 			case Delete:
 			case Delete_Draft:
-				if(node instanceof Credential1) {
+				if (node instanceof User) {
+					return new UserNodeChangeProcessor(event, session, userEntityESService,
+							credentialESService, competenceESService, EventUserRole.Object);
+				} else if(node instanceof Credential1) {
 					return new CredentialNodeChangeProcessor(event, credentialESService, 
 							NodeOperation.Delete, session);
 				} else if(node instanceof Competence1) {

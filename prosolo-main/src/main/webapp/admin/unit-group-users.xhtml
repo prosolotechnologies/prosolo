@@ -103,7 +103,14 @@
                 <div class="col-md-12">
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">
-                            <p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import students from CSV file</a></p>
+                            <p>
+                                <p:commandLink pt:data-toggle="modal"
+                                              action="#{groupUsersBean.prepareImportingUsers()}"
+                                              update=":importUsers:importUsersForm:importUsersPanel"
+                                              oncomplete="$('#importUsersModal').modal('show');">
+                                    Import students from CSV file
+                                </p:commandLink>
+                            </p>
                         </div>
                         <h:panelGroup id="panelUsers">
                             <ui:fragment rendered="#{empty groupUsersBean.users}">
@@ -150,27 +157,15 @@
             </div>
         </div>
 
-        <div class="modal fade importStudentsModal" id="importStudentsModal" tabindex="-1" role="dialog" aria-labelledby="impStudentsModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header alignLeft">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                        <h2 class="modal-title">Import users</h2>
-                    </div>
-                    <div class="modal-body alignLeft">
-                        <p>Upload CSV with student data in order to add them to the group. Student data should be in the format:<br></br><strong>name,lastname,email</strong></p>
-                        <div class="uploadBtn">
-                            <a href="#" class="btn btn-green btn-sm">Choose File</a>
-                            file.csv
-                        </div>
-                    </div>
-                    <div class="modal-footer alignLeft">
-                        <a href="#" class="btn btn-green">Import</a>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <user:importUsers id="importUsers"
+                addUserToResource="group"
+                bean="#{groupUsersBean}"
+                userType="student"
+                modalId="importUsersModal"
+                importUsersFormId="importUsersForm"
+                importUsersPanelId="importUsersPanel"
+                toUpdate=":panelUsers :pagination :growlMain"
+                learningContext="#{learningContext}"/>
 
         <user:addUsers
                 id="addUsers"
@@ -178,7 +173,7 @@
                 searchPlaceholder="Search Students"
                 searchBean="#{groupUserAddBean}"
                 actionBean="#{groupUsersBean}"
-                toUpdate=":panelUsers :growlMain"
+                toUpdate=":panelUsers :pagination :growlMain"
                 userPanelId="panelUsers"
                 paginationPanelId="pagination"
                 learningContext="#{learningContext}"

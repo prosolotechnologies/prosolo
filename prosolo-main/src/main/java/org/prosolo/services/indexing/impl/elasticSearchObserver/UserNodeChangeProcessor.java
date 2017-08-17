@@ -46,7 +46,9 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
 
-		if (eventType == EventType.ADD_USER_TO_UNIT) {
+		if (eventType == EventType.Delete) {
+			userEntityESService.removeUserFromIndex((User) session.load(User.class, event.getObject().getId()));
+		} else if (eventType == EventType.ADD_USER_TO_UNIT) {
 			String roleIdStr = params.get("roleId");
 			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
 			userEntityESService.addUserToUnitWithRole(unit.getOrganization().getId(),
@@ -146,6 +148,13 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.updateBasicUserData(user, session);
 		} else if (eventType == EventType.Registered) {
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getActorId()), session);
+		} else if (eventType == EventType.Account_Activated || eventType == EventType.USER_ROLES_UPDATED) {
+			/*
+			we need to update whole index when roles are updated because we don't know if user exists
+			in one of the indexes (system or organization index) so maybe he should be indexed for the first time
+			 */
+			userEntityESService.saveUserNode((User) session.load(User.class, event.getObject().getId()),
+					session);
 		} else {
 			//TODO check if there is a use case where this block is entered
 			if (userRole == EventUserRole.Subject) {

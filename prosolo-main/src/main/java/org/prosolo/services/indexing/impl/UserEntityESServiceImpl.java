@@ -582,4 +582,20 @@ public class UserEntityESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 		}
 	}
 
+	@Override
+	public void removeUserFromIndex(User user) {
+		try {
+			if (user.getOrganization() != null) {
+				delete(user.getId() + "", ESIndexNames.INDEX_USERS +
+								ElasticsearchUtil.getOrganizationIndexSuffix(user.getOrganization().getId()),
+						ESIndexTypes.ORGANIZATION_USER);
+			}
+			if (RoleUtil.hasAdminRole(user)) {
+				delete(user.getId() + "", ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			}
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
 }

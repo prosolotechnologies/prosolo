@@ -27,23 +27,12 @@ public class EmailValidator implements Validator {
 	@Autowired
 	RegistrationManager registrationManager;
 
-	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\."
-			+ "[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*"
-			+ "(\\.[A-Za-z]{2,})$";
-
-	private Pattern pattern;
-	private Matcher matcher;
-
-	public EmailValidator() {
-		pattern = Pattern.compile(EMAIL_PATTERN);
-	}
+	public EmailValidator() { }
 
 	@Override
 	public void validate(FacesContext context, UIComponent component,
 			Object value) throws ValidatorException {
-		matcher = pattern.matcher(value.toString());
-		
-		if (!matcher.matches()) {
+		if (!EmailValidatorUtil.isValid(value.toString())) {
 			FacesMessage msg = new FacesMessage("Invalid email format.");
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);
