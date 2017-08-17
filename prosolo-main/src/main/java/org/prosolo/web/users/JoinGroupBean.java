@@ -1,10 +1,5 @@
 package org.prosolo.web.users;
 
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.RoleManager;
@@ -17,6 +12,10 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
+import java.io.Serializable;
 
 @ManagedBean(name = "joinGroupBean")
 @Component("joinGroupBean")
@@ -81,7 +80,7 @@ public class JoinGroupBean implements Serializable {
 			try {
 				//TODO generate events here
 				userGroupManager.addUserToTheGroupAndGetEvents(decodedId, loggedUserBean.getUserId(),
-						loggedUserBean.getUserId(), null);
+						loggedUserBean.getUserContext());
 				
 				PageUtil.fireSuccessfulInfoMessage("growlJoinSuccess", "You have joined the group");
 			} catch (DbConnectionException e) {
