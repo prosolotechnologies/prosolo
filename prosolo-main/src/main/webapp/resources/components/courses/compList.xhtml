@@ -4,13 +4,10 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 	xmlns:util="http://www.prosolo.com/util"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
 		<composite:attribute name="competences" required="true" />
@@ -27,6 +24,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
+
 		<div id="#{cc.clientId}">
 			<ui:repeat id="compList" var="comp" value="#{cc.attrs.competences}" varStatus="status">
 				<article class="whiteBox summaryCard summaryCompetence">
@@ -84,7 +83,7 @@
 									<ui:fragment>
 										<h:link 
 											styleClass="btn btn-green-stroke btn-sm"
-											value="Edit" 
+											value="Edit"
 											outcome="create-competence">
 											<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
 											<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId or comp.objectStatus eq 'CREATED'}"/>
@@ -129,7 +128,7 @@
 												class="btn btn-green btn-sm" 
 												disabled="disabled" 
 												data-toggle="tooltip" 
-												title="In order to #{comp.enrolled ? 'resume' : 'start'} this competency, previous tasks need to be completed.">
+												title="In order to #{comp.enrolled ? 'resume' : 'start'} this #{msg['label.competence'].toLowerCase()}, previous tasks need to be completed.">
 												#{comp.enrolled ? 'Resume' : 'Start'}
 											</a>
 										</ui:fragment>

@@ -2,9 +2,8 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:composite="http://java.sun.com/jsf/composite"
 		xmlns:courses="http://java.sun.com/jsf/composite/components/courses"
-		xmlns:h="http://java.sun.com/jsf/html"
-		xmlns:util="http://www.prosolo.com/util"
-		xmlns:f="http://xmlns.jcp.org/jsf/core">
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="activeDeliveries" required="true" />
@@ -15,14 +14,15 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<utilcomp:messagesBundle var="msg" />
 		<div class="col-md-12">
-			<h2>Active Deliveries</h2>
+			<h2>Active #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.activeDeliveries}">
 					<div class="noContentMessage">
 						<p>
 							<br></br>
-							There are no active deliveries.
+							There are no active #{msg['label.delivery.plural'].toLowerCase()}.
 							<br></br><br></br>
 						</p>
 					</div>
@@ -35,13 +35,13 @@
 					/>
 				</ui:fragment>
 			</div>
-			<h2>Pending Deliveries</h2>
+			<h2>Pending #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.pendingDeliveries}">
 					<div class="noContentMessage">
 						<p>
 							<br></br>
-							There are no pending deliveries.
+							There are no pending #{msg['label.delivery.plural'].toLowerCase()}.
 							<br></br><br></br>
 						</p>
 					</div>
@@ -54,13 +54,13 @@
 					/>
 				</ui:fragment>
 			</div>
-			<h2>Past Deliveries</h2>
+			<h2>Past #{msg['label.delivery.plural']}</h2>
 			<div class="whiteBox deliveriesList">
 				<ui:fragment rendered="#{empty cc.attrs.pastDeliveries}">
 					<div class="noContentMessage">
 						<p>
 							<br></br>
-							There are no past deliveries.
+							There are no past #{msg['label.delivery.plural'].toLowerCase()}.
 							<br></br><br></br>
 						</p>
 					</div>

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.authentication.exceptions.AuthenticationException;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UserManager;
@@ -27,6 +26,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +41,7 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	@Autowired private UserManager userManager;
 	@Autowired private RoleManager roleManager;
 	@Inject
-	private PasswordEncrypter passwordEncrypter;
+	private PasswordEncoder passwordEncoder;
 	@Inject
 	private AuthenticationSuccessHandler authSuccessHandler;
 	@Inject
@@ -223,7 +223,7 @@ public class SpringSecurityAuthenticationServiceImpl implements AuthenticationSe
 	}
 
 	@Override
-	public boolean checkPassword(String oldPassword, String newPassword) {
-		return passwordEncrypter.isPasswordValid(oldPassword, newPassword, null);
+	public boolean checkPassword(String rawPassword, String encodedPassword) {
+		return passwordEncoder.matches(rawPassword, encodedPassword);
 	}
 }

@@ -22,7 +22,6 @@ import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -35,6 +34,7 @@ import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     private static final long serialVersionUID = 2968104792929090003L;
 
-    @Autowired private PasswordEncrypter passwordEncrypter;
+    @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private RoleManager roleManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
@@ -123,7 +123,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         }
 
         if (password != null) {
-            user.setPassword(passwordEncrypter.encodePassword(password));
+            user.setPassword(passwordEncoder.encode(password));
             user.setPasswordLength(password.length());
         }
 
@@ -373,7 +373,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             user.setVerified(true);
 
             if (changePassword) {
-                user.setPassword(passwordEncrypter.encodePassword(password));
+                user.setPassword(passwordEncoder.encode(password));
                 user.setPasswordLength(password.length());
             }
 

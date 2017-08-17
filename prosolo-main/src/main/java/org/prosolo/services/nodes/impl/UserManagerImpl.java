@@ -17,7 +17,6 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
-import org.prosolo.services.authentication.PasswordEncrypter;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
@@ -30,6 +29,7 @@ import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,12 +55,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Inject
 	private UserManager self;
 
-	@Autowired private PasswordEncrypter passwordEncrypter;
+	@Autowired private PasswordEncoder passwordEncoder;
 	@Autowired private EventFactory eventFactory;
 	@Autowired private ResourceFactory resourceFactory;
 	@Autowired private UserEntityESService userEntityESService;
-
-	@Autowired private UserDataFactory userDataFactory;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -198,11 +196,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public String changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException {
-//		User user = loadResource(User.class, userId);
-//		user.setPassword(passwordEncrypter.encodePassword(newPassword));
-//		user.setPasswordLength(newPassword.length());
-//		return saveEntity(user);
-		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
 		try {
 			String query =
@@ -226,7 +220,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public String changePasswordWithResetKey(String resetKey, String newPassword) {
-		String newPassEncrypted = passwordEncrypter.encodePassword(newPassword);
+		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
 		try {
 			String query =

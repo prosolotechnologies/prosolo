@@ -7,8 +7,10 @@
 				xmlns:mngComp="http://java.sun.com/jsf/composite/components/manage"
 				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
+	<utilcomp:messagesBundle var="msg" />
+
 	<ui:define name="windowTitle">
-		Delivery - #{announcementBean.credentialTitle} - Announcements
+		#{msg['label.delivery']} - #{announcementBean.credentialTitle} - Announcements
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -20,13 +22,13 @@
 	</ui:define>
 
 	<ui:define name="resourceTitle">
-		<h1><span>Delivery:</span> #{announcementBean.credentialTitle}</h1>
+		<h1><span>#{msg['label.delivery']}:</span> #{announcementBean.credentialTitle}</h1>
 	</ui:define>
 
 	<ui:define name="navLinks">
 		<mngComp:credentialsHeaderNavLinks id="headerNavLinks"
 			credId="#{announcementBean.decodedCredId}" 
-			credType="Delivery"
+			credType="#{msg['label.delivery']}"
 			canEdit="#{announcementBean.canEdit()}"
 		/>
 	</ui:define>
@@ -62,7 +64,7 @@
 
 		<div class="container">
 			<ol class="breadcrumb">
-				<li><h:link value="Credentials" outcome="credentialLibrary"></h:link></li>
+				<li><h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"></h:link></li>
 				<li><h:link value="#{announcementBean.credentialTitle}"
 							outcome="/manage/create-credential">
 					<f:param name="id" value="#{announcementBean.credentialId}"></f:param>
@@ -128,7 +130,7 @@
 										</div>
 										<div class="assessmentModalMeta">
 											<div class="assessmentModalMetaLine">
-												<div class="assessmentModalMetaLeft">Credential:</div>
+												<div class="assessmentModalMetaLeft">#{msg['label.credential']}:</div>
 												<div class="assessmentModalMetaRight">
 													<h3>#{announcementBean.credentialTitle}</h3>
 												</div>

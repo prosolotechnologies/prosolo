@@ -40,7 +40,7 @@
 				<p:growl id="logsFilterFormDialogGrowl" showDetail="true" />
     	
     			<div class="userFilter">
-			    	<p>#{msg['manager.logs.selectUserInfo']}</p>
+			    	<p>Select participants you wish to see the logs for:</p>
 			    	
 			    	<utilcomp:userInputField id="userFilterForReports"
 			    		users="#{logsFilterBean.usersList}"
@@ -156,7 +156,7 @@
 				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} "  
 				rowsPerPageTemplate="10,20,30" selectionMode="single" 
 				selection="#{logsBean.selectedLog}" id="logTable" lazy="true"
-				emptyMessage="#{msg['manager.reports.logs.noLogsMessage']}" >
+				emptyMessage="There are no logs" >
 
 				<p:ajax event="rowSelect"
 					listener="#{logsBean.onRowSelect}"
