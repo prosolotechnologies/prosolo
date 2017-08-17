@@ -866,8 +866,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 				.getInstance()
 				.getService(Activity1Manager.class)
 				.saveNewActivity(
-						actData,
-						UserContextData.ofOrganization(orgId));
+						actData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
 		return act;
 	}
 
@@ -881,7 +880,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, UserContextData.ofOrganization(orgId));
+				.saveNewCredential(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
 		
 		return credNP1;
 	}
@@ -902,8 +901,7 @@ public class BusinessCase4_EDX extends BusinessCase {
 					.getInstance()
 					.getService(Competence1Manager.class)
 					.saveNewCompetence(
-							compData,
-							credentialId, UserContextData.ofOrganization(orgId));
+							compData, credentialId, UserContextData.of(user.getId(), orgId, null, null));
 			return comp;
 		} catch (DbConnectionException e) {
 			// TODO Auto-generated catch block
