@@ -66,6 +66,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long organizationId, long userId,
                                                                                    String searchString, int page, int limit, boolean loadOneMore,
                                                                                    List<Long> unitIds, long[] toExclude, SortingOption sortTitleAsc) {
+		if (unitIds == null || unitIds.isEmpty()) {
+			return new PaginatedResult<>();
+		}
+
 		System.out.println("searchCompetences:"+page+" limit:"+limit);
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		
@@ -99,13 +103,11 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 //				}
 //			}
 
-			if (unitIds != null && !unitIds.isEmpty()) {
-				BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
-				for (long unitId : unitIds) {
-					unitFilter.should(termQuery("units.id", unitId));
-				}
-				bQueryBuilder.filter(unitFilter);
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("units.id", unitId));
 			}
+			bQueryBuilder.filter(unitFilter);
 			
 			if (toExclude != null) {
 				for (int i = 0; i < toExclude.length; i++) {

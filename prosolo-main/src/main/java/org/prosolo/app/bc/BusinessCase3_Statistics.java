@@ -179,9 +179,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				publishCredential(cred1, cred1.getCreatedBy());
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
@@ -233,9 +233,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						comp1cred2.getId(),
 						"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
@@ -282,7 +282,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				addCompetenceToCredential(org.getId(),cred2, comp1cred1, userNickPowell);
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error(ex);
 				ex.printStackTrace();
@@ -314,9 +314,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						comp1cred3.getId(),
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
@@ -347,9 +347,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						comp2cred3.getId(),
 						"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
@@ -372,9 +372,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				addCompetenceToCredential(org.getId(),cred3, comp1cred1, userNickPowell);
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
@@ -781,9 +781,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
-			logger.error(e);
+			logger.error("Error", e);
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Error", ex);
 		}
  	}
 	

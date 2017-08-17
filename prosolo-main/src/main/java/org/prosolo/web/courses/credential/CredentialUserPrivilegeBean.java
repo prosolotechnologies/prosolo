@@ -10,12 +10,14 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("credentialUserPrivilegeBean")
@@ -42,6 +45,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	@Inject private ApplicationPagesBean appPagesBean;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private RoleManager roleManager;
+	@Inject private UnitManager unitManager;
 
 	private String credId;
 	private long credentialId;
@@ -49,6 +53,8 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	private String credentialTitle;
 	//id of a role that user should have in order to be considered when adding privileges
 	private long roleId;
+
+	private List<Long> unitIds = new ArrayList<>();
 	
 	private ResourceVisibilityUtil resVisibilityUtil;
 
@@ -97,11 +103,17 @@ public class CredentialUserPrivilegeBean implements Serializable {
 							resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 						}
 						List<Long> roleIds = roleManager.getRoleIdsForName(
-								privilege == UserGroupPrivilege.Edit ? "MANAGER" : "USER");
+								privilege == UserGroupPrivilege.Edit ? RoleNames.MANAGER : RoleNames.USER);
 
 						if (roleIds.size() == 1) {
 							roleId = roleIds.get(0);
 						}
+
+						//units are connected to original credential so we need to work with original credential id
+						long origCredId = credType == CredentialType.Original
+								? credentialId
+								: credManager.getCredentialIdForDelivery(credentialId);
+						unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(origCredId);
 
 						logger.info("Manage visibility for credential with id " + credentialId);
 
@@ -120,7 +132,10 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	}
 	
 	private void loadData() {
-		setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
+		//only Learn privilege can be added to user groups
+		if (privilege == UserGroupPrivilege.Learn) {
+			setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
+		}
 		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId, privilege));
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
@@ -135,10 +150,15 @@ public class CredentialUserPrivilegeBean implements Serializable {
 		if(searchTerm == null) {
 			searchTerm = "";
 		}
-		PaginatedResult<ResourceVisibilityMember> res = null;
-
-		res = userGroupTextSearch.searchUsersAndGroups(searchTerm, getLimit(),
-				getUsersToExclude(), getGroupsToExclude(), roleId);
+		PaginatedResult<ResourceVisibilityMember> res;
+		if (privilege == UserGroupPrivilege.Learn) {
+			//groups are retrieved only for Learn privilege
+			res = userGroupTextSearch.searchUsersAndGroups(loggedUserBean.getOrganizationId(), searchTerm, getLimit(),
+					getUsersToExclude(), getGroupsToExclude(), roleId, unitIds);
+		} else {
+			res = userGroupTextSearch.searchUsersInUnitsWithRole(loggedUserBean.getOrganizationId(), searchTerm,
+					getLimit(), unitIds, getUsersToExclude(), roleId);
+		}
 		
 		setSearchMembers(res.getFoundNodes());
 	}

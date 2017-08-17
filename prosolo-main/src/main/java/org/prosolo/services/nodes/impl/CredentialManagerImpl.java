@@ -3050,4 +3050,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT c.deliveryOf.id " +
+					"FROM Credential1 c " +
+					"WHERE c.id = :credId";
+
+			return (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", deliveryId)
+					.uniqueResult();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential id");
+		}
+	}
+
 }

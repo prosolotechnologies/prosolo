@@ -881,5 +881,11 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId)
+            throws DbConnectionException {
+        return getAllUnitIdsCompetenceIsConnectedTo(compId, persistence.currentManager());
+    }
 
 }

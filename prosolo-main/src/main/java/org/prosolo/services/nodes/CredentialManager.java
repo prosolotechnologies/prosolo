@@ -451,4 +451,6 @@ public interface CredentialManager extends AbstractManager {
 	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId)
 			throws DbConnectionException;
 
+	long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException;
+
 }

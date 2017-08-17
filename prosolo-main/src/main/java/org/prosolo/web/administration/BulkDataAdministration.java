@@ -137,7 +137,6 @@ public class BulkDataAdministration implements Serializable {
 				//}
 			}
 
-			//TODO reimplement when credentials and competences are connected to units
 			//index credentials
 			List<Credential1> credentials = credManager.getAllCredentials(session);
 			for (Credential1 cred : credentials) {

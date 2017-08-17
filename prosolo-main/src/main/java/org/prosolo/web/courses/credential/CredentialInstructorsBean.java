@@ -15,6 +15,7 @@ import org.prosolo.services.event.EventException;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -55,6 +56,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private RoleManager roleManager;
 	@Inject private StudentAssignBean studentAssignBean;
+	@Inject private UnitManager unitManager;
 
 	// PARAMETERS
 	private String id;
@@ -78,6 +80,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	private String instructorSearchTerm;
 	private List<UserData> unassignedInstructors;
 	private long instructorRoleId;
+	List<Long> unitIds;
 	//list of ids of instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
 	
@@ -132,8 +135,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 		try {
 			unassignedInstructors = new ArrayList<>();
 			PaginatedResult<UserData> result = userTextSearch
-					.searchUsersWithInstructorRole(instructorSearchTerm, decodedId, instructorRoleId,
-							excludedInstructorIds);
+					.searchUsersWithInstructorRole(loggedUserBean.getOrganizationId(), instructorSearchTerm, decodedId,
+							instructorRoleId, unitIds, excludedInstructorIds);
 			unassignedInstructors = result.getFoundNodes();
 		} catch(Exception e) {
 			logger.error(e);
@@ -148,11 +151,14 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 				if (roleIds.size() == 1) {
 					instructorRoleId = roleIds.get(0);
 				}
+
+				//retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
+				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));
 			}
 			instructorSearchTerm = "";
 			searchUnassignedInstructors();
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 			//TODO
 		}
 	}
