@@ -1,6 +1,7 @@
 package org.prosolo.web.administration;
 
 import com.google.common.base.CharMatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -45,6 +46,11 @@ public class ImportUsersBean implements Serializable {
 	private int numberOfUsersSuccessfullyImported;
 	private boolean importFinished;
 
+	private final String emailColumn = "email";
+	private final String firstNameColumn = "first_name";
+	private final String lastNameColumn = "last_name";
+	private final String positionColumn = "position";
+
 	public void init() {
 		resetData();
 	}
@@ -63,7 +69,7 @@ public class ImportUsersBean implements Serializable {
 
 		file = event.getFile();
 
-		if(isFileTypeValid()) {
+		if (isFileTypeValid()) {
 			parseAndValidateImportedData();
 		}
 	}
@@ -75,33 +81,58 @@ public class ImportUsersBean implements Serializable {
 						inputStream, "UTF-8"))) {
 			Set<String> uniqueEmails = new HashSet<>();
 			String line;
+			boolean firstLine = true;
 			while ((line = bReader.readLine()) != null) {
+				int numberOfCommas = StringUtils.countMatches(line, ",");
+				if (numberOfCommas != 3) {
+					logger.error("User data format is wrong - " + line);
+					fileContentValid = false;
+					return;
+				}
 				String[] user = line.split(",");
 				if (user.length < 3 || user.length > 4) {
 					logger.error("User data format is wrong - " + line);
 					fileContentValid = false;
 					return;
-				} else {
-					String email = CharMatcher.WHITESPACE.trimFrom(user[0]);
-					if (!EmailValidatorUtil.isValid(email)) {
-						fileContentValid = false;
-						return;
-					}
-
-					if (uniqueEmails.contains(email)) {
-						//if there is already a user with same email address in the file we skip this one
-						continue;
-					}
-					String firstName = CharMatcher.WHITESPACE.trimFrom(user[1]);
-					String lastName = CharMatcher.WHITESPACE.trimFrom(user[2]);
-					String position = null;
-					if (user.length == 4) {
-						position = CharMatcher.WHITESPACE.trimFrom(user[3]);
-					}
-
-					users.add(new UserImportData(email, firstName, lastName, position));
-					uniqueEmails.add(email);
 				}
+
+				String email = CharMatcher.WHITESPACE.trimFrom(user[0]);
+				String firstName = CharMatcher.WHITESPACE.trimFrom(user[1]);
+				String lastName = CharMatcher.WHITESPACE.trimFrom(user[2]);
+				String position = null;
+				if (user.length == 4) {
+					position = CharMatcher.WHITESPACE.trimFrom(user[3]);
+				}
+
+				// if first line, check if it is header
+				if (firstLine && user.length == 4 && emailColumn.equals(email) && firstNameColumn.equals(firstName)
+						&& lastNameColumn.equals(lastName) && positionColumn.equals(position)) {
+						firstLine = false;
+						//it means it is header and it should be skipped
+						continue;
+				}
+
+				if (firstLine) {
+					firstLine = false;
+				}
+
+				if (!EmailValidatorUtil.isValid(email)) {
+					fileContentValid = false;
+					return;
+				}
+
+				if (uniqueEmails.contains(email)) {
+					//if there is already a user with same email address in the file we skip this one
+					continue;
+				}
+
+				if (firstName.isEmpty() || lastName.isEmpty()) {
+					fileContentValid = false;
+					return;
+				}
+
+				users.add(new UserImportData(email, firstName, lastName, position));
+				uniqueEmails.add(email);
 			}
 			fileContentValid = true;
 		} catch (IOException e) {
