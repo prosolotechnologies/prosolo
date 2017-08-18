@@ -1,10 +1,5 @@
 package org.prosolo.services.activityWall;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
@@ -13,9 +8,15 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.interaction.data.CommentData;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public interface SocialActivityManager {
 	
@@ -32,7 +33,7 @@ public interface SocialActivityManager {
 			LearningContextData context) throws DbConnectionException;
 	
 	PostSocialActivity1 updatePost(long userId, long postId, String newText, 
-			LearningContextData context) throws DbConnectionException;
+			UserContextData context) throws DbConnectionException;
 	
 	Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, long userId, 
 			CommentedResourceType resource, LearningContextData context) throws DbConnectionException;

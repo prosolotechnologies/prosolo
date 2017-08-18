@@ -183,7 +183,6 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
 			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");

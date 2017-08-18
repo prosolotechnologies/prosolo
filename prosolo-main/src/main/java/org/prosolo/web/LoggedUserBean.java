@@ -142,7 +142,11 @@ public class LoggedUserBean implements Serializable, HttpSessionBindingListener 
 		if (user != null) {
 //			sessionData = new SessionData();
 			sessionData.setUserId(user.getId());
-			sessionData.setUserId(user.getOrganization().getId());
+			long orgId = 0;
+			if (user.getOrganization() != null) {
+				orgId = user.getOrganization().getId();
+			}
+			sessionData.setOrganizationId(orgId);
 			sessionData.setEncodedUserId(idEncoder.encodeId(user.getId()));
 			sessionData.setName(user.getName());
 			sessionData.setLastName(user.getLastname());

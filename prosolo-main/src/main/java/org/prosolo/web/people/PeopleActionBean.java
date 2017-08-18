@@ -64,21 +64,11 @@ public class PeopleActionBean implements Serializable {
 	
 	public void followUserById(long userToFollowId) 
 			throws EntityAlreadyExistsException, DbConnectionException {
-		String page = PageUtil.getPostParameter("page");
-		String learningContext = PageUtil.getPostParameter("learningContext");
-
-		LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-		followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, lcxt);
+		followResourceManager.followUser(loggedUser.getUserId(), userToFollowId, loggedUser.getUserContext());
 	}
 
 	public void unfollowUserById(long userToUnfollowId) throws EventException {
-		String page = PageUtil.getPostParameter("page");
-		String learningContext = PageUtil.getPostParameter("learningContext");
-
-		LearningContextData lcxt = new LearningContextData(page, learningContext, null);
-
-		followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, lcxt);
+		followResourceManager.unfollowUser(loggedUser.getUserId(), userToUnfollowId, loggedUser.getUserContext());
 	}
 	
 	public void followCollegue(UserData user) {

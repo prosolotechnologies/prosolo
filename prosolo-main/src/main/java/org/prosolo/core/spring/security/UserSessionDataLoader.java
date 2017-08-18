@@ -82,7 +82,11 @@ public class UserSessionDataLoader implements Serializable{
 			UserNotificationsSettings notificationsSettings  = notificationsSettingsManager.getOrCreateNotificationsSettings(user.getId());
 			
 			sessionData.put("userId", user.getId());
-			sessionData.put("organizationId", user.getOrganization().getId());
+			long orgId = 0;
+			if (user.getOrganization() != null) {
+				orgId = user.getOrganization().getId();
+			}
+			sessionData.put("organizationId", orgId);
 			sessionData.put("name", user.getName());
 			sessionData.put("lastname", user.getLastname());
 			sessionData.put("avatar", avatar);

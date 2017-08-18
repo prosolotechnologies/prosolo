@@ -39,7 +39,6 @@ public class DeliveryStartBean implements Serializable {
 	 */
 	
 	public void createDelivery(long credId) {
-		LearningContextData context = PageUtil.extractLearningContextData();
 		try {
 			long deliveryId = credentialManager.createCredentialDelivery(credId, startTime, endTime,
 					loggedUser.getUserContext()).getId();
