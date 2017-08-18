@@ -1,15 +1,12 @@
 package org.prosolo.services.migration;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.UnitData;
 import org.prosolo.services.nodes.data.UserData;
@@ -32,8 +29,6 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
     protected static Logger logger = Logger.getLogger(UTACustomMigrationServiceImpl.class);
 
     @Inject
-    private BulkDataAdministrationService bulkDataAdministrationService;
-    @Inject
     private UserManager userManager;
     @Inject
     private UnitManager unitManager;
@@ -42,15 +37,11 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
 
     @Transactional
     public void migrateCredentialsFrom06To07 () {
-//        // formatting indexes
-//        try {
-//            bulkDataAdministrationService.deleteAndInitElasticSearchIndexes();
-//            bulkDataAdministrationService.indexDBData();
-//        } catch (IndexingServiceNotAvailable e) {
-//            e.printStackTrace();
-//            logger.error(e);
-//        }
+        migrateUsers();
+        migrateData();
+    }
 
+    private void migrateUsers() {
         try {
             // converting users Admin Admin (email=zoran.jeremic@gmail.com, id=1) and Nikola Milikic (email=zoran.jeremic@uta.edu, id=163840) to Super Admins
             User userAdminAdmin = userManager.getUser("zoran.jeremic@gmail.com");
@@ -107,9 +98,6 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
 
             // deleting unused users
             deleteUsers(userJustinDellinger.getId());
-
-
-
         } catch (EventException e) {
             e.printStackTrace();
             logger.error(e);
@@ -127,5 +115,9 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
                 e.printStackTrace();
             }
         }
+    }
+
+    private void migrateData() {
+
     }
 }
