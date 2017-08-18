@@ -125,7 +125,8 @@ public class StudentAssignBean implements Serializable, Paginable {
 	
 	public void searchStudents() {
 		PaginatedResult<StudentData> result = userTextSearch
-				.searchUnassignedAndStudentsAssignedToInstructor(studentSearchTerm, credId, 
+				.searchUnassignedAndStudentsAssignedToInstructor(
+						loggedUserBean.getOrganizationId(), studentSearchTerm, credId,
 						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
 						paginationData.getPage() - 1, paginationData.getLimit());
 		students = result.getFoundNodes();

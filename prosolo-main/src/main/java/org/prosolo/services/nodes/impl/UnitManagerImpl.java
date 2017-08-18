@@ -888,4 +888,67 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         return getAllUnitIdsCompetenceIsConnectedTo(compId, persistence.currentManager());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCredential(long userId, long credId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCredentialIsConnectedTo(credId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCompetenceIsConnectedTo(compId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+    }
+
+    private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
+        if (unitIds == null || unitIds.isEmpty()) {
+            return false;
+        }
+
+        String query =
+                "SELECT COUNT(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id IN (:unitIds) " +
+                "AND urm.user.id = :userId";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setParameterList("unitIds", unitIds)
+                .setLong("roleId", roleId)
+                .setLong("userId", userId)
+                .uniqueResult() > 0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT urm.unit.id " +
+                            "FROM UnitRoleMembership urm " +
+                            "WHERE urm.role.id = :roleId " +
+                            "AND urm.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user units");
+        }
+    }
+
 }

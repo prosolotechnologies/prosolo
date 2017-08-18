@@ -7,10 +7,7 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
-import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
 import org.prosolo.common.util.ElasticsearchUtil;
@@ -54,7 +51,9 @@ public class CredentialESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.field("id", cred.getId());
 
 				builder.startArray("units");
-				List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(cred.getId(), session);
+				//retrieve units for original credential
+				long credId = cred.getType() == CredentialType.Original ? cred.getId() : cred.getDeliveryOf().getId();
+				List<Long> units = unitManager.getAllUnitIdsCredentialIsConnectedTo(credId, session);
 				for (long id : units) {
 					builder.startObject();
 					builder.field("id", id);

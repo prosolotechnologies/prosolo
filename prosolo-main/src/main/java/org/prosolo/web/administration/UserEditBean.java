@@ -368,7 +368,7 @@ public class UserEditBean implements Serializable {
 			users = null;
 		} else {
 			try {
-				PaginatedResult<UserData> result = textSearch.searchUsers(searchTerm, 3, this.usersToExclude,null);
+				PaginatedResult<UserData> result = textSearch.searchUsers(decodedOrgId, searchTerm, 3, this.usersToExclude,null);
 				users = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

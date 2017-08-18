@@ -123,7 +123,7 @@ public class PeopleBean implements Paginable, Serializable {
 	
 	public void fetchFollowingUsers() {
 		PaginatedResult<UserData> searchResponse = userTextSearch.searchPeopleUserFollows(
-				searchTerm, 
+				loggedUser.getOrganizationId(), searchTerm,
 				paginationData.getPage() - 1, paginationData.getLimit(), 
 				loggedUser.getUserId());
 

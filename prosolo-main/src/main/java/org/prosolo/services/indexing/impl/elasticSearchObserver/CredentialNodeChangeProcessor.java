@@ -5,7 +5,9 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CredentialESService;
+import org.prosolo.services.nodes.CredentialManager;
 
+import java.util.List;
 import java.util.Map;
 
 public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
@@ -14,12 +16,14 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 	private CredentialESService credentialESService;
 	private NodeOperation operation;
 	private Session session;
+	private CredentialManager credManager;
 	
 	
 	public CredentialNodeChangeProcessor(Event event, CredentialESService credentialESService, 
-			NodeOperation operation, Session session) {
+			CredentialManager credManager, NodeOperation operation, Session session) {
 		this.event = event;
 		this.credentialESService = credentialESService;
+		this.credManager = credManager;
 		this.operation = operation;
 		this.session = session;
 	}
@@ -31,9 +35,19 @@ public class CredentialNodeChangeProcessor implements NodeChangeProcessor {
 			if (event.getAction() == EventType.ADD_CREDENTIAL_TO_UNIT) {
 				credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
 						event.getTarget().getId());
+				List<Long> deliveries = credManager.getDeliveryIdsForCredential(event.getObject().getId());
+				//add unit to all deliveries indexes
+				for (long id : deliveries) {
+					credentialESService.addUnitToCredentialIndex(event.getOrganizationId(), id, event.getTarget().getId());
+				}
 			} else if(event.getAction() == EventType.REMOVE_CREDENTIAL_FROM_UNIT) {
 				credentialESService.removeUnitFromCredentialIndex(event.getOrganizationId(), event.getObject().getId(),
 						event.getTarget().getId());
+				List<Long> deliveries = credManager.getDeliveryIdsForCredential(event.getObject().getId());
+				//remove unit from all deliveries indexes
+				for (long id : deliveries) {
+					credentialESService.removeUnitFromCredentialIndex(event.getOrganizationId(), id, event.getTarget().getId());
+				}
 			} else if (event.getAction() == EventType.OWNER_CHANGE) {
 				Map<String, String> params = event.getParameters();
 				credentialESService.updateCredentialOwner(event.getOrganizationId(), cred.getId(),

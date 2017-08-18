@@ -307,7 +307,7 @@ public class CredentialKeywordsBean {
 				}
 
 				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
-						peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
+						loggedUser.getOrganizationId(), peerSearchTerm, 3, idEncoder.decodeId(id), peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

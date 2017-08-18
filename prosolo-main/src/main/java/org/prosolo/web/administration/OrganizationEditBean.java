@@ -167,7 +167,7 @@ public class OrganizationEditBean implements Serializable {
                         .filter(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED)
                         .collect(Collectors.toList());
 
-                PaginatedResult<UserData> result = userTextSearch.searchUsers(searchTerm, 3, usersToExclude, this.adminRolesIds);
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(0, searchTerm, 3, usersToExclude, this.adminRolesIds);
 
                 admins = result.getFoundNodes();
             } catch (Exception e) {

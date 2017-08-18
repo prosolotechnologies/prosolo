@@ -3,13 +3,6 @@
  */
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -31,6 +24,10 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.List;
 
 @Component("competenceStudentsBean")
 @Scope("view")
@@ -131,6 +128,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 	public void getCompetenceStudents() {
 		TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchResponse = 
 				userTextSearch.searchCompetenceStudents(
+					loggedUserBean.getOrganizationId(),
 					searchTerm, 
 					decodedId, 
 					searchFilter.getFilter(), 

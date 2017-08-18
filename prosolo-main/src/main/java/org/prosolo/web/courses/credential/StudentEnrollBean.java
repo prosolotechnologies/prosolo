@@ -11,6 +11,7 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -38,6 +39,7 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	@Inject private CredentialManager credManager;
 	@Inject private RoleManager roleManager;
 	@Inject private LoggedUserBean loggedUserBean;
+	@Inject private UnitManager unitManager;
 
 	private long credId;
 
@@ -50,10 +52,17 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	private List<Long> studentsToEnroll;
 	
 	private long userRoleId;
+
+	private List<Long> unitIds;
 	
 	public void init(long credId, String context) {
 		this.credId = credId;
 		this.context = context;
+
+		if (unitIds == null) {
+			unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(
+					credManager.getCredentialIdForDelivery(credId));
+		}
 	}
 	
 	public void prepareStudentEnroll() {
@@ -71,8 +80,8 @@ public class StudentEnrollBean implements Serializable, Paginable {
 	
 	public void searchStudents() {
 		PaginatedResult<StudentData> result = userTextSearch
-				.searchUnenrolledUsersWithUserRole(studentSearchTerm, paginationData.getPage() - 1, 
-						paginationData.getLimit(), credId, userRoleId);
+				.searchUnenrolledUsersWithUserRole(loggedUserBean.getOrganizationId(), studentSearchTerm,
+						paginationData.getPage() - 1, paginationData.getLimit(), credId, userRoleId, unitIds);
 		students = result.getFoundNodes();
 		setCurrentlyEnrolledStudents();
 		paginationData.update((int) result.getHitsNumber());

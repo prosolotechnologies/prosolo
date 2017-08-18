@@ -116,4 +116,12 @@ public interface UnitManager extends AbstractManager{
     List<Long> getAllUnitIdsCredentialIsConnectedTo(long credId) throws DbConnectionException;
 
     List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId) throws DbConnectionException;
+
+    boolean checkIfUserHasRoleInUnitsConnectedToCredential(long userId, long credId, long roleId)
+            throws DbConnectionException;
+
+    boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
+            throws DbConnectionException;
+
+    List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException;
 }
