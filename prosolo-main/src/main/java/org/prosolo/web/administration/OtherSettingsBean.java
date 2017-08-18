@@ -16,6 +16,7 @@ import org.primefaces.event.RowEditEvent;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.services.migration.UTACustomMigrationService;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
@@ -37,6 +38,8 @@ public class OtherSettingsBean implements Serializable {
 	private SymptomManager symptomManager;
 	@Inject
 	private SuggestionManager suggestionManager;
+	@Inject
+	private UTACustomMigrationService utaCustomMigrationService;
 	
 	private List<SymptomData> symptoms;
 	private List<SuggestionData> suggestions;
@@ -252,6 +255,11 @@ public class OtherSettingsBean implements Serializable {
 			PageUtil.fireErrorMessage(e.getMessage());
 			return true;
 		}
+	}
+
+	public void migrateUtaCredentialsTo07() {
+		utaCustomMigrationService.migrateCredentialsFrom06To07();
+		//utaCustomMigrationService.deleteUsers(3);
 	}
 
 	//GETTERS AND SETTERS
