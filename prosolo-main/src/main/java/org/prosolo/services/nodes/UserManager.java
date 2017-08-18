@@ -1,6 +1,5 @@
 package org.prosolo.services.nodes;
 
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -12,6 +11,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.UserCreationData;
 import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 
@@ -22,6 +22,8 @@ import java.util.List;
 public interface UserManager extends AbstractManager {
 
 	User getUser(String email);
+
+	User getUser(long organizationId, String email) throws DbConnectionException;
 
 	boolean checkIfUserExists(String email);
 
@@ -95,4 +97,38 @@ public interface UserManager extends AbstractManager {
 
 	PaginatedResult<UserData> getPaginatedOrganizationUsersWithRoleNotAddedToUnit(
 			long orgId, long unitId, long roleId, int offset, int limit) throws DbConnectionException;
+
+	Result<UserCreationData> createNewUserConnectToResourcesAndGetEvents(
+															 String name, String lastname, String emailAddress,
+															 String password, String position, long unitId,
+															 long unitRoleId, long userGroupId,
+															 UserContextData context)
+			throws DbConnectionException;
+
+	/**
+	 * Creates account for a users if it does not exist, recreates deleted user account and if user exists
+	 * it only updates his roles (adds role with {@code unitRoleId} id if not already added.
+	 *
+	 * Also it adds user to the unit with {@code unitId} id with role ({@code unitRoleId}) if {@code unitId}
+	 * and {@code unitRoleId} are greater than 0; adds user to the user group ({@code userGroupId})
+	 * if {@code userGroupId} is greater than 0.
+	 *
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param password
+	 * @param position
+	 * @param unitId
+	 * @param unitRoleId
+	 * @param userGroupId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws EventException
+	 */
+	boolean createNewUserAndConnectToResources(
+											String name, String lastname, String emailAddress,
+											String password, String position, long unitId,
+											long unitRoleId, long userGroupId, UserContextData context)
+			throws DbConnectionException, EventException;
 }

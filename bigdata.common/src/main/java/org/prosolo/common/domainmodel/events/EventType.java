@@ -30,6 +30,7 @@ public enum EventType {
 	Follow,
 	Unfollow,
 	Registered,
+	Account_Activated,
 	MarkAsFavourite, 
 	FollowEvent, 
 	Create_recommendation, 

@@ -1239,7 +1239,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throws DbConnectionException {
 		try {
 			UserAccessSpecification spec = getUserPrivilegesForCompetence(compId, userId);
-			return resourceAccessFactory.determineAccessRights(req, spec);
+			return resourceAccessFactory.determineAccessRights(userId, compId, req, spec);
 		} catch (DbConnectionException dce) {
 			throw dce;
 		} catch(Exception e) {

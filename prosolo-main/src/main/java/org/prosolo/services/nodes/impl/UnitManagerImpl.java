@@ -241,21 +241,19 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
     @Override
     //nt
-    public UnitRoleMembership addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
-            throws DbConnectionException, EventException {
-        Result<UnitRoleMembership> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
+    public void addUserToUnitWithRole(long userId, long unitId, long roleId, UserContextData context)
+        throws DbConnectionException, EventException {
+        Result<Void> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
         for (EventData ev : res.getEvents()) {
             eventFactory.generateEvent(ev);
         }
-
-        return res.getResult();
     }
 
     @Override
     @Transactional
-    public Result<UnitRoleMembership> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context)
-            throws DbConnectionException {
+    public Result<Void> addUserToUnitWithRoleAndGetEvents(long userId, long unitId, long roleId, UserContextData context) throws DbConnectionException {
+        Result<Void> result = new Result<>();
         try {
             UnitRoleMembership urm = new UnitRoleMembership();
             urm.setUser((User) persistence.currentManager().load(User.class, userId));
@@ -263,18 +261,20 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             urm.setRole((Role) persistence.currentManager().load(Role.class, roleId));
 
             saveEntity(urm);
+            persistence.currentManager().flush();
 
             User user = new User(userId);
             Unit unit = new Unit();
             unit.setId(unitId);
-            Result<UnitRoleMembership> result = new Result<>();
             Map<String, String> params = new HashMap<>();
             params.put("roleId", roleId + "");
             result.addEvent(eventFactory.generateEventData(
                     EventType.ADD_USER_TO_UNIT, context.getActorId(), context.getOrganizationId(), context.getSessionId(), user, unit,
                     context.getContext(), params));
 
-            result.setResult(urm);
+            return result;
+        } catch (ConstraintViolationException|DataIntegrityViolationException e) {
+            logger.info("User (" + userId + ") not added to unit (" + unitId + ") with role (" + roleId + ") because he is already added");
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
@@ -886,6 +886,69 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public List<Long> getAllUnitIdsCompetenceIsConnectedTo(long compId)
             throws DbConnectionException {
         return getAllUnitIdsCompetenceIsConnectedTo(compId, persistence.currentManager());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCredential(long userId, long credId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCredentialIsConnectedTo(credId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkIfUserHasRoleInUnitsConnectedToCompetence(long userId, long compId, long roleId)
+            throws DbConnectionException {
+        List<Long> unitIds = getAllUnitIdsCompetenceIsConnectedTo(compId);
+
+        return checkIfUserHasRoleInAtLeastOneOfTheUnits(userId, roleId, unitIds);
+    }
+
+    private boolean checkIfUserHasRoleInAtLeastOneOfTheUnits(long userId, long roleId, List<Long> unitIds) {
+        if (unitIds == null || unitIds.isEmpty()) {
+            return false;
+        }
+
+        String query =
+                "SELECT COUNT(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id IN (:unitIds) " +
+                "AND urm.user.id = :userId";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setParameterList("unitIds", unitIds)
+                .setLong("roleId", roleId)
+                .setLong("userId", userId)
+                .uniqueResult() > 0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getUserUnitIdsInRole(long userId, long roleId) throws DbConnectionException {
+        try {
+            String query =
+                    "SELECT urm.unit.id " +
+                            "FROM UnitRoleMembership urm " +
+                            "WHERE urm.role.id = :roleId " +
+                            "AND urm.user.id = :userId";
+
+            @SuppressWarnings("unchecked")
+            List<Long> result = persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .setLong("roleId", roleId)
+                    .list();
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error while retrieving user units");
+        }
     }
 
 }

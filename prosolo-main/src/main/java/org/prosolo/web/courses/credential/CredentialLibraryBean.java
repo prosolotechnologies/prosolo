@@ -4,6 +4,8 @@
 package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -12,8 +14,11 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.CredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -25,6 +30,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +49,8 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	@Inject private CredentialManager credentialManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private LoggingService loggingService;
+	@Inject private UnitManager unitManager;
+	@Inject private RoleManager roleManager;
 
 	private List<CredentialData> credentials;
 	
@@ -57,10 +65,25 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	private String context = "name:library";
 
+	//list of unit ids where user has student role
+	private List<Long> unitIds = new ArrayList<>();
+
 	public void init() {
 		sortOptions = LearningResourceSortOption.values();
 		searchFilters = CredentialSearchFilterUser.values();
-		searchCredentials(false);
+
+		try {
+			List<Long> roleIds = roleManager.getRoleIdsForName(RoleNames.USER);
+			long roleId = 0;
+			if (roleIds.size() == 1) {
+				roleId = roleIds.get(0);
+			}
+			unitIds = unitManager.getUserUnitIdsInRole(loggedUserBean.getUserId(), roleId);
+
+			searchCredentials(false);
+		} catch (DbConnectionException e) {
+			PageUtil.fireErrorMessage("Error while loading the page");
+		}
 	}
 
 	public void searchCredentials(boolean userSearch) {
@@ -94,7 +117,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
 				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(),
-				searchFilter, sortOption);
+				unitIds, searchFilter, sortOption);
 				
 		paginationData.update((int) response.getHitsNumber());
 		credentials = response.getFoundNodes();

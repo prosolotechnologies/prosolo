@@ -34,10 +34,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Zoran Jeremic Oct 11, 2014
@@ -83,12 +80,23 @@ public class BusinessCase4_EDX extends BusinessCase {
 			String fictitiousUser = "System analyst";
 			String password = "prosolo@2014";
 
-
 			User userNickPowell = createUser(0,"Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
+
+			//generate event after roles are updated
+			Map<String, String> params = null;
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+					EventType.USER_ROLES_UPDATED, userNickPowell.getId(), userNickPowell, null, params);
 
 			//create organization
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
 					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
+
+			//to give time indexes to be created after ogranization is saved
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				logger.error(e);
+			}
 
 			User userRichardAnderson = createUser(org.getId(), "Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
 			User userKevinMitchell = createUser(org.getId(), "Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);

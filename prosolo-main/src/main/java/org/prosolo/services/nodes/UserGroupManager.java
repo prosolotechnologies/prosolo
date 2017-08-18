@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -38,7 +37,8 @@ public interface UserGroupManager extends AbstractManager {
 
 	void deleteUserGroup(long id, UserContextData context) throws DbConnectionException;
 
-	void addUserToTheGroup(long groupId, long userId) throws DbConnectionException;
+	Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
+			throws DbConnectionException;
 
 	void removeUserFromTheGroup(long groupId, long userId) throws DbConnectionException;
 

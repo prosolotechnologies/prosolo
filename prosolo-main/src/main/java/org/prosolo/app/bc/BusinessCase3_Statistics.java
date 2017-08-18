@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
@@ -89,9 +90,17 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
 			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
 
+			//generate event after roles are updated
+			Map<String, String> params = null;
+			ServiceLocator.getInstance().getService(EventFactory.class).generateEvent(
+					EventType.USER_ROLES_UPDATED, userNickPowell.getId(), userNickPowell, null, params);
+			
 			//create organization
 			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
 					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
+
+			//to give time indexes to be created after ogranization is saved
+			Thread.sleep(1500);
 
 			User userRichardAnderson = createUser(org.getId(),"Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
 			User userKevinMitchell = createUser(org.getId(),"Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);

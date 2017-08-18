@@ -152,6 +152,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	public void getCredentialMembers() {
 		TextSearchFilteredResponse<StudentData, CredentialMembersSearchFilterValue> searchResponse = 
 				userTextSearch.searchCredentialMembers(
+					loggedUserBean.getOrganizationId(),
 					searchTerm, 
 					searchFilter.getFilter(), 
 					this.paginationData.getPage() - 1, this.paginationData.getLimit(), 
@@ -191,7 +192,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	
 	public void loadCredentialInstructors() {
 		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-				instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
+				loggedUserBean.getOrganizationId(), instructorSearchTerm, -1, -1, decodedId, InstructorSortOption.Date, null);
 		
 		if (searchResponse != null) {
 			credentialInstructors = searchResponse.getFoundNodes();

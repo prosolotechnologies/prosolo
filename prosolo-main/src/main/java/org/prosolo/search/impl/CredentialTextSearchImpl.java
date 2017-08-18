@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
@@ -65,7 +66,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 	@Override
 	public PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
+			List<Long> unitIds, CredentialSearchFilterUser filter, LearningResourceSortOption sortOption) {
 		PaginatedResult<CredentialData> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -103,7 +104,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			}
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
-					CredentialSearchConfig.forDelivery(true, true, false, false), userId));
+					CredentialSearchConfig.forDelivery(true, true, false, false), userId, unitIds));
 			
 			String[] includes = {"id"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
@@ -191,7 +192,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 			
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
-					CredentialSearchConfig.forOriginal(true), userId));
+					CredentialSearchConfig.forOriginal(true), userId, null));
 			
 			String[] includes = {"id", "title", "archived"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
@@ -238,15 +239,24 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 		}
 		return response;
 	}
-	
-	private QueryBuilder configureAndGetSearchFilter(CredentialSearchConfig config, long userId) {
+
+	/**
+	 *
+	 * @param config
+	 * @param userId
+	 * @param unitIds - if credential enrollment is opened to everyone it is returned only if it is connected
+	 *                  to at least one of the units from this list
+	 * @return
+	 */
+	private QueryBuilder configureAndGetSearchFilter(CredentialSearchConfig config, long userId, List<Long> unitIds) {
 		BoolQueryBuilder bf = QueryBuilders.boolQuery();
 		bf.filter(QueryBuilders.termQuery("type", config.getType().toString().toLowerCase()));
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		if (config.getType() == CredentialType.Delivery) {
 			if (config.shouldIncludeResourcesWithViewPrivilege()) {
 				/*
-				 * users with learn privilege (or when credential is visible to all) can see credential delivery
+				 * users with learn privilege (or when credential is visible to all, all users that have student role
+				 * in at least one of the units connected to credential) can see credential delivery
 				 * if delivery is scheduled (delivery start is set) and not ended.
 				 */
 				Date now = new Date();
@@ -260,8 +270,21 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 						.gt(ElasticsearchUtil.getDateStringRepresentation(now)));
 				publishedAndVisibleFilter.filter(endDateFilter);
 				BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
-				visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
 				visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
+				if (unitIds != null && !unitIds.isEmpty()) {
+					BoolQueryBuilder visibleToAllFilter = QueryBuilders.boolQuery();
+
+					visibleToAllFilter.filter(QueryBuilders.termQuery("visibleToAll", true));
+
+					BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+					for (long unitId : unitIds) {
+						unitFilter.should(QueryBuilders.termQuery("units.id", unitId));
+					}
+					visibleToAllFilter.filter(unitFilter);
+
+					visibleFilter.should(visibleToAllFilter);
+				}
+
 				publishedAndVisibleFilter.filter(visibleFilter);
 				
 				boolFilter.should(publishedAndVisibleFilter);

@@ -2344,7 +2344,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			UserAccessSpecification spec = getUserPrivilegesForCredential(credId, userId);
-			return resourceAccessFactory.determineAccessRights(req, spec);
+			return resourceAccessFactory.determineAccessRights(userId, credId, req, spec);
 		} catch (DbConnectionException dce) {
 			throw dce;
 		} catch(Exception e) {
@@ -2829,6 +2829,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 original = (Credential1) persistence.currentManager().load(Credential1.class, credentialId);
 	
 			Credential1 cred = new Credential1();
+			cred.setOrganization(original.getOrganization());
 			cred.setTitle(original.getTitle());
 			cred.setDescription(original.getDescription());
 			cred.setCreatedBy(original.getCreatedBy());
@@ -3067,6 +3068,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential id");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getDeliveryIdsForCredential(long credId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT del.id " +
+					"FROM Credential1 del " +
+					"WHERE del.type = :type " +
+					"AND del.deliveryOf.id = :credId";
+
+			@SuppressWarnings("unchecked")
+			List<Long> res = persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+
+			return res;
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error while retrieving credential delivery ids");
 		}
 	}
 

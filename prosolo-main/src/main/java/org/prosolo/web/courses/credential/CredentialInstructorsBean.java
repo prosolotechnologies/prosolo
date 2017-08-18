@@ -193,7 +193,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
 	public void getCredentialInstructors() {
 		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null); 
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null);
 	
 		paginationData.update((int) searchResponse.getHitsNumber());
 		instructors = searchResponse.getFoundNodes();

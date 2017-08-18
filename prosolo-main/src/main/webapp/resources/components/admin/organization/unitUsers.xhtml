@@ -83,7 +83,14 @@
 					<div class="whiteBox manageVisibility">
 						<div class="innerWrapper">
 							<h2>#{util:capitalizeWord(cc.attrs.resourcePlural)}</h2>
-							<p><a href="#" data-toggle="modal" data-target="#importStudentsModal">Import #{cc.attrs.resourcePlural} from CSV file.</a></p>
+							<p>
+								<p:commandLink pt:data-toggle="modal"
+											   action="#{unitUsersBean.prepareImportingUsers()}"
+											   update=":#{cc.clientId}:importUsers:importUsersForm:importUsersPanel"
+											   oncomplete="$('#importUsersModal').modal('show');">
+									Import #{cc.attrs.resourcePlural} from CSV file
+								</p:commandLink>
+							</p>
 						</div>
 						<h:panelGroup id="panelUsers">
 							<ui:fragment rendered="#{empty unitUsersBean.existingUsers}">
@@ -152,13 +159,23 @@
 			</div>
 		</div>
 
+		<user:importUsers id="importUsers"
+						  addUserToResource="unit"
+						  bean="#{unitUsersBean}"
+						  userType="#{cc.attrs.resource}"
+						  modalId="importUsersModal"
+						  importUsersFormId="importUsersForm"
+						  importUsersPanelId="importUsersPanel"
+						  toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination :#{cc.clientId}:growlMain"
+						  learningContext="#{learningContext}"/>
+
 		<user:addUsers
 				id="addUsers"
 				modalTitle="Add #{util:capitalizeWord(cc.attrs.resourcePlural)} to Unit"
 				searchPlaceholder="Search #{util:capitalizeWord(cc.attrs.resourcePlural)}"
 				searchBean="#{unitUserAddBean}"
 				actionBean="#{unitUsersBean}"
-				toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:growlMain"
+				toUpdate=":#{cc.clientId}:panelUsers :#{cc.clientId}:pagination :#{cc.clientId}:growlMain"
 				userPanelId="panelUsers"
 				paginationPanelId="pagination"
 				learningContext="#{learningContext}"
