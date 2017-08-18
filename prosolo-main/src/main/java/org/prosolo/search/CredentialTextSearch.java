@@ -7,6 +7,8 @@ import org.prosolo.search.util.credential.LearningResourceSortOption;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CredentialData;
 
+import java.util.List;
+
 /**
  * 
  * @author stefanvuckovic
@@ -20,13 +22,14 @@ public interface CredentialTextSearch extends AbstractManager {
 	 * @param page
 	 * @param limit
 	 * @param userId
+	 * @param unitIds
 	 * @param filter
 	 * @param sortOption
 	 * @return
 	 */
 	PaginatedResult<CredentialData> searchCredentialsForUser(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			CredentialSearchFilterUser filter, LearningResourceSortOption sortOption);
+			List<Long> unitIds, CredentialSearchFilterUser filter, LearningResourceSortOption sortOption);
 	
 	PaginatedResult<CredentialData> searchCredentialsForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId,

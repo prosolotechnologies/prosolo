@@ -118,7 +118,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//university created type is set because credentail can only be university created
 			bQueryBuilder.filter(configureAndGetSearchFilter(
 					CompetenceSearchConfig.of(
-							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId));
+							false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), userId, null));
 			
 			SearchRequestBuilder searchResultBuilder = client
 					.prepareSearch(indexName)
@@ -173,7 +173,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetences(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
+			List<Long> unitIds, LearningResourceSearchFilter filter, LearningResourceSortOption sortOption,
 			CompetenceSearchConfig config) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
@@ -237,7 +237,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 					break;
 			}
 			
-			bQueryBuilder.filter(configureAndGetSearchFilter(config, userId));
+			bQueryBuilder.filter(configureAndGetSearchFilter(config, userId, unitIds));
 			
 //			FilteredQueryBuilder filteredQueryBuilder = QueryBuilders.filteredQuery(bQueryBuilder, 
 //					boolFilter);
@@ -355,7 +355,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			
 			bQueryBuilder.filter(configureAndGetSearchFilter(
 					CompetenceSearchConfig.of(false, false, false, true, LearningResourceType.UNIVERSITY_CREATED), 
-						userId));
+						userId, null));
 			
 			String[] includes = {"id", "title", "published", "archived", "datePublished"};
 			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
@@ -412,8 +412,16 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 		}
 		return response;
 	}
-	
-	private QueryBuilder configureAndGetSearchFilter(CompetenceSearchConfig config, long userId) {
+
+	/**
+	 *
+	 * @param config
+	 * @param userId
+	 * @param unitIds - if competence enrollment is opened to everyone it is returned only if it is connected
+	 *                to at least one of the units from this list
+	 * @return
+	 */
+	private QueryBuilder configureAndGetSearchFilter(CompetenceSearchConfig config, long userId, List<Long> unitIds) {
 		BoolQueryBuilder boolFilter = QueryBuilders.boolQuery();
 		
 		if (config.shouldIncludeResourcesWithViewPrivilege()) {
@@ -421,8 +429,20 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			BoolQueryBuilder publishedAndVisibleFilter = QueryBuilders.boolQuery();
 			publishedAndVisibleFilter.filter(QueryBuilders.termQuery("published", true));
 			BoolQueryBuilder visibleFilter = QueryBuilders.boolQuery();
-			visibleFilter.should(QueryBuilders.termQuery("visibleToAll", true));
 			visibleFilter.should(QueryBuilders.termQuery("usersWithViewPrivilege.id", userId));
+			if (unitIds != null && !unitIds.isEmpty()) {
+				BoolQueryBuilder visibleToAllFilter = QueryBuilders.boolQuery();
+
+				visibleToAllFilter.filter(QueryBuilders.termQuery("visibleToAll", true));
+
+				BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+				for (long unitId : unitIds) {
+					unitFilter.should(QueryBuilders.termQuery("units.id", unitId));
+				}
+				visibleToAllFilter.filter(unitFilter);
+
+				visibleFilter.should(visibleToAllFilter);
+			}
 			publishedAndVisibleFilter.filter(visibleFilter);
 			
 			boolFilter.should(publishedAndVisibleFilter);

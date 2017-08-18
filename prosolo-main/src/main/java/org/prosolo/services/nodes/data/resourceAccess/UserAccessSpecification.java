@@ -1,17 +1,17 @@
 package org.prosolo.services.nodes.data.resourceAccess;
 
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-
 public abstract class UserAccessSpecification {
 
 	private final Set<UserGroupPrivilege> privileges = new HashSet<>();
 	private final boolean resourceVisibleToAll;
-	
+
 	protected UserAccessSpecification(Collection<UserGroupPrivilege> privileges, boolean resourceVisibleToAll) {
 		this.privileges.addAll(privileges);
 		this.resourceVisibleToAll = resourceVisibleToAll;

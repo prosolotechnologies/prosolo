@@ -228,7 +228,7 @@ public class CredentialViewBeanUser implements Serializable {
 				}
 
 				PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
-						peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
+						loggedUser.getOrganizationId(), peerSearchTerm, 3, decodedId, peersToExcludeFromSearch);
 				peersForAssessment = result.getFoundNodes();
 			} catch (Exception e) {
 				logger.error(e);

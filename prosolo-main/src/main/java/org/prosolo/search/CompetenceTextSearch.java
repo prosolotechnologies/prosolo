@@ -36,7 +36,7 @@ public interface CompetenceTextSearch extends AbstractManager {
 	
 	PaginatedResult<CompetenceData1> searchCompetences(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
+			List<Long> unitIds, LearningResourceSearchFilter filter, LearningResourceSortOption sortOption,
 			CompetenceSearchConfig config);
 	
 	PaginatedResult<CompetenceData1> searchCompetencesForManager(

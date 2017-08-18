@@ -46,7 +46,9 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		EventType eventType = event.getAction();
 		Map<String, String> params = event.getParameters();
 
-		if (eventType == EventType.ADD_USER_TO_UNIT) {
+		if (eventType == EventType.Delete) {
+			userEntityESService.removeUserFromIndex((User) session.load(User.class, event.getObject().getId()));
+		} else if (eventType == EventType.ADD_USER_TO_UNIT) {
 			String roleIdStr = params.get("roleId");
 			Unit unit = (Unit) session.load(Unit.class, event.getTarget().getId());
 			userEntityESService.addUserToUnitWithRole(unit.getOrganization().getId(),
@@ -69,6 +71,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			String prog = params.get("progress");
 			int progress = prog != null ? Integer.parseInt(prog) : 0;
 			userEntityESService.addCredentialToUserIndex(
+					event.getOrganizationId(),
 					cred.getId(), 
 					event.getActorId(), 
 					instructorId,
@@ -80,6 +83,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			Competence1 comp = (Competence1) event.getObject();
 			String date = params.get("dateEnrolled");
 			userEntityESService.addCompetenceToUserIndex(
+					event.getOrganizationId(),
 					comp.getId(), 
 					event.getActorId(),  
 					date);
@@ -98,13 +102,16 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
 				instructorId = event.getTarget().getId();
 			}
-			userEntityESService.assignInstructorToUserInCredential(event.getObject().getId(), credId, instructorId);
+			userEntityESService.assignInstructorToUserInCredential(event.getOrganizationId(), event.getObject().getId(),
+					credId, instructorId);
 		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL) {
 			String dateAssigned = params.get("dateAssigned");
-			userEntityESService.addInstructorToCredential(event.getTarget().getId(), event.getObject().getId(), dateAssigned);
+			userEntityESService.addInstructorToCredential(event.getOrganizationId(), event.getTarget().getId(),
+					event.getObject().getId(), dateAssigned);
 			credESService.addInstructorToCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
-			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), event.getObject().getId());
+			userEntityESService.removeInstructorFromCredential(event.getOrganizationId(), event.getTarget().getId(),
+					event.getObject().getId());
 			credESService.removeInstructorFromCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
@@ -114,7 +121,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		    	Credential1 cr = tc.getCredential();
 		    	
 				if (cr != null) {
-			    	userEntityESService.changeCredentialProgress(cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
+			    	userEntityESService.changeCredentialProgress(event.getOrganizationId(), cpe.getActorId(), cr.getId(), cpe.getNewProgressValue());
 		    	}
 	    	} else if (object instanceof TargetCompetence1) {
 	    		TargetCompetence1 tc = (TargetCompetence1) cpe.getObject();
@@ -125,8 +132,8 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					if (params != null) {
 						dateCompleted = params.get("dateCompleted");
 					}
-			    	userEntityESService.updateCompetenceProgress(cpe.getActorId(), c.getId(), cpe.getNewProgressValue(),
-			    			dateCompleted);
+			    	userEntityESService.updateCompetenceProgress(event.getOrganizationId(), cpe.getActorId(),
+							c.getId(), cpe.getNewProgressValue(), dateCompleted);
 		    	}
 	    	}
 	    } else if (eventType == EventType.Edit_Profile) {
@@ -146,6 +153,13 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			userEntityESService.updateBasicUserData(user, session);
 		} else if (eventType == EventType.Registered) {
 			userEntityESService.saveUserNode((User) session.load(User.class, event.getActorId()), session);
+		} else if (eventType == EventType.Account_Activated || eventType == EventType.USER_ROLES_UPDATED) {
+			/*
+			we need to update whole index when roles are updated because we don't know if user exists
+			in one of the indexes (system or organization index) so maybe he should be indexed for the first time
+			 */
+			userEntityESService.saveUserNode((User) session.load(User.class, event.getObject().getId()),
+					session);
 		} else {
 			//TODO check if there is a use case where this block is entered
 			if (userRole == EventUserRole.Subject) {
