@@ -6,7 +6,10 @@ CREATE TABLE `competence_bookmark` (
   `title` varchar(1000) DEFAULT NULL,
   `competence` bigint(20) NOT NULL,
   `user` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;	
+);
+
+ALTER TABLE `competence_bookmark`
+    ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `competence_bookmark`
 	ADD CONSTRAINT `FK_competence` FOREIGN KEY (`competence`) REFERENCES `competence1` (`id`),
