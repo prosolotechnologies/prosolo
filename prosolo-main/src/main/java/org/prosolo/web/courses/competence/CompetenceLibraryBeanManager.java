@@ -138,7 +138,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
 				compManager.archiveCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
@@ -163,7 +162,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
 				compManager.restoreArchivedCompetence(selectedComp.getCompetenceId(), loggedUserBean.getUserContext());
@@ -195,7 +193,6 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	public void duplicate() {
 		if(selectedComp != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			try {
 				long compId = compManager.duplicateCompetence(selectedComp.getCompetenceId(),
 						loggedUserBean.getUserContext());

@@ -173,7 +173,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			String service = PageUtil.getPostParameter("service");
 			LearningContextData ctx = new LearningContextData(page, context, service);
 			credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext());
+					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
 			paginationData.setPage(1);
 			searchTerm = "";
 			sortOption = InstructorSortOption.Date;
@@ -222,7 +222,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			LearningContextData ctx = new LearningContextData(appPage, lContext, service);
 			credInstructorManager.removeInstructorFromCredential(
 					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
-					loggedUserBean.getUserContext());
+					loggedUserBean.getUserContext(ctx));
 
 			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
 			searchCredentialInstructors();

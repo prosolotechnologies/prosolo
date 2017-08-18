@@ -153,8 +153,6 @@ public class CompetenceViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();

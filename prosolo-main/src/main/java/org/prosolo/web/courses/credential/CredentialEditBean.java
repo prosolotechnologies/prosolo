@@ -230,8 +230,6 @@ public class CredentialEditBean implements Serializable {
 	
 	public boolean saveCredentialData(boolean reloadData) {
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
-			
 			if (credentialData.getId() > 0) {
 				credentialData.getCompetences().addAll(compsToRemove);
 				if(credentialData.hasObjectChanged()) {

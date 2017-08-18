@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.event.EventException;
@@ -71,7 +72,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional
-	public User followUser(long followerId, long userToFollowId, LearningContextData context) 
+	public User followUser(long followerId, long userToFollowId, UserContextData context)
 			throws DbConnectionException, EntityAlreadyExistsException {
 		try {
 			if (userToFollowId > 0 && followerId > 0) {
@@ -85,12 +86,18 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				persistence.currentManager().saveOrUpdate(followedEntity);
 				
 				persistence.currentManager().flush();
-				
-				eventFactory.generateEvent(EventType.Follow, followerId, userToFollow, null,
-						context.getPage(),
-						context.getLearningContext(),
-						context.getService(),
-						null);
+
+				String page = null;
+				String lContext = null;
+				String service = null;
+				LearningContextData lcd = context.getContext();
+				if (lcd != null) {
+					page = lcd.getPage();
+					lContext = lcd.getLearningContext();
+					service = lcd.getService();
+				}
+				eventFactory.generateEvent(EventType.Follow, context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), userToFollow, null, page, lContext, service,null, null);
 				
 				logger.debug(follower.getName() + " started following user " + userToFollow.getId());
 				return follower;
@@ -179,7 +186,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	
 	@Override
 	@Transactional 
-	public boolean unfollowUser(long followerId, long userToUnfollowId, LearningContextData context) throws EventException {
+	public boolean unfollowUser(long followerId, long userToUnfollowId, UserContextData context) throws EventException {
 		String query = 
 				"DELETE FROM FollowedUserEntity fEnt " +
 						"WHERE fEnt.user.id = :followerId " +
@@ -192,12 +199,18 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		
 		try {
 			User userToUnfollow = loadResource(User.class, userToUnfollowId);
-			
-			eventFactory.generateEvent(EventType.Unfollow, followerId, userToUnfollow, null,
-					context.getPage(),
-					context.getLearningContext(),
-					context.getService(),
-					null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.Unfollow, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), userToUnfollow, null, page, lContext, service, null,null);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);
 		}

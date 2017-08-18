@@ -142,7 +142,8 @@ public class EventFactory {
 				event.getObserversToExclude(), 
 				event.getParameters());
 	}
-	
+
+	@Deprecated
 	//added for migration to new context approach
 	//TODO remove when we move to the event with organization and session ids in all places
 	@Transactional(readOnly = false)

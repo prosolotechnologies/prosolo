@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -175,8 +174,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
-			LearningContextData lcd = PageUtil.extractLearningContextData();
-			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(), 
+			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			saved = true;

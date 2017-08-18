@@ -236,7 +236,7 @@ public class ActivityViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext());
+			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext(lcd));
 			//initializeActivityData();
 
 			if (decodedCredId > 0) {
@@ -269,11 +269,6 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void completeActivity() {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String learningContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData lcd = new LearningContextData(page, learningContext, service);
-			
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(),

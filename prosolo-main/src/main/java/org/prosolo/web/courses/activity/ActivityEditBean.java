@@ -368,10 +368,10 @@ public class ActivityEditBean implements Serializable {
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, loggedUser.getUserContext());
+					activityManager.updateActivity(activityData, loggedUser.getUserContext(lcd));
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserContext());
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserContext(lcd));
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
