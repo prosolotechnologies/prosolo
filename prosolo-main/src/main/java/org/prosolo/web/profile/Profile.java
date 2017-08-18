@@ -106,7 +106,9 @@ public class Profile {
 					try {
 						String context = "name:profile|id:" + currentStudent.getId();
 						
-						eventFactory.generateEvent(EventType.View_Profile, loggedUserBean.getUserId(), currentStudent, null, page, context, null, null);
+						eventFactory.generateEvent(EventType.View_Profile, loggedUserBean.getUserId(),
+								loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
+								currentStudent, null, page, context, null, null, null);
 					} catch (EventException e) {
 						logger.error(e);
 					}
@@ -150,7 +152,9 @@ public class Profile {
 			            		parameters.put("context", createContext());
 			            		parameters.put("user", String.valueOf(decodedRecieverId));
 			            		parameters.put("message", String.valueOf(message1.getId()));
-			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(), message1, null, parameters);
+			            		eventFactory.generateEvent(EventType.SEND_MESSAGE, loggedUserBean.getUserId(),
+										loggedUserBean.getOrganizationId(), loggedUserBean.getSessionId(),
+										message1, null, null, null, null, null, parameters);
 			            	} catch (EventException e) {
 			            		logger.error(e);
 			            	}

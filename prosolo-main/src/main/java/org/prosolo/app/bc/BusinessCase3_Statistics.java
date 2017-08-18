@@ -10,27 +10,19 @@ import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.DefaultManager;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.CompetenceData1;
-import org.prosolo.services.nodes.data.CredentialData;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceLinkData;
+import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.exceptions.UserAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 
@@ -86,8 +78,6 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			Role roleAdmin = ServiceLocator.getInstance().getService(RoleManager.class).getRoleByName(roleAdminTitle);
 
 
-
-
 			/*
 			 * CREATING USERS
 			 */
@@ -95,36 +85,40 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			String password = "prosolo@2014";
 
 
-			User userNickPowell = createUser("Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
+			User userNickPowell = createUser(0,"Nick", "Powell", "nick.powell@gmail.com", password, fictitiousUser, "male1.png", roleUser);
 			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleAdmin, userNickPowell);
 			userNickPowell = ServiceLocator.getInstance().getService(RoleManager.class).assignRoleToUser(roleManager, userNickPowell);
 
-			User userRichardAnderson = createUser("Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
-			User userKevinMitchell = createUser("Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
-			User userPaulEdwards = createUser("Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
-			User userStevenTurner = createUser("Steven", "Turner", "steven.turner@gmail.com", password, fictitiousUser, "male5.png", roleUser);
-			User userGeorgeYoung = createUser("George", "Young", "george.young@gmail.com", password, fictitiousUser, "male6.png", roleUser);
-			User userPhillAmstrong = createUser("Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
-			User userJosephGarcia = createUser("Joseph", "Garcia", "joseph.garcia@gmail.com", password, fictitiousUser, "male8.png", roleUser);
-			User userTimothyRivera = createUser("Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
-			User userKevinHall = createUser("Kevin", "Hall", "kevin.hall@gmail.com", password, fictitiousUser, "male10.png", roleUser);
-			User userKennethCarter = createUser("Kenneth", "Carter", "kenneth.carter@gmail.com", password, fictitiousUser, "male11.png", roleUser);
-			User userAnthonyMoore = createUser("Anthony", "Moore", "anthony.moore@gmail.com", password, fictitiousUser, "male12.png", roleUser);
+			//create organization
+			Organization org = ServiceLocator.getInstance().getService(OrganizationManager.class)
+					.createNewOrganization("Org 1", Arrays.asList(new UserData(userNickPowell)), UserContextData.empty());
+
+			User userRichardAnderson = createUser(org.getId(),"Richard", "Anderson", "richard.anderson@gmail.com", password, fictitiousUser, "male2.png", roleUser);
+			User userKevinMitchell = createUser(org.getId(),"Kevin", "Mitchell", "kevin.mitchell@gmail.com", password, fictitiousUser, "male3.png", roleUser);
+			User userPaulEdwards = createUser(org.getId(),"Paul", "Edwards", "paul.edwards@gmail.com", password, fictitiousUser, "male4.png", roleUser);
+			User userStevenTurner = createUser(org.getId(),"Steven", "Turner", "steven.turner@gmail.com", password, fictitiousUser, "male5.png", roleUser);
+			User userGeorgeYoung = createUser(org.getId(),"George", "Young", "george.young@gmail.com", password, fictitiousUser, "male6.png", roleUser);
+			User userPhillAmstrong = createUser(org.getId(),"Phill", "Amstrong", "phill.amstrong@gmail.com", password, fictitiousUser, "male7.png", roleUser);
+			User userJosephGarcia = createUser(org.getId(),"Joseph", "Garcia", "joseph.garcia@gmail.com", password, fictitiousUser, "male8.png", roleUser);
+			User userTimothyRivera = createUser(org.getId(),"Timothy", "Rivera", "timothy.rivera@gmail.com", password, fictitiousUser, "male9.png", roleUser);
+			User userKevinHall = createUser(org.getId(),"Kevin", "Hall", "kevin.hall@gmail.com", password, fictitiousUser, "male10.png", roleUser);
+			User userKennethCarter = createUser(org.getId(),"Kenneth", "Carter", "kenneth.carter@gmail.com", password, fictitiousUser, "male11.png", roleUser);
+			User userAnthonyMoore = createUser(org.getId(),"Anthony", "Moore", "anthony.moore@gmail.com", password, fictitiousUser, "male12.png", roleUser);
 
 
-			User userTaniaCortese = createUser("Tania", "Cortese", "tania.cortese@gmail.com", password, fictitiousUser, "female1.png", roleUser);
-			User userSonyaElston = createUser("Sonya", "Elston", "sonya.elston@gmail.com", password, fictitiousUser, "female2.png", roleUser);
-			User userLoriAbner = createUser("Lori", "Abner", "lori.abner@gmail.com", password, fictitiousUser, "female3.png", roleUser);
-			User userSamanthaDell = createUser("Samantha", "Dell", "samantha.dell@gmail.com", password, fictitiousUser, "female4.png", roleUser);
-			User userAkikoKido = createUser("Akiko", "Kido", "akiko.kido@gmail.com", password, fictitiousUser, "female7.png", roleUser);
-			User userKarenWhite = createUser("Karen", "White", "karen.white@gmail.com", password, fictitiousUser, "female10.png", roleUser);
-			User userAnnaHallowell = createUser("Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
-			User userErikaAmes = createUser("Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
-			User userHelenCampbell = createUser("Helen", "Campbell", "helen.campbell@gmail.com", password, fictitiousUser, "female13.png", roleUser);
-			User userSheriLaureano = createUser("Sheri", "Laureano", "sheri.laureano@gmail.com", password, fictitiousUser, "female14.png", roleUser);
-			User userAngelicaFallon = createUser("Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
-			User userIdaFritz = createUser("Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
-			User userRachelWiggins = createUser("Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
+			User userTaniaCortese = createUser(org.getId(),"Tania", "Cortese", "tania.cortese@gmail.com", password, fictitiousUser, "female1.png", roleUser);
+			User userSonyaElston = createUser(org.getId(),"Sonya", "Elston", "sonya.elston@gmail.com", password, fictitiousUser, "female2.png", roleUser);
+			User userLoriAbner = createUser(org.getId(),"Lori", "Abner", "lori.abner@gmail.com", password, fictitiousUser, "female3.png", roleUser);
+			User userSamanthaDell = createUser(org.getId(),"Samantha", "Dell", "samantha.dell@gmail.com", password, fictitiousUser, "female4.png", roleUser);
+			User userAkikoKido = createUser(org.getId(),"Akiko", "Kido", "akiko.kido@gmail.com", password, fictitiousUser, "female7.png", roleUser);
+			User userKarenWhite = createUser(org.getId(),"Karen", "White", "karen.white@gmail.com", password, fictitiousUser, "female10.png", roleUser);
+			User userAnnaHallowell = createUser(org.getId(),"Anna", "Hallowell", "anna.hallowell@gmail.com", password, fictitiousUser, "female11.png", roleUser);
+			User userErikaAmes = createUser(org.getId(),"Erika", "Ames", "erika.ames@gmail.com", password, fictitiousUser, "female12.png", roleUser);
+			User userHelenCampbell = createUser(org.getId(),"Helen", "Campbell", "helen.campbell@gmail.com", password, fictitiousUser, "female13.png", roleUser);
+			User userSheriLaureano = createUser(org.getId(),"Sheri", "Laureano", "sheri.laureano@gmail.com", password, fictitiousUser, "female14.png", roleUser);
+			User userAngelicaFallon = createUser(org.getId(),"Angelica", "Fallon", "angelica.fallon@gmail.com", password, fictitiousUser, "female16.png", roleUser);
+			User userIdaFritz = createUser(org.getId(),"Ida", "Fritz", "ida.fritz@gmail.com", password, fictitiousUser, "female17.png", roleUser);
+			User userRachelWiggins = createUser(org.getId(),"Rachel", "Wiggins", "rachel.wiggins@gmail.com", password, fictitiousUser, "female20.png", roleUser);
 
 			/*
 			 * END CRETAING USERS
@@ -133,7 +127,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			// ////////////////////////////
 			// Credential for Nick Powell
 			// ///////////////////////////////
-			Credential1 cred1 = createCredential(
+			Credential1 cred1 = createCredential(org.getId(),
 					"Preparing Statistical Data for Analysis",
 					"This section provides an example of the programming code needed to read "
 							+ "in a multilevel data file, to create an incident-level aggregated flat file "
@@ -148,7 +142,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred1 = null;
 			try {
-				comp1cred1 = createCompetence(
+				comp1cred1 = createCompetence(org.getId(),
 						userNickPowell,
 						"Outline Descriptive statistics",
 						"Descriptive statistics is the discipline of quantitatively "
@@ -159,25 +153,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred1.getId(),
 						"descriptive statistics, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Read introduction to Descriptive statistics",
 						comp1cred1.getId(),
 						"http://www.socialresearchmethods.net/kb/statdesc.php");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Univariate analysis",
 						comp1cred1.getId(),
 						"http://www.slideshare.net/christineshearer/univariate-analysis");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Data collection",
 						comp1cred1.getId(),
 						"http://en.wikipedia.org/wiki/Data_collection");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Probability through simulation",
 						comp1cred1.getId(),
@@ -185,14 +179,14 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				publishCredential(cred1, cred1.getCreatedBy());
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
 			// CREDENTIAL 1
-			Credential1 cred2 = createCredential(
+			Credential1 cred2 = createCredential(org.getId(),
 					"Learn how to explore data in statistics",
 					"Learn the first steps in analyzing data: exploring it.In statistics, exploratory data analysis (EDA) "
 							+ "is an approach to analyzing data sets to summarize their main characteristics in easy-to-understand form, "
@@ -204,7 +198,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred2 = null;
 			try {
-				comp1cred2 = createCompetence(
+				comp1cred2 = createCompetence(org.getId(),
 						userNickPowell,
 						"Differentiate Parametric Data",
 						"Familiarity with parametric tests and parametric data. "
@@ -215,39 +209,39 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred2.getId(),
 						"parametric statistics, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Parametric and Resampling Statistics",
 						comp1cred2.getId(),
 						"http://www.uvm.edu/~dhowell/StatPages/Resampling/Resampling.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Read about Parametric statistics",
 						comp1cred2.getId(),
 						"http://laboratory-manager.advanceweb.com/Columns/Interpreting-Statistics/Non-Parametric-Statistics.aspx");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Read about Probability distribution",
 						comp1cred2.getId(),
 						"http://isomorphismes.tumblr.com/post/18913494015/probability-distributions");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"List of probability distributions",
 						comp1cred2.getId(),
 						"http://www.mathwave.com/articles/distribution-fitting-graphs.html");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
 			Competence1 comp2cred2 = null;
 			try {
-				comp2cred2 = createCompetence(
+				comp2cred2 = createCompetence(org.getId(),
 						userNickPowell,
 						"Illustrate and Prepare Data",
 						"Knowledge in Using frequency distributions, other graphs and "
@@ -260,25 +254,25 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred2.getId(),
 						"data, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"An Introductory Handbook to Probability, Statistics and Excel",
 						comp2cred2.getId(),
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Box Plot: Display of Distribution",
 						comp2cred2.getId(),
 						"http://www.physics.csbsju.edu/stats/box2.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Data Types",
 						comp2cred2.getId(),
 						"http://wiki.stat.ucla.edu/socr/index.php/AP_Statistics_Curriculum_2007_EDA_DataTypes");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Probability through simulation",
 						comp2cred2.getId(),
@@ -286,9 +280,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				publishCredential(cred2, cred2.getCreatedBy());
 
-				addCompetenceToCredential(cred2, comp1cred1, userNickPowell);
+				addCompetenceToCredential(org.getId(),cred2, comp1cred1, userNickPowell);
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
 				logger.error(ex);
 				ex.printStackTrace();
@@ -299,7 +293,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///CREDENTIAL: 'Understanding of Applications of Learning Analytics in Education'
 			////////////////////////////////////////////////
 
-			Credential1 cred3 = createCredential(
+			Credential1 cred3 = createCredential(org.getId(),
 					"Understanding of Applications of Learning Analytics in Education",
 					"This is a credential provides a set of competences for the EdX Data Analytics and Learning MOOC",
 					userNickPowell,
@@ -307,68 +301,68 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred3;
 			try {
-				comp1cred3 = createCompetence(
+				comp1cred3 = createCompetence(org.getId(),
 						userNickPowell,
 						"Define social network analysis",
 						"Define networks and articulate why they are important for education and educational research.",
 						cred3.getId(),
 						"social network analysis, sna");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"An Introductory Handbook to Probability, Statistics and Excel 2",
 						comp1cred3.getId(),
 						"http://records.viu.ca/~johnstoi/maybe/maybe3.htm");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
 			Competence1 comp2cred3;
 			try {
-				comp2cred3 = createCompetence(
+				comp2cred3 = createCompetence(org.getId(),
 						userNickPowell,
 						"Perform social network analysis centrality measures using Gephi",
 						"See the title. This also includes being able to import data in to Gephi.",
 						cred3.getId(),
 						"social network analysis, sna, centrality measures, gephi");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Gephi",
 						comp2cred3.getId(),
 						"https://gephi.org");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Gephi Demo 920",
 						comp2cred3.getId(),
 						"http://www.youtube.com/watch?v=JgDYV5ArXgw");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Paper: 'Gephi: An Open Source Software for Exploring and Manipulating Networks'",
 						comp2cred3.getId(),
 						"http://www.aaai.org/ocs/index.php/ICWSM/09/paper/view/154");
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
 			Competence1 comp3cred3;
 			try {
-				comp3cred3 = createCompetence(
+				comp3cred3 = createCompetence(org.getId(),
 						userNickPowell,
 						"Interpret results of social network analysis",
 						"Interpret detailed meaning of SNA result and importance of the position of actors in social networks for information flow. Discuss implications for educational research and practice. ",
 						cred3.getId(),
 						"social network analysis, sna");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"An Introductory Handbook to Probability, Statistics and Excel 3",
 						comp3cred3.getId(),
@@ -376,18 +370,18 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				publishCredential(cred3, cred3.getCreatedBy());
 
-				addCompetenceToCredential(cred3, comp1cred1, userNickPowell);
+				addCompetenceToCredential(org.getId(),cred3, comp1cred1, userNickPowell);
 			} catch (EventException e) {
-				logger.error(e);
+				logger.error("Error", e);
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Error", ex);
 			}
 
 
 			///////////////////////////////////////
 			// CREDENTIAL Learning Statistical Correlation
 			///////////////////////////////////////
-			Credential1 cred4 = createCredential(
+			Credential1 cred4 = createCredential(org.getId(),
 					"Learning Statistical Correlation",
 					"Learn how to identify relationship between two or "
 							+ "more variable and what are the most usually used relationships. "
@@ -401,7 +395,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred4;
 			try {
-				comp1cred4 = createCompetence(
+				comp1cred4 = createCompetence(org.getId(),
 						userNickPowell,
 						"Construct Bivariate Correlations",
 						"A statistical test that measures the association or relationship between two "
@@ -414,37 +408,37 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred4.getId(),
 						"bivariate correlations");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Pearson's Correlation Coeeficient",
 						comp1cred4.getId(),
 						"http://hsc.uwe.ac.uk/dataanalysis/quantinfasspear.asp");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Instructions for Covariance, Correlation, and Bivariate Graphs",
 						comp1cred4.getId(),
 						"http://www.math.uah.edu/stat/sample/Covariance.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Coefficient of determination",
 						comp1cred4.getId(),
 						"http://www.statisticshowto.com/articles/how-to-find-the-coefficient-of-determination/");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Spearman's rank correlation coefficient",
 						comp1cred4.getId(),
 						"http://udel.edu/~mcdonald/statspearman.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Kendall tau rank correlation coefficient",
 						comp1cred4.getId(),
 						"http://www.statisticssolutions.com/academic-solutions/resources/directory-of-statistical-analyses/kendalls-tau-and-spearmans-rank-correlation-coefficient/");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Biserial and Point-Biserial Correlations",
 						comp1cred4.getId(),
@@ -459,7 +453,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp2cred4;
 			try {
-				comp2cred4 = createCompetence(
+				comp2cred4 = createCompetence(org.getId(),
 						userNickPowell,
 						"Construct Partial Correlations",
 						"Partial correlation is the relationship between two variables while controlling "
@@ -468,13 +462,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred4.getId(),
 						"partial correlations, correlations");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Partial and Semi-Partial Correlations",
 						comp2cred4.getId(),
 						"http://www.apexdissertations.com/articles/point-biserial_correlation.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Partial Correlation Analysis",
 						comp2cred4.getId(),
@@ -482,7 +476,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 				publishCredential(cred4, cred4.getCreatedBy());
 
-				addCompetenceToCredential(cred4, comp1cred1, userNickPowell);
+				addCompetenceToCredential(org.getId(), cred4, comp1cred1, userNickPowell);
 			} catch (EventException e) {
 				logger.error(e);
 			} catch (Exception ex) {
@@ -493,7 +487,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Learning Statistical Correlation
 			///////////////////////////////////////
-			Credential1 cred5 = createCredential(
+			Credential1 cred5 = createCredential(org.getId(),
 					"Exploratory analysis of data",
 					"Exploratory analysis of data makes use of graphical and numerical techniques to "
 							+ "study patterns and departures from patterns. In examining distributions of data, "
@@ -508,20 +502,20 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred5;
 			try {
-				comp1cred5 = createCompetence(
+				comp1cred5 = createCompetence(org.getId(),
 						userNickPowell,
 						"Analyze Data",
 						"Know how to take raw data, extract meaningful information and use statistical tools.",
 						cred5.getId(),
 						"data analysis, data");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Sampling activity",
 						comp1cred5.getId(),
 						"http://exploringdata.net/sampling.htm");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Normal Distribution",
 						comp1cred5.getId(),
@@ -538,7 +532,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Statistics 2 – Inference and Association
 			///////////////////////////////////////
-			Credential1 cred6 = createCredential(
+			Credential1 cred6 = createCredential(org.getId(),
 					"Statistics 2 – Inference and Association",
 					"This course, the second in a three-course sequence, "
 							+ "provides an easy introduction to inference and association through a series of practical applications, "
@@ -550,7 +544,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred6;
 			try {
-				comp1cred6 = createCompetence(
+				comp1cred6 = createCompetence(org.getId(),
 						userNickPowell,
 						"Analyse statistical data",
 						"The process of evaluating data using analytical and logical "
@@ -564,7 +558,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred6.getId(),
 						"statistics, data, analysis");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"An Introductory Handbook to Probability, Statistics and Excel 4",
 						comp1cred6.getId(),
@@ -581,7 +575,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Spatial Analysis Techniques in R taught by Dave Unwin
 			///////////////////////////////////////
-			Credential1 cred7 = createCredential(
+			Credential1 cred7 = createCredential(org.getId(),
 					"Spatial Analysis Techniques in R taught by Dave Unwin",
 					"This course will teach users how to implement spatial statistical "
 							+ "analysis procedures using R software. Topics covered include point pattern analysis, "
@@ -592,7 +586,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred7;
 			try {
-				comp1cred7 = createCompetence(
+				comp1cred7 = createCompetence(org.getId(),
 						userNickPowell,
 						"Analyse statistical data",
 						"The process of evaluating data using analytical and logical "
@@ -606,7 +600,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred7.getId(),
 						"data analysis, data, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"An Introductory Handbook to Probability, Statistics and Excel 5",
 						comp1cred7.getId(),
@@ -623,7 +617,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Spatial Analysis Techniques in R taught by Dave Unwin
 			///////////////////////////////////////
-			Credential1 cred8 = createCredential(
+			Credential1 cred8 = createCredential(org.getId(),
 					"Learning Parametric statistics",
 					"Parametric statistics is a branch of statistics that assumes that the data has come from a type of "
 							+ "probability distribution and makes inferences about the parameters of the distribution. Most "
@@ -633,7 +627,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred8;
 			try {
-				comp1cred8 = createCompetence(
+				comp1cred8 = createCompetence(org.getId(),
 						userNickPowell,
 						"Parametric and Non-parametric statistics",
 						"In the literal meaning of the terms, a parametric statistical test is one that makes assumptions about the "
@@ -644,13 +638,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred8.getId(),
 						"parametric statistics, non-parametric statistics, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Parametric statistics, From Wikipedia, the free encyclopedia",
 						comp1cred8.getId(),
 						"http://www.mathsisfun.com/data/standard-normal-distribution.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Non-parametric statistics, From Wikipedia, the free encyclopedia",
 						comp1cred8.getId(),
@@ -667,7 +661,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Preparing Data for Analysis
 			///////////////////////////////////////
-			Credential1 cred9 = createCredential(
+			Credential1 cred9 = createCredential(org.getId(),
 					"Preparing Data for Analysis",
 					"This section provides an example of the programming code needed to read "
 							+ "in a multilevel data file, to create an incident-level aggregated flat file "
@@ -681,7 +675,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred9;
 			try {
-				comp1cred9 = createCompetence(
+				comp1cred9 = createCompetence(org.getId(),
 						userNickPowell,
 						"Data Preparation",
 						"In the literal meaning of the terms, a parametric statistical test is one that makes assumptions about the "
@@ -693,19 +687,19 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						"data preparation, data, statistics");
 
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Extracting Data from Incident-Based Systems and NIBRS",
 						comp1cred9.getId(),
 						"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/index.shtml");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Preparing a File for Analysis",
 						comp1cred9.getId(),
 						"http://www.jrsa.org/ibrrc/using-data/preparing_data/preparing-file/preparing_data.shtml");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Reading a Multilevel Data File",
 						comp1cred9.getId(),
@@ -722,7 +716,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Drawing conclusions from data
 			///////////////////////////////////////
-			Credential1 cred10 = createCredential(
+			Credential1 cred10 = createCredential(org.getId(),
 					"Drawing conclusions from data",
 					"How well do measurements of mercury concentrations in ten "
 							+ "cans of tuna reflect the composition of the factory's entire output? "
@@ -738,7 +732,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 
 			Competence1 comp1cred10;
 			try {
-				comp1cred10 = createCompetence(
+				comp1cred10 = createCompetence(org.getId(),
 						userNickPowell,
 						"Data Analysis",
 						"Analysis of data is a process of inspecting, cleaning, transforming, and modeling data with the goal of "
@@ -748,13 +742,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 						cred10.getId(),
 						"data analysis, data, statistics");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Drawing conclusions from data",
 						comp1cred10.getId(),
 						"http://www.chem1.com/acad/webtext/matmeasure/mm5.html");
 
-				createActivity(
+				createActivity(org.getId(),
 						userNickPowell,
 						"Understanding the units of scientific measurement",
 						comp1cred10.getId(),
@@ -771,7 +765,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			///////////////////////////////////////
 			// CREDENTIAL Understanding Descriptive Statistics
 			///////////////////////////////////////
-			Credential1 cred11 = createCredential(
+			Credential1 cred11 = createCredential(org.getId(),
 					"Understanding Descriptive Statistics",
 					"How well do measurements of mercury concentrations in ten "
 							+ "cans of tuna reflect the composition of the factory's entire output? "
@@ -787,9 +781,9 @@ public class BusinessCase3_Statistics extends BusinessCase {
 			
 			publishCredential(cred11, cred11.getCreatedBy());
 		} catch (EventException e) {
-			logger.error(e);
+			logger.error("Error", e);
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Error", ex);
 		}
  	}
 	
@@ -814,11 +808,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 //		}
 	}
 
-	private void addCompetenceToCredential(Credential1 credential, Competence1 competence, User user) {
+	private void addCompetenceToCredential(long orgId, Credential1 credential, Competence1 competence, User user) {
 		List<EventData> ev = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class).addCompetenceToCredential(credential.getId(), competence, 
-						user.getId());
+						UserContextData.ofOrganization(orgId));
 		try {
 			if(ev != null) {
 				for(EventData e : ev) {
@@ -834,13 +828,13 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		}
 	}
 
-	private User createUser(String name, String lastname, String emailAddress, String password, String fictitiousUser,
+	private User createUser(long organizationId, String name, String lastname, String emailAddress, String password, String fictitiousUser,
 			String avatar, Role roleUser) {
 		try {
 			User newUser = ServiceLocator
 					.getInstance()
 					.getService(UserManager.class)
-					.createNewUser(0, name, lastname, emailAddress,
+					.createNewUser(organizationId, name, lastname, emailAddress,
 							true, password, fictitiousUser, getAvatarInputStream(avatar), avatar, null);
 			
 			newUser = ServiceLocator
@@ -857,7 +851,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		return null;
 	}
 
-	private Activity1 createActivity(User userNickPowell, String title, long compId, String... links)
+	private Activity1 createActivity(long orgId, User userNickPowell, String title, long compId, String... links)
 		throws DbConnectionException, EventException, IllegalDataStateException {
 		ActivityData actData = new ActivityData(false);
 		actData.setTitle(title);
@@ -882,12 +876,11 @@ public class BusinessCase3_Statistics extends BusinessCase {
 				.getInstance()
 				.getService(Activity1Manager.class)
 				.saveNewActivity(
-						actData,
-						userNickPowell.getId(), null);
+						actData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
 		return act;
 	}
 
-	private Credential1 createCredential(String title, String description, User userNickPowell, String tags)
+	private Credential1 createCredential(long orgId, String title, String description, User userNickPowell, String tags)
 			throws EventException {
 		CredentialData credentialData = new CredentialData(false);
 		credentialData.setTitle(title);
@@ -897,12 +890,12 @@ public class BusinessCase3_Statistics extends BusinessCase {
 		Credential1 credNP1 = ServiceLocator
 				.getInstance()
 				.getService(CredentialManager.class)
-				.saveNewCredential(credentialData, userNickPowell.getId(), null);
+				.saveNewCredential(credentialData, UserContextData.of(userNickPowell.getId(), orgId, null, null));
 		
 		return credNP1;
 	}
 
-	public Competence1 createCompetence(User user, String title, String description, long credentialId, String tags)
+	public Competence1 createCompetence(long orgId, User user, String title, String description, long credentialId, String tags)
 			throws EventException {
 		
 		CompetenceData1 compData = new CompetenceData1(false);
@@ -918,9 +911,7 @@ public class BusinessCase3_Statistics extends BusinessCase {
 					.getInstance()
 					.getService(Competence1Manager.class)
 					.saveNewCompetence(
-							compData,
-							user.getId(),
-							credentialId, null);
+							compData, credentialId, UserContextData.of(user.getId(), orgId, null, null));
 			return comp;
 		} catch (DbConnectionException e) {
 			// TODO Auto-generated catch block

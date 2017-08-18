@@ -1,12 +1,5 @@
 package org.prosolo.web.courses.competence;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -24,6 +17,12 @@ import org.prosolo.web.useractions.CommentBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Serializable;
 
 @ManagedBean(name = "competenceViewBean")
 @Component("competenceViewBean")
@@ -154,10 +153,8 @@ public class CompetenceViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
 			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
-					competenceData.getCompetenceId(), loggedUser.getUserId(), context);
+					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			access.userEnrolled();
 			PageUtil.fireSuccessfulInfoMessage("Successfully enrolled in a competency");
 		} catch(Exception e) {

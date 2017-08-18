@@ -1,8 +1,5 @@
 package org.prosolo.search;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.impl.TextSearchFilteredResponse;
@@ -16,8 +13,10 @@ import org.prosolo.search.util.credential.LearningStatus;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 
@@ -49,9 +48,10 @@ public interface UserTextSearch extends AbstractManager {
 	PaginatedResult<InstructorData> searchInstructors (
 			String searchTerm, int page, int limit, long credId, 
 			InstructorSortOption sortOption, List<Long> excludedIds);
-	
-	PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
-                                                             long credId, long roleId, List<Long> excludedUserIds);
+
+	PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
+															 long credId, long roleId, List<Long> unitIds,
+															 List<Long> excludedUserIds);
 
 	List<Long> getInstructorCourseIds (long userId);
 	

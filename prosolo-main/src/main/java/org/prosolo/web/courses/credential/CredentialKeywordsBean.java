@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
@@ -355,11 +354,7 @@ public class CredentialKeywordsBean {
 				populateAssessmentRequestFields();
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\r", ""));
 				assessmentRequestData.setMessageText(assessmentRequestData.getMessageText().replace("\n", "<br/>"));
-				LearningContextData lcd = new LearningContextData();
-				lcd.setPage(PageUtil.getPostParameter("page"));
-				lcd.setLearningContext(PageUtil.getPostParameter("learningContext"));
-				lcd.setService(PageUtil.getPostParameter("service"));
-				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, lcd);
+				long assessmentId = assessmentManager.requestAssessment(assessmentRequestData, loggedUser.getUserContext());
 				String page = PageUtil.getPostParameter("page");
 				String lContext = PageUtil.getPostParameter("learningContext");
 				String service = PageUtil.getPostParameter("service");
@@ -400,8 +395,9 @@ public class CredentialKeywordsBean {
 			Map<String, String> parameters = new HashMap<>();
 			parameters.put("credentialId", idEncoder.decodeId(id) + "");
 			try {
-				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(), assessment, assessor,
-						page, lContext, service, parameters);
+				eventFactory.generateEvent(EventType.AssessmentRequested, loggedUser.getUserId(),
+						loggedUser.getOrganizationId(), loggedUser.getSessionId(), assessment, assessor,
+						page, lContext, service, null, parameters);
 			} catch (Exception e) {
 				logger.error("Eror sending notification for assessment request", e);
 			}

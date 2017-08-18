@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
@@ -27,15 +28,15 @@ public interface UserGroupManager extends AbstractManager {
 
 	long countGroups(long unitId, String searchTerm) throws DbConnectionException;
 
-	UserGroup saveNewGroup(long unitId, String name, boolean isDefault, long userId, LearningContextData context)
+	UserGroup saveNewGroup(long unitId, String name, boolean isDefault, UserContextData context)
 			throws DbConnectionException;
 
-	UserGroup updateGroupName(long groupId, String newName, long userId, LearningContextData context)
+	UserGroup updateGroupName(long groupId, String newName, UserContextData context)
 			throws DbConnectionException;
 
-	UserGroup updateJoinUrl(long id, boolean joinUrlActive, String joinUrlPassword, long userId, LearningContextData lcd);
+	UserGroup updateJoinUrl(long id, boolean joinUrlActive, String joinUrlPassword, UserContextData context);
 
-	void deleteUserGroup(long id, long userId, LearningContextData context) throws DbConnectionException;
+	void deleteUserGroup(long id, UserContextData context) throws DbConnectionException;
 
 	void addUserToTheGroup(long groupId, long userId) throws DbConnectionException;
 
@@ -106,7 +107,7 @@ public interface UserGroupManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups,
-											  List<ResourceVisibilityMember> users, long actorId, LearningContextData lcd) throws DbConnectionException;
+											  List<ResourceVisibilityMember> users, UserContextData context) throws DbConnectionException;
 
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session)
 			throws DbConnectionException;
@@ -118,8 +119,8 @@ public interface UserGroupManager extends AbstractManager {
 			throws DbConnectionException;
 
 	Result<Void> saveCompetenceUsersAndGroups(long compId, List<ResourceVisibilityMember> groups,
-											  List<ResourceVisibilityMember> users, long actorId,
-											  LearningContextData lcd) throws DbConnectionException;
+											  List<ResourceVisibilityMember> users, UserContextData context)
+			throws DbConnectionException;
 
 	boolean isUserInADefaultCredentialGroup(long userId, long credId) throws DbConnectionException;
 
@@ -130,12 +131,14 @@ public interface UserGroupManager extends AbstractManager {
 	 *
 	 * @param credId
 	 * @param userGroupId
+	 * @param context
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	Result<Void> removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(long credId, long userGroupId,
-																			  Session session) throws DbConnectionException;
+																			  UserContextData context, Session session)
+			throws DbConnectionException;
 
 	/**
 	 * This method removes EDIT privilege for all user groups that have EDIT privilege in a credential given by {@code credId} id
@@ -143,12 +146,14 @@ public interface UserGroupManager extends AbstractManager {
 	 *
 	 * @param compId
 	 * @param credId
+	 * @param context
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	Result<Void> removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(long compId, long credId,
-																			   Session session) throws DbConnectionException;
+																			   UserContextData context, Session session)
+			throws DbConnectionException;
 
 	/**
 	 * This method propagates privilege for user group from a credential to all competencies
@@ -156,11 +161,12 @@ public interface UserGroupManager extends AbstractManager {
 	 * for all events that should be generated
 	 *
 	 * @param credUserGroupId - id of a CredentialUserGroup instance
+	 * @param context
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId,
+	Result<Void> propagateUserGroupPrivilegeFromCredentialAndGetEvents(long credUserGroupId, UserContextData context,
 																	   Session session) throws DbConnectionException;
 
 	/**
@@ -174,7 +180,8 @@ public interface UserGroupManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	Result<Void> propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(long credId, long compId,
-																					Session session) throws DbConnectionException;
+																					UserContextData context, Session session)
+			throws DbConnectionException;
 
 	/**
 	 * Propagates edit privileges from credential specified by {@code credId} id to all credential deliveries
@@ -187,7 +194,9 @@ public interface UserGroupManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	Result<Void> propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(long credId,
-																					  long deliveryId, Session session) throws DbConnectionException;
+																					  long deliveryId,
+																					  UserContextData context,
+																					  Session session) throws DbConnectionException;
 
 	/**
 	 * @param credId
@@ -201,32 +210,32 @@ public interface UserGroupManager extends AbstractManager {
 												   UserGroupPrivilege privilege, Session session) throws DbConnectionException;
 
 	Result<Void> saveUserToDefaultCredentialGroupAndGetEvents(long userId, long credId, UserGroupPrivilege privilege,
-															  long actorId, LearningContextData context) throws DbConnectionException;
+															  UserContextData context) throws DbConnectionException;
 
 
 
 	Result<Void> removeUserFromDefaultCredentialGroupAndGetEvents(long userId, long credId,
-																  UserGroupPrivilege privilege, long actorId,
-																  LearningContextData context) throws DbConnectionException;
+																  UserGroupPrivilege privilege,
+																  UserContextData context) throws DbConnectionException;
 
 	Result<Void> saveUserToDefaultCompetenceGroupAndGetEvents(long userId, long compId,
-															  UserGroupPrivilege privilege, long actorId,
-															  LearningContextData context) throws DbConnectionException;
+															  UserGroupPrivilege privilege,
+															  UserContextData context) throws DbConnectionException;
 
 	Result<Void> removeUserFromDefaultCompetenceGroupAndGetEvents(long userId, long compId,
-																  UserGroupPrivilege privilege, long actorId,
-																  LearningContextData context) throws DbConnectionException;
+																  UserGroupPrivilege privilege,
+																  UserContextData context) throws DbConnectionException;
 
 	Result<Void> addLearnPrivilegeToCredentialCompetencesAndGetEvents(long credId, long userId,
-																	  long actorId, LearningContextData context,
+																	  UserContextData context,
 																	  Session session);
 
 	Result<Void> createCredentialUserGroupAndSaveNewUser(long userId, long credId, UserGroupPrivilege privilege,
-														 boolean isDefault, long actorId, LearningContextData context)
+														 boolean isDefault, UserContextData context)
 			throws DbConnectionException;
 
 	Result<Void> createCompetenceUserGroupAndSaveNewUser(long userId, long compId, UserGroupPrivilege privilege,
-														 boolean isDefault, long actorId, LearningContextData context)
+														 boolean isDefault, UserContextData context)
 			throws DbConnectionException;
 
 	UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException;

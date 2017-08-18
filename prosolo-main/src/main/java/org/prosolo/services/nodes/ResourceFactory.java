@@ -1,8 +1,5 @@
 package org.prosolo.services.nodes;
 
-import java.io.InputStream;
-import java.util.List;
-
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -11,23 +8,23 @@ import org.prosolo.common.domainmodel.activitywall.PostReshareSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.RichContent1;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialBookmark;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.outcomes.SimpleOutcome;
 import org.prosolo.common.domainmodel.user.AnonUser;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventException;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.services.nodes.data.CredentialData;
+
+import java.io.InputStream;
+import java.util.List;
 
 public interface ResourceFactory extends AbstractManager {
 
@@ -43,7 +40,7 @@ public interface ResourceFactory extends AbstractManager {
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException;
 
-	Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException, IllegalDataStateException;
+	Result<Credential1> updateCredential(CredentialData data, UserContextData context) throws StaleDataException, IllegalDataStateException;
 
 	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
 			IllegalDataStateException;
@@ -79,6 +76,6 @@ public interface ResourceFactory extends AbstractManager {
 	
 	UserGroup saveNewGroup(long unitId, String name, boolean isDefault) throws DbConnectionException;
 	
-	Result<Competence1> duplicateCompetence(long compId, long userId) throws DbConnectionException;
+	Result<Competence1> duplicateCompetence(long compId, UserContextData context) throws DbConnectionException;
 
 }

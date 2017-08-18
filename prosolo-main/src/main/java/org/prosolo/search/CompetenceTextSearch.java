@@ -9,6 +9,8 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.CompetenceData1;
 import org.prosolo.web.search.data.SortingOption;
 
+import java.util.List;
+
 /**
  * 
  * @author stefanvuckovic
@@ -27,16 +29,18 @@ public interface CompetenceTextSearch extends AbstractManager {
 	 * @param sortTitleAsc
 	 * @return
 	 */
-	PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long userId, String searchString, int page, int limit,
-                                                                            boolean loadOneMore, long[] toExclude, SortingOption sortTitleAsc);
+	PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long organizationId, long userId,
+																			String searchString, int page, int limit,
+																			boolean loadOneMore, List<Long> unitIds,
+																			long[] toExclude, SortingOption sortTitleAsc);
 	
 	PaginatedResult<CompetenceData1> searchCompetences(
-			String searchTerm, int page, int limit, long userId, 
+			long organizationId, String searchTerm, int page, int limit, long userId,
 			LearningResourceSearchFilter filter, LearningResourceSortOption sortOption, 
 			CompetenceSearchConfig config);
 	
 	PaginatedResult<CompetenceData1> searchCompetencesForManager(
-			String searchTerm, int page, int limit, long userId, CompetenceSearchFilter filter, 
+			long organizationId, String searchTerm, int page, int limit, long userId, CompetenceSearchFilter filter,
 			LearningResourceSortOption sortOption);
 
 }

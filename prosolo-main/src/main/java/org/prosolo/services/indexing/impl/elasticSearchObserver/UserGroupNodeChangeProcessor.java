@@ -1,12 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
-import java.util.List;
-import java.util.Map;
-
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
@@ -21,6 +16,8 @@ import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.indexing.UserGroupESService;
 import org.prosolo.services.nodes.UserGroupManager;
+
+import java.util.List;
 
 public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 
@@ -77,8 +74,8 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			if(type == EventType.ADD_USER_TO_GROUP) {
 				//add user to all credential indexes
 				for(CredentialUserGroup g : credGroups) {
-					credESService.addUserToCredentialIndex(g.getCredential().getId(), userId, 
-							g.getPrivilege());
+					credESService.addUserToCredentialIndex(event.getOrganizationId(),
+							g.getCredential().getId(), userId, g.getPrivilege());
 				}
 
 				//add group to user index
@@ -91,7 +88,8 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 					 * user should not be removed from index at all. Because of that, a whole collection of users with
 					 * privileges is reindexed.
 					 */
-					credESService.updateCredentialUsersWithPrivileges(g.getCredential().getId(), session);
+					credESService.updateCredentialUsersWithPrivileges(event.getOrganizationId(),
+							g.getCredential().getId(), session);
 				}
 
 				//remove group from user index
@@ -101,7 +99,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
 			if(type == EventType.ADD_USER_TO_GROUP) {
 				for(CompetenceUserGroup g : compGroups) {
-					compESService.addUserToIndex(g.getCompetence().getId(), userId, 
+					compESService.addUserToIndex(event.getOrganizationId(), g.getCompetence().getId(), userId,
 							g.getPrivilege());
 				}
 			} else {
@@ -112,7 +110,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 					 * user should not be removed from index at all. Because of that, a whole collection of users with
 					 * privileges is reindexed.
 					 */
-					compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
+					compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 				}
 			}
 		} else if (type == EventType.USER_GROUP_CHANGE) {
@@ -124,12 +122,12 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			//get all credentials associated with this user group
 			List<CredentialUserGroup> credGroups = userGroupManager.getCredentialUserGroups(groupId);
 			for(CredentialUserGroup g : credGroups) {
-				credESService.updateCredentialUsersWithPrivileges(g.getCredential().getId(), session);
+				credESService.updateCredentialUsersWithPrivileges(event.getOrganizationId(), g.getCredential().getId(), session);
 			}
 			//get all competences associated with this user group
 			List<CompetenceUserGroup> compGroups = userGroupManager.getCompetenceUserGroups(groupId);
 			for(CompetenceUserGroup g : compGroups) {
-				compESService.updateCompetenceUsersWithPrivileges(g.getCompetence().getId(), session);
+				compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 			}
 		}
 	}

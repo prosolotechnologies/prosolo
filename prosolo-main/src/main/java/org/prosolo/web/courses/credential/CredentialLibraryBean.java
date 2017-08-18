@@ -93,7 +93,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForUser(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(),
 				searchFilter, sortOption);
 				
 		paginationData.update((int) response.getHitsNumber());
@@ -125,12 +125,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	 */
 	public void enrollInCredential(CredentialData cred) {
 		try {
-			String page = PageUtil.getPostParameter("page");
-			String lContext = PageUtil.getPostParameter("learningContext");
-			String service = PageUtil.getPostParameter("service");
-			LearningContextData context = new LearningContextData(page, lContext, service);
-			
-			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserId(), context);
+			credentialManager.enrollInCredential(cred.getId(), loggedUserBean.getUserContext());
 
 			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getId()) + "?justEnrolled=true");
 		} catch(Exception e) {

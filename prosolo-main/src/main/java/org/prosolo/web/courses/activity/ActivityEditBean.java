@@ -368,10 +368,10 @@ public class ActivityEditBean implements Serializable {
 			LearningContextData lcd = new LearningContextData(page, learningContext, service);
 			if (activityData.getActivityId() > 0) {
 				if (activityData.hasObjectChanged()) {
-					activityManager.updateActivity(activityData, loggedUser.getUserId(), lcd);
+					activityManager.updateActivity(activityData, loggedUser.getUserContext(lcd));
 				}
 			} else {
-				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserId(), lcd);
+				Activity1 act = activityManager.saveNewActivity(activityData, loggedUser.getUserContext(lcd));
 				decodedId = act.getId();
 				id = idEncoder.encodeId(decodedId);
 				activityData.startObservingChanges();
@@ -404,7 +404,7 @@ public class ActivityEditBean implements Serializable {
 	public void delete() {
 		try {
 			if (activityData.getActivityId() > 0) {
-				activityManager.deleteActivity(decodedId, loggedUser.getUserId());
+				activityManager.deleteActivity(decodedId, loggedUser.getUserContext());
 				//activityData = new ActivityData(false);
 				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 				/*

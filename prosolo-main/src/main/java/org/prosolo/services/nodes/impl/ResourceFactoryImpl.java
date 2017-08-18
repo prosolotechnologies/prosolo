@@ -20,10 +20,12 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventException;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
@@ -59,6 +61,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     @Inject private ActivityDataFactory activityFactory;
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
+    @Inject private EventFactory eventFactory;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -203,53 +206,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         }
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> createCompetence(String title, String description, String tagsString, long creatorId,
-                                                boolean studentAllowedToAddActivities, LearningResourceType type, boolean published,
-                                                long duration, List<org.prosolo.services.nodes.data.ActivityData> activities,
-                                                long credentialId) {
-        try {
-            Result<Competence1> result = new Result<>();
-            Competence1 comp = new Competence1();
-            comp.setTitle(title);
-            comp.setDateCreated(new Date());
-            comp.setDescription(description);
-            comp.setCreatedBy(loadResource(User.class, creatorId));
-            comp.setStudentAllowedToAddActivities(studentAllowedToAddActivities);
-            comp.setType(type);
-            comp.setPublished(published);
-            comp.setDuration(duration);
-            comp.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-            saveEntity(comp);
-
-            if(activities != null) {
-                for(org.prosolo.services.nodes.data.ActivityData bad : activities) {
-                    CompetenceActivity1 ca = new CompetenceActivity1();
-                    ca.setOrder(bad.getOrder());
-                    ca.setCompetence(comp);
-                    Activity1 act = (Activity1) persistence.currentManager().load(
-                            Activity1.class, bad.getActivityId());
-                    ca.setActivity(act);
-                    saveEntity(ca);
-                }
-            }
-
-            if(credentialId > 0) {
-                List<EventData> events = credentialManager.addCompetenceToCredential(credentialId, comp,
-                        creatorId);
-                result.addEvents(events);
-            }
-
-            logger.info("New competence is created with id " + comp.getId());
-            result.setResult(comp);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error while saving competency");
-        }
-    }
-
 	@Transactional (readOnly = true)
 	public String getLinkForObjectType(String simpleClassName, long id, String linkField) 
 			throws DbConnectionException {
@@ -272,9 +228,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Result<Credential1> updateCredential(CredentialData data, long creatorId) throws StaleDataException,
-            IllegalDataStateException {
-        return credentialManager.updateCredentialData(data, creatorId);
+    public Result<Credential1> updateCredential(CredentialData data, UserContextData context)
+            throws StaleDataException, IllegalDataStateException {
+        return credentialManager.updateCredentialData(data, context);
     }
 
     @Override
@@ -513,11 +469,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Result<Competence1> duplicateCompetence(long compId, long userId)
+    public Result<Competence1> duplicateCompetence(long compId, UserContextData context)
             throws DbConnectionException {
         try {
             Competence1 comp = (Competence1) persistence.currentManager().get(Competence1.class, compId);
-            User user = (User) persistence.currentManager().load(User.class, userId);
+            User user = (User) persistence.currentManager().load(User.class, context.getActorId());
 
             Competence1 competence = new Competence1();
 
@@ -536,19 +492,17 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
             Result<Competence1> res = new Result<>();
             res.setResult(competence);
-            EventData ev = new EventData();
-            ev.setEventType(EventType.Create);
-            ev.setActorId(userId);
+
             Competence1 c = new Competence1();
             c.setId(competence.getId());
-            ev.setObject(c);
-            res.addEvent(ev);
+            res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+                    c, null, context.getContext(), null));
 
             List<CompetenceActivity1> activities = comp.getActivities();
 
             for (CompetenceActivity1 compActivity : activities) {
-                Result<CompetenceActivity1> actRes = activityManager.cloneActivity(compActivity, competence.getId(),
-                        userId, null);
+                Result<CompetenceActivity1> actRes = activityManager.cloneActivity(
+                        compActivity, competence.getId(), context);
                 competence.getActivities().add(actRes.getResult());
                 res.addEvents(actRes.getEvents());
             }

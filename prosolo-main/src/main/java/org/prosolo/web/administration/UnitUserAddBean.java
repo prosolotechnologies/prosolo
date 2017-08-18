@@ -5,14 +5,9 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.event.EventException;
-import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.UnitRoleMembershipData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.RoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -108,7 +103,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 	public boolean addUser(UserData user, String unitTitle) {
 		try {
 			unitManager.addUserToUnitWithRole(user.getId(), unitId,
-					roleId, loggedUser.getUserId(), PageUtil.extractLearningContextData());
+					roleId, loggedUser.getUserContext(orgId));
 			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName()
 					+ " successfully added to the unit '" + unitTitle + "'");
 			resetSearchData();

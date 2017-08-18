@@ -3,15 +3,6 @@
  */
 package org.prosolo.web.courses.credential;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -32,6 +23,14 @@ import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ManagedBean(name = "credentialLibraryBeanManager")
 @Component("credentialLibraryBeanManager")
@@ -101,7 +100,7 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	public void getCredentialSearchResults() {
 		PaginatedResult<CredentialData> response = credentialTextSearch.searchCredentialsForManager(
-				searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
+				loggedUserBean.getOrganizationId(), searchTerm, this.paginationData.getPage() - 1, this.paginationData.getLimit(),
 				loggedUserBean.getUserId(), searchFilter, sortOption);
 		credentials = response.getFoundNodes();
 		this.paginationData.update((int) response.getHitsNumber());
@@ -152,10 +151,9 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void archive() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean archived = false;
 			try {
-				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.archiveCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				archived = true;
 				searchTerm = null;
 				paginationData.setPage(1);
@@ -185,10 +183,9 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 	
 	public void restore() {
 		if(selectedCred != null) {
-			LearningContextData ctx = PageUtil.extractLearningContextData();
 			boolean success = false;
 			try {
-				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserId(), ctx);
+				credManager.restoreArchivedCredential(selectedCred.getId(), loggedUserBean.getUserContext());
 				success = true;
 				searchTerm = null;
 				paginationData.setPage(1);

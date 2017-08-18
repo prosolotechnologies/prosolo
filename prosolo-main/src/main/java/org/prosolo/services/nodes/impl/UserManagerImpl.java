@@ -11,6 +11,9 @@ import org.prosolo.common.domainmodel.organization.UnitRoleMembership;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
+import org.prosolo.common.event.context.LearningContext;
+import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
@@ -273,11 +276,23 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public User updateUser(long userId, String name, String lastName, String email,
-			boolean emailVerified, boolean changePassword, String password,
-			String position, List<Long> roles, List<Long> rolesToUpdate, long creatorId) throws DbConnectionException, EventException {
+						   boolean emailVerified, boolean changePassword, String password,
+						   String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+			throws DbConnectionException, EventException {
 		User user = resourceFactory.updateUser(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, roles, rolesToUpdate);
-		eventFactory.generateEvent(EventType.Edit_Profile, creatorId, user);
+
+		String page = null;
+		String lContext = null;
+		String service = null;
+		LearningContextData lcd = context.getContext();
+		if (lcd != null) {
+			page = lcd.getPage();
+			lContext = lcd.getLearningContext();
+			service = lcd.getService();
+		}
+		eventFactory.generateEvent(EventType.Edit_Profile, context.getActorId(), context.getOrganizationId(),
+				context.getSessionId(), user, null, page, lContext, service, null, null);
 		return user;
 	}
 
@@ -391,8 +406,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
-	public void deleteUser(long oldCreatorId, long newCreatorId) throws DbConnectionException, EventException {
-		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId);
+	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
+			throws DbConnectionException, EventException {
+		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
 		for (EventData ev : result.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -400,16 +416,15 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId) throws DbConnectionException {
+	public Result<Void> deleteUserAndGetEvents(long oldCreatorId, long newCreatorId, UserContextData context)
+			throws DbConnectionException {
 			User user;
 			Result<Void> result = new Result<>();
 			try {
 				user = loadResource(User.class, oldCreatorId);
 				user.setDeleted(true);
 				saveEntity(user);
-				assignNewOwner(newCreatorId, oldCreatorId);
-				saveEntity(user);
-				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId).getEvents());
+				result.addEvents(assignNewOwner(newCreatorId, oldCreatorId, context).getEvents());
 				userEntityESService.deleteNodeFromES(user);
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
@@ -420,7 +435,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional
-	public void setUserOrganization(long userId,long organizationId) {
+	public void setUserOrganization(long userId, long organizationId) {
 		try {
 			User user = loadResource(User.class,userId);
 			if(organizationId != 0) {
@@ -608,10 +623,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		return additionalInfo;
 	}
 
-	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId) {
+	private Result<Void> assignNewOwner(long newCreatorId, long oldCreatorId, UserContextData context) {
 		Result<Void> result = new Result<>();
-		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId).getEvents());
-		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId).getEvents());
+		result.addEvents(credentialManager.updateCredentialCreator(newCreatorId, oldCreatorId, context).getEvents());
+		result.addEvents(competence1Manager.updateCompetenceCreator(newCreatorId, oldCreatorId, context).getEvents());
 		activity1Manager.updateActivityCreator(newCreatorId, oldCreatorId);
 		return result;
 	}

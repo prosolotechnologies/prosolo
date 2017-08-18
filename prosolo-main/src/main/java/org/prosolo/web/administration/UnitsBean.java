@@ -2,7 +2,6 @@ package org.prosolo.web.administration;
 
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.common.event.context.data.LearningContextData;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.OrganizationData;
@@ -82,10 +81,8 @@ public class UnitsBean implements Serializable {
 
     public void createNewUnit() {
         try {
-            LearningContextData lcd = PageUtil.extractLearningContextData();
-
             UnitData unit = unitManager.createNewUnit(this.unit.getTitle(), this.organizationData.getId(),
-                    this.unit.getParentUnitId(), loggedUser.getUserId(), lcd);
+                    this.unit.getParentUnitId(), loggedUser.getUserContext(idEncoder.decodeId(organizationId)));
 
             logger.debug("New Organization Unit (" + unit.getTitle() + ")");
             PageUtil.fireSuccessfulInfoMessage("New unit is created");

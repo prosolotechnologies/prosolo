@@ -28,8 +28,9 @@ public class EventFactory {
 	private static Logger logger = Logger.getLogger(EventFactory.class.getName());
 
 	@Transactional(readOnly = false)
-	public ChangeProgressEvent generateChangeProgressEvent(long creatorId,
-			BaseEntity resource, int newProgress, String page, String lContext, String service,
+	public ChangeProgressEvent generateChangeProgressEvent(long creatorId, long organizationId,
+			String sessionId, BaseEntity resource, int newProgress, String page,
+		    String lContext, String service,
 			Map<String, String> parameters) throws EventException {
 		
 		if (creatorId > 0 && resource != null ) {
@@ -40,6 +41,8 @@ public class EventFactory {
 			
 			ChangeProgressEvent changeProgressEvent = new ChangeProgressEvent();
 			changeProgressEvent.setActorId(creatorId);
+			changeProgressEvent.setOrganizationId(organizationId);
+			changeProgressEvent.setSessionId(sessionId);
 			changeProgressEvent.setDateCreated(new Date());
 			changeProgressEvent.setObject(resource);
 			changeProgressEvent.setNewProgressValue(newProgress);
@@ -117,7 +120,9 @@ public class EventFactory {
 	public Event generateEvent(EventData event) throws EventException {
 		if(event.getEventType() == EventType.ChangeProgress) {
 			return generateChangeProgressEvent(
-					event.getActorId(), 
+					event.getActorId(),
+					event.getOrganizationId(),
+					event.getSessionId(),
 					event.getObject(), 
 					event.getProgress(), 
 					event.getPage(), 
@@ -126,7 +131,9 @@ public class EventFactory {
 					event.getParameters());
 		}
 		return generateEvent(event.getEventType(), 
-				event.getActorId(), 
+				event.getActorId(),
+				event.getOrganizationId(),
+				event.getSessionId(),
 				event.getObject(), 
 				event.getTarget(), 
 				event.getPage(), 
@@ -135,8 +142,10 @@ public class EventFactory {
 				event.getObserversToExclude(), 
 				event.getParameters());
 	}
-	
+
+	@Deprecated
 	//added for migration to new context approach
+	//TODO remove when we move to the event with organization and session ids in all places
 	@Transactional(readOnly = false)
 	public Event generateEvent(EventType eventType, long actorId, BaseEntity object, BaseEntity target, 
 			String page, String context, String service, 
@@ -158,14 +167,42 @@ public class EventFactory {
 		genericEvent.setParameters(parameters);
 		return genericEvent;
 	}
-	
-	public EventData generateEventData(EventType type, long userId, BaseEntity object, BaseEntity target, 
-			LearningContextData context, Map<String, String> params) {
+
+	@Transactional
+	public Event generateEvent(EventType eventType, long actorId, long organizationId,
+							   String sessionId, BaseEntity object, BaseEntity target,
+							   String page, String context, String service,
+							   Class<? extends EventObserver>[] observersToExclude,
+							   Map<String, String> parameters) throws EventException {
+		logger.debug("Generating "+eventType.name()+" " +
+				"event " + (object != null ? " object: "+object.getId() : "") +
+				(target != null ? ", target: "+target.getId() : "") +
+				", created by the user " + actorId);
+
+		Event genericEvent = new Event(eventType);
+		genericEvent.setActorId(actorId);
+		genericEvent.setOrganizationId(organizationId);
+		genericEvent.setSessionId(sessionId);
+		genericEvent.setDateCreated(new Date());
+		genericEvent.setObject(object);
+		genericEvent.setTarget(target);
+		genericEvent.setPage(page);
+		genericEvent.setContext(context);
+		genericEvent.setService(service);
+		genericEvent.setObserversToExclude(observersToExclude);
+		genericEvent.setParameters(parameters);
+		return genericEvent;
+	}
+
+	public EventData generateEventData(EventType type, long userId, long organizationId, String sessionId, BaseEntity object,
+									   BaseEntity target, LearningContextData context, Map<String, String> params) {
 		EventData event = new EventData();
 		event.setEventType(type);
 		event.setActorId(userId);
 		event.setObject(object);
 		event.setTarget(target);
+		event.setOrganizationId(organizationId);
+		event.setSessionId(sessionId);
 		if(context != null) {
 			event.setPage(context.getPage());
 			event.setContext(context.getLearningContext());

@@ -39,7 +39,6 @@ import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.StudentData;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.nodes.data.UserSelectionData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -641,12 +640,19 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	}
 	
 	@Override
-	public PaginatedResult<UserData> searchUsersWithInstructorRole (String searchTerm,
-																	long credId, long roleId, List<Long> excludedUserIds) {
+	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
+																	long credId, long roleId, List<Long> unitIds,
+																	List<Long> excludedUserIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
+			if (unitIds == null || unitIds.isEmpty()) {
+				return response;
+			}
+
+			String indexName = ESIndexNames.INDEX_USERS + ElasticsearchUtil.getOrganizationIndexSuffix(orgId);
+
 			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, ESIndexNames.INDEX_USERS, ESIndexTypes.USER);
+			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			
@@ -656,8 +662,19 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
 						.field("name").field("lastname");
 				
-				bQueryBuilder.must(qb);
+				bQueryBuilder.filter(qb);
 			}
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			BoolQueryBuilder unitFilter = QueryBuilders.boolQuery();
+			for (long unitId : unitIds) {
+				unitFilter.should(termQuery("roles.units.id", unitId));
+			}
+			unitRoleFilter.filter(unitFilter);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			bQueryBuilder.filter(nestedFilter);
 			
 			for (Long id : excludedUserIds) {
 				bQueryBuilder.mustNot(termQuery("id", id));
@@ -665,13 +682,12 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
-			bQueryBuilder.mustNot(termQuery("coursesWithInstructorRole.id", credId));
-			bQueryBuilder.must(termQuery("roles.id", roleId));
+			bQueryBuilder.mustNot(termQuery("credentialsWithInstructorRole.id", credId));
 
 			try {
 				String[] includes = {"id", "name", "lastname", "avatar", "position"};
-				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(ESIndexNames.INDEX_USERS)
-						.setTypes(ESIndexTypes.USER)
+				SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
+						.setTypes(ESIndexTypes.ORGANIZATION_USER)
 						.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
 						.setQuery(bQueryBuilder)
 						.setFetchSource(includes, null)

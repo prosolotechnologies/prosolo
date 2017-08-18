@@ -14,9 +14,11 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
@@ -40,7 +42,6 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -87,10 +88,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	//nt
-	public Credential1 saveNewCredential(CredentialData data, long creatorId, LearningContextData context)
+	public Credential1 saveNewCredential(CredentialData data, UserContextData context)
 			throws DbConnectionException, EventException {
 		//self-invocation
-		Result<Credential1> res = self.saveNewCredentialAndGetEvents(data, creatorId, context);
+		Result<Credential1> res = self.saveNewCredentialAndGetEvents(data, context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -99,11 +100,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, long creatorId, LearningContextData context)
+	public Result<Credential1> saveNewCredentialAndGetEvents(CredentialData data, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Credential1 cred = new Credential1();
-			cred.setCreatedBy(loadResource(User.class, creatorId));
+			cred.setOrganization((Organization) persistence.currentManager().load(Organization.class,
+					context.getOrganizationId()));
+			cred.setCreatedBy(loadResource(User.class, context.getActorId()));
 			cred.setType(CredentialType.Original);
 			cred.setTitle(data.getTitle());
 			cred.setDescription(data.getDescription());
@@ -131,11 +134,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Result<Credential1> res = new Result<>();
 
 			res.addEvent(eventFactory.generateEventData(
-					EventType.Create, creatorId, cred, null, context, null));
+					EventType.Create, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), cred, null, context.getContext(), null));
 
 			//add Edit privilege to the credential creator
-			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(creatorId, cred.getId(),
-					UserGroupPrivilege.Edit, true, creatorId, context).getEvents());
+			res.addEvents(userGroupManager.createCredentialUserGroupAndSaveNewUser(
+					context.getActorId(), cred.getId(),
+					UserGroupPrivilege.Edit, true, context).getEvents());
 
 			res.setResult(cred);
 
@@ -151,10 +156,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	//non transactional
 	@Override
-	public void deleteDelivery(long deliveryId, long actorId) throws DbConnectionException, StaleDataException, 
-			DataIntegrityViolationException, EventException {
+	public void deleteDelivery(long deliveryId, UserContextData context)
+			throws DbConnectionException, StaleDataException, DataIntegrityViolationException, EventException {
 		//self invocation so spring can intercept the call and start transaction
-		Result<Void> res = self.deleteDeliveryAndGetEvents(deliveryId, actorId);
+		Result<Void> res = self.deleteDeliveryAndGetEvents(deliveryId, context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -162,14 +167,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Result<Void> deleteDeliveryAndGetEvents(long deliveryId, long actorId) throws DbConnectionException,
-			DataIntegrityViolationException, StaleDataException {
+	public Result<Void> deleteDeliveryAndGetEvents(long deliveryId, UserContextData context)
+			throws DbConnectionException, DataIntegrityViolationException, StaleDataException {
 		try {
 			Result<Void> res = new Result<>();
 			if(deliveryId > 0) {
 				Credential1 del = new Credential1();
 				del.setId(deliveryId);
-				res.addEvent(eventFactory.generateEventData(EventType.Delete, actorId, del, null, null, null));
+				res.addEvent(eventFactory.generateEventData(EventType.Delete,
+						context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), del, null, context.getContext(),
+						null));
 			
 				//delete delivery from database
 				deleteById(Credential1.class, deliveryId, persistence.currentManager());
@@ -398,8 +406,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return getCredentialDataForView(credentialId, userId, req);
 	}
 	
-	@Transactional(readOnly = true)
-	private RestrictedAccessResult<CredentialData> getCredentialDataForView(long credentialId, 
+	private RestrictedAccessResult<CredentialData> getCredentialDataForView(long credentialId,
 			long userId, ResourceAccessRequirements req) throws ResourceNotFoundException, DbConnectionException {
 		return getCredentialData(credentialId, true, true, userId, req);
 	}
@@ -477,8 +484,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = true)
-	private Credential1 getCredential(long credentialId, boolean loadCreatorData, long userId) 
+	private Credential1 getCredential(long credentialId, boolean loadCreatorData, long userId)
 			throws DbConnectionException {
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -509,15 +515,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Credential1 updateCredential(CredentialData data, long userId, LearningContextData context) 
+	public Credential1 updateCredential(CredentialData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException {
 		try {
-			Result<Credential1> res = resourceFactory.updateCredential(data, userId);
+			Result<Credential1> res = resourceFactory.updateCredential(data, context);
 			Credential1 cred = res.getResult();
-			
-			String page = context != null ? context.getPage() : null; 
-			String lContext = context != null ? context.getLearningContext() : null; 
-			String service = context != null ? context.getService() : null; 
+
+			LearningContextData lcd = context.getContext();
+			String page = lcd != null ? lcd.getPage() : null;
+			String lContext = lcd != null ? lcd.getLearningContext() : null;
+			String service = lcd != null ? lcd.getService() : null;
 			
 			for(EventData ev : res.getEvents()) {
 				ev.setPage(page);
@@ -526,14 +533,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				eventFactory.generateEvent(ev);
 			}
 			
-			fireEditEvent(data, userId, cred, 0, page, lContext, service);
+			fireEditEvent(data, cred, context);
 			//we should generate update hashtags only for deliveries
 			if(data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
 				Map<String, String> params = new HashMap<>();
 				params.put("newhashtags", data.getHashtagsString());
 				params.put("oldhashtags", data.getOldHashtags());
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, userId, cred, null, page, 
-						lContext, service, params);
+				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), cred, null, page,
+						lContext, service, null, params);
 			}
 			/* 
 			 * flushing to force lock timeout exception so it can be catched here. 
@@ -570,9 +578,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res != null ? res : 0;
 	}
 	
-	private void fireEditEvent(CredentialData data, long userId, 
-			Credential1 cred, long originalVersionId, String page, String context,
-			String service) throws EventException {   
+	private void fireEditEvent(CredentialData data, Credential1 cred,
+							   UserContextData context) throws EventException {
 	    Map<String, String> params = new HashMap<>();
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -581,13 +588,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	    Gson gson = new GsonBuilder().create();
 	    String jsonChangeTracker = gson.toJson(changeTracker);
 	    params.put("changes", jsonChangeTracker);
-	    eventFactory.generateEvent(EventType.Edit, userId, cred, null, page, context, service, params);
+	    String page = null;
+	    String lContext = null;
+	    String service = null;
+	    LearningContextData lcd = context.getContext();
+	    if (lcd != null) {
+	    	page = lcd.getPage();
+	    	lContext = lcd.getLearningContext();
+	    	service = lcd.getService();
+		}
+	    eventFactory.generateEvent(EventType.Edit, context.getActorId(),
+				context.getOrganizationId(), context.getSessionId(), cred, null,
+				page, lContext, service, null, params);
 	}
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Result<Credential1> updateCredentialData(CredentialData data, long userId) throws StaleDataException,
-			IllegalDataStateException {
+	public Result<Credential1> updateCredentialData(CredentialData data, UserContextData context)
+			throws StaleDataException, IllegalDataStateException {
 		Result<Credential1> res = new Result<>();
 		Credential1 credToUpdate = (Credential1) persistence.currentManager()
 				.load(Credential1.class, data.getId());
@@ -655,7 +673,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				Competence1 competence = new Competence1();
 		    				competence.setId(comp.getId());
 		    				res.addEvent(eventFactory.generateEventData(
-		    						EventType.Attach, userId, competence, credToUpdate, null, null));
+		    						EventType.Attach, context.getActorId(), context.getOrganizationId(),
+									context.getSessionId(), competence, credToUpdate,
+									context.getContext(), null));
 		    				recalculateDuration = true;
 		    				break;
 		    			case CHANGED:
@@ -671,7 +691,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		    				Competence1 competence1 = new Competence1();
 		    				competence1.setId(cd.getCompetenceId());
 		    				res.addEvent(eventFactory.generateEventData(
-		    						EventType.Detach, userId, competence1, credToUpdate, null, null));
+		    						EventType.Detach, context.getActorId(), context.getOrganizationId(),
+									context.getSessionId(), competence1, credToUpdate, context.getContext(),
+									null));
 		    				recalculateDuration = true;
 		    				break;
 		    			case UP_TO_DATE:
@@ -723,9 +745,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	//not transactional
 	@Override
-	public void enrollInCredential(long credentialId, long userId, LearningContextData context)
+	public void enrollInCredential(long credentialId, UserContextData context)
 			throws DbConnectionException, EventException {
-		Result<Void> res = self.enrollInCredentialAndGetEvents(credentialId, userId, 0, context);
+		Result<Void> res = self.enrollInCredentialAndGetEvents(credentialId, context.getActorId(),
+				0, context);
 		for (EventData ev : res.getEvents()) {
 			/*
 			if student assigned to instructor event should be generated, don't invoke nodechangeobserver
@@ -743,7 +766,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public Result<Void> enrollInCredentialAndGetEvents(long credentialId, long userId, 
-			long instructorThatForcedEnrollId, LearningContextData context) throws DbConnectionException {
+			long instructorThatForcedEnrollId, UserContextData context) throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 			
@@ -758,7 +781,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				List<TargetCredential1> targetCredIds = new ArrayList<>();
 				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
-						credentialId, targetCredIds, 0, false, userId, context);
+						credentialId, targetCredIds, 0, false, context);
 				result.addEvents(res.getEvents());
 				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
 				if (assigned.size() == 1) {
@@ -785,12 +808,16 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			params.put("progress", targetCred.getProgress() + "");
 			result.addEvent(eventFactory.generateEventData(
-					EventType.ENROLL_COURSE, userId, cred, null, context, params));
+					EventType.ENROLL_COURSE, userId,
+					context.getOrganizationId(), context.getSessionId(), cred, null,
+					context.getContext(), params));
 
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
 				result.addEvent(eventFactory.generateEventData(
-						EventType.Completion, userId, targetCred, null, context, null));
+						EventType.Completion, userId, context.getOrganizationId(),
+						context.getSessionId(), targetCred, null, context.getContext(),
+						null));
 			}
 			
 			return result;
@@ -803,7 +830,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	//not transactional
 	@Override
-	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, LearningContextData context)
+	public void enrollStudentsInCredential(long credId, long instructorId, List<Long> userIds, UserContextData context)
 			throws DbConnectionException {
 		if (userIds != null) {
 			try {
@@ -830,7 +857,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Transactional(readOnly = false)
 	private TargetCredential1 createTargetCredential(Credential1 cred, User user) {
 		TargetCredential1 targetCred = new TargetCredential1();
 		targetCred.setCredential(cred);
@@ -895,7 +921,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, long userId) 
+	public List<EventData> addCompetenceToCredential(long credId, Competence1 comp, UserContextData context)
 			throws DbConnectionException {
 		try {
 			List<EventData> events = new ArrayList<>();
@@ -917,7 +943,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Competence1 competence = new Competence1();
 			competence.setId(comp.getId());
-			events.add(eventFactory.generateEventData(EventType.Attach, userId, competence, cred, null, null));
+			events.add(eventFactory.generateEventData(EventType.Attach, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), competence, cred,
+					context.getContext(), null));
 			
 			return events;
 		} catch(Exception e) { 
@@ -1114,24 +1142,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public void bookmarkCredential(long credId, long userId, LearningContextData context) 
+	public void bookmarkCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			CredentialBookmark cb = resourceFactory.bookmarkCredential(credId, userId);
-			
-			/* 
-			 * To avoid SQL query when for example user name is accessed.
-			 * This way, only id will be accessible.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+			CredentialBookmark cb = resourceFactory.bookmarkCredential(credId, context.getActorId());
+
 			CredentialBookmark bookmark = new CredentialBookmark();
 			bookmark.setId(cb.getId());
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			
-			eventFactory.generateEvent(EventType.Bookmark, actor.getId(), bookmark, credential, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.Bookmark, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), bookmark, credential,
+					page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1159,23 +1191,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public void deleteCredentialBookmark(long credId, long userId, LearningContextData context) 
+	public void deleteCredentialBookmark(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			long deletedBookmarkId = resourceFactory.deleteCredentialBookmark(credId, userId);
-			/* 
-			 * To avoid SQL query when for example user name is accessed.
-			 * This way, only id will be accessible.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+			long deletedBookmarkId = resourceFactory.deleteCredentialBookmark(credId, context.getActorId());
+
 			CredentialBookmark cb = new CredentialBookmark();
 			cb.setId(deletedBookmarkId);
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			
-			eventFactory.generateEvent(EventType.RemoveBookmark, actor.getId(), cb, credential, 
-					context.getPage(), context.getLearningContext(), context.getService(), null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.RemoveBookmark, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), cb, credential,
+					page, lContext, service, null, null);
 			
 		} catch(Exception e) {
 			logger.error(e);
@@ -1266,7 +1303,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> updateCredentialProgress(long targetCompId, long userId, LearningContextData contextData) 
+	public List<EventData> updateCredentialProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			List<EventData> events = new ArrayList<>();
@@ -1288,7 +1325,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			List<Object[]> res =  persistence.currentManager()
 				.createQuery(query)
 				.setLong("targetCompId", targetCompId)
-				.setLong("userId", userId)
+				.setLong("userId", context.getActorId())
 				.list();
 			
 			long currentTCredId = 0;
@@ -1308,7 +1345,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						if(currentTCredId > 0) {
 							int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
 							events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId, 
-									finalCredProgress, nextCompToLearnId, userId, now, contextData));
+									finalCredProgress, nextCompToLearnId, now, context));
 						}
 						currentTCredId = tCredId;
 						currentCredId = credId;
@@ -1328,7 +1365,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				if(currentTCredId > 0) {
 					int finalCredProgress = cumulativeCredProgress / numberOfCompetencesInCredential;
 					events.addAll(updateTargetCredentialProgress(currentTCredId, currentCredId, 
-							finalCredProgress, nextCompToLearnId, userId, now, contextData));
+							finalCredProgress, nextCompToLearnId, now, context));
 				}
 			}
 			return events;
@@ -1338,9 +1375,9 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error while updating credential progress");
 		}
 	}
-	
+
 	private List<EventData> updateTargetCredentialProgress(long tCredId, long credId, int finalCredProgress, 
-			long nextCompToLearnId, long userId, Date now, LearningContextData contextData) {
+			long nextCompToLearnId, Date now, UserContextData context) {
 		StringBuilder updateCredQuery = new StringBuilder(
 				"UPDATE TargetCredential1 targetCred SET " +
 				"targetCred.progress = :progress, " +
@@ -1371,13 +1408,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		cred.setId(credId);
 		tCred.setCredential(cred);
 		
-		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress, userId, tCred, null, contextData, null);
+		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+				tCred, null, context.getContext(), null);
 		ev.setProgress(finalCredProgress);
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tCred, finalCredProgress, 
 //				lcPage, lcContext, lcService, null);
 		if(finalCredProgress == 100) {
-			events.add(eventFactory.generateEventData(EventType.Completion, userId, tCred, null, contextData, null));
+			events.add(eventFactory.generateEventData(EventType.Completion, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), tCred, null,
+					context.getContext(), null));
 //			eventFactory.generateEvent(EventType.Completion, user.getId(), tCred, null,
 //					lcPage, lcContext, lcService, null);
 		}
@@ -1435,7 +1476,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@SuppressWarnings("unchecked")
-	@Transactional (readOnly = true)
 	private List<TargetCredential1> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
 													     UserLearningProgress progress)
 			throws DbConnectionException {
@@ -2343,12 +2383,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//not transactional
 	@Override
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long actorId,
-    		LearningContextData lcd) throws DbConnectionException, EventException {
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+    		UserContextData context) throws DbConnectionException, EventException {
 		try {
 			List<EventData> events = 
 					self.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll,
-							visibleToAllChanged, actorId, lcd);
+							visibleToAllChanged, context);
 			for(EventData ev : events) {
 				eventFactory.generateEvent(ev);
 			}
@@ -2362,8 +2402,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public List<EventData> updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged, long userId,
-    		LearningContextData lcd) throws DbConnectionException {
+    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+    		UserContextData context) throws DbConnectionException {
 		try {
 			List<EventData> events = new ArrayList<>();
 			if(visibleToAllChanged) {
@@ -2376,10 +2416,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credential.setVisibleToAll(visibleToAll);
 				events.add(eventFactory.generateEventData(
 						EventType.VISIBLE_TO_ALL_CHANGED, 
-						userId, 
-						credential, null, lcd, null));
+						context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), credential, null, context.getContext(),
+						null));
 			}
-			events.addAll(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, userId, lcd).getEvents());
+			events.addAll(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, context).getEvents());
 			return events;
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -2461,8 +2502,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return RestrictedAccessResult.of(credentials, access);
 	}
 	
-	@Transactional(readOnly = true)
-	private List<CredentialData> getDeliveries(long credId, boolean onlyActive) 
+	private List<CredentialData> getDeliveries(long credId, boolean onlyActive)
 			throws DbConnectionException {
 		try {
 			StringBuilder query= new StringBuilder(
@@ -2502,7 +2542,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = false)
-	public void archiveCredential(long credId, long userId, LearningContextData context) 
+	public void archiveCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -2510,7 +2550,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			eventFactory.generateEvent(EventType.ARCHIVE, userId, context, credential, null, null);
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.ARCHIVE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), credential,
+					null, page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2520,7 +2571,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void restoreArchivedCredential(long credId, long userId, LearningContextData context) 
+	public void restoreArchivedCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -2528,7 +2579,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			Credential1 credential = new Credential1();
 			credential.setId(credId);
-			eventFactory.generateEvent(EventType.RESTORE, userId, context, credential, null, null);
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.RESTORE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), credential,
+					null, page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2665,8 +2727,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private List<Long> getCredentialsIdsWithSpecifiedPrivilegeForUser(long userId, UserGroupPrivilege priv) 
+	private List<Long> getCredentialsIdsWithSpecifiedPrivilegeForUser(long userId, UserGroupPrivilege priv)
 			throws DbConnectionException {
 		try {
 			if(priv == null) {
@@ -2743,10 +2804,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	
 	//not transactional
 	@Override
-	public Credential1 createCredentialDelivery(long credentialId, long start, long end, long actorId,
-			LearningContextData context) throws DbConnectionException, IllegalDataStateException, EventException {
+	public Credential1 createCredentialDelivery(long credentialId, long start, long end,
+			UserContextData context) throws DbConnectionException, IllegalDataStateException, EventException {
 		Result<Credential1> res = self.createCredentialDeliveryAndGetEvents(
-				credentialId, DateUtil.getDateFromMillis(start), DateUtil.getDateFromMillis(end), actorId, context);
+				credentialId, DateUtil.getDateFromMillis(start), DateUtil.getDateFromMillis(end), context);
 		for (EventData ev : res.getEvents()) {
 			eventFactory.generateEvent(ev);
 		}
@@ -2757,7 +2818,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional (readOnly = false, rollbackFor = Exception.class)
 	public Result<Credential1> createCredentialDeliveryAndGetEvents(long credentialId, Date start, Date end, 
-			long actorId, LearningContextData context) throws DbConnectionException, IllegalDataStateException {
+			UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Credential1> res = new Result<>();
 			//if end date is before start throw exception
@@ -2785,14 +2846,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			
 			saveEntity(cred);
 			
-			res.addEvent(eventFactory.generateEventData(EventType.Create, actorId, cred, null, context, null));
+			res.addEvent(eventFactory.generateEventData(EventType.Create, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), cred, null,
+					context.getContext(), null));
 			Set<Tag> hashtags = cred.getHashtags();
 			if (!hashtags.isEmpty()) {
 				Map<String, String> params = new HashMap<>();
 				String csv = StringUtil.convertTagsToCSV(hashtags);
 				params.put("newhashtags", csv);
 				params.put("oldhashtags", "");
-				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, actorId, cred, null, context, params));
+				res.addEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS,
+						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+						cred, null, context.getContext(), params));
 			}
 			
 			//lock competencies so they cannot be unpublished after they are published here which would violate our integrity rule
@@ -2813,13 +2878,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				saveEntity(cc);
 				
 				//publish competency if not published because creating a delivery means that all competencies must be published
-				res.addEvents(compManager.publishCompetenceIfNotPublished(credComp.getCompetence(), actorId).getEvents());
+				res.addEvents(compManager.publishCompetenceIfNotPublished(credComp.getCompetence(), context)
+						.getEvents());
 				
 				cred.getCompetences().add(cc);
 			}
 
 			userGroupManager.propagateUserGroupEditPrivilegesFromCredentialToDeliveryAndGetEvents(
-					credentialId, cred.getId(), persistence.currentManager());
+					credentialId, cred.getId(), context, persistence.currentManager());
 			
 			res.setResult(cred);
 			
@@ -2876,7 +2942,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional
-	public Result<Void> updateCredentialCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException {
+	public Result<Void> updateCredentialCreator(long newCreatorId, long oldCreatorId,
+												UserContextData context) throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
 			List<CredentialData> credentialsWithOldOwner = getCredentialIdsAndTypeForOwner(oldCreatorId);
@@ -2899,10 +2966,10 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				if (cd.getType() == CredentialType.Original) {
 					//remove Edit privilege from old owner
 					result.addEvents(userGroupManager.removeUserFromDefaultCredentialGroupAndGetEvents(
-							oldCreatorId, cd.getId(), UserGroupPrivilege.Edit, 0, null).getEvents());
+							oldCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEvents());
 					//add edit privilege to new owner
 					result.addEvents(userGroupManager.saveUserToDefaultCredentialGroupAndGetEvents(
-							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, 0, null).getEvents());
+							newCreatorId, cd.getId(), UserGroupPrivilege.Edit, context).getEvents());
 				}
 
 				//for all credentials and deliveries change_owner event should be generated
@@ -2911,14 +2978,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Map<String, String> params = new HashMap<>();
 				params.put("oldOwnerId", oldCreatorId + "");
 				params.put("newOwnerId", newCreatorId + "");
-				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, 0, cred, null,
-						null, params));
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, context.getActorId(),
+						context.getOrganizationId(), context.getSessionId(), cred, null,
+						context.getContext(), params));
 			}
 			return result;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential duration");
+			throw new DbConnectionException("Error while updating credential creator");
 		}
 	}
 
@@ -2979,6 +3047,26 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while retrieving credential deliveries");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException {
+		try {
+			String query =
+					"SELECT c.deliveryOf.id " +
+					"FROM Credential1 c " +
+					"WHERE c.id = :credId";
+
+			return (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", deliveryId)
+					.uniqueResult();
+		} catch(Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			throw new DbConnectionException("Error while retrieving credential id");
 		}
 	}
 

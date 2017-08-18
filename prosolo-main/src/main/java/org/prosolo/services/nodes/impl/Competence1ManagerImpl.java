@@ -13,9 +13,11 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.LearningContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
 import org.prosolo.search.util.credential.LearningResourceSortOption;
@@ -67,18 +69,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	//nt
-	public Competence1 saveNewCompetence(CompetenceData1 data, long creatorId, long credentialId,
-										 LearningContextData context) throws DbConnectionException,
+	public Competence1 saveNewCompetence(CompetenceData1 data, long credentialId,
+										 UserContextData context) throws DbConnectionException,
 			IllegalDataStateException, EventException {
 		//self-invocation
-		Result<Competence1> res = self.saveNewCompetenceAndGetEvents(data, creatorId, credentialId, context);
+		Result<Competence1> res = self.saveNewCompetenceAndGetEvents(data, credentialId, context);
 		for (EventData ev : res.getEvents()) {
 			//todo observer refactor - generate attach event always when sequential event execution is supported
 			if (credentialId == 0 || ev.getEventType() != EventType.Attach) {
-				if (context != null) {
-					ev.setPage(context.getPage());
-					ev.setContext(context.getLearningContext());
-					ev.setService(context.getService());
+				LearningContextData lcd = context.getContext();
+				if (lcd != null) {
+					ev.setPage(lcd.getPage());
+					ev.setContext(lcd.getLearningContext());
+					ev.setService(lcd.getService());
 				}
 				eventFactory.generateEvent(ev);
 			}
@@ -88,8 +91,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long creatorId, long credentialId,
-			LearningContextData context) throws DbConnectionException, IllegalDataStateException {
+	public Result<Competence1> saveNewCompetenceAndGetEvents(CompetenceData1 data, long credentialId,
+			UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			/*
 			 * if competence has no activities, it can't be published
@@ -100,10 +103,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			Result<Competence1> result = new Result<>();
 			Competence1 comp = new Competence1();
+			comp.setOrganization((Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId()));
 			comp.setTitle(data.getTitle());
 			comp.setDateCreated(new Date());
 			comp.setDescription(data.getDescription());
-			comp.setCreatedBy(loadResource(User.class, creatorId));
+			comp.setCreatedBy(loadResource(User.class, context.getActorId()));
 			comp.setStudentAllowedToAddActivities(data.isStudentAllowedToAddActivities());
 			comp.setType(data.getType());
 			comp.setPublished(data.isPublished());
@@ -125,7 +129,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			if (credentialId > 0) {
 				result.addEvents(credentialManager.addCompetenceToCredential(credentialId, comp,
-						creatorId));
+						context));
 			}
 
 			/*
@@ -136,12 +140,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				params = new HashMap<>();
 				params.put("credentialId", credentialId + "");
 			}
-			result.addEvent(eventFactory.generateEventData(EventType.Create, creatorId, comp, null, context,
+			result.addEvent(eventFactory.generateEventData(EventType.Create,
+					context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+					comp, null, context.getContext(),
 					params));
 
 			//add Edit privilege to the competence creator
-			result.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(creatorId, comp.getId(),
-					UserGroupPrivilege.Edit,true, creatorId, context).getEvents());
+			result.addEvents(userGroupManager.createCompetenceUserGroupAndSaveNewUser(
+					context.getActorId(), comp.getId(),
+					UserGroupPrivilege.Edit,true, context).getEvents());
 
 			logger.info("New competence is created with id " + comp.getId());
 			result.setResult(comp);
@@ -232,8 +239,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, 
-			LearningContextData context) throws DbConnectionException {
+	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, UserContextData context)
+			throws DbConnectionException {
 		try {
 			TargetCompetence1 targetComp = enrollInCompetence(compId, userId, context);
 			
@@ -257,7 +264,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public TargetCompetence1 enrollInCompetence(long compId, long userId, LearningContextData context) 
+	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Date now = new Date();
@@ -284,8 +291,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			competence.setId(compId);
 			Map<String, String> params = new HashMap<>();
 			params.put("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(now));
-			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId, context, competence, null, params);
-			
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.ENROLL_COMPETENCE, userId,
+					context.getOrganizationId(), context.getSessionId(), competence, null,
+					page, lContext, service, null, params);
+
 			return targetComp;
 		} catch(Exception e) {
 			logger.error(e);
@@ -363,7 +382,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param returnIfArchived
 	 * @return
 	 */
-	@Transactional(readOnly = true)
 	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
 			boolean returnIfArchived) {
 		StringBuilder builder = new StringBuilder();
@@ -423,7 +441,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Competence1 updateCompetence(CompetenceData1 data, long userId, LearningContextData context) 
+	public Competence1 updateCompetence(CompetenceData1 data, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException, StaleDataException {
 		try {
 			/*
@@ -441,13 +459,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 
-			Competence1 updatedComp = resourceFactory.updateCompetence(data, userId);
+			Competence1 updatedComp = resourceFactory.updateCompetence(data, context.getActorId());
 
-			String page = context != null ? context.getPage() : null;
-			String lContext = context != null ? context.getLearningContext() : null;
-			String service = context != null ? context.getService() : null;
-
-			fireCompEditEvent(data, userId, updatedComp, page, lContext, service);
+			fireCompEditEvent(data, updatedComp, context);
 			
 			/* 
 			 * flushing to force lock timeout exception so it can be catched here. 
@@ -471,8 +485,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private void fireCompEditEvent(CompetenceData1 data, long userId, Competence1 updatedComp, String page,
-			String context, String service) throws EventException {
+	private void fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
+								   UserContextData context) throws EventException {
 		Map<String, String> params = new HashMap<>();
 		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
 				data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -481,12 +495,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		String jsonChangeTracker = gson.toJson(changeTracker);
 		params.put("changes", jsonChangeTracker);
 
-		eventFactory.generateEvent(EventType.Edit, userId, updatedComp, null, page, context, service, params);
+		LearningContextData lcd = context.getContext();
+		String page = lcd != null ? lcd.getPage() : null;
+		String lContext = lcd != null ? lcd.getLearningContext() : null;
+		String service = lcd != null ? lcd.getService() : null;
+
+		eventFactory.generateEvent(EventType.Edit, context.getActorId(),
+				context.getOrganizationId(), context.getSessionId(), updatedComp,
+				null, page, lContext, service, null, params);
 	}
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
+	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException,
 		IllegalDataStateException {
 		Competence1 compToUpdate = (Competence1) persistence.currentManager()
 				.load(Competence1.class, data.getCompetenceId(), LockOptions.UPGRADE);
@@ -799,7 +820,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public EventData addActivityToCompetence(long compId, Activity1 act, long userId, LearningContextData context)
+	public EventData addActivityToCompetence(long compId, Activity1 act, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
 			/*
@@ -1006,12 +1027,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	 * @param compId
 	 * @param userId
 	 * @param loadActivities
-	 * @param loadCredentialTitle
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	@Transactional(readOnly = true)
-	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId, 
+	private CompetenceData1 getTargetCompetenceData(long credId, long compId, long userId,
 			boolean loadActivities) throws DbConnectionException {
 		CompetenceData1 compData = null;
 		try {
@@ -1230,8 +1249,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Transactional(readOnly = true)
-	private List<Long> getCompetencesIdsWithSpecifiedPrivilegeForUser(long userId, UserGroupPrivilege priv) 
+	private List<Long> getCompetencesIdsWithSpecifiedPrivilegeForUser(long userId, UserGroupPrivilege priv)
 			throws DbConnectionException {
 		try {
 			if(priv == null) {
@@ -1305,12 +1323,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	public void updateCompetenceVisibility(long compId, List<ResourceVisibilityMember> groups,
 										   List<ResourceVisibilityMember> users, boolean visibleToAll,
-										   boolean visibleToAllChanged, long actorId, LearningContextData lcd)
+										   boolean visibleToAllChanged, UserContextData context)
 			throws DbConnectionException, EventException {
 		try {
 			List<EventData> events =
 					self.updateCompetenceVisibilityAndGetEvents(compId, groups, users, visibleToAll,
-							visibleToAllChanged, actorId, lcd);
+							visibleToAllChanged, context);
 			for(EventData ev : events) {
 				eventFactory.generateEvent(ev);
 			}
@@ -1325,8 +1343,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	public List<EventData> updateCompetenceVisibilityAndGetEvents(long compId, List<ResourceVisibilityMember> groups,
 																  List<ResourceVisibilityMember> users, boolean visibleToAll,
-																  boolean visibleToAllChanged, long actorId,
-																  LearningContextData lcd) throws DbConnectionException {
+																  boolean visibleToAllChanged, UserContextData context)
+			throws DbConnectionException {
 		try {
 			List<EventData> events = new ArrayList<>();
 			if(visibleToAllChanged) {
@@ -1341,9 +1359,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 				events.add(eventFactory.generateEventData(
 						EventType.VISIBLE_TO_ALL_CHANGED,
-						actorId, competence, null, lcd, null));
+						context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+						competence, null, context.getContext(), null));
 			}
-			events.addAll(userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users, actorId, lcd)
+			events.addAll(userGroupManager.saveCompetenceUsersAndGroups(compId, groups, users, context)
 					.getEvents());
 			return events;
 		} catch (DbConnectionException e) {
@@ -1455,28 +1474,34 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void bookmarkCompetence(long compId, long userId, LearningContextData context) 
+	public void bookmarkCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
 			CompetenceBookmark cb = new CompetenceBookmark();
 			cb.setCompetence(comp);
 			cb.setUser(user);
 			saveEntity(cb);
-			
-			/* 
-			 * To avoid SQL query when for example user name is accessed.
-			 * This way, only id will be accessible.
-			 */
-			User actor = new User();
-			actor.setId(userId);
+
 			CompetenceBookmark bookmark = new CompetenceBookmark();
 			bookmark.setId(cb.getId());
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			
-			eventFactory.generateEvent(EventType.Bookmark, actor.getId(), context, bookmark, competence, null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+
+			eventFactory.generateEvent(EventType.Bookmark, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), bookmark, competence,
+					page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1486,11 +1511,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void deleteCompetenceBookmark(long compId, long userId, LearningContextData context) 
+	public void deleteCompetenceBookmark(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
-			Competence1 comp = (Competence1) persistence.currentManager().load(Competence1.class, compId);
-			User user = (User) persistence.currentManager().load(User.class, userId);
+			Competence1 comp = (Competence1) persistence.currentManager().load(
+					Competence1.class, compId);
+			User user = (User) persistence.currentManager().load(User.class,
+					context.getActorId());
 			String query = "SELECT cb " +
 						   "FROM CompetenceBookmark cb " +
 						   "WHERE cb.competence = :comp " +
@@ -1510,8 +1537,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			cb.setId(id);
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			
-			eventFactory.generateEvent(EventType.RemoveBookmark, userId, context, cb, competence, null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+
+			eventFactory.generateEvent(EventType.RemoveBookmark, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), cb, competence,
+					page, lContext, service, null, null);
 			
 		} catch(Exception e) {
 			logger.error(e);
@@ -1607,7 +1646,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void archiveCompetence(long compId, long userId, LearningContextData context) 
+	public void archiveCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -1615,7 +1654,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			eventFactory.generateEvent(EventType.ARCHIVE, userId, context, competence, null, null);
+
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+
+			eventFactory.generateEvent(EventType.ARCHIVE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(),
+					competence, null, page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1785,14 +1837,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public long duplicateCompetence(long compId, long userId, LearningContextData context) 
+	public long duplicateCompetence(long compId, UserContextData context)
 			throws DbConnectionException, EventException {
-		Result<Competence1> res = resourceFactory.duplicateCompetence(compId, userId);
-		for(EventData ev : res.getEvents()) {
-			if(context != null) {
-				ev.setPage(context.getPage());
-				ev.setContext(context.getLearningContext());
-				ev.setService(context.getService());
+		Result<Competence1> res = resourceFactory.duplicateCompetence(compId, context);
+		for (EventData ev : res.getEvents()) {
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				ev.setPage(lcd.getPage());
+				ev.setContext(lcd.getLearningContext());
+				ev.setService(lcd.getService());
 			}
 			eventFactory.generateEvent(ev);
 		}
@@ -1856,7 +1909,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public void restoreArchivedCompetence(long compId, long userId, LearningContextData context) 
+	public void restoreArchivedCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			//use hql instead of loading object and setting property to avoid version check
@@ -1864,7 +1917,18 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			
 			Competence1 competence = new Competence1();
 			competence.setId(compId);
-			eventFactory.generateEvent(EventType.RESTORE, userId, context, competence, null, null);
+			String page = null;
+			String lContext = null;
+			String service = null;
+			LearningContextData lcd = context.getContext();
+			if (lcd != null) {
+				page = lcd.getPage();
+				lContext = lcd.getLearningContext();
+				service = lcd.getService();
+			}
+			eventFactory.generateEvent(EventType.RESTORE, context.getActorId(),
+					context.getOrganizationId(), context.getSessionId(), competence, null,
+					page, lContext, service, null, null);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1906,7 +1970,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-	@Transactional(readOnly = true)
 	private boolean isThereAnActiveDeliveryWithACompetence(long compId) throws DbConnectionException {
 		String query = "SELECT COUNT(cred.id) " +
 					   "FROM CredentialCompetence1 credComp " +
@@ -1928,7 +1991,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = false)
-	public List<EventData> updateCompetenceProgress(long targetCompId, long userId, LearningContextData contextData) 
+	public List<EventData> updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			List<EventData> events = new ArrayList<>();
@@ -1966,9 +2029,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
 				
 				events.addAll(updateCompetenceProgress(targetCompId, (long) res.get(0)[0], finalCompProgress, 
-						nextActToLearnInACompetenceId, userId, contextData));
+						nextActToLearnInACompetenceId, context));
 				
-				events.addAll(credentialManager.updateCredentialProgress(targetCompId, userId, contextData));
+				events.addAll(credentialManager.updateCredentialProgress(targetCompId, context));
 			}
 			return events;
 		} catch (DbConnectionException dce) {
@@ -1981,7 +2044,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	private List<EventData> updateCompetenceProgress(long targetCompId, long compId, int finalCompProgress, 
-			long nextActivityToLearnId, long userId, LearningContextData contextData) {
+			long nextActivityToLearnId, UserContextData context) {
 		Date now = new Date();
 		
 		StringBuilder builder = new StringBuilder();
@@ -2017,12 +2080,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if (finalCompProgress == 100) {
 			params.put("dateCompleted", ElasticsearchUtil.getDateStringRepresentation(now));
 
-			events.add(eventFactory.generateEventData(EventType.Completion, userId, tComp, null,
-					contextData, params));
+			events.add(eventFactory.generateEventData(
+					EventType.Completion, context.getActorId(), context.getOrganizationId(),
+					context.getSessionId(), tComp, null,
+					context.getContext(), params));
 		}
 
-		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress, userId, tComp, null, 
-				contextData, params);
+		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+				context.getActorId(), context.getOrganizationId(), context.getSessionId(),
+				tComp, null, context.getContext(), params);
 		ev.setProgress(finalCompProgress);
 		events.add(ev);
 //		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
@@ -2033,7 +2099,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, long actorId) 
+	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException {
 		try {
 			Result<Void> res = new Result<>();
@@ -2058,7 +2124,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				c.setId(comp.getId());
 				c.setPublished(true);
 				c.setDatePublished(newDatePublished);
-				res.addEvent(eventFactory.generateEventData(EventType.STATUS_CHANGED, actorId, c, null, null, null));
+				res.addEvent(eventFactory.generateEventData(EventType.STATUS_CHANGED,
+						context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), c, null, context.getContext(), null));
 			}
 			
 			return res;
@@ -2135,7 +2203,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional
-	public Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId)
+	public Result<Void> updateCompetenceCreator(long newCreatorId, long oldCreatorId,
+												UserContextData context)
 			throws DbConnectionException {
 		try {
 			Result<Void> result = new Result<>();
@@ -2154,10 +2223,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			for (long id : competencesWithOldOwner) {
 				//remove Edit privilege from old owner
 				result.addEvents(userGroupManager.removeUserFromDefaultCompetenceGroupAndGetEvents(
-						oldCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+						oldCreatorId, id, UserGroupPrivilege.Edit, context).getEvents());
 				//add edit privilege to new owner
 				result.addEvents(userGroupManager.saveUserToDefaultCompetenceGroupAndGetEvents(
-						newCreatorId, id, UserGroupPrivilege.Edit, 0, null).getEvents());
+						newCreatorId, id, UserGroupPrivilege.Edit, context).getEvents());
 
 				//for all competencies change_owner event should be generated
 				Competence1 comp = new Competence1();
@@ -2165,8 +2234,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				Map<String, String> params = new HashMap<>();
 				params.put("oldOwnerId", oldCreatorId + "");
 				params.put("newOwnerId", newCreatorId + "");
-				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE, 0, comp, null,
-						null, params));
+				result.addEvent(eventFactory.generateEventData(EventType.OWNER_CHANGE,
+						context.getActorId(), context.getOrganizationId(),
+						context.getSessionId(), comp, null,
+						context.getContext(), params));
 			}
 			return result;
 		} catch (Exception e) {
@@ -2231,7 +2302,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Transactional (readOnly = true)
 	private List<TargetCompetence1> getTargetCompetences(long userId, boolean onlyPubliclyVisible,
 														 UserLearningProgress progress)
 			throws DbConnectionException {

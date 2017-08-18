@@ -75,7 +75,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					progress,
 					dateEnrolledString);
 			//add student to credential index
-			credESService.addStudentToCredentialIndex(cred.getId(), event.getActorId());
+			credESService.addStudentToCredentialIndex(event.getOrganizationId(), cred.getId(), event.getActorId());
 		} else if(eventType == EventType.ENROLL_COMPETENCE) {
 			Competence1 comp = (Competence1) event.getObject();
 			String date = params.get("dateEnrolled");
@@ -83,7 +83,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 					comp.getId(), 
 					event.getActorId(),  
 					date);
-			compESService.addStudentToCompetenceIndex(comp.getId(), event.getActorId());
+			compESService.addStudentToCompetenceIndex(event.getOrganizationId(), comp.getId(), event.getActorId());
 		} else if(eventType == EventType.STUDENT_ASSIGNED_TO_INSTRUCTOR
 				|| eventType == EventType.STUDENT_UNASSIGNED_FROM_INSTRUCTOR
 				|| eventType == EventType.STUDENT_REASSIGNED_TO_INSTRUCTOR) {
@@ -102,10 +102,10 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL) {
 			String dateAssigned = params.get("dateAssigned");
 			userEntityESService.addInstructorToCredential(event.getTarget().getId(), event.getObject().getId(), dateAssigned);
-			credESService.addInstructorToCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+			credESService.addInstructorToCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
 			userEntityESService.removeInstructorFromCredential(event.getTarget().getId(), event.getObject().getId());
-			credESService.removeInstructorFromCredentialIndex(event.getTarget().getId(), event.getObject().getId());
+			credESService.removeInstructorFromCredentialIndex(event.getOrganizationId(), event.getTarget().getId(), event.getObject().getId());
 		} else if(eventType == EventType.ChangeProgress) {
 	    	ChangeProgressEvent cpe = (ChangeProgressEvent) event;
 	    	BaseEntity object = cpe.getObject();

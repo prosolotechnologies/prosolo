@@ -100,8 +100,8 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 	public void getCompetenceSearchResults() {
 		PaginatedResult<CompetenceData1> response = textSearch.searchCompetences(
-				searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), loggedUserBean.getUserId(), 
-				searchFilter, sortOption, config);
+				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1,
+				paginationData.getLimit(), loggedUserBean.getUserId(), searchFilter, sortOption, config);
 	
 		paginationData.update((int) response.getHitsNumber());
 		competences = response.getFoundNodes();
@@ -138,9 +138,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			LearningContextData context = PageUtil.extractLearningContextData();
-			
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), context);
+			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
 			PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(Exception e) {

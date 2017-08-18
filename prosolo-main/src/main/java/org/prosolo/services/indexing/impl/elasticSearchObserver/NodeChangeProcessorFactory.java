@@ -160,6 +160,14 @@ public class NodeChangeProcessorFactory {
 							NodeOperation.Update, session);
 				}
 				break;
+			case ADD_CREDENTIAL_TO_UNIT:
+			case REMOVE_CREDENTIAL_FROM_UNIT:
+				return new CredentialNodeChangeProcessor(event, credentialESService,
+						NodeOperation.Update, session);
+			case ADD_COMPETENCE_TO_UNIT:
+			case REMOVE_COMPETENCE_FROM_UNIT:
+				return new CompetenceNodeChangeProcessor(event, competenceESService,
+						NodeOperation.Update, session);
 			default:
 				return null;
 		}
