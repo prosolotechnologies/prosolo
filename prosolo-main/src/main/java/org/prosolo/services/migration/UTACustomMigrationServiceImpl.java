@@ -42,14 +42,14 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
 
     @Transactional
     public void migrateCredentialsFrom06To07 () {
-        // formatting indexes
-        try {
-            bulkDataAdministrationService.deleteAndInitElasticSearchIndexes();
-            bulkDataAdministrationService.indexDBData();
-        } catch (IndexingServiceNotAvailable e) {
-            e.printStackTrace();
-            logger.error(e);
-        }
+//        // formatting indexes
+//        try {
+//            bulkDataAdministrationService.deleteAndInitElasticSearchIndexes();
+//            bulkDataAdministrationService.indexDBData();
+//        } catch (IndexingServiceNotAvailable e) {
+//            e.printStackTrace();
+//            logger.error(e);
+//        }
 
         try {
             // converting users Admin Admin (email=zoran.jeremic@gmail.com, id=1) and Nikola Milikic (email=zoran.jeremic@uta.edu, id=163840) to Super Admins
@@ -81,6 +81,8 @@ public class UTACustomMigrationServiceImpl implements UTACustomMigrationService 
             Role roleUser = roleManager.getRoleByName(RoleNames.USER);
 
             for (User user : allUsers) {
+                if (user.getId() != userAdminAdmin.getId() &&
+                        user.getId() != userNikolaMilikic.getId())
                 // adding user to the UTA organization
                 userManager.setUserOrganization(user.getId(), orgUta.getId());
 
