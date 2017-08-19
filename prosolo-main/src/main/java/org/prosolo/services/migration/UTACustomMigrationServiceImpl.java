@@ -95,15 +95,16 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
             for (User user : allUsers) {
                 if (user.getId() != userAdminAdmin.getId() &&
-                        user.getId() != userNikolaMilikic.getId())
-                // adding user to the UTA organization
-                userManager.setUserOrganization(user.getId(), orgUta.getId());
+                        user.getId() != userNikolaMilikic.getId()) {
+                    // adding user to the UTA organization
+                    userManager.setUserOrganization(user.getId(), orgUta.getId());
 
-                // giving user a 'User' role
-                roleManager.assignRoleToUser(roleUser, user);
+                    // giving user a 'User' role
+                    roleManager.assignRoleToUser(roleUser, user);
 
-                // adding user to the History Department unit as a student
-                unitManager.addUserToUnitWithRole(user.getId(), unitHistoryDepartment.getId(), roleUser.getId(), UserContextData.empty());
+                    // adding user to the History Department unit as a student
+                    unitManager.addUserToUnitWithRole(user.getId(), unitHistoryDepartment.getId(), roleUser.getId(), UserContextData.empty());
+                }
             }
 
 
@@ -155,11 +156,13 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
             unitManager.addCredentialToUnit(originalCred.getId(), unit.getId(), UserContextData.ofOrganization(org.getId()));
             convertOriginalCredToDelivery(org.getId(), lastDelivery, originalCred, Date.from(mapping.lastDelivery.start.atZone(ZoneId.systemDefault()).toInstant()),
                     Date.from(mapping.lastDelivery.end.atZone(ZoneId.systemDefault()).toInstant()));
-            for (DeliveryData dd : mapping.restDeliveries) {
+                for (DeliveryData dd : mapping.restDeliveries) {
                 Credential1 del = (Credential1) persistence.currentManager()
                         .load(Credential1.class, dd.id);
                 convertOriginalCredToDelivery(org.getId(), del, originalCred, Date.from(dd.start.atZone(ZoneId.systemDefault()).toInstant()),
                         Date.from(dd.end.atZone(ZoneId.systemDefault()).toInstant()));
+
+
             }
         }
 
@@ -212,11 +215,14 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 
     private List<CredentialMapping> getCredentialMappings() {
         return Arrays.asList(
+                // Sensemaking of Social Network Analysis for Learning
 //                new CredentialMapping(
 //                        new DeliveryData(1,
 //                                LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
 //                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10)),
 //                        new ArrayList<>()),
+
+                // Huetagogical Metaphysical Historically Accurate Enlightenment
                 new CredentialMapping(
                         new DeliveryData(32768,
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
@@ -227,17 +233,26 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
 //                                LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
 //                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10)),
 //                        new ArrayList<>()),
+                // Unit 1 Historical Engagement
+                new CredentialMapping(
+                        new DeliveryData(131072,
+                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10),
+                                LocalDateTime.of(2017, Month.JUNE, 20, 17, 10)),
+                        Arrays.asList()),
+                // Unit 2 Historical Engagement
+                new CredentialMapping(
+                        new DeliveryData(262144,
+                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10),
+                                LocalDateTime.of(2017, Month.JUNE, 20, 17, 10)),
+                        Arrays.asList()),
+                // Unit 3 Historical Engagement
                 new CredentialMapping(
                         new DeliveryData(294912,
-                                LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
-                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10)),
-                        Arrays.asList(
-                            new DeliveryData(262144,
-                                    LocalDateTime.of(2017, Month.MAY, 20, 17, 10),
-                                    LocalDateTime.of(2017, Month.JUNE, 20, 17, 10)),
-                            new DeliveryData(131072,
-                                    LocalDateTime.of(2017, Month.MAY, 20, 17, 10),
-                                    LocalDateTime.of(2017, Month.JUNE, 20, 17, 10)))),
+                                LocalDateTime.of(2017, Month.MAY, 20, 17, 10),
+                                LocalDateTime.of(2017, Month.JUNE, 20, 17, 10)),
+                        Arrays.asList()),
+
+                // Credential 0: Bootcamp
                 new CredentialMapping(
                         new DeliveryData(491520,
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
@@ -246,6 +261,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                                 new DeliveryData(327684,
                                         LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
                                         LocalDateTime.of(2017, Month.MAY, 20, 17, 10)))),
+
+                // Credential 1: The Rise of the First Civilizations
                 new CredentialMapping(
                         new DeliveryData(491521,
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
@@ -254,6 +271,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                                 new DeliveryData(393216,
                                         LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
                                         LocalDateTime.of(2017, Month.MAY, 20, 17, 10)))),
+
+                // Credential 2: The Classic Era in World History
                 new CredentialMapping(
                         new DeliveryData(524288,
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
@@ -262,6 +281,8 @@ public class UTACustomMigrationServiceImpl extends AbstractManagerImpl implement
                                 new DeliveryData(425984L,
                                         LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
                                         LocalDateTime.of(2017, Month.MAY, 20, 17, 10)))),
+
+                // Credential 3: The Postclassic Era in World History
                 new CredentialMapping(
                         new DeliveryData(524289,
                                 LocalDateTime.of(2017, Month.APRIL, 20, 17, 10),
