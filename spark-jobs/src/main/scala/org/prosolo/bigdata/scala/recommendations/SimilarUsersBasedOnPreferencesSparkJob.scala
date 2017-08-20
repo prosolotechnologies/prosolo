@@ -14,14 +14,9 @@ import scala.collection.JavaConverters._
 /**
   * Created by zoran on 29/04/17.
   */
-object SimilarUsersBasedOnPreferencesSparkJob extends SparkJob{
-  val sc = SparkContextLoader.getSC
-  println("STARTED SPARK JOB:"+jobName)
-  sc.setLogLevel("WARN")
-  //val sqlContext = SQLContext.getOrCreate(sc)
- // val sparkSession:SparkSession=new SparkSession(sc)
-  val sparkSession:SparkSession=SparkContextLoader.getSparkSession
-  sparkSession.sparkContext.setLogLevel("WARN")
+class SimilarUsersBasedOnPreferencesSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+
 
   println("CREATED SQL CONTEXT")
   /**
@@ -78,6 +73,8 @@ object SimilarUsersBasedOnPreferencesSparkJob extends SparkJob{
     val recommendationsDAO=new RecommendationsDAO(keyspaceName)
 
     recommendationsDAO.insertClusterUsers(clusterId,clusterUsers)
+
+
     //UserRecommendationsDBManagerImpl.getInstance().insertClusterUsers(clusterId,clusterUsers)
 
   }

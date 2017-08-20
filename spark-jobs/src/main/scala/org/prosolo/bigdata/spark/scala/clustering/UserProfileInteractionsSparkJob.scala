@@ -16,9 +16,9 @@ import scala.collection.Seq
 /**
   * zoran 05/02/17
   */
-object UserProfileInteractionsSparkJob extends SparkJob {
-
-  val sc = SparkContextLoader.getSC
+class UserProfileInteractionsSparkJob(kName:String) extends SparkJob {
+  val keyspaceName=kName
+//  val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds:java.util.List[java.lang.Long],dbName:String):Unit={
     println("JOB NAME:"+jobName)

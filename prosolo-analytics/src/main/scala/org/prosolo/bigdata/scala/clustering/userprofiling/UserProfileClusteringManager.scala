@@ -43,8 +43,8 @@ object UserProfileClusteringManager {
     println("INITIALIZE USER PROFILE CLUSTERING ")
 
     val credentialsIds=clusteringDAOManager.getAllCredentialsIds
-
-    UserProfileClusteringSparkJob.runSparkJob(credentialsIds,dbName, days,numClusters,numFeatures)
+val userProfileClusteringSparkJob=new UserProfileClusteringSparkJob(dbName)
+    userProfileClusteringSparkJob.runSparkJob(credentialsIds,dbName, days,numClusters,numFeatures)
   }
 
 

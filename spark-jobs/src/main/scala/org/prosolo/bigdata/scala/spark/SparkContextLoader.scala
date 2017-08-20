@@ -86,6 +86,7 @@ val sc=sparkSession.sparkContext
     sparkSession
   }
 
+
   def addESConfig(sparkConf:SparkConf): Unit ={
     sparkConf.set("es.index.auto.create","true")
     sparkConf.set("es.http.timeout","5m")

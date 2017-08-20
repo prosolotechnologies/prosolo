@@ -32,7 +32,8 @@ class JobLoggerDAO (val dbName:String) extends Entity with Serializable {
   def insertJobLog(jobid:String, logtype:LogType.Value, loglevel:LogSeverity.Value, message:String): Unit ={
     val query= s"INSERT INTO $keyspace." + TablesNames.JOBS_LOGS + "(jobid, logtype, loglevel, timestamp, message) VALUES(?,?,?,?); "
     DBManager.connector.withSessionDo { session ⇒
-      session.execute(query,jobid, logtype.toString,loglevel,System.currentTimeMillis(),message )
+      //val currentTime:java.lang.Long=System.currentTimeMillis()
+      session.execute(query,jobid, logtype.toString,loglevel.toString,System.currentTimeMillis().asInstanceOf[java.lang.Long],message.toString )
       println("INSERT JOB LOG:"+jobid+" logtype:"+logtype.toString+" loglevel:"+loglevel.toString+" message:"+message)
     }
   }

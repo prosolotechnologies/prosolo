@@ -18,8 +18,9 @@ import scala.collection.mutable.Iterable
 /**
   * zoran 20/02/17
   */
-object UserProfileClusteringSparkJob extends SparkJob{
-  val sc = SparkContextLoader.getSC
+class UserProfileClusteringSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+ // val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, days: IndexedSeq[DateTime],
                   numClusters: Int, numFeatures: Int): Unit = {

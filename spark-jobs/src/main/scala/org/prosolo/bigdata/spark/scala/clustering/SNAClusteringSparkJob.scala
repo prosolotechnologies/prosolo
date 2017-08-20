@@ -19,8 +19,9 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * zoran 18/03/17
   */
-object SNAClusteringSparkJob extends SparkJob{
-  val sc = SparkContextLoader.getSC
+class SNAClusteringSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+//  val sc = SparkContextLoader.getSC
   val edgesToRemove=2
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, timestamp: Long): Unit = {

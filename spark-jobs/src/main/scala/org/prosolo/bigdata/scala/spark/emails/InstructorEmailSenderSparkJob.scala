@@ -19,8 +19,9 @@ case class Record(courseId: java.lang.Long,
 case class CourseInstructorEmail(val courseId: Long, val instructorId: Long, val assigned:java.util.List[java.lang.Long], val unassigned:java.util.List[java.lang.Long])
 
 
-object InstructorEmailSenderSparkJob extends SparkJob{
-  val sc = SparkContextLoader.getSC
+class InstructorEmailSenderSparkJob(kName:String) extends SparkJob{
+  val keyspaceName=kName
+ // val sc = SparkContextLoader.getSC
 
   def runSparkJob(credentialsIds: java.util.List[java.lang.Long], dbName: String, bucket: Long): Array[CourseInstructorEmail] = {
     val scalaCourseIds: Seq[java.lang.Long] = credentialsIds.asScala.toSeq
